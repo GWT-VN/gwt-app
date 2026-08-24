@@ -219,6 +219,8 @@ export type Customer = {
   ma_kh: string | null
   /** Mã nối sang hồ sơ khách bên Sales (`customers.customer_code`, kiểu KH02419). */
   customer_code: string | null
+  /** true = kênh do MÁY điền từ dữ liệu Sales (mig 54), CEO còn phải soát. Sửa tay là hạ về false. */
+  channel_tu_dong: boolean
 }
 
 export async function getCustomer(id: string) {
@@ -3084,7 +3086,10 @@ export async function ganKenh(customerId: string, channelId: number | null) {
   await doQuyen('he_thong.kenh')
   if (!customerId) return { ok: false as const, error: 'Thiếu khách.' }
   const { error } = await dataClient().from('cs_customers')
-    .update({ channel_id: channelId ?? null, updated_at: new Date().toISOString() }).eq('id', customerId)
+    // `channel_tu_dong: false` — có người chọn tay thì gỡ luôn nhãn "máy điền", hồ sơ rơi
+    // khỏi danh sách CEO phải soát. Không gỡ thì soát xong nó vẫn nằm đó, soát mãi không hết.
+    .update({ channel_id: channelId ?? null, channel_tu_dong: false, updated_at: new Date().toISOString() })
+    .eq('id', customerId)
   if (error) return { ok: false as const, error: error.message }
   await ghiAudit('gan_kenh', `khach:${customerId}`, { channel_id: channelId })
   revalidatePath('/kenh')
@@ -4223,7 +4228,7 @@ export async function listToFix(
 /** Danh sách KHÁCH HÀNG tổng (tất cả khách, trừ da_xoa) — trang /khach-hang. */
 export async function listKhachHang(
   q = '',
-  tuyChon: TuyChonDanhSach & { thieuSdt?: boolean } = {}
+  tuyChon: TuyChonDanhSach & { thieuSdt?: boolean; kenhTuDong?: boolean } = {}
 ): Promise<KetQuaTrang<Customer & { machines: number }>> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
@@ -4249,6 +4254,8 @@ export async function listKhachHang(
   // danh sách phải gọi xin số. Bắt cả hồ sơ trống số lẫn hồ sơ bị cờ `needs_phone`
   // (số sai định dạng từ đợt import cũ) — với CS thì hai ca đó cùng một việc phải làm.
   if (tuyChon.thieuSdt) truyVan = truyVan.or('primary_phone.is.null,needs_phone.is.true')
+  // "Kênh máy tự điền" — CEO 24/08 yêu cầu highlight được để soát lại đợt back-fill mig 54.
+  if (tuyChon.kenhTuDong) truyVan = truyVan.eq('channel_tu_dong', true)
 
   const { data, error, count } = await truyVan
     .order(sx.cot, { ascending: sx.tang, nullsFirst: false }).order('id', { ascending: true })
@@ -4973,6 +4980,16 @@ export async function daiLyCuaMay(serial: string): Promise<{
 }
 
 /** Đếm khách CẦN XIN LẠI SĐT — để chip lọc hiện số ngay, CS thấy mà làm. */
+/** Đếm khách có kênh do MÁY điền (mig 54) — chip soát lại ở `/khach-hang`. */
+export async function demKhachKenhTuDong(): Promise<number> {
+  await requireStaff()
+  await doQuyen('cs.khach.xem')
+  const { count } = await dataClient()
+    .from('cs_customers').select('id', { count: 'exact', head: true })
+    .neq('trang_thai', 'da_xoa').eq('channel_tu_dong', true)
+  return count ?? 0
+}
+
 export async function demKhachThieuSdt(): Promise<number> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
