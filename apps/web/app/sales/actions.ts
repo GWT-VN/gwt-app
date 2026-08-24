@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { traKhachTheoSdt } from '@/lib/tra-khach'
 import type { KetQuaTraKhach } from '@/lib/tra-khach-chung'
 import type { Kenh } from '@/app/actions'
-import { ctkmChoDon, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm } from './_ctkm'
+import { ctkmChoDon, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm, type NhomKhach, type QuaCtkm } from './_ctkm'
 import { redirect } from 'next/navigation'
 import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
@@ -1030,24 +1030,38 @@ export async function boiCanhGia(
 
   let bac: Bac | null = null
   let channelId = channelIdTruyenVao
+  // `null` = chưa biết (khách gõ tay, chưa có hồ sơ). Khác hẳn `false` = biết chắc chưa mua.
+  let daMua: boolean | null = null
 
   if (customerCode) {
     const [{ data: bacRow }, { data: kh }] = await Promise.all([
       db.from('sales_bac_khach').select('bac')
         .eq('customer_code', customerCode).is('hieu_luc_den', null).maybeSingle(),
-      db.from('customers').select('channel_id').eq('customer_code', customerCode).maybeSingle(),
+      db.from('customers').select('channel_id, total_orders, first_order_date')
+        .eq('customer_code', customerCode).maybeSingle(),
     ])
     if (bacRow) bac = (bacRow as { bac: Bac }).bac
-    if (channelId == null) channelId = ((kh as { channel_id: number | null } | null)?.channel_id) ?? null
+    const k = kh as { channel_id: number | null; total_orders: number | null; first_order_date: string | null } | null
+    if (channelId == null) channelId = k?.channel_id ?? null
+    // Có hồ sơ thì chốt được mới/cũ. Xét cả `first_order_date` vì `total_orders` do sync
+    // từ Sheet ghi, có khách còn 0 mà đã có ngày đơn đầu.
+    if (k) daMua = (Number(k.total_orders) || 0) > 0 || !!k.first_order_date
   }
 
-  const [cs, gia, ct, ctKenh, ctSp] = await Promise.all([
+  const [cs, gia, ct, ctKenh, ctSp, ctQua, ctKhach] = await Promise.all([
     db.from('sales_chinh_sach_gia').select('*').eq('trang_thai', 'ban_hanh'),
     db.from('product_price').select('internal_code, gia_vat').eq('kenh', 'NIEM_YET'),
-    db.from('sales_ctkm').select('id, ten, tu_ngay, den_ngay, kieu_giam, muc_chung, giam_toi_da, trang_thai')
+    db.from('sales_ctkm')
+      .select('id, ten, tu_ngay, den_ngay, kieu_giam, muc_chung, giam_toi_da, trang_thai, nhom_khach, cong_don')
       .eq('trang_thai', 'ban_hanh'),
     db.from('sales_ctkm_kenh').select('ctkm_id, channel_id'),
     db.from('sales_ctkm_sp').select('ctkm_id, internal_code, muc'),
+    db.from('sales_ctkm_qua').select('ctkm_id, internal_code_qua, so_luong, gia_tri_quy_doi, dieu_kien'),
+    // Chỉ dòng của ĐÚNG khách này — danh sách chỉ định có thể dài hàng trăm mã, kéo hết
+    // về chỉ để hỏi "có tôi trong đó không" là phí.
+    customerCode
+      ? db.from('sales_ctkm_khach').select('ctkm_id, loai').eq('customer_code', customerCode)
+      : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
   ])
 
   const niemYet: Record<string, number> = {}
@@ -1070,25 +1084,58 @@ export async function boiCanhGia(
     spTheoCtkm.get(id)![s.internal_code as string] = Number(s.muc)
   }
 
-  const dsCtkm: Ctkm[] = ((ct.data ?? []) as Array<Record<string, unknown>>).map((c) => ({
-    id: c.id as string,
-    ten: c.ten as string,
-    tu_ngay: c.tu_ngay as string,
-    den_ngay: (c.den_ngay as string) ?? null,
-    kieu_giam: c.kieu_giam as Ctkm['kieu_giam'],
-    muc_chung: c.muc_chung == null ? null : Number(c.muc_chung),
-    giam_toi_da: c.giam_toi_da == null ? null : Number(c.giam_toi_da),
-    trang_thai: c.trang_thai as string,
-    kenh: kenhTheoCtkm.get(c.id as string) ?? [],
-  }))
+  const quaTheoCtkm = new Map<string, QuaCtkm[]>()
+  for (const q of ((ctQua.data ?? []) as Array<Record<string, unknown>>)) {
+    const id = q.ctkm_id as string
+    if (!quaTheoCtkm.has(id)) quaTheoCtkm.set(id, [])
+    quaTheoCtkm.get(id)!.push({
+      internal_code_qua: q.internal_code_qua as string,
+      so_luong: Number(q.so_luong) || 1,
+      gia_tri_quy_doi: q.gia_tri_quy_doi == null ? null : Number(q.gia_tri_quy_doi),
+      dieu_kien: (q.dieu_kien as string) ?? null,
+    })
+  }
 
-  const { chon, khac } = ctkmChoDon(dsCtkm, ngay, channelId)
+  // Khách này được CHỈ ĐỊNH vào chương trình nào, và bị GẠCH khỏi chương trình nào.
+  const gomTheoCtkm = new Set<string>()
+  const truTheoCtkm = new Set<string>()
+  for (const k of ((ctKhach.data ?? []) as Array<Record<string, unknown>>)) {
+    ;(k.loai === 'TRU' ? truTheoCtkm : gomTheoCtkm).add(k.ctkm_id as string)
+  }
+
+  const dsCtkm: Ctkm[] = ((ct.data ?? []) as Array<Record<string, unknown>>).map((c) => {
+    const id = c.id as string
+    return {
+      id,
+      ten: c.ten as string,
+      tu_ngay: c.tu_ngay as string,
+      den_ngay: (c.den_ngay as string) ?? null,
+      kieu_giam: c.kieu_giam as Ctkm['kieu_giam'],
+      muc_chung: c.muc_chung == null ? null : Number(c.muc_chung),
+      giam_toi_da: c.giam_toi_da == null ? null : Number(c.giam_toi_da),
+      trang_thai: c.trang_thai as string,
+      kenh: kenhTheoCtkm.get(id) ?? [],
+      nhom_khach: ((c.nhom_khach as NhomKhach) ?? 'TAT_CA'),
+      cong_don: !!c.cong_don,
+      // Chỉ chứa mã của ĐÚNG khách đang xét (truy vấn đã lọc theo customer_code), nên
+      // `khachDuocHuong` so `includes(ma)` là đủ — không cần kéo cả danh sách về.
+      khachGom: customerCode && gomTheoCtkm.has(id) ? [customerCode] : [],
+      khachTru: customerCode && truTheoCtkm.has(id) ? [customerCode] : [],
+    }
+  })
+
+  const kemQua = (c: Ctkm) => ({ ...c, sp: spTheoCtkm.get(c.id) ?? {}, qua: quaTheoCtkm.get(c.id) ?? [] })
+  const { chon, cong, khac } = ctkmChoDon(dsCtkm, ngay, channelId, undefined, {
+    customer_code: customerCode,
+    daMua,
+  })
 
   return {
     bac,
     channel_id: channelId,
     chinhSach: ((cs.data ?? []) as unknown) as ChinhSachGia[],
-    ctkm: chon ? { ...chon, sp: spTheoCtkm.get(chon.id) ?? {} } : null,
+    ctkm: chon ? kemQua(chon) : null,
+    ctkmCong: cong.map(kemQua),
     soCtkmKhac: khac.length,
     niemYet,
   }

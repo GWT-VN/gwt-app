@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
-import { luuNhap, banHanh, type CtkmInput } from './actions'
-import { OChonGoiY } from '@/bang'
+import { luuNhap, banHanh, timKhachChoCtkm, type CtkmInput, type KhachCtkm } from './actions'
+import { OChonGoiY, OChonTimXa } from '@/bang'
 import { giaSauGiam, mucApDung, type KieuGiam } from '../_ctkm'
 
 type Kenh = { id: number; l1: string; l2: string }
@@ -41,6 +41,70 @@ function Buoc({
   )
 }
 
+/**
+ * Một danh sách khách gắn vào chương trình — dùng cho CẢ "chỉ định" lẫn "loại trừ".
+ *
+ * Cùng một component cho hai vai trò khác hẳn nhau về hậu quả, nên `mau` không phải
+ * chuyện trang trí: danh sách GẠCH TÊN phải nhìn ra ngay là màu chặn, không được trông
+ * giống hệt danh sách cho hưởng.
+ */
+function DanhSachKhach({
+  ds, doi, mau, choTrong, moTa,
+}: {
+  ds: KhachCtkm[]
+  doi: (f: (cu: KhachCtkm[]) => KhachCtkm[]) => void
+  mau: 'gom' | 'tru'
+  choTrong: string
+  moTa: string
+}) {
+  const the =
+    mau === 'tru'
+      ? 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
+      : 'bg-teal-50 text-teal-800 ring-1 ring-teal-200'
+  return (
+    <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{moTa} ({ds.length})</span>
+        <span className="flex-1" />
+        <div className="w-full sm:w-[320px]">
+          <OChonTimXa
+            choTrong={choTrong}
+            tim={async (kw) => {
+              const kq = await timKhachChoCtkm(kw)
+              return kq.map((k) => ({
+                gt: k.customer_code,
+                nhan: k.ten || '(chưa tên)',
+                phu: [k.phone, k.customer_code].filter(Boolean).join(' · '),
+              }))
+            }}
+            onChon={(m) =>
+              doi((cu) =>
+                cu.some((x) => x.customer_code === m.gt)
+                  ? cu
+                  : [...cu, { customer_code: m.gt, ten: m.nhan, phone: null }]
+              )
+            }
+          />
+        </div>
+      </div>
+      {ds.length === 0 ? (
+        <p className="py-2 text-center text-sm text-slate-400">Chưa có khách nào.</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {ds.map((k) => (
+            <span key={k.customer_code} className={'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ' + the}>
+              {k.ten || '(chưa tên)'}
+              <span className="font-mono opacity-60">{k.customer_code}</span>
+              <button type="button" className="opacity-60 hover:opacity-100"
+                onClick={() => doi((cu) => cu.filter((x) => x.customer_code !== k.customer_code))}>✕</button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function CtkmForm({
   kenhDs,
   spDs,
@@ -70,6 +134,9 @@ export function CtkmForm({
   const [kenh, setKenh] = useState<number[]>(initial?.kenh ?? [])
   const [sp, setSp] = useState(initial?.sp ?? [])
   const [qua, setQua] = useState(initial?.qua ?? [])
+  const [congDon, setCongDon] = useState(initial?.cong_don ?? false)
+  const [khachGom, setKhachGom] = useState<KhachCtkm[]>(initial?.khachGom ?? [])
+  const [khachTru, setKhachTru] = useState<KhachCtkm[]>(initial?.khachTru ?? [])
 
   const [cap1, setCap1] = useState(kenhDs[0]?.l1 ?? '')
   const cap2Ds = useMemo(() => kenhDs.filter((k) => k.l1 === cap1), [kenhDs, cap1])
@@ -99,6 +166,7 @@ export function CtkmForm({
       tu_ngay: tuNgay, den_ngay: denNgay || null, nhom_khach: nhomKhach,
       kieu_giam: kieu, muc_chung: mucChung, giam_toi_da: giamToiDa,
       don_toi_thieu: donToiThieu, sl_toi_thieu: slToiThieu, kenh, sp, qua,
+      cong_don: congDon, khachGom, khachTru,
     }
     batDau(async () => {
       const r = await luuNhap(payload)
@@ -172,7 +240,44 @@ export function CtkmForm({
             <option value="MOI">Chỉ khách mới (chưa có đơn nào)</option>
             <option value="DA_MUA">Chỉ khách đã mua</option>
             <option value="CHI_DINH">Danh sách chỉ định</option>
-          </select></div>
+          </select>
+          {nhomKhach === 'MOI' && (
+            <p className="mt-1 text-xs text-slate-500">
+              &ldquo;Khách mới&rdquo; = hồ sơ chưa có đơn nào. Khách nhân viên gõ tay lúc lên đơn
+              (chưa có mã KH) thì app <b>chưa biết</b> mới hay cũ nên <b>không tự áp</b> — nhân
+              viên gõ giá tay.
+            </p>
+          )}
+        </div>
+
+        {nhomKhach === 'CHI_DINH' && (
+          <div>
+            <label className={lbl}>Danh sách chỉ định — chỉ những khách này được hưởng</label>
+            <DanhSachKhach
+              ds={khachGom} doi={setKhachGom} mau="gom"
+              moTa="Khách được chỉ định"
+              choTrong="＋ Gõ tên / SĐT / mã khách…"
+            />
+            {khachGom.length === 0 && (
+              <p className="mt-1 text-xs text-rose-600">
+                Chưa chọn khách nào — chương trình sẽ <b>không áp cho ai</b>.
+              </p>
+            )}
+          </div>
+        )}
+
+        <div>
+          <label className={lbl}>Loại trừ — khách KHÔNG được hưởng chương trình này</label>
+          <DanhSachKhach
+            ds={khachTru} doi={setKhachTru} mau="tru"
+            moTa="Khách bị loại trừ"
+            choTrong="＋ Gõ tên / SĐT / mã khách…"
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Gạch tên ở đây <b>thắng mọi luật khác</b> — kể cả khi khách nằm trong nhóm khách
+            và trong danh sách chỉ định ở trên. Dùng cho khách đã có giá thoả thuận riêng.
+          </p>
+        </div>
       </Buoc>
 
       <Buoc so={4} tieuDe="Sản phẩm & mức giảm" phu="Đặt mức chung, hoặc chỉnh riêng từng mã">
@@ -247,6 +352,22 @@ export function CtkmForm({
             </div>
           )}
         </div>
+
+        <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm">
+          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[#0e8c9a]"
+            checked={congDon} onChange={(e) => setCongDon(e.target.checked)} />
+          <span>
+            <b>Cho cộng dồn với chương trình khác</b>
+            <span className="mt-0.5 block text-xs text-slate-500">
+              Mặc định TẮT: nhiều chương trình cùng khớp một đơn thì chỉ chương trình{' '}
+              <b>giảm sâu nhất</b> được áp — để hai chương trình 15% và 20% không lặng lẽ
+              thành 32% mà không ai duyệt con số đó.
+              <br />
+              Bật lên là chương trình này áp <b>chồng</b> lên chương trình đã chọn. Đúng cho
+              chương trình <b>chỉ tặng quà</b>, hoặc mức giảm nhỏ cố ý cộng thêm.
+            </span>
+          </span>
+        </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div><label className={lbl}>Đơn tối thiểu (₫)</label>

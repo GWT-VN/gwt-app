@@ -141,3 +141,51 @@ export function tinhKhuyenMai(
   const thuc = Math.round(Number(amountVat) || 0)
   return Math.round(gia * sl) - thuc
 }
+
+import type { NewOrderInput } from './_types'
+
+/**
+ * Các ô Sheet bổ sung 22/08. Gom một chỗ để đường TẠO và đường SỬA không bao giờ lệch —
+ * đúng lỗi CEO bắt được ở màn khách (màn tạo tự viết insert riêng, màn sửa gọi hàm chung).
+ *
+ * Để ở `_calc.ts` (hàm THUẦN, không `server-only`) chứ không ở `_db.ts` để **test được**:
+ * CEO hỏi 24/08 "điền vào các ô POE/POU thì có lưu không". Câu trả lời phải là một bài
+ * test chạy được, không phải một lời hứa.
+ */
+export function oSheetBoSung(input: NewOrderInput) {
+  const so = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? null : Math.round(v))
+  const chu = (v: string | null | undefined) => (v ?? '').trim() || null
+  return {
+    channel_detail: chu(input.channel_detail),
+    qua_tang: chu(input.qua_tang),
+    su_dung_qua_tang: chu(input.su_dung_qua_tang),
+    tracking_url: chu(input.tracking_url),
+    kich_hoat_bh: !!input.kich_hoat_bh,
+    email: chu(input.email),
+    tien_coc: so(input.tien_coc),
+    gui_hdsd: !!input.gui_hdsd,
+    xuat_hoa_don: !!input.xuat_hoa_don,
+    da_doi_soat: !!input.da_doi_soat,
+    ngay_doi_soat: input.ngay_doi_soat || null,
+    so_hd: chu(input.so_hd),
+    ten_goi_khach: chu(input.ten_goi_khach),
+    ten_folder: chu(input.ten_folder),
+    ten_khach_theo_doi: chu(input.ten_khach_theo_doi),
+    tien_se_thu: so(input.tien_se_thu),
+    bien_ban_xac_nhan: !!input.bien_ban_xac_nhan,
+    bao_cao_lap_dat: !!input.bao_cao_lap_dat,
+    tien_do_lap_dat: chu(input.tien_do_lap_dat),
+    ngay_hoan_thanh_lap: input.ngay_hoan_thanh_lap || null,
+    tu_dien: chu(input.tu_dien),
+    version: chu(input.version),
+    nghe_nghiep: chu(input.nghe_nghiep),
+    ngay_sinh: input.ngay_sinh || null,
+    gioi_tinh: chu(input.gioi_tinh),
+    do_tuoi: chu(input.do_tuoi),
+    loai_nha: chu(input.loai_nha),
+    tinh_trang_nha: chu(input.tinh_trang_nha),
+    cong_ty_xuat_hd: chu(input.cong_ty_xuat_hd),
+    mst: chu(input.mst),
+    dia_chi_xuat_hd: chu(input.dia_chi_xuat_hd),
+  }
+}

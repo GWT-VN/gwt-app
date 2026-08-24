@@ -73,3 +73,51 @@ describe('giaGoiY — giá tự bắt khi lên đơn', () => {
     expect(giaGoiY(bc({ ctkm: { ...CTKM_20, kieu_giam: 'CON', muc_chung: 9_100_000 } }), 'GN610', '2026-08-22').gia).toBe(9_100_000)
   })
 })
+
+// ── Cộng dồn + quà (CEO giao 24/08/2026) ────────────────────────────────────
+
+const CTKM_QUA = {
+  id: 'q1', ten: 'Tặng lõi lọc', tu_ngay: '2026-08-01', den_ngay: '2026-08-31',
+  kieu_giam: 'PCT' as const, muc_chung: null, giam_toi_da: null, trang_thai: 'ban_hanh',
+  kenh: [1], cong_don: true, sp: {} as Record<string, number>,
+  qua: [{ internal_code_qua: 'LOI-PCF', so_luong: 2, gia_tri_quy_doi: 300_000, dieu_kien: null }],
+}
+
+describe('giaGoiY — hai chương trình áp đồng thời', () => {
+  it('vừa giảm 15% vừa được tặng quà — ca CEO nêu', () => {
+    const giam15 = { ...CTKM_20, ten: 'KM 15% máy để bàn', muc_chung: 15 }
+    const r = giaGoiY(bc({ ctkm: giam15, ctkmCong: [CTKM_QUA] }), 'CTD50', '2026-08-22')
+    expect(r.gia).toBe(17_000_000)          // 20tr − 15%
+    expect(r.chuongTrinh).toEqual(['KM 15% máy để bàn'])  // quà không giảm giá nên không vào chuỗi
+    expect(r.qua).toHaveLength(1)
+    expect(r.qua[0]).toMatchObject({ internal_code_qua: 'LOI-PCF', so_luong: 2, ctkmId: 'q1' })
+  })
+
+  it('chỉ có chương trình quà -> giá giữ niêm yết nhưng quà vẫn hiện', () => {
+    const r = giaGoiY(bc({ ctkm: null, ctkmCong: [CTKM_QUA] }), 'CTD50', '2026-08-22')
+    expect(r.gia).toBe(20_000_000)
+    expect(r.nguon).toBe('NIEM_YET')
+    expect(r.qua).toHaveLength(1)
+  })
+
+  it('hai mức giảm cộng dồn tính CHỒNG lên nhau, không cộng phần trăm', () => {
+    // 20tr −15% = 17tr, rồi −1tr = 16tr. KHÔNG phải 20tr −(15% + 1tr quy ra %) .
+    const themTien = { ...CTKM_QUA, id: 'c2', ten: 'Giảm thêm 1tr', kieu_giam: 'TIEN' as const, muc_chung: 1_000_000, qua: [] }
+    const r = giaGoiY(bc({ ctkm: { ...CTKM_20, muc_chung: 15 }, ctkmCong: [themTien] }), 'CTD50', '2026-08-22')
+    expect(r.gia).toBe(16_000_000)
+    expect(r.chuongTrinh).toEqual(['CTKM tháng 8', 'Giảm thêm 1tr'])
+  })
+
+  it('chương trình cộng dồn có LIỆT KÊ sản phẩm thì không đụng mã ngoài danh sách', () => {
+    const chiCtd50 = { ...CTKM_QUA, sp: { CTD50: 5 } }
+    expect(giaGoiY(bc({ ctkmCong: [chiCtd50] }), 'GN610', '2026-08-22').qua).toEqual([])
+    expect(giaGoiY(bc({ ctkmCong: [chiCtd50] }), 'CTD50', '2026-08-22').qua).toHaveLength(1)
+  })
+
+  it('đại lý ăn giá bậc, không cộng khuyến mãi bán lẻ — nhưng QUÀ thì vẫn nhận', () => {
+    const r = giaGoiY(bc({ bac: 'DAI_LY', chinhSach: [CS_DAILY], ctkm: CTKM_20, ctkmCong: [CTKM_QUA] }), 'GN610', '2026-08-22')
+    expect(r.gia).toBe(7_000_000)
+    expect(r.nguon).toBe('BAC')
+    expect(r.qua).toHaveLength(1)
+  })
+})

@@ -1,6 +1,6 @@
 import 'server-only'
 import { dataClient } from '@/lib/nen-tang/db'
-import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode } from './_calc'
+import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode, oSheetBoSung } from './_calc'
 import type { CatalogPick, ChannelOpt, CustomerInput, NewOrderInput, OrderFormInitial } from './_types'
 import { maDaCap, type DongCoMa } from './_ma-khach'
 
@@ -35,20 +35,35 @@ export async function listChannels(): Promise<ChannelOpt[]> {
   return (data ?? []) as ChannelOpt[]
 }
 
-function sach(q: string): string {
-  return q.replace(/[,%()\\*]/g, ' ').trim().slice(0, 80)
-}
-
+/**
+ * Tìm khách cho ô chọn khách lúc lên đơn.
+ *
+ * Gọi hàm `sales_tim_khach` dưới DB (migration 20260824120000) — xem file đó để biết
+ * luật khớp. Tóm tắt: bỏ dấu · nhiều từ AND với nhau, không kể thứ tự · khớp đầu từ
+ * trên tên/địa chỉ · khớp chuỗi con trên SĐT/mã KH · từ ≥3 ký tự còn được khớp gần
+ * đúng để nuốt lỗi gõ.
+ *
+ * Vì sao KHÔNG lọc bằng `.or()` của PostgREST như trước: nó chỉ ghép được các điều kiện
+ * bằng OR trên MỘT chuỗi, không diễn tả nổi "mọi từ đều phải khớp, mỗi từ ở một cột khác
+ * nhau", và không gọi được `word_similarity()`.
+ *
+ * Cắt 80 ký tự cho câu gõ — hàm dưới DB tự chuẩn hoá phần còn lại, nhưng không việc gì
+ * phải đẩy cả đoạn văn xuống mạng.
+ */
 export async function searchCustomersForPicker(q: string) {
   const db = dataClient()
-  const s = sach(q)
-  let query = db
-    .from('customers')
-    .select('customer_code, name, phone, phone_chuan, province, province_moi')
-    .limit(20)
-  if (s) query = query.or(`name.ilike.%${s}%,phone.ilike.%${s}%,phone_chuan.ilike.%${s}%,customer_code.ilike.%${s}%`)
-  const { data } = await query
-  return data ?? []
+  const s = q.trim().slice(0, 80)
+  if (!s) return []
+  const { data, error } = await db.rpc('sales_tim_khach', { q: s, gioi_han: 20 })
+  if (error) throw error
+  return (data ?? []) as Array<{
+    customer_code: string
+    name: string | null
+    phone: string | null
+    phone_chuan: string | null
+    province: string | null
+    province_moi: string | null
+  }>
 }
 
 // ───────────── Sinh mã đơn (không đụng cả 2 bảng) ─────────────
@@ -85,53 +100,12 @@ function buildItems(input: NewOrderInput, orderId?: string) {
       vat_pct: it.vat_pct == null ? null : Number(it.vat_pct),
       vat_loai: it.vat_loai ?? null,
       note: it.note || null,
+      ctkm_id: it.ctkm_id || null,
     }
   })
 }
 
 // ───────────── Tạo đơn ─────────────
-
-/**
- * Các ô Sheet bổ sung 22/08. Gom một chỗ để đường TẠO và đường SỬA không bao giờ lệch —
- * đúng lỗi CEO bắt được ở màn khách (màn tạo tự viết insert riêng, màn sửa gọi hàm chung).
- */
-function oSheetBoSung(input: NewOrderInput) {
-  const so = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? null : Math.round(v))
-  const chu = (v: string | null | undefined) => (v ?? '').trim() || null
-  return {
-    channel_detail: chu(input.channel_detail),
-    qua_tang: chu(input.qua_tang),
-    su_dung_qua_tang: chu(input.su_dung_qua_tang),
-    tracking_url: chu(input.tracking_url),
-    kich_hoat_bh: !!input.kich_hoat_bh,
-    email: chu(input.email),
-    tien_coc: so(input.tien_coc),
-    gui_hdsd: !!input.gui_hdsd,
-    xuat_hoa_don: !!input.xuat_hoa_don,
-    da_doi_soat: !!input.da_doi_soat,
-    ngay_doi_soat: input.ngay_doi_soat || null,
-    so_hd: chu(input.so_hd),
-    ten_goi_khach: chu(input.ten_goi_khach),
-    ten_folder: chu(input.ten_folder),
-    ten_khach_theo_doi: chu(input.ten_khach_theo_doi),
-    tien_se_thu: so(input.tien_se_thu),
-    bien_ban_xac_nhan: !!input.bien_ban_xac_nhan,
-    bao_cao_lap_dat: !!input.bao_cao_lap_dat,
-    tien_do_lap_dat: chu(input.tien_do_lap_dat),
-    ngay_hoan_thanh_lap: input.ngay_hoan_thanh_lap || null,
-    tu_dien: chu(input.tu_dien),
-    version: chu(input.version),
-    nghe_nghiep: chu(input.nghe_nghiep),
-    ngay_sinh: input.ngay_sinh || null,
-    gioi_tinh: chu(input.gioi_tinh),
-    do_tuoi: chu(input.do_tuoi),
-    loai_nha: chu(input.loai_nha),
-    tinh_trang_nha: chu(input.tinh_trang_nha),
-    cong_ty_xuat_hd: chu(input.cong_ty_xuat_hd),
-    mst: chu(input.mst),
-    dia_chi_xuat_hd: chu(input.dia_chi_xuat_hd),
-  }
-}
 
 export async function createSalesOrder(
   input: NewOrderInput,

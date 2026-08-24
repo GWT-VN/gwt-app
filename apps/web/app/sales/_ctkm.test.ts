@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { giaSauGiam, mucApDung, conHieuLuc, ctkmChoDon, giaTheoBac, capGiaVaPct } from './_ctkm'
+import { giaSauGiam, mucApDung, conHieuLuc, ctkmChoDon, giaTheoBac, capGiaVaPct, khachDuocHuong, type KhachXet } from './_ctkm'
 
 describe('giaSauGiam — ba kiểu giảm CEO chốt 21/08', () => {
   it('PCT: CTS20 niêm yết 39.950.000 giảm 12% -> 35.156.000', () => {
@@ -123,5 +123,73 @@ describe('capGiaVaPct — điền một ô, ô kia tự tính', () => {
   it('giá niêm yết 0 hoặc rỗng -> không tính bừa', () => {
     expect(capGiaVaPct(null, 'PCT', 50)).toEqual({ pct: null, gia: null })
     expect(capGiaVaPct(0, 'GIA', 100)).toEqual({ pct: null, gia: null })
+  })
+})
+
+// ── Loại trừ khách + cộng dồn chương trình (CEO giao 24/08/2026) ─────────────
+
+describe('khachDuocHuong — ai được hưởng chương trình', () => {
+  const KH = (p: Partial<KhachXet> = {}): KhachXet => ({ customer_code: 'KH01', daMua: true, ...p })
+
+  it('mặc định TAT_CA -> ai cũng hưởng', () => {
+    expect(khachDuocHuong(CT(), KH())).toBe(true)
+  })
+
+  it('LOẠI TRỪ thắng tất cả — kể cả khi nhóm khách bao họ', () => {
+    expect(khachDuocHuong(CT({ nhom_khach: 'TAT_CA', khachTru: ['KH01'] }), KH())).toBe(false)
+  })
+
+  it('LOẠI TRỪ thắng cả danh sách chỉ định — không có cửa lách vào lại', () => {
+    const c = CT({ nhom_khach: 'CHI_DINH', khachGom: ['KH01'], khachTru: ['KH01'] })
+    expect(khachDuocHuong(c, KH())).toBe(false)
+  })
+
+  it('CHI_DINH: chỉ khách trong danh sách', () => {
+    const c = CT({ nhom_khach: 'CHI_DINH', khachGom: ['KH01'] })
+    expect(khachDuocHuong(c, KH({ customer_code: 'KH01' }))).toBe(true)
+    expect(khachDuocHuong(c, KH({ customer_code: 'KH99' }))).toBe(false)
+  })
+
+  it('CHI_DINH mà danh sách rỗng -> không áp cho ai', () => {
+    expect(khachDuocHuong(CT({ nhom_khach: 'CHI_DINH', khachGom: [] }), KH())).toBe(false)
+  })
+
+  it('MOI / DA_MUA xét theo đã từng mua chưa', () => {
+    expect(khachDuocHuong(CT({ nhom_khach: 'MOI' }), KH({ daMua: false }))).toBe(true)
+    expect(khachDuocHuong(CT({ nhom_khach: 'MOI' }), KH({ daMua: true }))).toBe(false)
+    expect(khachDuocHuong(CT({ nhom_khach: 'DA_MUA' }), KH({ daMua: true }))).toBe(true)
+    expect(khachDuocHuong(CT({ nhom_khach: 'DA_MUA' }), KH({ daMua: false }))).toBe(false)
+  })
+
+  it('CHƯA BIẾT đã mua hay chưa -> không áp chương trình phân biệt mới/cũ', () => {
+    // Khách nhân viên gõ tay lúc lên đơn: chưa có hồ sơ nên không tra được lịch sử mua.
+    // Thà bỏ sót một khuyến mãi để nhân viên tự bấm, còn hơn tặng nhầm rồi mới biết.
+    const kh = KH({ customer_code: null, daMua: null })
+    expect(khachDuocHuong(CT({ nhom_khach: 'MOI' }), kh)).toBe(false)
+    expect(khachDuocHuong(CT({ nhom_khach: 'DA_MUA' }), kh)).toBe(false)
+    expect(khachDuocHuong(CT({ nhom_khach: 'TAT_CA' }), kh)).toBe(true)
+  })
+})
+
+describe('ctkmChoDon — cộng dồn', () => {
+  it('chương trình cộng dồn KHÔNG tranh chỗ với chương trình thường', () => {
+    const giam = CT({ id: 'giam', muc_chung: 15 })
+    const quaCd = CT({ id: 'qua', muc_chung: null, cong_don: true })
+    const r = ctkmChoDon([giam, quaCd], '2026-09-15', 88)
+    expect(r.chon?.id).toBe('giam')
+    expect(r.cong.map((c) => c.id)).toEqual(['qua'])
+    expect(r.khac).toEqual([])
+  })
+
+  it('chỉ có chương trình cộng dồn -> chon rỗng nhưng cong vẫn áp', () => {
+    const r = ctkmChoDon([CT({ id: 'q', cong_don: true })], '2026-09-15', 88)
+    expect(r.chon).toBeNull()
+    expect(r.cong).toHaveLength(1)
+  })
+
+  it('lọc theo khách khi có truyền `kh`', () => {
+    const c = CT({ khachTru: ['KH01'] })
+    expect(ctkmChoDon([c], '2026-09-15', 88, undefined, { customer_code: 'KH01', daMua: true }).chon).toBeNull()
+    expect(ctkmChoDon([c], '2026-09-15', 88, undefined, { customer_code: 'KH02', daMua: true }).chon?.id).toBe('x')
   })
 })
