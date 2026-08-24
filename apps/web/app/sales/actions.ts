@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { traKhachTheoSdt } from '@/lib/tra-khach'
 import type { KetQuaTraKhach } from '@/lib/tra-khach-chung'
 import type { Kenh } from '@/app/actions'
-import { ctkmChoDon, gomSpTheoCtkm, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm, type NhomKhach, type QuaCtkm } from './_ctkm'
+import { ctkmChoDon, gomSpTheoCtkm, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm, type NhomKhach, type NhomTru, type QuaCtkm } from './_ctkm'
 import { redirect } from 'next/navigation'
 import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
@@ -23,6 +23,7 @@ import {
 } from './_db'
 import { tinhKhuyenMai, tongDon } from './_calc'
 import { cacBienThe, gomDanhSachTinh } from '@/lib/tinhGom'
+import { DON_MAC_DINH } from './_types'
 import type { NewOrderInput, CustomerInput } from './_types'
 
 /** Gác khu Sales: nền tảng (mọi nhân sự) + phải có vai trò Sales. */
@@ -420,6 +421,11 @@ export type DonChiTiet = {
   created_by: string | null
   is_app: boolean
   lines: DonLine[]
+  /**
+   * 31 ô Sheet bổ sung, để TRANG XEM hiện lại được thứ đã nhập.
+   * `null` với đơn mirror từ Sheet (những ô này chỉ đơn tạo trên app mới có).
+   */
+  oSheet: Record<string, unknown> | null
 }
 
 const MIRROR_COLS =
@@ -503,6 +509,7 @@ async function chiTietDonTang(
     note: null,
     created_by: null,
     is_app: false,
+    oSheet: null,
     lines: rows.map((r, i) => ({
       key: String(r.id ?? `t${i}`),
       product_name: (r.product_name as string) ?? null,
@@ -562,6 +569,15 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
       l.khuyen_mai = tinhKhuyenMai(l.gia_niem_yet, l.quantity, l.amount_vat, l.is_gift)
     }
     const tong = tongDon(lines)
+    // Đơn app lưu channel_id chứ không lưu tên kênh -> trước đây trang xem để trống ô Kênh
+    // dù người nhập đã chọn. Tra lại tên cho khớp đơn mirror từ Sheet (vốn lưu sẵn chữ).
+    let tenKenh: string | null = null
+    if (header.channel_id != null) {
+      const { data: dc } = await db
+        .from('dim_channel').select('channel_l1, channel_l2').eq('id', header.channel_id).maybeSingle()
+      const k = dc as { channel_l1: string | null; channel_l2: string | null } | null
+      if (k) tenKenh = [k.channel_l1, k.channel_l2].filter(Boolean).join(' · ') || null
+    }
     return {
       order_code: header.order_code as string,
       order_date: (header.order_date as string) ?? null,
@@ -570,8 +586,8 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
       customer_name: (header.customer_name as string) ?? null,
       province: (header.province as string) ?? null,
       address: (header.address as string) ?? null,
-      channel: null,
-      channel_detail: null,
+      channel: tenKenh,
+      channel_detail: (header.channel_detail as string) ?? null,
       fulfillment_status: (header.status as string) ?? null,
       payment_status: (header.payment_status as string) ?? null,
       payment_method: (header.payment_method as string) ?? null,
@@ -585,6 +601,9 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
       created_by: (header.created_by as string) ?? null,
       is_app: true,
       lines,
+      // Lấy đúng các khoá của DON_MAC_DINH — thêm ô mới ở form là trang xem tự có, không
+      // phải nhớ sửa hai chỗ. Ô rỗng vẫn đưa xuống, trang xem tự lọc.
+      oSheet: Object.fromEntries(Object.keys(DON_MAC_DINH).map((k) => [k, header[k] ?? null])),
     }
   }
 
@@ -647,6 +666,7 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
     created_by: null,
     is_app: false,
     lines,
+    oSheet: null,
   }
 }
 
@@ -1048,7 +1068,7 @@ export async function boiCanhGia(
     if (k) daMua = (Number(k.total_orders) || 0) > 0 || !!k.first_order_date
   }
 
-  const [cs, gia, ct, ctKenh, ctSp, ctQua, ctKhach] = await Promise.all([
+  const [cs, gia, ct, ctKenh, ctSp, ctQua, ctKhach, ctTruNhom] = await Promise.all([
     db.from('sales_chinh_sach_gia').select('*').eq('trang_thai', 'ban_hanh'),
     db.from('product_price').select('internal_code, gia_vat').eq('kenh', 'NIEM_YET'),
     db.from('sales_ctkm')
@@ -1062,6 +1082,7 @@ export async function boiCanhGia(
     customerCode
       ? db.from('sales_ctkm_khach').select('ctkm_id, loai').eq('customer_code', customerCode)
       : Promise.resolve({ data: [] as Array<Record<string, unknown>> }),
+    db.from('sales_ctkm_tru_nhom').select('ctkm_id, loai, gia_tri'),
   ])
 
   const niemYet: Record<string, number> = {}
@@ -1102,6 +1123,13 @@ export async function boiCanhGia(
     ;(k.loai === 'TRU' ? truTheoCtkm : gomTheoCtkm).add(k.ctkm_id as string)
   }
 
+  const truNhomTheoCtkm = new Map<string, NhomTru[]>()
+  for (const n of ((ctTruNhom.data ?? []) as Array<Record<string, unknown>>)) {
+    const id = n.ctkm_id as string
+    if (!truNhomTheoCtkm.has(id)) truNhomTheoCtkm.set(id, [])
+    truNhomTheoCtkm.get(id)!.push({ loai: n.loai as NhomTru['loai'], gia_tri: String(n.gia_tri) })
+  }
+
   const dsCtkm: Ctkm[] = ((ct.data ?? []) as Array<Record<string, unknown>>).map((c) => {
     const id = c.id as string
     return {
@@ -1120,6 +1148,7 @@ export async function boiCanhGia(
       // `khachDuocHuong` so `includes(ma)` là đủ — không cần kéo cả danh sách về.
       khachGom: customerCode && gomTheoCtkm.has(id) ? [customerCode] : [],
       khachTru: customerCode && truTheoCtkm.has(id) ? [customerCode] : [],
+      nhomTru: truNhomTheoCtkm.get(id) ?? [],
     }
   })
 
@@ -1127,6 +1156,8 @@ export async function boiCanhGia(
   const { chon, cong, khac } = ctkmChoDon(dsCtkm, ngay, channelId, undefined, {
     customer_code: customerCode,
     daMua,
+    channel_id: channelId,
+    bac,
   })
 
   return {

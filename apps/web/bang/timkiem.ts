@@ -73,3 +73,45 @@ export function antoanChoOr(kw: string): string {
 export function mauDauTu(kw: string): string {
   return '\\m' + kw.replace(/[\\^$.|?*+()[\]{}]/g, '\\$&')
 }
+
+/**
+ * Cắt câu người dùng gõ thành TỪNG TỪ, mỗi từ một điều kiện `.or()`.
+ *
+ * Dùng vì PostgREST **AND** các lệnh `.or()` liên tiếp lại với nhau. Gọi n lần thì thành
+ * "mọi từ đều phải khớp, mỗi từ được tự chọn khớp ở cột nào" — đúng thứ ô tìm kiếm cần.
+ *
+ * Vì sao đổi (CEO giao 24/08/2026): bản cũ nhét NGUYÊN CÂU vào một `\m<cả câu>`, tức là
+ * bắt khớp một chuỗi LIỀN từ mốc đầu từ. Đo trên `cs_customers` ngày 24/08:
+ *
+ * | gõ | kiểu cũ | kiểu mới |
+ * |---|---|---|
+ * | `nguyen van` (không dấu)  | 5 | 5 |
+ * | `van nguyen` (đảo)        | **0** | 20 |
+ * | `linh sg` (chữ giữa tên)  | **0** | 1 |
+ * | `sg` (chỉ chữ cuối)       | **0** | 1 |
+ *
+ * Tức là "gõ không dấu" vốn đã chạy; thứ hỏng là **gõ đảo thứ tự** và **gõ chữ ở giữa
+ * tên** — hai kiểu gõ tự nhiên nhất khi người ta chỉ nhớ một mẩu tên.
+ *
+ * Cột trong `cotDauTu` khớp theo ĐẦU TỪ (`\m`) — dành cho tên người, tránh `huong`
+ * lôi về cả Phương/Thường. Cột trong `cotChuoiCon` khớp chuỗi con — dành cho SĐT, mã,
+ * serial, nơi người ta hay gõ mấy ký tự đuôi.
+ *
+ * Không nuốt lỗi gõ — đó cần trigram, phải làm dưới DB (xem `sales_tim_khach`).
+ *
+ * @returns mảng chuỗi để truyền vào `.or()`, mỗi phần tử một từ. Rỗng = không lọc gì.
+ */
+export function dieuKienTungTu(
+  q: string,
+  cotDauTu: readonly string[],
+  cotChuoiCon: readonly string[] = []
+): string[] {
+  const kw = antoanChoOr(chuanHoaTuKhoa(q))
+  if (!kw) return []
+  return kw.split(' ').filter(Boolean).map((t) =>
+    [
+      ...cotDauTu.map((c) => `${c}.imatch.${mauDauTu(t)}`),
+      ...cotChuoiCon.map((c) => `${c}.ilike.%${t}%`),
+    ].join(',')
+  )
+}

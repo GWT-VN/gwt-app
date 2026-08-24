@@ -10,7 +10,7 @@ import { currentStaff } from '@/lib/nen-tang/nhan-su'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { themSdtPhu, themDiaChiPhu, xoaDiaChiPhu, suaDiaChiPhu, suaSdtPhu, locVeTinh, maKhCuaKhachCS } from '@/lib/khach-lien-he'
 import { coQuyen, doQuyen } from '@/lib/nen-tang/kiem-quyen'
-import { antoanChoOr, chuanHoaTuKhoa, mauDauTu, sapXepHopLe, gomKhoa } from '@/bang'
+import { antoanChoOr, chuanHoaTuKhoa, mauDauTu, sapXepHopLe, gomKhoa, dieuKienTungTu } from '@/bang'
 import type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc } from '@/bang'
 import { goiYGomTu, type CumGoiY } from '@/lib/goiYNhom'
 import { sinhLichBaoTri, suyChuKyTuMoc, vungTheoTinh, type Vung } from '@/lib/lichBaoTri'
@@ -1103,10 +1103,9 @@ export async function maintenanceDue(
     // Tên khách và tên công trình khớp theo ĐẦU TỪ (như trang Máy) để không dính
     // Phương/Thương; bộ máy và SĐT vẫn khớp chuỗi con vì đó là MÃ — gõ "15a" phải
     // ra "WH15A ECO", mà "15a" nằm giữa chữ nên khớp đầu từ sẽ trượt.
-    query = query.or(
-      `ten_kd.imatch.${mauDauTu(kw)},section_kd.imatch.${mauDauTu(kw)},` +
-        `primary_phone.ilike.%${kw}%,bo_may_kd.ilike.%${kw}%`
-    )
+    for (const dk of dieuKienTungTu(kw, ['ten_kd', 'section_kd'], ['primary_phone', 'bo_may_kd'])) {
+      query = query.or(dk)
+    }
   }
   // Lọc theo ngày đến hạn bảo trì (due_date là date).
   const { tu: btTu, den: btDen } = docLocNgay(tuyChon)
@@ -2432,10 +2431,15 @@ export async function searchTickets(
     const kw = antoanChoOr(chuanHoaTuKhoa(q))
     // ten_kd khớp theo ĐẦU TỪ như trang Máy (mauDauTu). Các cột còn lại giữ ilike:
     // mô tả là văn xuôi, người dùng gõ mẩu giữa câu là chuyện thường.
-    truyVan = truyVan.or(
-      `ticket_code.ilike.%${safe}%,source_serial.ilike.%${safe}%,ten_kd.imatch.${mauDauTu(kw)},` +
-        `primary_phone.ilike.%${safe}%,description.ilike.%${safe}%,ticket_type.ilike.%${safe}%`
-    )
+    // Mô tả/loại ticket là VĂN XUÔI nên vẫn khớp chuỗi con; tên người khớp đầu từ.
+    // Cắt theo TỪ để gõ "an bình lỗi" khớp được ticket của "Nguyễn An" mô tả "máy lỗi".
+    for (const dk of dieuKienTungTu(
+      q,
+      ['ten_kd'],
+      ['ticket_code', 'source_serial', 'primary_phone', 'description', 'ticket_type']
+    )) {
+      truyVan = truyVan.or(dk)
+    }
   }
   if (state) truyVan = truyVan.eq('state', state)
   if (onlyKhan) truyVan = truyVan.eq('khan', true)
@@ -4189,10 +4193,9 @@ export async function listToFix(
     .select('*', { count: 'exact' })
     .or('needs_phone.eq.true,address.is.null')
 
-  const kw = antoanChoOr(chuanHoaTuKhoa(q))
-  if (kw) {
-    truyVan = truyVan.or(`ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%`)
-  }
+  // Mỗi TỪ một lệnh .or() -> các .or() AND với nhau. Xem `dieuKienTungTu()`: bản cũ nhét
+  // nguyên câu vào một mẫu nên gõ đảo thứ tự hoặc gõ chữ giữa tên là ra rỗng.
+  for (const dk of dieuKienTungTu(q, ['ten_kd'], ['primary_phone'])) truyVan = truyVan.or(dk)
 
   // id (khoá chính, duy nhất) làm khoá phụ -> .range() không nhảy/lặp dòng giữa các trang.
   const { data, error, count } = await truyVan
@@ -4245,10 +4248,9 @@ export async function listKhachHang(
   // hiện mã cũng không tra được theo mã ⇒ biết số mã trong tay vẫn không mở nổi hồ sơ.
   // Mã là MÃ nên khớp chuỗi con (ilike), không khớp đầu từ như tên người.
   if (kw) {
-    truyVan = truyVan.or(
-      `ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%,` +
-        `ma_kh.ilike.%${kw}%,customer_code.ilike.%${kw}%`
-    )
+    for (const dk of dieuKienTungTu(kw, ['ten_kd'], ['primary_phone', 'ma_kh', 'customer_code'])) {
+      truyVan = truyVan.or(dk)
+    }
   }
   // "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải LỌC RA được
   // danh sách phải gọi xin số. Bắt cả hồ sơ trống số lẫn hồ sơ bị cờ `needs_phone`
@@ -4693,10 +4695,11 @@ export async function timGop(q: string): Promise<KetQuaTimGop> {
     searchMachines(term, { trang: 1 }),
     searchTickets(term),
     kw
-      ? dataClient()
-          .from('cs_customers')
-          .select('*', { count: 'exact' })
-          .or(`ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%`)
+      ? dieuKienTungTu(term, ['ten_kd'], ['primary_phone'])
+          .reduce(
+            (tv, dk) => tv.or(dk),
+            dataClient().from('cs_customers').select('*', { count: 'exact' })
+          )
           .order('full_name', { ascending: true })
           .limit(5)
       : Promise.resolve({ data: [] as Customer[], count: 0, error: null }),
