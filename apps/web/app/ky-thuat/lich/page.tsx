@@ -104,7 +104,7 @@ export default async function XemLichKyThuatPage({
             <BangDieuPhoiKT kts={kt ? dsKt.filter((k) => k.id === kt) : dsKt} rows={rows} days={days} />
           </>
         ) : laCalendar ? (
-          <LichKyThuatCalendar thang={thang} rows={rows} kt={kt || undefined} />
+          <LichKyThuatCalendar thang={thang} rows={rows} kt={kt || undefined} loai={loai || undefined} />
         ) : (
           <>
             <form className="flex items-end gap-2 text-xs text-slate-600">

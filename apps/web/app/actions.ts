@@ -2099,9 +2099,26 @@ export type LichKyThuatRow = {
 }
 
 /**
- * Phân loại POU/POE cho các lượt bảo trì (visitId): plan.serial → serial_registry
- * .internal_code → catalog_item "Danh mục cấp 2". Trả map visitId -> LoaiMay.
- * Không suy ra được (thiếu serial / không khớp catalog) -> null (form hiện đủ 4 chỉ số).
+ * Phân loại POU/POE cho các lượt bảo trì (visitId) -> form đo hiện đúng chỉ tiêu.
+ *
+ * **CEO chốt 24/08/2026:** *"sau khi map lịch bảo trì vs khách thì tự lấy máy đang gắn vs
+ * khách (ko cần quan tâm tên máy trong tên lịch bảo trì)"*. Đường đi nay là:
+ *   lượt -> plan -> KHÁCH -> máy đang lắp của khách (`installed_base`) -> danh mục cấp 2.
+ *
+ * Vì sao phải đổi: bản trước chỉ suy từ `plan.serial`, mà đo prod **0/79 plan có serial**
+ * ⇒ phủ **0 lượt**, tính năng chưa chạy lần nào. Đo lại 24/08 theo đường mới: **113 lượt**
+ * (lượt có plan CÓ gắn khách) phân loại được; 500 máy đang lắp thì 100% có danh mục cấp 2.
+ *
+ * Ba nhánh, nhánh giữa mới là chỗ đáng chú ý:
+ *  · Khách chỉ có POE   -> 'POE'  (31 khách trên prod)
+ *  · Khách chỉ có POU   -> 'POU'  (259 khách)
+ *  · Khách có **CẢ HAI** -> `null` (27 khách). Cố ý: chưa map được lượt tới ĐÚNG con máy
+ *    thì không biết chuyến này đi cho máy nào ⇒ **hiện đủ 4 chỉ tiêu**. Đúng nguyên tắc
+ *    CEO chốt 21/08 — thà hỏi thừa còn hơn giấu mất chỉ tiêu phải ghi.
+ *  · Không map được khách (lượt mồ côi / plan chưa gắn khách) -> `null`, đủ 4 chỉ tiêu.
+ *
+ * `plan.serial` VẪN được ưu tiên khi có: nó trỏ đúng MỘT con máy nên chính xác hơn suy
+ * theo khách. Hôm nay chưa plan nào điền, nhưng điền tới đâu tự chính xác tới đó.
  */
 async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> {
   await requireStaff()
@@ -2113,6 +2130,7 @@ async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> 
   // ⚠️ Có thêm chỗ gọi từ màn CS thì phải xét lại mã quyền này.
   const out = new Map<string, LoaiMay>()
   if (!(await coQuyen('cs.ky_thuat.lich_cua_toi', 'NHANVIEN'))) return out
+
   const ids = [...new Set(visitIds.filter(Boolean))]
   if (!ids.length) return out
   const db = dataClient()
@@ -2120,38 +2138,66 @@ async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> 
   const visits = (vs ?? []) as { id: string; plan_id: string | null }[]
   const planIds = [...new Set(visits.map((v) => v.plan_id).filter(Boolean))] as string[]
   if (!planIds.length) return out
-  const { data: ps } = await db.from('maintenance_plan').select('id, serial').in('id', planIds)
-  const plans = (ps ?? []) as { id: string; serial: string | null }[]
-  const planSerial = new Map(plans.map((p) => [p.id, (p.serial ?? '').trim()]))
 
-  // Đường CHÍNH: serial -> kho serial -> danh mục cấp 2. Chính xác nhất vì bám đúng con máy.
-  const serials = [...new Set([...planSerial.values()].filter(Boolean))]
-  const serialIc = new Map<string, string | null>()
-  const icLoai = new Map<string, string | null>()
-  if (serials.length) {
-    const { data: sr } = await db.from('serial_registry').select('serial, internal_code').in('serial', serials)
-    for (const s of (sr ?? []) as { serial: string; internal_code: string | null }[]) serialIc.set(s.serial, s.internal_code)
-    const ics = [...new Set([...serialIc.values()].filter(Boolean))] as string[]
-    if (ics.length) {
-      const { data: ci } = await db.from('catalog_item').select('"Mã nội bộ", "Danh mục cấp 2"').in('Mã nội bộ', ics)
-      for (const c of (ci ?? []) as Record<string, string | null>[]) icLoai.set(c['Mã nội bộ'] as string, c['Danh mục cấp 2'])
+  const { data: ps } = await db.from('maintenance_plan').select('id, serial, customer_id').in('id', planIds)
+  const plans = (ps ?? []) as { id: string; serial: string | null; customer_id: string | null }[]
+  const planSerial = new Map(plans.map((x) => [x.id, (x.serial ?? '').trim()]))
+  const planKhach = new Map(plans.map((x) => [x.id, x.customer_id]))
+
+  const chuan = (x: string | null | undefined): LoaiMay => (x === 'POU' ? 'POU' : x === 'POE' ? 'POE' : null)
+
+  /** Tra danh mục cấp 2 cho một mớ mã nội bộ — dùng chung cho cả hai đường, không tra lại. */
+  const icLoai = new Map<string, LoaiMay>()
+  async function napDanhMuc(ics: (string | null)[]) {
+    const can = [...new Set(ics.filter((x): x is string => !!x && !icLoai.has(x)))]
+    if (!can.length) return
+    const { data: ci } = await db.from('catalog_item').select('"Mã nội bộ", "Danh mục cấp 2"').in('Mã nội bộ', can)
+    for (const c of (ci ?? []) as Record<string, string | null>[]) {
+      icLoai.set(c['Mã nội bộ'] as string, chuan(c['Danh mục cấp 2']))
     }
   }
 
-  const chuan = (x: string | null | undefined): LoaiMay => (x === 'POU' ? 'POU' : x === 'POE' ? 'POE' : null)
+  // ── Đường chính xác nhất: plan có serial -> đúng con máy đó ──
+  const serials = [...new Set([...planSerial.values()].filter(Boolean))]
+  const serialIc = new Map<string, string | null>()
+  if (serials.length) {
+    const { data: sr } = await db.from('serial_registry').select('serial, internal_code').in('serial', serials)
+    for (const x of (sr ?? []) as { serial: string; internal_code: string | null }[]) serialIc.set(x.serial, x.internal_code)
+    await napDanhMuc([...serialIc.values()])
+  }
+
+  // ── Đường CEO chốt 24/08: theo MÁY ĐANG LẮP của khách ──
+  const khachIds = [...new Set([...planKhach.values()].filter(Boolean))] as string[]
+  /** customer_id -> tập loại máy khách đang có. 2 loại = không đoán được chuyến cho máy nào. */
+  const loaiCuaKhach = new Map<string, Set<'POU' | 'POE'>>()
+  if (khachIds.length) {
+    const { data: ib } = await db.from('installed_base')
+      .select('customer_id, internal_code').eq('status', 'active').in('customer_id', khachIds)
+    const may = (ib ?? []) as { customer_id: string | null; internal_code: string | null }[]
+    await napDanhMuc(may.map((m) => m.internal_code))
+    for (const m of may) {
+      const loai = m.internal_code ? icLoai.get(m.internal_code) ?? null : null
+      if (!m.customer_id || !loai) continue
+      const t = loaiCuaKhach.get(m.customer_id) ?? new Set<'POU' | 'POE'>()
+      t.add(loai); loaiCuaKhach.set(m.customer_id, t)
+    }
+  }
+
   for (const v of visits) {
-    const serial = v.plan_id ? planSerial.get(v.plan_id) : ''
+    if (!v.plan_id) { out.set(v.id, null); continue }
+    const serial = planSerial.get(v.plan_id)
     const ic = serial ? serialIc.get(serial) : null
-    // CHỈ suy từ SERIAL. KHÔNG suy từ `plan.bo_may` — CEO chốt 21/08/2026 sau khi thử thật:
-    // tên bộ máy trong lịch bảo trì (WH15A/WH30A) chỉ nói về HỆ LỌC TỔNG mà khách lắp. Nó KHÔNG
-    // cho biết khách có thêm máy lọc nước UỐNG hay không. Suy ra POE rồi ẩn TDS/pH là **giấu mất
-    // chỉ tiêu kỹ thuật cần ghi** cho những khách có cả hai loại máy.
-    // ⇒ Chưa map được lượt bảo trì tới đúng con máy thì HIỆN ĐỦ 4 CHỈ SỐ. Thà hỏi thừa còn hơn
-    // thiếu. Chỉ bật phân loại lại khi `plan.serial` được điền (đo 21/08: 0/79 plan có serial).
-    out.set(v.id, chuan(ic ? icLoai.get(ic) : null))
+    const theoSerial = ic ? icLoai.get(ic) ?? null : null
+    if (theoSerial) { out.set(v.id, theoSerial); continue }
+
+    const kh = planKhach.get(v.plan_id)
+    const tap = kh ? loaiCuaKhach.get(kh) : undefined
+    // Đúng MỘT loại thì chắc chắn; 0 hoặc 2 loại -> null -> form hiện đủ 4 chỉ tiêu.
+    out.set(v.id, tap && tap.size === 1 ? [...tap][0] : null)
   }
   return out
 }
+
 
 /**
  * Lịch kỹ thuật trong khoảng ngày (tuỳ chọn lọc 1 kỹ thuật).
