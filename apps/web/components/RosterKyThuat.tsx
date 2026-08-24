@@ -6,6 +6,7 @@ import {
   taoKyThuat, suaKyThuat, xoaKyThuat, capTaiKhoanKyThuat, thuTaiKhoanKyThuat,
   type KyThuat, type TrangThaiTaiKhoanKT,
 } from '@/app/actions'
+import { ChonTinh } from '@/components/ChonTinh'
 
 /**
  * Quản lý danh sách kỹ thuật (nhân viên + CTV): thêm/sửa/khoá/xoá.
@@ -29,30 +30,33 @@ export function RosterKyThuat({
   const [ten, setTen] = useState('')
   const [sdt, setSdt] = useState('')
   const [vung, setVung] = useState('')
+  const [tinh, setTinh] = useState('')
   const [email, setEmail] = useState('')
   const [ctv, setCtv] = useState(false)
 
   // buffer sửa
   const [eTen, setETen] = useState(''); const [eSdt, setESdt] = useState('')
-  const [eVung, setEVung] = useState(''); const [eEmail, setEEmail] = useState('')
+  const [eVung, setEVung] = useState(''); const [eTinh, setETinh] = useState('')
+  const [eEmail, setEEmail] = useState('')
   const [eCtv, setECtv] = useState(false); const [eHd, setEHd] = useState(true)
 
   async function them() {
     if (!ten.trim()) { setErr('Nhập tên kỹ thuật.'); return }
     setBusy('them'); setErr(null)
-    const r = await taoKyThuat({ ten, sdt: sdt || undefined, vung: vung || undefined, email: email || undefined, la_ctv: ctv })
+    const r = await taoKyThuat({ ten, sdt: sdt || undefined, vung: vung || undefined, tinh: tinh || undefined, email: email || undefined, la_ctv: ctv })
     setBusy(null)
     if (!r.ok) { setErr(r.error); return }
-    setTen(''); setSdt(''); setVung(''); setEmail(''); setCtv(false); router.refresh()
+    setTen(''); setSdt(''); setVung(''); setTinh(''); setEmail(''); setCtv(false); router.refresh()
   }
   function moSua(k: KyThuat) {
     setSuaId(k.id); setErr(null)
-    setETen(k.ten); setESdt(k.sdt ?? ''); setEVung(k.vung ?? ''); setEEmail(k.email ?? ''); setECtv(k.la_ctv); setEHd(k.hoat_dong)
+    setETen(k.ten); setESdt(k.sdt ?? ''); setEVung(k.vung ?? ''); setETinh(k.tinh ?? '')
+    setEEmail(k.email ?? ''); setECtv(k.la_ctv); setEHd(k.hoat_dong)
   }
   async function luuSua(id: string) {
     if (!eTen.trim()) { setErr('Nhập tên kỹ thuật.'); return }
     setBusy(id); setErr(null)
-    const r = await suaKyThuat(id, { ten: eTen, sdt: eSdt || undefined, vung: eVung || undefined, email: eEmail || undefined, la_ctv: eCtv, hoat_dong: eHd })
+    const r = await suaKyThuat(id, { ten: eTen, sdt: eSdt || undefined, vung: eVung || undefined, tinh: eTinh || undefined, email: eEmail || undefined, la_ctv: eCtv, hoat_dong: eHd })
     setBusy(null)
     if (!r.ok) { setErr(r.error); return }
     setSuaId(null); router.refresh()
@@ -92,6 +96,9 @@ export function RosterKyThuat({
           <input value={ten} onChange={(e) => setTen(e.target.value)} placeholder="Tên" className={oInput} />
           <input value={sdt} onChange={(e) => setSdt(e.target.value)} placeholder="SĐT" className={oInput} />
           <input value={vung} onChange={(e) => setVung(e.target.value)} placeholder="Vùng (vd: bắc/nam)" className={oInput} />
+          {/* Tỉnh phụ trách — dùng ô gõ-để-tìm chung `ChonTinh` (64 tỉnh, luật CEO chốt 22/08).
+              KHÁC ô "Vùng" bên cạnh: vùng chỉ để tính lịch tránh ngày nghỉ, tỉnh để điều phối. */}
+          <ChonTinh value={tinh} onChange={setTinh} className={`${oInput} bg-white min-w-44`} />
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (để cấp đăng nhập)" className={`${oInput} min-w-56`} />
           <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={ctv} onChange={(e) => setCtv(e.target.checked)} /> CTV</label>
           <button onClick={them} disabled={busy === 'them'} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{busy === 'them' ? '…' : 'Thêm'}</button>
@@ -110,6 +117,7 @@ export function RosterKyThuat({
                   <input value={eTen} onChange={(e) => setETen(e.target.value)} placeholder="Tên" className={oInput} />
                   <input value={eSdt} onChange={(e) => setESdt(e.target.value)} placeholder="SĐT" className={oInput} />
                   <input value={eVung} onChange={(e) => setEVung(e.target.value)} placeholder="Vùng" className={oInput} />
+                  <ChonTinh value={eTinh} onChange={setETinh} className={`${oInput} bg-white min-w-44`} />
                   <input value={eEmail} onChange={(e) => setEEmail(e.target.value)} placeholder="Email" className={`${oInput} min-w-56`} />
                   <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={eCtv} onChange={(e) => setECtv(e.target.checked)} /> CTV</label>
                   <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={eHd} onChange={(e) => setEHd(e.target.checked)} /> Hoạt động</label>
@@ -123,7 +131,7 @@ export function RosterKyThuat({
                     {k.la_ctv && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">CTV</span>}
                     {!k.hoat_dong && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500">đã khoá</span>}
                     <div className="text-xs text-slate-500 mt-0.5">
-                      {[k.sdt, k.vung, k.email].filter(Boolean).join(' · ') || '—'}
+                      {[k.sdt, k.vung, k.tinh, k.email].filter(Boolean).join(' · ') || '—'}
                     </div>
                     {choTaiKhoanKT && (
                       <div className="mt-1 text-xs">

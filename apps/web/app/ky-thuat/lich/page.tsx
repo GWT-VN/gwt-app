@@ -19,7 +19,7 @@ function thuHai(d: Date): Date {
 export default async function XemLichKyThuatPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; tu?: string; den?: string; kt?: string; thang?: string; tuan?: string; loai?: string }>
+  searchParams: Promise<{ view?: string; tu?: string; den?: string; kt?: string; thang?: string; tuan?: string; loai?: string; tinh?: string }>
 }) {
   await chanNeuThieuQuyen('cs.ky_thuat.xep_lich', 'QUANLY')
   // Trang này còn đọc DANH SÁCH kỹ thuật, vốn đòi cs.ky_thuat.ho_so — một quyền
@@ -27,7 +27,7 @@ export default async function XemLichKyThuatPage({
   // không được tick "hồ sơ kỹ thuật viên" sẽ vào tới nơi rồi mới bị đá ra giữa
   // chừng, không hiểu vì sao. Mà thiếu danh sách kỹ thuật thì trang cũng vô nghĩa.
   await chanNeuThieuQuyen('cs.ky_thuat.ho_so', 'QUANLY')
-  const { view = 'list', tu: tuRaw, den: denRaw, kt, thang: thangRaw, tuan: tuanRaw, loai } = await searchParams
+  const { view = 'list', tu: tuRaw, den: denRaw, kt, thang: thangRaw, tuan: tuanRaw, loai, tinh } = await searchParams
   const laCalendar = view === 'calendar'
   const laBoard = view === 'board'
   const now = new Date()
@@ -43,20 +43,38 @@ export default async function XemLichKyThuatPage({
   const tuanSau = iso(new Date(t2.getTime() + 7 * 86400000))
 
   const dsKt = await dsKyThuat(true)
+
+  // Lọc theo TỈNH — CEO yêu cầu 24/08 ("thêm kĩ thuật theo tỉnh nào và lọc đc theo tỉnh").
+  // Chỉ dựng chip cho tỉnh THẬT SỰ có kỹ thuật: cả app mới vài người, bày đủ 64 tỉnh là
+  // 60 chip rỗng. Nhờ vậy cũng không vướng luật "quá 10 mục phải gõ để tìm".
+  const dsTinh = [...new Set(dsKt.map((k) => (k.tinh ?? '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'vi'))
+  // Chặn giá trị rác trong đường dẫn: tỉnh không có ai phụ trách thì coi như không lọc.
+  const tinhOk = tinh && dsTinh.includes(tinh) ? tinh : undefined
+  const ktTrongTinh = tinhOk ? dsKt.filter((k) => (k.tinh ?? '').trim() === tinhOk) : dsKt
+  const idTrongTinh = new Set(ktTrongTinh.map((k) => k.id))
+
   const rowsAll = laBoard
     ? await dsLichKyThuat(days[0], days[6], kt || undefined)
     : laCalendar
       ? await dsLichKyThuat(`${thang}-01`, `${thang}-31`, kt || undefined)
       : await dsLichKyThuat(tu, den, kt || undefined)
-  // Lọc theo loại việc: giữ chuyến có ÍT NHẤT 1 việc thuộc loại đó.
-  const rows = loai ? rowsAll.filter((r) => r.viec.some((v) => v.loai_viec === loai)) : rowsAll
+  const rows = rowsAll.filter((r) => {
+    // Lọc theo loại việc: giữ chuyến có ÍT NHẤT 1 việc thuộc loại đó.
+    if (loai && !r.viec.some((v) => v.loai_viec === loai)) return false
+    if (!tinhOk) return true
+    // Chuyến ĐÃ gán -> xét tỉnh của người được gán. Chuyến CHƯA gán ai thì xét tỉnh của
+    // chính chuyến đó — cố ý giữ lại, vì đó đúng là thứ người điều phối cần thấy khi đang
+    // hỏi "tỉnh này còn việc nào chưa có người?".
+    return r.ky_thuat_id ? idTrongTinh.has(r.ky_thuat_id) : (r.tinh ?? '').trim() === tinhOk
+  })
 
-  // Base params luôn mang theo: kt + loai (để đổi view / tuần / lọc KT không mất bộ lọc kia).
-  const giuLoc: Record<string, string> = { ...(kt ? { kt } : {}), ...(loai ? { loai } : {}) }
+  // Base params luôn mang theo: kt + loai + tinh (đổi view / tuần không được mất bộ lọc kia).
+  const giuLoc: Record<string, string> = { ...(kt ? { kt } : {}), ...(loai ? { loai } : {}), ...(tinhOk ? { tinh: tinhOk } : {}) }
   const giuKt = (extra: Record<string, string>) => new URLSearchParams({ ...giuLoc, ...extra }).toString()
   // Tham số cửa sổ thời gian theo view — để nút lọc KT giữ nguyên khoảng đang xem.
   const cuaSo: Record<string, string> = laBoard ? { tuan: days[0] } : laCalendar ? { thang } : { tu, den }
-  const chiLoai: Record<string, string> = loai ? { loai } : {}
+  const chiLoai: Record<string, string> = { ...(loai ? { loai } : {}), ...(tinhOk ? { tinh: tinhOk } : {}) }
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -73,23 +91,38 @@ export default async function XemLichKyThuatPage({
           </div>
         </header>
 
+        {/* Lọc theo TỈNH của kỹ thuật — chỉ hiện tỉnh có người, ẩn hẳn khi chưa ai điền tỉnh */}
+        {dsTinh.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap items-center">
+            <span className="text-[11px] text-slate-400 uppercase tracking-wide mr-0.5">Tỉnh</span>
+            <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(loai ? { loai } : {}), ...cuaSo })}`}
+              className={`px-2.5 py-1 rounded-lg text-xs border ${!tinhOk ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600'}`}>Tất cả</Link>
+            {dsTinh.map((t) => (
+              <Link key={t} href={`/ky-thuat/lich?${new URLSearchParams({ view, tinh: t, ...(loai ? { loai } : {}), ...cuaSo })}`}
+                className={`px-2.5 py-1 rounded-lg text-xs border ${tinhOk === t ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600'}`}>{t}</Link>
+            ))}
+          </div>
+        )}
+
         {/* Lọc theo kỹ thuật */}
         <div className="flex gap-1.5 flex-wrap">
           <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...chiLoai, ...cuaSo })}`}
             className={`px-2.5 py-1 rounded-lg text-xs border ${!kt ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>Tất cả KT</Link>
-          {dsKt.map((k) => (
+          {ktTrongTinh.map((k) => (
             <Link key={k.id} href={`/ky-thuat/lich?${new URLSearchParams({ view, kt: k.id, ...chiLoai, ...cuaSo })}`}
-              className={`px-2.5 py-1 rounded-lg text-xs border ${kt === k.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>{k.ten}</Link>
+              className={`px-2.5 py-1 rounded-lg text-xs border ${kt === k.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
+              {k.ten}{k.tinh && !tinhOk && <span className="text-[10px] opacity-60"> · {k.tinh}</span>}
+            </Link>
           ))}
         </div>
 
         {/* Lọc theo loại việc */}
         <div className="flex gap-1.5 flex-wrap items-center">
           <span className="text-[11px] text-slate-400 uppercase tracking-wide mr-0.5">Loại việc</span>
-          <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...cuaSo })}`}
+          <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), ...cuaSo })}`}
             className={`px-2.5 py-1 rounded-lg text-xs border ${!loai ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600'}`}>Tất cả</Link>
           {LOAI_VIEC_KT.map((lv) => (
-            <Link key={lv.v} href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), loai: lv.v, ...cuaSo })}`}
+            <Link key={lv.v} href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), loai: lv.v, ...cuaSo })}`}
               className={`px-2.5 py-1 rounded-lg text-xs border ${loai === lv.v ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600'}`}>{lv.nhan}</Link>
           ))}
         </div>
@@ -101,7 +134,7 @@ export default async function XemLichKyThuatPage({
               <span className="text-sm text-slate-600">Tuần {days[0].slice(8)}/{days[0].slice(5, 7)} – {days[6].slice(8)}/{days[6].slice(5, 7)}</span>
               <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanSau, ...giuLoc })}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">Tuần sau →</Link>
             </div>
-            <BangDieuPhoiKT kts={kt ? dsKt.filter((k) => k.id === kt) : dsKt} rows={rows} days={days} />
+            <BangDieuPhoiKT kts={kt ? ktTrongTinh.filter((k) => k.id === kt) : ktTrongTinh} rows={rows} days={days} />
           </>
         ) : laCalendar ? (
           <LichKyThuatCalendar thang={thang} rows={rows} kt={kt || undefined} loai={loai || undefined} />

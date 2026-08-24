@@ -1771,14 +1771,20 @@ export async function baoTriSapHet(): Promise<SapHetGoi[]> {
 }
 
 // ── Đợt 3a: lịch kỹ thuật — gán việc cho kỹ thuật, 1 chuyến đi nhiều việc ─────
-export type KyThuat = { id: string; ten: string; sdt: string | null; vung: string | null; email: string | null; la_ctv: boolean; hoat_dong: boolean }
-export type KyThuatInput = { ten: string; sdt?: string; vung?: string; email?: string; la_ctv?: boolean; hoat_dong?: boolean }
+/**
+ * `vung` ('bac'/'nam') và `tinh` là HAI thứ khác nhau, đừng gộp:
+ *  · `vung` — chỉ dùng để TÍNH LỊCH tránh ngày nghỉ (Bắc nghỉ T7+CN, Nam chỉ CN).
+ *  · `tinh` — tỉnh/TP phụ trách, dùng để ĐIỀU PHỐI (migration 53, CEO yêu cầu 24/08).
+ * Nhét tỉnh vào `vung` là hỏng luật sinh lịch bảo trì.
+ */
+export type KyThuat = { id: string; ten: string; sdt: string | null; vung: string | null; tinh: string | null; email: string | null; la_ctv: boolean; hoat_dong: boolean }
+export type KyThuatInput = { ten: string; sdt?: string; vung?: string; tinh?: string; email?: string; la_ctv?: boolean; hoat_dong?: boolean }
 
 /** Danh sách kỹ thuật (nhân viên + cộng tác viên). */
 export async function dsKyThuat(chiHoatDong = false): Promise<KyThuat[]> {
   await requireStaff()
   await doQuyen('cs.ky_thuat.ho_so')
-  let q = dataClient().from('ky_thuat').select('id, ten, sdt, vung, email, la_ctv, hoat_dong').order('ten')
+  let q = dataClient().from('ky_thuat').select('id, ten, sdt, vung, tinh, email, la_ctv, hoat_dong').order('ten')
   if (chiHoatDong) q = q.eq('hoat_dong', true)
   const { data, error } = await q
   if (error) throw new Error(error.message)
@@ -1793,7 +1799,7 @@ export async function kyThuatCuaToi(): Promise<KyThuat | null> {
   const email = (nv?.email ?? '').trim().toLowerCase()
   if (!email) return null
   const { data } = await dataClient().from('ky_thuat')
-    .select('id, ten, sdt, vung, email, la_ctv, hoat_dong').eq('email', email).maybeSingle()
+    .select('id, ten, sdt, vung, tinh, email, la_ctv, hoat_dong').eq('email', email).maybeSingle()
   return (data as KyThuat) ?? null
 }
 
@@ -1802,6 +1808,7 @@ export async function taoKyThuat(input: KyThuatInput): Promise<{ ok: true } | { 
   if (!input.ten.trim()) return { ok: false, error: 'Thiếu tên kỹ thuật.' }
   const { error } = await dataClient().from('ky_thuat').insert({
     ten: input.ten.trim(), sdt: input.sdt?.trim() || null, vung: input.vung?.trim() || null,
+    tinh: input.tinh?.trim() || null,
     email: input.email?.trim() || null, la_ctv: !!input.la_ctv,
   })
   if (error) return { ok: false, error: error.message }
@@ -1814,6 +1821,7 @@ export async function suaKyThuat(id: string, input: KyThuatInput): Promise<{ ok:
   if (!input.ten.trim()) return { ok: false, error: 'Thiếu tên kỹ thuật.' }
   const { error } = await dataClient().from('ky_thuat').update({
     ten: input.ten.trim(), sdt: input.sdt?.trim() || null, vung: input.vung?.trim() || null,
+    tinh: input.tinh?.trim() || null,
     email: input.email?.trim() || null, la_ctv: !!input.la_ctv, hoat_dong: input.hoat_dong ?? true,
   }).eq('id', id)
   if (error) return { ok: false, error: error.message }
