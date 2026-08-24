@@ -4666,6 +4666,28 @@ export async function auditLog(limit = 100, hanhDong?: string): Promise<AuditRow
 }
 
 // ── Nối máy đã lắp với ĐƠN CỦA ĐẠI LÝ (CEO dump 22/08/2026) ────────────────
+/**
+ * Một đối tác bán hàng: đại lý, KTS, hoặc KOL.
+ *
+ * Nguồn TẠM THỜI là `dim_channel` (cấp 2 của 3 kênh đó). Khi phiên Sales dựng xong bảng
+ * `doi_tac` (CEO chốt 22/08 đặt bên Sales) thì đổi nguồn ở ĐÚNG hàm `doiTacChon()` — phần
+ * còn lại của màn hình không phải sửa.
+ */
+export type DoiTac = { ten: string; loai: string }
+
+export async function doiTacChon(): Promise<DoiTac[]> {
+  await requireStaff()
+  await doQuyen('cs.may.xem')
+  const { data, error } = await dataClient()
+    .from('dim_channel').select('channel_l1, channel_l2, sort_order')
+    .in('channel_l1', ['Đại lý', 'KTS', 'KOL'])
+    .order('channel_l1').order('sort_order')
+  if (error) throw new Error(error.message)
+  return ((data ?? []) as { channel_l1: string; channel_l2: string | null }[])
+    .filter((r) => (r.channel_l2 ?? '').trim() !== '' && r.channel_l2 !== 'Khác')
+    .map((r) => ({ ten: r.channel_l2 as string, loai: r.channel_l1 }))
+}
+
 export type DonDaiLy = {
   order_code: string
   dai_ly: string
@@ -4718,37 +4740,42 @@ export async function donDaiLyChon(): Promise<DonDaiLy[]> {
  * rồi nạp lại mỗi lần sync Google Sheet, nên mã đơn có thể biến mất. Thông tin bảo hành phải
  * sống lâu hơn một lần sync.
  */
-export async function ganDonDaiLyChoMay(
-  serial: string, orderCode: string | null,
+export async function ganDaiLyChoMay(
+  serial: string, doiTac: string | null, orderCode: string | null,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireStaff()
   await doQuyen('cs.may.kich_hoat_bh')
   const db = dataClient()
 
-  if (!orderCode) {
+  const ten = (doiTac ?? '').trim()
+  if (!ten) {
     const { error } = await db.from('installed_base')
       .update({ dai_ly_ten: null, dai_ly_don: null, dai_ly_gan_luc: null, updated_at: new Date().toISOString() })
       .eq('serial', serial)
     if (error) return { ok: false, error: error.message }
-    await ghiAudit('go_don_dai_ly', `may:${serial}`)
+    await ghiAudit('go_dai_ly_may', `may:${serial}`)
     revalidatePath(`/may/${encodeURIComponent(serial)}`)
     return { ok: true }
   }
 
-  const { data: don } = await db.from('sales_order_lines')
-    .select('channel_detail').eq('order_code', orderCode).limit(1)
-  const tenDaiLy = (don?.[0] as { channel_detail: string | null } | undefined)?.channel_detail
-  if (!don?.length) return { ok: false, error: `Không thấy đơn ${orderCode}.` }
+  // ĐƠN LÀ TUỲ CHỌN — CEO chốt 22/08. Nguyên văn: POE thì thường biết đơn (có đi bảo trì),
+  // còn POU thì "chỉ biết khách của bên đại lý do đại lý báo chứ ko biết khách mua đơn nào".
+  // Bắt chọn đơn mới gắn được đại lý là ép CS hoặc bỏ trống hoàn toàn (mất dấu đại lý),
+  // hoặc chọn bừa một đơn — cái sau tệ hơn hẳn vì nó trông như dữ liệu thật.
+  const ma = (orderCode ?? '').trim() || null
+  if (ma) {
+    const { data: don } = await db.from('sales_order_lines')
+      .select('order_code').eq('order_code', ma).limit(1)
+    if (!don?.length) return { ok: false, error: `Không thấy đơn ${ma}.` }
+  }
 
   const { error } = await db.from('installed_base').update({
-    dai_ly_ten: tenDaiLy || '(không rõ đại lý)',
-    dai_ly_don: orderCode,
-    dai_ly_gan_luc: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    dai_ly_ten: ten, dai_ly_don: ma,
+    dai_ly_gan_luc: new Date().toISOString(), updated_at: new Date().toISOString(),
   }).eq('serial', serial)
   if (error) return { ok: false, error: error.message }
 
-  await ghiAudit('gan_don_dai_ly', `may:${serial}`, { order_code: orderCode, dai_ly: tenDaiLy })
+  await ghiAudit('gan_dai_ly_may', `may:${serial}`, { dai_ly: ten, order_code: ma })
   revalidatePath(`/may/${encodeURIComponent(serial)}`)
   return { ok: true }
 }
