@@ -93,6 +93,8 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
     }
   }
 
+  const coGoSdt = f.primary_phone.trim() !== ''
+
   const oChu = 'mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900'
 
   return (
@@ -101,7 +103,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
         <h2 className="font-medium text-slate-900">Thông tin bắt buộc</h2>
 
         <label className="block">
-          <span className="text-sm text-slate-700">SĐT <span className="text-red-600">*</span></span>
+          <span className="text-sm text-slate-700">SĐT</span>
           <input value={f.primary_phone} onChange={(e) => dat('primary_phone', e.target.value)}
             onBlur={traSdt} inputMode="tel" placeholder="0xxxxxxxxx"
             className={`${oChu} font-mono`} />
@@ -112,6 +114,15 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
           <span className="mt-1 block text-xs text-slate-400">
             Gõ SĐT trước — hệ thống tra xem đã có khách này chưa, khỏi tạo trùng.
           </span>
+          {/* CEO chốt 22/08: cho tạo khách KHÔNG có SĐT. Ca thật: khách gọi tới hỏi, CS cần mở
+              hồ sơ ngay để ghi việc, chưa kịp xin số. Bắt buộc SĐT thì CS hoặc bỏ không tạo
+              (mất dấu khách), hoặc GÕ SỐ BỪA cho qua — cái sau tệ hơn hẳn. */}
+          {!coGoSdt && f.full_name.trim() !== '' && (
+            <span className="mt-1 block rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
+              Chưa có SĐT — vẫn tạo được. Hồ sơ sẽ vào danh sách <strong>“Cần xin lại SĐT”</strong>
+              {' '}ở bảng khách để CS gọi xin sau. Đừng gõ số bừa cho qua.
+            </span>
+          )}
         </label>
 
         {/* Câu nhắc lấy từ `nhanKetQuaTra()` — dùng CHUNG với Sales, để cùng một tình huống
@@ -185,7 +196,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
             <div className="rounded-lg border border-slate-200 p-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-slate-700">SĐT phụ</span>
-                <button type="button" onClick={() => setSdtPhu([...sdtPhu, { phone: '', contact_name: '', role: 'khac', zalo_ok: true, ghi_chu: '' }])}
+                <button type="button" onClick={() => setSdtPhu([...sdtPhu, { phone: '', contact_name: '', role: 'other', zalo_ok: true, ghi_chu: '' }])}
                   className="text-xs text-[#0a6771] underline">＋ thêm dòng</button>
               </div>
               {sdtPhu.length === 0 && <p className="mt-1 text-xs text-slate-400">Chưa có. Số công ty, giúp việc, người nhà…</p>}
@@ -204,7 +215,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                     <option value="family">Người nhà</option>
                     <option value="helper">Giúp việc</option>
                     <option value="manager">Quản lý</option>
-                    <option value="khac">Khác</option>
+                    <option value="other">Khác</option>
                   </select>
                   <label className="flex items-center gap-1.5 text-sm text-slate-700">
                     <input type="checkbox" checked={x.zalo_ok}
@@ -245,7 +256,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                     className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm">
                     <option value="nha">Nhà</option>
                     <option value="lap_dat">Lắp đặt</option>
-                    <option value="khac">Khác</option>
+                    <option value="other">Khác</option>
                   </select>
                   {/* Ô ghi chú — màn SỬA vốn có, màn TẠO thì thiếu. CEO bắt được 22/08:
                       hai màn phải y hệt nhau, không thì nhập ở màn này rồi sang màn kia
@@ -320,7 +331,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
       )}
 
       <div className="flex items-center gap-3">
-        <button type="button" onClick={luu} disabled={busy || !f.full_name.trim() || !sdtLuuDuoc || !!khop?.cs}
+        <button type="button" onClick={luu} disabled={busy || !f.full_name.trim() || (coGoSdt && !sdtLuuDuoc) || !!khop?.cs}
           className="rounded-lg bg-[#b5642a] px-5 py-2.5 font-medium text-white hover:bg-[#8a4a1c] disabled:opacity-50">
           {busy ? 'Đang tạo…' : 'Tạo khách'}
         </button>
