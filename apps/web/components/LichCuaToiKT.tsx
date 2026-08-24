@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { datTrangThaiLichKT, ghiKetQuaBaoTri, type KetQuaDo, type LichKyThuatRow, type LoaiMay } from '@/app/actions'
 import { NHAN_LOAI_VIEC } from '@/lib/danhSach'
+import { docBoSo } from '@/lib/so'
 import { vnDate } from '@/components/Badge'
 import { AnhViec } from '@/components/AnhViec'
 
@@ -41,14 +42,6 @@ function chiTieuTheoLoai(mmloai: LoaiMay): ChiTieu[] {
  */
 type SoMap = Partial<Record<SoField, string>>
 
-/** Chuỗi ô nhập -> số gửi lên server. Rỗng/dở dang ("7.", "-", ".") -> bỏ qua. */
-const soHoacBo = (s: string | undefined): number | undefined => {
-  const t = s?.trim()
-  if (!t) return undefined
-  const n = Number(t)
-  return Number.isFinite(n) ? n : undefined
-}
-
 /** Đo nước cho 1 việc bảo trì. "Trước lọc" dùng chung `truoc` cả chuyến; "sau lọc" riêng máy này. */
 function DoNuocViec({
   visitId, mmloai, truoc, setTruoc,
@@ -67,9 +60,15 @@ function DoNuocViec({
   const ct = chiTieuTheoLoai(mmloai)
 
   async function luu() {
-    setBusy(true); setErr(null); setMsg(null)
-    const kq: KetQuaDo = { ngay, ghi_chu: ghiChu || undefined }
-    for (const c of ct) { kq[c.t] = soHoacBo(truoc[c.t]); kq[c.s] = soHoacBo(sau[c.s]) }
+    setErr(null); setMsg(null)
+    // Chỉ đọc ô của ĐÚNG loại máy này — ô của chỉ tiêu đang ẩn không được xét, kẻo một
+    // số cũ còn sót trong state lại chặn nút Lưu bằng lỗi trỏ vào ô không ai nhìn thấy.
+    const oCanDoc: Partial<Record<SoField, string>> = {}
+    for (const c of ct) { oCanDoc[c.t] = truoc[c.t]; oCanDoc[c.s] = sau[c.s] }
+    const doc = docBoSo<SoField>(oCanDoc)
+    if (!doc.ok) { setErr(doc.loi); return }
+    setBusy(true)
+    const kq: KetQuaDo = { ngay, ghi_chu: ghiChu || undefined, ...doc.so }
     const r = await ghiKetQuaBaoTri(visitId, kq)
     setBusy(false)
     if (!r.ok) { setErr(r.error); return }
@@ -111,6 +110,7 @@ function DoNuocViec({
         ))}
       </div>
       {mmloai === null && <p className="text-[10px] text-slate-400">Không rõ loại máy — hiện đủ 4 chỉ tiêu.</p>}
+      <p className="text-[10px] text-slate-400">Số lẻ gõ <code>7.9</code> hay <code>7,9</code> đều được.</p>
       <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú khác" className="w-full rounded border px-2 py-1" />
       <div className="flex items-center gap-2 pt-0.5">
         <button onClick={luu} disabled={busy} className="rounded-lg bg-emerald-600 text-white px-3 py-1 font-medium disabled:opacity-50">{busy ? 'Đang lưu…' : 'Lưu kết quả'}</button>

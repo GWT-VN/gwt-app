@@ -34,7 +34,7 @@ export const TOI_DA_CHON = 2000
 export const COT_MAY = ['install_date', 'serial', 'customer_name', 'product_name', 'warranty_full_end'] as const
 export const COT_TICKET = ['created_at', 'ticket_code', 'state', 'customer_name'] as const
 export const COT_LOI = ['han_som', 'serial', 'customer_name'] as const
-export const COT_KHACH = ['full_name', 'province'] as const
+export const COT_KHACH = ['full_name', 'province', 'ma_kh'] as const
 
 /**
  * Cột có thể XUẤT của bảng khách — cho ô chọn trường export. `pii=true` (SĐT/địa chỉ)

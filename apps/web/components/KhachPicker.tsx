@@ -12,9 +12,16 @@ const sdtHopLe = (raw: string): boolean => chuanHoaSdt(raw).hopLe
  * Chọn khách (tìm trong cs_customers) hoặc tạo mới -> chờ admin duyệt.
  * onPick trả (id, nhãn hiển thị, khách). Không setState đồng bộ trong effect (tránh lỗi eslint).
  *
- * Tạo khách mới: SĐT BẮT BUỘC + đúng định dạng + không trùng. Nhập xong SĐT sẽ tra:
+ * Tạo khách mới: SĐT **KHÔNG bắt buộc** (CEO chốt 22/08/2026), nhưng CÓ gõ thì phải
+ * đúng định dạng và không trùng. Nhập xong SĐT sẽ tra:
  *  - đã là khách CS  -> mời chọn luôn, không tạo trùng;
  *  - khớp khách Sales -> tự điền info (dùng luôn), cho sửa lại địa chỉ.
+ *
+ * ⚠️ Ô này dùng ở 7 màn (đổi khách của máy · lắp bộ · đăng ký BH · tạo ticket · lịch kỹ
+ * thuật · bảo trì). CEO báo 24/08: ở màn *máy đã lắp → Đổi khách*, bỏ trống SĐT thì nút
+ * **Tạo khách** không sáng. Nguyên nhân: trang `/khach/moi` và server `taoKhachChoDuyet()`
+ * đã bỏ rào SĐT từ 22/08, riêng ô này còn sót rào cũ ⇒ cùng một việc mà hai đường vào
+ * hai luật. Nay khớp lại đúng luật của trang tạo khách.
  */
 export function KhachPicker(
   { onPick }: { onPick: (id: string, nhan: string, khach?: KhachTom) => void }
@@ -29,6 +36,9 @@ export function KhachPicker(
   const [dangTra, setDangTra] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+
+  /** Có gõ số hay không — quyết định mọi rào SĐT bên dưới. Trống = hợp lệ. */
+  const coGoSdt = f.primary_phone.trim() !== ''
 
   useEffect(() => {
     const t = q.trim()
@@ -79,7 +89,10 @@ export function KhachPicker(
   }
 
   async function taoMoi() {
-    if (!sdtHopLe(f.primary_phone)) { setErr('SĐT bắt buộc và phải đúng định dạng (vd 0xxxxxxxxx).'); return }
+    // Bỏ TRỐNG thì cho qua; có gõ mà sai định dạng mới chặn — nhận số sai còn tệ hơn để trống.
+    if (coGoSdt && !sdtHopLe(f.primary_phone)) {
+      setErr('SĐT không đúng định dạng (vd 0xxxxxxxxx). Bỏ trống cũng được.'); return
+    }
     setBusy(true); setErr(null)
     const r = await taoKhachChoDuyet(f)
     setBusy(false)
@@ -147,7 +160,7 @@ export function KhachPicker(
             <input value={f.primary_phone}
               onChange={(e) => { setF({ ...f, primary_phone: e.target.value }); setKhop(null) }}
               onBlur={traSdt} inputMode="tel"
-              placeholder="SĐT * (vd 0xxxxxxxxx)"
+              placeholder="SĐT (để trống được)"
               className="rounded-lg border px-3 py-2 text-sm text-slate-900 font-mono" />
             <input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })}
               placeholder="Địa chỉ" className="rounded-lg border px-3 py-2 text-sm text-slate-900 sm:col-span-2" />
@@ -156,8 +169,15 @@ export function KhachPicker(
           </div>
 
           {dangTra && <p className="text-xs text-slate-400">Đang kiểm tra SĐT…</p>}
-          {f.primary_phone.trim() && !sdtHopLe(f.primary_phone) && (
+          {coGoSdt && !sdtHopLe(f.primary_phone) && (
             <p className="text-xs text-amber-700">SĐT chưa đúng định dạng (vd 0xxxxxxxxx).</p>
+          )}
+          {/* Cùng câu nhắc với trang `/khach/moi` — một tình huống thì cả app nói một câu. */}
+          {!coGoSdt && f.full_name.trim() !== '' && (
+            <p className="rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
+              Chưa có SĐT — vẫn tạo được. Hồ sơ sẽ vào danh sách <strong>“Cần xin lại SĐT”</strong>
+              {' '}ở bảng khách để CS gọi xin sau. Đừng gõ số bừa cho qua.
+            </p>
           )}
           {/* Cảnh báo mềm: lưu được nhưng chưa đúng chuẩn 10 số bắt đầu bằng 0. */}
           {sdtHopLe(f.primary_phone) && canhBaoSdt(f.primary_phone) && (
@@ -180,7 +200,7 @@ export function KhachPicker(
 
           <div className="flex items-center gap-3">
             <button type="button" onClick={taoMoi}
-              disabled={busy || !f.full_name.trim() || !sdtHopLe(f.primary_phone) || khop?.nguon === 'cs'}
+              disabled={busy || !f.full_name.trim() || (coGoSdt && !sdtHopLe(f.primary_phone)) || khop?.nguon === 'cs'}
               className="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium disabled:opacity-50">
               {busy ? 'Đang tạo…' : 'Tạo khách'}
             </button>

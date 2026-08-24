@@ -16,8 +16,19 @@ function tenThang(thang: string): string {
 /**
  * Calendar lịch KỸ THUẬT theo tháng — nhìn tháng này có bao nhiêu chuyến, ngày nào.
  * Server component. Tuần bắt đầu Thứ 2. Chip: xanh=xong · xám gạch=huỷ · sky=đã hẹn.
+ *
+ * 🔴 **CEO báo 24/08: "bảng calendar ko tick vào task đc".** Đúng — chip ở đây trước là
+ * `<div>` trơn, không bấm được, mà nút đổi trạng thái (Xong / Huỷ / Xoá) chỉ có ở view
+ * **Danh sách**. Nhìn thấy chuyến mà không làm gì được với nó.
+ *
+ * Cách vá: KHÔNG bê nút bấm vào đây (calendar là server component, nhét nút vào là phải
+ * đổi cả sang client và đẻ bản thứ hai của mớ nút đó — đúng thứ dễ lệch nhau về sau).
+ * Thay vào đó **mỗi chip là một link về đúng NGÀY ấy ở view Danh sách**, giữ nguyên bộ
+ * lọc kỹ thuật + loại việc đang chọn. Bấm chip → thấy đúng chuyến đó kèm đủ nút.
  */
-export function LichKyThuatCalendar({ thang, rows, kt }: { thang: string; rows: LichKyThuatRow[]; kt?: string }) {
+export function LichKyThuatCalendar(
+  { thang, rows, kt, loai }: { thang: string; rows: LichKyThuatRow[]; kt?: string; loai?: string }
+) {
   const [y, m] = thang.split('-').map(Number)
   const soNgay = new Date(Date.UTC(y, m, 0)).getUTCDate()
   const thu1 = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7
@@ -32,7 +43,14 @@ export function LichKyThuatCalendar({ thang, rows, kt }: { thang: string; rows: 
   for (let d = 1; d <= soNgay; d++) o.push(d)
   while (o.length % 7 !== 0) o.push(null)
 
-  const qs = (t: string) => new URLSearchParams({ thang: t, ...(kt ? { kt } : {}) }).toString()
+  const qs = (t: string) => new URLSearchParams({ thang: t, ...(kt ? { kt } : {}), ...(loai ? { loai } : {}) }).toString()
+  /** Về view Danh sách, thu hẹp đúng MỘT ngày — chỗ duy nhất có nút đổi trạng thái. */
+  const linkNgay = (d: number) => {
+    const ngay = `${thang}-${String(d).padStart(2, '0')}`
+    return `/ky-thuat/lich?${new URLSearchParams({
+      view: 'list', tu: ngay, den: ngay, ...(kt ? { kt } : {}), ...(loai ? { loai } : {}),
+    })}`
+  }
 
   return (
     <div className="space-y-3">
@@ -58,16 +76,22 @@ export function LichKyThuatCalendar({ thang, rows, kt }: { thang: string; rows: 
                   <>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-400">{d}</span>
-                      {list.length > 0 && <span className="text-[10px] bg-slate-900 text-white rounded-full px-1.5">{list.length}</span>}
+                      {list.length > 0 && (
+                        <Link href={linkNgay(d)} prefetch={false}
+                          className="text-[10px] bg-slate-900 text-white rounded-full px-1.5 hover:bg-slate-700">{list.length}</Link>
+                      )}
                     </div>
                     <div className="space-y-0.5 mt-0.5">
                       {list.slice(0, 4).map((r) => (
-                        <div key={r.id} className={`truncate rounded px-1 py-0.5 text-[10px] ${r.trang_thai === 'xong' ? 'bg-emerald-100 text-emerald-800' : r.trang_thai === 'huy' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-sky-100 text-sky-800'}`}
-                          title={`${r.ten_ky_thuat ?? ''} · ${r.ten_khach ?? r.dia_chi ?? ''}`}>
+                        <Link key={r.id} href={linkNgay(d)} prefetch={false}
+                          className={`block truncate rounded px-1 py-0.5 text-[10px] hover:ring-1 hover:ring-slate-400 ${r.trang_thai === 'xong' ? 'bg-emerald-100 text-emerald-800' : r.trang_thai === 'huy' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-sky-100 text-sky-800'}`}
+                          title={`${r.ten_ky_thuat ?? ''} · ${r.ten_khach ?? r.dia_chi ?? ''} — bấm để mở ngày này ở Danh sách`}>
                           {r.ten_ky_thuat ?? 'KT'}{r.ten_khach ? ` · ${r.ten_khach}` : ''}
-                        </div>
+                        </Link>
                       ))}
-                      {list.length > 4 && <div className="text-[10px] text-slate-400">+{list.length - 4} nữa</div>}
+                      {list.length > 4 && (
+                        <Link href={linkNgay(d)} prefetch={false} className="block text-[10px] text-slate-400 underline">+{list.length - 4} nữa</Link>
+                      )}
                     </div>
                   </>
                 )}

@@ -13,7 +13,7 @@ import { coQuyen, doQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { antoanChoOr, chuanHoaTuKhoa, mauDauTu, sapXepHopLe, gomKhoa } from '@/bang'
 import type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc } from '@/bang'
 import { goiYGomTu, type CumGoiY } from '@/lib/goiYNhom'
-import { sinhLichBaoTri, vungTheoTinh, type Vung } from '@/lib/lichBaoTri'
+import { sinhLichBaoTri, suyChuKyTuMoc, vungTheoTinh, type Vung } from '@/lib/lichBaoTri'
 import { traKhachTheoSdt, type KetQuaTraKhach } from '@/lib/tra-khach'
 import { xepGoiY, type GoiYKhach, type KhachUngVien } from '@/lib/khopPlanKhach'
 import { kiemTraGop, moTaGop, type KhachGon, type KhachDayDu } from '@/lib/gopKhach'
@@ -217,6 +217,8 @@ export type Customer = {
   chuc_vu_dai_dien: string | null
   /** Mã khách dùng chung hai khu — cũng là KHOÁ của SĐT phụ / địa chỉ phụ. */
   ma_kh: string | null
+  /** Mã nối sang hồ sơ khách bên Sales (`customers.customer_code`, kiểu KH02419). */
+  customer_code: string | null
 }
 
 export async function getCustomer(id: string) {
@@ -264,8 +266,12 @@ export async function updateCustomer(id: string, patch: Partial<Customer>) {
     nguoi_dai_dien: patch.nguoi_dai_dien || null,
     chuc_vu_dai_dien: patch.chuc_vu_dai_dien || null,
   }
-  // Sửa được SĐT hợp lệ -> hạ cờ needs_phone + xoá ghi chú lỗi
+  // Sửa được SĐT hợp lệ -> hạ cờ needs_phone + xoá ghi chú lỗi.
+  // Ngược lại (xoá trắng ô SĐT, hoặc để lại số sai định dạng) -> BẬT cờ, để hồ sơ rơi vào
+  // chip "Cần xin lại SĐT". Bản trước chỉ biết HẠ cờ chứ không biết bật: CS xoá số đi là
+  // hồ sơ lặng lẽ biến mất khỏi danh sách phải gọi xin số — đúng thứ chip đó sinh ra để chặn.
   if (sdt && /^0\d{9,10}$/.test(sdt)) { payload.needs_phone = false; payload.notes = null }
+  else payload.needs_phone = true
   // Sửa thông tin khách CẦN ADMIN DUYỆT: admin áp ngay, CS -> hàng chờ.
   return guiYeuCauThayDoi({ doi_tuong: 'cs_customers', ban_ghi_id: id, loai: 'sua', payload })
 }
@@ -1189,18 +1195,39 @@ async function tinhDoiLichSau(
   db: ReturnType<typeof dataClient>, visitId: string, ngayThuc: string,
 ): Promise<DoiLichMuc[]> {
   const { data: v } = await db.from('maintenance_visit')
-    .select('plan_id, lan_thu').eq('id', visitId).maybeSingle()
-  const vv = v as { plan_id: string | null; lan_thu: number | null } | null
-  if (!vv?.plan_id || vv.lan_thu == null) return []
+    .select('plan_id, lan_thu, section').eq('id', visitId).maybeSingle()
+  const vv = v as { plan_id: string | null; lan_thu: number | null; section: string | null } | null
+  if (!vv || vv.lan_thu == null) return []
+  return vv.plan_id
+    ? doiLichTheoPlan(db, vv.plan_id, vv.lan_thu, ngayThuc)
+    : doiLichTheoSection(db, vv.section, vv.lan_thu, ngayThuc)
+}
 
+/** Lượt chưa làm ghép với mốc mới. Lượt ĐÃ đúng ngày thì bỏ, không kể vào câu hỏi. */
+function ghepMocMoi(
+  ds: { id: string; lan_thu: number | null; due_date: string | null }[], ngayMoi: string[],
+): DoiLichMuc[] {
+  const out: DoiLichMuc[] = []
+  for (let i = 0; i < ds.length && i < ngayMoi.length; i++) {
+    const cu = ds[i].due_date?.slice(0, 10) ?? null
+    if (cu === ngayMoi[i]) continue
+    out.push({ id: ds[i].id, lan_thu: ds[i].lan_thu, cu, moi: ngayMoi[i] })
+  }
+  return out
+}
+
+/** Đường thường: lượt có gắn `maintenance_plan` -> đọc thẳng chu kỳ + vùng của plan. */
+async function doiLichTheoPlan(
+  db: ReturnType<typeof dataClient>, planId: string, lanThu: number, ngayThuc: string,
+): Promise<DoiLichMuc[]> {
   const { data: plan } = await db.from('maintenance_plan')
-    .select('customer_id, chu_ky_thang, vung').eq('id', vv.plan_id).maybeSingle()
+    .select('customer_id, chu_ky_thang, vung').eq('id', planId).maybeSingle()
   const p = plan as { customer_id: string | null; chu_ky_thang: number | null; vung: Vung | null } | null
   const chuKy = p?.chu_ky_thang ?? 0
   if (!p || chuKy <= 0) return []
 
   const { data: sau } = await db.from('maintenance_visit').select('id, lan_thu, due_date')
-    .eq('plan_id', vv.plan_id).is('completed_at', null).gt('lan_thu', vv.lan_thu).order('lan_thu')
+    .eq('plan_id', planId).is('completed_at', null).gt('lan_thu', lanThu).order('lan_thu')
   const ds = (sau ?? []) as { id: string; lan_thu: number | null; due_date: string | null }[]
   if (!ds.length) return []
 
@@ -1208,14 +1235,46 @@ async function tinhDoiLichSau(
     .select('province').eq('id', p.customer_id ?? '').maybeSingle()
   const vung: Vung = p.vung ?? vungTheoTinh((kh as { province: string | null } | null)?.province ?? null)
   const ngayMoi = sinhLichBaoTri(ngayThuc, chuKy, ds.length + 1, vung).slice(1)  // mốc SAU ngày thực
+  return ghepMocMoi(ds, ngayMoi)
+}
 
-  const out: DoiLichMuc[] = []
-  for (let i = 0; i < ds.length && i < ngayMoi.length; i++) {
-    const cu = ds[i].due_date?.slice(0, 10) ?? null
-    if (cu === ngayMoi[i]) continue           // đã đúng ngày -> không kể vào câu hỏi
-    out.push({ id: ds[i].id, lan_thu: ds[i].lan_thu, cu, moi: ngayMoi[i] })
-  }
-  return out
+/**
+ * 🔴 Lượt MỒ CÔI — `plan_id` NULL, gom hồ sơ bằng cột `section` của đợt nhập Asana.
+ *
+ * Bản trước thoát ngay ở `if (!vv?.plan_id) return []`, và màn hình đọc mảng rỗng là
+ * "các lượt sau đã đúng ngày, không cần dời". CEO bắt được đúng ca này ngày 24/08 ở hồ sơ
+ * *Mr.Nứa - 123C Thuỵ Khuê*: lượt 6 ghi làm 14/08 mà lượt 7 vẫn 29/11, hệ thống lại báo
+ * không cần dời. **Đo prod cùng ngày: 309/471 lượt (51 hồ sơ) không có `plan_id`** — tức
+ * hai phần ba lịch bảo trì đang im lặng bỏ qua việc dời, không phải một ca lẻ.
+ *
+ * Không có plan thì thiếu hai thứ, lấy như sau:
+ *  · **chu kỳ** — suy ngược từ khoảng cách các mốc sẵn có (`suyChuKyTuMoc`), không suy
+ *    được thì 3 tháng, đúng mặc định hợp đồng WH15A/WH30A.
+ *  · **vùng** — không có hồ sơ khách nên không biết tỉnh ⇒ lấy `'bac'` (nghỉ cả T7 + CN).
+ *    Cố ý chọn bên NGHIÊM hơn: hẹn nhầm vào thứ Bảy là kỹ thuật đi rồi mới biết khách bận,
+ *    còn hẹn sớm hơn một hai ngày thì CS nhìn bảng đề xuất là dời lại được ngay.
+ *
+ * Vẫn chỉ ĐỀ XUẤT — CS xem từng dòng *ngày cũ → ngày mới* rồi mới bấm đồng ý.
+ */
+async function doiLichTheoSection(
+  db: ReturnType<typeof dataClient>, section: string | null, lanThu: number, ngayThuc: string,
+): Promise<DoiLichMuc[]> {
+  if (!section) return []   // không có gì để gom hồ sơ -> không đoán bừa
+
+  const { data: all } = await db.from('maintenance_visit')
+    .select('id, lan_thu, due_date, completed_at')
+    .eq('section', section).is('plan_id', null).order('lan_thu')
+  const tatCa = (all ?? []) as {
+    id: string; lan_thu: number | null; due_date: string | null; completed_at: string | null
+  }[]
+
+  const ds = tatCa.filter((r) => r.completed_at === null && r.lan_thu != null && r.lan_thu > lanThu)
+  if (!ds.length) return []
+
+  // Suy chu kỳ từ TOÀN chuỗi (kể cả lượt đã làm) — càng nhiều mốc càng chắc.
+  const chuKy = suyChuKyTuMoc(tatCa.map((r) => r.due_date)) ?? 3
+  const ngayMoi = sinhLichBaoTri(ngayThuc, chuKy, ds.length + 1, 'bac').slice(1)
+  return ghepMocMoi(ds, ngayMoi)
 }
 
 /** Đề xuất dời lịch cho một lượt đã đánh dấu xong — để màn hình hỏi lại CS. Không ghi gì. */
@@ -1270,9 +1329,41 @@ export type KetQuaDo = {
  * Trả về ĐỀ XUẤT dời các lượt sau (lịch 1/8 mà làm 10/8 thì lượt sau nên thành 10/11 chứ không
  * phải 1/11) — nhưng **không tự đổi**: CEO chốt 21/08 là CS phải xác nhận trước.
  */
+/**
+ * Lượt bảo trì `visitId` có nằm trong chuyến của CHÍNH kỹ thuật đang đăng nhập không?
+ *
+ * Nối qua `lich_ky_thuat_viec.ref` (= id lượt bảo trì) → `lich_ky_thuat.ky_thuat_id`.
+ * Không phải kỹ thuật, hoặc lượt không thuộc chuyến nào của mình -> false (hỏng theo
+ * hướng CẤM).
+ */
+async function laChuyenCuaToi(visitId: string): Promise<boolean> {
+  await requireStaff()
+  // Không có nổi quyền xem lịch của chính mình thì chắc chắn không phải kỹ thuật hiện
+  // trường — chặn sớm, và để ma trận NHÌN THẤY hàm này (lưới `cong-quyen.test.ts`).
+  if (!(await coQuyen('cs.ky_thuat.lich_cua_toi', 'NHANVIEN'))) return false
+  const me = await kyThuatCuaToi()
+  if (!me) return false
+  const db = dataClient()
+  const { data: viec } = await db.from('lich_ky_thuat_viec')
+    .select('lich_id').eq('ref', visitId).eq('loai_viec', 'bao_tri')
+  const lichIds = ((viec ?? []) as { lich_id: string }[]).map((v) => v.lich_id)
+  if (!lichIds.length) return false
+  const { data: lich } = await db.from('lich_ky_thuat')
+    .select('id').in('id', lichIds).eq('ky_thuat_id', me.id).limit(1)
+  return ((lich ?? []) as unknown[]).length > 0
+}
+
 export async function ghiKetQuaBaoTri(visitId: string, kq: KetQuaDo): Promise<{ ok: true; deXuat: DoiLichMuc[] } | { ok: false; error: string }> {
   await requireStaff()
-  await doQuyen('cs.bao_tri.ghi_ket_qua')
+  // CS/quản lý ghi được mọi lượt. Kỹ thuật hiện trường KHÔNG có `cs.bao_tri.ghi_ket_qua`
+  // (vai trò `ky_thuat` chỉ giữ 4 quyền), nhưng ghi kết quả đo CHÍNH LÀ việc của họ trên
+  // màn "Lịch của tôi" — nên cho ghi đúng lượt thuộc CHUYẾN CỦA MÌNH. Cùng khuôn với
+  // `datTrangThaiLichKT()`: hỏi quyền trước, thiếu quyền thì xét quyền-sở-hữu.
+  // Trả lỗi chứ không `doQuyen` (đá trang): hàm này gọi từ nút bấm, người dùng cần đọc
+  // được câu từ chối tại chỗ thay vì bị văng khỏi màn đang làm dở.
+  if (!(await coQuyen('cs.bao_tri.ghi_ket_qua', 'NHANVIEN')) && !(await laChuyenCuaToi(visitId))) {
+    return { ok: false, error: KHONG_DU_QUYEN }
+  }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(kq.ngay)) return { ok: false, error: 'Ngày không hợp lệ.' }
   const db = dataClient()
   const num = (x?: number) => (typeof x === 'number' && !Number.isNaN(x) ? x : null)
@@ -2008,14 +2099,38 @@ export type LichKyThuatRow = {
 }
 
 /**
- * Phân loại POU/POE cho các lượt bảo trì (visitId): plan.serial → serial_registry
- * .internal_code → catalog_item "Danh mục cấp 2". Trả map visitId -> LoaiMay.
- * Không suy ra được (thiếu serial / không khớp catalog) -> null (form hiện đủ 4 chỉ số).
+ * Phân loại POU/POE cho các lượt bảo trì (visitId) -> form đo hiện đúng chỉ tiêu.
+ *
+ * **CEO chốt 24/08/2026:** *"sau khi map lịch bảo trì vs khách thì tự lấy máy đang gắn vs
+ * khách (ko cần quan tâm tên máy trong tên lịch bảo trì)"*. Đường đi nay là:
+ *   lượt -> plan -> KHÁCH -> máy đang lắp của khách (`installed_base`) -> danh mục cấp 2.
+ *
+ * Vì sao phải đổi: bản trước chỉ suy từ `plan.serial`, mà đo prod **0/79 plan có serial**
+ * ⇒ phủ **0 lượt**, tính năng chưa chạy lần nào. Đo lại 24/08 theo đường mới: **113 lượt**
+ * (lượt có plan CÓ gắn khách) phân loại được; 500 máy đang lắp thì 100% có danh mục cấp 2.
+ *
+ * Ba nhánh, nhánh giữa mới là chỗ đáng chú ý:
+ *  · Khách chỉ có POE   -> 'POE'  (31 khách trên prod)
+ *  · Khách chỉ có POU   -> 'POU'  (259 khách)
+ *  · Khách có **CẢ HAI** -> `null` (27 khách). Cố ý: chưa map được lượt tới ĐÚNG con máy
+ *    thì không biết chuyến này đi cho máy nào ⇒ **hiện đủ 4 chỉ tiêu**. Đúng nguyên tắc
+ *    CEO chốt 21/08 — thà hỏi thừa còn hơn giấu mất chỉ tiêu phải ghi.
+ *  · Không map được khách (lượt mồ côi / plan chưa gắn khách) -> `null`, đủ 4 chỉ tiêu.
+ *
+ * `plan.serial` VẪN được ưu tiên khi có: nó trỏ đúng MỘT con máy nên chính xác hơn suy
+ * theo khách. Hôm nay chưa plan nào điền, nhưng điền tới đâu tự chính xác tới đó.
  */
 async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> {
   await requireStaff()
-  await doQuyen('cs.bao_tri.xem')
+  // Rào MỀM, và hỏi ĐÚNG quyền của màn gọi nó. Helper này chỉ phục vụ `lichCuaToi()`
+  // — màn "Lịch của tôi" của kỹ thuật. Bản trước gác `cs.bao_tri.xem` bằng `doQuyen()`,
+  // mà vai trò `ky_thuat` không có quyền ấy ⇒ ĐÁ họ khỏi chính màn của mình, thành vòng
+  // lặp chuyển hướng (đo prod 24/08). Thiếu quyền thì trả map RỖNG: form hiện đủ 4 chỉ
+  // tiêu — đúng nhánh dự phòng vốn có — chứ không bao giờ văng người dùng ra khỏi trang.
+  // ⚠️ Có thêm chỗ gọi từ màn CS thì phải xét lại mã quyền này.
   const out = new Map<string, LoaiMay>()
+  if (!(await coQuyen('cs.ky_thuat.lich_cua_toi', 'NHANVIEN'))) return out
+
   const ids = [...new Set(visitIds.filter(Boolean))]
   if (!ids.length) return out
   const db = dataClient()
@@ -2023,43 +2138,86 @@ async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> 
   const visits = (vs ?? []) as { id: string; plan_id: string | null }[]
   const planIds = [...new Set(visits.map((v) => v.plan_id).filter(Boolean))] as string[]
   if (!planIds.length) return out
-  const { data: ps } = await db.from('maintenance_plan').select('id, serial').in('id', planIds)
-  const plans = (ps ?? []) as { id: string; serial: string | null }[]
-  const planSerial = new Map(plans.map((p) => [p.id, (p.serial ?? '').trim()]))
 
-  // Đường CHÍNH: serial -> kho serial -> danh mục cấp 2. Chính xác nhất vì bám đúng con máy.
-  const serials = [...new Set([...planSerial.values()].filter(Boolean))]
-  const serialIc = new Map<string, string | null>()
-  const icLoai = new Map<string, string | null>()
-  if (serials.length) {
-    const { data: sr } = await db.from('serial_registry').select('serial, internal_code').in('serial', serials)
-    for (const s of (sr ?? []) as { serial: string; internal_code: string | null }[]) serialIc.set(s.serial, s.internal_code)
-    const ics = [...new Set([...serialIc.values()].filter(Boolean))] as string[]
-    if (ics.length) {
-      const { data: ci } = await db.from('catalog_item').select('"Mã nội bộ", "Danh mục cấp 2"').in('Mã nội bộ', ics)
-      for (const c of (ci ?? []) as Record<string, string | null>[]) icLoai.set(c['Mã nội bộ'] as string, c['Danh mục cấp 2'])
+  const { data: ps } = await db.from('maintenance_plan').select('id, serial, customer_id').in('id', planIds)
+  const plans = (ps ?? []) as { id: string; serial: string | null; customer_id: string | null }[]
+  const planSerial = new Map(plans.map((x) => [x.id, (x.serial ?? '').trim()]))
+  const planKhach = new Map(plans.map((x) => [x.id, x.customer_id]))
+
+  const chuan = (x: string | null | undefined): LoaiMay => (x === 'POU' ? 'POU' : x === 'POE' ? 'POE' : null)
+
+  /** Tra danh mục cấp 2 cho một mớ mã nội bộ — dùng chung cho cả hai đường, không tra lại. */
+  const icLoai = new Map<string, LoaiMay>()
+  async function napDanhMuc(ics: (string | null)[]) {
+    const can = [...new Set(ics.filter((x): x is string => !!x && !icLoai.has(x)))]
+    if (!can.length) return
+    const { data: ci } = await db.from('catalog_item').select('"Mã nội bộ", "Danh mục cấp 2"').in('Mã nội bộ', can)
+    for (const c of (ci ?? []) as Record<string, string | null>[]) {
+      icLoai.set(c['Mã nội bộ'] as string, chuan(c['Danh mục cấp 2']))
     }
   }
 
-  const chuan = (x: string | null | undefined): LoaiMay => (x === 'POU' ? 'POU' : x === 'POE' ? 'POE' : null)
+  // ── Đường chính xác nhất: plan có serial -> đúng con máy đó ──
+  const serials = [...new Set([...planSerial.values()].filter(Boolean))]
+  const serialIc = new Map<string, string | null>()
+  if (serials.length) {
+    const { data: sr } = await db.from('serial_registry').select('serial, internal_code').in('serial', serials)
+    for (const x of (sr ?? []) as { serial: string; internal_code: string | null }[]) serialIc.set(x.serial, x.internal_code)
+    await napDanhMuc([...serialIc.values()])
+  }
+
+  // ── Đường CEO chốt 24/08: theo MÁY ĐANG LẮP của khách ──
+  const khachIds = [...new Set([...planKhach.values()].filter(Boolean))] as string[]
+  /** customer_id -> tập loại máy khách đang có. 2 loại = không đoán được chuyến cho máy nào. */
+  const loaiCuaKhach = new Map<string, Set<'POU' | 'POE'>>()
+  if (khachIds.length) {
+    const { data: ib } = await db.from('installed_base')
+      .select('customer_id, internal_code').eq('status', 'active').in('customer_id', khachIds)
+    const may = (ib ?? []) as { customer_id: string | null; internal_code: string | null }[]
+    await napDanhMuc(may.map((m) => m.internal_code))
+    for (const m of may) {
+      const loai = m.internal_code ? icLoai.get(m.internal_code) ?? null : null
+      if (!m.customer_id || !loai) continue
+      const t = loaiCuaKhach.get(m.customer_id) ?? new Set<'POU' | 'POE'>()
+      t.add(loai); loaiCuaKhach.set(m.customer_id, t)
+    }
+  }
+
   for (const v of visits) {
-    const serial = v.plan_id ? planSerial.get(v.plan_id) : ''
+    if (!v.plan_id) { out.set(v.id, null); continue }
+    const serial = planSerial.get(v.plan_id)
     const ic = serial ? serialIc.get(serial) : null
-    // CHỈ suy từ SERIAL. KHÔNG suy từ `plan.bo_may` — CEO chốt 21/08/2026 sau khi thử thật:
-    // tên bộ máy trong lịch bảo trì (WH15A/WH30A) chỉ nói về HỆ LỌC TỔNG mà khách lắp. Nó KHÔNG
-    // cho biết khách có thêm máy lọc nước UỐNG hay không. Suy ra POE rồi ẩn TDS/pH là **giấu mất
-    // chỉ tiêu kỹ thuật cần ghi** cho những khách có cả hai loại máy.
-    // ⇒ Chưa map được lượt bảo trì tới đúng con máy thì HIỆN ĐỦ 4 CHỈ SỐ. Thà hỏi thừa còn hơn
-    // thiếu. Chỉ bật phân loại lại khi `plan.serial` được điền (đo 21/08: 0/79 plan có serial).
-    out.set(v.id, chuan(ic ? icLoai.get(ic) : null))
+    const theoSerial = ic ? icLoai.get(ic) ?? null : null
+    if (theoSerial) { out.set(v.id, theoSerial); continue }
+
+    const kh = planKhach.get(v.plan_id)
+    const tap = kh ? loaiCuaKhach.get(kh) : undefined
+    // Đúng MỘT loại thì chắc chắn; 0 hoặc 2 loại -> null -> form hiện đủ 4 chỉ tiêu.
+    out.set(v.id, tap && tap.size === 1 ? [...tap][0] : null)
   }
   return out
 }
 
-/** Lịch kỹ thuật trong khoảng ngày (tuỳ chọn lọc 1 kỹ thuật). */
+
+/**
+ * Lịch kỹ thuật trong khoảng ngày (tuỳ chọn lọc 1 kỹ thuật).
+ *
+ * 🔴 **Rào theo PHẠM VI, không theo tên hàm.** Bản trước gác cứng `cs.ky_thuat.xep_lich`
+ * — quyền XẾP lịch cho cả đội. Nhưng hàm này còn phục vụ màn *"Lịch của tôi"*, nơi kỹ
+ * thuật viên chỉ ĐỌC chuyến của chính mình. Hậu quả đo được trên prod 24/08: tài khoản
+ * kỹ thuật đăng nhập xong bị `doQuyen` đá về `/`, mà `/` thấy vai trò kỹ thuật lại đá
+ * ngược vào `/ky-thuat/cua-toi` ⇒ **vòng lặp chuyển hướng**, trình duyệt bỏ cuộc và hiện
+ * *"This page isn't working"*. Bảng `nhat_ky_lech_quyen` ghi đúng vết: **75 lượt** trong
+ * 2 phút cho `cs.ky_thuat.xep_lich`, cùng một email.
+ *
+ * Nay: lọc đúng hồ sơ kỹ thuật CỦA MÌNH thì chỉ cần đã qua `cs.ky_thuat.lich_cua_toi`
+ * (đã kiểm bên trong `kyThuatCuaToi()`); xem của người khác hoặc cả đội mới cần `xep_lich`
+ * — **y hệt rào cũ**, không nới cho ai thêm.
+ */
 export async function dsLichKyThuat(tu: string, den: string, kyThuatId?: string): Promise<LichKyThuatRow[]> {
   await requireStaff()
-  await doQuyen('cs.ky_thuat.xep_lich')
+  const cuaChinhMinh = !!kyThuatId && (await kyThuatCuaToi())?.id === kyThuatId
+  if (!cuaChinhMinh) await doQuyen('cs.ky_thuat.xep_lich')
   const db = dataClient()
   let q = db.from('lich_ky_thuat')
     .select('id, ngay, ky_thuat_id, trang_thai, customer_id, dia_chi, tinh, ghi_chu')
@@ -4069,7 +4227,16 @@ export async function listKhachHang(
 
   let truyVan = db.from('cs_customers').select('*', { count: 'exact' }).neq('trang_thai', 'da_xoa')
   const kw = antoanChoOr(chuanHoaTuKhoa(q))
-  if (kw) truyVan = truyVan.or(`ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%`)
+  // Tìm được theo MÃ KHÁCH (`ma_kh` kiểu KH-2608-0108 và `customer_code` kiểu KH02419).
+  // CEO báo 24/08: có 4 cặp mã lệch giữa CS và Sales cần mở ra xem, mà bảng khách không
+  // hiện mã cũng không tra được theo mã ⇒ biết số mã trong tay vẫn không mở nổi hồ sơ.
+  // Mã là MÃ nên khớp chuỗi con (ilike), không khớp đầu từ như tên người.
+  if (kw) {
+    truyVan = truyVan.or(
+      `ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%,` +
+        `ma_kh.ilike.%${kw}%,customer_code.ilike.%${kw}%`
+    )
+  }
   // "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải LỌC RA được
   // danh sách phải gọi xin số. Bắt cả hồ sơ trống số lẫn hồ sơ bị cờ `needs_phone`
   // (số sai định dạng từ đợt import cũ) — với CS thì hai ca đó cùng một việc phải làm.
