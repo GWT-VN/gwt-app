@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
+import { coQuyenHienNut } from '@/lib/nen-tang/kiem-quyen'
 import { bangTeam, nenTang } from '../actions'
 import { BangTeam } from '@/components/work/BangTeam'
 
@@ -11,6 +12,9 @@ export const metadata = { title: 'Bảng team · GWT Work' }
  */
 export default async function BangTeamPage() {
   await requireNhanSu()
+  // Nhân viên thường không thấy mục 'Việc tự sinh' (CEO chốt 24/08). Ẩn link
+  // chỉ là cho gọn mắt — rào thật nằm trong chính trang đó.
+  const thayTuSinh = await coQuyenHienNut('work.luat_tu_sinh', 'QUANLY')
   const [rows, nt] = await Promise.all([bangTeam(), nenTang()])
 
   return (
@@ -20,7 +24,9 @@ export default async function BangTeamPage() {
           <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
             <Link href="/work" style={{ color: "var(--accent-ink)" }}>Việc của tôi</Link>
             <span style={{ color: "var(--faint)" }}>Bảng team</span>
-            <Link href="/work/tu-sinh" style={{ color: "var(--accent-ink)" }}>Việc tự sinh</Link>
+            {thayTuSinh && (
+              <Link href="/work/tu-sinh" style={{ color: "var(--accent-ink)" }}>Việc tự sinh</Link>
+            )}
           </nav>
           <h1 style={{ fontSize: 20, fontWeight: 670, letterSpacing: "-.02em", margin: 0 }}>Bảng team</h1>
           <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 2 }}>

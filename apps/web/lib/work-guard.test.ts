@@ -58,6 +58,66 @@ describe('BangTeam — kéo thả nạp dataTransfer', () => {
         'đọc thêm dataTransfer thì lượt thả nào cũng biết mình đang thả cái gì.',
     ).toBe(true)
   })
+
+  // ── Ba bất biến rút ra từ lỗi CEO báo lại 24/08 ("kéo sang vẫn không được") ──
+
+  it('thẻ kéo KHÔNG phải <button>', () => {
+    // Safari/Firefox không cho `draggable` chạy tử tế trên form control: thẻ
+    // không nhấc lên được và cũng chẳng báo gì. Phải là <div role="button">.
+    const i = src.indexOf('draggable')
+    const truoc = src.slice(Math.max(0, i - 500), i)
+    expect(
+      !/<button\s[^>]*$/.test(truoc) && /role="button"/.test(truoc),
+      'Thẻ kanban phải là <div role="button" tabIndex={0}>, không phải <button>.',
+    ).toBe(true)
+  })
+
+  it('cột có chiều cao tối thiểu — cột RỖNG vẫn hứng được cú thả', () => {
+    // Trước 24/08 grid để items-start và cột không có minHeight, nên cột rỗng co
+    // lại còn mỗi tiêu đề (~38px) trong khi thẻ kéo cao gấp đôi. Con trỏ trượt ra
+    // ngoài hộp -> drop không nổ -> "không có gì xảy ra", không kèm lỗi nào.
+    expect(
+      /minHeight:\s*\d{2,}/.test(src),
+      'Cột kanban thiếu minHeight. Cột rỗng co lại thì không thả vào được.',
+    ).toBe(true)
+  })
+
+  it('dragover đọc REF chứ không đọc state', () => {
+    // setDangKeo là state, chỉ thấy được ở lần dựng lại sau; dragover có thể nổ
+    // trước lần dựng đó, đọc ra null rồi bỏ qua preventDefault — mà thiếu
+    // preventDefault thì trình duyệt từ chối thả, im lặng.
+    const i = src.indexOf('onDragOver')
+    expect(
+      /dangKeoRef\.current/.test(src.slice(i, i + 400)),
+      'onDragOver phải đọc dangKeoRef.current (đồng bộ), không đọc state dangKeo.',
+    ).toBe(true)
+  })
+})
+
+// ── /work/tu-sinh: nhân viên thường không thấy màn này ──────────────────────
+// CEO chốt 24/08: "nhân viên thì nên bỏ qua luôn ko thấy phần này chứ ko phải là
+// ko ấn được." Bày ra một trang toàn nút chết là bắt người ta đoán mình sai gì.
+describe('/work/tu-sinh — chặn cả TRANG, không chỉ ẩn nút', () => {
+  it('trang gọi chanNeuThieuQuyen', () => {
+    const src = doc('app/work/tu-sinh/page.tsx')
+    expect(
+      /chanNeuThieuQuyen\(\s*'work\.luat_tu_sinh'/.test(src),
+      'Trang /work/tu-sinh phải chặn bằng chanNeuThieuQuyen — ẩn link trên nav ' +
+        'không phải phân quyền, ai biết đường dẫn vẫn gõ thẳng vào được.',
+    ).toBe(true)
+  })
+
+  for (const f of ['app/work/page.tsx', 'app/work/team/page.tsx']) {
+    it(`${f} ẩn link "Việc tự sinh" với nhân viên thường`, () => {
+      const src = doc(f)
+      const i = src.indexOf('/work/tu-sinh')
+      expect(i, `${f} không còn link tới /work/tu-sinh`).toBeGreaterThan(-1)
+      expect(
+        /thayTuSinh\s*&&/.test(src.slice(Math.max(0, i - 200), i)),
+        `${f}: link "Việc tự sinh" phải bọc trong {thayTuSinh && …}.`,
+      ).toBe(true)
+    })
+  }
 })
 
 // ── 3. Xoá hàng loạt phải đi qua hai nhịp ───────────────────────────────────

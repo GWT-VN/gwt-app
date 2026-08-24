@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
-import { quyenChoMan } from '@/lib/nen-tang/kiem-quyen'
+import { chanNeuThieuQuyen, quyenChoMan } from '@/lib/nen-tang/kiem-quyen'
 import { manTuSinh, nenTang } from '../actions'
 import { TuSinh } from '@/components/work/TuSinh'
 
@@ -19,6 +19,15 @@ const QUYEN_MAN = [['work.luat_tu_sinh', 'QUANLY']] as const
  */
 export default async function TuSinhPage() {
   await requireNhanSu()
+  /*
+    CEO chốt 24/08: nhân viên thường KHÔNG thấy màn này, chứ không phải "thấy mà
+    bấm không ăn". Bày ra một trang toàn nút chết là bắt người ta đoán mình đã
+    làm sai gì. Chỉ CEO / quản trị hệ thống / quản lý mới vào.
+
+    Chặn ở ĐÂY chứ không chỉ ẩn link trên nav: ẩn link không phải phân quyền,
+    ai biết đường dẫn vẫn gõ thẳng vào được.
+  */
+  await chanNeuThieuQuyen('work.luat_tu_sinh', 'QUANLY')
   const [duLieu, nt, quyen] = await Promise.all([manTuSinh(), nenTang(), quyenChoMan(QUYEN_MAN)])
 
   return (

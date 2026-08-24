@@ -305,6 +305,12 @@ export type ThuLuat = { luat: string; se_sinh: { khoa: string; mo_ta: string; mo
 export type ManTuSinh = {
   luat: LuatTuSinh[]
   la_quan_ly: boolean
+  /**
+   * Công tắc CHUNG của bộ quét. Tắt thì cron 15 phút vẫn chạy nhưng về sớm,
+   * không sinh gì — bất kể luật nào đang bật. Để chỉnh luật thoải mái mà chưa
+   * có gì tự chạy, rồi bật một phát khi data đã gọn.
+   */
+  cong_tac_bat: boolean
   nhan_su: { id: string; ten: string }[]
   gan_day: (ViecTeamRow & { origin_ref: string | null; created_at: string })[]
   /** Tổng việc auto trong DB — để nói rõ "bạn thấy 8/20, phần còn lại của người khác". */
@@ -322,6 +328,15 @@ export async function chayTuSinh(): Promise<KQ<{ luat: string; da_tao: number }[
     lamMoi()
     revalidatePath('/work/tu-sinh')
     return kq ?? []
+  })
+}
+
+/** Gạt công tắc chung của bộ quét (cron 15 phút). Chỉ quản lý — RPC tự chặn. */
+export async function batTatTuSinh(bat: boolean): Promise<KQ<{ bat: boolean }>> {
+  return boc(async () => {
+    const kq = await goi<{ bat: boolean }>('work_bat_tat_tu_sinh', { p_bat: bat })
+    revalidatePath('/work/tu-sinh')
+    return kq
   })
 }
 

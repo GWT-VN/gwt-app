@@ -34,6 +34,15 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
   /** Thẻ đang được nhấc lên, và chỗ nó sẽ rơi xuống. */
   const [dangKeo, setDangKeo] = useState<number | null>(null)
   const [choTha, setChoTha] = useState<{ cot: string; viTri: number } | null>(null)
+  /*
+    Bản ref của `dangKeo`, đặt NGAY trong onDragStart.
+    `setDangKeo` là state nên chỉ thấy được ở lần dựng lại sau; mà `dragover`
+    có thể nổ trước lần dựng đó. Handler nào đọc state sẽ thấy `null` và bỏ qua
+    `preventDefault()` — mà thiếu preventDefault thì trình duyệt TỪ CHỐI thả,
+    im lặng. Ref đọc/ghi đồng bộ nên không có khe hở đó.
+    State vẫn giữ, vì phần vẽ (tô cột đích, làm mờ thẻ) cần dựng lại mới thấy.
+  */
+  const dangKeoRef = useRef<number | null>(null)
   const oLoi = useRef<HTMLParagraphElement>(null)
 
   /** Việc của một cột, đã xếp theo thứ tự người dùng tự kéo. */
@@ -50,7 +59,8 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
    *   drop ở vài trình duyệt), còn dataTransfer thì đi kèm chính lượt kéo đó.
    */
   function thaXuong(cot: string, viTri: number, idTuData?: number | null) {
-    const id = dangKeo ?? idTuData ?? null
+    const id = dangKeoRef.current ?? dangKeo ?? idTuData ?? null
+    dangKeoRef.current = null
     setDangKeo(null); setChoTha(null)
     if (id == null) return
     // Bỏ chính thẻ đang kéo ra khỏi danh sách trước khi tính hàng xóm, nếu không
@@ -248,9 +258,12 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                 key={cot.v}
                 className="flex flex-col gap-2.5 p-2.5"
                 onDragOver={(e) => {
-                  if (dangKeo == null) return
+                  // Đọc REF, không đọc state: state có thể chưa kịp cập nhật ở
+                  // lần dragover đầu, và bỏ lỡ preventDefault là mất luôn lượt thả.
+                  if (dangKeoRef.current == null) return
                   e.preventDefault()                       // không chặn thì trình duyệt từ chối thả
-                  if (!laDich) setChoTha({ cot: cot.v, viTri: cua.filter((v) => v.id !== dangKeo).length })
+                  e.dataTransfer.dropEffect = 'move'
+                  if (!laDich) setChoTha({ cot: cot.v, viTri: cua.filter((v) => v.id !== dangKeoRef.current).length })
                 }}
                 onDrop={(e) => {
                   e.preventDefault()
@@ -261,6 +274,16 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                   background: laDich ? 'var(--surface-3)' : 'var(--surface-2)',
                   border: `1px solid ${laDich ? 'var(--accent-ink)' : 'var(--border)'}`,
                   borderRadius: 11,
+                  /*
+                    Cột RỖNG phải vẫn là đích thả cho ra hồn. Trước đây grid để
+                    `items-start` và cột không có chiều cao tối thiểu, nên cột rỗng
+                    co lại chỉ còn cái tiêu đề — cao chừng 38px, trong khi thẻ đang
+                    kéo cao gấp đôi. Người dùng nhắm THẺ vào cột, nhưng thứ trình
+                    duyệt xét là CON TRỎ, mà con trỏ thì rơi ra ngoài cái hộp tí
+                    xíu đó. Không trúng đích thì `drop` không nổ, và vì không nổ nên
+                    cũng chẳng có lỗi nào để báo — y hệt "không có gì xảy ra".
+                  */
+                  minHeight: 132,
                 }}
               >
                 <h3 className="flex items-center gap-2 m-0.5" style={{ fontSize: 12.5, fontWeight: 650 }}>
@@ -285,9 +308,20 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                       // Vạch chỉ chỗ thẻ sẽ rơi. Không có nó thì kéo là đoán mò.
                       <span style={{ height: 2, borderRadius: 2, background: 'var(--accent-ink)' }} />
                     )}
-                    <button
+                    {/*
+                      Thẻ là <div role="button">, KHÔNG phải <button>. Safari và
+                      Firefox không cho `draggable` chạy tử tế trên form control —
+                      thẻ không nhấc lên được, mà cũng chẳng báo gì. Đổi sang div
+                      thì mất kích hoạt bằng bàn phím của <button>, nên trả lại
+                      bằng tay ở onKeyDown bên dưới (Enter/Space mở việc).
+                    */}
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${v.title} — cột ${cot.nhan}. Alt+mũi tên trái/phải để chuyển cột.`}
                       draggable
                       onDragStart={(e) => {
+                        dangKeoRef.current = v.id       // đồng bộ, dragover đọc được ngay
                         setDangKeo(v.id)
                         e.dataTransfer.effectAllowed = 'move'
                         // Firefox KHÔNG khởi động lượt kéo nào nếu kho dữ liệu
@@ -295,17 +329,31 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                         // Chrome/Safari dễ tính hơn, nên lỗi này ẩn rất lâu.
                         e.dataTransfer.setData('text/plain', String(v.id))
                       }}
-                      onDragEnd={() => { setDangKeo(null); setChoTha(null) }}
+                      onDragEnd={() => { dangKeoRef.current = null; setDangKeo(null); setChoTha(null) }}
                       onDragOver={(e) => {
-                        if (dangKeo == null || dangKeo === v.id) return
+                        const keo = dangKeoRef.current
+                        if (keo == null || keo === v.id) return
                         e.preventDefault()
                         e.stopPropagation()
                         const o = e.currentTarget.getBoundingClientRect()
                         const nuaTren = e.clientY < o.top + o.height / 2
-                        const j = cua.filter((x) => x.id !== dangKeo).findIndex((x) => x.id === v.id)
+                        const j = cua.filter((x) => x.id !== keo).findIndex((x) => x.id === v.id)
                         if (j >= 0) setChoTha({ cot: cot.v, viTri: nuaTren ? j : j + 1 })
                       }}
                       onClick={() => setMo(v.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMo(v.id); return }
+                        // Alt+←/→ chuyển cột — đường dùng bàn phím, trả nốt món nợ
+                        // ghi từ 22/08. Alt để không giẫm lên phím cuộn trang.
+                        if (!e.altKey) return
+                        const iCot = TRANG_THAI.findIndex((c) => c.v === cot.v)
+                        const iMoi = e.key === 'ArrowLeft' ? iCot - 1
+                                   : e.key === 'ArrowRight' ? iCot + 1 : -1
+                        if (iMoi < 0 || iMoi >= TRANG_THAI.length) return
+                        e.preventDefault()
+                        dangKeoRef.current = v.id
+                        thaXuong(TRANG_THAI[iMoi].v, cotCua(TRANG_THAI[iMoi].v).length)
+                      }}
                       className="w-full text-left flex flex-col gap-2.5"
                       style={{
                         background: 'var(--surface)', border: '1px solid var(--border)',
@@ -339,7 +387,7 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                         </span>
                         <ChongAvatar nguoi={v.assignees.map((a) => ({ ten: a.ten, role: a.role }))} toiDa={2} co={22} />
                       </span>
-                    </button>
+                    </div>
                     </div>
                   )
                 })}
@@ -349,8 +397,20 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                 )}
 
                 {cua.length === 0 && (
-                  <p className="px-1" style={{ fontSize: 11.5, color: 'var(--faint)' }}>
-                    Không có việc {NHAN_TRANG_THAI[cot.v].toLowerCase()}.
+                  // Chiếm hết chỗ trống của cột: vừa là chữ giải thích, vừa là
+                  // vùng thả nhìn thấy được. Đang kéo thì nó hiện viền đứt để nói
+                  // "thả vào đây được" — trước đây cột rỗng không có tín hiệu nào.
+                  <p
+                    className="flex-1 flex items-center justify-center text-center px-1"
+                    style={{
+                      fontSize: 11.5, margin: 0, minHeight: 74, borderRadius: 9,
+                      border: dangKeo != null ? '1.5px dashed var(--accent-ink)' : '1.5px dashed transparent',
+                      color: dangKeo != null ? 'var(--accent-ink)' : 'var(--faint)',
+                    }}
+                  >
+                    {dangKeo != null
+                      ? 'Thả vào đây'
+                      : `Không có việc ${NHAN_TRANG_THAI[cot.v].toLowerCase()}.`}
                   </p>
                 )}
               </section>

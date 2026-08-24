@@ -8,7 +8,7 @@
  */
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { chayTuSinh, hangLoat, type ManTuSinh, type NenTang } from '@/app/work/actions'
+import { chayTuSinh, batTatTuSinh, hangLoat, type ManTuSinh, type NenTang } from '@/app/work/actions'
 import { nhanHan, ngayThang } from '@/lib/work'
 import { DongViec } from './DongViec'
 import { ChiTietViec } from './ChiTietViec'
@@ -79,6 +79,44 @@ export function TuSinh({ duLieu, nenTang, duocSuaLuat }: { duLieu: ManTuSinh; ne
         <p className="px-3 py-2 rounded-lg"
            style={{ fontSize: 13, color: 'var(--green)', background: 'var(--green-wash)', border: '1px solid var(--green)' }}>{ketQua}</p>
       )}
+
+      {/* ── Công tắc chung ── */}
+      {/*
+        Đặt TRÊN danh sách luật, vì nó phủ quyết cả danh sách. Để dưới thì người
+        ta bật một luật, đợi 15 phút, không thấy gì, rồi mới cuộn xuống phát hiện
+        cả bộ đang tắt.
+      */}
+      <section
+        className="flex items-start gap-3 p-3"
+        style={{
+          background: duLieu.cong_tac_bat ? 'var(--green-wash)' : 'var(--surface-2)',
+          border: `1px solid ${duLieu.cong_tac_bat ? 'var(--green)' : 'var(--border-strong)'}`,
+          borderRadius: 11,
+        }}
+      >
+        <div className="flex-1">
+          <p className="m-0" style={{ fontSize: 13.5, fontWeight: 650 }}>
+            Bộ quét tự động:{' '}
+            <span style={{ color: duLieu.cong_tac_bat ? 'var(--green)' : 'var(--muted)' }}>
+              {duLieu.cong_tac_bat ? 'ĐANG BẬT' : 'ĐANG TẮT'}
+            </span>
+          </p>
+          <p className="m-0 mt-1" style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
+            {duLieu.cong_tac_bat
+              ? 'Cứ 15 phút một lần, việc mới tự sinh theo các luật đang bật bên dưới.'
+              : 'Không có gì tự sinh, kể cả luật bên dưới đang bật. Chỉnh luật thoải mái rồi bật lại khi data đã gọn.'}
+          </p>
+        </div>
+        {duocSuaLuat && (
+          <Nut
+            chinh={!duLieu.cong_tac_bat}
+            disabled={pending}
+            onClick={() => chay(() => batTatTuSinh(!duLieu.cong_tac_bat))}
+          >
+            {duLieu.cong_tac_bat ? 'Tắt bộ quét' : 'Bật bộ quét'}
+          </Nut>
+        )}
+      </section>
 
       {/* ── Luật ── */}
       <section>
