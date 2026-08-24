@@ -19,7 +19,7 @@ import {
   VAT_OPTS,
   maVat,
 } from './_types'
-import { giaGoiY, nhanBac, type BoiCanhGia, type GiaGoiY } from './_ctkm'
+import { giaGoiY, tomTatChinhSach, type BoiCanhGia, type GiaGoiY } from './_ctkm'
 
 /**
  * `giaTuGo` = người nhập đã TỰ gõ số vào ô đơn giá.
@@ -308,6 +308,8 @@ export function OrderForm({
     return [...m.values()]
   }, [lines, goiY, catalog])
 
+  const chip = useMemo(() => tomTatChinhSach(bcGia), [bcGia])
+
   /** Mã quà đã có sẵn trên đơn — để không mời thêm lần hai. */
   const quaDaThem = new Set(lines.filter((l) => l.is_gift).map((l) => l.internal_code))
 
@@ -512,38 +514,33 @@ export function OrderForm({
           <span className="col-span-1" />
         </div>
 
-        {/* Nói RÕ khách này đang ăn chính sách nào — không để app lặng lẽ điền số. */}
-        {bcGia && (bcGia.bac || bcGia.ctkm) && (
+        {/* Nói RÕ khách này đang ăn chính sách nào — không để app lặng lẽ điền số.
+            Danh sách chip do `tomTatChinhSach()` dựng; ở đây KHÔNG có điều kiện nào ngoài
+            "rỗng thì thôi". Bản cũ gài điều kiện vào JSX (`bcGia.bac || bcGia.ctkm`) và
+            ẩn sạch cả dải khi mọi chương trình đều cộng dồn — CEO gặp 24/08. */}
+        {chip.length > 0 && (
           <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-900">
             <span className="font-semibold">Đang áp:</span>
-            {bcGia.bac ? (
-              <>
-                <span className="rounded-full bg-teal-600 px-2 py-0.5 text-xs font-semibold text-white">
-                  {nhanBac(bcGia.bac)}
-                </span>
-                {bcGia.ctkm && (
-                  <span className="text-xs text-teal-700">
-                    (đại lý ăn giá bậc, <b>không</b> cộng thêm khuyến mãi bán lẻ)
-                  </span>
-                )}
-              </>
-            ) : (
-              bcGia.ctkm && (
-                <span className="rounded-full bg-teal-600 px-2 py-0.5 text-xs font-semibold text-white">
-                  {bcGia.ctkm.ten}
-                </span>
-              )
-            )}
-            {/* Chương trình cộng dồn hiện riêng, có dấu + đằng trước: nhìn là biết nó
-                CHỒNG THÊM chứ không phải một lựa chọn thay thế. */}
-            {(bcGia.ctkmCong ?? []).map((c) => (
-              <span key={c.id} className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
-                + {c.ten}
+            {chip.map((c, i) => (
+              <span
+                key={`${c.kieu}-${c.nhan}-${i}`}
+                className={
+                  'rounded-full px-2 py-0.5 text-xs font-semibold text-white ' +
+                  (c.kieu === 'cong' ? 'bg-emerald-600' : 'bg-teal-600')
+                }
+                title={c.kieu === 'cong' ? 'Chương trình cộng dồn — áp chồng lên chương trình chính' : undefined}
+              >
+                {c.kieu === 'cong' ? '+ ' : ''}{c.nhan}
               </span>
             ))}
-            {bcGia.soCtkmKhac > 0 && (
+            {bcGia?.bac && bcGia.ctkm && (
               <span className="text-xs text-teal-700">
-                · còn {bcGia.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
+                (đại lý ăn giá bậc, <b>không</b> cộng thêm khuyến mãi bán lẻ)
+              </span>
+            )}
+            {(bcGia?.soCtkmKhac ?? 0) > 0 && (
+              <span className="text-xs text-teal-700">
+                · còn {bcGia!.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
               </span>
             )}
           </div>

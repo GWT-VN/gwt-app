@@ -11,7 +11,7 @@ export { GIAO_DIEN_MAC_DINH, type GiaoDienBang } from './giaoDien'
 export type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc, SapXep } from './kieu'
 
 // Hàm thuần — không đụng DB, không đụng React
-export { boDau, chuanHoaTuKhoa, antoanChoOr, mauDauTu, sapXepHopLe } from './timkiem'
+export { boDau, chuanHoaTuKhoa, antoanChoOr, mauDauTu, sapXepHopLe, dieuKienTungTu } from './timkiem'
 export { isoNgay, khoangPreset, PRESETS, type MaPreset } from './ngay'
 
 // Lấy toàn bộ khoá khớp bộ lọc (chọn tất cả)

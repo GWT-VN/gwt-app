@@ -5,7 +5,9 @@ import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { chiTietDon } from '../../actions'
 import { OrderActions } from '../../OrderActions'
 import { Field, StatusBadge, TabBadge, fmtDate, fmtQty, fmtVnd } from '../../_ui'
-import { nhanVat } from '../../_types'
+import {
+  nhanVat, NHAN_O_SHEET, KHOI_O_SHEET, O_TICK, O_TIEN, O_NGAY,
+} from '../../_types'
 
 export const metadata = { title: 'Chi tiết đơn · GWT Sales' }
 export const dynamic = 'force-dynamic'
@@ -173,6 +175,13 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
           </p>
         )}
 
+        {/* 31 ô Sheet bổ sung.
+            CEO 24/08: *"ko biết có lưu hay ko vì ko hiển thị lại"*. Trước đây trang này
+            chỉ hiện Ghi chú; muốn xem 30 ô kia phải bấm Sửa — tức là để kiểm tra app có
+            ghi đúng không thì phải mở màn SỬA, nơi lỡ tay là đổi dữ liệu thật.
+            Chỉ hiện ô CÓ giá trị: đơn POU mà bày 20 ô POE trống thì đọc mệt hơn là không có. */}
+        {don.oSheet && <OSheet o={don.oSheet} />}
+
         {(don.note || don.lines.some((l) => l.note)) && (
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="text-[11px] uppercase tracking-wide text-slate-400">Ghi chú</div>
@@ -186,5 +195,57 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
         )}
       </div>
     </main>
+  )
+}
+
+/** Có gì để hiện không — chuỗi rỗng, null, và `false` của ô tick đều coi như trống. */
+function coGiaTri(v: unknown): boolean {
+  if (v == null) return false
+  if (typeof v === 'boolean') return v
+  if (typeof v === 'string') return v.trim() !== ''
+  if (typeof v === 'number') return true
+  return true
+}
+
+function hienGiaTri(khoa: string, v: unknown) {
+  if (O_TICK.has(khoa)) return <span className="text-emerald-700">✓ có</span>
+  if (O_TIEN.has(khoa)) return fmtVnd(Number(v) || 0)
+  if (O_NGAY.has(khoa)) return fmtDate(String(v))
+  const chu = String(v)
+  // Link tracking bấm được — dán vào rồi mà phải copy tay thì thà không lưu.
+  if (khoa === 'tracking_url' && /^https?:\/\//.test(chu)) {
+    return (
+      <a href={chu} target="_blank" rel="noopener noreferrer" className="break-all text-teal-700 hover:underline">
+        {chu}
+      </a>
+    )
+  }
+  return <span className="whitespace-pre-wrap">{chu}</span>
+}
+
+function OSheet({ o }: { o: Record<string, unknown> }) {
+  const khoi = KHOI_O_SHEET
+    .map((k) => ({ ten: k.ten, o: k.o.filter((x) => coGiaTri(o[x])) }))
+    .filter((k) => k.o.length > 0)
+  if (khoi.length === 0) return null
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 text-sm font-semibold text-slate-800">Thông tin thêm</div>
+      <div className="space-y-4">
+        {khoi.map((k) => (
+          <div key={k.ten}>
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{k.ten}</div>
+            <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              {k.o.map((x) => (
+                <Field key={x} label={NHAN_O_SHEET[x] ?? x} value={hienGiaTri(x, o[x])} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] text-slate-400">
+        Chỉ hiện ô đã điền. Ô để trống không hiện — bấm <b>Sửa</b> để xem và điền đủ danh sách.
+      </p>
+    </section>
   )
 }

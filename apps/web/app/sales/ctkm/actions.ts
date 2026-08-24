@@ -6,7 +6,7 @@ import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { coQuyen } from '@/lib/nen-tang/kiem-quyen'
-import type { KieuGiam } from '../_ctkm'
+import type { KieuGiam, NhomTru } from '../_ctkm'
 
 const KHONG_DU_QUYEN = 'Bạn không có quyền làm việc này.'
 
@@ -233,11 +233,12 @@ export async function nhanBan(id: string, thangMoi: string): Promise<Kq> {
   if (error) return { ok: false, error: error.message }
   const idMoi = (moi as { id: string }).id
 
-  const [kenh, sp, qua, khach] = await Promise.all([
+  const [kenh, sp, qua, khach, truNhom] = await Promise.all([
     db.from('sales_ctkm_kenh').select('channel_id').eq('ctkm_id', id),
     db.from('sales_ctkm_sp').select('internal_code, muc').eq('ctkm_id', id),
     db.from('sales_ctkm_qua').select('internal_code_qua, so_luong, gia_tri_quy_doi, dieu_kien').eq('ctkm_id', id),
     db.from('sales_ctkm_khach').select('customer_code, loai').eq('ctkm_id', id),
+    db.from('sales_ctkm_tru_nhom').select('loai, gia_tri').eq('ctkm_id', id),
   ])
   const chep = async (bang: string, rows: Array<Record<string, unknown>> | null) => {
     if (rows?.length) await db.from(bang).insert(rows.map((r) => ({ ...r, ctkm_id: idMoi })))
@@ -246,6 +247,7 @@ export async function nhanBan(id: string, thangMoi: string): Promise<Kq> {
   await chep('sales_ctkm_sp', sp.data as Array<Record<string, unknown>>)
   await chep('sales_ctkm_qua', qua.data as Array<Record<string, unknown>>)
   await chep('sales_ctkm_khach', khach.data as Array<Record<string, unknown>>)
+  await chep('sales_ctkm_tru_nhom', truNhom.data as Array<Record<string, unknown>>)
 
   revalidatePath('/sales/ctkm')
   return { ok: true, id: idMoi }
@@ -273,6 +275,8 @@ export type CtkmInput = {
   khachGom: KhachCtkm[]
   /** Khách bị loại trừ — không được hưởng dù nhóm khách có bao họ. */
   khachTru: KhachCtkm[]
+  /** Tập khách bị loại trừ: theo kênh / bậc đối tác / mới-đã mua. */
+  nhomTru: NhomTru[]
 }
 
 export type KhachCtkm = { customer_code: string; ten: string | null; phone: string | null }
@@ -336,11 +340,12 @@ export async function chiTietCtkm(id: string): Promise<CtkmInput | null> {
   const { data } = await db.from('sales_ctkm').select('*').eq('id', id).maybeSingle()
   if (!data) return null
   const r = data as Record<string, unknown>
-  const [kenh, sp, qua, khach] = await Promise.all([
+  const [kenh, sp, qua, khach, truNhom] = await Promise.all([
     db.from('sales_ctkm_kenh').select('channel_id').eq('ctkm_id', id),
     db.from('sales_ctkm_sp').select('internal_code, muc').eq('ctkm_id', id),
     db.from('sales_ctkm_qua').select('internal_code_qua, so_luong, gia_tri_quy_doi, dieu_kien').eq('ctkm_id', id),
     db.from('sales_ctkm_khach').select('customer_code, loai').eq('ctkm_id', id),
+    db.from('sales_ctkm_tru_nhom').select('loai, gia_tri').eq('ctkm_id', id),
   ])
   // Kèm tên/SĐT để form hiện ra người thật, không bắt CEO đọc một cột mã KH trần.
   const maKhach = ((khach.data ?? []) as Array<{ customer_code: string }>).map((k) => k.customer_code)
@@ -376,6 +381,7 @@ export async function chiTietCtkm(id: string): Promise<CtkmInput | null> {
     cong_don: !!r.cong_don,
     khachGom: locKhach('GOM'),
     khachTru: locKhach('TRU'),
+    nhomTru: ((truNhom.data ?? []) as NhomTru[]),
     kenh: ((kenh.data ?? []) as Array<{ channel_id: number }>).map((k) => k.channel_id),
     sp: ((sp.data ?? []) as Array<Record<string, unknown>>).map((s) => ({
       internal_code: s.internal_code as string,
@@ -401,6 +407,10 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
   if (!input.tu_ngay) return { ok: false, error: 'Chưa chọn ngày bắt đầu.' }
   if (input.den_ngay && input.den_ngay < input.tu_ngay)
     return { ok: false, error: 'Ngày kết thúc đang trước ngày bắt đầu.' }
+  // Chương trình không giảm giá mà cũng không tặng gì thì lưu về cũng chẳng làm gì —
+  // đúng loại lỗi im lặng: có mặt trong danh sách, ban hành được, và vô hình khi lên đơn.
+  if (input.kieu_giam === 'KHONG' && input.qua.length === 0)
+    return { ok: false, error: 'Chương trình đang đặt “chỉ tặng quà” mà chưa có món quà nào. Thêm quà ở bước 5, hoặc chọn một kiểu giảm giá.' }
 
   const db = dataClient()
   const than = {
@@ -411,7 +421,9 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
     den_ngay: input.den_ngay || null,
     nhom_khach: input.nhom_khach,
     kieu_giam: input.kieu_giam,
-    muc_chung: input.muc_chung,
+    // Chỉ tặng quà -> không có mức nào. Để lại số cũ là rác, và là mồi cho lần đọc sau
+    // hiểu nhầm thành "có giảm".
+    muc_chung: input.kieu_giam === 'KHONG' ? null : input.muc_chung,
     giam_toi_da: input.kieu_giam === 'PCT' ? input.giam_toi_da : null,
     don_toi_thieu: input.don_toi_thieu || 0,
     sl_toi_thieu: input.sl_toi_thieu || 1,
@@ -440,6 +452,7 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
     db.from('sales_ctkm_sp').delete().eq('ctkm_id', id),
     db.from('sales_ctkm_qua').delete().eq('ctkm_id', id),
     db.from('sales_ctkm_khach').delete().eq('ctkm_id', id),
+    db.from('sales_ctkm_tru_nhom').delete().eq('ctkm_id', id),
   ])
   const them = async (bang: string, rows: Record<string, unknown>[]) => {
     if (rows.length) {
@@ -463,6 +476,7 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
         ...input.khachTru.map((k) => ({ ctkm_id: id, customer_code: k.customer_code, loai: 'TRU' })),
       ]
     )
+    await them('sales_ctkm_tru_nhom', input.nhomTru.map((n) => ({ ctkm_id: id, loai: n.loai, gia_tri: n.gia_tri })))
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
