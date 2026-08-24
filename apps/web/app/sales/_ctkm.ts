@@ -231,9 +231,40 @@ export function nhanNhomKhach(ma: string): string {
 // ── Giá gợi ý khi lên đơn ──────────────────────────────────────────────────
 
 /** Mọi thứ cần để tính giá cho một khách, gom sẵn ở server để client khỏi gọi lại từng dòng. */
+/**
+ * Gom các dòng `sales_ctkm_sp` thành bảng tra `{ctkm_id: {mã: mức riêng}}`.
+ *
+ * Tách ra khỏi `boiCanhGia()` để **test được**. Chỗ này từng đẻ ra một lỗi tính tiền
+ * lên tới production (CEO bắt 24/08/2026) mà không hàm nào khác bắt hộ được:
+ * `Number(s.muc)` với `muc = NULL` ra **0**, và 0 là một mức giảm HỢP LỆ, nên
+ * `mucApDung()` nhận luôn thay vì rơi xuống `muc_chung`. Đơn giá giữ nguyên giá niêm
+ * yết trong khi màn hình vẫn dán nhãn *Theo Khuyến mãi 15%*.
+ *
+ * ⚠️ Kiểu dữ liệu KHÔNG cứu được ca này — `Number()` trả `number`, hợp lệ với
+ * `number | null`, tsc không kêu. Chỉ có test mới giữ được.
+ */
+export function gomSpTheoCtkm(
+  rows: Array<{ ctkm_id: string; internal_code: string; muc: unknown }>
+): Map<string, Record<string, number | null>> {
+  const m = new Map<string, Record<string, number | null>>()
+  for (const r of rows) {
+    if (!m.has(r.ctkm_id)) m.set(r.ctkm_id, {})
+    // `muc` để trống = "mã này dùng mức chung", KHÁC HẲN "mã này giảm 0%".
+    m.get(r.ctkm_id)![r.internal_code] =
+      r.muc == null || r.muc === '' || !Number.isFinite(Number(r.muc)) ? null : Number(r.muc)
+  }
+  return m
+}
+
 /** Chương trình kèm bảng mức riêng theo mã + danh sách quà của nó. */
 export type CtkmApDung = Ctkm & {
-  sp: Record<string, number>
+  /**
+   * Mức giảm RIÊNG theo mã. `null` = mã có trong chương trình nhưng dùng `muc_chung`.
+   *
+   * Kiểu phải cho phép `null` — để trống và đặt mức 0 là hai ý khác nhau, gộp lại là
+   * ra lỗi "dán nhãn khuyến mãi lên giá chưa giảm" (xem chú thích ở `boiCanhGia`).
+   */
+  sp: Record<string, number | null>
   qua?: QuaCtkm[]
 }
 
