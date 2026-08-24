@@ -404,3 +404,51 @@ export async function hangLoat(ids: number[], input: {
   return kq
   })
 }
+
+// ── Xoá hàng loạt — hai nhịp: xem trước rồi mới xoá ─────────────────────────
+export type XemTruocXoa = {
+  /** Số việc THỰC SỰ mất — đã cộng cả việc con bị xoá lây theo cascade. */
+  se_xoa: number
+  /** Trong số đó, bao nhiêu là việc con không được chọn trực tiếp. */
+  viec_con: number
+  /** Việc đã chọn nhưng không có quyền xoá. */
+  bo_qua: number
+  binh_luan: number
+  nhat_ky: number
+  chip: number
+  nguoi_lam: number
+  /** Bao nhiêu việc trong đó là việc TỰ SINH. */
+  tu_sinh: number
+  /** Tên các luật tự sinh đang BẬT sẽ dựng lại đúng mấy việc đó. */
+  luat_dang_bat: string[]
+  /** Chốt danh sách. Phải nộp lại đúng chuỗi này khi bấm xoá thật. */
+  dau_van: string | null
+}
+
+/**
+ * Đếm trước thứ sẽ mất, KHÔNG xoá gì.
+ *
+ * Con số đáng sợ không phải số việc đã chọn mà là `se_xoa`: `task.parent_id` là
+ * FK ON DELETE CASCADE, nên xoá một việc cha là mất cả nhánh con, im lặng.
+ * Hộp xác nhận phải nói ra con số đó trước khi CEO bấm.
+ */
+export async function xemTruocXoa(ids: number[]): Promise<KQ<XemTruocXoa>> {
+  return boc(() => goi<XemTruocXoa>('work_xem_truoc_xoa', { p_ids: ids }))
+}
+
+/**
+ * Xoá thật. `dauVan` là chuỗi do xemTruocXoa() trả về — nộp lại để chứng minh
+ * danh sách chưa đổi từ lúc đọc con số. Cron việc tự sinh chạy 15 phút một lần,
+ * nên khoảng giữa hai nhịp KHÔNG phải là khoảng an toàn.
+ */
+export async function xoaHangLoat(ids: number[], dauVan: string): Promise<KQ<{ da_xoa: number; bo_qua: number }>> {
+  return boc(async () => {
+    const kq = await goi<{ da_xoa: number; bo_qua: number }>('work_xoa_hang_loat', {
+      p_ids: ids,
+      p_dau_van: dauVan,
+    })
+    lamMoi()
+    revalidatePath('/work/tu-sinh')
+    return kq
+  })
+}

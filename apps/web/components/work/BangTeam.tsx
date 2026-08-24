@@ -7,7 +7,7 @@
  * Lọc chạy trên SERVER (RPC work_bang_team) chứ không lọc trong trình duyệt: quyền xem
  * do work.visible_task_ids() quyết định, client không được cầm việc mình không có quyền.
  */
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { bangTeam, doiTrangThai, keoTha, type ViecTeamRow, type NenTang } from '@/app/work/actions'
 import { TRANG_THAI, NHAN_TRANG_THAI, nhanHan, thuTuMoi } from '@/lib/work'
@@ -34,6 +34,7 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
   /** Thẻ đang được nhấc lên, và chỗ nó sẽ rơi xuống. */
   const [dangKeo, setDangKeo] = useState<number | null>(null)
   const [choTha, setChoTha] = useState<{ cot: string; viTri: number } | null>(null)
+  const oLoi = useRef<HTMLParagraphElement>(null)
 
   /** Việc của một cột, đã xếp theo thứ tự người dùng tự kéo. */
   function cotCua(status: string) {
@@ -43,8 +44,13 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
         (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.priority - b.priority || a.id - b.id)
   }
 
-  function thaXuong(cot: string, viTri: number) {
-    const id = dangKeo
+  /**
+   * @param idTuData id đọc từ dataTransfer. React state `dangKeo` là đường
+   *   chính, cái này là lưới đỡ: state có thể đã bị dọn (dragend chạy trước
+   *   drop ở vài trình duyệt), còn dataTransfer thì đi kèm chính lượt kéo đó.
+   */
+  function thaXuong(cot: string, viTri: number, idTuData?: number | null) {
+    const id = dangKeo ?? idTuData ?? null
     setDangKeo(null); setChoTha(null)
     if (id == null) return
     // Bỏ chính thẻ đang kéo ra khỏi danh sách trước khi tính hàng xóm, nếu không
@@ -61,7 +67,15 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
     setRows((r) => r.map((v) => (v.id === id ? { ...v, status: cot, sort_order: moi } : v)))
     start(async () => {
       const kq = await keoTha(id, cot, moi)
-      if (!kq.ok) { setLoi(kq.loi); nap(); return }   // hỏng thì nạp lại cho khớp server
+      if (!kq.ok) {
+        // Server từ chối: thẻ bị kéo về chỗ cũ. Nếu KHÔNG lôi lời báo lỗi vào
+        // tầm mắt thì cú kéo trông hệt như "không có gì xảy ra" — đúng cái bẫy
+        // CEO dính 24/08, khi bảng dài và ô báo lỗi nằm tít trên đầu trang.
+        setLoi(kq.loi); nap()
+        requestAnimationFrame(() =>
+          oLoi.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+        return
+      }
       setLoi(null)
       nap()
     })
@@ -175,6 +189,7 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
 
       {loi && (
         <p
+          ref={oLoi}
           className="px-3 py-2 rounded-lg"
           style={{ fontSize: 13, color: 'var(--red)', background: 'var(--red-wash)', border: '1px solid var(--red)' }}
         >{loi}</p>
@@ -237,7 +252,11 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                   e.preventDefault()                       // không chặn thì trình duyệt từ chối thả
                   if (!laDich) setChoTha({ cot: cot.v, viTri: cua.filter((v) => v.id !== dangKeo).length })
                 }}
-                onDrop={(e) => { e.preventDefault(); thaXuong(cot.v, choTha?.viTri ?? 0) }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  const t = Number(e.dataTransfer.getData('text/plain'))
+                  thaXuong(cot.v, choTha?.viTri ?? 0, Number.isFinite(t) && t > 0 ? t : null)
+                }}
                 style={{
                   background: laDich ? 'var(--surface-3)' : 'var(--surface-2)',
                   border: `1px solid ${laDich ? 'var(--accent-ink)' : 'var(--border)'}`,
@@ -268,7 +287,14 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
                     )}
                     <button
                       draggable
-                      onDragStart={(e) => { setDangKeo(v.id); e.dataTransfer.effectAllowed = 'move' }}
+                      onDragStart={(e) => {
+                        setDangKeo(v.id)
+                        e.dataTransfer.effectAllowed = 'move'
+                        // Firefox KHÔNG khởi động lượt kéo nào nếu kho dữ liệu
+                        // rỗng — không setData là kéo không nhúc nhích ở đó.
+                        // Chrome/Safari dễ tính hơn, nên lỗi này ẩn rất lâu.
+                        e.dataTransfer.setData('text/plain', String(v.id))
+                      }}
                       onDragEnd={() => { setDangKeo(null); setChoTha(null) }}
                       onDragOver={(e) => {
                         if (dangKeo == null || dangKeo === v.id) return

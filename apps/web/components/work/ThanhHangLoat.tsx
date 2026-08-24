@@ -10,9 +10,13 @@
  * thì dữ liệu dở dang.
  */
 import { useState, useTransition } from 'react'
-import { hangLoat, type NenTang } from '@/app/work/actions'
+import {
+  hangLoat, xemTruocXoa, xoaHangLoat,
+  type NenTang, type XemTruocXoa,
+} from '@/app/work/actions'
 import { TRANG_THAI, VAI_TRO, NHAN_UU_TIEN, isoTuOInput } from '@/lib/work'
 import { Nut, oNhap } from './ui'
+import { HopXacNhanXoa } from './XacNhanXoa'
 
 export function ThanhHangLoat({
   ids, nenTang, onXong, onBoChon,
@@ -25,6 +29,10 @@ export function ThanhHangLoat({
   const [pending, start] = useTransition()
   const [vai, setVai] = useState('doer')
   const [moThem, setMoThem] = useState(false)
+  /** null = hộp xác nhận đóng. Mở rồi thì `xemTruoc` còn null nghĩa là đang đếm. */
+  const [hoiXoa, setHoiXoa] = useState(false)
+  const [xemTruoc, setXemTruoc] = useState<XemTruocXoa | null>(null)
+  const [dangXoa, setDangXoa] = useState(false)
 
   function chay(input: Parameters<typeof hangLoat>[1], mo_ta: string) {
     start(async () => {
@@ -35,6 +43,33 @@ export function ThanhHangLoat({
         `${mo_ta}: ${da_sua} việc` +
         (bo_qua > 0 ? ` · bỏ qua ${bo_qua} việc bạn không có quyền sửa` : '')
       )
+    })
+  }
+
+  /** Nhịp 1: mở hộp rồi mới đếm — hộp hiện ngay, con số điền vào sau. */
+  function moHoiXoa() {
+    setHoiXoa(true); setXemTruoc(null)
+    start(async () => {
+      const kq = await xemTruocXoa(ids)
+      if (!kq.ok) { setHoiXoa(false); onXong(`Không đếm được: ${kq.loi}`); return }
+      setXemTruoc(kq.duLieu)
+    })
+  }
+
+  /** Nhịp 2: nộp lại dấu vân của lượt đếm — lệch là server từ chối. */
+  function xoaThat() {
+    if (!xemTruoc?.dau_van) return
+    setDangXoa(true)
+    start(async () => {
+      const kq = await xoaHangLoat(ids, xemTruoc.dau_van!)
+      setDangXoa(false); setHoiXoa(false); setXemTruoc(null)
+      if (!kq.ok) { onXong(`Không xoá được: ${kq.loi}`); return }
+      const { da_xoa, bo_qua } = kq.duLieu
+      onXong(
+        `Đã xoá ${da_xoa} việc` +
+        (bo_qua > 0 ? ` · bỏ qua ${bo_qua} việc bạn không có quyền xoá` : '')
+      )
+      onBoChon()
     })
   }
 
@@ -96,7 +131,20 @@ export function ThanhHangLoat({
         >{moThem ? '− Bớt' : '+ Hạn, team, bỏ người'}</button>
 
         <span className="flex-1" />
-        {pending && <span style={{ fontSize: 12, color: 'var(--faint)' }}>Đang áp…</span>}
+        {pending && !hoiXoa && <span style={{ fontSize: 12, color: 'var(--faint)' }}>Đang áp…</span>}
+
+        {/*
+          Xoá đứng TÁCH khỏi cụm sửa (qua flex-1 ở trên) và mang màu cảnh báo:
+          nó là hành động duy nhất ở đây không có đường lùi. Bấm vào chỉ MỞ hộp
+          xác nhận, chưa xoá gì.
+        */}
+        <button
+          onClick={moHoiXoa}
+          disabled={pending}
+          style={{ fontSize: 12.5, fontWeight: 650, color: 'var(--red)' }}
+        >
+          Xoá…
+        </button>
       </div>
 
       {moThem && (
@@ -132,6 +180,16 @@ export function ThanhHangLoat({
             Việc nào bỏ xong mà hết người thì được giữ lại — việc không thể mồ côi.
           </span>
         </div>
+      )}
+
+      {hoiXoa && (
+        <HopXacNhanXoa
+          soDaChon={ids.length}
+          xemTruoc={xemTruoc}
+          dangXoa={dangXoa}
+          onHuy={() => { setHoiXoa(false); setXemTruoc(null) }}
+          onXacNhan={xoaThat}
+        />
       )}
     </div>
   )
