@@ -1,10 +1,15 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { traKhachTheoSdt } from '@/lib/tra-khach'
+import type { KetQuaTraKhach } from '@/lib/tra-khach-chung'
+import type { Kenh } from '@/app/actions'
+import { ctkmChoDon, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm } from './_ctkm'
 import { redirect } from 'next/navigation'
 import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
+import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import {
   createSalesOrder,
   updateSalesOrder,
@@ -14,6 +19,7 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  isAppCustomer,
 } from './_db'
 import { tinhKhuyenMai, tongDon } from './_calc'
 import { cacBienThe, gomDanhSachTinh } from '@/lib/tinhGom'
@@ -659,6 +665,14 @@ export type KhachChiTiet = {
     first_order_date: string | null
     last_order_date: string | null
     note: string | null
+    kenh: string | null
+    sales_owner: string | null
+    email: string | null
+    dia_chi_cty: string | null
+    sdt_cty: string | null
+    nguoi_dai_dien: string | null
+    chuc_vu_dai_dien: string | null
+    ma_kh: string | null
   }
   daNoiCS: boolean
   purchases: Array<{
@@ -710,7 +724,7 @@ export async function chiTietKhach(customerCode: string): Promise<KhachChiTiet |
     db
       .from('customers')
       .select(
-        'customer_code, name, phone, phone_chuan, province, province_moi, address, company_invoice, tax_code, total_orders, total_gift_orders, first_order_date, last_order_date, note'
+        'customer_code, name, phone, phone_chuan, province, province_moi, address, company_invoice, tax_code, total_orders, total_gift_orders, first_order_date, last_order_date, note, channel_id, sales_owner, email, dia_chi_cty, sdt_cty, email_cty, nguoi_dai_dien, chuc_vu_dai_dien, ma_kh'
       )
       .eq('customer_code', customerCode)
       .maybeSingle(),
@@ -724,6 +738,23 @@ export async function chiTietKhach(customerCode: string): Promise<KhachChiTiet |
   if (cErr) throw cErr
   if (!c) return null
   const cu = c as Record<string, unknown>
+
+  // Người phụ trách: hồ sơ hiện TÊN, không hiện email — email là khoá lưu, không phải thứ để đọc.
+  let tenNguoiPhuTrach: string | null = (cu.sales_owner as string) ?? null
+  if (tenNguoiPhuTrach) {
+    const { data: nv } = await db.from('staff').select('ten').eq('email', tenNguoiPhuTrach).maybeSingle()
+    const t = (nv as { ten?: string } | null)?.ten
+    if (t) tenNguoiPhuTrach = t
+  }
+
+  // Tên kênh 2 cấp — hồ sơ hiện chữ, không hiện số id.
+  let tenKenh: string | null = null
+  if (cu.channel_id != null) {
+    const { data: dc } = await db
+      .from('dim_channel').select('channel_l1, channel_l2').eq('id', cu.channel_id).maybeSingle()
+    const k = dc as { channel_l1?: string; channel_l2?: string | null } | null
+    if (k) tenKenh = [k.channel_l1, k.channel_l2].filter(Boolean).join(' · ') || null
+  }
   const csRow = (cs as { id: string } | null) ?? null
 
   let machines: KhachChiTiet['machines'] = []
@@ -802,6 +833,14 @@ export async function chiTietKhach(customerCode: string): Promise<KhachChiTiet |
       first_order_date: (cu.first_order_date as string) ?? null,
       last_order_date: (cu.last_order_date as string) ?? null,
       note: (cu.note as string) ?? null,
+      kenh: tenKenh,
+      sales_owner: tenNguoiPhuTrach,
+      email: (cu.email as string) ?? null,
+      dia_chi_cty: (cu.dia_chi_cty as string) ?? null,
+      sdt_cty: (cu.sdt_cty as string) ?? null,
+      nguoi_dai_dien: (cu.nguoi_dai_dien as string) ?? null,
+      chuc_vu_dai_dien: (cu.chuc_vu_dai_dien as string) ?? null,
+      ma_kh: (cu.ma_kh as string) ?? null,
     },
     daNoiCS: !!csRow,
     purchases: ((purchases ?? []) as Array<Record<string, unknown>>).map((p, i) => ({
@@ -850,75 +889,273 @@ export async function kiemTraSdt(phone: string) {
   return findCustomerByPhone(phone)
 }
 
+
+/**
+ * Bọc một thao tác GHI của Sales bằng nhật ký — ghi cả khi THÀNH CÔNG lẫn khi HỎNG.
+ *
+ * Vì sao phải ghi cả lúc hỏng (luật rút ra 22/08, phiên CSKH trả giá): đường ghi chỉ ghi
+ * nhật ký sau khi insert thành công thì lúc tính năng gãy, nó **không để lại dấu vết nào**
+ * — 0 dòng dữ liệu, 0 dòng nhật ký, im lặng tuyệt đối. Bên CSKH nút "thêm SĐT phụ" hỏng
+ * suốt một thời gian dài mà không ai biết, phải suy gián tiếp mới lần ra.
+ *
+ * Vì sao Sales cần gấp: lộ trình bỏ Google Sheet (§8, rủi ro 1) — Sheet đang là lưới an toàn
+ * vì Google giữ lịch sử phiên bản, ai lỡ tay còn khôi phục được. Bỏ Sheet là mất lưới đó,
+ * nên **nhật ký sửa/xoá đơn phải có TRƯỚC**, không làm sau.
+ *
+ * Nhật ký không bao giờ được làm hỏng thao tác chính: `ghiAudit` đã tự nuốt lỗi bên trong.
+ */
+async function ghiLai<T>(
+  hanhDong: string,
+  doiTuong: string,
+  chiTiet: Record<string, unknown>,
+  viec: () => Promise<T>
+): Promise<Kq<T extends object ? T : never> | { ok: false; error: string }> {
+  try {
+    const kq = await viec()
+    await ghiAudit(hanhDong, doiTuong, chiTiet)
+    return { ok: true, ...(kq as object) } as Kq<T extends object ? T : never>
+  } catch (e) {
+    const loi = e instanceof Error ? e.message : String(e)
+    await ghiAudit(hanhDong, doiTuong, { ...chiTiet, loi }, 'loi')
+    return { ok: false, error: loi }
+  }
+}
+
 export async function taoDon(input: NewOrderInput): Promise<Kq<{ order_code: string }>> {
   await chanSales()
   const err = validateOrder(input)
   if (err) return { ok: false, error: err }
-  try {
-    const res = await createSalesOrder(input, await emailHienTai())
-    revalidatePath('/sales')
-    return { ok: true, order_code: res.order_code }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
+  const kq = await ghiLai('sales_tao_don', '(mã cấp khi lưu)',
+    { khach: input.customer_code, so_dong: input.items.length },
+    async () => createSalesOrder(input, await emailHienTai()))
+  if (kq.ok) revalidatePath('/sales')
+  return kq
 }
 
 export async function suaDon(orderCode: string, input: NewOrderInput): Promise<Kq<{ order_code: string }>> {
   await chanSales()
   const err = validateOrder(input)
   if (err) return { ok: false, error: err }
-  try {
-    const res = await updateSalesOrder(orderCode, input)
+  const kq = await ghiLai('sales_sua_don', `don:${orderCode}`,
+    { so_dong: input.items.length },
+    () => updateSalesOrder(orderCode, input))
+  if (kq.ok) {
     revalidatePath('/sales')
     revalidatePath(`/sales/don/${orderCode}`)
-    return { ok: true, order_code: res.order_code }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
+  return kq
 }
 
 export async function xoaDon(orderCode: string): Promise<Kq> {
   await chanSales()
-  try {
-    await deleteSalesOrder(orderCode)
-    revalidatePath('/sales')
-    return { ok: true }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
+  const kq = await ghiLai('sales_xoa_don', `don:${orderCode}`, {},
+    async () => { await deleteSalesOrder(orderCode); return {} })
+  if (kq.ok) revalidatePath('/sales')
+  return kq
 }
 
 export async function taoKhach(input: CustomerInput): Promise<Kq<{ customer_code: string }>> {
   await chanSales()
   if (!input.name?.trim() && !input.phone?.trim()) return { ok: false, error: 'Cần ít nhất Tên hoặc SĐT.' }
-  try {
-    const res = await createCustomer(input)
-    revalidatePath('/sales/khach')
-    return { ok: true, customer_code: res.customer_code }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
+  const kq = await ghiLai('sales_tao_khach', '(mã cấp khi lưu)',
+    { co_sdt: !!input.phone?.trim() },
+    () => createCustomer(input))
+  if (kq.ok) revalidatePath('/sales/khach')
+  return kq
 }
 
 export async function suaKhach(code: string, input: CustomerInput): Promise<Kq<{ customer_code: string }>> {
   await chanSales()
-  try {
-    await updateCustomer(code, input)
+  const kq = await ghiLai('sales_sua_khach', `khach:${code}`,
+    { tu_sheet: !isAppCustomer(code) },
+    async () => { await updateCustomer(code, input); return { customer_code: code } })
+  if (kq.ok) {
     revalidatePath('/sales/khach')
     revalidatePath(`/sales/khach/${code}`)
-    return { ok: true, customer_code: code }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
+  return kq
 }
 
 export async function xoaKhach(code: string): Promise<Kq> {
   await chanSales()
-  try {
-    await deleteCustomer(code)
-    revalidatePath('/sales/khach')
-    return { ok: true }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  const kq = await ghiLai('sales_xoa_khach', `khach:${code}`, {},
+    async () => { await deleteCustomer(code); return {} })
+  if (kq.ok) revalidatePath('/sales/khach')
+  return kq
+}
+
+
+/**
+ * Tra SĐT xem đã có khách chưa — DÙNG CHUNG hàm với CSKH (`traKhachTheoSdt`).
+ *
+ * Không gọi `traKhachChung()` của CS: hàm đó gác bằng quyền `cs.khach.xem`, nhân viên Sales
+ * không có. Mỗi khu gác bằng quyền khu mình rồi mới gọi vào lõi chung — đúng luật ghi trong
+ * `lib/khach-lien-he.ts`. Lõi chung thì phải là MỘT, nếu không hai khu tra ra hai kết quả
+ * khác nhau cho cùng một số.
+ */
+export async function traSdtSales(sdt: string): Promise<KetQuaTraKhach> {
+  await chanSales()
+  return traKhachTheoSdt(sdt)
+}
+
+/** dim_channel 2 cấp cho ô chọn kênh. */
+export async function kenhChonDuoc(): Promise<Kenh[]> {
+  await chanSales()
+  const { data } = await dataClient()
+    .from('dim_channel')
+    .select('id, channel_l1, channel_l2')
+    .order('channel_l1')
+    .order('channel_l2')
+  return ((data ?? []) as Array<Record<string, unknown>>).map((d) => ({
+    id: d.id as number,
+    channel_l1: (d.channel_l1 as string) ?? '',
+    channel_l2: (d.channel_l2 as string) ?? null,
+  }))
+}
+
+/**
+ * Gom mọi thứ cần để tự bắt giá cho một khách — CEO chốt: *"Khi lên đơn hàng các khách này
+ * trong tháng sẽ tự bắt được ctkm/chiết khấu đang áp dụng"*.
+ *
+ * Gọi MỘT lần lúc chọn khách, không gọi lại theo từng dòng hàng: một đơn 5 dòng mà mỗi dòng
+ * một vòng gọi server là 5 lần chờ, trong khi dữ liệu y hệt nhau.
+ */
+export async function boiCanhGia(
+  customerCode: string | null,
+  channelIdTruyenVao: number | null,
+  ngay: string
+): Promise<BoiCanhGia> {
+  await chanSales()
+  const db = dataClient()
+
+  let bac: Bac | null = null
+  let channelId = channelIdTruyenVao
+
+  if (customerCode) {
+    const [{ data: bacRow }, { data: kh }] = await Promise.all([
+      db.from('sales_bac_khach').select('bac')
+        .eq('customer_code', customerCode).is('hieu_luc_den', null).maybeSingle(),
+      db.from('customers').select('channel_id').eq('customer_code', customerCode).maybeSingle(),
+    ])
+    if (bacRow) bac = (bacRow as { bac: Bac }).bac
+    if (channelId == null) channelId = ((kh as { channel_id: number | null } | null)?.channel_id) ?? null
   }
+
+  const [cs, gia, ct, ctKenh, ctSp] = await Promise.all([
+    db.from('sales_chinh_sach_gia').select('*').eq('trang_thai', 'ban_hanh'),
+    db.from('product_price').select('internal_code, gia_vat').eq('kenh', 'NIEM_YET'),
+    db.from('sales_ctkm').select('id, ten, tu_ngay, den_ngay, kieu_giam, muc_chung, giam_toi_da, trang_thai')
+      .eq('trang_thai', 'ban_hanh'),
+    db.from('sales_ctkm_kenh').select('ctkm_id, channel_id'),
+    db.from('sales_ctkm_sp').select('ctkm_id, internal_code, muc'),
+  ])
+
+  const niemYet: Record<string, number> = {}
+  for (const g of ((gia.data ?? []) as Array<Record<string, unknown>>)) {
+    const ma = g.internal_code as string
+    const v = Number(g.gia_vat)
+    if (ma && Number.isFinite(v)) niemYet[ma] = v
+  }
+
+  const kenhTheoCtkm = new Map<string, number[]>()
+  for (const k of ((ctKenh.data ?? []) as Array<Record<string, unknown>>)) {
+    const id = k.ctkm_id as string
+    if (!kenhTheoCtkm.has(id)) kenhTheoCtkm.set(id, [])
+    kenhTheoCtkm.get(id)!.push(Number(k.channel_id))
+  }
+  const spTheoCtkm = new Map<string, Record<string, number>>()
+  for (const s of ((ctSp.data ?? []) as Array<Record<string, unknown>>)) {
+    const id = s.ctkm_id as string
+    if (!spTheoCtkm.has(id)) spTheoCtkm.set(id, {})
+    spTheoCtkm.get(id)![s.internal_code as string] = Number(s.muc)
+  }
+
+  const dsCtkm: Ctkm[] = ((ct.data ?? []) as Array<Record<string, unknown>>).map((c) => ({
+    id: c.id as string,
+    ten: c.ten as string,
+    tu_ngay: c.tu_ngay as string,
+    den_ngay: (c.den_ngay as string) ?? null,
+    kieu_giam: c.kieu_giam as Ctkm['kieu_giam'],
+    muc_chung: c.muc_chung == null ? null : Number(c.muc_chung),
+    giam_toi_da: c.giam_toi_da == null ? null : Number(c.giam_toi_da),
+    trang_thai: c.trang_thai as string,
+    kenh: kenhTheoCtkm.get(c.id as string) ?? [],
+  }))
+
+  const { chon, khac } = ctkmChoDon(dsCtkm, ngay, channelId)
+
+  return {
+    bac,
+    channel_id: channelId,
+    chinhSach: ((cs.data ?? []) as unknown) as ChinhSachGia[],
+    ctkm: chon ? { ...chon, sp: spTheoCtkm.get(chon.id) ?? {} } : null,
+    soCtkmKhac: khac.length,
+    niemYet,
+  }
+}
+
+export type KhachTrung = { sdt9: string; ma: string[]; ten: (string | null)[] }
+
+/**
+ * Đếm khách trùng SĐT — CEO chốt 22/08 chọn **đếm + cảnh báo**, không đặt ràng buộc
+ * duy nhất ở DB.
+ *
+ * Vì sao không chặn cứng: `customers` do Apps Script upsert **theo lô**; một SĐT trùng
+ * là **gãy cả lô sync**, mà lỗi thật lại nằm ở một ô SĐT trong tab đơn từ mấy tuần trước
+ * — báo lỗi ở chỗ cách xa nguyên nhân thì người sửa phải mò ngược. Đếm rồi chỉ thẳng
+ * mã nào thì sửa được ngay.
+ *
+ * So theo **9 SỐ CUỐI**: đó là cách duy nhất bắt được cặp `0xxxxxxxxx` và
+ * cùng số đó bị mất số 0 đầu,
+ * tức đúng loại trùng mà Google Sheet đẻ ra khi ăn mất số 0 đầu.
+ */
+export async function khachTrungSdt(): Promise<KhachTrung[]> {
+  await chanSales()
+  const { data } = await dataClient()
+    .from('customers')
+    .select('customer_code, name, phone')
+    .not('phone', 'is', null)
+    .limit(5000)
+
+  const nhom = new Map<string, { ma: string[]; ten: (string | null)[] }>()
+  for (const r of ((data ?? []) as Array<Record<string, unknown>>)) {
+    const so = String(r.phone ?? '').replace(/\D/g, '')
+    if (so.length < 9) continue
+    const k = so.slice(-9)
+    if (!nhom.has(k)) nhom.set(k, { ma: [], ten: [] })
+    nhom.get(k)!.ma.push(r.customer_code as string)
+    nhom.get(k)!.ten.push((r.name as string) ?? null)
+  }
+  return [...nhom.entries()]
+    .filter(([, v]) => v.ma.length > 1)
+    .map(([sdt9, v]) => ({ sdt9, ...v }))
+    .sort((a, b) => b.ma.length - a.ma.length)
+}
+
+export type NhanVienChon = { email: string; ten: string; vai_tro: string[] }
+
+/**
+ * Nhân viên để chọn làm "Sales phụ trách" — CEO chốt 22/08: **chọn từ danh sách**,
+ * không gõ tay email. Gõ tay là sớm muộn có `an.nguyen@gwt.vn` và `An Nguyễn` cùng
+ * chỉ một người, rồi lọc theo người phụ trách ra thiếu.
+ *
+ * Không dùng `listStaff()` của khu CS: hàm đó đi qua `requireStaff()` — cổng CS —
+ * nên **đá văng nhân viên Sales thuần** (đúng lỗi nền tảng đã vá 19/08). Sales gác
+ * bằng cổng Sales rồi đọc thẳng bảng dùng chung.
+ */
+export async function nhanVienChonDuoc(): Promise<NhanVienChon[]> {
+  await chanSales()
+  const { data } = await dataClient()
+    .from('staff')
+    .select('ten, email, vai_tro')
+    .eq('hoat_dong', true)
+    .not('email', 'is', null)
+    .order('ten')
+  return ((data ?? []) as Array<Record<string, unknown>>)
+    .map((r) => ({
+      email: (r.email as string) ?? '',
+      ten: (r.ten as string) || ((r.email as string) ?? ''),
+      vai_tro: Array.isArray(r.vai_tro) ? (r.vai_tro as string[]) : [],
+    }))
+    .filter((r) => r.email)
 }

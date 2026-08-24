@@ -2,6 +2,7 @@ import 'server-only'
 import { dataClient } from '@/lib/nen-tang/db'
 import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode } from './_calc'
 import type { CatalogPick, ChannelOpt, CustomerInput, NewOrderInput, OrderFormInitial } from './_types'
+import { maDaCap, type DongCoMa } from './_ma-khach'
 
 // ───────────── Nguồn cho form ─────────────
 export async function listCatalogForPicker(): Promise<CatalogPick[]> {
@@ -89,6 +90,49 @@ function buildItems(input: NewOrderInput, orderId?: string) {
 }
 
 // ───────────── Tạo đơn ─────────────
+
+/**
+ * Các ô Sheet bổ sung 22/08. Gom một chỗ để đường TẠO và đường SỬA không bao giờ lệch —
+ * đúng lỗi CEO bắt được ở màn khách (màn tạo tự viết insert riêng, màn sửa gọi hàm chung).
+ */
+function oSheetBoSung(input: NewOrderInput) {
+  const so = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? null : Math.round(v))
+  const chu = (v: string | null | undefined) => (v ?? '').trim() || null
+  return {
+    channel_detail: chu(input.channel_detail),
+    qua_tang: chu(input.qua_tang),
+    su_dung_qua_tang: chu(input.su_dung_qua_tang),
+    tracking_url: chu(input.tracking_url),
+    kich_hoat_bh: !!input.kich_hoat_bh,
+    email: chu(input.email),
+    tien_coc: so(input.tien_coc),
+    gui_hdsd: !!input.gui_hdsd,
+    xuat_hoa_don: !!input.xuat_hoa_don,
+    da_doi_soat: !!input.da_doi_soat,
+    ngay_doi_soat: input.ngay_doi_soat || null,
+    so_hd: chu(input.so_hd),
+    ten_goi_khach: chu(input.ten_goi_khach),
+    ten_folder: chu(input.ten_folder),
+    ten_khach_theo_doi: chu(input.ten_khach_theo_doi),
+    tien_se_thu: so(input.tien_se_thu),
+    bien_ban_xac_nhan: !!input.bien_ban_xac_nhan,
+    bao_cao_lap_dat: !!input.bao_cao_lap_dat,
+    tien_do_lap_dat: chu(input.tien_do_lap_dat),
+    ngay_hoan_thanh_lap: input.ngay_hoan_thanh_lap || null,
+    tu_dien: chu(input.tu_dien),
+    version: chu(input.version),
+    nghe_nghiep: chu(input.nghe_nghiep),
+    ngay_sinh: input.ngay_sinh || null,
+    gioi_tinh: chu(input.gioi_tinh),
+    do_tuoi: chu(input.do_tuoi),
+    loai_nha: chu(input.loai_nha),
+    tinh_trang_nha: chu(input.tinh_trang_nha),
+    cong_ty_xuat_hd: chu(input.cong_ty_xuat_hd),
+    mst: chu(input.mst),
+    dia_chi_xuat_hd: chu(input.dia_chi_xuat_hd),
+  }
+}
+
 export async function createSalesOrder(
   input: NewOrderInput,
   createdBy: string | null
@@ -121,6 +165,7 @@ export async function createSalesOrder(
         payment_method: input.payment_method || null,
         shipping_code: input.shipping_code || null,
         install_date: input.install_date || null,
+        ...oSheetBoSung(input),
         total_vat: total,
         note: input.note || null,
         created_by: createdBy,
@@ -170,6 +215,7 @@ export async function updateSalesOrder(orderCode: string, input: NewOrderInput):
       payment_method: input.payment_method || null,
       shipping_code: input.shipping_code || null,
       install_date: input.install_date || null,
+      ...oSheetBoSung(input),
       total_vat: total,
       note: input.note || null,
       updated_at: new Date().toISOString(),
@@ -218,6 +264,37 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
     payment_method: (header.payment_method as string) ?? null,
     shipping_code: (header.shipping_code as string) ?? null,
     install_date: ((header.install_date as string) ?? '')?.slice(0, 10) || null,
+    channel_detail: (header.channel_detail as string) ?? null,
+    qua_tang: (header.qua_tang as string) ?? null,
+    su_dung_qua_tang: (header.su_dung_qua_tang as string) ?? null,
+    tracking_url: (header.tracking_url as string) ?? null,
+    kich_hoat_bh: !!header.kich_hoat_bh,
+    email: (header.email as string) ?? null,
+    tien_coc: header.tien_coc == null ? null : Number(header.tien_coc),
+    gui_hdsd: !!header.gui_hdsd,
+    xuat_hoa_don: !!header.xuat_hoa_don,
+    da_doi_soat: !!header.da_doi_soat,
+    ngay_doi_soat: ((header.ngay_doi_soat as string) ?? '')?.slice(0, 10) || null,
+    so_hd: (header.so_hd as string) ?? null,
+    ten_goi_khach: (header.ten_goi_khach as string) ?? null,
+    ten_folder: (header.ten_folder as string) ?? null,
+    ten_khach_theo_doi: (header.ten_khach_theo_doi as string) ?? null,
+    tien_se_thu: header.tien_se_thu == null ? null : Number(header.tien_se_thu),
+    bien_ban_xac_nhan: !!header.bien_ban_xac_nhan,
+    bao_cao_lap_dat: !!header.bao_cao_lap_dat,
+    tien_do_lap_dat: (header.tien_do_lap_dat as string) ?? null,
+    ngay_hoan_thanh_lap: ((header.ngay_hoan_thanh_lap as string) ?? '')?.slice(0, 10) || null,
+    tu_dien: (header.tu_dien as string) ?? null,
+    version: (header.version as string) ?? null,
+    nghe_nghiep: (header.nghe_nghiep as string) ?? null,
+    ngay_sinh: ((header.ngay_sinh as string) ?? '')?.slice(0, 10) || null,
+    gioi_tinh: (header.gioi_tinh as string) ?? null,
+    do_tuoi: (header.do_tuoi as string) ?? null,
+    loai_nha: (header.loai_nha as string) ?? null,
+    tinh_trang_nha: (header.tinh_trang_nha as string) ?? null,
+    cong_ty_xuat_hd: (header.cong_ty_xuat_hd as string) ?? null,
+    mst: (header.mst as string) ?? null,
+    dia_chi_xuat_hd: (header.dia_chi_xuat_hd as string) ?? null,
     note: (header.note as string) ?? null,
     items: ((items ?? []) as Array<Record<string, unknown>>).map((it) => ({
       internal_code: (it.internal_code as string) ?? '',
@@ -241,7 +318,7 @@ export function isAppCustomer(code: string | null | undefined): boolean {
 }
 
 const CUST_COLS =
-  'customer_code, name, phone, phone_chuan, address, province, province_moi, company_invoice, tax_code, note'
+  'customer_code, name, phone, phone_chuan, address, province, province_moi, company_invoice, tax_code, note, channel_id, email, ngay_sinh, dia_chi_cty, sdt_cty, email_cty, nguoi_dai_dien, chuc_vu_dai_dien, sales_owner'
 
 export async function findCustomerByPhone(phone: string): Promise<{ customer_code: string; name: string | null } | null> {
   const db = dataClient()
@@ -264,6 +341,15 @@ export async function getCustomerForEdit(code: string): Promise<CustomerInput | 
     company_invoice: (c.company_invoice as string) ?? null,
     tax_code: (c.tax_code as string) ?? null,
     note: (c.note as string) ?? null,
+    channel_id: (c.channel_id as number) ?? null,
+    email: (c.email as string) ?? null,
+    ngay_sinh: (c.ngay_sinh as string) ?? null,
+    dia_chi_cty: (c.dia_chi_cty as string) ?? null,
+    sdt_cty: (c.sdt_cty as string) ?? null,
+    email_cty: (c.email_cty as string) ?? null,
+    nguoi_dai_dien: (c.nguoi_dai_dien as string) ?? null,
+    chuc_vu_dai_dien: (c.chuc_vu_dai_dien as string) ?? null,
+    sales_owner: (c.sales_owner as string) ?? null,
   }
 }
 
@@ -287,15 +373,52 @@ function cleanCustomer(input: CustomerInput) {
     company_invoice: input.company_invoice?.trim() || null,
     tax_code: input.tax_code?.trim() || null,
     note: input.note?.trim() || null,
+    ...cleanCustomerAppFields(input),
   }
+}
+
+/** Chỉ những ô Apps Script KHÔNG đụng tới — sửa được ngay cả với khách từ Sheet. */
+function cleanCustomerAppFields(input: CustomerInput) {
+  return {
+    channel_id: input.channel_id ?? null,
+    email: input.email?.trim() || null,
+    ngay_sinh: input.ngay_sinh?.trim() || null,
+    dia_chi_cty: input.dia_chi_cty?.trim() || null,
+    sdt_cty: input.sdt_cty?.trim() || null,
+    email_cty: input.email_cty?.trim() || null,
+    nguoi_dai_dien: input.nguoi_dai_dien?.trim() || null,
+    chuc_vu_dai_dien: input.chuc_vu_dai_dien?.trim() || null,
+    sales_owner: input.sales_owner?.trim() || null,
+  }
+}
+
+/** Mã khách hệ mới cho người sắp tạo — tra SĐT trước, hết cách mới cấp số mới. */
+async function maKhachMoi(db: ReturnType<typeof dataClient>, phone: string | null): Promise<string | null> {
+  const [cs, sales] = await Promise.all([
+    db.from('cs_customers').select('primary_phone, ma_kh').not('ma_kh', 'is', null).limit(5000),
+    db.from('customers').select('phone, ma_kh').not('ma_kh', 'is', null).limit(5000),
+  ])
+  const doi = (ds: unknown, cot: string): DongCoMa[] =>
+    ((ds ?? []) as Array<Record<string, unknown>>).map((r) => ({
+      sdt: (r[cot] as string) ?? null,
+      ma_kh: (r.ma_kh as string) ?? null,
+    }))
+
+  const cu = maDaCap(doi(cs.data, 'primary_phone'), doi(sales.data, 'phone'), phone)
+  if (cu) return cu
+
+  // Người mới thật -> bộ cấp số dùng chung (có khoá, hai khu bấm cùng lúc không đụng mã).
+  const { data } = await db.rpc('cap_ma_kh')
+  return (data as string) ?? null
 }
 
 export async function createCustomer(input: CustomerInput): Promise<{ customer_code: string }> {
   const db = dataClient()
   const fields = cleanCustomer(input)
+  const ma_kh = await maKhachMoi(db, input.phone)
   for (let attempt = 0; attempt < 6; attempt++) {
     const code = await nextCustomerCode(db)
-    const { error } = await db.from('customers').insert({ customer_code: code, ...fields })
+    const { error } = await db.from('customers').insert({ customer_code: code, ma_kh, ...fields })
     if (error) {
       if ((error as { code?: string }).code === '23505') continue
       throw error
@@ -305,11 +428,22 @@ export async function createCustomer(input: CustomerInput): Promise<{ customer_c
   throw new Error('Không sinh được mã khách (đụng mã liên tục). Thử lại.')
 }
 
+/**
+ * Sửa khách. HAI đường, tuỳ khách đến từ đâu:
+ *
+ * - Khách app (`KA…`): app làm chủ mọi ô -> ghi hết.
+ * - Khách Sheet (`KH…`): Apps Script dựng lại tên/SĐT/địa chỉ/tỉnh/công ty/MST/ghi chú
+ *   từ đơn mỗi lần chạy `buildKhachHang`. Ghi mấy ô đó là **mất công lặng lẽ** — lần sync
+ *   sau bị đè. Nên chỉ ghi những ô Sheet không đụng.
+ *
+ * Không ném lỗi với khách Sheet nữa (CEO 22/08: hồ sơ phải sửa được). Ràng buộc nằm ở
+ * chỗ GHI, không nằm ở chỗ chặn — giao diện khoá sẵn mấy ô kia và nói rõ vì sao.
+ * Bỏ được sau chặng B của `docs/sales/LO-TRINH-BO-APPSCRIPT.md`.
+ */
 export async function updateCustomer(code: string, input: CustomerInput): Promise<void> {
-  if (!isAppCustomer(code))
-    throw new Error('Chỉ sửa được khách tạo từ app (mã KA). Khách từ Google Sheet: sửa trong Sheet.')
   const db = dataClient()
-  const { error } = await db.from('customers').update(cleanCustomer(input)).eq('customer_code', code)
+  const fields = isAppCustomer(code) ? cleanCustomer(input) : cleanCustomerAppFields(input)
+  const { error } = await db.from('customers').update(fields).eq('customer_code', code)
   if (error) throw error
 }
 
