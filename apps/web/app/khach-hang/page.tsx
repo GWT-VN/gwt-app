@@ -42,7 +42,7 @@ export default async function KhachHangPage({
         </DauTrang>
 
         <Suspense>
-          <OTimKiem placeholder="Gõ tên khách, SĐT…" />
+          <OTimKiem placeholder="Gõ tên khách, SĐT, mã KH…" />
         </Suspense>
 
         {/* Chip lọc "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải

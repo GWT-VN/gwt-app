@@ -13,7 +13,7 @@ import { coQuyen, doQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { antoanChoOr, chuanHoaTuKhoa, mauDauTu, sapXepHopLe, gomKhoa } from '@/bang'
 import type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc } from '@/bang'
 import { goiYGomTu, type CumGoiY } from '@/lib/goiYNhom'
-import { sinhLichBaoTri, vungTheoTinh, type Vung } from '@/lib/lichBaoTri'
+import { sinhLichBaoTri, suyChuKyTuMoc, vungTheoTinh, type Vung } from '@/lib/lichBaoTri'
 import { traKhachTheoSdt, type KetQuaTraKhach } from '@/lib/tra-khach'
 import { xepGoiY, type GoiYKhach, type KhachUngVien } from '@/lib/khopPlanKhach'
 import { kiemTraGop, moTaGop, type KhachGon, type KhachDayDu } from '@/lib/gopKhach'
@@ -217,6 +217,8 @@ export type Customer = {
   chuc_vu_dai_dien: string | null
   /** Mã khách dùng chung hai khu — cũng là KHOÁ của SĐT phụ / địa chỉ phụ. */
   ma_kh: string | null
+  /** Mã nối sang hồ sơ khách bên Sales (`customers.customer_code`, kiểu KH02419). */
+  customer_code: string | null
 }
 
 export async function getCustomer(id: string) {
@@ -264,8 +266,12 @@ export async function updateCustomer(id: string, patch: Partial<Customer>) {
     nguoi_dai_dien: patch.nguoi_dai_dien || null,
     chuc_vu_dai_dien: patch.chuc_vu_dai_dien || null,
   }
-  // Sửa được SĐT hợp lệ -> hạ cờ needs_phone + xoá ghi chú lỗi
+  // Sửa được SĐT hợp lệ -> hạ cờ needs_phone + xoá ghi chú lỗi.
+  // Ngược lại (xoá trắng ô SĐT, hoặc để lại số sai định dạng) -> BẬT cờ, để hồ sơ rơi vào
+  // chip "Cần xin lại SĐT". Bản trước chỉ biết HẠ cờ chứ không biết bật: CS xoá số đi là
+  // hồ sơ lặng lẽ biến mất khỏi danh sách phải gọi xin số — đúng thứ chip đó sinh ra để chặn.
   if (sdt && /^0\d{9,10}$/.test(sdt)) { payload.needs_phone = false; payload.notes = null }
+  else payload.needs_phone = true
   // Sửa thông tin khách CẦN ADMIN DUYỆT: admin áp ngay, CS -> hàng chờ.
   return guiYeuCauThayDoi({ doi_tuong: 'cs_customers', ban_ghi_id: id, loai: 'sua', payload })
 }
@@ -1189,18 +1195,39 @@ async function tinhDoiLichSau(
   db: ReturnType<typeof dataClient>, visitId: string, ngayThuc: string,
 ): Promise<DoiLichMuc[]> {
   const { data: v } = await db.from('maintenance_visit')
-    .select('plan_id, lan_thu').eq('id', visitId).maybeSingle()
-  const vv = v as { plan_id: string | null; lan_thu: number | null } | null
-  if (!vv?.plan_id || vv.lan_thu == null) return []
+    .select('plan_id, lan_thu, section').eq('id', visitId).maybeSingle()
+  const vv = v as { plan_id: string | null; lan_thu: number | null; section: string | null } | null
+  if (!vv || vv.lan_thu == null) return []
+  return vv.plan_id
+    ? doiLichTheoPlan(db, vv.plan_id, vv.lan_thu, ngayThuc)
+    : doiLichTheoSection(db, vv.section, vv.lan_thu, ngayThuc)
+}
 
+/** Lượt chưa làm ghép với mốc mới. Lượt ĐÃ đúng ngày thì bỏ, không kể vào câu hỏi. */
+function ghepMocMoi(
+  ds: { id: string; lan_thu: number | null; due_date: string | null }[], ngayMoi: string[],
+): DoiLichMuc[] {
+  const out: DoiLichMuc[] = []
+  for (let i = 0; i < ds.length && i < ngayMoi.length; i++) {
+    const cu = ds[i].due_date?.slice(0, 10) ?? null
+    if (cu === ngayMoi[i]) continue
+    out.push({ id: ds[i].id, lan_thu: ds[i].lan_thu, cu, moi: ngayMoi[i] })
+  }
+  return out
+}
+
+/** Đường thường: lượt có gắn `maintenance_plan` -> đọc thẳng chu kỳ + vùng của plan. */
+async function doiLichTheoPlan(
+  db: ReturnType<typeof dataClient>, planId: string, lanThu: number, ngayThuc: string,
+): Promise<DoiLichMuc[]> {
   const { data: plan } = await db.from('maintenance_plan')
-    .select('customer_id, chu_ky_thang, vung').eq('id', vv.plan_id).maybeSingle()
+    .select('customer_id, chu_ky_thang, vung').eq('id', planId).maybeSingle()
   const p = plan as { customer_id: string | null; chu_ky_thang: number | null; vung: Vung | null } | null
   const chuKy = p?.chu_ky_thang ?? 0
   if (!p || chuKy <= 0) return []
 
   const { data: sau } = await db.from('maintenance_visit').select('id, lan_thu, due_date')
-    .eq('plan_id', vv.plan_id).is('completed_at', null).gt('lan_thu', vv.lan_thu).order('lan_thu')
+    .eq('plan_id', planId).is('completed_at', null).gt('lan_thu', lanThu).order('lan_thu')
   const ds = (sau ?? []) as { id: string; lan_thu: number | null; due_date: string | null }[]
   if (!ds.length) return []
 
@@ -1208,14 +1235,46 @@ async function tinhDoiLichSau(
     .select('province').eq('id', p.customer_id ?? '').maybeSingle()
   const vung: Vung = p.vung ?? vungTheoTinh((kh as { province: string | null } | null)?.province ?? null)
   const ngayMoi = sinhLichBaoTri(ngayThuc, chuKy, ds.length + 1, vung).slice(1)  // mốc SAU ngày thực
+  return ghepMocMoi(ds, ngayMoi)
+}
 
-  const out: DoiLichMuc[] = []
-  for (let i = 0; i < ds.length && i < ngayMoi.length; i++) {
-    const cu = ds[i].due_date?.slice(0, 10) ?? null
-    if (cu === ngayMoi[i]) continue           // đã đúng ngày -> không kể vào câu hỏi
-    out.push({ id: ds[i].id, lan_thu: ds[i].lan_thu, cu, moi: ngayMoi[i] })
-  }
-  return out
+/**
+ * 🔴 Lượt MỒ CÔI — `plan_id` NULL, gom hồ sơ bằng cột `section` của đợt nhập Asana.
+ *
+ * Bản trước thoát ngay ở `if (!vv?.plan_id) return []`, và màn hình đọc mảng rỗng là
+ * "các lượt sau đã đúng ngày, không cần dời". CEO bắt được đúng ca này ngày 24/08 ở hồ sơ
+ * *Mr.Nứa - 123C Thuỵ Khuê*: lượt 6 ghi làm 14/08 mà lượt 7 vẫn 29/11, hệ thống lại báo
+ * không cần dời. **Đo prod cùng ngày: 309/471 lượt (51 hồ sơ) không có `plan_id`** — tức
+ * hai phần ba lịch bảo trì đang im lặng bỏ qua việc dời, không phải một ca lẻ.
+ *
+ * Không có plan thì thiếu hai thứ, lấy như sau:
+ *  · **chu kỳ** — suy ngược từ khoảng cách các mốc sẵn có (`suyChuKyTuMoc`), không suy
+ *    được thì 3 tháng, đúng mặc định hợp đồng WH15A/WH30A.
+ *  · **vùng** — không có hồ sơ khách nên không biết tỉnh ⇒ lấy `'bac'` (nghỉ cả T7 + CN).
+ *    Cố ý chọn bên NGHIÊM hơn: hẹn nhầm vào thứ Bảy là kỹ thuật đi rồi mới biết khách bận,
+ *    còn hẹn sớm hơn một hai ngày thì CS nhìn bảng đề xuất là dời lại được ngay.
+ *
+ * Vẫn chỉ ĐỀ XUẤT — CS xem từng dòng *ngày cũ → ngày mới* rồi mới bấm đồng ý.
+ */
+async function doiLichTheoSection(
+  db: ReturnType<typeof dataClient>, section: string | null, lanThu: number, ngayThuc: string,
+): Promise<DoiLichMuc[]> {
+  if (!section) return []   // không có gì để gom hồ sơ -> không đoán bừa
+
+  const { data: all } = await db.from('maintenance_visit')
+    .select('id, lan_thu, due_date, completed_at')
+    .eq('section', section).is('plan_id', null).order('lan_thu')
+  const tatCa = (all ?? []) as {
+    id: string; lan_thu: number | null; due_date: string | null; completed_at: string | null
+  }[]
+
+  const ds = tatCa.filter((r) => r.completed_at === null && r.lan_thu != null && r.lan_thu > lanThu)
+  if (!ds.length) return []
+
+  // Suy chu kỳ từ TOÀN chuỗi (kể cả lượt đã làm) — càng nhiều mốc càng chắc.
+  const chuKy = suyChuKyTuMoc(tatCa.map((r) => r.due_date)) ?? 3
+  const ngayMoi = sinhLichBaoTri(ngayThuc, chuKy, ds.length + 1, 'bac').slice(1)
+  return ghepMocMoi(ds, ngayMoi)
 }
 
 /** Đề xuất dời lịch cho một lượt đã đánh dấu xong — để màn hình hỏi lại CS. Không ghi gì. */
@@ -4069,7 +4128,16 @@ export async function listKhachHang(
 
   let truyVan = db.from('cs_customers').select('*', { count: 'exact' }).neq('trang_thai', 'da_xoa')
   const kw = antoanChoOr(chuanHoaTuKhoa(q))
-  if (kw) truyVan = truyVan.or(`ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%`)
+  // Tìm được theo MÃ KHÁCH (`ma_kh` kiểu KH-2608-0108 và `customer_code` kiểu KH02419).
+  // CEO báo 24/08: có 4 cặp mã lệch giữa CS và Sales cần mở ra xem, mà bảng khách không
+  // hiện mã cũng không tra được theo mã ⇒ biết số mã trong tay vẫn không mở nổi hồ sơ.
+  // Mã là MÃ nên khớp chuỗi con (ilike), không khớp đầu từ như tên người.
+  if (kw) {
+    truyVan = truyVan.or(
+      `ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%,` +
+        `ma_kh.ilike.%${kw}%,customer_code.ilike.%${kw}%`
+    )
+  }
   // "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải LỌC RA được
   // danh sách phải gọi xin số. Bắt cả hồ sơ trống số lẫn hồ sơ bị cờ `needs_phone`
   // (số sai định dạng từ đợt import cũ) — với CS thì hai ca đó cùng một việc phải làm.

@@ -9,6 +9,8 @@ import { luuBangView, xoaBangView, type BangView } from '@/app/actions'
 type Kh = {
   id: string; full_name: string; primary_phone: string | null; address: string | null
   province: string | null; source: string | null; notes: string | null; machines: number
+  /** Mã dùng chung hai khu (KH-2608-0108) và mã nối sang Sales (KH02419). */
+  ma_kh: string | null; customer_code: string | null
 }
 type CotDef = { key: string; nhan: string; batBuoc?: boolean; sapXep?: string; phai?: boolean; render: (c: Kh) => ReactNode }
 
@@ -16,6 +18,12 @@ type CotDef = { key: string; nhan: string; batBuoc?: boolean; sapXep?: string; p
 const COT: CotDef[] = [
   { key: 'full_name', nhan: 'Khách', sapXep: 'full_name',
     render: (c) => <Link href={`/khach/${c.id}`} prefetch={false} className="text-slate-900 underline font-medium">{c.full_name}</Link> },
+  // CEO 24/08: cầm mã khách trong tay mà bảng không hiện mã, ô tìm cũng không nhận mã
+  // ⇒ không mở nổi hồ sơ. Bật sẵn cột này thay vì giấu trong picker cột.
+  { key: 'ma_kh', nhan: 'Mã KH', sapXep: 'ma_kh',
+    render: (c) => <span className="font-mono text-xs text-slate-500">{c.ma_kh ?? '—'}</span> },
+  { key: 'customer_code', nhan: 'Mã Sales',
+    render: (c) => <span className="font-mono text-xs text-slate-500">{c.customer_code ?? '—'}</span> },
   { key: 'primary_phone', nhan: 'SĐT', batBuoc: true,
     render: (c) => <span className="font-mono text-xs text-slate-700">{c.primary_phone ?? <span className="text-amber-600">—</span>}</span> },
   { key: 'address', nhan: 'Địa chỉ', render: (c) => c.address ?? '—' },
@@ -24,7 +32,7 @@ const COT: CotDef[] = [
   { key: 'source', nhan: 'Nguồn', render: (c) => c.source ?? '—' },
   { key: 'notes', nhan: 'Ghi chú', render: (c) => c.notes ?? '—' },
 ]
-const MAC_DINH = ['full_name', 'primary_phone', 'address', 'province', 'machines']
+const MAC_DINH = ['full_name', 'ma_kh', 'primary_phone', 'address', 'province', 'machines']
 const BAT_BUOC = COT.filter((c) => c.batBuoc).map((c) => c.key)
 
 function chuanHoa(cot: string[]): string[] {
