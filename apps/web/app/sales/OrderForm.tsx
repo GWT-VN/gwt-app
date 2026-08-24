@@ -21,10 +21,18 @@ import {
 } from './_types'
 import { giaGoiY, nhanBac, type BoiCanhGia, type GiaGoiY } from './_ctkm'
 
-type Line = NewOrderItem & { key: number }
+/**
+ * `giaTuGo` = người nhập đã TỰ gõ số vào ô đơn giá.
+ *
+ * Cờ này là ranh giới giữa "số của app" và "số của người". App được phép sửa lại số
+ * của chính nó khi chính sách đổi (đổi khách, đổi kênh, đổi sản phẩm trên cùng dòng),
+ * nhưng KHÔNG BAO GIỜ đè số người đã gõ tay — số nhảy dưới tay người nhập là mất tin cậy.
+ */
+type Line = NewOrderItem & { key: number; giaTuGo: boolean }
 
 const emptyLine = (key: number): Line => ({
   key,
+  giaTuGo: false,
   internal_code: '',
   product_name: '',
   category_l1: null,
@@ -196,8 +204,12 @@ export function OrderForm({
   const [dcXuatHD, setDcXuatHD] = useState(initial?.dia_chi_xuat_hd ?? '')
   const [moPOE, setMoPOE] = useState(false)
 
+  // Đơn cũ mở ra sửa: mọi giá đã lưu đều tính là NGƯỜI gõ. Nếu không, mở lại một đơn
+  // tháng trước là app lặng lẽ viết đè giá khuyến mãi HÔM NAY lên — đơn đã chốt bị đổi số.
   const [lines, setLines] = useState<Line[]>(
-    initial?.items?.length ? initial.items.map((it, i) => ({ ...it, key: i + 1 })) : [emptyLine(1)]
+    initial?.items?.length
+      ? initial.items.map((it, i) => ({ ...it, key: i + 1, giaTuGo: true }))
+      : [emptyLine(1)]
   )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -239,6 +251,88 @@ export function OrderForm({
     return m
   }, [bcGia, lines, orderDate])
 
+  /**
+   * Đổ giá gợi ý xuống ô Đơn giá — CEO bắt lỗi 24/08: "sao không hiển thị luôn giá
+   * khuyến mãi vào đơn giá".
+   *
+   * Bản cũ chỉ điền tại ĐÚNG MỘT khoảnh khắc: lúc bấm chọn sản phẩm, và chỉ khi ô đang
+   * trống. Ba ca thường gặp đều trượt:
+   *   · chọn sản phẩm TRƯỚC rồi mới chọn khách — lúc chọn sản phẩm chưa có bối cảnh giá;
+   *   · chọn khách xong bấm sản phẩm ngay — lượt tra bối cảnh còn đang bay, `bcGia` = null;
+   *   · đổi sang sản phẩm khác trên cùng dòng — ô đã có số nên bị bỏ qua, giữ giá máy cũ.
+   *
+   * Nay điền lại mỗi khi gợi ý đổi, nhưng CHỈ trên dòng người nhập chưa tự gõ giá
+   * (`giaTuGo`). Không dùng state trung gian: `goiY` đã là dẫn xuất, so số rồi mới ghi nên
+   * lượt sau không còn gì để đổi -> dừng, không lặp vô hạn.
+   */
+  useEffect(() => {
+    setLines((ls) => {
+      let doi = false
+      const moi = ls.map((l) => {
+        if (l.giaTuGo || l.is_gift || !l.internal_code) return l
+        const g = goiY[l.key]
+        if (!g || g.gia == null || Number(l.unit_price_vat) === g.gia) return l
+        doi = true
+        return { ...l, unit_price_vat: g.gia }
+      })
+      return doi ? moi : ls
+    })
+  }, [goiY])
+
+  /**
+   * Quà của các chương trình đang áp — gom từ mọi dòng hàng, gộp trùng.
+   *
+   * Vì sao gom ở ĐÂY chứ không hiện dưới từng dòng: hai dòng cùng ăn một chương trình
+   * thì quà của chương trình đó KHÔNG nhân đôi. Gộp theo (chương trình + mã quà) rồi
+   * mới hiện, để nhân viên nhìn ra đúng số món phải giao.
+   */
+  const quaCtkm = useMemo(() => {
+    const m = new Map<string, { ctkmId: string; ma: string; ten: string; soLuong: number; dieuKien: string | null; giaTri: number | null }>()
+    for (const l of lines) {
+      const g = goiY[l.key]
+      if (!g || l.is_gift) continue
+      for (const q of g.qua) {
+        const ctkmId = q.ctkmId ?? ''
+        const khoa = `${ctkmId}|${q.internal_code_qua}`
+        if (m.has(khoa)) continue
+        m.set(khoa, {
+          ctkmId,
+          ma: q.internal_code_qua,
+          ten: catalog.find((c) => c.internal_code === q.internal_code_qua)?.name ?? q.internal_code_qua,
+          soLuong: q.so_luong,
+          dieuKien: q.dieu_kien,
+          giaTri: q.gia_tri_quy_doi,
+        })
+      }
+    }
+    return [...m.values()]
+  }, [lines, goiY, catalog])
+
+  /** Mã quà đã có sẵn trên đơn — để không mời thêm lần hai. */
+  const quaDaThem = new Set(lines.filter((l) => l.is_gift).map((l) => l.internal_code))
+
+  function themQua(q: { ctkmId: string; ma: string; ten: string; soLuong: number }) {
+    const c = catalog.find((x) => x.internal_code === q.ma)
+    setLines((ls) => [
+      ...ls,
+      {
+        ...emptyLine(Math.max(0, ...ls.map((l) => l.key)) + 1),
+        internal_code: q.ma,
+        product_name: c?.name ?? q.ma,
+        category_l1: c?.category_l1 ?? null,
+        category_l2: c?.category_l2 ?? null,
+        quantity: q.soLuong,
+        // Dòng quà tính 0 đ — `is_gift` đã lo phần tiền, đây chỉ để ô không hiện số lạ.
+        unit_price_vat: 0,
+        is_gift: true,
+        vat_pct: c?.vat_pct ?? null,
+        vat_loai: c?.vat_loai ?? null,
+        giaTuGo: true,
+        ctkm_id: q.ctkmId || null,
+      },
+    ])
+  }
+
   function runSearch(q: string) {
     setCustQuery(q)
     if (q.trim().length < 2) return setCustHits([])
@@ -246,7 +340,18 @@ export function OrderForm({
   }
   const setLine = (key: number, patch: Partial<Line>) => setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)))
   const addLine = () => setLines((ls) => [...ls, emptyLine(Math.max(0, ...ls.map((l) => l.key)) + 1)])
-  const removeLine = (key: number) => setLines((ls) => (ls.length > 1 ? ls.filter((l) => l.key !== key) : ls))
+  /**
+   * Bấm ✕ luôn phải có tác dụng nhìn thấy được.
+   *
+   * Bản cũ `ls.length > 1 ? filter : ls` — còn đúng một dòng thì bấm ✕ KHÔNG LÀM GÌ,
+   * người dùng tưởng nút hỏng (CEO bắt được 24/08). Đơn vẫn phải có ít nhất một dòng,
+   * nên dòng cuối thì XOÁ TRẮNG tại chỗ thay vì bỏ đi. Cấp key mới để ô tìm sản phẩm
+   * (giữ chữ đang gõ trong state riêng của nó) cũng được dựng lại sạch.
+   */
+  const removeLine = (key: number) =>
+    setLines((ls) =>
+      ls.length > 1 ? ls.filter((l) => l.key !== key) : [emptyLine(Math.max(0, ...ls.map((l) => l.key)) + 1)]
+    )
 
   const total = lines.reduce((s, l) => s + (l.is_gift ? 0 : (Number(l.quantity) || 0) * (Number(l.unit_price_vat) || 0)), 0)
 
@@ -320,6 +425,7 @@ export function OrderForm({
         vat_pct: l.vat_pct == null || (l.vat_pct as unknown as string) === '' ? null : Number(l.vat_pct),
         vat_loai: l.vat_loai ?? null,
         note: l.note?.trim() || null,
+        ctkm_id: l.ctkm_id ?? null,
       })),
     }
     const res = isEdit && orderCode ? await suaDon(orderCode, input) : await taoDon(input)
@@ -422,10 +528,19 @@ export function OrderForm({
                 )}
               </>
             ) : (
-              <span className="rounded-full bg-teal-600 px-2 py-0.5 text-xs font-semibold text-white">
-                {bcGia.ctkm?.ten}
-              </span>
+              bcGia.ctkm && (
+                <span className="rounded-full bg-teal-600 px-2 py-0.5 text-xs font-semibold text-white">
+                  {bcGia.ctkm.ten}
+                </span>
+              )
             )}
+            {/* Chương trình cộng dồn hiện riêng, có dấu + đằng trước: nhìn là biết nó
+                CHỒNG THÊM chứ không phải một lựa chọn thay thế. */}
+            {(bcGia.ctkmCong ?? []).map((c) => (
+              <span key={c.id} className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-semibold text-white">
+                + {c.ten}
+              </span>
+            ))}
             {bcGia.soCtkmKhac > 0 && (
               <span className="text-xs text-teal-700">
                 · còn {bcGia.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
@@ -452,23 +567,22 @@ export function OrderForm({
                         // (mục chi phí kế toán) thì để trống chứ không đoán 8%.
                         vat_pct: c.vat_pct,
                         vat_loai: c.vat_loai,
-                        // Chỉ điền khi ô đang trống/0 — không đè số người nhập đã tự gõ.
-                        ...(() => {
-                          if (!bcGia) return {}
-                          const g = giaGoiY(bcGia, c.internal_code, orderDate)
-                          return g.gia != null && !Number(l.unit_price_vat) ? { unit_price_vat: g.gia } : {}
-                        })(),
+                        // Đổi MÃ là đổi cả bảng giá -> trả ô đơn giá về cho app điền lại.
+                        // Số cũ là giá của mã CŨ, giữ lại chỉ để lẫn sang mã mới.
+                        giaTuGo: false,
+                        unit_price_vat: 0,
                       })
                     }
                   />
                 </div>
                 <input type="number" min={0} className={inp + ' col-span-3 sm:col-span-2 text-right'} value={l.quantity} onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} title="Số lượng (DVBT = số lần)" />
-                <input type="number" min={0} step={1000} className={inp + ' col-span-4 sm:col-span-2 text-right'} value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value) })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
+                <input type="number" min={0} step={1000} className={inp + ' col-span-4 sm:col-span-2 text-right'} value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
                 <LineGiaNhan
                   g={goiY[l.key]}
                   daGo={Number(l.unit_price_vat) || 0}
                   laQua={l.is_gift}
-                  onApLai={(v) => setLine(l.key, { unit_price_vat: v })}
+                  onApLai={(v) => setLine(l.key, { unit_price_vat: v, giaTuGo: false })}
+                  tuDien={!l.giaTuGo}
                 />
                 <select
                   className={inp + ' col-span-2 sm:col-span-1 text-right'}
@@ -490,6 +604,40 @@ export function OrderForm({
             </div>
           ))}
         </div>
+        {/* Quà theo chương trình — KHÔNG tự thêm vào đơn.
+            Quà là hàng phải xuất kho thật; app tự đẻ dòng hàng mà nhân viên không để ý
+            là kho giao thừa. Hiện ra và để họ bấm, kèm điều kiện nhận để họ đọc trước. */}
+        {quaCtkm.length > 0 && (
+          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-800">
+              🎁 Quà theo chương trình đang áp
+            </div>
+            <div className="space-y-1.5">
+              {quaCtkm.map((q) => (
+                <div key={`${q.ctkmId}|${q.ma}`} className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-medium text-slate-800">{q.ten}</span>
+                  <span className="font-mono text-[11px] text-slate-400">{q.ma}</span>
+                  <span className="text-slate-500">× {q.soLuong}</span>
+                  {q.dieuKien && <span className="text-xs text-amber-700">· điều kiện: {q.dieuKien}</span>}
+                  <span className="flex-1" />
+                  {quaDaThem.has(q.ma) ? (
+                    <span className="text-xs text-emerald-700">✓ đã có trong đơn</span>
+                  ) : (
+                    <button type="button" onClick={() => themQua(q)}
+                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700">
+                      ＋ Thêm vào đơn
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] text-emerald-800/70">
+              Thêm vào đơn = một dòng hàng tick <b>Quà</b>, tính <b>0 đ</b>. App không tự thêm —
+              quà phải xuất kho thật nên để anh chị bấm.
+            </p>
+          </div>
+        )}
+
         <p className="mt-2 text-xs text-slate-400"><b>DVBT</b> = mã bảo trì, SL = số lần. Nguồn đơn tự suy từ danh mục. Tick “Quà” → dòng tính 0 đ.</p>
         <div className="mt-3 flex items-center justify-end gap-3 border-t border-slate-100 pt-3 text-sm">
           <span className="text-slate-500">Tổng (VAT)</span>
@@ -680,8 +828,8 @@ export function OrderForm({
  * (đổi trả, thanh lý). Chặn cứng là nhân viên đi đường vòng, app mất luôn dấu vết.
  */
 function LineGiaNhan({
-  g, daGo, laQua, onApLai,
-}: { g: GiaGoiY | undefined; daGo: number; laQua: boolean; onApLai: (v: number) => void }) {
+  g, daGo, laQua, onApLai, tuDien,
+}: { g: GiaGoiY | undefined; daGo: number; laQua: boolean; onApLai: (v: number) => void; tuDien: boolean }) {
   if (!g || laQua) return <div className="col-span-12 hidden" />
   const lech = g.gia != null && daGo > 0 && daGo !== g.gia
   const duoi = g.gia != null && daGo > 0 && daGo < g.gia
@@ -695,6 +843,14 @@ function LineGiaNhan({
           {g.nguon === 'NIEM_YET' ? 'Giá niêm yết' : `Theo ${g.nhan}`}
           {g.gia != null && <> · <b>{fmtVnd(g.gia)}</b></>}
         </span>
+      )}
+      {/* Nói rõ con số trong ô là của app hay của người — để nhân viên biết đổi khách
+          giữa chừng thì ô nào sẽ tự đổi theo, ô nào giữ nguyên số họ đã gõ. */}
+      {tuDien && !lech && g.gia != null && (
+        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-500">app tự điền</span>
+      )}
+      {!tuDien && (
+        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">giá gõ tay — app không tự đổi</span>
       )}
       {duoi && <span className="text-rose-600">⚠ đang bán THẤP HƠN mức đã duyệt</span>}
       {lech && g.gia != null && (

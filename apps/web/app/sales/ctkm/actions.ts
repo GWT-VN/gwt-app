@@ -224,6 +224,7 @@ export async function nhanBan(id: string, thangMoi: string): Promise<Kq> {
       tu_ngay: doiThang(g.tu_ngay as string), den_ngay: doiThang((g.den_ngay as string) ?? null),
       nhom_khach: g.nhom_khach, kieu_giam: g.kieu_giam, muc_chung: g.muc_chung,
       giam_toi_da: g.giam_toi_da, don_toi_thieu: g.don_toi_thieu, sl_toi_thieu: g.sl_toi_thieu,
+      cong_don: g.cong_don ?? false,
       trang_thai: 'nhap',
       tao_boi: (await requireNhanSu()).email ?? null,
     })
@@ -232,10 +233,11 @@ export async function nhanBan(id: string, thangMoi: string): Promise<Kq> {
   if (error) return { ok: false, error: error.message }
   const idMoi = (moi as { id: string }).id
 
-  const [kenh, sp, qua] = await Promise.all([
+  const [kenh, sp, qua, khach] = await Promise.all([
     db.from('sales_ctkm_kenh').select('channel_id').eq('ctkm_id', id),
     db.from('sales_ctkm_sp').select('internal_code, muc').eq('ctkm_id', id),
     db.from('sales_ctkm_qua').select('internal_code_qua, so_luong, gia_tri_quy_doi, dieu_kien').eq('ctkm_id', id),
+    db.from('sales_ctkm_khach').select('customer_code, loai').eq('ctkm_id', id),
   ])
   const chep = async (bang: string, rows: Array<Record<string, unknown>> | null) => {
     if (rows?.length) await db.from(bang).insert(rows.map((r) => ({ ...r, ctkm_id: idMoi })))
@@ -243,6 +245,7 @@ export async function nhanBan(id: string, thangMoi: string): Promise<Kq> {
   await chep('sales_ctkm_kenh', kenh.data as Array<Record<string, unknown>>)
   await chep('sales_ctkm_sp', sp.data as Array<Record<string, unknown>>)
   await chep('sales_ctkm_qua', qua.data as Array<Record<string, unknown>>)
+  await chep('sales_ctkm_khach', khach.data as Array<Record<string, unknown>>)
 
   revalidatePath('/sales/ctkm')
   return { ok: true, id: idMoi }
@@ -261,9 +264,36 @@ export type CtkmInput = {
   giam_toi_da: number | null
   don_toi_thieu: number
   sl_toi_thieu: number
+  /** Được áp CHỒNG lên chương trình khác thay vì tranh nhau lấy một cái. */
+  cong_don: boolean
   kenh: number[]
   sp: { internal_code: string; muc: number | null }[]
   qua: { internal_code_qua: string; so_luong: number; gia_tri_quy_doi: number | null; dieu_kien: string | null }[]
+  /** Khách được chỉ định (đi cùng nhom_khach = 'CHI_DINH'). */
+  khachGom: KhachCtkm[]
+  /** Khách bị loại trừ — không được hưởng dù nhóm khách có bao họ. */
+  khachTru: KhachCtkm[]
+}
+
+export type KhachCtkm = { customer_code: string; ten: string | null; phone: string | null }
+
+/**
+ * Tìm khách cho hai ô "danh sách chỉ định" / "loại trừ" trong form chương trình.
+ *
+ * Dùng chung đúng hàm `sales_tim_khach` với ô chọn khách lúc lên đơn — gõ được kiểu nào
+ * ở màn kia thì gõ được y hệt ở đây, không có hai luật tìm khác nhau trong cùng một khu.
+ */
+export async function timKhachChoCtkm(q: string): Promise<KhachCtkm[]> {
+  await chanXem()
+  const s = q.trim().slice(0, 80)
+  if (!s) return []
+  const { data, error } = await dataClient().rpc('sales_tim_khach', { q: s, gioi_han: 20 })
+  if (error) throw new Error(error.message)
+  return ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
+    customer_code: r.customer_code as string,
+    ten: (r.name as string) ?? null,
+    phone: ((r.phone_chuan as string) || (r.phone as string)) ?? null,
+  }))
 }
 
 /** Nguồn cho form: danh mục kênh 2 cấp + sản phẩm có giá niêm yết. */
@@ -306,11 +336,30 @@ export async function chiTietCtkm(id: string): Promise<CtkmInput | null> {
   const { data } = await db.from('sales_ctkm').select('*').eq('id', id).maybeSingle()
   if (!data) return null
   const r = data as Record<string, unknown>
-  const [kenh, sp, qua] = await Promise.all([
+  const [kenh, sp, qua, khach] = await Promise.all([
     db.from('sales_ctkm_kenh').select('channel_id').eq('ctkm_id', id),
     db.from('sales_ctkm_sp').select('internal_code, muc').eq('ctkm_id', id),
     db.from('sales_ctkm_qua').select('internal_code_qua, so_luong, gia_tri_quy_doi, dieu_kien').eq('ctkm_id', id),
+    db.from('sales_ctkm_khach').select('customer_code, loai').eq('ctkm_id', id),
   ])
+  // Kèm tên/SĐT để form hiện ra người thật, không bắt CEO đọc một cột mã KH trần.
+  const maKhach = ((khach.data ?? []) as Array<{ customer_code: string }>).map((k) => k.customer_code)
+  const hoSo = new Map<string, { ten: string | null; phone: string | null }>()
+  if (maKhach.length) {
+    const { data: kh } = await db
+      .from('customers').select('customer_code, name, phone').in('customer_code', maKhach)
+    for (const x of ((kh ?? []) as Array<Record<string, unknown>>)) {
+      hoSo.set(x.customer_code as string, { ten: (x.name as string) ?? null, phone: (x.phone as string) ?? null })
+    }
+  }
+  const locKhach = (loai: 'GOM' | 'TRU'): KhachCtkm[] =>
+    ((khach.data ?? []) as Array<{ customer_code: string; loai: string }>)
+      .filter((k) => k.loai === loai)
+      .map((k) => ({
+        customer_code: k.customer_code,
+        ten: hoSo.get(k.customer_code)?.ten ?? null,
+        phone: hoSo.get(k.customer_code)?.phone ?? null,
+      }))
   return {
     id,
     ten: r.ten as string,
@@ -324,6 +373,9 @@ export async function chiTietCtkm(id: string): Promise<CtkmInput | null> {
     giam_toi_da: r.giam_toi_da == null ? null : Number(r.giam_toi_da),
     don_toi_thieu: Number(r.don_toi_thieu) || 0,
     sl_toi_thieu: Number(r.sl_toi_thieu) || 1,
+    cong_don: !!r.cong_don,
+    khachGom: locKhach('GOM'),
+    khachTru: locKhach('TRU'),
     kenh: ((kenh.data ?? []) as Array<{ channel_id: number }>).map((k) => k.channel_id),
     sp: ((sp.data ?? []) as Array<Record<string, unknown>>).map((s) => ({
       internal_code: s.internal_code as string,
@@ -363,6 +415,7 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
     giam_toi_da: input.kieu_giam === 'PCT' ? input.giam_toi_da : null,
     don_toi_thieu: input.don_toi_thieu || 0,
     sl_toi_thieu: input.sl_toi_thieu || 1,
+    cong_don: !!input.cong_don,
     trang_thai: 'nhap',
     cap_nhat_luc: new Date().toISOString(),
   }
@@ -381,11 +434,12 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
     id = (data as { id: string }).id
   }
 
-  // Thay TOÀN BỘ ba bảng con: đơn giản và đúng, vì form luôn gửi trạng thái đầy đủ.
+  // Thay TOÀN BỘ bảng con: đơn giản và đúng, vì form luôn gửi trạng thái đầy đủ.
   await Promise.all([
     db.from('sales_ctkm_kenh').delete().eq('ctkm_id', id),
     db.from('sales_ctkm_sp').delete().eq('ctkm_id', id),
     db.from('sales_ctkm_qua').delete().eq('ctkm_id', id),
+    db.from('sales_ctkm_khach').delete().eq('ctkm_id', id),
   ])
   const them = async (bang: string, rows: Record<string, unknown>[]) => {
     if (rows.length) {
@@ -397,6 +451,18 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
     await them('sales_ctkm_kenh', input.kenh.map((c) => ({ ctkm_id: id, channel_id: c })))
     await them('sales_ctkm_sp', input.sp.map((s) => ({ ctkm_id: id, ...s })))
     await them('sales_ctkm_qua', input.qua.map((q) => ({ ctkm_id: id, ...q })))
+    // Khoá chính (ctkm_id, customer_code) chặn một khách nằm cả hai bên. Gạch tên là
+    // dứt khoát: khách bị TRỪ thì bỏ luôn khỏi danh sách GỒM, không để DB ném lỗi
+    // trùng khoá rồi CEO phải đoán mình sai ở đâu.
+    const maTru = new Set(input.khachTru.map((k) => k.customer_code))
+    await them(
+      'sales_ctkm_khach',
+      [
+        ...input.khachGom.filter((k) => !maTru.has(k.customer_code))
+          .map((k) => ({ ctkm_id: id, customer_code: k.customer_code, loai: 'GOM' })),
+        ...input.khachTru.map((k) => ({ ctkm_id: id, customer_code: k.customer_code, loai: 'TRU' })),
+      ]
+    )
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }

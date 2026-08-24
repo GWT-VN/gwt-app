@@ -56,6 +56,8 @@ export function conHieuLuc(ngay: string, tu: string, den: string | null | undefi
   return true
 }
 
+export type NhomKhach = 'TAT_CA' | 'MOI' | 'DA_MUA' | 'CHI_DINH'
+
 export type Ctkm = {
   id: string
   ten: string
@@ -67,35 +69,85 @@ export type Ctkm = {
   trang_thai: string
   /** channel_id được hưởng. Rỗng = không kênh nào -> chương trình không áp cho ai. */
   kenh: number[]
+  /** Nhóm khách được hưởng. Thiếu -> coi như TAT_CA (dữ liệu cũ trước 24/08). */
+  nhom_khach?: NhomKhach
+  /** Được áp CHỒNG lên chương trình khác thay vì tranh nhau lấy một cái. */
+  cong_don?: boolean
+  /** Mã khách được chỉ định (đi cùng nhom_khach = 'CHI_DINH'). */
+  khachGom?: string[]
+  /** Mã khách bị loại trừ — thắng mọi luật khác. */
+  khachTru?: string[]
+}
+
+/** Những gì cần biết về khách để xét chương trình có áp cho họ không. */
+export type KhachXet = {
+  customer_code: string | null
+  /** Đã từng có đơn chưa. `null` = chưa biết (khách mới gõ tay, chưa có hồ sơ). */
+  daMua: boolean | null
 }
 
 /**
- * Chương trình áp cho một đơn: đúng ngày, đúng kênh, và ĐÃ BAN HÀNH.
+ * Chương trình này có áp cho KHÁCH NÀY không (chưa xét ngày/kênh/sản phẩm).
+ *
+ * Thứ tự xét cố định, và LOẠI TRỪ đi trước mọi thứ: đã bị gạch tên thì không có cửa
+ * nào lách vào lại. Đây là cả điểm của tính năng — CEO gạch một khách ra khỏi chương
+ * trình thì phải chắc chắn họ không ăn, chứ không phải "trừ khi nhóm khách bao họ".
+ *
+ * Khách chưa có mã (gõ tay ở màn lên đơn) thì không thể nằm trong danh sách nào, nên
+ * chỉ trượt ở CHI_DINH. Không biết đã mua hay chưa (`daMua = null`) thì KHÔNG áp các
+ * chương trình phân biệt mới/cũ — thà bỏ sót một khuyến mãi để nhân viên tự bấm, còn
+ * hơn tự tặng nhầm rồi mới phát hiện.
+ */
+export function khachDuocHuong(c: Ctkm, kh: KhachXet): boolean {
+  const ma = kh.customer_code
+  if (ma && (c.khachTru ?? []).includes(ma)) return false
+  const nhom = c.nhom_khach ?? 'TAT_CA'
+  if (nhom === 'CHI_DINH') return !!ma && (c.khachGom ?? []).includes(ma)
+  if (nhom === 'MOI') return kh.daMua === false
+  if (nhom === 'DA_MUA') return kh.daMua === true
+  return true
+}
+
+/**
+ * Chương trình áp cho một đơn: đúng ngày, đúng kênh, đúng khách, và ĐÃ BAN HÀNH.
  *
  * Bản nháp KHÔNG bao giờ áp — đó là lý do có trạng thái nháp.
- * Nhiều chương trình cùng khớp thì lấy cái GIẢM SÂU NHẤT cho khách, và trả về cả danh
- * sách còn lại để giao diện nói rõ "còn N chương trình khác cũng khớp" thay vì im lặng.
+ *
+ * Trả về BA nhóm, vì từ 24/08 CEO cho phép áp đồng thời nhiều chương trình:
+ *  · `chon` — chương trình giảm SÂU NHẤT trong số các chương trình *không* cộng dồn.
+ *    Đây vẫn là luật cũ: hai chương trình giảm giá cùng khớp thì chỉ một cái ăn, không
+ *    tự cộng 15% + 20% thành 32% mà không ai duyệt con số đó.
+ *  · `cong` — mọi chương trình có bật `cong_don`, áp CHỒNG lên `chon`. Ca CEO nêu:
+ *    "CTD50 vừa giảm 15% vừa được tặng quà" — chương trình quà bật cờ này.
+ *  · `khac` — các chương trình không cộng dồn đã thua, giữ lại để giao diện nói ra
+ *    thay vì im lặng.
+ *
+ * `kh` để trống = không xét điều kiện khách (dùng cho màn xem trước chương trình).
  */
 export function ctkmChoDon(
   ds: Ctkm[],
   ngay: string,
   channelId: number | null | undefined,
-  niemYetThamChieu = 10_000_000
-): { chon: Ctkm | null; khac: Ctkm[] } {
+  niemYetThamChieu = 10_000_000,
+  kh?: KhachXet
+): { chon: Ctkm | null; cong: Ctkm[]; khac: Ctkm[] } {
   const khop = ds.filter(
     (c) =>
       c.trang_thai === 'ban_hanh' &&
       conHieuLuc(ngay, c.tu_ngay, c.den_ngay) &&
       channelId != null &&
-      c.kenh.includes(channelId)
+      c.kenh.includes(channelId) &&
+      (kh === undefined || khachDuocHuong(c, kh))
   )
-  if (khop.length === 0) return { chon: null, khac: [] }
-  const xep = [...khop].sort(
+  const cong = khop.filter((c) => c.cong_don)
+  const rieng = khop.filter((c) => !c.cong_don)
+  if (rieng.length === 0) return { chon: null, cong, khac: [] }
+  const xep = [...rieng].sort(
     (a, b) =>
       giaSauGiam(a.kieu_giam, niemYetThamChieu, a.muc_chung, a.giam_toi_da) -
       giaSauGiam(b.kieu_giam, niemYetThamChieu, b.muc_chung, b.giam_toi_da)
   )
-  return { chon: xep[0], khac: xep.slice(1) }
+  return { chon: xep[0], cong, khac: xep.slice(1) }
 }
 
 export type ChinhSachGia = {
@@ -179,6 +231,23 @@ export function nhanNhomKhach(ma: string): string {
 // ── Giá gợi ý khi lên đơn ──────────────────────────────────────────────────
 
 /** Mọi thứ cần để tính giá cho một khách, gom sẵn ở server để client khỏi gọi lại từng dòng. */
+/** Chương trình kèm bảng mức riêng theo mã + danh sách quà của nó. */
+export type CtkmApDung = Ctkm & {
+  sp: Record<string, number>
+  qua?: QuaCtkm[]
+}
+
+export type QuaCtkm = {
+  internal_code_qua: string
+  so_luong: number
+  gia_tri_quy_doi: number | null
+  dieu_kien: string | null
+  /** Chương trình sinh ra món quà này — gắn vào dòng quà trên đơn để truy được nguồn. */
+  ctkmId?: string
+  /** Tên chương trình, để giao diện nói "quà theo <chương trình>". */
+  ctkmTen?: string
+}
+
 export type BoiCanhGia = {
   /** Bậc đối tác đang hiệu lực. `null` = khách lẻ. */
   bac: Bac | null
@@ -186,7 +255,9 @@ export type BoiCanhGia = {
   channel_id: number | null
   chinhSach: ChinhSachGia[]
   /** Chương trình khuyến mãi đã chọn (giảm sâu nhất) cho kênh của khách. */
-  ctkm: (Ctkm & { sp: Record<string, number> }) | null
+  ctkm: CtkmApDung | null
+  /** Chương trình CỘNG DỒN — áp chồng lên `ctkm`. Thường là chương trình chỉ tặng quà. */
+  ctkmCong?: CtkmApDung[]
   /** Số chương trình khác cũng khớp — để giao diện nói ra thay vì im lặng. */
   soCtkmKhac: number
   /** Giá niêm yết theo mã. */
@@ -200,6 +271,30 @@ export type GiaGoiY = {
   nguon: NguonGia
   nhan: string
   niemYet: number | null
+  /** Tên các chương trình đã áp cho mã này, theo đúng thứ tự áp. Rỗng = không có. */
+  chuongTrinh: string[]
+  /** Quà đi kèm các chương trình đang áp cho mã này. */
+  qua: QuaCtkm[]
+}
+
+/**
+ * Mức giảm của MỘT chương trình cho một mã, nếu chương trình đó có đụng tới mã này.
+ *
+ * `null` = chương trình không áp cho mã này. Hai ca ra `null`:
+ *   · chương trình có liệt kê sản phẩm mà mã này không nằm trong đó;
+ *   · không có mức riêng lẫn mức chung (chương trình chỉ tặng quà, không giảm giá).
+ */
+function mucChoMa(c: CtkmApDung, internalCode: string): number | null {
+  const coDanhSach = Object.keys(c.sp).length > 0
+  if (coDanhSach && !(internalCode in c.sp)) return null
+  // Mức riêng của mã này thắng mức chung; 0 riêng vẫn thắng (miễn phí là một mức thật).
+  return mucApDung(c.sp[internalCode], c.muc_chung)
+}
+
+/** Chương trình có đụng tới mã này không — kể cả khi chỉ tặng quà, không giảm giá. */
+function ctkmChamMa(c: CtkmApDung, internalCode: string): boolean {
+  const coDanhSach = Object.keys(c.sp).length > 0
+  return !coDanhSach || internalCode in c.sp
 }
 
 /**
@@ -214,26 +309,64 @@ export type GiaGoiY = {
  */
 export function giaGoiY(bc: BoiCanhGia, internalCode: string, ngay: string): GiaGoiY {
   const ny = bc.niemYet[internalCode] ?? null
+  const cong = (bc.ctkmCong ?? []).filter((c) => ctkmChamMa(c, internalCode))
+  // Quà gom từ MỌI chương trình đang áp cho mã này — quà không tranh nhau như giảm giá,
+  // khách được cả hai thì nhận cả hai. Gắn kèm id/tên chương trình vì dòng quà trên đơn
+  // phải truy được về chương trình đã duyệt nó.
+  const kemNguon = (c: CtkmApDung): QuaCtkm[] =>
+    (c.qua ?? []).map((q) => ({ ...q, ctkmId: c.id, ctkmTen: c.ten }))
+  const quaCong = cong.flatMap(kemNguon)
 
   if (bc.bac) {
     const g = giaTheoBac(bc.chinhSach, bc.bac, internalCode, ny, ngay)
-    if (g != null) return { gia: g, nguon: 'BAC', nhan: `Giá ${nhanBac(bc.bac)}`, niemYet: ny }
-  }
-
-  if (bc.ctkm && ny != null) {
-    // Mức riêng của mã này thắng mức chung; 0 riêng vẫn thắng (miễn phí là một mức thật).
-    const muc = mucApDung(bc.ctkm.sp[internalCode], bc.ctkm.muc_chung)
-    // Chương trình có liệt kê sản phẩm mà mã này KHÔNG nằm trong đó -> không áp.
-    const coDanhSach = Object.keys(bc.ctkm.sp).length > 0
-    const trongDanhSach = internalCode in bc.ctkm.sp
-    if (muc != null && (!coDanhSach || trongDanhSach)) {
-      const g = giaSauGiam(bc.ctkm.kieu_giam, ny, muc, bc.ctkm.giam_toi_da)
-      return { gia: g, nguon: 'CTKM', nhan: bc.ctkm.ten, niemYet: ny }
+    // Đại lý ăn giá bậc, KHÔNG cộng thêm khuyến mãi bán lẻ (CEO chốt 22/08) — kể cả
+    // chương trình cộng dồn. Nhưng QUÀ thì vẫn nhận: quà là chi phí marketing riêng,
+    // không phải chiết khấu, và CEO có thể cố ý tặng quà cho cả đại lý.
+    if (g != null) {
+      return {
+        gia: g, nguon: 'BAC', nhan: `Giá ${nhanBac(bc.bac)}`, niemYet: ny,
+        chuongTrinh: [`Giá ${nhanBac(bc.bac)}`], qua: quaCong,
+      }
     }
   }
 
-  if (ny != null) return { gia: ny, nguon: 'NIEM_YET', nhan: 'Giá niêm yết', niemYet: ny }
-  return { gia: null, nguon: 'KHONG_RO', nhan: 'Mã này chưa có giá niêm yết', niemYet: null }
+  if (ny != null) {
+    const ten: string[] = []
+    let gia = ny
+    let coGiam = false
+
+    if (bc.ctkm) {
+      const muc = mucChoMa(bc.ctkm, internalCode)
+      if (muc != null) {
+        gia = giaSauGiam(bc.ctkm.kieu_giam, gia, muc, bc.ctkm.giam_toi_da)
+        ten.push(bc.ctkm.ten)
+        coGiam = true
+      }
+    }
+
+    // Chương trình cộng dồn áp CHỒNG, mỗi cái tính trên giá đã giảm của cái trước.
+    // Ví dụ 15% rồi thêm 100k: 20tr -> 17tr -> 16,9tr. Cộng dồn kiểu 'CON' (chốt giá
+    // bán) thì cái sau ghi đè hẳn — đúng nghĩa "giảm còn", không phụ thuộc giá trước.
+    for (const c of cong) {
+      const muc = mucChoMa(c, internalCode)
+      if (muc == null) continue
+      gia = giaSauGiam(c.kieu_giam, gia, muc, c.giam_toi_da)
+      ten.push(c.ten)
+      coGiam = true
+    }
+
+    const quaChon = bc.ctkm && ctkmChamMa(bc.ctkm, internalCode) ? kemNguon(bc.ctkm) : []
+    const qua = [...quaChon, ...quaCong]
+
+    if (coGiam) return { gia, nguon: 'CTKM', nhan: ten.join(' + '), niemYet: ny, chuongTrinh: ten, qua }
+    // Không chương trình nào GIẢM GIÁ cho mã này, nhưng vẫn có thể có QUÀ đi kèm.
+    return { gia: ny, nguon: 'NIEM_YET', nhan: 'Giá niêm yết', niemYet: ny, chuongTrinh: [], qua }
+  }
+
+  return {
+    gia: null, nguon: 'KHONG_RO', nhan: 'Mã này chưa có giá niêm yết', niemYet: null,
+    chuongTrinh: [], qua: [],
+  }
 }
 
 export function nhanBac(b: Bac): string {

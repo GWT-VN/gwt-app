@@ -29,6 +29,12 @@ export type NewOrderItem = {
   vat_pct: number | null
   vat_loai: 'VAT' | 'KCT' | 'KAD' | null
   note: string | null
+  /**
+   * Dòng quà này do chương trình khuyến mãi nào sinh ra. `null` = nhân viên tự thêm.
+   * Cần để tính chi phí chương trình, và để phân biệt quà theo chính sách với quà
+   * nhân viên tự tặng — hai thứ chịu trách nhiệm khác nhau.
+   */
+  ctkm_id?: string | null
 }
 
 export type NewOrderInput = {
