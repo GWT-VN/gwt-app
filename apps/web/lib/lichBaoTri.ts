@@ -132,3 +132,44 @@ export function sinhLichBaoTri(
   }
   return out
 }
+
+/**
+ * Suy CHU KỲ (tháng) từ chuỗi mốc đã có sẵn.
+ *
+ * Dùng cho lượt bảo trì **mồ côi** — lượt không gắn `maintenance_plan` nào nên không
+ * đọc được `chu_ky_thang`. Đo prod 24/08/2026: **309/471 lượt (51 hồ sơ)** đang như vậy,
+ * toàn bộ là di sản đợt nhập từ Asana. Không có plan thì chu kỳ chỉ còn cách đọc ngược
+ * từ khoảng cách giữa các mốc mà chính đợt nhập đó đã đặt.
+ *
+ * Lấy khoảng cách HAY GẶP NHẤT chứ không lấy trung bình: chuỗi thật luôn có vài lượt bị
+ * làm trễ, trung bình sẽ bị mấy lượt trễ đó kéo lệch (chuỗi 3-3-3-4-3-3-4 tháng có trung
+ * bình 3,3 — làm tròn ra 3 thì may, chỉ cần một lượt trễ nửa năm là ra 4).
+ * Hoà phiếu thì lấy số NHỎ hơn: hẹn khách sớm rồi dời ra dễ hơn là hẹn muộn rồi phải xin lỗi.
+ *
+ * Trả `null` khi không đủ hai mốc để so — chỗ gọi tự quyết định mặc định.
+ */
+export function suyChuKyTuMoc(ngayList: readonly (string | null | undefined)[]): number | null {
+  const moc = ngayList
+    .filter((d): d is string => !!d && /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .map((d) => Date.parse(d + 'T00:00:00Z'))
+    .filter((t) => Number.isFinite(t))
+    .sort((a, b) => a - b)
+  if (moc.length < 2) return null
+
+  const NGAY = 86400000
+  const THANG = 30.436875   // độ dài trung bình 1 tháng dương lịch
+  const dem = new Map<number, number>()
+  for (let i = 1; i < moc.length; i++) {
+    const thang = Math.round((moc[i] - moc[i - 1]) / NGAY / THANG)
+    if (thang < 1 || thang > 12) continue   // bỏ mốc rác: trùng ngày, hoặc cách nhau cả năm
+    dem.set(thang, (dem.get(thang) ?? 0) + 1)
+  }
+  if (!dem.size) return null
+
+  let tot = 0
+  let soLan = 0
+  for (const [thang, n] of [...dem].sort((a, b) => a[0] - b[0])) {
+    if (n > soLan) { tot = thang; soLan = n }
+  }
+  return tot || null
+}

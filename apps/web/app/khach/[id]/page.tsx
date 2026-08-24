@@ -128,6 +128,13 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                   : <span className="text-amber-600">thiếu SĐT</span>}
                 {customer.province && <span>· {customer.province}</span>}
                 {customer.source && <span>· {customer.source}</span>}
+                {/* Mã khách hiện ngay ở đầu hồ sơ: CEO 24/08 cầm mã đi tra mà không màn nào
+                    hiện mã. `ma_kh` là mã dùng chung hai khu; `customer_code` là mã nối sang
+                    Sales — hiện cả hai vì đang có 4 cặp lệch nhau cần đối chiếu tận nơi. */}
+                {customer.ma_kh && <span className="font-mono text-xs">· {customer.ma_kh}</span>}
+                {customer.customer_code && (
+                  <span className="font-mono text-xs">· Sales {customer.customer_code}</span>
+                )}
               </div>
             </div>
             <GopKhachButton giuId={customer.id} tenGiu={customer.full_name} />

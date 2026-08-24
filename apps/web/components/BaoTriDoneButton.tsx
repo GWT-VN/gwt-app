@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { markMaintenanceDone, unmarkMaintenanceDone, ghiKetQuaBaoTri, deXuatDoiLich, type KetQuaDo, type DoiLichMuc } from '@/app/actions'
 import { XacNhanDoiLich } from '@/components/XacNhanDoiLich'
 import { vnDate } from '@/components/Badge'
+import { docBoSo } from '@/lib/so'
 
 const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 
@@ -16,13 +17,11 @@ type SoField = 'tds_truoc' | 'tds_sau' | 'ph_truoc' | 'ph_sau' | 'do_cung_truoc'
  *
  * Trước đây parse ngay từng phím rồi render số trở lại: gõ "7." -> Number("7.")
  * = 7 -> ô thành "7", dấu chấm mất, nên không gõ nổi pH 7.5.
+ *
+ * Phép đọc số nằm ở `lib/so.ts` (dùng chung với màn kỹ thuật): chấp cả `7.9` lẫn `7,9`,
+ * và gõ bậy thì BÁO ra màn hình. Bản cũ ở đây tự `Number()` nên `7,9` = NaN -> ô bị
+ * lưu `null` mà không một câu cảnh báo.
  */
-const soHoacBo = (s: string | undefined): number | undefined => {
-  const t = s?.trim()
-  if (!t) return undefined
-  const n = Number(t)
-  return Number.isFinite(n) ? n : undefined
-}
 
 /**
  * Đánh dấu 1 lượt bảo trì đã làm. 1 chạm = "đã bảo trì hôm nay".
@@ -81,9 +80,11 @@ export function BaoTriDoneButton({ visitId, completedAt }: { visitId: string; co
     if (!r.ok) setErr(r.error); else router.refresh()
   }
   async function luuKQ() {
-    setBusy(true); setErr(null); setMsg(null)
-    const day: KetQuaDo = { ...kq }
-    for (const k of Object.keys(so) as SoField[]) day[k] = soHoacBo(so[k])
+    setErr(null); setMsg(null)
+    const doc = docBoSo<SoField>(so)
+    if (!doc.ok) { setErr(doc.loi); return }
+    setBusy(true)
+    const day: KetQuaDo = { ...kq, ...doc.so }
     const r = await ghiKetQuaBaoTri(visitId, day)
     setBusy(false)
     if (!r.ok) { setErr(r.error); return }
@@ -111,6 +112,7 @@ export function BaoTriDoneButton({ visitId, completedAt }: { visitId: string; co
           <input type="date" max={HOM_NAY()} value={kq.ngay} onChange={(e) => setKq((c) => ({ ...c, ngay: e.target.value }))} className="rounded border px-2 py-1" />
         </label>
         <p className="text-slate-500">Chỉ tiêu nước (trước lọc → sau lọc):</p>
+        <p className="text-slate-400">Số lẻ gõ <code>7.9</code> hay <code>7,9</code> đều được.</p>
         {hang('TDS (ppm)', 'tds_truoc', 'tds_sau')}
         {hang('pH', 'ph_truoc', 'ph_sau')}
         {hang('Độ cứng', 'do_cung_truoc', 'do_cung_sau')}
