@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import {
   chiTietViec, suaViec, ganNguoi, boNguoi, themBinhLuan, doiTrangThai,
-  taoViecCon, boPhuThuoc,
+  taoViecCon, boPhuThuoc, themPhuThuoc,
   type ChiTietViec as Ct, type NenTang, type KQ,
 } from '@/app/work/actions'
 import {
@@ -18,6 +18,7 @@ import {
 import { boDau } from '@/bang'
 import { Avatar, Chip, Nut, oNhap, MAU_UT_VAR, MAU_TRANG_THAI } from './ui'
 import { GanErp } from './GanErp'
+import { ChonViecChan } from './ChonViecChan'
 
 const NHAN_PHAM_VI: Record<string, string> = {
   private: 'chỉ mình tôi', team: 'cả team', company: 'toàn công ty',
@@ -404,9 +405,9 @@ export function ChiTietViec({
             </section>
 
             {/* ── Phụ thuộc ── */}
-            {(ct.chan_boi.length > 0 || ct.dang_chan.length > 0) && (
+            {(ct.chan_boi.length > 0 || ct.dang_chan.length > 0 || ct.co_the_sua) && (
               <section className="flex flex-col gap-2.5">
-                {ct.chan_boi.length > 0 && (
+                {(ct.chan_boi.length > 0 || ct.co_the_sua) && (
                   <>
                     <Nhan>Chờ việc khác xong trước</Nhan>
                     <ul className="space-y-1 list-none p-0 m-0">
@@ -432,6 +433,14 @@ export function ChiTietViec({
                         )
                       })}
                     </ul>
+                    {ct.co_the_sua && (
+                      <ChonViecChan
+                        taskId={t.id}
+                        dangCo={ct.chan_boi.map((b) => b.id)}
+                        disabled={pending}
+                        onChon={(id) => chay(() => themPhuThuoc(t.id, id))}
+                      />
+                    )}
                   </>
                 )}
                 {ct.dang_chan.length > 0 && (

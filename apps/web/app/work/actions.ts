@@ -365,9 +365,17 @@ export async function boPhuThuoc(taskId: number, blockedById: number): Promise<K
   })
 }
 
-/** Số việc của tôi đã xong trong 7 ngày qua — cho ô KPI. */
-export async function xongTuanNay(): Promise<number> {
-  return (await goi<number>('work_xong_tuan_nay', {})) ?? 0
+/** Việc của tôi đã xong trong 7 ngày qua — cho ô KPI "Xong tuần này" (bấm được). */
+export async function xongTuanNay(): Promise<ViecRow[]> {
+  return (await goi<ViecRow[]>('work_xong_tuan_nay', {})) ?? []
+}
+
+export type ViecGoiY = { id: number; ref: string; title: string; status: string; team_name: string | null }
+
+/** Tìm việc để chọn làm "việc chặn". Gõ ≥2 ký tự; không dấu cũng khớp. */
+export async function timViec(q: string, truId?: number): Promise<KQ<ViecGoiY[]>> {
+  return boc(async () =>
+    (await goi<ViecGoiY[]>('work_tim_viec', { p_q: q, p_tru_id: truId ?? null })) ?? [])
 }
 
 /** Gạt công tắc chung của bộ quét (cron 15 phút). Chỉ quản lý — RPC tự chặn. */

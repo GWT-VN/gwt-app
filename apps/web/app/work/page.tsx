@@ -15,7 +15,7 @@ export default async function WorkPage() {
   // Nhân viên thường không thấy mục 'Việc tự sinh' (CEO chốt 24/08). Ẩn link
   // chỉ là cho gọn mắt — rào thật nằm trong chính trang đó.
   const thayTuSinh = await coQuyenHienNut('work.luat_tu_sinh', 'QUANLY')
-  const [rows, nt, soXong] = await Promise.all([vieCcuaToi(), nenTang(), xongTuanNay()])
+  const [rows, nt, xong] = await Promise.all([vieCcuaToi(), nenTang(), xongTuanNay()])
 
   return (
     <main data-khu="work" className="min-h-screen">
@@ -33,7 +33,7 @@ export default async function WorkPage() {
             Công việc bạn phụ trách hoặc cùng làm — xuyên mọi phòng ban.
           </p>
         </header>
-        <ViecCuaToi rowsBanDau={rows} nenTang={nt} soXongTuanNay={soXong} />
+        <ViecCuaToi rowsBanDau={rows} nenTang={nt} viecXongTuanNay={xong} />
       </div>
     </main>
   )

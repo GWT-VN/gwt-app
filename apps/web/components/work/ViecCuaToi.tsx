@@ -14,11 +14,15 @@ import { ChiTietViec } from './ChiTietViec'
 import { ThanhHangLoat } from './ThanhHangLoat'
 import { TieuDeNhom, OThongKe } from './ui'
 
-export function ViecCuaToi({ rowsBanDau, nenTang, soXongTuanNay }: {
+export function ViecCuaToi({ rowsBanDau, nenTang, viecXongTuanNay }: {
   rowsBanDau: ViecRow[]
   nenTang: NenTang
-  /** Đếm ở server: việc đã xong không nằm trong rowsBanDau nên không tính tại đây được. */
-  soXongTuanNay: number
+  /**
+   * Việc đã xong 7 ngày qua. Lấy riêng ở server vì `rowsBanDau` cố tình KHÔNG
+   * chứa việc đã xong — nhét chúng vào đó là mọi chỗ đếm/nhóm/lọc phía dưới
+   * phải học cách bỏ qua, sửa một chỗ hỏng năm chỗ.
+   */
+  viecXongTuanNay: ViecRow[]
 }) {
   const router = useRouter()
   const [pending, start] = useTransition()
@@ -27,7 +31,7 @@ export function ViecCuaToi({ rowsBanDau, nenTang, soXongTuanNay }: {
   const [chon, setChon] = useState<Set<number>>(new Set())
   const [thongBao, setThongBao] = useState<string | null>(null)
   /** Bấm một ô thống kê = lọc danh sách xuống đúng nhóm đó. Bấm lại = bỏ lọc. */
-  const [loc, setLoc] = useState<NhomHan | 'nghiem_thu' | null>(null)
+  const [loc, setLoc] = useState<NhomHan | 'nghiem_thu' | 'xong_tuan' | null>(null)
 
   function doiChon(id: number, c: boolean) {
     setChon((cu) => {
@@ -47,13 +51,15 @@ export function ViecCuaToi({ rowsBanDau, nenTang, soXongTuanNay }: {
 
   const rows = loc === 'nghiem_thu'
     ? rowsBanDau.filter((v) => v.my_role === 'reviewer' && v.status === 'review')
+    : loc === 'xong_tuan'
+    ? viecXongTuanNay
     : rowsBanDau
   const nhomTatCa = gomTheoHan(rows)
-  const nhom = loc && loc !== 'nghiem_thu'
+  const nhom = loc && loc !== 'nghiem_thu' && loc !== 'xong_tuan'
     ? nhomTatCa.filter((g) => g.nhom === loc)
     : nhomTatCa
 
-  function bamLoc(k: NhomHan | 'nghiem_thu') {
+  function bamLoc(k: NhomHan | 'nghiem_thu' | 'xong_tuan') {
     setLoc((cu) => (cu === k ? null : k))
     setChon(new Set())
   }
@@ -104,9 +110,10 @@ export function ViecCuaToi({ rowsBanDau, nenTang, soXongTuanNay }: {
           />
         ) : (
           <OThongKe
-            nhan="Xong tuần này" so={soXongTuanNay}
-            phu={soXongTuanNay ? 'trong 7 ngày qua' : 'chưa xong việc nào'}
+            nhan="Xong tuần này" so={viecXongTuanNay.length}
+            phu={viecXongTuanNay.length ? 'trong 7 ngày qua' : 'chưa xong việc nào'}
             mauCham="var(--green)"
+            onBam={() => bamLoc('xong_tuan')} dangLoc={loc === 'xong_tuan'}
           />
         )}
       </div>

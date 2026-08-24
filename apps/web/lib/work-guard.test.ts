@@ -233,3 +233,74 @@ describe('ChiTietViec — việc con + phụ thuộc', () => {
     expect(/ct\.chan_boi/.test(src) && /ct\.dang_chan/.test(src)).toBe(true)
   })
 })
+
+// ── "Theo dõi" là XEM, không phải SỬA ──────────────────────────────────────
+// CEO bắt được 24/08: Admin chỉ là watcher trên việc của AI mà vẫn đánh dấu xong
+// được. Nguy hơn vẻ ngoài của nó: work_12 (@nhắc tên) kéo người được nhắc vào
+// việc với đúng vai `watcher`, nên gộp watcher vào quyền sửa nghĩa là NHẮC AI
+// LÀ CẤP QUYỀN CHO NGƯỜI ĐÓ — không ai coi việc nhắc tên là cấp quyền.
+describe('co_the_sua — watcher không được sửa', () => {
+  const { readdirSync } = require('node:fs') as typeof import('node:fs')
+  const thuMuc = fileURLToPath(new URL('../../../db/work/migrations', import.meta.url))
+  const files = readdirSync(thuMuc).filter((f: string) => f.endsWith('.sql')).sort()
+
+  /** Bản định nghĩa CUỐI của work.co_the_sua — bản đang thật sự chạy. */
+  let than = ''
+  for (const f of files) {
+    for (const doan of readFileSync(`${thuMuc}/${f}`, 'utf8')
+      .split(/(?=create or replace function )/i)) {
+      if (/create or replace function\s+work\.co_the_sua/i.test(doan)) than = doan
+    }
+  }
+
+  it('tìm được bản định nghĩa cuối (chống test xanh giả)', () => {
+    expect(than.length, 'không thấy work.co_the_sua trong migration').toBeGreaterThan(200)
+  })
+
+  it('cửa "người làm" liệt kê vai rõ ràng, KHÔNG gồm watcher', () => {
+    const m = than.match(/a\.role\s+in\s*\(([^)]*)\)/i)
+    expect(
+      m,
+      'Cửa "người làm" phải liệt kê vai cụ thể (a.role in (…)). Không liệt kê ' +
+        'nghĩa là nhận cả `watcher` — mà @nhắc-tên tự gán vai đó.',
+    ).toBeTruthy()
+    const vai = m![1]
+    expect(/watcher/.test(vai), `watcher không được nằm trong danh sách vai sửa được: ${vai}`).toBe(false)
+    for (const v of ['owner', 'doer', 'reviewer']) {
+      expect(vai.includes(v), `thiếu vai '${v}' — người làm thật sự phải sửa được`).toBe(true)
+    }
+  })
+})
+
+// ── Phụ thuộc phải có ĐƯỜNG THÊM trên giao diện ────────────────────────────
+// work_16 làm RPC + chỗ hiển thị nhưng quên ô chọn, nên tính năng chỉ dùng được
+// bằng SQL — CEO mở panel ra không thấy gì để bấm.
+describe('Phụ thuộc — thêm được từ giao diện', () => {
+  it('panel có ô chọn việc chặn', () => {
+    const src = doc('components/work/ChiTietViec.tsx')
+    expect(/ChonViecChan/.test(src) && /themPhuThuoc\(/.test(src)).toBe(true)
+  })
+
+  it('mục phụ thuộc hiện cả khi CHƯA có phụ thuộc nào', () => {
+    // Nếu chỉ hiện khi đã có thì không bao giờ thêm được cái đầu tiên.
+    const src = doc('components/work/ChiTietViec.tsx')
+    expect(
+      /ct\.dang_chan\.length > 0 \|\| ct\.co_the_sua/.test(src),
+      'Mục phụ thuộc phải hiện khi người dùng sửa được việc, kể cả lúc danh sách rỗng.',
+    ).toBe(true)
+  })
+})
+
+// ── Ô KPI "Xong tuần này" bấm được như ba ô kia ────────────────────────────
+describe('Ô KPI Xong tuần này', () => {
+  it('có onBam — bấm vào lọc được', () => {
+    const src = doc('components/work/ViecCuaToi.tsx')
+    // Tìm đúng THẺ, không phải chữ trong comment.
+    const i = src.indexOf('nhan="Xong tuần này"')
+    expect(i, 'không thấy thẻ <OThongKe nhan="Xong tuần này">').toBeGreaterThan(-1)
+    expect(
+      /onBam=/.test(src.slice(i, i + 420)),
+      'Ô "Xong tuần này" thiếu onBam — nhìn thấy mà bấm không được thì khác hẳn ba ô kia.',
+    ).toBe(true)
+  })
+})
