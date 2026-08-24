@@ -441,6 +441,7 @@ export function BangTeam({ rowsBanDau, nenTang }: { rowsBanDau: ViecTeamRow[]; n
           */
           key={mo}
           taskId={mo}
+          onMoViec={setMo}
           nenTang={nenTang}
           onDong={() => setMo(null)}
           onDoi={() => nap()}

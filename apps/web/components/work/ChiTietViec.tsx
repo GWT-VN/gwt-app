@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react'
 import {
   chiTietViec, suaViec, ganNguoi, boNguoi, themBinhLuan, doiTrangThai,
+  taoViecCon, boPhuThuoc,
   type ChiTietViec as Ct, type NenTang, type KQ,
 } from '@/app/work/actions'
 import {
@@ -50,12 +51,14 @@ function PillVai({ role }: { role: string }) {
 }
 
 export function ChiTietViec({
-  taskId, nenTang, onDong, onDoi,
+  taskId, nenTang, onDong, onDoi, onMoViec,
 }: {
   taskId: number
   nenTang: NenTang
   onDong: () => void
   onDoi: () => void
+  /** Nhảy sang việc khác (việc con, việc chặn) mà không phải đóng panel. */
+  onMoViec?: (id: number) => void
 }) {
   const [ct, setCt] = useState<Ct | null>(null)
   const [loi, setLoi] = useState<string | null>(null)
@@ -66,6 +69,7 @@ export function ChiTietViec({
   /** Người đã chèn vào ô bình luận bằng @tên: tên -> id. */
   const [daNhac, setDaNhac] = useState<Record<string, string>>({})
   const [goiYNhac, setGoiYNhac] = useState<{ tuKhoa: string; batDau: number; caret: number } | null>(null)
+  const [viecConMoi, setViecConMoi] = useState('')
   const oBinhLuan = useRef<HTMLInputElement>(null)
 
   /*
@@ -329,20 +333,123 @@ export function ChiTietViec({
               )}
             </section>
 
-            {ct.subtasks.length > 0 && (
-              <section className="flex flex-col gap-2.5">
-                <Nhan>Việc con</Nhan>
+            {/* ── Việc con: tick xong tại chỗ, thêm mới bằng một dòng ── */}
+            <section className="flex flex-col gap-2.5">
+              <Nhan>
+                Việc con
+                {ct.subtasks.length > 0 && (
+                  <span className="so" style={{ marginLeft: 6, fontWeight: 600, color: 'var(--muted)' }}>
+                    {ct.subtasks.filter((s) => s.status === 'done').length}/{ct.subtasks.length}
+                  </span>
+                )}
+              </Nhan>
+
+              {ct.subtasks.length > 0 && (
                 <ul className="space-y-1 list-none p-0 m-0">
-                  {ct.subtasks.map((s) => (
-                    <li key={s.id} className="flex gap-2 items-center" style={{ fontSize: 13 }}>
-                      <span className="mono" style={{ fontSize: 11, color: 'var(--faint)' }}>{s.ref}</span>
-                      <span className="flex-1 truncate">{s.title}</span>
-                      <Chip chamMau={MAU_TRANG_THAI[s.status]}>
-                        {TRANG_THAI.find((x) => x.v === s.status)?.nhan ?? s.status}
-                      </Chip>
-                    </li>
-                  ))}
+                  {ct.subtasks.map((s) => {
+                    const xong = s.status === 'done'
+                    return (
+                      <li key={s.id} className="flex gap-2 items-center" style={{ fontSize: 13 }}>
+                        {/*
+                          Tick ngay tại đây. Trước phải mở việc con ra thành panel
+                          riêng rồi mới đánh dấu được — mà việc con thường là mấy
+                          đầu mục 10 giây, không đáng một vòng như thế.
+                        */}
+                        <input
+                          type="checkbox" checked={xong} disabled={pending || !ct.co_the_sua}
+                          aria-label={`Đánh dấu xong: ${s.title}`}
+                          onChange={(e) => chay(() => doiTrangThai(s.id, e.target.checked ? 'done' : 'todo'))}
+                        />
+                        <span className="mono" style={{ fontSize: 11, color: 'var(--faint)' }}>{s.ref}</span>
+                        <button
+                          className="flex-1 truncate text-left"
+                          onClick={() => onMoViec?.(s.id)}
+                          style={{
+                            textDecoration: xong ? 'line-through' : 'none',
+                            color: xong ? 'var(--faint)' : 'var(--ink)',
+                          }}
+                        >{s.title}</button>
+                        {!xong && (
+                          <Chip chamMau={MAU_TRANG_THAI[s.status]}>
+                            {TRANG_THAI.find((x) => x.v === s.status)?.nhan ?? s.status}
+                          </Chip>
+                        )}
+                      </li>
+                    )
+                  })}
                 </ul>
+              )}
+
+              {ct.co_the_sua && (
+                <form
+                  className="flex gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    const tieuDe = viecConMoi.trim()
+                    if (!tieuDe) return
+                    setViecConMoi('')
+                    chay(() => taoViecCon(t.id, tieuDe))
+                  }}
+                >
+                  <input
+                    value={viecConMoi} onChange={(e) => setViecConMoi(e.target.value)}
+                    placeholder="+ Thêm việc con rồi Enter"
+                    disabled={pending} style={{ ...oNhap, flex: 1, fontSize: 13 }}
+                  />
+                  {viecConMoi.trim() !== '' && (
+                    <Nut chinh disabled={pending} type="submit" style={{ fontSize: 12.5 }}>Thêm</Nut>
+                  )}
+                </form>
+              )}
+            </section>
+
+            {/* ── Phụ thuộc ── */}
+            {(ct.chan_boi.length > 0 || ct.dang_chan.length > 0) && (
+              <section className="flex flex-col gap-2.5">
+                {ct.chan_boi.length > 0 && (
+                  <>
+                    <Nhan>Chờ việc khác xong trước</Nhan>
+                    <ul className="space-y-1 list-none p-0 m-0">
+                      {ct.chan_boi.map((b) => {
+                        const roi = b.status === 'done' || b.status === 'cancelled'
+                        return (
+                          <li key={b.id} className="flex gap-2 items-center" style={{ fontSize: 13 }}>
+                            <span aria-hidden style={{ color: roi ? 'var(--green)' : 'var(--amber)' }}>
+                              {roi ? '✓' : '⏳'}
+                            </span>
+                            <span className="mono" style={{ fontSize: 11, color: 'var(--faint)' }}>{b.ref}</span>
+                            <button className="flex-1 truncate text-left" onClick={() => onMoViec?.(b.id)}>
+                              {b.title}
+                            </button>
+                            {ct.co_the_sua && (
+                              <button
+                                onClick={() => chay(() => boPhuThuoc(t.id, b.id))}
+                                disabled={pending} aria-label={`Bỏ phụ thuộc ${b.ref}`}
+                                style={{ fontSize: 15, color: 'var(--faint)', lineHeight: 1 }}
+                              >×</button>
+                            )}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </>
+                )}
+                {ct.dang_chan.length > 0 && (
+                  <>
+                    {/* Chiều ngược lại: không có nó thì hoãn một việc mà không biết mình làm kẹt ai. */}
+                    <Nhan>Việc này đang chặn</Nhan>
+                    <ul className="space-y-1 list-none p-0 m-0">
+                      {ct.dang_chan.map((b) => (
+                        <li key={b.id} className="flex gap-2 items-center" style={{ fontSize: 13 }}>
+                          <span className="mono" style={{ fontSize: 11, color: 'var(--faint)' }}>{b.ref}</span>
+                          <button className="flex-1 truncate text-left" onClick={() => onMoViec?.(b.id)}>
+                            {b.title}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </section>
             )}
 

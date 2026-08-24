@@ -161,3 +161,75 @@ describe('Xoá hàng loạt — hai nhịp, có dấu vân', () => {
     ).toBe(true)
   })
 })
+
+// ── Không RPC nào được chép tay luật quyền ─────────────────────────────────
+// Bài học 24/08: work_13 thêm cửa admin + team vào `work.co_the_sua()`, nhưng
+// `work_doi_trang_thai` có bản kiểm quyền CHÉP TAY riêng nên bản vá trượt qua nó
+// — mà đó là RPC bị bấm nhiều nhất khu Việc (nút "✓ Đánh dấu xong" và ô chọn
+// trạng thái). Sửa hàm chung mà quên hàm chép tay = vá một nửa, và nửa còn lại
+// im lặng chạy luật cũ.
+//
+// Hai hàm chung hợp lệ:
+//   · work.co_the_sua()        — quyền SỬA
+//   · work.visible_task_ids()  — quyền XEM (bình luận, chọn việc cha… dùng cái này)
+describe('RPC khu Việc — quyền luôn hỏi hàm chung, không chép tay', () => {
+  const { readdirSync } = require('node:fs') as typeof import('node:fs')
+  const thuMuc = fileURLToPath(new URL('../../../db/work/migrations', import.meta.url))
+  // Sắp theo tên file = theo thứ tự áp. Bản ĐỊNH NGHĨA SAU đè bản trước, nên chỉ
+  // bản CUỐI của mỗi hàm mới là thứ đang chạy — file cũ đương nhiên còn bản cũ,
+  // soi cả file cũ là báo động giả.
+  const files = readdirSync(thuMuc).filter((f: string) => f.endsWith('.sql')).sort()
+
+  /** tên hàm -> thân của lần định nghĩa CUỐI CÙNG */
+  const banCuoi = new Map<string, { file: string; than: string }>()
+  for (const f of files) {
+    const src = readFileSync(`${thuMuc}/${f}`, 'utf8')
+    for (const doan of src.split(/(?=create or replace function )/i)) {
+      const m = doan.match(/create or replace function\s+([\w.]+)/i)
+      if (m) banCuoi.set(m[1], { file: f, than: doan })
+    }
+  }
+
+  it('đọc được migration và gom được hàm (chống test xanh giả)', () => {
+    expect(files.length, 'không đọc được db/work/migrations').toBeGreaterThan(5)
+    expect(banCuoi.size, 'không gom được hàm nào').toBeGreaterThan(10)
+  })
+
+  it('không hàm nào chặn quyền bằng điều kiện chép tay', () => {
+    const viPham: string[] = []
+    for (const [ten, { file, than }] of banCuoi) {
+      if (!/Không có quyền/.test(than)) continue
+      if (/co_the_sua\s*\(|visible_task_ids\s*\(/.test(than)) continue
+      viPham.push(`${ten} (${file})`)
+    }
+    expect(
+      viPham,
+      'Hàm chặn quyền bằng điều kiện chép tay thay vì gọi work.co_the_sua() / ' +
+        `work.visible_task_ids(): ${viPham.join(', ')}. ` +
+        'Chép tay là lần sau sửa luật chung sẽ trượt qua chúng — đúng thứ đã xảy ra ' +
+        'với work_doi_trang_thai khi work_13 mở cửa admin.',
+    ).toEqual([])
+  })
+})
+
+// ── Panel: việc con tạo được, phụ thuộc hiện được ──────────────────────────
+describe('ChiTietViec — việc con + phụ thuộc', () => {
+  const src = doc('components/work/ChiTietViec.tsx')
+
+  it('có ô thêm việc con', () => {
+    expect(/taoViecCon\(/.test(src), 'panel chưa gọi taoViecCon').toBe(true)
+  })
+
+  it('việc con tick xong được ngay tại panel', () => {
+    const i = src.indexOf('ct.subtasks.map')
+    expect(
+      /type="checkbox"/.test(src.slice(i, i + 1200)),
+      'danh sách việc con phải có ô tick, không chỉ đọc.',
+    ).toBe(true)
+  })
+
+  it('hiện CẢ HAI chiều phụ thuộc', () => {
+    // Chỉ hiện chiều "bị chặn" thì hoãn một việc mà không biết mình làm kẹt ai.
+    expect(/ct\.chan_boi/.test(src) && /ct\.dang_chan/.test(src)).toBe(true)
+  })
+})

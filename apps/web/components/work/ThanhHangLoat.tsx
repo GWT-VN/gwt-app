@@ -38,10 +38,13 @@ export function ThanhHangLoat({
     start(async () => {
       const kq = await hangLoat(ids, input)
       if (!kq.ok) { onXong(`Không xong: ${kq.loi}`); return }
-      const { da_sua, bo_qua } = kq.duLieu
+      const { da_sua, bo_qua, bi_chan } = kq.duLieu
       onXong(
         `${mo_ta}: ${da_sua} việc` +
-        (bo_qua > 0 ? ` · bỏ qua ${bo_qua} việc bạn không có quyền sửa` : '')
+        (bo_qua > 0 ? ` · bỏ qua ${bo_qua} việc bạn không có quyền sửa` : '') +
+        // Bỏ qua vì PHỤ THUỘC là chuyện khác hẳn bỏ qua vì QUYỀN. Gộp chung một
+        // câu thì người ta đi xin quyền, trong khi thứ cần làm là xong việc chặn.
+        ((bi_chan ?? 0) > 0 ? ` · ${bi_chan} việc chưa xong được vì còn việc khác chặn` : '')
       )
     })
   }

@@ -57,6 +57,8 @@ export type ChiTietViec = {
     team_id: number | null; parent_id: number | null; origin: string
     team_name: string | null; team_color: string | null
     creator_ten: string | null; created_at: string
+    /** Có cha thì hiện đường về cha ở đầu panel — nếu không, việc con là ngõ cụt. */
+    parent_ref: string | null; parent_title: string | null
   }
   assignees: NguoiLam[]
   co_the_sua: boolean
@@ -68,6 +70,10 @@ export type ChiTietViec = {
   }[]
   activity: { id: number; verb: string; payload: Record<string, unknown> | null; ten: string | null; created_at: string }[]
   subtasks: { id: number; ref: string; title: string; status: string }[]
+  /** Việc phải xong TRƯỚC việc này. Còn cái nào chưa xong thì không đánh dấu xong được. */
+  chan_boi: { id: number; ref: string; title: string; status: string }[]
+  /** Việc đang chờ việc NÀY xong. Mình chậm là họ kẹt. */
+  dang_chan: { id: number; ref: string; title: string; status: string }[]
 }
 
 /** Email của người đang đăng nhập — nguồn danh tính DUY NHẤT cho mọi RPC dưới đây. */
@@ -331,6 +337,39 @@ export async function chayTuSinh(): Promise<KQ<{ luat: string; da_tao: number }[
   })
 }
 
+// ── Việc con · phụ thuộc · KPI ──────────────────────────────────────────────
+
+/** Thêm việc con ngay trong panel. Kế thừa team + phạm vi xem của việc cha. */
+export async function taoViecCon(parentId: number, title: string): Promise<KQ<{ id: number; ref: string }>> {
+  return boc(async () => {
+    const kq = await goi<{ id: number; ref: string }>('work_tao_viec_con', {
+      p_parent_id: parentId, p_title: title,
+    })
+    lamMoi()
+    return kq
+  })
+}
+
+/** `blockedById` phải xong trước `taskId`. RPC tự chặn vòng khoá nhau. */
+export async function themPhuThuoc(taskId: number, blockedById: number): Promise<KQ<void>> {
+  return boc(async () => {
+    await goi<void>('work_them_phu_thuoc', { p_task_id: taskId, p_blocked_by_id: blockedById })
+    lamMoi()
+  })
+}
+
+export async function boPhuThuoc(taskId: number, blockedById: number): Promise<KQ<void>> {
+  return boc(async () => {
+    await goi<void>('work_bo_phu_thuoc', { p_task_id: taskId, p_blocked_by_id: blockedById })
+    lamMoi()
+  })
+}
+
+/** Số việc của tôi đã xong trong 7 ngày qua — cho ô KPI. */
+export async function xongTuanNay(): Promise<number> {
+  return (await goi<number>('work_xong_tuan_nay', {})) ?? 0
+}
+
 /** Gạt công tắc chung của bộ quét (cron 15 phút). Chỉ quản lý — RPC tự chặn. */
 export async function batTatTuSinh(bat: boolean): Promise<KQ<{ bat: boolean }>> {
   return boc(async () => {
@@ -383,7 +422,12 @@ export async function doiNguoiNhan(key: string, staffId: string | null): Promise
 }
 
 // ── Thao tác hàng loạt ──────────────────────────────────────────────────────
-export type KetQuaHangLoat = { da_sua: number; bo_qua: number }
+export type KetQuaHangLoat = {
+  da_sua: number
+  bo_qua: number
+  /** Việc bị bỏ qua vì còn việc khác chặn — chỉ xảy ra khi chuyển sang "Xong". */
+  bi_chan?: number
+}
 
 /**
  * Sửa nhiều việc một lượt. Trường nào bỏ trống thì không đụng tới.

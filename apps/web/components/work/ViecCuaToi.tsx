@@ -14,7 +14,12 @@ import { ChiTietViec } from './ChiTietViec'
 import { ThanhHangLoat } from './ThanhHangLoat'
 import { TieuDeNhom, OThongKe } from './ui'
 
-export function ViecCuaToi({ rowsBanDau, nenTang }: { rowsBanDau: ViecRow[]; nenTang: NenTang }) {
+export function ViecCuaToi({ rowsBanDau, nenTang, soXongTuanNay }: {
+  rowsBanDau: ViecRow[]
+  nenTang: NenTang
+  /** Đếm ở server: việc đã xong không nằm trong rowsBanDau nên không tính tại đây được. */
+  soXongTuanNay: number
+}) {
   const router = useRouter()
   const [pending, start] = useTransition()
   const [mo, setMo] = useState<number | null>(null)
@@ -86,10 +91,24 @@ export function ViecCuaToi({ rowsBanDau, nenTang }: { rowsBanDau: ViecRow[]; nen
           nhan="Tuần này" so={soTuanNay} phu="trong 7 ngày tới" mauCham="var(--accent)"
           onBam={() => bamLoc('tuan_nay')} dangLoc={loc === 'tuan_nay'}
         />
-        <OThongKe
-          nhan="Chờ tôi nghiệm thu" so={soChoDuyet} phu="việc người khác làm xong" mauCham="var(--green)"
-          onBam={() => bamLoc('nghiem_thu')} dangLoc={loc === 'nghiem_thu'}
-        />
+        {/*
+          CEO chốt: ô này là "Xong tuần này" thay cho "Chờ tôi nghiệm thu".
+          Nhưng nếu ĐANG có việc chờ mình nghiệm thu thì cái đó gấp hơn — nó là
+          việc phải làm, còn "xong tuần này" chỉ để nhìn cho vui. Nên khi số chờ
+          nghiệm thu > 0 thì nhường chỗ, hết thì trả lại. Không mất đường nào.
+        */}
+        {soChoDuyet > 0 ? (
+          <OThongKe
+            nhan="Chờ tôi nghiệm thu" so={soChoDuyet} phu="việc người khác làm xong" mauCham="var(--green)"
+            onBam={() => bamLoc('nghiem_thu')} dangLoc={loc === 'nghiem_thu'}
+          />
+        ) : (
+          <OThongKe
+            nhan="Xong tuần này" so={soXongTuanNay}
+            phu={soXongTuanNay ? 'trong 7 ngày qua' : 'chưa xong việc nào'}
+            mauCham="var(--green)"
+          />
+        )}
       </div>
 
       <FormTaoViec nenTang={nenTang} onXong={() => router.refresh()} />
@@ -183,6 +202,7 @@ export function ViecCuaToi({ rowsBanDau, nenTang }: { rowsBanDau: ViecRow[]; nen
           */
           key={mo}
           taskId={mo}
+          onMoViec={setMo}
           nenTang={nenTang}
           onDong={() => setMo(null)}
           onDoi={() => router.refresh()}

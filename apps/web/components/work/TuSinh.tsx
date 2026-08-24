@@ -220,7 +220,7 @@ export function TuSinh({ duLieu, nenTang, duocSuaLuat }: { duLieu: ManTuSinh; ne
       {chon.size > 0 && <div style={{ height: 72 }} aria-hidden />}
 
       {mo !== null && (
-        <ChiTietViec key={mo} taskId={mo} nenTang={nenTang} onDong={() => setMo(null)} onDoi={() => router.refresh()} />
+        <ChiTietViec key={mo} taskId={mo} nenTang={nenTang} onMoViec={setMo} onDong={() => setMo(null)} onDoi={() => router.refresh()} />
       )}
     </div>
   )
