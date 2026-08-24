@@ -101,7 +101,15 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
         <h2 className="font-medium text-slate-900 mb-1">Kênh / đối tác</h2>
         <p className="text-xs text-slate-400 mb-2">Đại lý/KTS/KOL quản lý khách này (taxonomy chung với Sales).</p>
-        <GanKenh customerId={customer.id} channelId={customer.channel_id} kenh={kenh} />
+        {/* Nói thẳng kênh này ở đâu ra. Người dùng nhìn ô đã điền sẵn thì mặc định tin là
+            có người điền — mà đây là máy suy từ đơn bên Sales, sai được. */}
+        {customer.channel_tu_dong && (
+          <p className="mb-2 rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs text-sky-800">
+            🤖 Kênh này do <strong>máy tự điền</strong> theo kênh của <strong>đơn đầu tiên</strong> bên
+            Sales — chưa ai xác nhận. Sai thì chọn lại; đúng thì bấm <strong>“Đúng rồi, bỏ nhãn”</strong>.
+          </p>
+        )}
+        <GanKenh customerId={customer.id} channelId={customer.channel_id} kenh={kenh} tuDong={customer.channel_tu_dong} />
       </section>
       <CustomerEditor customer={customer} contacts={contacts} />
       <DiaChiKhachList customerId={customer.id} items={diaChi} />

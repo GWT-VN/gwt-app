@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { listKhachHang, khoaTatCaKhachHang, exportCuaToi, listBangView, kenhChon, demKhachThieuSdt } from '@/app/actions'
+import { listKhachHang, khoaTatCaKhachHang, exportCuaToi, listBangView, kenhChon, demKhachThieuSdt, demKhachKenhTuDong } from '@/app/actions'
 import { ExportKhachButton } from '@/components/ExportKhachButton'
 import { ThaoTacHangLoat } from '@/components/ThaoTacHangLoat'
 import { BangKhach } from '@/components/BangKhach'
@@ -14,15 +14,16 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 export default async function KhachHangPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; trang?: string; cot?: string; chieu?: string; thieu_sdt?: string }>
+  searchParams: Promise<{ q?: string; trang?: string; cot?: string; chieu?: string; thieu_sdt?: string; kenh_tu_dong?: string }>
 }) {
-  const { q = '', trang: trangRaw, cot, chieu, thieu_sdt } = await searchParams
+  const { q = '', trang: trangRaw, cot, chieu, thieu_sdt, kenh_tu_dong } = await searchParams
   const locThieuSdt = thieu_sdt === '1'
+  const locKenhTuDong = kenh_tu_dong === '1'
   const trang = Math.max(1, Number(trangRaw) || 1)
   // Ba nút, ba quyền khác nhau — trước đây gom vào laQuanLy/laAdmin nên tick lại
   // ma trận là nút hiện sai. Cặp (mã quyền, luật cũ) khớp y hệt Server Action.
-  const [{ rows: list, tong, soTrang, sapXep }, quyen, exportDuyet, views, kenh, soThieuSdt] = await Promise.all([
-    listKhachHang(q, { trang, cot, chieu, thieuSdt: locThieuSdt }),
+  const [{ rows: list, tong, soTrang, sapXep }, quyen, exportDuyet, views, kenh, soThieuSdt, soKenhTuDong] = await Promise.all([
+    listKhachHang(q, { trang, cot, chieu, thieuSdt: locThieuSdt, kenhTuDong: locKenhTuDong }),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       xoaHangLoat: ['cs.khach.xoa_hang_loat', 'ADMIN'],
@@ -32,6 +33,7 @@ export default async function KhachHangPage({
     listBangView('cs_customers'),
     kenhChon(),
     demKhachThieuSdt(),
+    demKhachKenhTuDong(),
   ])
 
   return (
@@ -48,8 +50,8 @@ export default async function KhachHangPage({
         {/* Chip lọc "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải
             có chỗ lọc ra danh sách phải gọi xin số. Hiện SỐ ngay trên chip để CS thấy mà làm,
             chứ chip trống thì không ai bấm. */}
-        {(soThieuSdt > 0 || locThieuSdt) && (
-          <div className="flex">
+        <div className="flex flex-wrap gap-2">
+          {(soThieuSdt > 0 || locThieuSdt) && (
             <Link
               href={locThieuSdt ? '/khach-hang' : '/khach-hang?thieu_sdt=1'}
               prefetch={false}
@@ -60,13 +62,29 @@ export default async function KhachHangPage({
             >
               {locThieuSdt ? '✕ Bỏ lọc · ' : '☎ '}Cần xin lại SĐT ({soThieuSdt})
             </Link>
-          </div>
-        )}
+          )}
+          {/* Chip "Kênh máy tự điền" — CEO 24/08: *"highlight đc kênh nào là anh tự điền cần
+              tôi check lại"*. Bấm vào ra đúng nhóm mig 54 đã đổ; sửa tay hồ sơ nào là hồ sơ
+              ấy rơi khỏi đây, nên con số tự giảm dần về 0 khi soát xong. */}
+          {(soKenhTuDong > 0 || locKenhTuDong) && (
+            <Link
+              href={locKenhTuDong ? '/khach-hang' : '/khach-hang?kenh_tu_dong=1'}
+              prefetch={false}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                locKenhTuDong
+                  ? 'bg-sky-600 text-white'
+                  : 'border border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100'}`}
+            >
+              {locKenhTuDong ? '✕ Bỏ lọc · ' : '🤖 '}Kênh máy tự điền, cần soát ({soKenhTuDong})
+            </Link>
+          )}
+        </div>
 
         <ThanhDangLoc
           dieuKien={[
             ...(q ? [{ nhan: 'Từ khoá', giaTri: q }] : []),
             ...(locThieuSdt ? [{ nhan: 'Lọc', giaTri: 'Cần xin lại SĐT' }] : []),
+            ...(locKenhTuDong ? [{ nhan: 'Lọc', giaTri: 'Kênh máy tự điền' }] : []),
           ]}
           hienThi={list.length}
           tong={tong}
