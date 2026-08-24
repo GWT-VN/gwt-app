@@ -214,3 +214,69 @@ export function nhanVat(pct: number | null | undefined, loai: VatLoai | null | u
   const p = Number(pct) > 1 ? Number(pct) / 100 : Number(pct)
   return `${Math.round(p * 100)}%`
 }
+
+/**
+ * Nhãn tiếng Việt cho 31 ô Sheet bổ sung — dùng cho TRANG XEM đơn.
+ *
+ * CEO 24/08: *"ko biết có lưu hay ko vì ko hiển thị lại, trừ ghi chú các ô khác ko thấy
+ * (chỉ có ấn vào sửa thì thấy)"*. Đúng: trang chi tiết đơn chỉ hiện Ghi chú, 30 ô còn lại
+ * chỉ nhìn được khi bấm Sửa. Ô đã lưu mà không xem lại được thì với người dùng nó **y hệt
+ * như chưa lưu** — và không ai kiểm tra được app có ghi đúng không.
+ *
+ * Nhãn để ở đây (cạnh `DON_MAC_DINH`) để form nhập và trang xem gọi cùng một danh sách,
+ * thêm ô mới là hai nơi cùng biết.
+ */
+export const NHAN_O_SHEET: Record<string, string> = {
+  channel_detail: 'Chi tiết kênh',
+  qua_tang: 'Quà tặng đi kèm',
+  su_dung_qua_tang: 'Sử dụng quà tặng',
+  tracking_url: 'Link tracking',
+  kich_hoat_bh: 'Kích hoạt bảo hành',
+  email: 'Email khách',
+  tien_coc: 'Số tiền đã cọc',
+  gui_hdsd: 'Gửi HDSD',
+  xuat_hoa_don: 'Xuất hoá đơn',
+  da_doi_soat: 'Đã đối soát',
+  ngay_doi_soat: 'Ngày nhận đối soát',
+  so_hd: 'Số HĐ',
+  ten_goi_khach: 'Tên gọi khách',
+  ten_folder: 'Tên folder',
+  ten_khach_theo_doi: 'Tên khách theo dõi',
+  tien_se_thu: 'Tiền sẽ thu',
+  bien_ban_xac_nhan: 'Biên bản xác nhận',
+  bao_cao_lap_dat: 'Báo cáo lắp đặt',
+  tien_do_lap_dat: 'Tiến độ lắp đặt',
+  ngay_hoan_thanh_lap: 'Ngày hoàn thành lắp',
+  tu_dien: 'Tủ điện',
+  version: 'Version',
+  nghe_nghiep: 'Nghề nghiệp',
+  ngay_sinh: 'Ngày sinh',
+  gioi_tinh: 'Giới tính',
+  do_tuoi: 'Độ tuổi',
+  loai_nha: 'Loại nhà',
+  tinh_trang_nha: 'Tình trạng nhà',
+  cong_ty_xuat_hd: 'Công ty xuất HĐ',
+  mst: 'MST',
+  dia_chi_xuat_hd: 'Địa chỉ xuất HĐ',
+}
+
+/** Ô nào thuộc khối nào trên TRANG XEM — cùng thứ tự với form nhập cho đỡ lạc mắt. */
+export const KHOI_O_SHEET: Array<{ ten: string; o: string[] }> = [
+  { ten: 'Quà tặng', o: ['qua_tang', 'su_dung_qua_tang'] },
+  { ten: 'Theo dõi sau bán', o: ['email', 'kich_hoat_bh', 'gui_hdsd', 'xuat_hoa_don', 'da_doi_soat', 'ngay_doi_soat'] },
+  { ten: 'Tiền', o: ['tien_coc', 'tien_se_thu'] },
+  { ten: 'Hồ sơ & lắp đặt (POE)', o: ['so_hd', 'ten_goi_khach', 'ten_folder', 'ten_khach_theo_doi', 'tien_do_lap_dat', 'ngay_hoan_thanh_lap', 'tu_dien', 'bien_ban_xac_nhan', 'bao_cao_lap_dat'] },
+  { ten: 'Khảo sát tại thời điểm lắp', o: ['version', 'nghe_nghiep', 'ngay_sinh', 'gioi_tinh', 'do_tuoi', 'loai_nha', 'tinh_trang_nha'] },
+  { ten: 'Xuất hoá đơn cho công ty', o: ['cong_ty_xuat_hd', 'mst', 'dia_chi_xuat_hd'] },
+]
+
+/** Ô nào là ô TICK — trang xem phải hiện ✓/— chứ không phải chữ "true"/"false". */
+export const O_TICK = new Set([
+  'kich_hoat_bh', 'gui_hdsd', 'xuat_hoa_don', 'da_doi_soat', 'bien_ban_xac_nhan', 'bao_cao_lap_dat',
+])
+
+/** Ô nào là TIỀN — trang xem phải định dạng 1.234.567 đ. */
+export const O_TIEN = new Set(['tien_coc', 'tien_se_thu'])
+
+/** Ô nào là NGÀY. */
+export const O_NGAY = new Set(['ngay_doi_soat', 'ngay_hoan_thanh_lap', 'ngay_sinh'])

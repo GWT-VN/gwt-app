@@ -8,7 +8,8 @@
  *  · Khách đã có bậc thì KHÔNG ăn khuyến mãi khách lẻ (CEO chốt 21/08/2026).
  */
 
-export type KieuGiam = 'PCT' | 'TIEN' | 'CON'
+/** `KHONG` = chương trình không giảm giá, chỉ tặng quà (CEO chốt 24/08/2026). */
+export type KieuGiam = 'PCT' | 'TIEN' | 'CON' | 'KHONG'
 export type Bac = 'NPP' | 'DAI_LY' | 'GIOI_THIEU'
 
 /**
@@ -27,6 +28,8 @@ export function giaSauGiam(
   giamToiDa?: number | null
 ): number {
   const ny = Math.round(Number(niemYet) || 0)
+  // Chương trình chỉ tặng quà: giá bán KHÔNG đổi, dù có lỡ nhập mức nào đi nữa.
+  if (kieu === 'KHONG') return ny
   if (muc == null || !Number.isFinite(Number(muc))) return ny
   const m = Number(muc)
   if (kieu === 'CON') return Math.max(0, Math.round(m))
@@ -77,6 +80,8 @@ export type Ctkm = {
   khachGom?: string[]
   /** Mã khách bị loại trừ — thắng mọi luật khác. */
   khachTru?: string[]
+  /** Tập khách bị loại trừ (kênh / bậc / mới-đã mua). Cũng thắng mọi luật khác. */
+  nhomTru?: NhomTru[]
 }
 
 /** Những gì cần biết về khách để xét chương trình có áp cho họ không. */
@@ -84,6 +89,31 @@ export type KhachXet = {
   customer_code: string | null
   /** Đã từng có đơn chưa. `null` = chưa biết (khách mới gõ tay, chưa có hồ sơ). */
   daMua: boolean | null
+  /** Kênh của đơn/khách — để xét loại trừ theo kênh. */
+  channel_id?: number | null
+  /** Bậc đối tác đang hiệu lực. `null` = khách lẻ. */
+  bac?: Bac | null
+}
+
+/** Một tập khách bị gạch khỏi chương trình. */
+export type NhomTru = { loai: 'KENH' | 'BAC' | 'NHOM'; gia_tri: string }
+
+/**
+ * Khách có rơi vào một tập bị gạch không.
+ *
+ * `CO_BAC` gom mọi đối tác có bậc — CEO thường muốn nói "chương trình bán lẻ này không
+ * dành cho đại lý" mà không phải liệt kê từng cấp, và liệt kê từng cấp thì thêm cấp mới
+ * là sót âm thầm.
+ */
+export function trongNhomTru(nhom: NhomTru[], kh: KhachXet): boolean {
+  return nhom.some((n) => {
+    if (n.loai === 'KENH') return kh.channel_id != null && String(kh.channel_id) === n.gia_tri
+    if (n.loai === 'BAC') return n.gia_tri === 'CO_BAC' ? kh.bac != null : kh.bac === n.gia_tri
+    // NHOM: chưa biết đã mua hay chưa thì KHÔNG gạch — gạch nhầm người là mất khuyến mãi
+    // của khách thật, tệ hơn là bỏ sót một lần gạch.
+    if (kh.daMua == null) return false
+    return n.gia_tri === 'MOI' ? kh.daMua === false : kh.daMua === true
+  })
 }
 
 /**
@@ -101,6 +131,7 @@ export type KhachXet = {
 export function khachDuocHuong(c: Ctkm, kh: KhachXet): boolean {
   const ma = kh.customer_code
   if (ma && (c.khachTru ?? []).includes(ma)) return false
+  if (trongNhomTru(c.nhomTru ?? [], kh)) return false
   const nhom = c.nhom_khach ?? 'TAT_CA'
   if (nhom === 'CHI_DINH') return !!ma && (c.khachGom ?? []).includes(ma)
   if (nhom === 'MOI') return kh.daMua === false
@@ -211,6 +242,7 @@ const vndCt = new Intl.NumberFormat('vi-VN')
 
 /** Nhãn mức giảm cho danh sách: "Giảm 12%" · "Giảm 5.000.000 ₫" · "Giá còn 29.900.000 ₫". */
 export function nhanKieuGiam(kieu: KieuGiam, muc: number | null | undefined): string {
+  if (kieu === 'KHONG') return 'Chỉ tặng quà'
   if (muc == null || !Number.isFinite(Number(muc))) return 'Chưa đặt mức giảm'
   const m = Number(muc)
   if (kieu === 'PCT') return `Giảm ${m}%`
@@ -254,6 +286,26 @@ export function gomSpTheoCtkm(
       r.muc == null || r.muc === '' || !Number.isFinite(Number(r.muc)) ? null : Number(r.muc)
   }
   return m
+}
+
+/**
+ * Các "chip" mô tả khách này đang ăn chính sách gì — để giao diện chỉ việc `.map()`.
+ *
+ * Vì sao phải là HÀM THUẦN chứ không viết thẳng điều kiện trong JSX: bản đầu viết
+ * `{bcGia && (bcGia.bac || bcGia.ctkm) && (…)}` và **ẩn sạch khối "Đang áp"** đúng lúc
+ * cần nó nhất — khi mọi chương trình khớp đều bật `cong_don`, `ctkm` là `null` nên cả
+ * dải biến mất, kể cả các chip cộng dồn nằm BÊN TRONG nó. CEO gặp đúng ca này 24/08:
+ * hai chương trình cùng bật cộng dồn ⇒ màn lên đơn không nói gì về khuyến mãi nữa.
+ *
+ * Điều kiện hiển thị nằm trong JSX thì không test được. Ở đây thì test được.
+ */
+export function tomTatChinhSach(bc: BoiCanhGia | null): Array<{ nhan: string; kieu: 'bac' | 'chinh' | 'cong' }> {
+  if (!bc) return []
+  const ra: Array<{ nhan: string; kieu: 'bac' | 'chinh' | 'cong' }> = []
+  if (bc.bac) ra.push({ nhan: nhanBac(bc.bac), kieu: 'bac' })
+  if (bc.ctkm) ra.push({ nhan: bc.ctkm.ten, kieu: 'chinh' })
+  for (const c of bc.ctkmCong ?? []) ra.push({ nhan: c.ten, kieu: 'cong' })
+  return ra
 }
 
 /** Chương trình kèm bảng mức riêng theo mã + danh sách quà của nó. */
@@ -316,6 +368,9 @@ export type GiaGoiY = {
  *   · không có mức riêng lẫn mức chung (chương trình chỉ tặng quà, không giảm giá).
  */
 function mucChoMa(c: CtkmApDung, internalCode: string): number | null {
+  // Chỉ tặng quà -> không có mức nào cả. Trả null để `giaGoiY` bỏ qua phần giảm giá
+  // nhưng VẪN gom quà của chương trình (quà đi đường riêng, xem `ctkmChamMa`).
+  if (c.kieu_giam === 'KHONG') return null
   const coDanhSach = Object.keys(c.sp).length > 0
   if (coDanhSach && !(internalCode in c.sp)) return null
   // Mức riêng của mã này thắng mức chung; 0 riêng vẫn thắng (miễn phí là một mức thật).

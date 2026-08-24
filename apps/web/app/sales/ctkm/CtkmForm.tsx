@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import { luuNhap, banHanh, timKhachChoCtkm, type CtkmInput, type KhachCtkm } from './actions'
 import { OChonGoiY, OChonTimXa } from '@/bang'
-import { giaSauGiam, mucApDung, type KieuGiam } from '../_ctkm'
+import { giaSauGiam, mucApDung, type KieuGiam, type NhomTru } from '../_ctkm'
 
 type Kenh = { id: number; l1: string; l2: string }
 type Sp = { ma: string; ten: string; gia: number | null }
@@ -17,7 +17,7 @@ const lbl = 'block text-[11px] font-semibold uppercase tracking-wide text-slate-
 const card = 'rounded-xl border border-slate-200 bg-white shadow-sm'
 
 /** Mức mặc định khi đổi kiểu giảm — 12% và 12 đồng là hai thứ khác hẳn nhau. */
-const MUC_GOI_Y: Record<KieuGiam, number> = { PCT: 10, TIEN: 1000000, CON: 0 }
+const MUC_GOI_Y: Record<KieuGiam, number> = { PCT: 10, TIEN: 1000000, CON: 0, KHONG: 0 }
 
 /**
  * Một bước của form. Khai báo NGOÀI component cha — nếu định nghĩa bên trong thì mỗi
@@ -105,6 +105,16 @@ function DanhSachKhach({
   )
 }
 
+/** Ô tick gạch một tập khách. Tách riêng cho gọn — dùng 6 lần trong bước 3. */
+function OTruNhom({ nhan, co, doi }: { nhan: string; co: boolean; doi: () => void }) {
+  return (
+    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" className="h-4 w-4 accent-rose-600" checked={co} onChange={doi} />
+      {nhan}
+    </label>
+  )
+}
+
 export function CtkmForm({
   kenhDs,
   spDs,
@@ -137,6 +147,15 @@ export function CtkmForm({
   const [congDon, setCongDon] = useState(initial?.cong_don ?? false)
   const [khachGom, setKhachGom] = useState<KhachCtkm[]>(initial?.khachGom ?? [])
   const [khachTru, setKhachTru] = useState<KhachCtkm[]>(initial?.khachTru ?? [])
+  const [nhomTru, setNhomTru] = useState<NhomTru[]>(initial?.nhomTru ?? [])
+  const chiTangQua = kieu === 'KHONG'
+
+  const coNhomTru = (loai: NhomTru['loai'], gt: string) =>
+    nhomTru.some((n) => n.loai === loai && n.gia_tri === gt)
+  const doiNhomTru = (loai: NhomTru['loai'], gt: string) =>
+    setNhomTru((ds) =>
+      coNhomTru(loai, gt) ? ds.filter((n) => !(n.loai === loai && n.gia_tri === gt)) : [...ds, { loai, gia_tri: gt }]
+    )
 
   const [cap1, setCap1] = useState(kenhDs[0]?.l1 ?? '')
   const cap2Ds = useMemo(() => kenhDs.filter((k) => k.l1 === cap1), [kenhDs, cap1])
@@ -149,9 +168,18 @@ export function CtkmForm({
 
   function doiKieu(k: KieuGiam) {
     setKieu(k)
-    setMucChung(MUC_GOI_Y[k])
     setSp((ds) => ds.map((s) => ({ ...s, muc: null })))
     if (k !== 'PCT') setGiamToiDa(null)
+    if (k === 'KHONG') {
+      // Không giảm giá thì không có mức nào để lưu — để lại số cũ là rác trong DB.
+      setMucChung(null)
+      // Chương trình chỉ tặng quà gần như luôn phải chồng lên chương trình giảm giá,
+      // nếu không nó tranh chỗ với chương trình đang giảm và làm mất phần giảm.
+      // Vẫn để CEO bỏ tick được nếu cố ý.
+      setCongDon(true)
+      return
+    }
+    setMucChung(MUC_GOI_Y[k])
   }
 
   function themKenhCap1() {
@@ -166,7 +194,7 @@ export function CtkmForm({
       tu_ngay: tuNgay, den_ngay: denNgay || null, nhom_khach: nhomKhach,
       kieu_giam: kieu, muc_chung: mucChung, giam_toi_da: giamToiDa,
       don_toi_thieu: donToiThieu, sl_toi_thieu: slToiThieu, kenh, sp, qua,
-      cong_don: congDon, khachGom, khachTru,
+      cong_don: congDon, khachGom, khachTru, nhomTru,
     }
     batDau(async () => {
       const r = await luuNhap(payload)
@@ -267,7 +295,58 @@ export function CtkmForm({
         )}
 
         <div>
-          <label className={lbl}>Loại trừ — khách KHÔNG được hưởng chương trình này</label>
+          <label className={lbl}>Loại trừ theo NHÓM — gạch cả một tập khách</label>
+          <div className="space-y-2 rounded-lg border border-dashed border-rose-200 bg-rose-50/40 p-3">
+            <div>
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Theo lịch sử mua</div>
+              <div className="flex flex-wrap gap-x-5 gap-y-1">
+                <OTruNhom nhan="Gạch khách MỚI (chưa có đơn nào)" co={coNhomTru('NHOM', 'MOI')} doi={() => doiNhomTru('NHOM', 'MOI')} />
+                <OTruNhom nhan="Gạch khách ĐÃ MUA" co={coNhomTru('NHOM', 'DA_MUA')} doi={() => doiNhomTru('NHOM', 'DA_MUA')} />
+              </div>
+            </div>
+            <div>
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Theo bậc đối tác</div>
+              <div className="flex flex-wrap gap-x-5 gap-y-1">
+                <OTruNhom nhan="Gạch MỌI đối tác có bậc" co={coNhomTru('BAC', 'CO_BAC')} doi={() => doiNhomTru('BAC', 'CO_BAC')} />
+                <OTruNhom nhan="Cấp 1 · NPP" co={coNhomTru('BAC', 'NPP')} doi={() => doiNhomTru('BAC', 'NPP')} />
+                <OTruNhom nhan="Cấp 2 · Đại lý" co={coNhomTru('BAC', 'DAI_LY')} doi={() => doiNhomTru('BAC', 'DAI_LY')} />
+                <OTruNhom nhan="Cấp 3 · Giới thiệu" co={coNhomTru('BAC', 'GIOI_THIEU')} doi={() => doiNhomTru('BAC', 'GIOI_THIEU')} />
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Chương trình <b>giảm giá</b> vốn đã không áp cho đối tác có bậc (họ ăn giá bậc).
+                Mấy ô này có nghĩa với chương trình <b>chỉ tặng quà</b> — quà thì đối tác vẫn nhận.
+              </p>
+            </div>
+            {kenh.length > 0 && (
+              <div>
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  Gạch bớt kênh trong số kênh đã chọn ở trên
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {kenh.map((id) => {
+                    const tru = coNhomTru('KENH', String(id))
+                    return (
+                      <button key={id} type="button" onClick={() => doiNhomTru('KENH', String(id))}
+                        className={
+                          'rounded-full px-2 py-0.5 text-xs font-medium ring-1 ' +
+                          (tru ? 'bg-rose-100 text-rose-800 ring-rose-300 line-through' : 'bg-white text-slate-600 ring-slate-300')
+                        }>
+                        {tenKenh(id)}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Bấm để gạch. Tiện khi anh thêm cả cấp 1 rồi muốn bỏ ra vài cấp 2 —
+                  đỡ phải thêm từng kênh một.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <label className={lbl}>Loại trừ TỪNG khách — người cụ thể không được hưởng</label>
           <DanhSachKhach
             ds={khachTru} doi={setKhachTru} mau="tru"
             moTa="Khách bị loại trừ"
@@ -281,16 +360,26 @@ export function CtkmForm({
       </Buoc>
 
       <Buoc so={4} tieuDe="Sản phẩm & mức giảm" phu="Đặt mức chung, hoặc chỉnh riêng từng mã">
+        {chiTangQua && (
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Chương trình <b>chỉ tặng quà</b>: đơn giá giữ nguyên, không giảm đồng nào.
+            Danh sách sản phẩm bên dưới là <b>điều kiện nhận quà</b> — mua mã trong danh
+            sách thì được quà. Để trống = mua gì cũng được quà. Quà khai ở bước 5.
+          </p>
+        )}
         <div className="grid gap-3 sm:grid-cols-3">
           <div><label className={lbl}>Kiểu giảm</label>
             <select className={inp} value={kieu} onChange={(e) => doiKieu(e.target.value as KieuGiam)}>
               <option value="PCT">Giảm theo % — vd giảm 12%</option>
               <option value="TIEN">Giảm số tiền — vd giảm 5.000.000đ</option>
               <option value="CON">Giảm CÒN — chốt giá bán</option>
+              <option value="KHONG">KHÔNG giảm giá — chỉ tặng quà</option>
             </select></div>
-          <div><label className={lbl}>Mức chung {kieu === 'PCT' ? '(%)' : '(₫)'}</label>
-            <input type="number" className={inp} value={mucChung ?? ''} onChange={(e) => setMucChung(e.target.value === '' ? null : Number(e.target.value))} /></div>
-          {kieu === 'PCT' && (
+          {!chiTangQua && (
+            <div><label className={lbl}>Mức chung {kieu === 'PCT' ? '(%)' : '(₫)'}</label>
+              <input type="number" className={inp} value={mucChung ?? ''} onChange={(e) => setMucChung(e.target.value === '' ? null : Number(e.target.value))} /></div>
+          )}
+          {kieu === 'PCT' && !chiTangQua && (
             <div><label className={lbl}>Giảm tối đa (₫)</label>
               <input type="number" className={inp} value={giamToiDa ?? ''} onChange={(e) => setGiamToiDa(e.target.value === '' ? null : Number(e.target.value))} />
               <p className="mt-1 text-xs text-slate-400">Trần cho số tiền giảm</p></div>
@@ -322,7 +411,8 @@ export function CtkmForm({
               <table className="w-full text-left text-sm">
                 <thead className="text-[10px] uppercase tracking-wide text-slate-500">
                   <tr><th className="py-1">Sản phẩm</th><th className="py-1 text-right">Niêm yết</th>
-                    <th className="py-1 text-center">Mức riêng</th><th className="py-1 text-right">Giá sau giảm</th><th /></tr>
+                    {!chiTangQua && <><th className="py-1 text-center">Mức riêng</th><th className="py-1 text-right">Giá sau giảm</th></>}
+                    <th /></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {sp.map((s, i) => {
@@ -335,12 +425,14 @@ export function CtkmForm({
                           <div className="font-mono text-[11px] text-slate-400">{s.internal_code}</div>
                         </td>
                         <td className="py-1.5 text-right tabular-nums text-slate-600">{tien(g)}</td>
-                        <td className="py-1.5 text-center">
-                          <input type="number" className="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
-                            placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
-                            onChange={(e) => setSp((ds) => ds.map((x, j) => j === i ? { ...x, muc: e.target.value === '' ? null : Number(e.target.value) } : x))} />
-                        </td>
-                        <td className="py-1.5 text-right font-semibold tabular-nums text-teal-700">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</td>
+                        {!chiTangQua && <>
+                          <td className="py-1.5 text-center">
+                            <input type="number" className="w-24 rounded border border-slate-300 px-2 py-1 text-right text-sm"
+                              placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
+                              onChange={(e) => setSp((ds) => ds.map((x, j) => j === i ? { ...x, muc: e.target.value === '' ? null : Number(e.target.value) } : x))} />
+                          </td>
+                          <td className="py-1.5 text-right font-semibold tabular-nums text-teal-700">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</td>
+                        </>}
                         <td className="py-1.5 text-right">
                           <button type="button" className="text-slate-400 hover:text-rose-600" onClick={() => setSp((ds) => ds.filter((_, j) => j !== i))}>✕</button>
                         </td>
@@ -396,7 +488,11 @@ export function CtkmForm({
             </div>
           </div>
           {qua.length === 0 ? (
-            <p className="py-3 text-center text-sm text-slate-400">Chương trình này không có quà.</p>
+            <p className={'py-3 text-center text-sm ' + (chiTangQua ? 'text-rose-600' : 'text-slate-400')}>
+              {chiTangQua
+                ? 'Chương trình đang đặt "chỉ tặng quà" mà chưa có món quà nào — nó sẽ không làm gì cả.'
+                : 'Chương trình này không có quà.'}
+            </p>
           ) : (
             <div className="space-y-2">
               {qua.map((q, i) => (
