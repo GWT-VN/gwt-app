@@ -33,6 +33,13 @@ create table if not exists work.cai_dat (
 
 comment on table work.cai_dat is 'Công tắc cấp khu Việc. Hiện có: tu_sinh_bat (bộ quét tự sinh).';
 
+-- RLS bật, KHÔNG policy nào — đúng khuôn 15 bảng work.* còn lại (đo prod 24/08).
+-- Nghĩa là chặn sạch qua PostgREST. App vẫn đọc/ghi bình thường vì chỉ đi qua hàm
+-- `security definer`, mà hàm loại đó chạy dưới quyền chủ bảng nên RLS không chặn.
+-- Bản thân schema `work` cũng đã không cấp USAGE cho anon/authenticated — đây là
+-- lớp thứ hai, cố ý thừa: một ngày nào đó ai lỡ expose schema thì vẫn còn cái này.
+alter table work.cai_dat enable row level security;
+
 insert into work.cai_dat(khoa, bat) values ('tu_sinh_bat', false)
 on conflict (khoa) do nothing;
 
