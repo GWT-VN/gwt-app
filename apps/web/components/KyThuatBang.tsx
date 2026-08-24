@@ -69,7 +69,13 @@ export function KyThuatBang({ dsKt, prefill }: {
   }
   async function toggle(k: KyThuat) {
     setBusy(true); setErr(null)
-    const r = await suaKyThuat(k.id, { ten: k.ten, sdt: k.sdt ?? undefined, vung: k.vung ?? undefined, email: k.email ?? undefined, la_ctv: k.la_ctv, hoat_dong: !k.hoat_dong })
+    // `suaKyThuat` ghi ĐÈ cả hồ sơ, nên phải gửi lại ĐỦ mọi trường — thiếu trường nào là
+    // trường ấy bị xoá trắng. Nút này chỉ định bật/tắt `hoat_dong`; quên `tinh` là mỗi lần
+    // khoá/mở một kỹ thuật lại làm mất tỉnh phụ trách của họ, không ai thấy vì sao.
+    const r = await suaKyThuat(k.id, {
+      ten: k.ten, sdt: k.sdt ?? undefined, vung: k.vung ?? undefined, tinh: k.tinh ?? undefined,
+      email: k.email ?? undefined, la_ctv: k.la_ctv, hoat_dong: !k.hoat_dong,
+    })
     setBusy(false); if (!r.ok) setErr(r.error); else router.refresh()
   }
   async function xoa(k: KyThuat) {
