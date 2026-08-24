@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { traKhachTheoSdt } from '@/lib/tra-khach'
 import type { KetQuaTraKhach } from '@/lib/tra-khach-chung'
 import type { Kenh } from '@/app/actions'
-import { ctkmChoDon, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm, type NhomKhach, type QuaCtkm } from './_ctkm'
+import { ctkmChoDon, gomSpTheoCtkm, type Bac, type BoiCanhGia, type ChinhSachGia, type Ctkm, type NhomKhach, type QuaCtkm } from './_ctkm'
 import { redirect } from 'next/navigation'
 import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
@@ -1077,12 +1077,11 @@ export async function boiCanhGia(
     if (!kenhTheoCtkm.has(id)) kenhTheoCtkm.set(id, [])
     kenhTheoCtkm.get(id)!.push(Number(k.channel_id))
   }
-  const spTheoCtkm = new Map<string, Record<string, number>>()
-  for (const s of ((ctSp.data ?? []) as Array<Record<string, unknown>>)) {
-    const id = s.ctkm_id as string
-    if (!spTheoCtkm.has(id)) spTheoCtkm.set(id, {})
-    spTheoCtkm.get(id)![s.internal_code as string] = Number(s.muc)
-  }
+  // Gom bằng hàm THUẦN `gomSpTheoCtkm()` — xem chú thích ở đó, chỗ này từng đẻ ra
+  // lỗi dán nhãn khuyến mãi lên giá chưa giảm.
+  const spTheoCtkm = gomSpTheoCtkm(
+    (ctSp.data ?? []) as Array<{ ctkm_id: string; internal_code: string; muc: unknown }>
+  )
 
   const quaTheoCtkm = new Map<string, QuaCtkm[]>()
   for (const q of ((ctQua.data ?? []) as Array<Record<string, unknown>>)) {
