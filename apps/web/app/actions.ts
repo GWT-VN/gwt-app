@@ -1329,9 +1329,41 @@ export type KetQuaDo = {
  * Trả về ĐỀ XUẤT dời các lượt sau (lịch 1/8 mà làm 10/8 thì lượt sau nên thành 10/11 chứ không
  * phải 1/11) — nhưng **không tự đổi**: CEO chốt 21/08 là CS phải xác nhận trước.
  */
+/**
+ * Lượt bảo trì `visitId` có nằm trong chuyến của CHÍNH kỹ thuật đang đăng nhập không?
+ *
+ * Nối qua `lich_ky_thuat_viec.ref` (= id lượt bảo trì) → `lich_ky_thuat.ky_thuat_id`.
+ * Không phải kỹ thuật, hoặc lượt không thuộc chuyến nào của mình -> false (hỏng theo
+ * hướng CẤM).
+ */
+async function laChuyenCuaToi(visitId: string): Promise<boolean> {
+  await requireStaff()
+  // Không có nổi quyền xem lịch của chính mình thì chắc chắn không phải kỹ thuật hiện
+  // trường — chặn sớm, và để ma trận NHÌN THẤY hàm này (lưới `cong-quyen.test.ts`).
+  if (!(await coQuyen('cs.ky_thuat.lich_cua_toi', 'NHANVIEN'))) return false
+  const me = await kyThuatCuaToi()
+  if (!me) return false
+  const db = dataClient()
+  const { data: viec } = await db.from('lich_ky_thuat_viec')
+    .select('lich_id').eq('ref', visitId).eq('loai_viec', 'bao_tri')
+  const lichIds = ((viec ?? []) as { lich_id: string }[]).map((v) => v.lich_id)
+  if (!lichIds.length) return false
+  const { data: lich } = await db.from('lich_ky_thuat')
+    .select('id').in('id', lichIds).eq('ky_thuat_id', me.id).limit(1)
+  return ((lich ?? []) as unknown[]).length > 0
+}
+
 export async function ghiKetQuaBaoTri(visitId: string, kq: KetQuaDo): Promise<{ ok: true; deXuat: DoiLichMuc[] } | { ok: false; error: string }> {
   await requireStaff()
-  await doQuyen('cs.bao_tri.ghi_ket_qua')
+  // CS/quản lý ghi được mọi lượt. Kỹ thuật hiện trường KHÔNG có `cs.bao_tri.ghi_ket_qua`
+  // (vai trò `ky_thuat` chỉ giữ 4 quyền), nhưng ghi kết quả đo CHÍNH LÀ việc của họ trên
+  // màn "Lịch của tôi" — nên cho ghi đúng lượt thuộc CHUYẾN CỦA MÌNH. Cùng khuôn với
+  // `datTrangThaiLichKT()`: hỏi quyền trước, thiếu quyền thì xét quyền-sở-hữu.
+  // Trả lỗi chứ không `doQuyen` (đá trang): hàm này gọi từ nút bấm, người dùng cần đọc
+  // được câu từ chối tại chỗ thay vì bị văng khỏi màn đang làm dở.
+  if (!(await coQuyen('cs.bao_tri.ghi_ket_qua', 'NHANVIEN')) && !(await laChuyenCuaToi(visitId))) {
+    return { ok: false, error: KHONG_DU_QUYEN }
+  }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(kq.ngay)) return { ok: false, error: 'Ngày không hợp lệ.' }
   const db = dataClient()
   const num = (x?: number) => (typeof x === 'number' && !Number.isNaN(x) ? x : null)
@@ -2073,8 +2105,14 @@ export type LichKyThuatRow = {
  */
 async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> {
   await requireStaff()
-  await doQuyen('cs.bao_tri.xem')
+  // Rào MỀM, và hỏi ĐÚNG quyền của màn gọi nó. Helper này chỉ phục vụ `lichCuaToi()`
+  // — màn "Lịch của tôi" của kỹ thuật. Bản trước gác `cs.bao_tri.xem` bằng `doQuyen()`,
+  // mà vai trò `ky_thuat` không có quyền ấy ⇒ ĐÁ họ khỏi chính màn của mình, thành vòng
+  // lặp chuyển hướng (đo prod 24/08). Thiếu quyền thì trả map RỖNG: form hiện đủ 4 chỉ
+  // tiêu — đúng nhánh dự phòng vốn có — chứ không bao giờ văng người dùng ra khỏi trang.
+  // ⚠️ Có thêm chỗ gọi từ màn CS thì phải xét lại mã quyền này.
   const out = new Map<string, LoaiMay>()
+  if (!(await coQuyen('cs.ky_thuat.lich_cua_toi', 'NHANVIEN'))) return out
   const ids = [...new Set(visitIds.filter(Boolean))]
   if (!ids.length) return out
   const db = dataClient()
@@ -2115,10 +2153,25 @@ async function phanLoaiVisit(visitIds: string[]): Promise<Map<string, LoaiMay>> 
   return out
 }
 
-/** Lịch kỹ thuật trong khoảng ngày (tuỳ chọn lọc 1 kỹ thuật). */
+/**
+ * Lịch kỹ thuật trong khoảng ngày (tuỳ chọn lọc 1 kỹ thuật).
+ *
+ * 🔴 **Rào theo PHẠM VI, không theo tên hàm.** Bản trước gác cứng `cs.ky_thuat.xep_lich`
+ * — quyền XẾP lịch cho cả đội. Nhưng hàm này còn phục vụ màn *"Lịch của tôi"*, nơi kỹ
+ * thuật viên chỉ ĐỌC chuyến của chính mình. Hậu quả đo được trên prod 24/08: tài khoản
+ * kỹ thuật đăng nhập xong bị `doQuyen` đá về `/`, mà `/` thấy vai trò kỹ thuật lại đá
+ * ngược vào `/ky-thuat/cua-toi` ⇒ **vòng lặp chuyển hướng**, trình duyệt bỏ cuộc và hiện
+ * *"This page isn't working"*. Bảng `nhat_ky_lech_quyen` ghi đúng vết: **75 lượt** trong
+ * 2 phút cho `cs.ky_thuat.xep_lich`, cùng một email.
+ *
+ * Nay: lọc đúng hồ sơ kỹ thuật CỦA MÌNH thì chỉ cần đã qua `cs.ky_thuat.lich_cua_toi`
+ * (đã kiểm bên trong `kyThuatCuaToi()`); xem của người khác hoặc cả đội mới cần `xep_lich`
+ * — **y hệt rào cũ**, không nới cho ai thêm.
+ */
 export async function dsLichKyThuat(tu: string, den: string, kyThuatId?: string): Promise<LichKyThuatRow[]> {
   await requireStaff()
-  await doQuyen('cs.ky_thuat.xep_lich')
+  const cuaChinhMinh = !!kyThuatId && (await kyThuatCuaToi())?.id === kyThuatId
+  if (!cuaChinhMinh) await doQuyen('cs.ky_thuat.xep_lich')
   const db = dataClient()
   let q = db.from('lich_ky_thuat')
     .select('id, ngay, ky_thuat_id, trang_thai, customer_id, dia_chi, tinh, ghi_chu')
