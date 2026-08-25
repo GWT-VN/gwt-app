@@ -107,9 +107,14 @@ language sql stable security definer set search_path = '' as $$
   q as (select '%' || public.khong_dau(btrim(coalesce(p_q,''))) || '%' as k)
   select coalesce(jsonb_agg(to_jsonb(v) order by v.id desc), '[]'::jsonb)
   from (
+    -- `work.task t` phải đứng LIỀN TRƯỚC left join, rồi mới cross join hai CTE.
+    -- Viết `from work.task t, me, q left join …` thì left join chỉ gắn vào `q`,
+    -- và `t` không còn nhìn thấy được trong mệnh đề ON (42P01).
     select t.id, t.ref, t.title, t.status, tm.name as team_name
-    from work.task t, me, q
+    from work.task t
     left join work.team tm on tm.id = t.team_id
+    cross join me
+    cross join q
     where t.id in (select task_id from work.visible_task_ids(me.id))
       and (p_tru_id is null or t.id <> p_tru_id)
       and t.status not in ('done','cancelled')
