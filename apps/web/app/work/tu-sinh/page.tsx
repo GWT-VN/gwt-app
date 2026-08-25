@@ -37,6 +37,7 @@ export default async function TuSinhPage() {
           <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
             <Link href="/work" style={{ color: 'var(--accent-ink)' }}>Việc của tôi</Link>
             <Link href="/work/team" style={{ color: 'var(--accent-ink)' }}>Bảng team</Link>
+            <Link href="/work/lich" style={{ color: 'var(--accent-ink)' }}>Lịch</Link>
             <span style={{ color: 'var(--faint)' }}>Việc tự sinh</span>
           </nav>
           <h1 style={{ fontSize: 20, fontWeight: 670, letterSpacing: '-.02em', margin: 0 }}>Việc tự sinh từ ERP</h1>

@@ -372,6 +372,30 @@ export async function xongTuanNay(): Promise<ViecRow[]> {
 
 export type ViecGoiY = { id: number; ref: string; title: string; status: string; team_name: string | null }
 
+export type ViecLich = {
+  id: number; ref: string; title: string; status: string; priority: number
+  due_at: string
+  /** Ngày đã quy về giờ VN ở DB (`YYYY-MM-DD`) — giao diện xếp thẳng vào ô, không tự suy lại. */
+  ngay: string
+  team_name: string | null; team_color: string | null
+  assignees: NguoiLam[]
+}
+
+export type LichThang = {
+  viec: ViecLich[]
+  /** `YYYY-MM-DD` -> số chuyến kỹ thuật hôm đó. Chỉ đếm, không có chi tiết khách. */
+  tai_ky_thuat: Record<string, number>
+  chua_co_han: number
+  /** Hôm nay theo giờ VN, do DB trả — không tin đồng hồ máy người dùng. */
+  hom_nay: string
+  thang: string
+}
+
+/** Lịch một tháng. `chiToi=false` = mọi việc mình xem được, không chỉ việc của mình. */
+export async function lichThang(thang: string, chiToi = true): Promise<LichThang> {
+  return goi<LichThang>('work_lich_thang', { p_thang: thang, p_chi_toi: chiToi })
+}
+
 /** Tìm việc để chọn làm "việc chặn". Gõ ≥2 ký tự; không dấu cũng khớp. */
 export async function timViec(q: string, truId?: number): Promise<KQ<ViecGoiY[]>> {
   return boc(async () =>

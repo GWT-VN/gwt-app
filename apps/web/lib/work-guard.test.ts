@@ -304,3 +304,57 @@ describe('Ô KPI Xong tuần này', () => {
     ).toBe(true)
   })
 })
+
+// ── Lịch tháng: ngày phải quy đổi ở MỘT chỗ, theo giờ VN ───────────────────
+// DB chạy TimeZone = UTC và `due_at` là timestamptz, nên `due_at::date` cho ra
+// ngày theo UTC — lệch 7 tiếng. Việc hạn 02:00 sáng 13/08 giờ VN sẽ rơi vào ô
+// ngày 12. Danh sách ở /work gom theo giờ địa phương của trình duyệt, nên lịch
+// phải gom theo Asia/Ho_Chi_Minh cho khớp; nếu không, cùng một việc nằm hai ngày
+// khác nhau ở hai màn.
+describe('Lịch tháng — múi giờ quy đổi một chỗ duy nhất', () => {
+  const { readdirSync } = require('node:fs') as typeof import('node:fs')
+  const thuMuc = fileURLToPath(new URL('../../../db/work/migrations', import.meta.url))
+
+  it('RPC gom ngày theo Asia/Ho_Chi_Minh, không dùng due_at::date trần', () => {
+    const src = readFileSync(`${thuMuc}/work_18_lich_thang.sql`, 'utf8')
+    expect(
+      /due_at at time zone 'Asia\/Ho_Chi_Minh'/.test(src),
+      'work_lich_thang phải đổi due_at sang giờ VN trước khi lấy ::date.',
+    ).toBe(true)
+    expect(
+      /[^)]\bt\.due_at::date/.test(src),
+      'không được dùng due_at::date trần — đó là ngày theo UTC.',
+    ).toBe(false)
+  })
+
+  it('giao diện KHÔNG tự suy ngày từ due_at', () => {
+    const src = doc('components/work/LichThang.tsx')
+    expect(
+      /new Date\([^)]*due_at/.test(src),
+      'LichThang không được tự dựng Date từ due_at để lấy ngày — RPC đã trả sẵn ' +
+        '`ngay` theo giờ VN. Suy lại ở client là mở đường cho lệch ngày lần nữa.',
+    ).toBe(false)
+    expect(/v\.ngay/.test(src), 'phải xếp ô theo trường `ngay` do RPC trả').toBe(true)
+  })
+
+  it('bộ quét bảo trì đặt hạn 17:00 GIỜ VN, không phải +17 tiếng từ nửa đêm UTC', () => {
+    // Bản cũ: due_date::timestamptz + interval '17 hours' -> 00:00 giờ VN NGÀY HÔM SAU.
+    const files = readdirSync(thuMuc).filter((f: string) => f.endsWith('.sql')).sort()
+    let than = ''
+    for (const f of files) {
+      for (const doan of readFileSync(`${thuMuc}/${f}`, 'utf8')
+        .split(/(?=create or replace function )/i)) {
+        if (/create or replace function\s+work\.sinh_viec_tu_erp/i.test(doan)) than = doan
+      }
+    }
+    expect(than.length, 'không thấy work.sinh_viec_tu_erp').toBeGreaterThan(200)
+    expect(
+      /interval '17 hours'/.test(than),
+      "bản cuối của sinh_viec_tu_erp vẫn còn `interval '17 hours'` — hạn sẽ lệch một ngày.",
+    ).toBe(false)
+    expect(
+      /time '17:00'\) at time zone 'Asia\/Ho_Chi_Minh'/.test(than),
+      'hạn bảo trì phải là 17:00 giờ VN đúng ngày tới hạn.',
+    ).toBe(true)
+  })
+})

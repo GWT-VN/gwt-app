@@ -24,6 +24,7 @@ export default async function WorkPage() {
           <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
             <span style={{ color: "var(--faint)" }}>Việc của tôi</span>
             <Link href="/work/team" style={{ color: "var(--accent-ink)" }}>Bảng team</Link>
+            <Link href="/work/lich" style={{ color: "var(--accent-ink)" }}>Lịch</Link>
             {thayTuSinh && (
               <Link href="/work/tu-sinh" style={{ color: "var(--accent-ink)" }}>Việc tự sinh</Link>
             )}

@@ -24,6 +24,7 @@ export default async function BangTeamPage() {
           <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
             <Link href="/work" style={{ color: "var(--accent-ink)" }}>Việc của tôi</Link>
             <span style={{ color: "var(--faint)" }}>Bảng team</span>
+            <Link href="/work/lich" style={{ color: "var(--accent-ink)" }}>Lịch</Link>
             {thayTuSinh && (
               <Link href="/work/tu-sinh" style={{ color: "var(--accent-ink)" }}>Việc tự sinh</Link>
             )}
