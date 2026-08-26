@@ -21,7 +21,10 @@ NHAN="vn.gwt.kiemdem"
 PLIST="$HOME/Library/LaunchAgents/$NHAN.plist"
 CHUNG="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && git rev-parse --git-common-dir)"
 GOC="$(cd "$(dirname "$CHUNG")" && pwd)"
-SCRIPT="$GOC/tools/kiem_dem.py"
+SCRIPT="$GOC/tools/kiem_dem.py"          # bản trong KHO CHÍNH — cái mà lịch sẽ gọi
+# Bản nằm cạnh chính file này. Khi chạy từ worktree lúc nhánh chưa merge, đây là bản
+# DUY NHẤT tồn tại — `--chay` phải dùng nó, nếu không nó đi tìm file chưa có ở kho chính.
+SCRIPT_CANH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/kiem_dem.py"
 PY=/usr/bin/python3
 LOG="$HOME/gwt-worktrees/_kiem_dem.log"
 
@@ -32,8 +35,14 @@ case "${1:-}" in
     echo "✅ Đã gỡ lịch kiểm đêm."
     exit 0 ;;
   --chay)
-    echo "Chạy một lượt ngay bây giờ…"
-    exec "$PY" "$SCRIPT" ;;
+    # Ưu tiên bản cạnh mình: chạy thử thì phải chạy đúng CODE ĐANG SỬA, không phải
+    # bản cũ ở kho chính.
+    CHAY="$SCRIPT_CANH"; [ -f "$CHAY" ] || CHAY="$SCRIPT"
+    if [ ! -f "$CHAY" ]; then
+      echo "⛔ Không tìm thấy kiem_dem.py, cả ở đây lẫn ở kho chính."; exit 1
+    fi
+    echo "Chạy một lượt ngay bây giờ… ($CHAY)"
+    exec "$PY" "$CHAY" ;;
 esac
 
 GIO="${1:-23}"

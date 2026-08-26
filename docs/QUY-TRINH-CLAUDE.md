@@ -154,43 +154,60 @@ Ghi lại vì cả ba đều thuộc loại "chạy trót lọt mà không làm 
 
 ---
 
-## 7. Chưa làm — hai việc chờ CEO quyết
+## 7. Ba quyết định đã chốt (26/08/2026)
 
-### 7.1 `@claude` trên GitHub Actions
+### 7.1 Pull Request — ✅ đang dùng
 
-Cho phép nhắc `@claude` ngay trong một Pull Request hoặc Issue trên GitHub; Claude
-chạy **trên máy chủ GitHub** (không phải máy CEO), tự sửa code rồi commit vào nhánh đó.
+Từ 26/08 mọi việc vào `main` qua PR, không commit thẳng nữa. `/xong` tự mở PR.
+PR đầu tiên của repo: [#1](https://github.com/GWT-VN/gwt-app/pull/1).
 
-Muốn dùng phải có ba thứ, và mỗi thứ là một quyết định:
+### 7.2 `@claude` trên GitHub Actions — ⏸️ để dành
 
-1. **Bắt đầu dùng Pull Request.** Hiện repo commit thẳng vào `main` — 30 commit gần
-   nhất, 0 PR. Không có PR thì không có chỗ để nhắc `@claude`.
-2. **Đặt khoá API Anthropic vào GitHub Secrets.** Tốn tiền theo lượt chạy, và ai có
-   quyền ghi vào repo là kích hoạt được.
-3. **Chốt phạm vi.** Repo này cắm vào DB production có PII khách thật. Tối thiểu phải
-   chặn: không đọc `.env*`, không chạy migration, không gọi Supabase MCP prod.
+Nhắc `@claude` trong một PR, Claude chạy **trên máy chủ GitHub** rồi commit vào nhánh đó.
 
-Đề nghị: nếu làm thì bắt đầu hẹp — chỉ cho `@claude` **sửa test và tài liệu**, không
-cho đụng `apps/web/app/**` và `db/**`. Nới dần sau.
+**Không làm bây giờ.** Nó cần API trả theo lượt (tách khỏi gói subscription), và chỉ mua thêm
+đúng hai thứ mà GWT chưa đau: bấm việc từ điện thoại, và người khác kích hoạt Claude mà không
+cần máy CEO. Phần cộng tác thì PR ở 7.1 đã cho không.
 
-### 7.2 Đưa Claude vào chính sản phẩm
-
-Hiện GWT-App có 268 file TS, 40k dòng, **0 dòng gọi Anthropic API**. Nghĩa là ta *dùng*
-Claude để viết app, nhưng app không có tính năng AI nào cho nhân viên.
-
-Ba ứng viên, xếp theo mức đau thật của công ty:
-
-| Việc | Dùng năng lực gì | Ghi chú |
+| Model | Một lượt sửa PR | 3 lượt/ngày |
 |---|---|---|
-| **Gộp khách trùng** (Sales đang có 826 dòng `customers`, 127 mối nối CSKH trỏ hồ sơ chết) | LLM so khớp thực thể: "Nguyễn Văn A / 0901…" vs "NGUYEN VAN A / 84901…" | Đau nhất hiện nay. **Phải che PII trước khi gửi đi** |
-| **Phân nhóm lỗi ticket** | phân loại văn bản | đã có `bao_cao_nhom_loi.py` làm bằng regex; LLM xử được ca regex chịu thua |
-| **Hỏi dữ liệu bằng tiếng Việt** ("tháng này khách nào quá hạn bảo trì") | sinh SQL + chạy code | Claude viết SQL, app chạy trên view chỉ-đọc |
+| Opus 5 | ~1–3 $ | ~100–200 $/tháng |
+| Sonnet 5 | ~0,5–1,2 $ | ~45–90 $/tháng |
 
-⚠️ **Chốt chặn bắt buộc:** gửi SĐT/địa chỉ/tên khách sang API là **đưa dữ liệu khách ra
-ngoài công ty**. Trước khi viết dòng code nào, CEO phải quyết: che PII trước khi gửi,
-hay chấp nhận gửi thật. Không tự quyết thay.
+Xét lại khi có dev thứ hai.
 
----
+### 7.3 Đưa Claude vào sản phẩm — ✅ làm, bắt đầu từ gộp khách trùng
+
+**Gói subscription không chạy được sản phẩm.** Pro/Max là cho một người dùng Claude trực tiếp;
+app phục vụ nhân viên phải dùng API, hoá đơn riêng.
+
+Chi phí thật ở khối lượng của GWT — **cả ba dưới 10 $/tháng**, nên chi phí *không* phải lý do
+để chọn model:
+
+| Tính năng | Khối lượng | Haiku 4.5 | Sonnet 5 | Trạng thái |
+|---|---|---|---|---|
+| Gộp khách trùng | ~300 cặp, chạy từng đợt | ~0,24 $ | ~0,48 $ | **làm trước** |
+| Phân nhóm lỗi ticket | ~600 ticket/tháng | ~0,9 $/th | ~1,9 $/th | quyết sau |
+| Hỏi dữ liệu bằng tiếng Việt | ~40 câu/ngày | — | ~5 $/th | quyết sau |
+
+Chọn model theo chất lượng tiếng Việt và theo **giá của một lần sai**, không theo giá token.
+Gộp nhầm hai khách thật là hỏng dữ liệu ⇒ dùng model mạnh cho việc này.
+
+**Ba luật bắt buộc cho mọi tính năng AI trong sản phẩm:**
+
+1. **LLM chỉ được đề xuất; người bấm nút mới được ghi.** Không cho nó tự `update`/`merge`
+   vào `customers`. (24/08/2026: một nút tự đánh số lại toàn bộ mã khách, `customers` phình
+   398→826 dòng, 127 mối nối CSKH trỏ hồ sơ chết.)
+2. **Che PII trước khi gửi.** Chuẩn hoá SĐT bằng SQL rồi chỉ gửi 3 số cuối hoặc mã băm —
+   đủ để biết hai số có trùng không mà không đưa số thật ra ngoài. Địa chỉ: gửi tỉnh, bỏ số nhà.
+3. **Ghi lại mọi lượt gọi** (đầu vào đã che, đầu ra, người duyệt) để còn truy được khi sai.
+
+> ⚠️ Vì sao luật 2 quan trọng: một dev thỉnh thoảng nhìn dữ liệu là chuyện nội bộ. Một tính năng
+> gửi dữ liệu khách đi **đều đặn, hàng loạt, vĩnh viễn** thì thành hoạt động *chuyển dữ liệu cá
+> nhân ra nước ngoài* — Nghị định 13/2023/NĐ-CP có yêu cầu về thông báo, đồng ý và hồ sơ đánh giá
+> tác động. Cần luật sư xác nhận, đây không phải ý kiến pháp lý.
+>
+> Về phía nhà cung cấp thì không phải vấn đề: Anthropic không dùng dữ liệu API để huấn luyện model.
 
 ## 8. Có gì ở đâu
 
