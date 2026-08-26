@@ -40,7 +40,28 @@ GIO="${1:-23}"
 if ! [ "$GIO" -ge 0 ] 2>/dev/null || [ "$GIO" -gt 23 ]; then
   echo "Giờ không hợp lệ: $GIO (phải 0–23)"; exit 1
 fi
-[ -f "$SCRIPT" ] || { echo "Không thấy $SCRIPT"; exit 1; }
+# Lịch phải trỏ vào KHO CHÍNH, không phải worktree — worktree bị xoá là lịch gãy.
+# Nhưng lúc nhánh chưa merge thì kho chính chưa có file, và thông báo "không thấy file"
+# trần trụi khiến người chạy tưởng script hỏng. Nói rõ vì sao và phải làm gì.
+if [ ! -f "$SCRIPT" ]; then
+  NHANH_DANG_O="$(git -C "$(dirname "${BASH_SOURCE[0]}")" branch --show-current 2>/dev/null)"
+  echo "⛔ Chưa cài được lịch."
+  echo
+  echo "   Lịch chạy phải trỏ vào KHO CHÍNH:"
+  echo "     $GOC"
+  echo "   (không trỏ vào worktree — worktree xoá đi là lịch gãy)."
+  echo
+  if [ -f "$(dirname "${BASH_SOURCE[0]}")/kiem_dem.py" ]; then
+    echo "   Kho chính chưa có tools/kiem_dem.py vì nó còn nằm trên nhánh"
+    echo "   '${NHANH_DANG_O:-<nhánh hiện tại>}', chưa merge vào main."
+    echo
+    echo "   → Merge nhánh đó vào main rồi chạy lại đúng lệnh này."
+    echo "     Muốn chạy thử ngay mà chưa merge:  bash tools/cai-lich-kiem-dem.sh --chay"
+  else
+    echo "   Không tìm thấy tools/kiem_dem.py ở đâu cả — kiểm tra lại repo."
+  fi
+  exit 1
+fi
 command -v claude >/dev/null || echo "⚠️  Không thấy lệnh 'claude' trên PATH — job sẽ chạy được phần đo bằng code, nhưng bỏ phần đối chiếu backlog."
 
 mkdir -p "$HOME/Library/LaunchAgents" "$(dirname "$LOG")"
