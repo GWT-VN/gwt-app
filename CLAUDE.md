@@ -6,6 +6,17 @@ chung 1 Postgres. Trước 19/08/2026 repo này tên `customer-support` và ch�
 > 📄 **Phiên/dev mới: đọc [`HANDOFF.md`](HANDOFF.md) trước** — bàn giao toàn app: module, route,
 > phân quyền, DB, **bản đồ nhánh + worktree**, việc đang mở, bẫy đã trả giá.
 
+## Lệnh tắt — dùng thay vì nhớ thuộc file này
+
+| Gõ | Thay cho |
+|---|---|
+| `/giao-viec <khu> <việc>` | toàn bộ mục "worktree · nhánh · cổng" bên dưới |
+| `/xong` | toàn bộ mục "Quy trình giao việc" ở cuối file |
+| `/doi-chieu-db` | mục "đối chiếu migration local vs production" |
+
+Có hai hook tự chạy: sửa file `.ts` là soát kiểu ngay; `pkill next dev` bị **chặn**,
+`git add -A` bị **hỏi lại**. Cách vận hành đầy đủ: [`docs/QUY-TRINH-CLAUDE.md`](docs/QUY-TRINH-CLAUDE.md).
+
 ## ⚠️ ĐỌC ĐẦU TIÊN — mỗi phiên Claude một worktree riêng
 
 Repo này thường có **nhiều phiên Claude chạy song song**. Hai phiên cùng mở một thư
