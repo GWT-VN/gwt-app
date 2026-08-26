@@ -108,11 +108,27 @@ hay tích hợp chéo module — đọc nguồn sự thật chung:
 
 ## Toolchain Claude (bắt buộc)
 
-Chuẩn chung mọi module: **Superpowers** (skill) + **CodeGraph** (index code) —
-luật đầy đủ: `../GWT-SHARED/TOOLCHAIN-CLAUDE.md`.
+Chuẩn chung mọi module: **Superpowers** + **Matt Pocock Skills** (skill) + **CodeGraph** (index code) —
+luật đầy đủ + **bảng chọn skill**: `../GWT-SHARED/TOOLCHAIN-CLAUDE.md` (§4 bảng, §4a khi hai bộ trùng).
+
 - Repo này CÓ `.codegraph/` → hỏi code bằng `codegraph explore "<câu hỏi>"` (hoặc MCP `codegraph_explore`) **TRƯỚC** khi grep/đọc file.
-- Việc nhiều bước → skill `writing-plans` → `executing-plans`; tính năng mới → `test-driven-development`;
+- Việc nhiều bước → `writing-plans` → `executing-plans`; tính năng mới → `test-driven-development`;
   bug → `systematic-debugging`; trước khi báo xong → `verification-before-completion`.
+- Bug **chập chờn / chậm dần / không tái hiện được** → `diagnosing-bugs` (không phải `systematic-debugging`).
+- **Xung đột merge** → `resolving-merge-conflicts`. Repo này nhiều nhánh song song đổ về `main`, dùng thường xuyên.
+- **Hết context, bàn giao sang phiên khác** → `handoff` (nó ghi ra thư mục tạm của máy, không rác vào repo).
+  Khác với `HANDOFF.md` trong git: file đó là bàn giao **toàn app, dài hạn**; `handoff` là bàn giao **một phiên**.
+
+### Skill cần biết ngữ cảnh repo thì đọc hai file này
+
+| File | Trả lời câu gì |
+|---|---|
+| [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md) | "Ticket / spec ở đâu?" → hệ `BACKLOG.md` + `backlog/<khu>.md`, **không phải GitHub Issues** |
+| [`docs/agents/domain.md`](docs/agents/domain.md) | "Đọc gì trước khi đụng code?" → `SYSTEM.md`, `HANDOFF.md`, `docs/<khu>/` |
+
+⛔ **Không gọi** `to-spec` / `to-tickets` / `triage` / `wayfinder` / `setup-matt-pocock-skills`.
+Bốn cái đầu sinh ticket vào một issue tracker → đẻ hàng đợi thứ hai song song với `BACKLOG.md`.
+Cái cuối ghi đè cấu hình đã chốt sẵn ở `docs/agents/`. Lý do đầy đủ: `TOOLCHAIN-CLAUDE.md` §4c.
 
 ## Chạy / kiểm tra
 
