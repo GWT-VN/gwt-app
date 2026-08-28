@@ -4,7 +4,8 @@ import { CatBadge, Chips, Field, MetricGrid } from "@/components/marketing/Detai
 import Highlights from "@/components/marketing/Highlights";
 import TranscriptView from "@/components/marketing/TranscriptView";
 import { cat5a, platformLabel } from "@/lib/marketing/format";
-import { getAnalysis } from "@/lib/marketing/supabase-mkt";
+import DataError from "@/components/marketing/DataError";
+import { getAnalysis, SupabaseConfigError } from "@/lib/marketing/supabase-mkt";
 import { extractFrom, ts } from "@/lib/marketing/transcript";
 import { Icon } from "@/lib/marketing/icons";
 
@@ -19,7 +20,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const n = Number(id);
   if (!Number.isInteger(n)) notFound();
 
-  const row = await getAnalysis(n);
+  // Thiếu biến MKT_* (vd chưa set trên Vercel) thì báo tử tế, đừng ném 500 trắng trang.
+  let row;
+  try {
+    row = await getAnalysis(n);
+  } catch (e) {
+    if (e instanceof SupabaseConfigError) return <ConfigLoi error={e} />;
+    throw e;
+  }
   if (!row) notFound();
 
   const extract = extractFrom(row.transcript);
@@ -116,6 +124,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </div>
 
       <TranscriptView raw={row.transcript} />
+    </section>
+  );
+}
+
+function ConfigLoi({ error }: { error: unknown }) {
+  return (
+    <section className="view">
+      <div className="page-head">
+        <div className="eyebrow">Phân tích video</div>
+        <h1>Không mở được video này</h1>
+      </div>
+      <DataError error={error} />
     </section>
   );
 }

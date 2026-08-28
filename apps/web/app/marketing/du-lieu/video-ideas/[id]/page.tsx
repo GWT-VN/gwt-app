@@ -5,7 +5,8 @@ import Highlights from "@/components/marketing/Highlights";
 import TranscriptView from "@/components/marketing/TranscriptView";
 import { fmt, platformLabel } from "@/lib/marketing/format";
 import { Icon } from "@/lib/marketing/icons";
-import { getIdea } from "@/lib/marketing/supabase-mkt";
+import DataError from "@/components/marketing/DataError";
+import { getIdea, SupabaseConfigError } from "@/lib/marketing/supabase-mkt";
 import { extractFrom, ts } from "@/lib/marketing/transcript";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -16,7 +17,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const row = await getIdea(id);
+  let row;
+  try {
+    row = await getIdea(id);
+  } catch (e) {
+    if (e instanceof SupabaseConfigError) return <ConfigLoi error={e} />;
+    throw e;
+  }
   if (!row) notFound();
 
   const extract = extractFrom(row.transcript);
@@ -150,6 +157,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </div>
 
       <TranscriptView raw={row.transcript} />
+    </section>
+  );
+}
+
+function ConfigLoi({ error }: { error: unknown }) {
+  return (
+    <section className="view">
+      <div className="page-head">
+        <div className="eyebrow">Video Ideas</div>
+        <h1>Không mở được ý tưởng này</h1>
+      </div>
+      <DataError error={error} />
     </section>
   );
 }
