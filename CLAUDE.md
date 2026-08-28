@@ -81,6 +81,15 @@ một bản chạy thử riêng (~0,8–1,5 GB lúc biên dịch).
 - Worktree đã merge → `bash tools/wt.sh xong <nhánh>` và xoá `.next` + `node_modules`
   (~1 GB mỗi worktree).
 
+## Wiki nội bộ — cập nhật nội dung
+
+CEO thả file gốc vào `data/wiki-nhap/<khu>/` (gitignore chặn — file có PII để đó là an toàn)
+rồi nhắn *"đưa lên wiki"*. Quy trình đầy đủ: [`docs/wiki-cap-nhat.md`](docs/wiki-cap-nhat.md).
+
+Luật dễ sai nhất: **nội dung về sản phẩm luôn về khu Sản phẩm**, kể cả khi nó phục vụ
+marketing — góc marketing của một máy đã có chỗ riêng là Phần 7 trong PKB của máy đó. Để
+tài liệu sản phẩm ở khu Marketing là đẻ ra bản sự thật thứ hai.
+
 ## Cấu trúc
 
 ```

@@ -18,6 +18,10 @@ tiếp Phần 2 → 3 → 5 → 6 → 7 → 9 (xem mục 0.5 trong chính file P
 **xuyên phần**, nên tách ra 10 file chỉ tổ làm hỏng tham chiếu chéo và đẻ ra 10 chỗ để
 quên. App **tự tách** lúc build — người viết vẫn chỉ sửa một file.
 
+> 📘 CEO muốn biết **quy trình cập nhật wiki nói chung** (thả file gốc ở đâu, khu nào chứa
+> gì) thì đọc [`docs/wiki-cap-nhat.md`](../../../../../docs/wiki-cap-nhat.md). File này chỉ
+> nói về **khuôn kỹ thuật** của PKB.
+
 ## Thêm một sản phẩm mới
 
 ```bash
