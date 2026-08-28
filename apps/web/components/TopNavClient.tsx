@@ -42,6 +42,8 @@ const ICON = {
   check: <path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />,
   headset: <path d="M4 13a8 8 0 0 1 16 0M4 13v4a2 2 0 0 0 2 2h1v-6H6a2 2 0 0 0-2 2Zm16 0v4a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2Z" />,
   cart: <path d="M2.5 3.5h2l2.2 11a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L20 7H6M9 20.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm9 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />,
+  // khu Marketing — cuộn phim (video là sản phẩm chính của khu này)
+  phim: <path d="M3 5.5h18v13H3zM7 5.5v13M17 5.5v13M3 9.5h4M17 9.5h4M3 14.5h4M17 14.5h4" />,
 } as const
 function Ic({ name, cls = 'w-4 h-4' }: { name: keyof typeof ICON; cls?: string }) {
   return <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">{ICON[name]}</svg>
@@ -132,7 +134,7 @@ export function TopNavClient({
     { nhan: 'CSKH', mau: '#b5642a', href: '/', live: coTheVaoCS, icon: 'headset' },
     { nhan: 'Sales', mau: '#2f7d8a', href: '/sales', live: coTheVaoSales, icon: 'cart' }, { nhan: 'Kho', mau: '#5560c9', live: false },
     { nhan: 'Nhân sự', mau: '#b0518f', live: false }, { nhan: 'Kế toán', mau: '#3f8a6a', live: false },
-    { nhan: 'Marketing', mau: '#8a52b8', live: false },
+    { nhan: 'Marketing', mau: '#8a52b8', href: '/marketing', live: true, icon: 'phim' },
   ]
 
   const toggle = (k: string) => setMoOpen((v) => (v === k ? null : k))
