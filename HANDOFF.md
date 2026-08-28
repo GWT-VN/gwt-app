@@ -14,7 +14,7 @@
 
 | | |
 |---|---|
-| Đường dẫn | `…/GWT - Claude/GWT-App` (trong **iCloud Drive** — xem bẫy §11) |
+| Đường dẫn | `~/gwt/GWT-App` — **ngoài iCloud từ 28/08/2026** (trước ở `…/GWT - Claude/GWT-App`; xem bẫy §11) |
 | Nhánh đang đứng | **`main`** — và phải luôn là `main`. Thư mục này **chỉ để ĐỌC**, không code, không commit (dọn về `main` ngày 21/08) |
 | Muốn sửa code | `bash tools/wt.sh ds` → `bash tools/wt.sh moi <nhánh>` → làm ở `~/gwt-worktrees/<tên>`. Luật đầy đủ ở `CLAUDE.md` §*Nhánh · cổng · sao lưu* |
 | Chưa commit | không có — giữ nguyên như vậy |
@@ -353,8 +353,17 @@ không tự làm · Làm xong → chuyển `⏳ CHỜ TÔI CHECK`, ghi rõ **xem
   hỏng cho nhân viên dùng.
 - **`revalidatePath('/')`** sau thao tác nặng bắt server dựng lại cả bảng vài nghìn máy → UI treo
   "Đang xử lý…" dù DB đã xong. Revalidate đúng đường dẫn hẹp.
-- **iCloud**: repo nằm trong iCloud Drive → đẻ file nhân bản `* 2.*` và có thể gây `npm EPERM: uv_cwd`.
-  Worktree để **ngoài** iCloud (`~/gwt-worktrees/`). Chuyển hẳn repo ra ngoài iCloud đang chờ CEO quyết.
+- **iCloud**: repo **đã chuyển hẳn ra ngoài iCloud 28/08/2026** → `~/gwt/GWT-App` (CEO chốt).
+  Trước đó nằm trong iCloud Drive → đẻ file nhân bản `* 2.*` và có thể gây `npm EPERM: uv_cwd`.
+  Worktree vẫn ở `~/gwt-worktrees/`. `GWT-SHARED` **còn trong iCloud**, nối bằng symlink
+  `~/gwt/GWT-SHARED`, nên `../GWT-SHARED/...` vẫn chạy — **đừng thay symlink bằng thư mục thật**
+  (repo `Sales Tracking` + `GWT Marketing Kit` còn đọc bản trong iCloud).
+  Hai bẫy đã trả giá khi chuyển: `mv` ra khỏi iCloud là **chép thật, không phải đổi tên**
+  (28 000 file treo quá 2 phút — xoá `node_modules` + `.next` trước còn 6 294 file, xong ~1 phút);
+  và `rsync` bản macOS **không có** `--info=stats2` — nó in usage rồi thoát, **chép 0 file** mà
+  mã thoát vẫn nhìn như bình thường. Dùng `ditto`.
+  Sau khi chuyển phải: `git worktree repair ~/gwt-worktrees/*/` rồi cài lại lịch sao lưu từ
+  đường dẫn mới (`bash tools/cai-lich-saoluu.sh`) và nghiệm thu bằng `--kiem`.
   🚨 **ĐỪNG xoá hàng loạt theo tên `* 2.*` — phần lớn KHÔNG phải rác.** Đo 21/08: repo có **17** file
   tên `* 2.*`, **chỉ 4 là rác thật** (`.codegraph/codegraph 2.db`, `.db-wal`, `.db-shm`, `daemon 2.pid`
   — di sản daemon v1.4.1 chết từ 29/07; **đã dọn 21/08**, CodeGraph vẫn chạy bình thường sau khi dọn).

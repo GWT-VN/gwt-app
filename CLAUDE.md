@@ -13,7 +13,7 @@ mục là giẫm chân nhau: phiên A `git checkout` sang nhánh khác trong lú
 sửa dở, commit của B rơi vào nhánh của A, `git add -A` quét luôn file dang dở của
 nhau. **19/08/2026 đã suýt commit SĐT khách thật vì đúng chuyện này** (git hook chặn kịp).
 
-**Luật:** thư mục gốc `GWT-App/` chỉ đứng ở `main` để đọc. Muốn sửa code → worktree riêng.
+**Luật:** thư mục gốc `~/gwt/GWT-App` chỉ đứng ở `main` để đọc. Muốn sửa code → worktree riêng.
 
 ```bash
 bash tools/wt.sh ds                  # xem phiên khác đang giữ worktree nào — CHẠY TRƯỚC KHI LÀM GÌ
@@ -25,6 +25,12 @@ bash tools/wt.sh xong feat/<viec>    # gỡ khi đã merge
 Vẫn chung một kho git: nhánh, commit, remote dùng chung, chỉ tách thư mục làm việc.
 Worktree đặt ở `~/gwt-worktrees/` — **ngoài iCloud**, vì iCloud sync sinh file trùng
 kiểu `TopNav 2.tsx` và làm chậm build.
+
+**28/08/2026 kho gốc cũng đã ra khỏi iCloud** → `~/gwt/GWT-App` (trước ở
+`…/CloudDocs/GWT - Claude/GWT-App`). `~/gwt/GWT-SHARED` là **symlink** trỏ về bản
+GWT-SHARED **vẫn nằm trong iCloud** — vì repo `Sales Tracking` và `GWT Marketing Kit`
+còn đọc bản đó. Nhờ symlink, mọi `../GWT-SHARED/...` trong tài liệu giữ nguyên, không
+phải sửa. **Đừng thay symlink này bằng thư mục thật.**
 
 Nếu buộc phải làm ngay trong thư mục gốc: chạy `bash tools/wt.sh ds` trước, thấy có
 worktree của người khác thì `git status` + `git branch --show-current` để biết mình
