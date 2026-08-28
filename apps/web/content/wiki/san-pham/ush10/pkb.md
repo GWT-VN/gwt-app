@@ -2563,7 +2563,7 @@ Xếp theo **độ an toàn pháp lý** (cao xuống thấp):
 | **BR** | Brochure VN | D |
 | **MD** | Master Data GWT / nội dung chatbot | D |
 | **S14** | **Xác nhận trực tiếp từ GWT (chủ sở hữu sản phẩm) — 28/08/2026.** Chốt cách đọc ngưỡng lõi màng và số hiệu TÜV | **A** *(quyết định của chủ sở hữu)* |
-| **S15** | **Certipedia — cơ sở dữ liệu chứng chỉ công khai của TÜV Rheinland**, tra ngày 28/08/2026: `certipedia.com/quality_marks/<ID>` | **A** *(nguồn gốc, tra lại được bất cứ lúc nào)* |
+| **S15** | **Certipedia — cơ sở dữ liệu chứng chỉ công khai của TÜV Rheinland**, tra ngày 28/08/2026: `certipedia.com/quality_marks/{ID}` | **A** *(nguồn gốc, tra lại được bất cứ lúc nào)* |
 
 ---
 

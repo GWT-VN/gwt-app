@@ -35,11 +35,25 @@ App **tự tách** `pkb.md` bằng các mốc dưới đây. Sai khuôn thì ph�
 | Thứ | Khuôn bắt buộc | App dùng để làm gì |
 |---|---|---|
 | Ranh giới phần | Dòng `# PHẦN <N> — <TÊN>` ở đầu dòng (N = 0…9) | Cắt thành 10 trang riêng |
-| Neo phần | `<a id="p<N>"></a>` ngay trên dòng tiêu đề | Giữ link cũ trong file chạy được |
 | Bảng dữ kiện | Bảng markdown trong **Phần 1**, cột đầu là mã ` \`F-xxx\` ` | Bóc thành dữ liệu để trang **Tra cứu** lọc được |
 | Nhóm dữ kiện | Dòng `## <CHỮ>. <TÊN NHÓM>` trong Phần 1 (A…M) | Nhóm trong trang Tra cứu |
 | Nhãn công bố | 🟢 🟡 🔵 🔴 trong ô "Công bố" | Tô màu + lọc theo quyền công bố |
 | Hạng tin cậy | A · B · C · D · E · X trong ô "Hạng" | Lọc theo độ tin cậy |
+
+### HTML thô — cứ viết bình thường, script tự dọn
+
+Trình render **không hiểu HTML thô**, để nguyên là nó in `<a id="q26"></a>` lù lù ra giữa
+trang. Nên script dọn sẵn trước khi giao cho web — viết PKB cứ viết như thường:
+
+| Bạn viết trong `pkb.md` | Trên web thành |
+|---|---|
+| `<a id="q26"></a>` đặt trên một tiêu đề | Bị gỡ; link `](#q26)` tự đổi sang slug của tiêu đề đó, bấm vẫn nhảy đúng |
+| `<a id="x"></a>` không có tiêu đề theo sau | Bị gỡ; link trỏ tới nó thành chữ thường (bỏ link, giữ chữ) |
+| `<br>` trong ô bảng | Đổi thành ` · ` (markdown không xuống dòng được trong ô bảng) |
+
+⚠️ Slug tiêu đề do `slugTieuDe()` sinh ra, và hàm này có **hai bản phải khớp nhau**:
+`tools/scripts/sync-wiki-sanpham.mjs` và `components/marketing/Markdown.tsx`. Sửa một bên
+mà quên bên kia là mọi link mục lục trỏ vào hư không — có test chốt ở `lib/wiki/wiki.test.ts`.
 
 10 Phần chuẩn — **giữ nguyên số và thứ tự**, máy nào chưa có nội dung thì để phần đó
 trống kèm một dòng ghi rõ *"chưa có dữ liệu"*:

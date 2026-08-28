@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { SAN_PHAM } from "./data/san-pham";
 import { CONG_BO, NHOM, phanCuaNhom, type SanPham } from "./kieu";
-import { NHANH, crumbFor, navCuaNhanh, navSanPham, nhanhCua } from "./nav";
+import { KHU, crumbFor, khuCua, navCuaKhu, navSanPham } from "./nav";
+import { slugTieuDe } from "../../components/marketing/Markdown";
 
 const ush10 = SAN_PHAM.find((s) => s.ma === "ush10") as SanPham;
 
@@ -97,24 +98,38 @@ describe("chia nhóm thông tin theo người đọc", () => {
   });
 });
 
-describe("điều hướng khu Wiki", () => {
-  it("nhận đúng nhánh từ đường dẫn", () => {
-    expect(nhanhCua("/wiki")).toBeNull();
-    expect(nhanhCua("/wiki/marketing")).toBe("marketing");
-    expect(nhanhCua("/wiki/marketing/luat/ad-compliance-vn")).toBe("marketing");
-    expect(nhanhCua("/wiki/san-pham")).toBe("san-pham");
-    expect(nhanhCua("/wiki/san-pham/ush10/tra-cuu")).toBe("san-pham");
+describe("điều hướng wiki", () => {
+  it("nhận đúng khu từ đường dẫn", () => {
+    expect(khuCua("/wiki")).toBeNull();
+    expect(khuCua("/wiki/marketing")?.ma).toBe("marketing");
+    expect(khuCua("/wiki/marketing/luat/ad-compliance-vn")?.ma).toBe("marketing");
+    expect(khuCua("/wiki/san-pham")?.ma).toBe("san-pham");
+    expect(khuCua("/wiki/san-pham/ush10/tra-cuu")?.ma).toBe("san-pham");
+  });
+
+  it("khu chưa có nội dung thì KHÔNG có href — không dựng link chết", () => {
+    for (const k of KHU) {
+      if (k.trangThai === "chua-co") expect(k.href, k.ma).toBeUndefined();
+      else expect(k.href, k.ma).toBeTruthy();
+    }
+    // Phải còn chỗ cho các phòng ban khác, không chỉ 2 khu.
+    expect(KHU.length).toBeGreaterThan(2);
+    expect(KHU.map((k) => k.ma)).toContain("cskh");
+  });
+
+  it("mã khu không trùng nhau", () => {
+    expect(new Set(KHU.map((k) => k.ma)).size).toBe(KHU.length);
   });
 
   it("mọi href trong nav đều nằm dưới /wiki", () => {
-    for (const nhanh of NHANH) {
-      for (const g of navCuaNhanh(nhanh.ma)) {
+    for (const k of KHU) {
+      for (const g of navCuaKhu(k)) {
         for (const i of g.items) expect(i.href.startsWith("/wiki/"), i.href).toBe(true);
       }
     }
   });
 
-  it("nav nhánh Sản phẩm có mỗi máy một nhóm, kèm Tổng quan và Tra cứu", () => {
+  it("nav khu Sản phẩm có mỗi máy một nhóm, kèm Tổng quan và Tra cứu", () => {
     const nav = navSanPham();
     expect(nav).toHaveLength(SAN_PHAM.length);
     const nhan = nav[0].items.map((i) => i.label);
@@ -122,10 +137,50 @@ describe("điều hướng khu Wiki", () => {
     expect(nhan).toContain("Tra cứu dữ kiện");
   });
 
-  it("breadcrumb khớp đường dài nhất, và trang gốc nhánh không nuốt trang con", () => {
+  it("breadcrumb khớp đường dài nhất, và trang gốc khu không nuốt trang con", () => {
     expect(crumbFor("/wiki/san-pham/ush10/tra-cuu")).toBe("Tra cứu dữ kiện");
     expect(crumbFor("/wiki/san-pham/ush10")).toBe("Tổng quan");
     // `/wiki/marketing` là gốc nhánh — không được thành breadcrumb của mọi trang con.
     expect(crumbFor("/wiki/marketing/kho-case")).toBe("Kho case WIN / FAIL");
+  });
+});
+
+describe("dọn HTML thô khỏi PKB", () => {
+  const moiPhan = () => SAN_PHAM.flatMap((sp) => sp.phan.map((p) => p.noiDung)).join("\n");
+
+  it("không còn thẻ neo <a id> nào lọt ra trang", () => {
+    // react-markdown không hiểu HTML thô — sót lại là hiện nguyên văn `<a id="q26"></a>`
+    // giữa trang, đúng lỗi CEO báo 28/08.
+    expect(moiPhan()).not.toMatch(/<a\s+id=/i);
+  });
+
+  it("không còn <br> nào lọt ra trang", () => {
+    expect(moiPhan()).not.toMatch(/<br\s*\/?>/i);
+  });
+
+  it("không còn thẻ HTML thô nào khác", () => {
+    // Bỏ qua nội dung trong dấu nháy ngược: `<ID>` trong một mẫu URL là chữ, không phải thẻ.
+    const con = moiPhan().replace(/`[^`]*`/g, "").match(/<\/?[a-zA-Z][^>]*>/g) ?? [];
+    expect(con).toEqual([]);
+  });
+
+  it("link mục lục đã trỏ sang slug tiêu đề, và slug đó có thật ở đâu đó trong PKB", () => {
+    // Mục lục nằm ở phần BÌA (trước `# PHẦN 0`), trỏ xuyên suốt cả tài liệu — nên phải
+    // đối chiếu với tiêu đề của MỌI phần, không riêng phần nào.
+    const coSlug = new Set(
+      [ush10.bia, ...ush10.phan.map((p) => p.noiDung)]
+        .flatMap((md) => [...md.matchAll(/^#{1,6}\s+(.+?)\s*$/gm)])
+        .map((m) => slugTieuDe(m[1])),
+    );
+    const link = [...ush10.bia.matchAll(/\]\(#([a-z0-9-]+)\)/g)].map((m) => m[1]);
+    expect(link.length).toBeGreaterThan(30); // mục lục Q1–Q40 + các mục Phần 0–9
+    expect(link.filter((l) => !coSlug.has(l))).toEqual([]);
+  });
+
+  it("slugTieuDe bỏ dấu tiếng Việt đúng", () => {
+    expect(slugTieuDe("Q20. Chi phí dùng máy trong 5 năm khoảng bao nhiêu?")).toBe(
+      "q20-chi-phi-dung-may-trong-5-nam-khoang-bao-nhieu",
+    );
+    expect(slugTieuDe("Đèn đỏ — thay lõi")).toBe("den-do-thay-loi");
   });
 });

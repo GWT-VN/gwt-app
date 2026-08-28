@@ -52,6 +52,58 @@ const NHAN_CONG_BO = /[🟢🟡🔵🔴]/u;
 /** Hạng tin cậy đứng riêng một từ trong ô "Hạng". */
 const MA_HANG = /\b([A-EX])\b/;
 
+/**
+ * Slug của một tiêu đề — PHẢI khớp y hệt `slugTieuDe()` trong components/marketing/Markdown.tsx.
+ * Link `](#...)` do script này viết lại phải trỏ đúng `id` mà trình render đặt lên thẻ heading.
+ * Có test chốt hai bên khớp nhau: lib/wiki/wiki.test.ts.
+ */
+export function slugTieuDe(s) {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Dọn HTML thô khỏi markdown trước khi giao cho trình render.
+ *
+ * VÌ SAO: react-markdown (không có rehype-raw) KHÔNG hiểu HTML thô — nó in nguyên văn ra
+ * màn hình. Nên `<a id="q26"></a>` hiện lù lù thành chữ giữa trang, và `<br>` trong ô bảng
+ * cũng vậy. Tài liệu gốc có 145 cái neo và 24 cái `<br>`.
+ *
+ * KHÔNG xoá trụi: 144 link mục lục kiểu `](#q26)` đang trỏ vào đám neo đó. Nên:
+ *   1. ánh xạ mỗi neo → tiêu đề ngay bên dưới nó,
+ *   2. gỡ thẻ neo đi,
+ *   3. viết lại link sang slug của tiêu đề — trình render tự đặt `id` đúng slug ấy.
+ * Neo không có tiêu đề theo sau (trỏ sang Phần khác — vốn đã gãy vì mỗi Phần một trang)
+ * thì bỏ link, giữ lại chữ.
+ */
+function donDep(md) {
+  // 1. neo → slug tiêu đề đứng ngay dưới
+  const banDo = new Map();
+  const RE = /^<a id="([^"]+)"><\/a>\s*\n+\s*#{1,6}\s+(.+?)\s*$/gm;
+  let m;
+  while ((m = RE.exec(md)) !== null) banDo.set(m[1], slugTieuDe(m[2]));
+
+  return (
+    md
+      // 2. gỡ mọi thẻ neo (cả dòng, kể cả cái không có tiêu đề theo sau)
+      .replace(/^[ \t]*<a id="[^"]*"><\/a>[ \t]*\n?/gm, "")
+      // 3. link nội bộ → slug tiêu đề; không ánh xạ được thì bỏ link, giữ chữ
+      .replace(/\[([^\]]+)\]\(#([a-zA-Z0-9_-]+)\)/g, (all, chu, neo) =>
+        banDo.has(neo) ? `[${chu}](#${banDo.get(neo)})` : chu,
+      )
+      // 4. `<br>` chỉ nằm trong ô bảng — markdown không có cách xuống dòng trong ô,
+      //    nên đổi thành dấu phân cách đọc được.
+      .replace(/<br\s*\/?>/gi, " · ")
+      .trim()
+  );
+}
+
 /** Cắt một chuỗi markdown thành các đoạn theo regex mốc có group(1) là khoá. */
 function catTheoMoc(md, re) {
   const moc = [];
@@ -152,7 +204,9 @@ function docSanPham(ma) {
   }
 
   const the = JSON.parse(readFileSync(fThe, "utf8"));
-  const md = readFileSync(fPkb, "utf8");
+  // Dọn HTML thô NGAY, trước khi cắt phần và bóc bảng — để cả trang đọc lẫn bảng tra
+  // đều sạch, không phải dọn hai lần ở hai chỗ rồi lệch nhau.
+  const md = donDep(readFileSync(fPkb, "utf8"));
 
   const doanPhan = catTheoMoc(md, MOC_PHAN);
   // Phần đầu file (trước `# PHẦN 0`) là bìa + mục lục — giữ riêng làm phần mở đầu.

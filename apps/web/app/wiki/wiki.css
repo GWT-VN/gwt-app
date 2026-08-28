@@ -389,19 +389,37 @@
  * Vẫn nằm trong [data-khu="wiki"]: không được rò ra khu khác.
  * =========================================================================== */
 
-/* ---- Thanh chuyển nhánh trong sidebar ---- */
-[data-khu="wiki"] .wiki-nhanh{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;
-  padding:0 12px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;
+/* ---- Danh sách khu trong sidebar ---- */
+[data-khu="wiki"] .wiki-khu-ds{
+  padding:2px 10px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;
 }
-[data-khu="wiki"] .wiki-nhanh-nut{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:7px 6px;border-radius:8px;text-decoration:none;
-  font-size:.8rem;font-weight:600;color:var(--sidebar-ink-2);
-  background:#ffffff0f;border:1px solid transparent;transition:background .15s,color .15s;
+[data-khu="wiki"] .wiki-khu-ds h4{
+  margin:6px 8px 6px;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--sidebar-ink-2);opacity:.75;
 }
-[data-khu="wiki"] .wiki-nhanh-nut:hover{background:#ffffff1c;color:#fff}
-[data-khu="wiki"] .wiki-nhanh-nut.active{background:var(--accent);color:#fff;border-color:#ffffff2e}
+[data-khu="wiki"] .wiki-khu-nut{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 9px;border-radius:8px;text-decoration:none;
+  font-size:.81rem;font-weight:600;color:var(--sidebar-ink-2);
+  border:1px solid transparent;transition:background .15s,color .15s;
+}
+[data-khu="wiki"] a.wiki-khu-nut:hover{background:#ffffff1c;color:#fff}
+[data-khu="wiki"] .wiki-khu-nut.active{background:var(--accent);color:#fff;border-color:#ffffff2e}
+/* Khu chưa có nội dung: vẫn hiện để biết chỗ đó đang trống, nhưng không bấm được. */
+[data-khu="wiki"] .wiki-khu-nut.trong{opacity:.42;cursor:default}
+[data-khu="wiki"] .wiki-khu-nut.trong em{
+  margin-left:auto;font-style:normal;font-size:.64rem;letter-spacing:.03em;
+  padding:1px 6px;border-radius:999px;border:1px solid currentColor;opacity:.8;
+}
+
+/* ---- Thẻ khu chưa có nội dung ở trang chủ ---- */
+[data-khu="wiki"] .wiki-khu-luoi{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+[data-khu="wiki"] .wiki-khu-trong{opacity:.6}
+[data-khu="wiki"] .wiki-khu-trong h3{font-size:.94rem}
+[data-khu="wiki"] .wiki-khu-nhan{
+  margin-top:10px;display:inline-block;font-size:.68rem;letter-spacing:.03em;
+  padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--ink-3);
+}
 
 /* ---- Thẻ nhánh ở trang chủ Wiki ---- */
 [data-khu="wiki"] .wiki-nhanh-so{

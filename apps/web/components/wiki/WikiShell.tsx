@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/lib/marketing/icons";
-import { NHANH, crumbFor, navCuaNhanh, nhanhCua } from "@/lib/wiki/nav";
+import { KHU, crumbFor, khuCua, navCuaKhu } from "@/lib/wiki/nav";
 import Search, { type SearchItem } from "@/components/marketing/Search";
 
 type Counts = { analyses: number | null; ideas: number | null };
 
 /**
- * Vỏ của khu Wiki: thanh chuyển nhánh (Marketing · Sản phẩm) + sidebar của nhánh đang mở.
+ * Vỏ của wiki: danh sách khu (Sản phẩm · Marketing video · Vận hành · CSKH · Sales ·
+ * Tài chính…) + sidebar của khu đang mở.
  *
  * KHÔNG có phần đăng nhập / đổi giao diện sáng-tối / app launcher — TopNav chung của
  * GWT-App đã lo, đặt thêm ở đây là hai thanh chồng nhau.
@@ -25,8 +26,8 @@ export default function WikiShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const nhanh = nhanhCua(pathname);
-  const nav = navCuaNhanh(nhanh);
+  const khu = khuCua(pathname);
+  const nav = navCuaKhu(khu);
   const [menuOpen, setMenuOpen] = useState(false);
   // Điều hướng xong thì đóng drawer sidebar trên mobile.
   // Chỉnh state NGAY TRONG RENDER khi pathname đổi (khuôn "adjusting state when a prop
@@ -38,8 +39,6 @@ export default function WikiShell({
     setMenuOpen(false);
   }
 
-  const tenNhanh = NHANH.find((n) => n.ma === nhanh)?.ten;
-
   return (
     <div className="app-shell">
       <aside className={`sidebar${menuOpen ? " open" : ""}`} id="sidebar">
@@ -47,24 +46,33 @@ export default function WikiShell({
           <div className="brand-mark">📚</div>
           <div>
             <div className="brand-name">Wiki GWT</div>
-            <div className="brand-sub">Marketing · Sản phẩm</div>
+            <div className="brand-sub">Tri thức nội bộ</div>
           </div>
         </Link>
 
-        {/* Chuyển nhánh — luôn hiện, kể cả ở trang chủ Wiki. */}
-        <div className="wiki-nhanh" role="tablist" aria-label="Chọn nhánh wiki">
-          {NHANH.map((n) => (
-            <Link
-              key={n.ma}
-              href={n.href}
-              role="tab"
-              aria-selected={nhanh === n.ma}
-              className={`wiki-nhanh-nut${nhanh === n.ma ? " active" : ""}`}
-            >
-              <span aria-hidden="true">{n.icon}</span>
-              {n.ten}
-            </Link>
-          ))}
+        {/* Danh sách khu — luôn hiện, kể cả ở trang chủ wiki. Khu chưa có nội dung
+            vẫn hiện (mờ, không bấm được) để mọi người biết chỗ đó đang trống. */}
+        <div className="wiki-khu-ds">
+          <h4>Khu wiki</h4>
+          {KHU.map((k) =>
+            k.href ? (
+              <Link
+                key={k.ma}
+                href={k.href}
+                className={`wiki-khu-nut${khu?.ma === k.ma ? " active" : ""}`}
+                aria-current={khu?.ma === k.ma ? "page" : undefined}
+              >
+                <span aria-hidden="true">{k.icon}</span>
+                {k.ten}
+              </Link>
+            ) : (
+              <span key={k.ma} className="wiki-khu-nut trong" title={`${k.moTa} — chưa có nội dung`}>
+                <span aria-hidden="true">{k.icon}</span>
+                {k.ten}
+                <em>chưa có</em>
+              </span>
+            ),
+          )}
         </div>
 
         <nav>
@@ -72,10 +80,9 @@ export default function WikiShell({
             <div className="nav-group" key={group.heading}>
               <h4>{group.heading}</h4>
               {group.items.map((item) => {
-                // Mục "gốc" của mỗi nhánh chỉ active khi khớp ĐÚNG, để nó không sáng
-                // trên mọi trang con bên dưới.
-                const laGoc = item.href.split("/").length <= 4;
-                const active = laGoc ? pathname === item.href : pathname.startsWith(item.href);
+                // Mục "gốc" của khu chỉ active khi khớp ĐÚNG, để nó không sáng trên
+                // mọi trang con bên dưới.
+                const active = item.href === khu?.href ? pathname === item.href : pathname.startsWith(item.href);
                 const Ic = Icon[item.icon];
                 const badge = item.badgeKey ? counts[item.badgeKey] : null;
                 return (
@@ -105,7 +112,7 @@ export default function WikiShell({
           </button>
           <div className="crumb">
             Wiki
-            {tenNhanh && <> · {tenNhanh}</>}
+            {khu && <> · {khu.ten}</>}
             {crumbFor(pathname) && <> · <b>{crumbFor(pathname)}</b></>}
           </div>
           <div className="topbar-spacer" />
