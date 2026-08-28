@@ -13,7 +13,6 @@ const CARDS = [
   { href: "/wiki/marketing/khung/seci", icon: "refresh", t: "SECI playbook", d: "Cách chạy buổi review để cả team giỏi lên, không phụ thuộc 1 người." },
   { href: "/wiki/marketing/du-lieu/phan-tich-video", icon: "chart", t: "Dữ liệu phân tích video", d: "Video viral đã mổ — bóc riêng hook, câu kết, câu kêu gọi từ transcript." },
   { href: "/wiki/marketing/kho-case", icon: "book", t: "Kho case WIN / FAIL", d: "33 ca đã chấm qua các buổi SECI, mỗi ca ghi đủ điểm sai và hướng sửa." },
-  { href: "/huong-dan/deploy", icon: "shield", t: "Deploy & đăng nhập", d: "Đưa wiki lên Vercel + bật đăng nhập Google @gwt.vn." },
 ] as const;
 
 export default async function Home() {

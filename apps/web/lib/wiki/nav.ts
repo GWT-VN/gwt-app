@@ -15,6 +15,10 @@ export type NavGroup = { heading: string; items: NavItem[] };
  * giấu đi thì ai cũng tưởng chưa ai nghĩ tới và lại đẻ ra một file Google Docs nữa.
  *
  * Thêm khu mới: thêm một dòng ở đây + dựng route dưới `/wiki/<ma>`.
+ *
+ * Đào tạo KHÔNG tách thành khu riêng: tài liệu đào tạo sale nằm trong khu Sales, đào tạo
+ * CSKH nằm trong khu CSKH. Tách ra thì cùng một quy trình bán hàng lại có hai bản — một
+ * bản "để làm" và một bản "để dạy" — rồi hai bản lệch nhau, đúng thứ wiki sinh ra để chặn.
  */
 export type TrangThaiKhu = "co-noi-dung" | "chua-co";
 export type Khu = {
@@ -45,25 +49,32 @@ export const KHU: Khu[] = [
     moTa: "Cách team làm video: khung 5A/PAAST, luật sửa content, quy trình sản xuất, kho case.",
   },
   {
-    ma: "van-hanh",
-    ten: "Vận hành",
-    icon: "⚙️",
+    ma: "cong-viec-chung",
+    ten: "Công việc chung",
+    icon: "🧭",
     trangThai: "chua-co",
-    moTa: "Lắp đặt, bảo trì, kho vận, điều phối kỹ thuật.",
-  },
-  {
-    ma: "cskh",
-    ten: "CSKH",
-    icon: "🎧",
-    trangThai: "chua-co",
-    moTa: "Kịch bản tổng đài, quy trình ticket, bảo hành, xử lý khiếu nại.",
+    moTa: "Cách làm việc chung toàn công ty: quy trình, họp, bàn giao, công cụ nội bộ.",
   },
   {
     ma: "sales",
     ten: "Sales",
     icon: "🛒",
     trangThai: "chua-co",
-    moTa: "Quy trình bán, bảng giá, chính sách chiết khấu, hợp đồng.",
+    moTa: "Đào tạo sale mới, quy trình bán, bảng giá, chính sách chiết khấu, hợp đồng.",
+  },
+  {
+    ma: "cskh",
+    ten: "CSKH",
+    icon: "🎧",
+    trangThai: "chua-co",
+    moTa: "Đào tạo CSKH, kịch bản tổng đài, quy trình ticket, bảo hành, xử lý khiếu nại.",
+  },
+  {
+    ma: "van-hanh",
+    ten: "Vận hành",
+    icon: "⚙️",
+    trangThai: "chua-co",
+    moTa: "Lắp đặt, bảo trì, kho vận, điều phối kỹ thuật.",
   },
   {
     ma: "tai-chinh",
