@@ -1,0 +1,526 @@
+/* ===========================================================================
+ * KHU WIKI — hai nhánh: Marketing (cách làm video) và Sản phẩm (PKB từng máy).
+ *
+ * MỌI selector bọc trong [data-khu="wiki"] — đúng luật đã ghi ở
+ * app/globals.css cho khu Work: rò một biến là đổi giao diện cả app.
+ * Bảng màu bê từ mockup CEO đã duyệt (teal "nước").
+ * =========================================================================== */
+
+/* ============ TOKENS ============ */
+[data-khu="wiki"]{
+  --font-ui:var(--font-geist-sans),system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:var(--font-geist-mono),ui-monospace,"SFMono-Regular",monospace;
+
+  --bg:#eef2f3;
+  --surface:#ffffff;
+  --surface-2:#f5f8f9;
+  --surface-3:#eaf0f1;
+  --ink:#0e2a2f;
+  --ink-2:#3d565b;
+  --ink-3:#6b8388;
+  --line:#dbe4e6;
+  --line-2:#c6d4d7;
+
+  --accent:#0c8b98;
+  --accent-strong:#0a6e79;
+  --accent-soft:#d3ecef;
+  --accent-ink:#064048;
+
+  --sidebar-bg:#0e2a2f;
+  --sidebar-ink:#bcd2d6;
+  --sidebar-ink-2:#7f9aa0;
+  --sidebar-active:#123b42;
+  --sidebar-accent:#38c2cf;
+
+  /* 5A category colors */
+  --a1:#c98a12; --a1-bg:#fbeecf; --a1-ink:#7a5306;
+  --a2:#2f6fd6; --a2-bg:#dbe8fb; --a2-ink:#1c477f;
+  --a3:#2f9e6b; --a3-bg:#d5efe1; --a3-ink:#1a5f40;
+  --a4:#d1516a; --a4-bg:#fadde3; --a4-ink:#8a2f42;
+  --a5:#8a5cd1; --a5-bg:#e9ddfa; --a5-ink:#553584;
+
+  --good:#2f9e6b; --good-bg:#d5efe1;
+  --warn:#c98a12; --warn-bg:#fbeecf;
+
+  --radius:14px; --radius-sm:9px;
+  --shadow:0 1px 2px rgba(14,42,47,.06),0 8px 24px -12px rgba(14,42,47,.18);
+  --shadow-lg:0 12px 40px -8px rgba(14,42,47,.28);
+  --maxread:66ch;
+}
+@media (prefers-color-scheme:dark){
+  [data-khu="wiki"]:not([data-theme="light"]){
+    --bg:#0a1618; --surface:#10252a; --surface-2:#153036; --surface-3:#1b3a41;
+    --ink:#e6f1f2; --ink-2:#a7c1c5; --ink-3:#78969c;
+    --line:#20424a; --line-2:#2b555e;
+    --accent:#2fb6c3; --accent-strong:#5fd0da; --accent-soft:#123a41; --accent-ink:#a8e6ec;
+    --sidebar-bg:#081215; --sidebar-ink:#a7c1c5; --sidebar-ink-2:#5f7d82;
+    --sidebar-active:#123037; --sidebar-accent:#3fd0dd;
+    --a1-bg:#3a2e0f; --a1-ink:#f0cd7a;
+    --a2-bg:#132844; --a2-ink:#9cc0f2;
+    --a3-bg:#0f2e22; --a3-ink:#8fdcb6;
+    --a4-bg:#3a1620; --a4-ink:#f0a2b3;
+    --a5-bg:#241539; --a5-ink:#c9adf0;
+    --good-bg:#0f2e22; --warn-bg:#3a2e0f;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -12px rgba(0,0,0,.6);
+    --shadow-lg:0 16px 50px -8px rgba(0,0,0,.7);
+  }
+}
+[data-khu="wiki"][data-theme="dark"]{
+  --bg:#0a1618; --surface:#10252a; --surface-2:#153036; --surface-3:#1b3a41;
+  --ink:#e6f1f2; --ink-2:#a7c1c5; --ink-3:#78969c;
+  --line:#20424a; --line-2:#2b555e;
+  --accent:#2fb6c3; --accent-strong:#5fd0da; --accent-soft:#123a41; --accent-ink:#a8e6ec;
+  --sidebar-bg:#081215; --sidebar-ink:#a7c1c5; --sidebar-ink-2:#5f7d82;
+  --sidebar-active:#123037; --sidebar-accent:#3fd0dd;
+  --a1-bg:#3a2e0f; --a1-ink:#f0cd7a;
+  --a2-bg:#132844; --a2-ink:#9cc0f2;
+  --a3-bg:#0f2e22; --a3-ink:#8fdcb6;
+  --a4-bg:#3a1620; --a4-ink:#f0a2b3;
+  --a5-bg:#241539; --a5-ink:#c9adf0;
+  --good-bg:#0f2e22; --warn-bg:#3a2e0f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 16px 50px -8px rgba(0,0,0,.7);
+}
+
+[data-khu="wiki"] *{box-sizing:border-box}
+[data-khu="wiki"] .mkt-root{
+  font-family:var(--font-ui);
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+[data-khu="wiki"] a{color:var(--accent-strong);text-underline-offset:2px}
+[data-khu="wiki"] button{font-family:inherit}
+[data-khu="wiki"] ::selection{background:var(--accent-soft);color:var(--accent-ink)}
+
+/* ============ APP SHELL ============ */
+[data-khu="wiki"] .app-shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+
+[data-khu="wiki"] .sidebar{
+  background:var(--sidebar-bg);color:var(--sidebar-ink);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+[data-khu="wiki"] .sidebar-brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+[data-khu="wiki"] .sidebar-brand .brand-name{color:#fff}
+[data-khu="wiki"] .sidebar-brand .brand-sub{color:var(--sidebar-ink-2)}
+[data-khu="wiki"] .nav-group{padding:6px 10px}
+[data-khu="wiki"] .nav-group h4{
+  font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--sidebar-ink-2);font-weight:700;margin:12px 10px 5px;
+}
+[data-khu="wiki"] .nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:none;border:none;color:var(--sidebar-ink);text-decoration:none;
+  padding:8px 11px;border-radius:9px;cursor:pointer;font-size:.86rem;font-weight:500;
+  transition:background .13s,color .13s;
+}
+[data-khu="wiki"] .nav-item:hover{background:var(--sidebar-active);color:#fff}
+[data-khu="wiki"] .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
+[data-khu="wiki"] .nav-item.active .ni-ic{color:var(--sidebar-accent)}
+[data-khu="wiki"] .ni-ic{flex:none;width:18px;height:18px;color:var(--sidebar-ink-2);display:grid;place-items:center}
+[data-khu="wiki"] .ni-ic svg{width:17px;height:17px;stroke-width:1.8}
+[data-khu="wiki"] .nav-badge{margin-left:auto;font-family:var(--font-mono);font-size:.68rem;
+  background:#ffffff1a;color:var(--sidebar-ink);padding:1px 7px;border-radius:20px}
+[data-khu="wiki"] .sidebar-foot{margin-top:auto;padding:14px 16px;border-top:1px solid #ffffff12;
+  display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--sidebar-ink-2)}
+[data-khu="wiki"] .avatar{width:28px;height:28px;border-radius:50%;flex:none;
+  background:linear-gradient(140deg,var(--accent),var(--accent-strong));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:.75rem}
+
+/* topbar */
+[data-khu="wiki"] .main{min-width:0;display:flex;flex-direction:column;min-height:100vh}
+[data-khu="wiki"] .topbar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:14px;
+  padding:12px 26px;background:color-mix(in srgb,var(--surface) 82%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+[data-khu="wiki"] .hamburger{display:none;background:none;border:1px solid var(--line-2);border-radius:8px;
+  width:36px;height:36px;cursor:pointer;color:var(--ink-2)}
+[data-khu="wiki"] .crumb{font-size:.8rem;color:var(--ink-3);font-weight:500}
+[data-khu="wiki"] .crumb b{color:var(--ink);font-weight:700}
+[data-khu="wiki"] .topbar-spacer{flex:1}
+[data-khu="wiki"] .searchbox{display:flex;align-items:center;gap:8px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:9px;padding:7px 11px;min-width:200px;color:var(--ink-3)}
+[data-khu="wiki"] .searchbox svg{width:16px;height:16px;flex:none}
+[data-khu="wiki"] .searchbox input{border:none;background:none;color:var(--ink);font-size:.84rem;width:100%;outline:none;min-width:0}
+[data-khu="wiki"] .icon-btn{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;
+  width:36px;height:36px;cursor:pointer;color:var(--ink-2);display:grid;place-items:center}
+[data-khu="wiki"] .icon-btn:hover{border-color:var(--line-2);color:var(--ink)}
+[data-khu="wiki"] .icon-btn svg{width:18px;height:18px}
+
+[data-khu="wiki"] .content{padding:26px 30px 60px;flex:1}
+[data-khu="wiki"] .view{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){[data-khu="wiki"] .view{animation:none}}
+
+/* headings / reading */
+[data-khu="wiki"] .page-head{margin:0 0 22px}
+[data-khu="wiki"] .eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent-strong);margin-bottom:7px}
+[data-khu="wiki"] .page-head h1{font-size:1.7rem;letter-spacing:-.025em;margin:0 0 .25em;text-wrap:balance;line-height:1.12}
+[data-khu="wiki"] .page-head p{color:var(--ink-2);max-width:var(--maxread);margin:0;font-size:.96rem}
+[data-khu="wiki"] .read{max-width:var(--maxread)}
+[data-khu="wiki"] .read h2{font-size:1.15rem;letter-spacing:-.01em;margin:1.9em 0 .5em}
+[data-khu="wiki"] .read p{color:var(--ink-2)}
+[data-khu="wiki"] .read ul{color:var(--ink-2);padding-left:1.15em}
+[data-khu="wiki"] .read li{margin:.3em 0}
+
+/* cards / grids */
+[data-khu="wiki"] .grid{display:grid;gap:16px}
+[data-khu="wiki"] .grid-3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+[data-khu="wiki"] .grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+[data-khu="wiki"] .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px 18px}
+[data-khu="wiki"] .card.link{cursor:pointer;transition:transform .1s,border-color .13s,box-shadow .13s;text-align:left;width:100%;font:inherit;color:inherit;text-decoration:none;display:block}
+[data-khu="wiki"] .card.link:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow-lg)}
+[data-khu="wiki"] .card-ic{width:36px;height:36px;border-radius:10px;background:var(--accent-soft);color:var(--accent-ink);
+  display:grid;place-items:center;margin-bottom:12px}
+[data-khu="wiki"] .card-ic svg{width:20px;height:20px;flex:none}
+[data-khu="wiki"] .card h3{margin:0 0 5px;font-size:1rem;letter-spacing:-.01em}
+[data-khu="wiki"] .card p{margin:0;font-size:.85rem;color:var(--ink-3);line-height:1.5}
+[data-khu="wiki"] .card .go{margin-top:11px;font-size:.78rem;font-weight:600;color:var(--accent-strong);display:flex;align-items:center;gap:5px}
+
+/* stat row */
+[data-khu="wiki"] .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px}
+[data-khu="wiki"] .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px}
+[data-khu="wiki"] .stat .num{font-family:var(--font-mono);font-size:1.6rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+[data-khu="wiki"] .stat .lab{font-size:.76rem;color:var(--ink-3);font-weight:500;margin-top:2px}
+[data-khu="wiki"] .stat .spark{display:flex;gap:3px;align-items:flex-end;height:22px;margin-top:9px}
+[data-khu="wiki"] .stat .spark i{flex:1;background:var(--accent-soft);border-radius:2px;min-height:3px}
+
+/* badges */
+[data-khu="wiki"] .cat{display:inline-flex;align-items:center;font-family:var(--font-mono);font-weight:700;
+  font-size:.72rem;padding:2px 8px;border-radius:6px;letter-spacing:.02em}
+[data-khu="wiki"] .cat-A1{background:var(--a1-bg);color:var(--a1-ink)} [data-khu="wiki"] .cat-A2{background:var(--a2-bg);color:var(--a2-ink)}
+[data-khu="wiki"] .cat-A3{background:var(--a3-bg);color:var(--a3-ink)} [data-khu="wiki"] .cat-A4{background:var(--a4-bg);color:var(--a4-ink)}
+[data-khu="wiki"] .cat-A5{background:var(--a5-bg);color:var(--a5-ink)}
+[data-khu="wiki"] .chip{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:500;
+  background:var(--surface-3);color:var(--ink-2);padding:3px 9px;border-radius:20px;border:1px solid var(--line)}
+[data-khu="wiki"] .chip.mono{font-family:var(--font-mono);font-size:.7rem}
+[data-khu="wiki"] .tag{font-size:.72rem;color:var(--ink-3);background:var(--surface-2);padding:2px 8px;border-radius:5px;border:1px solid var(--line)}
+[data-khu="wiki"] .pill-viral{background:var(--good-bg);color:var(--good);font-weight:700;font-size:.7rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+[data-khu="wiki"] .pill-not{background:var(--surface-3);color:var(--ink-3);font-weight:600;font-size:.7rem;padding:2px 8px;border-radius:20px}
+[data-khu="wiki"] .pill-status{font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--warn-bg);color:var(--warn)}
+
+/* table */
+[data-khu="wiki"] .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+[data-khu="wiki"] .filter-chip{background:var(--surface);border:1px solid var(--line-2);color:var(--ink-2);
+  font-size:.78rem;font-weight:500;padding:6px 12px;border-radius:20px;cursor:pointer}
+[data-khu="wiki"] .filter-chip:hover{border-color:var(--accent)}
+[data-khu="wiki"] .filter-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+[data-khu="wiki"] .table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  overflow-x:auto;box-shadow:var(--shadow)}
+[data-khu="wiki"] table{border-collapse:collapse;width:100%;min-width:640px}
+[data-khu="wiki"] thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);
+  font-weight:700;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2)}
+[data-khu="wiki"] tbody tr{cursor:pointer;transition:background .1s}
+[data-khu="wiki"] tbody tr:hover{background:var(--surface-2)}
+[data-khu="wiki"] tbody td{padding:12px 14px;border-bottom:1px solid var(--line);font-size:.85rem;vertical-align:middle}
+[data-khu="wiki"] tbody tr:last-child td{border-bottom:none}
+[data-khu="wiki"] .td-title{font-weight:600;color:var(--ink);max-width:340px}
+[data-khu="wiki"] .td-title small{display:block;font-weight:500;color:var(--ink-3);font-size:.76rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-khu="wiki"] .num-cell{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+[data-khu="wiki"] .row-arrow{color:var(--ink-3)}
+[data-khu="wiki"] tbody tr:hover .row-arrow{color:var(--accent)}
+
+/* drawer */
+[data-khu="wiki"] .scrim{position:fixed;inset:0;background:rgba(8,20,22,.5);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+[data-khu="wiki"] .scrim.on{opacity:1;pointer-events:auto}
+[data-khu="wiki"] .drawer{position:fixed;top:0;right:0;height:100vh;width:min(520px,100%);z-index:50;
+  background:var(--surface);box-shadow:var(--shadow-lg);border-left:1px solid var(--line);
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column}
+[data-khu="wiki"] .drawer.on{transform:none}
+[data-khu="wiki"] .drawer-head{padding:18px 22px 15px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+[data-khu="wiki"] .drawer-head .dh-main{min-width:0}
+[data-khu="wiki"] .drawer-head h2{font-size:1.12rem;margin:.15em 0 .3em;letter-spacing:-.015em;line-height:1.25}
+[data-khu="wiki"] .drawer-close{margin-left:auto;flex:none}
+[data-khu="wiki"] .drawer-body{padding:20px 22px 40px;overflow-y:auto}
+[data-khu="wiki"] .meta-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+[data-khu="wiki"] .field-block{margin:18px 0 0}
+[data-khu="wiki"] .field-block .fl{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ink-3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+[data-khu="wiki"] .field-block .fv{font-size:.9rem;color:var(--ink-2);line-height:1.6}
+[data-khu="wiki"] .field-block.formula .fv{background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:12px 14px;font-size:.86rem}
+[data-khu="wiki"] .metricgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:9px}
+[data-khu="wiki"] .metricgrid .m{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+[data-khu="wiki"] .metricgrid .m .mv{font-family:var(--font-mono);font-weight:700;font-size:1.05rem;color:var(--ink)}
+[data-khu="wiki"] .metricgrid .m .ml{font-size:.68rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+[data-khu="wiki"] .chips-wrap{display:flex;flex-wrap:wrap;gap:6px}
+
+/* PAAST card */
+[data-khu="wiki"] .paast{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:8px 0 26px}
+[data-khu="wiki"] .pcol{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+[data-khu="wiki"] .pcol .ph{padding:13px 15px;color:#fff;display:flex;align-items:center;gap:11px}
+[data-khu="wiki"] .pcol .pl{width:30px;height:30px;border-radius:8px;background:#ffffff2e;display:grid;place-items:center;font-weight:800;font-size:1.05rem;flex:none}
+[data-khu="wiki"] .pcol .pt{font-weight:700;font-size:.95rem;line-height:1.1}
+[data-khu="wiki"] .pcol .ps{font-size:.7rem;opacity:.85;font-family:var(--font-mono);letter-spacing:.03em}
+[data-khu="wiki"] .pcol ul{list-style:none;margin:0;padding:10px 15px 15px}
+[data-khu="wiki"] .pcol li{font-size:.82rem;color:var(--ink-2);padding:5px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px}
+[data-khu="wiki"] .pcol li:last-child{border-bottom:none}
+[data-khu="wiki"] .pcol li b{color:var(--ink);font-weight:600}
+[data-khu="wiki"] .pcol li .lk{font-family:var(--font-mono);font-size:.7rem;color:var(--accent-strong);font-weight:700;flex:none;width:16px}
+[data-khu="wiki"] .p-P .ph{background:linear-gradient(135deg,#b03a4a,#8a2f42)}
+[data-khu="wiki"] .p-A1 .ph{background:linear-gradient(135deg,#c0392b,#992d22)}
+[data-khu="wiki"] .p-A2 .ph{background:linear-gradient(135deg,#c98a12,#a06d0a)}
+[data-khu="wiki"] .p-S .ph{background:linear-gradient(135deg,#334a4f,#1e3439)}
+[data-khu="wiki"] .p-T .ph{background:linear-gradient(135deg,#2f9e6b,#1a5f40)}
+
+[data-khu="wiki"] .axis{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+[data-khu="wiki"] .axis .ax{border:1px solid var(--line);border-radius:var(--radius);padding:15px;background:var(--surface)}
+[data-khu="wiki"] .axis .ax h4{margin:0 0 4px;font-size:.92rem;display:flex;align-items:center;gap:8px}
+[data-khu="wiki"] .axis .ax .dot{width:9px;height:9px;border-radius:3px}
+[data-khu="wiki"] .axis .ax p{margin:0 0 9px;font-size:.8rem;color:var(--ink-3)}
+[data-khu="wiki"] .axis .ax ol{margin:0;padding-left:1.1em;font-size:.8rem;color:var(--ink-2)}
+[data-khu="wiki"] .axis .ax li{margin:.2em 0}
+
+/* principle list */
+[data-khu="wiki"] .principles{display:grid;gap:11px;margin-top:8px}
+[data-khu="wiki"] .principle{display:flex;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px}
+[data-khu="wiki"] .principle .pn{font-family:var(--font-mono);font-weight:700;color:var(--accent);font-size:.9rem;flex:none;width:24px}
+[data-khu="wiki"] .principle .pc b{font-size:.9rem}
+[data-khu="wiki"] .principle .pc p{margin:.25em 0 0;font-size:.82rem;color:var(--ink-3)}
+
+/* step list */
+[data-khu="wiki"] .steps{counter-reset:s;display:grid;gap:10px;margin-top:6px}
+[data-khu="wiki"] .step{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px}
+[data-khu="wiki"] .step::before{counter-increment:s;content:counter(s);font-family:var(--font-mono);font-weight:700;
+  background:var(--accent-soft);color:var(--accent-ink);width:26px;height:26px;border-radius:7px;
+  display:grid;place-items:center;flex:none;font-size:.82rem}
+[data-khu="wiki"] .step b{font-size:.9rem} [data-khu="wiki"] .step p{margin:.2em 0 0;font-size:.82rem;color:var(--ink-3)}
+
+/* notice */
+[data-khu="wiki"] .notice{display:flex;gap:11px;background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);
+  border-radius:var(--radius-sm);padding:12px 15px;margin:18px 0;font-size:.83rem;color:var(--ink-2)}
+[data-khu="wiki"] .notice svg{width:18px;height:18px;color:var(--warn);flex:none;margin-top:1px}
+[data-khu="wiki"] .wip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:var(--warn);
+  background:var(--warn-bg);padding:3px 10px;border-radius:20px;margin-left:8px;vertical-align:middle}
+
+[data-khu="wiki"] .case-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+[data-khu="wiki"] .case{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+[data-khu="wiki"] .case .ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+[data-khu="wiki"] .case h3{margin:0;font-size:.95rem;flex:1;letter-spacing:-.01em}
+[data-khu="wiki"] .badge-win{background:var(--good-bg);color:var(--good);font-weight:700;font-size:.68rem;padding:2px 8px;border-radius:6px}
+[data-khu="wiki"] .badge-fail{background:var(--a4-bg);color:var(--a4-ink);font-weight:700;font-size:.68rem;padding:2px 8px;border-radius:6px}
+[data-khu="wiki"] .case p{margin:.3em 0 0;font-size:.82rem;color:var(--ink-3);line-height:1.5}
+[data-khu="wiki"] .case .cv{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-2);margin-top:9px}
+
+/* responsive */
+@media (max-width:860px){
+  [data-khu="wiki"] .app-shell{grid-template-columns:1fr}
+  [data-khu="wiki"] .sidebar{position:fixed;left:0;top:0;z-index:60;width:250px;transform:translateX(-100%);transition:transform .25s}
+  [data-khu="wiki"] .sidebar.open{transform:none}
+  [data-khu="wiki"] .hamburger{display:grid;place-items:center}
+  [data-khu="wiki"] .searchbox{display:none}
+  [data-khu="wiki"] .content{padding:20px 16px 50px}
+  [data-khu="wiki"] .page-head h1{font-size:1.4rem}
+}
+
+/* ============ MARKDOWN (trang luật QC + trang khung) ============ */
+[data-khu="wiki"] .prose{max-width:78ch;color:var(--ink-2);font-size:.92rem}
+[data-khu="wiki"] .prose h1{font-size:1.55rem;letter-spacing:-.025em;margin:0 0 .4em;color:var(--ink);line-height:1.15;text-wrap:balance}
+[data-khu="wiki"] .prose h2{font-size:1.15rem;letter-spacing:-.015em;margin:2em 0 .5em;color:var(--ink);
+  padding-top:.7em;border-top:1px solid var(--line)}
+[data-khu="wiki"] .prose h3{font-size:1rem;margin:1.5em 0 .4em;color:var(--ink)}
+[data-khu="wiki"] .prose h4{font-size:.9rem;margin:1.3em 0 .35em;color:var(--ink)}
+[data-khu="wiki"] .prose p{margin:.7em 0;line-height:1.7}
+[data-khu="wiki"] .prose ul, [data-khu="wiki"] .prose ol{padding-left:1.3em;margin:.6em 0}
+[data-khu="wiki"] .prose li{margin:.35em 0;line-height:1.65}
+[data-khu="wiki"] .prose li>p{margin:.2em 0}
+[data-khu="wiki"] .prose strong{color:var(--ink);font-weight:600}
+[data-khu="wiki"] .prose a{color:var(--accent-strong);font-weight:500}
+[data-khu="wiki"] .prose code{font-family:var(--font-mono);font-size:.84em;background:var(--surface-3);
+  padding:1px 6px;border-radius:5px;color:var(--accent-ink);word-break:break-word}
+[data-khu="wiki"] .prose pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:14px 16px;overflow-x:auto;font-size:.82rem}
+[data-khu="wiki"] .prose pre code{background:none;padding:0;color:var(--ink-2)}
+[data-khu="wiki"] .prose blockquote{margin:1em 0;padding:2px 0 2px 15px;border-left:3px solid var(--accent);
+  color:var(--ink-3);background:var(--surface-2);border-radius:0 8px 8px 0}
+[data-khu="wiki"] .prose blockquote p{margin:.5em 0}
+[data-khu="wiki"] .prose hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+/* `---` ngay trước h2 sinh 2 vạch chồng nhau — bỏ vạch của h2 */
+[data-khu="wiki"] .prose hr + h2{border-top:none;padding-top:0;margin-top:0}
+[data-khu="wiki"] .prose > :first-child{margin-top:0}
+[data-khu="wiki"] .prose table{width:100%;min-width:0;margin:1.1em 0;font-size:.85rem;display:block;overflow-x:auto}
+[data-khu="wiki"] .prose thead th{background:var(--surface-2);text-transform:none;letter-spacing:0;
+  font-size:.8rem;color:var(--ink);padding:9px 12px}
+[data-khu="wiki"] .prose tbody td{padding:9px 12px;vertical-align:top}
+[data-khu="wiki"] .prose tbody tr{cursor:auto}
+[data-khu="wiki"] .prose tbody tr:hover{background:none}
+[data-khu="wiki"] .prose img{max-width:100%;height:auto;border-radius:var(--radius-sm)}
+
+/* khối markdown nằm trong khung thẻ */
+[data-khu="wiki"] .doc-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:26px 30px}
+@media (max-width:860px){[data-khu="wiki"] .doc-card{padding:18px 16px}}
+
+/* trạng thái rỗng / lỗi */
+[data-khu="wiki"] .empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--radius);
+  padding:26px;color:var(--ink-3);font-size:.88rem;text-align:center}
+[data-khu="wiki"] .err{background:var(--a4-bg);border:1px solid color-mix(in srgb,var(--a4) 35%,transparent);
+  border-radius:var(--radius-sm);padding:14px 16px;color:var(--a4-ink);font-size:.85rem}
+[data-khu="wiki"] .err b{display:block;margin-bottom:4px}
+
+/* nút văn bản trong topbar/sidebar */
+[data-khu="wiki"] .linkbtn{background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:0;
+  text-decoration:underline;text-underline-offset:2px}
+[data-khu="wiki"] .sidebar-foot a{color:var(--sidebar-ink-2);font-size:.72rem}
+
+
+/* ===========================================================================
+ * Chỉnh cho vừa TopNav chung của GWT-App (cao 52px, sticky top-0).
+ * Bản gốc là app đứng một mình nên dùng 100vh và top:0 — giữ nguyên thì
+ * sidebar chui xuống dưới màn hình đúng 52px và bị TopNav che mất đầu.
+ * =========================================================================== */
+[data-khu="wiki"] .app-shell{min-height:calc(100vh - 52px)}
+[data-khu="wiki"] .sidebar{top:52px;height:calc(100vh - 52px)}
+[data-khu="wiki"] .topbar{top:52px}
+[data-khu="wiki"] .drawer{top:52px;height:calc(100vh - 52px)}
+[data-khu="wiki"] .scrim{top:52px}
+@media (max-width:860px){
+  [data-khu="wiki"] .sidebar{top:52px;height:calc(100vh - 52px)}
+}
+
+/* ===========================================================================
+ * NHÁNH SẢN PHẨM — thêm cho Product Wiki (PKB từng máy).
+ * Vẫn nằm trong [data-khu="wiki"]: không được rò ra khu khác.
+ * =========================================================================== */
+
+/* ---- Danh sách khu trong sidebar ---- */
+[data-khu="wiki"] .wiki-khu-ds{
+  padding:2px 10px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;
+}
+[data-khu="wiki"] .wiki-khu-ds h4{
+  margin:6px 8px 6px;font-size:.66rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--sidebar-ink-2);opacity:.75;
+}
+[data-khu="wiki"] .wiki-khu-nut{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 9px;border-radius:8px;text-decoration:none;
+  font-size:.81rem;font-weight:600;color:var(--sidebar-ink-2);
+  border:1px solid transparent;transition:background .15s,color .15s;
+}
+[data-khu="wiki"] a.wiki-khu-nut:hover{background:#ffffff1c;color:#fff}
+[data-khu="wiki"] .wiki-khu-nut.active{background:var(--accent);color:#fff;border-color:#ffffff2e}
+/* Khu chưa có nội dung: vẫn hiện để biết chỗ đó đang trống, nhưng không bấm được. */
+[data-khu="wiki"] .wiki-khu-nut.trong{opacity:.42;cursor:default}
+[data-khu="wiki"] .wiki-khu-nut.trong em{
+  margin-left:auto;font-style:normal;font-size:.64rem;letter-spacing:.03em;
+  padding:1px 6px;border-radius:999px;border:1px solid currentColor;opacity:.8;
+}
+
+/* ---- Thẻ khu chưa có nội dung ở trang chủ ---- */
+[data-khu="wiki"] .wiki-khu-luoi{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+[data-khu="wiki"] .wiki-khu-trong{opacity:.6}
+[data-khu="wiki"] .wiki-khu-trong h3{font-size:.94rem}
+[data-khu="wiki"] .wiki-khu-nhan{
+  margin-top:10px;display:inline-block;font-size:.68rem;letter-spacing:.03em;
+  padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--ink-3);
+}
+
+/* ---- Thẻ nhánh ở trang chủ Wiki ---- */
+[data-khu="wiki"] .wiki-nhanh-so{
+  display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;
+  font-size:.76rem;color:var(--ink-3);
+}
+[data-khu="wiki"] .wiki-nhanh-so b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+[data-khu="wiki"] .wiki-the-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+[data-khu="wiki"] .wiki-vai-nhan{font-size:.76rem;color:var(--ink-3);align-self:center}
+
+[data-khu="wiki"] .wiki-tieu-de-muc{
+  margin:28px 0 12px;font-size:1.02rem;font-weight:700;color:var(--ink);
+}
+[data-khu="wiki"] .wiki-so-phan{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:6px;
+  background:var(--accent);color:#fff;font-size:.78rem;font-weight:700;
+}
+[data-khu="wiki"] .wiki-nhom-luoi{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+
+/* ---- Điều hướng trước/sau cuối trang Phần ---- */
+[data-khu="wiki"] .wiki-dieu-huong{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-top:32px;padding-top:16px;border-top:1px solid var(--line);
+}
+[data-khu="wiki"] .wiki-dieu-huong a{font-size:.84rem;color:var(--accent-strong);text-decoration:none;font-weight:600}
+[data-khu="wiki"] .wiki-dieu-huong a:hover{text-decoration:underline}
+
+/* ---- Chú giải nhãn công bố ---- */
+[data-khu="wiki"] .wiki-chu-giai{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:8px;margin-bottom:16px;
+}
+[data-khu="wiki"] .wiki-chu-giai-muc{
+  padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+  border-left-width:4px;
+}
+[data-khu="wiki"] .wiki-chu-giai-muc b{display:block;font-size:.8rem;margin-bottom:2px}
+[data-khu="wiki"] .wiki-chu-giai-muc span{font-size:.73rem;color:var(--ink-3);line-height:1.45}
+
+/* Màu theo quyền công bố — một biến cho cả chú giải lẫn dòng bảng. */
+[data-khu="wiki"] .cb-xanh{--cb:#1f9d55}
+[data-khu="wiki"] .cb-vang{--cb:#c98a09}
+[data-khu="wiki"] .cb-xanh-duong{--cb:#2f6fd0}
+[data-khu="wiki"] .cb-do{--cb:#c0392b}
+[data-khu="wiki"] .wiki-chu-giai-muc{border-left-color:var(--cb,var(--line))}
+
+/* ---- Thanh lọc ---- */
+[data-khu="wiki"] .wiki-loc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+[data-khu="wiki"] .wiki-loc-tim{
+  flex:1 1 300px;min-width:0;padding:8px 12px;border-radius:9px;
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-size:.85rem;
+}
+[data-khu="wiki"] .wiki-loc select{
+  padding:8px 10px;border-radius:9px;border:1px solid var(--line-2);
+  background:var(--surface);color:var(--ink);font-size:.82rem;
+}
+[data-khu="wiki"] .wiki-loc-tim:focus-visible,
+[data-khu="wiki"] .wiki-loc select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+[data-khu="wiki"] .wiki-loc-xoa{
+  padding:8px 13px;border-radius:9px;border:1px solid var(--line-2);
+  background:var(--surface-2);color:var(--ink-2);font-size:.82rem;cursor:pointer;
+}
+[data-khu="wiki"] .wiki-loc-xoa:hover{background:var(--surface-3)}
+[data-khu="wiki"] .wiki-dem{font-size:.79rem;color:var(--ink-3);margin:0 0 12px}
+[data-khu="wiki"] .wiki-dem b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---- Bảng tra dữ kiện ---- */
+/* Bảng rộng phải tự cuộn trong khung của nó — không được đẩy cả trang cuộn ngang. */
+[data-khu="wiki"] .wiki-bang-bo{
+  overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--surface);
+}
+[data-khu="wiki"] .wiki-bang{border-collapse:collapse;width:100%;min-width:760px;font-size:.82rem}
+[data-khu="wiki"] .wiki-bang thead th{
+  position:sticky;top:0;z-index:1;
+  background:var(--surface-3);color:var(--ink-2);
+  text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;
+  padding:9px 11px;border-bottom:1px solid var(--line-2);white-space:nowrap;
+}
+[data-khu="wiki"] .wiki-bang td,
+[data-khu="wiki"] .wiki-bang tbody th{
+  padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;
+  text-align:left;font-weight:400;line-height:1.5;
+}
+[data-khu="wiki"] .wiki-bang tbody th{white-space:nowrap;font-weight:700;color:var(--ink)}
+/* Vạch màu đầu dòng: dùng box-shadow inset trên ô ĐẦU TIÊN, không dùng border trên <tr>.
+   Với border-collapse:collapse thì border của <tr> không vẽ đáng tin, và luật nền
+   `.wiki-bang tbody tr` còn thắng specificity của `.cb-*` nên màu bị nuốt thành trong suốt. */
+[data-khu="wiki"] .wiki-bang tbody tr > *:first-child{box-shadow:inset 4px 0 0 var(--cb,transparent)}
+[data-khu="wiki"] .wiki-bang tbody tr:hover{background:var(--surface-2)}
+[data-khu="wiki"] .wiki-bang tbody tr:target{background:#fff6d8}
+[data-khu="wiki"] .wiki-bang code{
+  background:var(--surface-3);padding:1px 5px;border-radius:4px;
+  font-family:var(--font-mono);font-size:.92em;
+}
+[data-khu="wiki"] .wiki-o-trong{color:var(--ink-3)}
+[data-khu="wiki"] .wiki-cb-ten{font-size:.75rem;color:var(--ink-3)}
+/* Cột Hạng + Công bố hẹp và không được xuống dòng — đọc lướt phải thấy ngay nhãn. */
+[data-khu="wiki"] .wiki-bang td:nth-last-child(-n+2){white-space:nowrap}
+
+@media (max-width:640px){
+  [data-khu="wiki"] .wiki-chu-giai{grid-template-columns:1fr}
+  [data-khu="wiki"] .wiki-nhanh-so{font-size:.72rem}
+}

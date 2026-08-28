@@ -53,7 +53,7 @@ export default function CaseGrid({ cases }: { cases: CaseStudy[] }) {
       ) : (
         <div className="case-grid">
           {shown.map((c) => (
-            <Link className="case" href={`/marketing/kho-case/${c.slug}`} key={c.slug} style={{ textDecoration: "none", display: "block" }}>
+            <Link className="case" href={`/wiki/marketing/kho-case/${c.slug}`} key={c.slug} style={{ textDecoration: "none", display: "block" }}>
               <div className="ch">
                 <span className={VERDICT_CLASS[c.verdict]}>{VERDICT_LABEL[c.verdict]}</span>
                 <h3 style={{ color: "var(--ink)" }}>{c.title}</h3>

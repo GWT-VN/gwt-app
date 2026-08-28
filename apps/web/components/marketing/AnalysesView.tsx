@@ -121,7 +121,7 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
 
               <Link
                 className="btn btn-primary"
-                href={`/marketing/du-lieu/phan-tich-video/${current.id}`}
+                href={`/wiki/marketing/du-lieu/phan-tich-video/${current.id}`}
                 style={{ display: "block", textAlign: "center", textDecoration: "none", marginTop: 14 }}
               >
                 Mở transcript đầy đủ ({current.extract.counts.v + current.extract.counts.t} dòng) →
