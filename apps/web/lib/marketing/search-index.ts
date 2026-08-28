@@ -14,20 +14,20 @@ export function buildSearchIndex(): SearchItem[] {
     g.items.map((i) => ({ href: i.href, title: i.label, kind: g.heading })),
   );
   const rules: SearchItem[] = listRules().map((r) => ({
-    href: `/marketing/luat/${r.slug}`,
+    href: `/wiki/marketing/luat/${r.slug}`,
     title: r.title,
     kind: `Luật QC · rules/${r.slug}.md`,
   }));
   const process: SearchItem[] = PROCESS_DOCS.map((d) => ({
-    href: `/marketing/khung/quy-trinh/${d.slug}`,
+    href: `/wiki/marketing/khung/quy-trinh/${d.slug}`,
     title: d.title,
     kind: "Quy trình sản xuất",
   }));
   const luat: SearchItem[] = LUAT_GROUPS.flatMap((g) =>
-    g.items.map((l) => ({ href: "/marketing/khung/luat-sua", title: l.t, kind: `Luật sửa content · ${g.g}` })),
+    g.items.map((l) => ({ href: "/wiki/marketing/khung/luat-sua", title: l.t, kind: `Luật sửa content · ${g.g}` })),
   );
   const cases: SearchItem[] = ALL_CASES.map((c) => ({
-    href: `/marketing/kho-case/${c.slug}`,
+    href: `/wiki/marketing/kho-case/${c.slug}`,
     title: c.title,
     kind: `Kho case · ${c.brand} · ${c.code}`,
   }));

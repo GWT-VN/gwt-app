@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
   // `localhost` khoá chết mọi dev server của mọi phiên (xem lỗi 25, backlog nền tảng);
   // `127.0.0.1` là host khác nên thoát được mà không phải xoá cookie của phiên khác.
   allowedDevOrigins: ['127.0.0.1'],
+
+  // Khu Marketing dọn vào khu Wiki (28/08/2026). Giữ đường cũ sống vĩnh viễn: link
+  // /marketing đã nằm trong chat, tài liệu và dấu trang của nhân viên từ hôm 28/08.
+  // permanent:false — còn có thể đổi cấu trúc nữa, đừng để trình duyệt nhớ cứng 308.
+  async redirects() {
+    return [
+      { source: '/marketing', destination: '/wiki/marketing', permanent: false },
+      { source: '/marketing/:path*', destination: '/wiki/marketing/:path*', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

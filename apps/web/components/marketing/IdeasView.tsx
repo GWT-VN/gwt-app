@@ -129,7 +129,7 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
               {current.hasTranscript && (
                 <Link
                   className="btn btn-primary"
-                  href={`/marketing/du-lieu/video-ideas/${current.id}`}
+                  href={`/wiki/marketing/du-lieu/video-ideas/${current.id}`}
                   style={{ display: "block", textAlign: "center", textDecoration: "none", marginTop: 14 }}
                 >
                   {current.extract.counts.v

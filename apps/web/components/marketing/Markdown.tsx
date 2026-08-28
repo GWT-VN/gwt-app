@@ -8,9 +8,9 @@ import remarkGfm from "remark-gfm";
 function rewriteHref(href?: string): string | undefined {
   if (!href) return href;
   const rule = href.match(/rules\/([a-z0-9_-]+)\.md$/i);
-  if (rule) return `/marketing/luat/${rule[1]}`;
+  if (rule) return `/wiki/marketing/luat/${rule[1]}`;
   const proc = href.match(/Quy-trinh-editor-ngoai\.md$/i);
-  if (proc) return "/marketing/khung/quy-trinh/editor-ngoai";
+  if (proc) return "/wiki/marketing/khung/quy-trinh/editor-ngoai";
   return href;
 }
 
