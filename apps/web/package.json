@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "env:local": "cp .env.local.dev .env.local && echo '→ .env.local đang trỏ LOCAL (127.0.0.1). Chạy: npm run dev'",
-    "env:prod": "cp .env.local.prod .env.local && echo '→ .env.local đang trỏ PRODUCTION — cẩn thận với dữ liệu thật!'"
+    "env:prod": "cp .env.local.prod .env.local && echo '→ .env.local đang trỏ PRODUCTION — cẩn thận với dữ liệu thật!'",
+    "sync:marketing": "node ../../tools/scripts/sync-marketing-content.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
@@ -17,6 +18,9 @@
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
