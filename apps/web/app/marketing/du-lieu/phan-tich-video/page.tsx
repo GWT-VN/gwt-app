@@ -5,14 +5,15 @@ import { getAnalyses } from "@/lib/marketing/supabase-mkt";
 export const metadata = { title: "Phân tích video" };
 
 export default async function Page() {
-  let content: React.ReactNode;
+  let rows: Awaited<ReturnType<typeof getAnalyses>>["rows"] | null = null;
   let total: number | null = null;
+  let loi: unknown = null;
   try {
-    const { rows, total: n } = await getAnalyses();
-    total = n;
-    content = <AnalysesView rows={rows} />;
+    const kq = await getAnalyses();
+    rows = kq.rows;
+    total = kq.total;
   } catch (e) {
-    content = <DataError error={e} />;
+    loi = e;
   }
 
   return (
@@ -25,7 +26,7 @@ export default async function Page() {
           chi tiết bên phải.
         </p>
       </div>
-      {content}
+      {loi ? <DataError error={loi} /> : <AnalysesView rows={rows ?? []} />}
     </section>
   );
 }

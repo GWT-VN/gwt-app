@@ -24,7 +24,13 @@ export default function Search({ index }: { index: SearchItem[] }) {
     return index.filter((i) => norm(`${i.title} ${i.kind}`).includes(needle)).slice(0, 8);
   }, [q, index]);
 
-  useEffect(() => setActive(0), [q]);
+  // Gõ chữ mới thì con trỏ chọn về dòng đầu — chỉnh ngay khi render, không qua effect
+  // (effect làm mũi tên lên/xuống nhấp nháy một nhịp, và eslint chặn setState-trong-effect).
+  const [qCu, setQCu] = useState(q);
+  if (qCu !== q) {
+    setQCu(q);
+    setActive(0);
+  }
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {

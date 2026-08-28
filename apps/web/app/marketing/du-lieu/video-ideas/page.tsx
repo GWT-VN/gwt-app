@@ -5,14 +5,15 @@ import { getIdeas } from "@/lib/marketing/supabase-mkt";
 export const metadata = { title: "Video Ideas" };
 
 export default async function Page() {
-  let content: React.ReactNode;
+  let rows: Awaited<ReturnType<typeof getIdeas>>["rows"] | null = null;
   let total: number | null = null;
+  let loi: unknown = null;
   try {
-    const { rows, total: n } = await getIdeas();
-    total = n;
-    content = <IdeasView rows={rows} />;
+    const kq = await getIdeas();
+    rows = kq.rows;
+    total = kq.total;
   } catch (e) {
-    content = <DataError error={e} />;
+    loi = e;
   }
 
   return (
@@ -25,7 +26,7 @@ export default async function Page() {
           {total != null ? ` — ${total} ý tưởng` : ""}. Bấm một dòng để xem chi tiết.
         </p>
       </div>
-      {content}
+      {loi ? <DataError error={loi} /> : <IdeasView rows={rows ?? []} />}
     </section>
   );
 }

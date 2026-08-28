@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@/lib/marketing/icons";
 import { NAV, crumbFor } from "@/lib/marketing/nav";
 import Search, { type SearchItem } from "./Search";
@@ -26,7 +26,15 @@ export default function KhuShell({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => setMenuOpen(false), [pathname]);
+  // Điều hướng xong thì đóng drawer sidebar trên mobile.
+  // Chỉnh state NGAY TRONG RENDER khi pathname đổi (khuôn "adjusting state when a prop
+  // changes" của React) thay vì useEffect: bằng effect thì trang mới vẽ ra một nhịp với
+  // menu còn mở rồi mới đóng — chớp một cái, và eslint chặn setState-trong-effect.
+  const [duongCu, setDuongCu] = useState(pathname);
+  if (duongCu !== pathname) {
+    setDuongCu(pathname);
+    setMenuOpen(false);
+  }
 
   return (
     <div className="app-shell">

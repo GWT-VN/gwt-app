@@ -1,10 +1,17 @@
+import Link from "next/link";
 import { LUAT_COUNT, LUAT_GROUPS } from "@/lib/marketing/data/luat-sua";
 import { Icon } from "@/lib/marketing/icons";
 
 export const metadata = { title: "Luật sửa content" };
 
 export default function Page() {
-  let n = 0;
+  // Số thứ tự chạy suốt 8 nhóm. Trước đây dùng biến `let n` rồi ++ ngay trong JSX —
+  // React có thể render lại một phần cây, biến sẽ đếm sai. Tính sẵn mốc đầu mỗi nhóm.
+  const offsets: number[] = [];
+  LUAT_GROUPS.reduce((acc, g) => {
+    offsets.push(acc);
+    return acc + g.items.length;
+  }, 0);
   return (
     <section className="view">
       <div className="page-head">
@@ -20,19 +27,19 @@ export default function Page() {
         <Icon.warn />
         <div>
           Đây là luật <b>nội dung</b>. Khi va nhau với <b>luật quảng cáo VN</b> (
-          <a href="/marketing/luat/ad-compliance-vn">rules/ad-compliance-vn.md</a>) thì luật QC thắng.
+          <Link href="/marketing/luat/ad-compliance-vn">rules/ad-compliance-vn.md</Link>) thì luật QC thắng.
         </div>
       </div>
 
-      {LUAT_GROUPS.map((group) => (
+      {LUAT_GROUPS.map((group, gi) => (
         <div key={group.g} style={{ marginTop: 28 }}>
           <div className="page-head" style={{ margin: "0 0 12px" }}>
             <h1 style={{ fontSize: "1.15rem", margin: "0 0 .2em" }}>{group.g}</h1>
             <p style={{ fontSize: ".86rem" }}>{group.sub}</p>
           </div>
           <div className="principles">
-            {group.items.map((l) => {
-              n += 1;
+            {group.items.map((l, li) => {
+              const n = offsets[gi] + li + 1;
               return (
                 <div className="principle" key={l.t}>
                   <div className="pn">{String(n).padStart(2, "0")}</div>

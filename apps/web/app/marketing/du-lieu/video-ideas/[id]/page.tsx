@@ -151,7 +151,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       <div className="notice" style={{ marginTop: 0 }}>
         <Icon.warn />
         <div>
-          Transcript do máy nhận dạng. Theo <a href="/marketing/luat/nguon-dan-chung">rule nguồn dẫn chứng mục 8b</a>: mọi{" "}
+          Transcript do máy nhận dạng. Theo <Link href="/marketing/luat/nguon-dan-chung">rule nguồn dẫn chứng mục 8b</Link>: mọi{" "}
           <b>con số, đơn vị, tên riêng</b> ở đây là <b>hạng C</b> — nghe lại bản gốc trước khi trích hay phản biện.
         </div>
       </div>

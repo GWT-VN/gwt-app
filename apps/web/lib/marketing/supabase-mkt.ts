@@ -139,10 +139,12 @@ export async function getAnalyses(): Promise<{ rows: AnalysisRow[]; total: numbe
   });
   return {
     total,
-    rows: rows.map(({ transcript, structure, ...rest }) => ({
-      ...rest,
-      extract: extractFrom(transcript),
-    })),
+    // Bỏ transcript (dài) và structure (không dùng ở bảng) trước khi gửi xuống client.
+    rows: rows.map((r) => {
+      const { transcript, structure: _bo, ...rest } = r;
+      void _bo;
+      return { ...rest, extract: extractFrom(transcript) };
+    }),
   };
 }
 
