@@ -80,6 +80,7 @@ export function TopNavClient({
           { nhan: 'Máy đã lắp', href: '/' }, { nhan: 'Kho serial', href: '/serial' },
           { nhan: 'Khách hàng', href: '/khach-hang' }, { nhan: 'Khách cần dọn', href: '/khach' },
           { nhan: 'Gộp khách trùng', href: '/khach/gop' },
+          { nhan: 'Soát kênh khách', href: '/khach/kenh' },
           { nhan: 'Kênh / đối tác', href: '/kenh' },
         ] },
         { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Nhóm lỗi', href: '/nhom-loi' }] },

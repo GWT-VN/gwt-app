@@ -5183,3 +5183,86 @@ export async function nuocCuaKhach(customerId: string): Promise<DongNuoc[]> {
     }
   })
 }
+
+
+// ── Soát kênh khách CSKH ────────────────────────────────────────────────────
+/**
+ * CEO 31/08: *"Gửi lại tôi danh sách để tôi kiểm tra chứ mở từng người 113 người bao giờ mới
+ * xong. Chia ra gồm 113 máy điền, 74 người điền và 240 trống thành 3 tab cho tôi xem."*
+ *
+ * Soát kênh là việc ĐỌC HÀNG LOẠT rồi sửa vài dòng — mở 113 hồ sơ là sai cách dùng.
+ */
+export type NhomKenh = 'may' | 'nguoi' | 'trong'
+
+export type DongSoatKenh = {
+  id: string; ten: string | null; sdt: string | null; ma_kh: string | null
+  tinh: string | null; channel_id: number | null; kenh: string | null
+  tu_dong: boolean; so_may: number
+}
+
+export async function soatKenhKhach(
+  nhom: NhomKenh, q = '', trang = 1
+): Promise<KetQuaTrang<DongSoatKenh> & { dem: Record<NhomKenh, number> }> {
+  await requireStaff()
+  await doQuyen('cs.khach.xem')
+  const db = dataClient()
+  const moi = MOI_TRANG
+
+  const dem = async (n: NhomKenh) => {
+    let t = db.from('cs_customers').select('id', { count: 'exact', head: true }).neq('trang_thai', 'da_xoa')
+    t = n === 'trong' ? t.is('channel_id', null)
+      : n === 'may'   ? t.not('channel_id', 'is', null).is('channel_tu_dong', true)
+                      : t.not('channel_id', 'is', null).not('channel_tu_dong', 'is', true)
+    const { count } = await t
+    return count ?? 0
+  }
+  const [dMay, dNguoi, dTrong] = await Promise.all([dem('may'), dem('nguoi'), dem('trong')])
+
+  let truyVan = db.from('cs_customers')
+    .select('id, full_name, primary_phone, ma_kh, province, channel_id, channel_tu_dong', { count: 'exact' })
+    .neq('trang_thai', 'da_xoa')
+  truyVan = nhom === 'trong' ? truyVan.is('channel_id', null)
+    : nhom === 'may'   ? truyVan.not('channel_id', 'is', null).is('channel_tu_dong', true)
+                       : truyVan.not('channel_id', 'is', null).not('channel_tu_dong', 'is', true)
+
+  const kw = antoanChoOr(chuanHoaTuKhoa(q))
+  if (kw) truyVan = truyVan.or(`ten_kd.imatch.${mauDauTu(kw)},primary_phone.ilike.%${kw}%,ma_kh.ilike.%${kw}%`)
+
+  const { data, error, count } = await truyVan
+    .order('full_name', { ascending: true, nullsFirst: false })
+    .range((trang - 1) * moi, (trang - 1) * moi + moi - 1)
+  if (error) throw new Error(error.message)
+
+  const rows0 = (data ?? []) as {
+    id: string; full_name: string | null; primary_phone: string | null; ma_kh: string | null
+    province: string | null; channel_id: number | null; channel_tu_dong: boolean | null
+  }[]
+
+  // Tên kênh + số máy: tra theo LÔ cho đúng trang đang xem.
+  const chIds = [...new Set(rows0.map((r) => r.channel_id).filter((x) => x != null))] as number[]
+  const tenKenh = new Map<number, string>()
+  if (chIds.length) {
+    const { data: ch } = await db.from('dim_channel').select('id, channel_l1, channel_l2').in('id', chIds)
+    for (const c of (ch ?? []) as { id: number; channel_l1: string; channel_l2: string | null }[])
+      tenKenh.set(c.id, [c.channel_l1, c.channel_l2].filter(Boolean).join(' › '))
+  }
+  const soMay = new Map<string, number>()
+  if (rows0.length) {
+    const { data: ib } = await db.from('installed_base')
+      .select('customer_id').in('customer_id', rows0.map((r) => r.id))
+    for (const m of (ib ?? []) as { customer_id: string | null }[])
+      if (m.customer_id) soMay.set(m.customer_id, (soMay.get(m.customer_id) ?? 0) + 1)
+  }
+
+  const tong = count ?? 0
+  return {
+    rows: rows0.map((r) => ({
+      id: r.id, ten: r.full_name, sdt: r.primary_phone, ma_kh: r.ma_kh, tinh: r.province,
+      channel_id: r.channel_id, kenh: r.channel_id != null ? tenKenh.get(r.channel_id) ?? null : null,
+      tu_dong: Boolean(r.channel_tu_dong), so_may: soMay.get(r.id) ?? 0,
+    })),
+    tong, trang, soTrang: Math.max(1, Math.ceil(tong / moi)),
+    sapXep: { cot: 'full_name', tang: true, macDinh: true },
+    dem: { may: dMay, nguoi: dNguoi, trong: dTrong },
+  }
+}
