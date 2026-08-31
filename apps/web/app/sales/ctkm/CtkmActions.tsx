@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
-import { banHanh, ketThucSom, nhanBan } from './actions'
+import { banHanh, ketThucSom, nhanBan, xoaNhap } from './actions'
 
 /** Tháng kế tiếp so với hôm nay, dạng YYYY-MM. Tính theo giờ máy, không dùng UTC. */
 function thangSau(): string {
@@ -78,6 +78,23 @@ export function CtkmActions({
               Chờ duyệt
             </span>
           ))}
+
+        {/* Xoá HẲN — chỉ bản nháp. Bản đã ban hành dùng "Kết thúc sớm": đơn cũ cần giữ
+            dấu vết vì sao được giá đó. */}
+        {trangThai === 'nhap' && quyen.soan && (
+          <button
+            type="button"
+            disabled={dangChay}
+            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50"
+            onClick={() => {
+              if (confirm(`Xoá hẳn bản nháp "${ten}"?\n\nKênh, sản phẩm và quà của chương trình cũng mất theo. Không khôi phục được.`))
+                chay(() => xoaNhap(id))
+            }}
+            title="Xoá hẳn bản nháp này"
+          >
+            🗑 Xoá nháp
+          </button>
+        )}
 
         {trangThai === 'ban_hanh' && quyen.duyet && (
           <button

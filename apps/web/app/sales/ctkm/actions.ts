@@ -6,6 +6,7 @@ import { dataClient } from '@/lib/nen-tang/db'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { coQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import type { KieuGiam, NhomTru } from '../_ctkm'
 
 const KHONG_DU_QUYEN = 'Bạn không có quyền làm việc này.'
@@ -483,4 +484,31 @@ export async function luuNhap(input: CtkmInput): Promise<Kq> {
 
   revalidatePath('/sales/ctkm')
   return { ok: true, id }
+}
+
+/**
+ * XOÁ HẲN một chương trình — CHỈ bản nháp.
+ *
+ * Bản đã ban hành thì KHÔNG xoá, chỉ "kết thúc sớm": đơn cũ đã hưởng chương trình đó, xoá đi
+ * là đơn mất dấu vết vì sao được giá đó. Bản nháp thì chưa đơn nào chạm tới, xoá sạch được.
+ * CEO chốt 31/08 sau khi dọn mấy bản thử nghiệm.
+ *
+ * Kênh / sản phẩm / quà tự xoá theo nhờ khoá ngoại ON DELETE CASCADE.
+ */
+export async function xoaNhap(id: string): Promise<Kq> {
+  await chanXem()
+  if (!(await coQuyen('sales.ctkm.soan', 'NHANVIEN'))) return { ok: false, error: KHONG_DU_QUYEN }
+
+  const db = dataClient()
+  const { data } = await db.from('sales_ctkm').select('trang_thai, ten').eq('id', id).maybeSingle()
+  const row = data as { trang_thai?: string; ten?: string } | null
+  if (!row) return { ok: false, error: 'Không tìm thấy chương trình này.' }
+  if (row.trang_thai !== 'nhap')
+    return { ok: false, error: 'Chỉ xoá được bản NHÁP. Chương trình đã ban hành thì dùng "Kết thúc sớm" — đơn cũ cần giữ dấu vết vì sao được giá đó.' }
+
+  const { error } = await db.from('sales_ctkm').delete().eq('id', id)
+  if (error) return { ok: false, error: error.message }
+  await ghiAudit('sales_xoa_ctkm_nhap', `ctkm:${id}`, { ten: row.ten })
+  revalidatePath('/sales/ctkm')
+  return { ok: true }
 }

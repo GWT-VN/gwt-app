@@ -195,7 +195,11 @@ export async function lichSuChinhSach(): Promise<DongLichSuGia[]> {
   await chanXem()
   const db = dataClient()
   const [{ data }, gia] = await Promise.all([
-    db.from('sales_chinh_sach_gia').select('*').order('cap_nhat_luc', { ascending: false }).limit(300),
+    // CHỈ lấy bản ĐÃ THAY THẾ. Trước đây lấy tất cả nên mục "Lịch sử thay đổi" hiện
+    // luôn cả chính sách ĐANG ÁP — nhìn như 35 dòng rác trong khi đó là bảng giá đang chạy.
+    // CEO suýt bảo xoá sạch (31/08). Lịch sử phải là thứ ĐÃ QUA, không phải thứ đang dùng.
+    db.from('sales_chinh_sach_gia').select('*').eq('trang_thai', 'thay_the')
+      .order('cap_nhat_luc', { ascending: false }).limit(300),
     bangGiaNiemYet(),
   ])
   const ten = new Map(gia.map((g) => [g.ma, g.ten]))
