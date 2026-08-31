@@ -44,15 +44,25 @@ type SoMap = Partial<Record<SoField, string>>
 
 /** Đo nước cho 1 việc bảo trì. "Trước lọc" dùng chung `truoc` cả chuyến; "sau lọc" riêng máy này. */
 function DoNuocViec({
-  visitId, mmloai, truoc, setTruoc,
+  visitId, mmloai, truoc, setTruoc, doNuoc,
 }: {
   visitId: string; mmloai: LoaiMay; truoc: SoMap; setTruoc: (f: (c: SoMap) => SoMap) => void
+  /** Chỉ số ĐÃ đo lần trước — mở form ra là thấy lại, không phải gõ lại từ đầu. */
+  doNuoc?: import('@/app/actions').DoNuoc | null
 }) {
   const router = useRouter()
   const [mo, setMo] = useState(false)
   const [ngay, setNgay] = useState(HOM_NAY())
-  const [sau, setSau] = useState<SoMap>({})
-  const [ghiChu, setGhiChu] = useState('')
+  // Đổ lại số SAU lọc đã lưu. Số TRƯỚC lọc dùng chung cả chuyến nên do màn cha giữ.
+  const [sau, setSau] = useState<SoMap>(() => {
+    const o: SoMap = {}
+    if (!doNuoc) return o
+    const g = (k: SoField, v: number | null) => { if (v !== null && v !== undefined) o[k] = String(v) }
+    g('tds_sau', doNuoc.tds_sau); g('ph_sau', doNuoc.ph_sau)
+    g('do_cung_sau', doNuoc.do_cung_sau); g('clo_sau', doNuoc.clo_sau)
+    return o
+  })
+  const [ghiChu, setGhiChu] = useState(doNuoc?.ket_qua_ghi_chu ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
@@ -165,7 +175,7 @@ function TripCard({ r, busy, hoanThanh, moLai }: {
             </div>
             {v.loai_viec === 'bao_tri' && v.ref && (
               <div className="mt-1.5">
-                <DoNuocViec visitId={v.ref} mmloai={v.mmloai ?? null} truoc={truoc} setTruoc={setTruoc} />
+                <DoNuocViec visitId={v.ref} mmloai={v.mmloai ?? null} truoc={truoc} setTruoc={setTruoc} doNuoc={v.do_nuoc} />
               </div>
             )}
           </li>

@@ -47,27 +47,38 @@ export default async function XemLichKyThuatPage({
   // Lọc theo TỈNH — CEO yêu cầu 24/08 ("thêm kĩ thuật theo tỉnh nào và lọc đc theo tỉnh").
   // Chỉ dựng chip cho tỉnh THẬT SỰ có kỹ thuật: cả app mới vài người, bày đủ 64 tỉnh là
   // 60 chip rỗng. Nhờ vậy cũng không vướng luật "quá 10 mục phải gõ để tìm".
-  const dsTinh = [...new Set(dsKt.map((k) => (k.tinh ?? '').trim()).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, 'vi'))
-  // Chặn giá trị rác trong đường dẫn: tỉnh không có ai phụ trách thì coi như không lọc.
-  const tinhOk = tinh && dsTinh.includes(tinh) ? tinh : undefined
-  const ktTrongTinh = tinhOk ? dsKt.filter((k) => (k.tinh ?? '').trim() === tinhOk) : dsKt
-  const idTrongTinh = new Set(ktTrongTinh.map((k) => k.id))
-
   const rowsAll = laBoard
     ? await dsLichKyThuat(days[0], days[6], kt || undefined)
     : laCalendar
       ? await dsLichKyThuat(`${thang}-01`, `${thang}-31`, kt || undefined)
       : await dsLichKyThuat(tu, den, kt || undefined)
+
+  // Danh sách tỉnh lấy từ TỈNH CỦA CHUYẾN (nơi có việc), không phải tỉnh của kỹ thuật.
+  // Trước 31/08 lấy theo kỹ thuật nên danh sách hiện những tỉnh không có việc nào, còn
+  // tỉnh CÓ việc mà chưa ai ở đó thì không hiện.
+  const dsTinh = [...new Set(rowsAll.map((r) => (r.tinh ?? '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'vi'))
+  const tinhOk = tinh && dsTinh.includes(tinh) ? tinh : undefined
+
+  // Cột kỹ thuật trên bảng điều phối: khi lọc tỉnh thì chỉ giữ KT CÓ VIỆC ở tỉnh đó — bám
+  // theo việc thật, chứ không theo tỉnh khai trong hồ sơ KT (một KT hoàn toàn có thể đi
+  // tỉnh khác, và anh Ánh chính là ca đó).
   const rows = rowsAll.filter((r) => {
     // Lọc theo loại việc: giữ chuyến có ÍT NHẤT 1 việc thuộc loại đó.
     if (loai && !r.viec.some((v) => v.loai_viec === loai)) return false
     if (!tinhOk) return true
-    // Chuyến ĐÃ gán -> xét tỉnh của người được gán. Chuyến CHƯA gán ai thì xét tỉnh của
-    // chính chuyến đó — cố ý giữ lại, vì đó đúng là thứ người điều phối cần thấy khi đang
-    // hỏi "tỉnh này còn việc nào chưa có người?".
-    return r.ky_thuat_id ? idTrongTinh.has(r.ky_thuat_id) : (r.tinh ?? '').trim() === tinhOk
+    // Lọc tỉnh = tỉnh CỦA CHUYẾN, tức nơi phải đến làm.
+    //
+    // ĐỔI 31/08 (CEO bắt được): bản cũ, chuyến ĐÃ gán thì xét tỉnh của KỸ THUẬT được gán.
+    // Hậu quả đúng như CEO thấy — anh Ánh ở **Hà Tĩnh** nhưng chuyến gán cho KT ở **Hà Nội**,
+    // nên lọc "Hà Nội" vẫn ra anh Ánh. Người điều phối lọc tỉnh là đang hỏi *"hôm nay có việc
+    // gì ở tỉnh này"*, không phải *"kỹ thuật tỉnh này đang đi đâu"* — muốn hỏi câu sau thì đã
+    // có sẵn bộ lọc theo từng kỹ thuật.
+    return (r.tinh ?? '').trim() === tinhOk
   })
+
+  const idCoViec = new Set(rows.map((r) => r.ky_thuat_id).filter(Boolean) as string[])
+  const ktTrongTinh = tinhOk ? dsKt.filter((k) => idCoViec.has(k.id)) : dsKt
 
   // Base params luôn mang theo: kt + loai + tinh (đổi view / tuần không được mất bộ lọc kia).
   const giuLoc: Record<string, string> = { ...(kt ? { kt } : {}), ...(loai ? { loai } : {}), ...(tinhOk ? { tinh: tinhOk } : {}) }

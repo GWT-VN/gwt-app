@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCustomer, ticketsOfCustomer, machinesOfCustomer, kenhChon, baoTriCuaKhach, diaChiCuaKhach } from '@/app/actions'
 import { DiaChiKhachList } from '@/components/DiaChiKhachList'
+import { NuocCuaKhach } from '@/components/NuocCuaKhach'
 import { CustomerEditor } from '@/components/CustomerEditor'
 import { GopKhachButton } from '@/components/GopKhachButton'
 import { GanKenh } from '@/components/GanKenh'
@@ -113,6 +114,9 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
       </section>
       <CustomerEditor customer={customer} contacts={contacts} />
       <DiaChiKhachList customerId={customer.id} items={diaChi} />
+
+      {/* Lịch sử chất lượng nước — CEO yêu cầu 31/08: xem theo TỪNG LẦN kiểm tra. */}
+      <NuocCuaKhach customerId={customer.id} />
     </div>
   )
 

@@ -80,12 +80,14 @@ export function TopNavClient({
           { nhan: 'Máy đã lắp', href: '/' }, { nhan: 'Kho serial', href: '/serial' },
           { nhan: 'Khách hàng', href: '/khach-hang' }, { nhan: 'Khách cần dọn', href: '/khach' },
           { nhan: 'Gộp khách trùng', href: '/khach/gop' },
+          { nhan: 'Soát kênh khách', href: '/khach/kenh' },
           { nhan: 'Kênh / đối tác', href: '/kenh' },
         ] },
         { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Nhóm lỗi', href: '/nhom-loi' }] },
         { nhan: 'Bảo hành', trang: [{ nhan: 'Đăng ký BH', href: '/dang-ky-bh' }, { nhan: 'Chờ kích hoạt BH', href: '/bh-cho-kich-hoat' }] },
         { nhan: 'Bảo trì', trang: [
           { nhan: 'Lịch bảo trì', href: '/bao-tri' }, { nhan: 'Lịch thay lõi', href: '/loi' },
+          { nhan: 'Hồ sơ nước', href: '/nuoc' },
           ...(co('cs.bao_tri.tao_plan') ? [
             { nhan: 'Map khách', href: '/bao-tri/map' }, { nhan: 'Lên lịch & gói', href: '/bao-tri/len-lich' },
           ] : []),
