@@ -1,6 +1,8 @@
 'use server'
 
 import { randomBytes } from 'node:crypto'
+import { boDau } from '@/bang/timkiem'
+import type { DoNuoc } from '@/lib/nuoc'
 import { revalidatePath } from 'next/cache'
 import { dataClient } from '@/lib/nen-tang/db'
 import { layNhanVien, requireStaff } from '@/lib/nen-tang/phien'
@@ -1064,6 +1066,8 @@ export async function coreCounts() {
 }
 
 // ── Lịch bảo trì đến hạn (v_maintenance_due) ────────────────────────────────
+export type { DoNuoc } from '@/lib/nuoc'
+
 export type MaintenanceDue = {
   visit_id: string
   lan_thu: number | null
@@ -1077,7 +1081,12 @@ export type MaintenanceDue = {
   primary_phone: string | null
   chua_khop_khach: boolean | null
   tinh_trang: string
+  /** Chỉ số nước ĐÃ ĐO của lượt này. Có để bảng hiện ngay và form đổ lại được. */
+  do_nuoc?: DoNuoc | null
 }
+
+const COT_DO_NUOC =
+  'id, tds_truoc, tds_sau, ph_truoc, ph_sau, do_cung_truoc, do_cung_sau, clo_truoc, clo_sau, ket_qua_ghi_chu'
 
 export async function maintenanceDue(
   tinhTrang: string,
@@ -1121,8 +1130,31 @@ export async function maintenanceDue(
   if (error) throw new Error(error.message)
 
   const tong = count ?? 0
+  const rows = (data ?? []) as MaintenanceDue[]
+
+  // Nạp chỉ số nước cho ĐÚNG các dòng đang hiện (tối đa 1 trang), không phải cả bảng.
+  //
+  // Vì sao query riêng chứ không thêm cột vào `v_maintenance_due`: view đó là danh sách cột
+  // chọn lọc mà nhiều khu đang đọc; sửa định nghĩa view chỉ để lấy 9 cột là rủi ro thừa —
+  // đúng lý do đã nêu ở `daiLyCuaMay()`.
+  //
+  // Vì sao phải có: trước 31/08 số đo LƯU ĐƯỢC nhưng KHÔNG màn nào đọc ra, nên nhìn từ ngoài
+  // không phân biệt được "đã lưu" với "mất trắng" — CEO báo *"kết quả đều ko lưu"* là kết luận
+  // hợp lý từ thứ nhìn thấy được.
+  if (rows.length) {
+    const ids = rows.map((r) => r.visit_id)
+    const { data: dn } = await dataClient()
+      .from('maintenance_visit').select(COT_DO_NUOC).in('id', ids)
+    const map = new Map<string, DoNuoc>()
+    for (const x of (dn ?? []) as (DoNuoc & { id: string })[]) {
+      const { id, ...chiSo } = x
+      map.set(id, chiSo)
+    }
+    for (const r of rows) r.do_nuoc = map.get(r.visit_id) ?? null
+  }
+
   return {
-    rows: (data ?? []) as MaintenanceDue[],
+    rows,
     tong,
     trang,
     soTrang: Math.max(1, Math.ceil(tong / moi)),
@@ -2099,6 +2131,8 @@ export type ViecLich = {
   loai_viec: string; mo_ta: string | null; ref: string | null; so_tien: number | null
   /** Chỉ set cho việc bảo trì: loại máy của lượt (suy từ serial → catalog cấp 2). */
   mmloai?: LoaiMay
+  /** Chỉ set cho việc bảo trì: chỉ số nước ĐÃ đo — để kỹ thuật mở ra thấy lại, không gõ lại. */
+  do_nuoc?: DoNuoc | null
 }
 
 export type LichKyThuatRow = {
@@ -2269,9 +2303,22 @@ export async function lichCuaToi(tu: string, den: string): Promise<{ kt: KyThuat
   // Gắn loại máy (POU/POE) cho từng việc bảo trì -> form đo hiện đúng chỉ tiêu.
   const refs = rows.flatMap((r) => r.viec.filter((v) => v.loai_viec === 'bao_tri' && v.ref).map((v) => v.ref!))
   const loaiMap = await phanLoaiVisit(refs)
+  // Kèm chỉ số ĐÃ đo: kỹ thuật ghi dở, đóng máy, mở lại phải thấy số cũ chứ không gõ lại.
+  const doMap = new Map<string, DoNuoc>()
+  if (refs.length) {
+    const { data } = await dataClient()
+      .from('maintenance_visit').select(COT_DO_NUOC).in('id', [...new Set(refs)])
+    for (const x of (data ?? []) as (DoNuoc & { id: string })[]) {
+      const { id, ...chiSo } = x
+      doMap.set(id, chiSo)
+    }
+  }
   for (const r of rows) {
     for (const v of r.viec) {
-      if (v.loai_viec === 'bao_tri' && v.ref) v.mmloai = loaiMap.get(v.ref) ?? null
+      if (v.loai_viec === 'bao_tri' && v.ref) {
+        v.mmloai = loaiMap.get(v.ref) ?? null
+        v.do_nuoc = doMap.get(v.ref) ?? null
+      }
     }
   }
   return { kt, rows }
@@ -5001,4 +5048,138 @@ export async function demKhachThieuSdt(): Promise<number> {
     .neq('trang_thai', 'da_xoa')
     .or('primary_phone.is.null,needs_phone.is.true')
   return count ?? 0
+}
+
+
+// ── Hồ sơ chất lượng nước ───────────────────────────────────────────────────
+/**
+ * CEO yêu cầu 31/08/2026, hai hồ sơ:
+ *   · theo TỪNG KHÁCH — mỗi lần kiểm tra một dòng;
+ *   · TOÀN BỘ khách — lọc theo tỉnh/thành, địa chỉ, thời gian.
+ *
+ * Dữ liệu vốn đã nằm ở `maintenance_visit` từ lâu nhưng **không màn nào đọc ra**, nên số đo
+ * ghi xong coi như biến mất. Đây là chỗ đọc ra.
+ */
+export type DongNuoc = {
+  visit_id: string
+  ngay: string | null            // ngày đo THỰC TẾ (completed_at), rơi về due_date nếu thiếu
+  lan_thu: number | null
+  customer_id: string | null
+  ten_khach: string | null
+  tinh: string | null
+  dia_chi: string | null
+  bo_may: string | null
+  do_nuoc: DoNuoc
+}
+
+/**
+ * Lọc theo khách / tỉnh / khoảng ngày. Chỉ trả lượt CÓ ít nhất một chỉ số — hồ sơ nước mà
+ * liệt kê cả lượt chưa đo thì phải lật vài trang mới thấy một số.
+ */
+export async function hoSoNuoc(
+  q = '',
+  tuyChon: { tinh?: string; tu?: string; den?: string; trang?: number; moiTrang?: number } = {}
+): Promise<KetQuaTrang<DongNuoc>> {
+  await requireStaff()
+  await doQuyen('cs.bao_tri.xem')
+  const db = dataClient()
+  const trang = Math.max(1, tuyChon.trang ?? 1)
+  const moi = tuyChon.moiTrang ?? MOI_TRANG
+
+  let truyVan = db.from('maintenance_visit')
+    .select(`id, lan_thu, due_date, completed_at, plan_id, ${COT_DO_NUOC.replace('id, ', '')}`, { count: 'exact' })
+    // "Có đo" = có ít nhất một trong 8 chỉ số. Ghi chú không tính: nhiều lượt chỉ có ghi chú
+    // việc làm (thay lõi, kiểm tra van) mà không đo nước.
+    .or('tds_truoc.not.is.null,tds_sau.not.is.null,ph_truoc.not.is.null,ph_sau.not.is.null,' +
+        'do_cung_truoc.not.is.null,do_cung_sau.not.is.null,clo_truoc.not.is.null,clo_sau.not.is.null')
+
+  const { tu, den } = { tu: tuyChon.tu, den: tuyChon.den }
+  if (tu)  truyVan = truyVan.gte('completed_at', tu)
+  if (den) truyVan = truyVan.lte('completed_at', den)
+
+  const { data, error, count } = await truyVan
+    .order('completed_at', { ascending: false, nullsFirst: false })
+    .order('id', { ascending: true })
+    .range((trang - 1) * moi, (trang - 1) * moi + moi - 1)
+  if (error) throw new Error(error.message)
+
+  const visits = (data ?? []) as unknown as (DoNuoc & {
+    id: string; lan_thu: number | null; due_date: string | null
+    completed_at: string | null; plan_id: string | null
+  })[]
+
+  // Khách + tỉnh + địa chỉ nằm ở plan -> cs_customers. Tra theo lô, không mỗi dòng một câu.
+  const planIds = [...new Set(visits.map((v) => v.plan_id).filter(Boolean))] as string[]
+  const plans = new Map<string, { customer_id: string | null; bo_may: string | null }>()
+  if (planIds.length) {
+    const { data: ps } = await db.from('maintenance_plan').select('id, customer_id, bo_may').in('id', planIds)
+    for (const p of (ps ?? []) as { id: string; customer_id: string | null; bo_may: string | null }[])
+      plans.set(p.id, { customer_id: p.customer_id, bo_may: p.bo_may })
+  }
+  const custIds = [...new Set([...plans.values()].map((p) => p.customer_id).filter(Boolean))] as string[]
+  const khach = new Map<string, { full_name: string | null; province: string | null; address: string | null }>()
+  if (custIds.length) {
+    const { data: ks } = await db.from('cs_customers')
+      .select('id, full_name, province, address').in('id', custIds)
+    for (const k of (ks ?? []) as { id: string; full_name: string | null; province: string | null; address: string | null }[])
+      khach.set(k.id, { full_name: k.full_name, province: k.province, address: k.address })
+  }
+
+  let rows: DongNuoc[] = visits.map((v) => {
+    const p = v.plan_id ? plans.get(v.plan_id) : undefined
+    const k = p?.customer_id ? khach.get(p.customer_id) : undefined
+    const { id, lan_thu, due_date, completed_at, plan_id, ...chiSo } = v
+    return {
+      visit_id: id, lan_thu,
+      ngay: (completed_at ?? due_date)?.slice(0, 10) ?? null,
+      customer_id: p?.customer_id ?? null,
+      ten_khach: k?.full_name ?? null,
+      tinh: k?.province ?? null,
+      dia_chi: k?.address ?? null,
+      bo_may: p?.bo_may ?? null,
+      do_nuoc: chiSo,
+    }
+  })
+
+  // Lọc tên/tỉnh/địa chỉ làm SAU vì chúng nằm ở bảng khác — PostgREST không lọc chéo bảng
+  // qua đường này được. Chấp nhận: lọc trong trang hiện tại, và nói rõ trên màn hình.
+  const kw = chuanHoaTuKhoa(q)
+  if (kw) {
+    const c = (x: string | null) => boDau(x ?? '').includes(boDau(kw))
+    rows = rows.filter((r) => c(r.ten_khach) || c(r.dia_chi) || c(r.bo_may))
+  }
+  if (tuyChon.tinh) rows = rows.filter((r) => (r.tinh ?? '') === tuyChon.tinh)
+
+  const tong = count ?? 0
+  return { rows, tong, trang, soTrang: Math.max(1, Math.ceil(tong / moi)), sapXep: { cot: 'ngay', tang: false, macDinh: true } }
+}
+
+/** Lịch sử nước của MỘT khách — mỗi lần kiểm tra một dòng, mới nhất trước. */
+export async function nuocCuaKhach(customerId: string): Promise<DongNuoc[]> {
+  await requireStaff()
+  await doQuyen('cs.khach.xem')
+  const db = dataClient()
+  const { data: ps } = await db.from('maintenance_plan').select('id, bo_may').eq('customer_id', customerId)
+  const plans = (ps ?? []) as { id: string; bo_may: string | null }[]
+  if (!plans.length) return []
+  const { data } = await db.from('maintenance_visit')
+    .select(`id, lan_thu, due_date, completed_at, plan_id, ${COT_DO_NUOC.replace('id, ', '')}`)
+    .in('plan_id', plans.map((p) => p.id))
+    .or('tds_truoc.not.is.null,tds_sau.not.is.null,ph_truoc.not.is.null,ph_sau.not.is.null,' +
+        'do_cung_truoc.not.is.null,do_cung_sau.not.is.null,clo_truoc.not.is.null,clo_sau.not.is.null')
+    .order('completed_at', { ascending: false, nullsFirst: false })
+  const boMay = new Map(plans.map((p) => [p.id, p.bo_may]))
+  return ((data ?? []) as unknown as (DoNuoc & {
+    id: string; lan_thu: number | null; due_date: string | null
+    completed_at: string | null; plan_id: string | null
+  })[]).map((v) => {
+    const { id, lan_thu, due_date, completed_at, plan_id, ...chiSo } = v
+    return {
+      visit_id: id, lan_thu,
+      ngay: (completed_at ?? due_date)?.slice(0, 10) ?? null,
+      customer_id: customerId, ten_khach: null, tinh: null, dia_chi: null,
+      bo_may: plan_id ? boMay.get(plan_id) ?? null : null,
+      do_nuoc: chiSo,
+    }
+  })
 }

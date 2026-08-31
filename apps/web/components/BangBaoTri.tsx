@@ -3,6 +3,8 @@
 import type { MaintenanceDue, BangView } from '@/app/actions'
 import { vnDate } from '@/components/Badge'
 import { BaoTriDoneButton } from '@/components/BaoTriDoneButton'
+import { ChiSoNuoc } from '@/components/ChiSoNuoc'
+import { coDoNuoc } from '@/lib/nuoc'
 import { BangTuyChinh, type CotDef } from '@/components/BangTuyChinh'
 
 const SAP = 'sắp đến hạn (≤30 ngày)'
@@ -34,9 +36,12 @@ const COT: CotDef<MaintenanceDue>[] = [
   { key: 'due_date', nhan: 'Đến hạn', sapXep: 'due_date', render: (r) => (
     <div className="whitespace-nowrap"><TinhTrangBadge tt={r.tinh_trang} /><div className="text-[10px] text-slate-400 mt-0.5">{vnDate(r.due_date)}</div></div>
   ) },
-  { key: 'ghi', nhan: 'Ghi', render: (r) => <BaoTriDoneButton visitId={r.visit_id} completedAt={r.completed_at} /> },
+  { key: 'nuoc', nhan: 'Chỉ số nước', render: (r) => (
+    coDoNuoc(r.do_nuoc) ? <ChiSoNuoc d={r.do_nuoc!} /> : <span className="text-[11px] text-slate-300">chưa đo</span>
+  ) },
+  { key: 'ghi', nhan: 'Ghi', render: (r) => <BaoTriDoneButton visitId={r.visit_id} completedAt={r.completed_at} doNuoc={r.do_nuoc} /> },
 ]
-const MAC_DINH = ['khach', 'bo_may', 'lan', 'due_date', 'ghi']
+const MAC_DINH = ['khach', 'bo_may', 'lan', 'due_date', 'nuoc', 'ghi']
 
 export function BangBaoTri({ rows, choViewChung, views, congCu }: { rows: MaintenanceDue[]; choViewChung: boolean; views: BangView[]; congCu?: React.ReactNode }) {
   return (

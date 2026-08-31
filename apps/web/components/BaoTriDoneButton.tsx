@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { markMaintenanceDone, unmarkMaintenanceDone, ghiKetQuaBaoTri, deXuatDoiLich, type KetQuaDo, type DoiLichMuc } from '@/app/actions'
+import { coDoNuoc, type DoNuoc } from '@/lib/nuoc'
+import { ChiSoNuoc } from '@/components/ChiSoNuoc'
 import { XacNhanDoiLich } from '@/components/XacNhanDoiLich'
 import { vnDate } from '@/components/Badge'
 import { docBoSo } from '@/lib/so'
@@ -28,7 +30,23 @@ type SoField = 'tds_truoc' | 'tds_sau' | 'ph_truoc' | 'ph_sau' | 'do_cung_truoc'
  * "Kết quả đo" mở form nhập TDS/pH/độ cứng/Clo (trước-sau lọc) + ghi chú theo NGÀY THỰC;
  * lưu xong hệ tự DỜI các lượt sau tính từ ngày thực.
  */
-export function BaoTriDoneButton({ visitId, completedAt }: { visitId: string; completedAt: string | null }) {
+/** Đổ số đã lưu vào ô nhập. Số -> chuỗi, null -> ô trống (không phải chuỗi "null"). */
+function veOChu(d: DoNuoc | null | undefined): Partial<Record<SoField, string>> {
+  if (!d) return {}
+  const o: Partial<Record<SoField, string>> = {}
+  const g = (k: SoField, v: number | null) => { if (v !== null && v !== undefined) o[k] = String(v) }
+  g('tds_truoc', d.tds_truoc); g('tds_sau', d.tds_sau)
+  g('ph_truoc', d.ph_truoc); g('ph_sau', d.ph_sau)
+  g('do_cung_truoc', d.do_cung_truoc); g('do_cung_sau', d.do_cung_sau)
+  g('clo_truoc', d.clo_truoc); g('clo_sau', d.clo_sau)
+  return o
+}
+
+export function BaoTriDoneButton({ visitId, completedAt, doNuoc }: {
+  visitId: string; completedAt: string | null
+  /** Chỉ số đã đo — để mở form ra là thấy lại, không phải gõ lại từ đầu. */
+  doNuoc?: DoNuoc | null
+}) {
   const [open, setOpen] = useState(false)
   const [moKQ, setMoKQ] = useState(false)
   const [date, setDate] = useState(HOM_NAY())
@@ -131,7 +149,14 @@ export function BaoTriDoneButton({ visitId, completedAt }: { visitId: string; co
     return (
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-emerald-700 whitespace-nowrap">✓ {vnDate(completedAt.slice(0, 10))}</span>
-        <button onClick={() => { setMoKQ(true); setKq({ ngay: completedAt.slice(0, 10) }); setSo({}) }} className="text-[10px] text-sky-600 underline">kết quả</button>
+        {coDoNuoc(doNuoc) && <ChiSoNuoc d={doNuoc!} gonMotDong />}
+        <button onClick={() => {
+            setMoKQ(true)
+            // ĐỔ LẠI số đã lưu thay vì xoá trắng — bản cũ `setSo({})` khiến mở lại luôn
+            // thấy ô rỗng, không phân biệt được với "chưa từng lưu".
+            setKq({ ngay: completedAt.slice(0, 10), ghi_chu: doNuoc?.ket_qua_ghi_chu ?? undefined })
+            setSo(veOChu(doNuoc))
+          }} className="text-[10px] text-sky-600 underline">kết quả</button>
         <button onClick={xemDoiLich} disabled={busy} className="text-[10px] text-amber-700 underline">dời lịch sau</button>
         <button onClick={boDanhDau} disabled={busy} className="text-[10px] text-slate-400 hover:text-red-600 underline">bỏ</button>
         {msg && <span className="text-[10px] text-emerald-700">{msg}</span>}
@@ -149,7 +174,11 @@ export function BaoTriDoneButton({ visitId, completedAt }: { visitId: string; co
       <div className="flex items-center gap-1.5 flex-wrap">
         <button onClick={() => ghi(HOM_NAY())} disabled={busy} className="rounded-lg bg-emerald-600 text-white font-medium disabled:opacity-50 px-2.5 py-1 text-xs">{busy ? '…' : 'Đã bảo trì hôm nay'}</button>
         <button onClick={() => setOpen(true)} className="text-xs text-slate-500 hover:text-slate-900 underline">ngày khác</button>
-        <button onClick={() => { setMoKQ(true); setKq({ ngay: HOM_NAY() }); setSo({}) }} className="text-xs text-sky-600 underline">+ kết quả đo</button>
+        <button onClick={() => {
+          setMoKQ(true)
+          setKq({ ngay: HOM_NAY(), ghi_chu: doNuoc?.ket_qua_ghi_chu ?? undefined })
+          setSo(veOChu(doNuoc))
+        }} className="text-xs text-sky-600 underline">+ kết quả đo</button>
         {msg && <span className="text-[10px] text-emerald-700">{msg}</span>}
         {err && <span className="text-xs text-red-600">{err}</span>}
         {hoiDoi && (

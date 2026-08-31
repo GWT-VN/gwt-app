@@ -86,6 +86,7 @@ export function TopNavClient({
         { nhan: 'Bảo hành', trang: [{ nhan: 'Đăng ký BH', href: '/dang-ky-bh' }, { nhan: 'Chờ kích hoạt BH', href: '/bh-cho-kich-hoat' }] },
         { nhan: 'Bảo trì', trang: [
           { nhan: 'Lịch bảo trì', href: '/bao-tri' }, { nhan: 'Lịch thay lõi', href: '/loi' },
+          { nhan: 'Hồ sơ nước', href: '/nuoc' },
           ...(co('cs.bao_tri.tao_plan') ? [
             { nhan: 'Map khách', href: '/bao-tri/map' }, { nhan: 'Lên lịch & gói', href: '/bao-tri/len-lich' },
           ] : []),
