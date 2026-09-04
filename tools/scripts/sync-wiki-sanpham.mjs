@@ -281,23 +281,110 @@ function bocFrontmatter(md) {
   return [fm, md.slice(het + 4).trim()];
 }
 
+/**
+ * Mục chỉ dành cho người soạn — KHÔNG đẩy lên cho nhân viên đọc.
+ *
+ * CEO chốt 31/08/2026: nhật ký biên tập, việc còn phải kiểm chứng, ghi chú nội bộ… giữ
+ * trong file .md và trong backlog thì tốt, nhưng lên wiki là nhiễu — nhân viên vào tra
+ * cách làm việc, không phải đọc sổ tay của người soạn. Nặng hơn: mục "cần kiểm chứng"
+ * đặt cạnh nội dung chính làm người đọc không biết phần nào đã chốt, phần nào chưa.
+ *
+ * Cắt từ dòng tiêu đề khớp cho tới tiêu đề kế tiếp CÙNG CẤP hoặc CAO HƠN.
+ */
+const MUC_CHI_NOI_BO = [
+  /nhật ký biên tập/i,
+  /ghi chú biên tập/i,
+  /cần bổ sung/i,
+  /kiểm chứng/i,
+  /việc cần làm với tài liệu/i,
+];
+
+function catMucNoiBo(md, nhan) {
+  const dong = md.split("\n");
+  const giu = [];
+  let bo = 0; // cấp tiêu đề đang cắt (0 = không cắt)
+  for (const d of dong) {
+    const h = d.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      const cap = h[1].length;
+      if (bo && cap <= bo) bo = 0; // hết mục cần cắt
+      if (!bo && MUC_CHI_NOI_BO.some((re) => re.test(h[2]))) {
+        bo = cap;
+        console.log(`   ✂️  ${nhan}: bỏ mục "${h[2].replace(/[*`]/g, "").trim()}"`);
+      }
+    }
+    if (!bo) giu.push(d);
+  }
+  return giu.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * Link tương đối tới file .md cùng khu → đường dẫn route.
+ *
+ * Người soạn viết `[Danh mục folder](danh-muc-folder-drive.md)` cho tự nhiên; trình duyệt
+ * ghép thành `/wiki/<khu>/danh-muc-folder-drive.md` (thừa đuôi .md) → 404. CEO báo đúng
+ * lỗi này 31/08/2026.
+ */
+function suaLinkNoiBo(md, khu, slugCo) {
+  return md.replace(/\]\(\.?\/?([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/g, (all, ten, neo) =>
+    slugCo.has(ten) ? `](/wiki/${khu}/${ten}${neo ?? ""})` : all,
+  );
+}
+
+/**
+ * Sinh lại mục lục từ chính các tiêu đề `## …` của bài.
+ *
+ * Ba lỗi cùng lúc mà việc này chữa được:
+ *  1. Neo kiểu GitHub trong mục lục viết sẵn (`#1-sản-phẩm--phân-loại`) GIỮ dấu tiếng Việt,
+ *     còn trình render đặt id bằng `slugTieuDe()` đã BỎ dấu → mọi link mục lục chết.
+ *  2. Bỏ một mục giữa bài (mục 11 chatbot) làm số thứ tự trong mục lục lệch hết.
+ *  3. Mục chỉ-nội-bộ bị cắt lúc build để lại dòng mục lục trỏ vào hư không.
+ *
+ * Chạy SAU khi đã cắt mục nội bộ, nên mục lục luôn khớp đúng thứ còn lại trên trang.
+ */
+function sinhMucLuc(md) {
+  const dong = md.split("\n");
+  const iML = dong.findIndex((d) => /^##\s+Mục lục\s*$/i.test(d));
+  if (iML < 0) return md;
+
+  // Mọi tiêu đề cấp 2 sau mục lục, trừ chính nó.
+  const muc = [];
+  for (let i = iML + 1; i < dong.length; i++) {
+    const h = dong[i].match(/^##\s+(.+?)\s*$/);
+    if (h) muc.push(h[1]);
+  }
+  if (!muc.length) return md;
+
+  const ds = muc.map((t, i) => `${i + 1}. [${t.replace(/^\d+\.\s*/, "")}](#${slugTieuDe(t)})`);
+
+  // Thay phần thân mục lục: từ sau dòng "## Mục lục" tới tiêu đề/`---` kế tiếp.
+  let het = iML + 1;
+  while (het < dong.length && !/^(##\s|---\s*$)/.test(dong[het])) het++;
+  return [...dong.slice(0, iML + 1), "", ...ds, "", ...dong.slice(het)].join("\n");
+}
+
 function docTaiLieu() {
   if (!existsSync(NGUON_TL)) return [];
   return readdirSync(NGUON_TL, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith("_") && !d.name.startsWith("."))
     .map((d) => {
-      const bai = readdirSync(path.join(NGUON_TL, d.name))
-        .filter((f) => f.endsWith(".md"))
+      const tep = readdirSync(path.join(NGUON_TL, d.name)).filter((f) => f.endsWith(".md"));
+      const slugCo = new Set(tep.map((f) => f.replace(/\.md$/, "")));
+      const bai = tep
         .map((f) => {
-          const [fm, noiDung] = bocFrontmatter(readFileSync(path.join(NGUON_TL, d.name, f), "utf8"));
+          const [fm, than] = bocFrontmatter(readFileSync(path.join(NGUON_TL, d.name, f), "utf8"));
+          const slug = f.replace(/\.md$/, "");
+          let noiDung = catMucNoiBo(donDep(than), `${d.name}/${slug}`);
+          noiDung = suaLinkNoiBo(noiDung, d.name, slugCo);
+          noiDung = sinhMucLuc(noiDung);
           return {
-            slug: f.replace(/\.md$/, ""),
-            tieuDe: fm.tieuDe ?? f.replace(/\.md$/, ""),
+            slug,
+            tieuDe: fm.tieuDe ?? slug,
             hang: fm.hang ?? "",
             nhom: fm.nhom ?? "",
             nguon: fm.nguon ?? "",
             thuTu: Number(fm.thuTu ?? 999),
-            noiDung: donDep(noiDung),
+            noiDung,
           };
         })
         .sort((a, b) => a.thuTu - b.thuTu || a.tieuDe.localeCompare(b.tieuDe, "vi"));

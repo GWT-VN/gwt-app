@@ -42,11 +42,20 @@ Tất cả dùng công nghệ lõi **G+ Mineral** (giữ khoáng tự nhiên). C
 
 | Model | Kiểu | Đặc điểm chính | Lõi |
 |---|---|---|---|
-| **CTD50** | Để bàn, giữ khoáng | Có bản dùng **bình chứa** (không kết nối đường nước) | 1 lõi duy nhất **CFNC** |
-| **CTS20** | Để bàn, có tạo **soda/sparkling** | Kết nối đường nước, làm lạnh sâu & nhanh, trộn soda thẳng vào nước. Màu **vàng** | 2 lõi **PCF** và **NF** |
-| **CTS10** | Để bàn, tạo soda (bản đơn giản hơn CTS20) | Dùng **bình chứa**, không kết nối đường nước, bơm soda thủ công. Có sẵn 1 bình gas đi kèm | — |
-| **USH10** | **Âm tủ bếp (under-sink)**, không sparkling, nước nóng 4 mức | **Sắp có hàng** — kiểm `wh_master` trước khi trả lời khách | Lõi thô **PCFB** + lõi màng **NF** |
-| **B04 / GN610 / GN620 / DN810** | **Âm tủ bếp** (under-sink) | DN810 có **2 vòi**: 1 vòi uống đi kèm máy + 1 vòi rửa gắn vào vòi rửa nhà khách; dòng chảy mạnh, hợp rửa hoa quả | GN620 dùng lõi PCF; các mẫu có lõi PCF/NF tùy máy |
+| **CTD50** | Để bàn, giữ khoáng | Có bản dùng **bình chứa** (không kết nối đường nước) | **1 lõi** — CFNC |
+| **CTS10** | Để bàn, tạo soda (bản đơn giản hơn CTS20) | Dùng **bình chứa**, không kết nối đường nước, bơm soda thủ công. Có sẵn 1 bình gas đi kèm | **1 lõi duy nhất** — CFNC |
+| **CTS20** | Để bàn, có tạo **soda/sparkling** | Kết nối đường nước, làm lạnh sâu & nhanh, trộn soda thẳng vào nước. Màu **vàng** | **2 lõi** — PCF + NF |
+| **B04** | **Để bàn** | | **2 lõi** — PCF + NF |
+| **GN610** | **Âm tủ bếp** (under-sink) | | **2 lõi** — PCF + NF |
+| **GN620** | **Âm tủ bếp** (under-sink) | | **2 lõi** — PCF + NF |
+| **DN810** | **Âm tủ bếp** (under-sink) | Có **2 vòi**: 1 vòi uống đi kèm máy + 1 vòi rửa gắn vào vòi rửa nhà khách; dòng chảy mạnh, hợp rửa hoa quả | **3 lõi** — PPF + PCFB + NF |
+| **USH10** | **Âm tủ bếp (under-sink)**, không sparkling, nước nóng 4 mức | **Sắp có hàng** — kiểm `wh_master` trước khi trả lời khách | **2 lõi** — PCFB + NF |
+
+> 🔒 **Cột "Lõi" lấy từ masterdata thay lõi của công ty**, không phải trí nhớ. Máy nào cũng
+> phải tra lại masterdata trước khi trả lời khách.
+>
+> ⛔ **Không đọc MÃ lõi cho khách** (`LX-CFNC-001-G`, `GT-PCF13-F01G`…) — rule nội bộ GWT
+> chốt 18/07/2026. Với khách chỉ nói **"lõi thô"** và **"lõi màng lọc nano"**.
 
 **So sánh CTS20 vs CTS10** ([nguồn](https://discord.com/channels/1484009253831315456/1484057657043189860/1487797983029362920)):
 1. CTS20 làm lạnh **sâu hơn và nhanh hơn**.
@@ -323,25 +332,7 @@ Cập nhật ở **cột bên phải** (Hotness / Trạng thái / Phân loại /
 
 ---
 
-## 11. QA / training cho chatbot AI
-
-Công ty xây **AI Agent / chatbot** trả lời khách; sales góp dữ liệu Q&A.
-
-**Format lưu Q&A** (để hệ thống chỉ lưu đúng cặp):
-- Mỗi câu hỏi bắt đầu bằng `Q:` và câu trả lời bằng `A:` (reply đúng câu Q tương ứng).
-- **Câu hỏi**: paste **nguyên văn khách hỏi**, kể cả sai chính tả.
-- **Câu trả lời**: dùng bản đã **chỉnh sửa hoàn thiện chính tả**, đã được anh/chị duyệt (thường qua ChatGPT viết lại cho mượt).
-- Câu **ít ai hỏi / ngoài phạm vi sản phẩm** (vd vòi sen, khảo sát của lọc tổng gửi nhầm cho lọc uống) → **không** cho AI học.
-
-**Task training AI Agent mỗi ca** ([nguồn](https://discord.com/channels/1484009253831315456/1484057657043189860/1489552442591809587)):
-1. Với câu khó cần hỏi anh/chị để trả lời khách: **hỏi agent trước khi dạy** (xem nó trả lời sao) → đưa câu đã được ChatGPT viết lại vào mục **Huấn luyện** → **hỏi lại agent sau khi dạy** → gửi ảnh **trước & sau** vào nhóm CRM-info.
-2. **Chat với agent 3 session/ca** dựa trên kịch bản thật của khách (Zalo thường nhiều tình huống hơn Facebook) → mở đầu tự xưng tên (Ánh/Mai…) để quản lý biết → gửi ảnh báo cáo 3 session khi kết ca.
-
-Dữ liệu Q&A lưu ở **QA Master Dataset** (Google Sheet) và Drive folder (mục 13).
-
----
-
-## 12. Quy định & lưu ý chung
+## 11. Quy định & lưu ý chung
 
 **Nên:**
 - Chủ động kiểm tra tin nhắn tất cả nền tảng (Pancake gộp được nhiều page; nếu Pancake lỗi → mở trực tiếp Messenger / Business Suite / web bán hàng Shopee / Zalo OA trên Chrome để chat).
@@ -369,7 +360,7 @@ Dữ liệu Q&A lưu ở **QA Master Dataset** (Google Sheet) và Drive folder (
 
 ---
 
-## 13. Tài nguyên nội bộ
+## 12. Tài nguyên nội bộ
 
 > Đây là link tài nguyên làm việc (Google Docs/Sheets, Loom, Drive, YouTube). Tài khoản đăng nhập dùng **tài khoản nội bộ do quản lý cấp** — không lưu mật khẩu ở đây.
 
@@ -409,7 +400,7 @@ Dữ liệu Q&A lưu ở **QA Master Dataset** (Google Sheet) và Drive folder (
 
 ---
 
-## 14. Cần bổ sung / kiểm chứng
+## 13. Cần bổ sung / kiểm chứng
 
 Các điểm transcript mập mờ / mâu thuẫn / thiếu — người phụ trách rà lại trước khi ban hành:
 
