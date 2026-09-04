@@ -130,3 +130,18 @@ export const HANG: Record<string, string> = {
   E: "Suy luận số học của người soạn — không phải công bố của hãng",
   X: "Đã xác định là SAI, phải gỡ khỏi mọi tài liệu",
 };
+
+/** Một bài tài liệu dạng trang (khu không phải Sản phẩm). */
+export type BaiTaiLieu = {
+  slug: string;
+  tieuDe: string;
+  /** A · B · C · D — hạng tin cậy của nguồn. Rỗng nếu chưa xếp hạng. */
+  hang: string;
+  /** Nhóm để gom bài trong trang danh sách. Rỗng = không gom. */
+  nhom: string;
+  nguon: string;
+  thuTu: number;
+  noiDung: string;
+};
+
+export type KhuTaiLieu = { khu: string; bai: BaiTaiLieu[] };

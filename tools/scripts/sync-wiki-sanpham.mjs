@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 // Neo theo vị trí script, KHÔNG theo cwd — chạy từ gốc repo hay từ apps/web đều đúng.
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NGUON = path.join(REPO, "apps", "web", "content", "wiki", "san-pham");
+const NGUON_TL = path.join(REPO, "apps", "web", "content", "wiki", "tai-lieu");
 const DICH = path.join(REPO, "apps", "web", "lib", "wiki", "data", "san-pham.ts");
 
 /** Tên chuẩn + nhóm thông tin của 10 Phần. Khoá là số phần trong `# PHẦN <N>`. */
@@ -257,16 +258,70 @@ if (!sanPham.length) {
   process.exit(1);
 }
 
+/* ---------- tài liệu dạng trang cho các khu không phải Sản phẩm ---------- */
+
+/**
+ * Frontmatter tối giản: mỗi dòng `khoá: <JSON>`. Cố ý KHÔNG dùng YAML đầy đủ — thêm một gói
+ * chỉ để đọc 5 khoá là không đáng, mà YAML còn có bẫy (Na, yes/no bị hiểu thành boolean).
+ */
+function bocFrontmatter(md) {
+  if (!md.startsWith("---")) return [{}, md];
+  const het = md.indexOf("\n---", 3);
+  if (het < 0) return [{}, md];
+  const fm = {};
+  for (const dong of md.slice(3, het).split("\n")) {
+    const m = dong.match(/^([A-Za-zÀ-ỹ0-9_]+):\s*(.+)$/);
+    if (!m) continue;
+    try {
+      fm[m[1]] = JSON.parse(m[2]);
+    } catch {
+      fm[m[1]] = m[2].trim();
+    }
+  }
+  return [fm, md.slice(het + 4).trim()];
+}
+
+function docTaiLieu() {
+  if (!existsSync(NGUON_TL)) return [];
+  return readdirSync(NGUON_TL, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && !d.name.startsWith("_") && !d.name.startsWith("."))
+    .map((d) => {
+      const bai = readdirSync(path.join(NGUON_TL, d.name))
+        .filter((f) => f.endsWith(".md"))
+        .map((f) => {
+          const [fm, noiDung] = bocFrontmatter(readFileSync(path.join(NGUON_TL, d.name, f), "utf8"));
+          return {
+            slug: f.replace(/\.md$/, ""),
+            tieuDe: fm.tieuDe ?? f.replace(/\.md$/, ""),
+            hang: fm.hang ?? "",
+            nhom: fm.nhom ?? "",
+            nguon: fm.nguon ?? "",
+            thuTu: Number(fm.thuTu ?? 999),
+            noiDung: donDep(noiDung),
+          };
+        })
+        .sort((a, b) => a.thuTu - b.thuTu || a.tieuDe.localeCompare(b.tieuDe, "vi"));
+      return { khu: d.name, bai };
+    })
+    .filter((k) => k.bai.length > 0)
+    .sort((a, b) => a.khu.localeCompare(b.khu));
+}
+
+const taiLieu = docTaiLieu();
+
 mkdirSync(path.dirname(DICH), { recursive: true });
 writeFileSync(
   DICH,
   `// ⚠️ FILE SINH TỰ ĐỘNG — KHÔNG SỬA TAY.
 // Sinh bởi: tools/scripts/sync-wiki-sanpham.mjs  ·  chạy: npm --prefix apps/web run sync:wiki
 // Sửa nội dung ở: apps/web/content/wiki/san-pham/<mã>/pkb.md
+//                 apps/web/content/wiki/tai-lieu/<khu>/<bài>.md
 
-import type { SanPham } from "../kieu";
+import type { KhuTaiLieu, SanPham } from "../kieu";
 
 export const SAN_PHAM: SanPham[] = ${JSON.stringify(sanPham, null, 2)};
+
+export const TAI_LIEU: KhuTaiLieu[] = ${JSON.stringify(taiLieu, null, 2)};
 `,
   "utf8",
 );
@@ -280,3 +335,7 @@ for (const sp of sanPham) {
   );
 }
 console.log(`\n→ ${path.relative(REPO, DICH)}`);
+
+for (const k of taiLieu) {
+  console.log(`✓ ${k.khu.padEnd(18)} ${String(k.bai.length).padStart(3)} bài tài liệu`);
+}
