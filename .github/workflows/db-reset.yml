@@ -1,0 +1,52 @@
+# Gate "dựng-từ-0" của gwt-app (bước 2 workflow DDL — rules/supabase-mcp.md). Chép khuôn
+# GWT-Masterdata/.github/workflows/db-reset.yml. Runner ubuntu có Docker: replay toàn bộ
+# supabase/migrations/ + seed.sql, rồi smoke chức năng. Xanh trên commit chứa migration = được áp live.
+name: db-reset
+
+on:
+  push:
+    paths:
+      - "supabase/**"
+      - "tools/scripts/smoke_local.py"
+      - ".github/workflows/db-reset.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-reset-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db-reset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Supabase start (chỉ dịch vụ smoke cần)
+        run: npx supabase@2 start -x studio,postgres-meta,imgproxy,mailpit,edge-runtime,logflare,vector,realtime,supavisor
+      - name: db reset — replay từ 0 toàn bộ migration + seed
+        run: npx supabase@2 db reset
+      - name: Smoke test chức năng (phải ALL OK)
+        run: |
+          pip install --quiet requests
+          python tools/scripts/smoke_local.py
+      - name: Log khi đỏ
+        if: failure()
+        run: |
+          npx supabase@2 status || true
+          docker ps -a
+          for c in db rest auth storage kong; do
+            echo "===== supabase_${c}_gwt-platform"
+            docker logs "supabase_${c}_gwt-platform" --tail 150 2>&1 || true
+          done
+      - name: Stop
+        if: always()
+        run: npx supabase@2 stop --no-backup || true
