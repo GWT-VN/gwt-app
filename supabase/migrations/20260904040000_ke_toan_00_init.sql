@@ -10,6 +10,10 @@
 create schema if not exists accounting;
 comment on schema accounting is 'GWT Kế toán — hoá đơn NEXIA/HDCT, sao kê, luật phân loại. Không expose; truy cập qua RPC public.ke_toan_*.';
 
+-- Extension http: hàm sync_catalog() dưới dùng kiểu extensions.http_response; live đã có (migration 13),
+-- local/CI dựng từ 0 thì chưa → tạo idempotent để replay không gãy.
+create extension if not exists http with schema extensions;
+
 -- ── Kỳ tháng ──────────────────────────────────────────────────────────────
 create table accounting.periods (
   id                bigint generated always as identity primary key,
@@ -44,7 +48,7 @@ create table accounting.invoice_lines (
   direction         text not null check (direction in ('vao','ra')),
   line_key          text not null,          -- sha1(direction|ky_hieu|so_hd|sd(ten_hang)|round(thanh_tien))
   row_order         integer not null,       -- thứ tự trong file nguồn đầu tiên (để xuất lại đúng thứ tự)
-  -- 20 cột nghiệp vụ tách riêng để lọc/tìm
+  -- 18 cột nghiệp vụ tách riêng để lọc/tìm
   ky_hieu           text, so_hd text, ngay_lap date, mccqt text,
   ten_ban           text, mst_ban text, ten_mua text, mst_mua text,
   ten_hang          text, dvt text, so_luong numeric, don_gia numeric, thue_suat text,
@@ -138,6 +142,7 @@ create table if not exists public.expense_category (
   updated_at     timestamptz
 );
 alter table public.expense_category enable row level security;   -- 0 policy: chỉ service_role
+revoke all on table public.expense_category from public, anon, authenticated;  -- default privileges baseline cấp ALL cho anon/authenticated → thu lại (tiền lệ 48_customer_addresses)
 grant select on public.expense_category to service_role;
 comment on table public.expense_category is 'GƯƠNG từ GWT-Masterdata (sync_catalog hằng ngày). Không sửa tay ở đây.';
 
