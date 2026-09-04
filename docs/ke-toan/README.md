@@ -123,3 +123,12 @@ j. `xlsx@0.18.5` có advisory (prototype pollution/ReDoS) — chỉ 4 vai mới 
 k. 9 entry ledger live 20260820–20260821 có `statements` rỗng (tồn đọng trước nhánh) — branch
    Supabase sẽ thiếu.
 l. E2e file NEXIA thật chưa chạy trên máy này.
+m. `uploadNexia`: nếu `ke_toan_nguon_them` lỗi SAU khi upload Storage xong thì file gốc thành rác
+   (chưa dọn) — mở rộng cleanup bọc cả bước đó.
+n. `ghiAudit('ke_toan.upload_nexia_loi')` trong nhánh lỗi chưa bọc try — nếu audit lỗi sẽ che mất
+   thông điệp lỗi gốc.
+o. `ke_toan_dong_nhap` dedupe trong lô im lặng (dồn vào `kept`) — nên trả thêm `deduped` để lộ hồi quy
+   của `lan` phía app.
+p. `missing_in_last_upload` chưa có chỗ nào set `true` (chỉ set `false` khi update) — lát 2 làm khi
+   xử lý upload lại file đã sửa.
+q. `ganKhoaDong` map theo `rowOrder` và giả định duy nhất — `rowOrder` trùng sẽ gộp khoá im lặng.
