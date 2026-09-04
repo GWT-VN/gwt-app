@@ -13,6 +13,13 @@
 2. **Đặt tên file có tiền tố module** để vẫn rõ chủ sở hữu: `20260820_work_them_cot_x.sql`, `20260820_cs_sua_ticket.sql`, `20260820_sales_don_hang.sql`.
 3. **`20250101000000_baseline.sql`**: chỉ để dựng LOCAL. **KHÔNG áp lại lên prod** (prod đã có sẵn nội dung này).
 4. **`db/cs/migrations/`, `db/work/migrations/`**: **LỊCH SỬ (đã gộp vào baseline)** — đọc tham khảo, **KHÔNG thêm file mới vào đây**. Xem `db/*/migrations/README` (đánh dấu archive).
+   - Ngoại lệ đo được 04/09/2026: `db/work/migrations/work_02`…`work_04b` KHÔNG nằm trong baseline (baseline
+     dump trước khi 4 file đó được áp), và `work_13`…`work_17` chưa từng được chép sang
+     `supabase/migrations/` — cả hai lỗ khiến `db reset` từ 0 gãy. Hai file
+     `supabase/migrations/20260819235800_work_02_04b_truy_linh_local.sql` và
+     `20260822080000_work_13_17_truy_linh_local.sql` chép lại nội dung archive để vá; chúng **CHỈ
+     DÙNG LOCAL/CI, KHÔNG BAO GIỜ áp lên live** — cùng quy chế với baseline ở mục 3, vì live đã có
+     sẵn các object đó rồi.
 
 ## Vòng đời 1 migration mới (local → prod)
 ```bash
