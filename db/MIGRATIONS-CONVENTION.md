@@ -20,6 +20,9 @@
      `20260822080000_work_13_17_truy_linh_local.sql` chép lại nội dung archive để vá; chúng **CHỈ
      DÙNG LOCAL/CI, KHÔNG BAO GIỜ áp lên live** — cùng quy chế với baseline ở mục 3, vì live đã có
      sẵn các object đó rồi.
+   - 04/09/2026: `sales_lich_su_chinh_sach_gia` đổi số hiệu 20260822100000 → 20260822100001 vì
+     trùng version với `cs_may_gan_don_dai_ly` (replay local gãy); ledger live ánh xạ theo tên
+     nên không ảnh hưởng live. Luật: hai file không được cùng số hiệu.
 
 ## Vòng đời 1 migration mới (local → prod)
 ```bash
