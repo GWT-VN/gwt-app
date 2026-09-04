@@ -92,11 +92,12 @@ ba tài khoản. Không → viết bộ đọc PDF cho TCB, chấp nhận sửa 
 
 Migration đặt ở `db/ke-toan/migrations/` + `supabase/migrations/` theo `db/MIGRATIONS-CONVENTION.md`.
 Mọi bảng: RLS bật, **0 policy** (chỉ `service_role` qua `dataClient()`), grant tường minh cho
-`service_role`; `authenticated`/`anon` không đọc, **không cấp `usage` cho `anon`**. Schema **phải
-expose** qua PostgREST vì `dataClient().schema('accounting')` đi qua PostgREST: thêm `accounting`
-vào `[api] schemas` của `supabase/config.toml` (local, phải `supabase stop && start`) và vào
-Exposed schemas trên Dashboard (live — là Config, ghi vào `docs/ke-toan/`). Thiếu → `406 PGRST106`.
-RLS 0 policy vẫn chặn anon/authenticated dù schema đã expose.
+`service_role`; `authenticated`/`anon` không đọc, **không cấp `usage` cho `anon`**. Schema `accounting`
+**KHÔNG expose** qua PostgREST (prod chỉ expose `public`; `supabase/config.toml` giữ nguyên). App truy
+cập qua RPC `public.ke_toan_*(p_email text, …)` `security definer set search_path = ''`, revoke khỏi
+`public/anon/authenticated`, grant `service_role` — đúng khuôn khu Việc (`public.work_*`). Mỗi RPC gọi
+`accounting.nv(p_email)` để lấy `staff.id` và chặn vai trò ngoài `admin|ke_toan|tai_chinh|ceo`.
+(Đổi 04/09 sau khảo sát repo: khu Việc đã đi đường này, không cần Config Dashboard.)
 
 | Bảng | Một dòng là | Cột chính |
 |---|---|---|

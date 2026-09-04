@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   // `127.0.0.1` là host khác nên thoát được mà không phải xoá cookie của phiên khác.
   allowedDevOrigins: ['127.0.0.1'],
 
+  // Khu Kế toán upload file Excel hoá đơn qua Server Action (FormData). Mặc định 1 MB;
+  // file NEXIA tháng lớn nhất đo được 670 KB, HDCT có thể hơn → nâng lên 8 MB.
+  experimental: {
+    serverActions: { bodySizeLimit: '8mb' },
+  },
+
   // Khu Marketing dọn vào khu Wiki (28/08/2026). Giữ đường cũ sống vĩnh viễn: link
   // /marketing đã nằm trong chat, tài liệu và dấu trang của nhân viên từ hôm 28/08.
   // permanent:false — còn có thể đổi cấu trúc nữa, đừng để trình duyệt nhớ cứng 308.
