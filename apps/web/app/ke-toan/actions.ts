@@ -36,7 +36,17 @@ async function chanKeToan(): Promise<string> {
   return chuanHoaEmail(u.email)
 }
 
-/** Gọi RPC + ném lỗi kèm thông điệp gốc (tiếng Việt từ Postgres). */
+/**
+ * Gọi RPC + ném lỗi kèm thông điệp gốc (tiếng Việt từ Postgres).
+ *
+ * LƯU Ý: goi() tự gọi chanKeToan() để lấy p_email — nhưng nếu người gọi bọc lời gọi goi() bên
+ * trong try/catch thì redirect() ném ra từ chanKeToan() (qua requireNhanSu()/coTheVaoKeToan())
+ * sẽ bị try/catch NUỐT MẤT, biến một cú đá "không đủ quyền" thành lỗi thường (xem cảnh báo
+ * trong lib/nen-tang/phien.ts). requireNhanSu()/layNhanVien() dùng cache() của React trong CÙNG
+ * request, nên chanKeToan() gọi lại bên trong goi() sau khi đã gọi ở ngoài chỉ là đọc cache —
+ * không redirect lần hai, không tốn thêm mạng. VÌ VẬY: hàm nào có `try {` phải tự
+ * `await chanKeToan()` NGAY TRƯỚC try, giống hệt uploadNexia().
+ */
 async function goi<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await dataClient().rpc(fn, { p_email: await chanKeToan(), ...args })
   if (error) throw new Error(error.message)
@@ -48,6 +58,7 @@ export async function danhSachKy(): Promise<KyRow[]> {
 }
 
 export async function taoKy(ky: string): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  await chanKeToan()
   try {
     const r = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky.trim() })
     revalidatePath('/ke-toan')

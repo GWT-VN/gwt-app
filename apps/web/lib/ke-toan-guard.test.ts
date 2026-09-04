@@ -18,4 +18,16 @@ describe('ke-toan/actions.ts — mọi hàm chạm DB đều gác chanKeToan()',
     expect(goi).toMatch(/chanKeToan\(\)/)
   })
   it('không nhận email từ tham số client', () => expect(src).not.toMatch(/p_email:\s*(email|form\.get)/))
+  it('hàm nào có try { thì chanKeToan( đầu tiên phải đứng TRƯỚC try { đầu tiên (không nuốt redirect)', () => {
+    const viPham2: string[] = []
+    for (const p of doan) {
+      const m = /\basync function (\w+)/.exec(p)
+      if (!m || m[1] === 'chanKeToan' || m[1] === 'goi') continue
+      const iTry = p.indexOf('try {')
+      if (iTry === -1) continue
+      const iGate = p.indexOf('chanKeToan(')
+      if (iGate === -1 || iGate > iTry) viPham2.push(m[1])
+    }
+    expect(viPham2, viPham2.join(', ')).toEqual([])
+  })
 })
