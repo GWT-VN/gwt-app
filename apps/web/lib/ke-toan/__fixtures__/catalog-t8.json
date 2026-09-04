@@ -1,0 +1,1347 @@
+[
+ {
+  "ma": "50B04-TANK",
+  "ten": "Bình chứa nước thô 5L B04",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ADAPTER",
+  "ten": "Bộ chuyển đổi nguồn điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BANGDINH",
+  "ten": "Băng dính",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BANGKEODIEN",
+  "ten": "Băng keo điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BANGTAN",
+  "ten": "Băng tan",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BCM36G",
+  "ten": "Bơm ly tâm CM3-6",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "BDAUER-8639P",
+  "ten": "Bơm 24 DAUER-8369 PLUS",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "BIT20",
+  "ten": "Bịt PPR 20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BIT25",
+  "ten": "Bịt PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BKK1000PALM",
+  "ten": "Bồn nước kháng khuẩn PALM 1000L",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "BKK1500PALM",
+  "ten": "Bồn nước kháng khuẩn PALM 1500L",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "BKK2000PALM",
+  "ten": "Bồn nước kháng khuẩn PALM 2000L",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "BLCD",
+  "ten": "Bulong bắt chân đế",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "BS2G",
+  "ten": "Bơm ly tâm Scala2",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "CCDCHI701-25",
+  "ten": "Chất chuẩn đo Clo HI701-25",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "CHANDE15A",
+  "ten": "Chân đế inox cho GE WH15A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH20",
+  "ten": "Chếch PPR 20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH20VB",
+  "ten": "Chếch Vesbo 20mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH25",
+  "ten": "Chếch PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH25VB",
+  "ten": "Chếch Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH25VBUV",
+  "ten": "Chếch Vesbo 25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH32",
+  "ten": "Chếch PPR 32",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH32VBUV",
+  "ten": "Chếch Vesbo 32mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH34-20UPVC",
+  "ten": "Chếch UPVC 3/4\" DN20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CHECH50VB",
+  "ten": "Chếch Vesbo 50mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CMXH60-100",
+  "ten": "Cuộn màng xốp hơi 60cm x 100m",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "CT25-20UPVC",
+  "ten": "Côn thu UPVC 25/20mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT32-25",
+  "ten": "Côn thu PPR 32/25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT32-25UPVC",
+  "ten": "Côn thu UPVC 32/25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT32-25VB",
+  "ten": "Côn thu Vesbo 32/25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT32-25VBUV",
+  "ten": "Côn thu trực tiếp Vesbo 32/25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT42-34",
+  "ten": "Côn thu PPR 42/34mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CT50-32",
+  "ten": "Côn thu PPR 50/32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTD50NG",
+  "ten": "Máy lọc nước GE CTD50",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "CTS10-BANGMACH",
+  "ten": "Bảng mạch điều khiển cho máy GE CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10-BOM",
+  "ten": "Bơm màng máy GE CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10-MATTRUOC",
+  "ten": "Tấm nhựa mặt trước máy GE CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10-QUATTN",
+  "ten": "Quạt tản nhiệt cho máy GE CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10-SPARKLINGBOTTLE",
+  "ten": "Bình chứa nước sparkling cho máy GE CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10NB",
+  "ten": "Máy lọc nước GE CTS10 (màu đen)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "CTS10NB-FWT",
+  "ten": "Thùng nước lọc tinh máy GE CTS10 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10NB-RWT",
+  "ten": "Thùng chứa nước thô máy GE CTS10 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10NW",
+  "ten": "Máy lọc nước GE CTS10 (màu trắng)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "CTS10NW-FWT",
+  "ten": "Thùng nước lọc tinh máy GE CTS10 (màu trắng)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10NW-NAPTHUNG",
+  "ten": "Nắp thùng chứa nước máy GE CTS10 (màu trắng)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS10NW-RWT",
+  "ten": "Thùng chứa nước thô máy GE CTS10 (màu trắng)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CTS20NG",
+  "ten": "Máy lọc nước GE CTS20",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "CTTT50-32VB",
+  "ten": "Côn thu Vesbo 50/32mm (trực tiếp)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT20",
+  "ten": "Cút PPR 20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT20VB",
+  "ten": "Cút Vesbo 20mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT25",
+  "ten": "Cút PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT25VB",
+  "ten": "Cút Vesbo 25mm ",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT25VBUV",
+  "ten": "Cút Vesbo 25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT32",
+  "ten": "Cút PPR 32",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT32VB",
+  "ten": "Cút Vesbo 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT32VBUV",
+  "ten": "Cút Vesbo 32mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT34",
+  "ten": "Cút PPR 34",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT34-20UPVC",
+  "ten": "Cút UPVC 3/4\" DN20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT40",
+  "ten": "Cút PPR 40",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT40VBUV",
+  "ten": "Cút Vesbo 40mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT45",
+  "ten": "Cút PPR 45",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT50",
+  "ten": "Cút PPR 50",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUT50VB",
+  "ten": "Cút Vesbo 50mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUTROT010A",
+  "ten": "Cút nối cho bộ lọc RO ST010A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUTRT25-12VB",
+  "ten": "Cút ren trong Vesbo 25x1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUTRT25-34",
+  "ten": "Cút ren trong PPR 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "CUTRT25-34VB",
+  "ten": "Cút ren trong Vesbo 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DAYDIEN",
+  "ten": "Dây điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DAYMEM10",
+  "ten": "Dây mềm 10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DAYMEM6",
+  "ten": "Dây mềm 6",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DBTD",
+  "ten": "Đuôi bịt tủ điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DENOI",
+  "ten": "Đế nổi ổ điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DHA25",
+  "ten": "Đồng hồ đo áp 25kg",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DHDAS63",
+  "ten": "Đồng hồ đo áp suất bơm dầu dùng cho máy nén khí",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "DVBT",
+  "ten": "Dịch vụ bảo trì",
+  "tinhChat": "Dịch vụ"
+ },
+ {
+  "ma": "DVLD",
+  "ten": "Dịch vụ lắp đặt",
+  "tinhChat": "Dịch vụ"
+ },
+ {
+  "ma": "DVSC",
+  "ten": "Dịch vụ sửa chữa",
+  "tinhChat": "Dịch vụ"
+ },
+ {
+  "ma": "DVVC",
+  "ten": "Chi phí vận chuyển",
+  "tinhChat": "Dịch vụ"
+ },
+ {
+  "ma": "FSD20-FILTER-SHELL",
+  "ten": "Bộ vỏ lõi lọc cho máy GE FSD20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GASDEN",
+  "ten": "Bình gas sparkling (màu đen)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GASDEN-G",
+  "ten": "Bình gas sparkling (màu đen - gas)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GASDEN-R",
+  "ten": "Bình gas sparkling (màu đen - rỗng)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GASXANH",
+  "ten": "Bình gas sparkling (màu xanh)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GASXANH-R",
+  "ten": "Bình gas sparkling (màu xanh - rỗng)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GC-CTO-45/19/263",
+  "ten": "Bộ lọc GE CTO cho máy FSD20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GC-PCFF-45/13/263",
+  "ten": "Bộ lọc GE PCFF cho máy FSD20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUN-150B03-CTO",
+  "ten": "Bộ lọc GE CTO cho máy GCUN-150B03",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUN-150B03-NF",
+  "ten": "Bộ lọc GE NF cho máy GCUN-150B03",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUN-150B03-PP",
+  "ten": "Bộ lọc GE PP cho máy GCUN-150B03",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUR-03A01-CTO",
+  "ten": "Bộ lọc GE CTO cho máy FSD01",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUR-03A01-PCFF",
+  "ten": "Bộ lọc GE PCFF cho máy FSD01",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUR-03A01-RO",
+  "ten": "Bộ lọc GE RO cho máy FSD01",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GCUR-600B01-RO",
+  "ten": "Bộ lọc GE RO cho máy GCUR-600B01",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GEUT-50B04-G",
+  "ten": "Máy lọc nước GE B04",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "GEUT-B04-G-NF",
+  "ten": "Máy lọc nước GE B04 (không lõi PCF)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GN610-FAUCET",
+  "ten": "Vòi nước GE GN610",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GN620-FAUCET",
+  "ten": "Vòi nước GE GN620",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GPUN-4000XEN-G",
+  "ten": "Máy lọc nước GE GN610",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GT-NF50-G01G",
+  "ten": "Bộ lọc GE NF cho máy B04",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-NF600-F01G",
+  "ten": "Bộ lọc GE NF cho máy GN620",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-NF600-F02G",
+  "ten": "Bộ lọc GE NF cho máy GN610",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-NF800-F01G",
+  "ten": "Bộ lọc GE NF cho máy DN810",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-PCF10-F02G",
+  "ten": "Bộ lọc GE PCF cho máy GN610",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-PCF10-G01-G",
+  "ten": "Bộ lọc GE CPF cho máy B04",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GT-PCF13-F01G",
+  "ten": "Bộ lọc GE PCF cho máy GN620",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEC-15A01-G",
+  "ten": "Thiết bị làm mềm nước trung tâm GE GTEC-15A01-G",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEC-15A01-G-SHELL",
+  "ten": "Bộ vỏ ngoài GE GTEC-15A01-G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEC-15A01-LOI",
+  "ten": "Lõi lọc thiết bị làm mềm nước trung tâm GE GTEC-15A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEC-30A01-G",
+  "ten": "Thiết bị làm mềm nước trung tâm GE GTEC-30A01-G",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEC-30A01-G-SHELL",
+  "ten": "Bộ vỏ ngoài GE GTEC-30A01-G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEC-30A01-LOI",
+  "ten": "Lõi lọc thiết bị làm mềm nước trung tâm GE GTEC-30A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEF-15A01-G",
+  "ten": "Thiết bị lọc nước trung tâm GE GTEF-15A01-G",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEF-15A01-G-SHELL",
+  "ten": "Bộ vỏ ngoài GE GTEF-15A01-G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEF-15A01-LOI",
+  "ten": "Lõi lọc thiết bị lọc nước trung tâm GE GTEF-15A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEF-30A01-G",
+  "ten": "Thiết bị lọc nước trung tâm GE GTEF-30A01-G",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEF-30A01-G-SHELL",
+  "ten": "Bộ vỏ ngoài GE GTEF-30A01-G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEF-30A01-LOI",
+  "ten": "Lõi lọc thiết bị lọc nước trung tâm GE GTEF-30A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEP-00X00",
+  "ten": "Thiết bị lọc GE UPF10",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEP-50A01-G",
+  "ten": "Thiết bị tiền lọc GE GTEP-50A01-G",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTEP-50A01-G-SHELL",
+  "ten": "Bộ vỏ ngoài GE GTEP-50A01-G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTEP-50A01-LOI",
+  "ten": "Bộ lọc cho thiết bị tiền lọc GE GTEP-50A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "GTUN-5800EN-G",
+  "ten": "Máy lọc nước GE GN620",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTUN-8500XDS-G",
+  "ten": "Máy lọc nước GE DN810",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GTUN-8600HP-G",
+  "ten": "Máy lọc nước GE USH10",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "GWT-R1810-100-02",
+  "ten": "Bộ lọc GE RO cho máy FSD20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "HOPCHIA3D20",
+  "ten": "Hộp chia ngã 3 D20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KEOPVC",
+  "ten": "Keo dán ống nhựa PVC",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KEOSILICONE",
+  "ten": "Keo silicone ",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KEP25",
+  "ten": "Kẹp đỡ ống 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KHUNG15A",
+  "ten": "Khung inox cho GE WH15A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KHUNG30A",
+  "ten": "Khung inox cho GE WH30A",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "KTDCHI3812",
+  "ten": "Bộ kiểm tra độ cứng HI3812",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "LLK20",
+  "ten": "Lưu lượng kế 20G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LLK35",
+  "ten": "Lưu lượng kế 35G",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LOGOINOX",
+  "ten": "Bảng logo Inox GE",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-CFNC-001-G",
+  "ten": "Bộ lọc GE CFNC cho máy CTS10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-CFNC-002-G",
+  "ten": "Bộ lọc GE CFNC cho máy CTD50",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-CTO-010",
+  "ten": "Bộ lọc GE CTO cho máy GTUN-7800EX/GTUN-8000EX",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-NF100-004-G",
+  "ten": "Bộ lọc GE NF cho máy CTS20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-NF400-005",
+  "ten": "Bộ lọc GE NF cho máy GTUN-5200",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-NF700-001",
+  "ten": "Bộ lọc GE NF cho máy GTUN-7800EX",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-NF700-003-G",
+  "ten": "Bộ lọc GE NF cho máy USH10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-NF900-001",
+  "ten": "Bộ lọc GE NF cho máy GTUN-8000EX",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PAC-001-G",
+  "ten": "Bộ lọc GE PAC cho máy UPF10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PCF-005-G",
+  "ten": "Bộ lọc GE PCF cho máy CTS20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PCFB-002-G",
+  "ten": "Bộ lọc GE PCFB cho máy DN810",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PCFB-003-G",
+  "ten": "Bộ lọc GE PCFB cho máy USH10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PP-003-G",
+  "ten": "Bộ lọc GE PP cho máy UPF10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PPF-002",
+  "ten": "Bộ lọc GE PPF cho máy GTUN-7800EX/GTUN-8000EX",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "LX-PPF-003-G",
+  "ten": "Bộ lọc GE PPF cho máy DN810",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MANGGEN",
+  "ten": "Máng gen luồn dây điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MANGPE3.5",
+  "ten": "Cuộn màng PE 3.5 kg",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "MANGPE4",
+  "ten": "Cuộn màng PE 4kg",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "MDCHI701",
+  "ten": "Máy đo Clo HI701",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "MHDEKKO",
+  "ten": "Máy hàn ống nhựa Dekko RJQ63",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "MKDLM18",
+  "ten": "Máy khoan động lực Milwaukee M18",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "MOCCUM42",
+  "ten": "Móc cùm treo xi 42",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS20",
+  "ten": "Măng sông PPR 20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS25",
+  "ten": "Măng sông PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS25VB",
+  "ten": "Măng sông Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS25VBUV",
+  "ten": "Măng sông Vesbo 25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS32",
+  "ten": "Măng sông PPR 32",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS32VB",
+  "ten": "Măng sông Vesbo 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS32VBUV",
+  "ten": "Măng sông Vesbo 32mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MS34-20UPVC",
+  "ten": "Măng sông nhựa UPVC 3/4\" DN20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN1-32UPVC",
+  "ten": "Măng sông ren ngoài nhựa UPVC 1\" DN32",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN25-34",
+  "ten": "Măng sông ren ngoài PPR 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN32-1VB",
+  "ten": "Măng sông ren ngoài Vesbo 32x1",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN40",
+  "ten": "Măng sông ren ngoài PPR 40 ",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN40-1-14VBUV",
+  "ten": "Măng sông ren ngoài Vesbo 40x1 1/4 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRN50-1-12VB",
+  "ten": "Măng sông ren ngoài Vesbo 50x1 1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRNVB2512",
+  "ten": "Măng sông ren ngoài Vesbo 25x1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT1-25UPVC",
+  "ten": "Măng sông ren trong nhựa UPVC 1\" DN25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT25-12",
+  "ten": "Măng sông ren trong PPR 25x1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT25-34",
+  "ten": "Măng sông ren trong PPR 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT25-34VB",
+  "ten": "Măng sông ren trong Vesbo 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT25-34VBUV",
+  "ten": "Măng sông ren trong Vesbo 25x3/4 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT32-1VB",
+  "ten": "Măng sông ren trong Vesbo 32x1",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MSRT42",
+  "ten": "Măng sông ren trong 42",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "MUOIAD",
+  "ten": "Muối (Natriclorua) tinh Vissoft",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "MUOIDUC",
+  "ten": "Muối (Natriclorua) tinh 99.9%",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "MUOIRE",
+  "ten": "Muối viên Regenit (25kg/bao)",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "ODIEN",
+  "ten": "Ổ điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONG110-C2PVC",
+  "ten": "Ống C2 PVC 110",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONG27-C1PVC",
+  "ten": "Ống C1 PVC 27",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONG27-C2PVC",
+  "ten": "Ống C2 PVC 27",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONG34-C1PVC",
+  "ten": "Ống C1 PVC 34",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONG75-C1PVC",
+  "ten": "Ống C1 PVC 75",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONGMEM",
+  "ten": "Ống mềm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONGTHOAT27PVC",
+  "ten": "Ống thoát PVC 27",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL20-23VBUV",
+  "ten": "Ống nước lạnh Vesbo D20 x 2.3mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL20UPVC",
+  "ten": "Ống nước lạnh UPVC DN20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL25",
+  "ten": "Ống nước lạnh PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL25-23VB",
+  "ten": "Ống nước lạnh Vesbo D25 x 2.3mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL25-23VBUV",
+  "ten": "Ống nước lạnh Vesbo D25 x 2.3mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL25UPVC",
+  "ten": "Ống nước lạnh UPVC DN25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL32",
+  "ten": "Ống nước lạnh PPR 32",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL32-29VB",
+  "ten": "Ống nước lạnh Vesbo D32 x 2.9mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL32-29VBUV",
+  "ten": "Ống nước lạnh Vesbo D32 x 2.9mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL40-37VBUV",
+  "ten": "Ống nước lạnh Vesbo D40 x 3.7mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONL50-46VBUV",
+  "ten": "Ống nước lạnh Vesbo D50 x 4.6mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN20",
+  "ten": "Ống nước nóng PPR 20",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN20-34VB",
+  "ten": "Ống nước nóng Vesbo D20 x 3.4mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN25",
+  "ten": "Ống nước nóng PPR 25",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN25-42VB",
+  "ten": "Ống nước nóng Vesbo D25 x 4.2mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN32-54VB",
+  "ten": "Ống nước nóng Vesbo D32 x 5.4mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ONN50",
+  "ten": "Ống nước nóng PPR 50",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "PHAODBM",
+  "ten": "Phao điện báo mức",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "PHICHCAM",
+  "ten": "Phích điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "PIN18V",
+  "ten": "Pin 18V 5.0Ah (M18B5) MILWAUKEE",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "PKONG",
+  "ten": "Phụ kiện đường ống tính thêm",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "PRVTR21-4",
+  "ten": "Van giảm áp PRVTR21-4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RC25",
+  "ten": "Rắc co PPR 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RC25VB",
+  "ten": "Rắc co Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RC32",
+  "ten": "Rắc co PPR 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RC32VB",
+  "ten": "Rắc co Vesbo 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RC50VB",
+  "ten": "Rắc co Vesbo 50mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRN25",
+  "ten": "Rắc co ren ngoài 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRN25-34VB",
+  "ten": "Rắc co ren ngoài Vesbo 25x3/4",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRN32-1",
+  "ten": "Rắc co ren ngoài 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRN32-1VB",
+  "ten": "Rắc co ren ngoài Vesbo 32x1",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRT32",
+  "ten": "Rắc co ren trong 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRT32-1VB",
+  "ten": "Rắc co ren trong Vesbo 32x1",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RCRT32-1VBUV",
+  "ten": "Rắc co ren trong Vesbo 32x1 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "RUOTGA",
+  "ten": "Cuộn ruột gà - Ống luồn dây điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "SC10100121",
+  "ten": "Đai bình gas dùng cho máy sparkling",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T25",
+  "ten": "Tê PPR 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T25VB",
+  "ten": "Tê Vesbo 25mm ",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T25VBUV",
+  "ten": "Tê Vesbo 25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T32",
+  "ten": "Tê PPR 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T32VB",
+  "ten": "Tê Vesbo 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T32VBUV",
+  "ten": "Tê Vesbo 32mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "T40",
+  "ten": "Tê PPR 40mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TAIBATTUDIEN",
+  "ten": "Tai bắt tủ điện",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TRT25-12",
+  "ten": "Tê ren trong PPR 25x1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TRT25-12VB",
+  "ten": "Tê ren trong Vesbo 25x1/2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TT32-25VB",
+  "ten": "Tê thu Vesbo 32/25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TUBAOCHE",
+  "ten": "Tủ inox cho hệ lọc tổng GE",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "TUDIEN",
+  "ten": "Tủ điện RO thông minh",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "UPF10-DCTHAO",
+  "ten": "Dụng cụ tháo bộ lọc GE UPF10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "UPF10-GIATREO",
+  "ten": "Giá treo máy GE UPF10",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "USH10-FAUCET-BAC",
+  "ten": "Vòi nước cảm ứng cho máy USH10 (màu bạc)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "USH10-FAUCET-DEN",
+  "ten": "Vòi nước cảm ứng cho máy USH10 (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VAN1CHIEU",
+  "ten": "Van 1 chiều",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VAN38",
+  "ten": "Van đầu vào tích hợp 3/8\"",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VANINOX25VB",
+  "ten": "Van inox dài Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VB32BM",
+  "ten": "Van xoay PPR 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VBAEZ32",
+  "ten": "Van bình áp EZ 3.2G - C",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM25",
+  "ten": "Van cửa mở 100% PPR 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM25VB",
+  "ten": "Van cửa mở 100% Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM25VBUV",
+  "ten": "Van cửa mở 100% Vesbo 25mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM32",
+  "ten": "Van cửa mở 100% PPR 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM32VB",
+  "ten": "Van cửa mở 100% Vesbo 32mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM32VBUV",
+  "ten": "Van cửa mở 100% Vesbo 32mm (màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM40VBUV",
+  "ten": "Van cửa mở 100% Vesbo 40 mm(màu đen)",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VCM50VB",
+  "ten": "Van cửa mở 100% Vesbo 50 mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VN25",
+  "ten": "Van nhựa PPR 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VN25VB",
+  "ten": "Van nhựa Vesbo 25mm",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VOISEN-LOILOC",
+  "ten": "Bộ lọc sạch vòi sen tắm thế hệ 2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "VOISEN-LOITHOM",
+  "ten": "Bộ lọc thơm vòi sen tắm thế hệ 2",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "WH15A",
+  "ten": "Hệ thống lọc nước GE WH15A",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "WH15AECO",
+  "ten": "Hệ thống lọc nước GE WH15A ECO",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "WH30A",
+  "ten": "Hệ thống lọc nước GE WH30A",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "WH30AECO",
+  "ten": "Hệ thống lọc nước GE WH30A ECO",
+  "tinhChat": "Thành phẩm"
+ },
+ {
+  "ma": "WILOJET44",
+  "ten": "Máy bơm nước Wilo Initial Jet 4-4",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "WILOPBI-L203EA",
+  "ten": "Máy bơm tăng áp tích hợp biến tần Wilo PBI-L 203EA",
+  "tinhChat": "Hàng hóa"
+ },
+ {
+  "ma": "XEDAYHANG",
+  "ten": "Xe đẩy hàng bằng tay",
+  "tinhChat": "Công cụ dụng cụ"
+ },
+ {
+  "ma": "YTHU90-60PVC",
+  "ten": "Y thu PVC 90/60",
+  "tinhChat": "Nguyên vật liệu"
+ },
+ {
+  "ma": "ZCF-PU-20ES",
+  "ten": "Van điện từ ZCF-PU-20ES",
+  "tinhChat": "Nguyên vật liệu"
+ }
+]

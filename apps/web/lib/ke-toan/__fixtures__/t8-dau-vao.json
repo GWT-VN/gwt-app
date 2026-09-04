@@ -1,0 +1,7474 @@
+{
+ "rows": [
+  {
+   "i": 2,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Má giòn mù tạt",
+   "thue": 6960.0,
+   "thanhTien": 87000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 3,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Thịt dải trộn trứng",
+   "thue": 9600.0,
+   "thanhTien": 120000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 4,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Lòng già",
+   "thue": 9280.0,
+   "thanhTien": 116000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 5,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Sa lát khoai tây",
+   "thue": 7040.0,
+   "thanhTien": 88000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 6,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Đậu lông",
+   "thue": 7680.0,
+   "thanhTien": 96000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 7,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Cà chua lạnh",
+   "thue": 4640.0,
+   "thanhTien": 58000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 8,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Kim chi",
+   "thue": 4640.0,
+   "thanhTien": 58000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 9,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Dưa chuột muối",
+   "thue": 4640.0,
+   "thanhTien": 58000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MUOIAD",
+    "ten": "HÀNG HOÁ",
+    "tkno": "1561",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 10,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Rượu ngoài",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 11,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Tôm chiên",
+   "thue": 7840.0,
+   "thanhTien": 98000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 12,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Gà chiên",
+   "thue": 7840.0,
+   "thanhTien": 98000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 13,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Lẩu mi sô cay",
+   "thue": 19200.0,
+   "thanhTien": 240000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 14,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Lẩu vị muối",
+   "thue": 19200.0,
+   "thanhTien": 240000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MUOIAD",
+    "ten": "HÀNG HOÁ",
+    "tkno": "1561",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 15,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Sa lát mầm cải",
+   "thue": 14080.0,
+   "thanhTien": 176000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 16,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Má giòn",
+   "thue": 2320.0,
+   "thanhTien": 29000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 17,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Khấu đuôi",
+   "thue": 3120.0,
+   "thanhTien": 39000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 18,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Mì thêm",
+   "thue": 3840.0,
+   "thanhTien": 48000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 19,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Thịt ba chỉ heo",
+   "thue": 21600.0,
+   "thanhTien": 270000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 20,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Đuôi cá đuối",
+   "thue": 7040.0,
+   "thanhTien": 88000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 21,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Cháo trứng",
+   "thue": 3840.0,
+   "thanhTien": 48000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 22,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Nước lọc",
+   "thue": 1600.0,
+   "thanhTien": 20000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 23,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Rượu kagatobi",
+   "thue": 140000.0,
+   "thanhTien": 1400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 24,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Rượu hakkaisan",
+   "thue": 48000.0,
+   "thanhTien": 480000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 25,
+   "kyHieu": "C26MTS",
+   "soHd": "487",
+   "seller": "CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1",
+   "desc": "Sô đa gừng",
+   "thue": 12000.0,
+   "thanhTien": 120000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 26,
+   "kyHieu": "C26MAA",
+   "soHd": "20151",
+   "seller": "CÔNG TY CỔ PHẦN DU LỊCH VÀ DỊCH VỤ QUỐC TẾ HẠ LONG",
+   "desc": "Cước vận chuyển hành khách Quảng Ninh - Hà Nội",
+   "thue": 22963.0,
+   "thanhTien": 287037.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 27,
+   "kyHieu": "C26MAA",
+   "soHd": "3456",
+   "seller": "CÔNG TY CỔ PHẦN OBOT",
+   "desc": "Vé xe Hà Nội - Hạ Long (Quảng Ninh)",
+   "thue": 22222.0,
+   "thanhTien": 277778.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 28,
+   "kyHieu": "C26MUN",
+   "soHd": "737",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Mì cua ROC",
+   "thue": 93360.0,
+   "thanhTien": 1167000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 29,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Xốp xốp bào ngư",
+   "thue": 111440.0,
+   "thanhTien": 1393000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 30,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Xiên heo",
+   "thue": 77840.0,
+   "thanhTien": 973000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 31,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Gỏi Yinyang hải sản lạnh sốt wasabi",
+   "thue": 102080.0,
+   "thanhTien": 1276000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 32,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Vịt quay",
+   "thue": 182080.0,
+   "thanhTien": 2276000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 33,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Pani vịt",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 34,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Vịt Cuốn",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 35,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Bồ câu nhồi lạp xưởng mang về",
+   "thue": 93120.0,
+   "thanhTien": 1164000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 36,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Cơm chiên hải sản",
+   "thue": 78960.0,
+   "thanhTien": 987000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 37,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Cơm Lạp Xưởng",
+   "thue": 57360.0,
+   "thanhTien": 717000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 38,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Đậu que cay thơm",
+   "thue": 76480.0,
+   "thanhTien": 956000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 39,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Di chuyển và nhân viên",
+   "thue": 48000.0,
+   "thanhTien": 600000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 40,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Mì cua hoàng kim",
+   "thue": 156480.0,
+   "thanhTien": 1956000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 41,
+   "kyHieu": "C26MUN",
+   "soHd": "731",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Phí Dịch Vụ",
+   "thue": 49192.0,
+   "thanhTien": 614900.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 42,
+   "kyHieu": "C26MUN",
+   "soHd": "725",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Mì cua ROC",
+   "thue": 93360.0,
+   "thanhTien": 1167000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 43,
+   "kyHieu": "C26MUN",
+   "soHd": "725",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Cơm chiên lạp xưởng mang về",
+   "thue": 16240.0,
+   "thanhTien": 203000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 44,
+   "kyHieu": "C26MUN",
+   "soHd": "725",
+   "seller": "CÔNG TY CỔ PHẦN ẨM THỰC UNICB",
+   "desc": "Bồ câu nhồi lạp xưởng mang về",
+   "thue": 15520.0,
+   "thanhTien": 194000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 45,
+   "kyHieu": "C26MYY",
+   "soHd": "5489",
+   "seller": "CÔNG TY CP PHÚC ANH QUỐC",
+   "desc": "Cước vận chuyển Hà Tĩnh - Hà Nội",
+   "thue": 40000.0,
+   "thanhTien": 500000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 46,
+   "kyHieu": "C26MLG",
+   "soHd": "10576",
+   "seller": "CÔNG TY TNHH ĐỨC NHÂN",
+   "desc": "Salát bơ trái, xoài & hạt óc chó",
+   "thue": 14000.0,
+   "thanhTien": 175000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 47,
+   "kyHieu": "C26MLG",
+   "soHd": "10576",
+   "seller": "CÔNG TY TNHH ĐỨC NHÂN",
+   "desc": "Gói Pizza Ngày Thứ 6-  2 Pizza Cỡ Lớn & 2 Nước Ngọt",
+   "thue": 26000.0,
+   "thanhTien": 325000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 48,
+   "kyHieu": "C26MYY",
+   "soHd": "5447",
+   "seller": "CÔNG TY CP PHÚC ANH QUỐC",
+   "desc": "Cước vận chuyển Hà Nội - Hà Tĩnh",
+   "thue": 40000.0,
+   "thanhTien": 500000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 49,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sua - Clear Jellyfish Tart",
+   "thue": 16000.0,
+   "thanhTien": 200000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 50,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sua - Clear Jellyfish Tart",
+   "thue": 16000.0,
+   "thanhTien": 200000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 51,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Oc - Smoked Snail Skewer",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 52,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Oc - Smoked Snail Skewer",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 53,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Com Chay - Caramelised Pork Cheek & Crispy Rice",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 54,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Com Chay - Caramelised Pork Cheek & Crispy Rice",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 55,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Cam - Foie Gras Sticky Rice Ball",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 56,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Cam - Foie Gras Sticky Rice Ball",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 57,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Pho Dap - Seared Wagyu with Crispy Rice Noodle",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 58,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Pho Dap - Seared Wagyu with Crispy Rice Noodle",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 59,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Khot - Tumeric Rice Cake",
+   "thue": 28800.0,
+   "thanhTien": 360000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 60,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Khot - Tumeric Rice Cake",
+   "thue": 28800.0,
+   "thanhTien": 360000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 61,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "So Diep - Seared Scallop",
+   "thue": 44000.0,
+   "thanhTien": 550000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 62,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "So Diep - Seared Scallop",
+   "thue": 44000.0,
+   "thanhTien": 550000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 63,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Canh Ga - Stuffed Chicken Wing & Seafood",
+   "thue": 24000.0,
+   "thanhTien": 300000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 64,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Canh Ga - Stuffed Chicken Wing & Seafood",
+   "thue": 24000.0,
+   "thanhTien": 300000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 65,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 66,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 67,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 68,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 69,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 70,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 71,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 72,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 73,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sup Bao Ngu - Poached Abalone",
+   "thue": 32000.0,
+   "thanhTien": 400000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 74,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Rau Cang Cua - Chicken Herb Salad",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 75,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Rau Cang Cua - Chicken Herb Salad",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 76,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Nuoc Khoang - Perrier Large 75cl",
+   "thue": 22000.0,
+   "thanhTien": 275000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 77,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Nuoc Khoang - Perrier Large 75cl",
+   "thue": 22000.0,
+   "thanhTien": 275000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 78,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Nuoc Khoang - Perrier Large 75cl",
+   "thue": 22000.0,
+   "thanhTien": 275000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 79,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sua - Clear Jellyfish Tart",
+   "thue": 16000.0,
+   "thanhTien": 200000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 80,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Sua - Clear Jellyfish Tart",
+   "thue": 16000.0,
+   "thanhTien": 200000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 81,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Cam - Foie Gras Sticky Rice Ball",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 82,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Banh Cam - Foie Gras Sticky Rice Ball",
+   "thue": 28000.0,
+   "thanhTien": 350000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 83,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Oc - Smoked Snail Skewer",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 84,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Oc - Smoked Snail Skewer",
+   "thue": 20000.0,
+   "thanhTien": 250000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 85,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Mi Quang - Quang Prawn Noodles",
+   "thue": 56000.0,
+   "thanhTien": 700000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 86,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Rieu Cua - Crab ''Rieu''",
+   "thue": 216000.0,
+   "thanhTien": 2700000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 87,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Bo Nuong - Chargrilled Wagyu Striploin",
+   "thue": 224000.0,
+   "thanhTien": 2800000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 88,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Tom Hum - Butter-Poached Lobster",
+   "thue": 216000.0,
+   "thanhTien": 2700000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 89,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Heo Nuong - Chargrilled Pork Tomahawk",
+   "thue": 200000.0,
+   "thanhTien": 2500000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 90,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Nuoc Khoang - Evian Still Large 75cl",
+   "thue": 22000.0,
+   "thanhTien": 275000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 91,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Nuoc Khoang - Perrier Large 75cl",
+   "thue": 22000.0,
+   "thanhTien": 275000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 92,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Tom Hum - Butter-Poached Lobster",
+   "thue": 216000.0,
+   "thanhTien": 2700000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 93,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Tom Hum - Butter-Poached Lobster",
+   "thue": 216000.0,
+   "thanhTien": 2700000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 94,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Ruou - BTL Louis Roederer Collection, NV",
+   "thue": 650000.0,
+   "thanhTien": 6500000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 95,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Ruou RW - BTL Joseph Drouhin, Côte de Beaune",
+   "thue": 620000.0,
+   "thanhTien": 6200000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 96,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Phi dich vu/ Service charge 5%",
+   "thue": 117180.0,
+   "thanhTien": 1464750.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 97,
+   "kyHieu": "C26MAC",
+   "soHd": "1062",
+   "seller": "CÔNG TY CỔ PHẦN TẬP ĐOÀN GELEX",
+   "desc": "Phi dich vu/ Service charge 5%",
+   "thue": 63500.0,
+   "thanhTien": 635000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 98,
+   "kyHieu": "C26TAT",
+   "soHd": "3283",
+   "seller": "CÔNG TY TNHH CÔNG NGHỆ MÔI TRƯỜNG AN THY",
+   "desc": "Muối (Natriclorua) tinh Vissoft, dạng viên, NSX: V S CHEMFOOD INDUSTRIES, Ấn Độ",
+   "thue": 0.0,
+   "thanhTien": 680000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MUOIAD",
+    "ten": "HÀNG HOÁ",
+    "tkno": "1561",
+    "tkco": "331",
+    "vat": "",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 99,
+   "kyHieu": "C26TYY",
+   "soHd": "27",
+   "seller": "CÔNG TY TNHH CÔNG NGHỆ VÀ DỊCH VỤ HUSTLE",
+   "desc": "Cho thuê Body Sony FX3A",
+   "thue": 72000.0,
+   "thanhTien": 900000.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.qc",
+    "ten": "CP quảng cáo",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 100,
+   "kyHieu": "C26TYY",
+   "soHd": "235",
+   "seller": "CÔNG TY TNHH INFINITY VIỆT NAM",
+   "desc": "Suất ăn Nanairo (Súp khai vị, Cơm khai vị Shari, Khai vị, Sashimi (Bề bề, Tôm, Ốc hương), Trứng hấp, Sushi 4 miếng (Cá bơn, Cá song, Cá khế, Cá tráp), Đồ hấp, Bát cơm theo mùa, Cá nướng, Sushi 4 miếng (Cá nục, Cá thu, Cá hố, Cá ngừ), Trứng, Lươn biển, Cuộn cơm, Súp miso, Tráng miệng)",
+   "thue": 384000.0,
+   "thanhTien": 4800000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 101,
+   "kyHieu": "C26TYY",
+   "soHd": "235",
+   "seller": "CÔNG TY TNHH INFINITY VIỆT NAM",
+   "desc": "Nước trà xanh ủ chậm (Cold Brewed Iced Tea)",
+   "thue": 8800.0,
+   "thanhTien": 110000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 102,
+   "kyHieu": "C26TYY",
+   "soHd": "235",
+   "seller": "CÔNG TY TNHH INFINITY VIỆT NAM",
+   "desc": "Trà matcha (nóng hoặc lạnh) (Matcha)",
+   "thue": 4800.0,
+   "thanhTien": 60000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 103,
+   "kyHieu": "C26TYY",
+   "soHd": "235",
+   "seller": "CÔNG TY TNHH INFINITY VIỆT NAM",
+   "desc": "Đĩa sashimi cho 1 người (Sashimi plate 1p)",
+   "thue": 52000.0,
+   "thanhTien": 650000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 104,
+   "kyHieu": "C26TYY",
+   "soHd": "235",
+   "seller": "CÔNG TY TNHH INFINITY VIỆT NAM",
+   "desc": "Phí dịch vụ",
+   "thue": 13488.0,
+   "thanhTien": 168600.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 105,
+   "kyHieu": "C26TYY",
+   "soHd": "28",
+   "seller": "CÔNG TY TNHH TƯ VẤN VÀ ĐÀO TẠO NEXTGEN TAX",
+   "desc": "Dịch vụ tư vấn doanh nghiệp theo hợp đồng số 09/2026/HĐTV/NGT-GWT đợt 2",
+   "thue": 2120000.0,
+   "thanhTien": 26500000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dvkt",
+    "ten": "CP dịch vụ kế toán",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 106,
+   "kyHieu": "C26TXL",
+   "soHd": "8681",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Ống nước nóng Vesbo D25 x 4.2 mm (màu đen - kháng khuẩn)",
+   "thue": 100800.0,
+   "thanhTien": 1260000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "ONN25-42VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 107,
+   "kyHieu": "C26TXL",
+   "soHd": "8681",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Tê đều Vesbo 25mm",
+   "thue": 16000.0,
+   "thanhTien": 200000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vattukho",
+    "ten": "CP vật tư kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 108,
+   "kyHieu": "C26TXL",
+   "soHd": "8681",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Măng sông Vesbo 25mm (màu đen)",
+   "thue": 15600.0,
+   "thanhTien": 195000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MS25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 109,
+   "kyHieu": "C26TXL",
+   "soHd": "8681",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Chếch Vesbo 25mm (màu đen )",
+   "thue": 16289.36,
+   "thanhTien": 203617.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "CHECH25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 110,
+   "kyHieu": "C26TXL",
+   "soHd": "8681",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Rắc co nhựa Vesbo 25mm (màu đen)",
+   "thue": 13280.64000000001,
+   "thanhTien": 166013.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "RC25VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 111,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí cân bằng cont ( CIC )",
+   "thue": 515872.0,
+   "thanhTien": 6448400.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 112,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí dịch vụ thủ tục hải quan",
+   "thue": 64000.0,
+   "thanhTien": 800000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 113,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí làm hàng tại cảng ( THC )",
+   "thue": 463232.0,
+   "thanhTien": 5790400.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 114,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí lệnh giao hàng ( D/O )",
+   "thue": 84224.0,
+   "thanhTien": 1052800.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 115,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí vệ sinh cont ( CLEANING FEE)",
+   "thue": 31584.0,
+   "thanhTien": 394800.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 116,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí dịch vụ vận tải bộ từ Cảng Lạch Huyện, Hải Phòng - Thanh Liệt, Hà Nội",
+   "thue": 600000.0,
+   "thanhTien": 7500000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 117,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Số xe : 15H01753 / Số cont : OOCU5728263",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 118,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "HBL: JHSHNF26074068",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 119,
+   "kyHieu": "C26TTQ",
+   "soHd": "4462",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "FILE JOB: TTLS08IS0726250",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 120,
+   "kyHieu": "C26TAA",
+   "soHd": "1539",
+   "seller": "Công ty Cổ Phần Vận Chuyển và Dịch Vụ Thương Mại 126",
+   "desc": "Cước vận chuyển HAN - SGN",
+   "thue": 29800.0,
+   "thanhTien": 372500.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 121,
+   "kyHieu": "C26TVN",
+   "soHd": "38304",
+   "seller": "CÔNG TY CỔ PHẦN GRAND FORWARD VIỆT NAM",
+   "desc": "Phí hạ vỏ cont 40 (OOCU5728263)",
+   "thue": 132000.0,
+   "thanhTien": 1650000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 122,
+   "kyHieu": "C26TVN",
+   "soHd": "38304",
+   "seller": "CÔNG TY CỔ PHẦN GRAND FORWARD VIỆT NAM",
+   "desc": "Phụ phí nâng hạ (OOCU5728263)",
+   "thue": 8800.0,
+   "thanhTien": 110000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 123,
+   "kyHieu": "C26TMD",
+   "soHd": "434",
+   "seller": "CÔNG TY CP XÂY DỰNG, THƯƠNG MẠI VÀ DU LỊCH MINH ĐỨC",
+   "desc": "Phòng Nghỉ",
+   "thue": 24000.0,
+   "thanhTien": 300000.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.congtac",
+    "ten": "CP công tác",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 124,
+   "kyHieu": "C26THT",
+   "soHd": "1590",
+   "seller": "CÔNG TY TNHH THUẬN HIỆP THÀNH MIỀN BẮC",
+   "desc": "MÁY BƠM Initial Jet 3-4",
+   "thue": 254815.0,
+   "thanhTien": 3185185.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "WILOJET44",
+    "ten": "HÀNG HOÁ",
+    "tkno": "1561",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 125,
+   "kyHieu": "C26TCC",
+   "soHd": "173813",
+   "seller": "CÔNG TY TNHH CẢNG CONTAINER QUỐC TẾ TÂN CẢNG HẢI PHÒNG",
+   "desc": "Phụ thu nhiên liệu 40GP Hàng",
+   "thue": 11200.0,
+   "thanhTien": 140000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 126,
+   "kyHieu": "C26TCC",
+   "soHd": "173813",
+   "seller": "CÔNG TY TNHH CẢNG CONTAINER QUỐC TẾ TÂN CẢNG HẢI PHÒNG",
+   "desc": "Giao cont hàng 40GP Hàng",
+   "thue": 128000.0,
+   "thanhTien": 1600000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 127,
+   "kyHieu": "C26TTQ",
+   "soHd": "4315",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Cước vận chuyển biển quốc tế ( OF ) từ Ningbo, Trung Quốc - Cảng Lạch Huyện, Hải Phòng, Việt Nam",
+   "thue": 0.0,
+   "thanhTien": 14476000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 128,
+   "kyHieu": "C26TTQ",
+   "soHd": "4315",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Tên tàu/ số chuyến : COSCO BELGIUM 087E",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 129,
+   "kyHieu": "C26TTQ",
+   "soHd": "4315",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "HBL: JHSHNF26074068",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 130,
+   "kyHieu": "C26TTQ",
+   "soHd": "4315",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "FILE JOB: TTLS08IS0726250",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 131,
+   "kyHieu": "C26TTQ",
+   "soHd": "4318",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "Phí giao nhận tại xưởng ( EXW )",
+   "thue": 1789760.0,
+   "thanhTien": 22372000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 132,
+   "kyHieu": "C26TTQ",
+   "soHd": "4318",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "HBL: JHSHNF26074068",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 133,
+   "kyHieu": "C26TTQ",
+   "soHd": "4318",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI VÀ VẬN TẢI TTL VIỆT NAM",
+   "desc": "FILE JOB: TTLS08IS0726250",
+   "thue": 0.0,
+   "thanhTien": 0.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 134,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Ống nước nóng Vesbo D25 x 4.2mm (màu đen - kháng khuẩn)",
+   "thue": 112000.0,
+   "thanhTien": 1400000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "ONN25-42VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 135,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Ống nước nóng Vesbo D32 x 5.4 mm (màu đen - kháng khuẩn)",
+   "thue": 158400.0,
+   "thanhTien": 1980000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "ONN32-54VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 136,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Côn thu Vesbo 32/25mm ( màu đen - trực tiếp)",
+   "thue": 1600.0,
+   "thanhTien": 20000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "CT32-25VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 137,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Cút Vesbo 25mm ( màu đen )",
+   "thue": 28352.56,
+   "thanhTien": 354407.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "CUT25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 138,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Măng sông Vesbo 25mm ( màu đen )",
+   "thue": 4000.0,
+   "thanhTien": 50000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MS25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 139,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Băng cuốn ống nước C2",
+   "thue": 4000.0,
+   "thanhTien": 50000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vattukho",
+    "ten": "CP vật tư kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 140,
+   "kyHieu": "C26TXL",
+   "soHd": "8121",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Van cửa mở 100% Vesbo 25 mm (màu đen)",
+   "thue": 36800.44,
+   "thanhTien": 460000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "VCM25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 141,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Ống nước nóng Vesbo D25 x 4.2mm (màu đen - kháng khuẩn)",
+   "thue": 56000.0,
+   "thanhTien": 700000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "ONN25-42VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 142,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Ống nước nóng Vesbo D32 x 5.4 mm (màu đen - kháng khuẩn)",
+   "thue": 70400.0,
+   "thanhTien": 880000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "ONN32-54VB",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 143,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Cút Vesbo 25mm ( màu đen )",
+   "thue": 9450.880000000001,
+   "thanhTien": 118136.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "CUT25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 144,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Măng sông Vesbo 25mm ( màu đen )",
+   "thue": 2000.0,
+   "thanhTien": 25000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MS25VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 145,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Băng cuốn ống nước C2",
+   "thue": 2000.0,
+   "thanhTien": 25000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vattukho",
+    "ten": "CP vật tư kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 146,
+   "kyHieu": "C26TXL",
+   "soHd": "8122",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01",
+   "desc": "Cút Vesbo 32mm (màu đen)",
+   "thue": 1171.119999999995,
+   "thanhTien": 14642.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "CUT32VBUV",
+    "ten": "VẬT TƯ (NVL)",
+    "tkno": "152",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 147,
+   "kyHieu": "C26TTV",
+   "soHd": "527",
+   "seller": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ SẢN XUẤT THUN VIỆT",
+   "desc": "In áo theo yêu cầu",
+   "thue": 16800.0,
+   "thanhTien": 210000.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.phucloi",
+    "ten": "CP phúc lợi",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 148,
+   "kyHieu": "C26TGS",
+   "soHd": "1962",
+   "seller": "CÔNG TY TNHH THƯƠNG MẠI GALAXY WATER SOLUTIONS",
+   "desc": "Muối viên",
+   "thue": 0.0,
+   "thanhTien": 3200000.0,
+   "expected": {
+    "nguon": "goods",
+    "kmcp": "MUOIAD",
+    "ten": "HÀNG HOÁ",
+    "tkno": "1561",
+    "tkco": "331",
+    "vat": "",
+    "kind": "goods"
+   }
+  },
+  {
+   "i": 149,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí chuyển hoàn tháng 07 năm 2026",
+   "thue": 560.0,
+   "thanhTien": 7000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 150,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí dán tem tháng 07 năm 2026",
+   "thue": 1520.0,
+   "thanhTien": 19000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 151,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí lưu kho tháng 07 năm 2026",
+   "thue": 274842.4,
+   "thanhTien": 3435530.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 152,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí dịch vụ đóng gói tháng 07 năm 2026",
+   "thue": 44760.0,
+   "thanhTien": 559500.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 153,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí xuất kho tháng 07 năm 2026",
+   "thue": 15440.0,
+   "thanhTien": 193000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 154,
+   "kyHieu": "C26TET",
+   "soHd": "220",
+   "seller": "CÔNG TY CỔ PHẦN ETON",
+   "desc": "Phí nhập kho tháng 07 năm 2026",
+   "thue": 3999.599999999977,
+   "thanhTien": 50000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 155,
+   "kyHieu": "C26TAB",
+   "soHd": "915",
+   "seller": "CÔNG TY CỔ PHẦN THƯƠNG MẠI QUỐC TẾ AN PHÚ GROUP",
+   "desc": "Bia Stangen Strong Beer 500 ml 8%",
+   "thue": 75182.0,
+   "thanhTien": 751818.0,
+   "expected": {
+    "nguon": "",
+    "kmcp": "",
+    "ten": "",
+    "tkno": "",
+    "tkco": "",
+    "vat": "1331",
+    "kind": "unknown"
+   }
+  },
+  {
+   "i": 156,
+   "kyHieu": "C26TLB",
+   "soHd": "85899",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát theo bảng kê từ ngày 01/07/2026 đến ngày 31/07/2026",
+   "thue": 135968.0,
+   "thanhTien": 1699600.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 157,
+   "kyHieu": "C26TAE",
+   "soHd": "655",
+   "seller": "CÔNG TY TNHH DỊCH VỤ VẬN TẢI ANZEN",
+   "desc": "Cước vận chuyển hàng Hà Nội đi Đà Nẵng",
+   "thue": 104000.0,
+   "thanhTien": 1300000.0,
+   "expected": {
+    "nguon": "override_ncc",
+    "kmcp": "cp.muahang",
+    "ten": "CP mua hàng nhập khẩu",
+    "tkno": "156",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "muahang"
+   }
+  },
+  {
+   "i": 158,
+   "kyHieu": "K26TAC",
+   "soHd": "6450868",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí dịch vụ tiếp thị liên kết PPS 07/2026 maylocnuocge (AMS PPS Commission Fee 07/2026 maylocnuocge)",
+   "thue": 8772.0,
+   "thanhTien": 109650.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 159,
+   "kyHieu": "K26TVA",
+   "soHd": "5134472",
+   "seller": "NCC-1",
+   "desc": "",
+   "thue": 44546.0,
+   "thanhTien": 445454.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 160,
+   "kyHieu": "K26TUU",
+   "soHd": "116920",
+   "seller": "CHI NHÁNH UNIQLO VINCOM PHẠM NGỌC THẠCH - CÔNG TY TNHH UNIQLO VIỆT NAM",
+   "desc": "M ÁO POLO",
+   "thue": 43556.0,
+   "thanhTien": 544444.0,
+   "expected": {
+    "nguon": "override_kw",
+    "kmcp": "cp.phucloi",
+    "ten": "CP phúc lợi",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 161,
+   "kyHieu": "K26TAC",
+   "soHd": "6230118",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí dịch vụ PiShip tháng 07/2026 maylocnuocge (PiShip service fee 07/2026 maylocnuocge)",
+   "thue": 3200.0,
+   "thanhTien": 40000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 162,
+   "kyHieu": "K26TAC",
+   "soHd": "6230118",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí hoa hồng cố định 07/2026 maylocnuocge (Commission Fee 07/2026 maylocnuocge)",
+   "thue": 770904.24,
+   "thanhTien": 9636303.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 163,
+   "kyHieu": "K26TAC",
+   "soHd": "6230118",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí dịch vụ 07/2026 maylocnuocge (Service Fee 07/2026 maylocnuocge)",
+   "thue": 47552.88,
+   "thanhTien": 594411.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 164,
+   "kyHieu": "K26TAC",
+   "soHd": "6230118",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí xử lý giao dịch 07/2026 maylocnuocge (Transaction Fee 07/2026 maylocnuocge)",
+   "thue": 416659.88,
+   "thanhTien": 5208244.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 165,
+   "kyHieu": "K26TAC",
+   "soHd": "5959797",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí dịch vụ hiển thị tháng 07/2026 maylocnuocge (SVS - Display service 07/2026 maylocnuocge)",
+   "thue": 880000.0,
+   "thanhTien": 11000000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 166,
+   "kyHieu": "K26TAC",
+   "soHd": "6103801",
+   "seller": "CÔNG TY TNHH SHOPEE",
+   "desc": "Phí rút tiền 07/2026 maylocnuocge (Withdrawal Fee 07/2026 maylocnuocge)",
+   "thue": 800.0,
+   "thanhTien": 10000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.shopeemall",
+    "ten": "CP shoppee",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 167,
+   "kyHieu": "C26TYY",
+   "soHd": "683",
+   "seller": "CÔNG TY TNHH ĐẦU TƯ THƯƠNG MẠI VÀ VẬN TẢI Á ĐÔNG",
+   "desc": "Cước vận chuyển từ Hà Nội đi Hồ Chí Minh",
+   "thue": 1760000.0,
+   "thanhTien": 22000000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 168,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Rượu BY JOSH SCOTT  DEAL WITH IT NATURAL PINOT NOIR",
+   "thue": 56363.60000000001,
+   "thanhTien": 563636.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 169,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Nước Khoáng Acqua Panna 1L",
+   "thue": 8148.16,
+   "thanhTien": 101852.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 170,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Kem vị Socola/Cioccolato Chocolate",
+   "thue": 5925.92,
+   "thanhTien": 74074.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 171,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Kem sữa chua dâu/Strawberry Yogurt",
+   "thue": 5925.92,
+   "thanhTien": 74074.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 172,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Kem vị chanh/Lemon",
+   "thue": 5925.92,
+   "thanhTien": 74074.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 173,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Mojito không cồn / Mocktail Virgin Moijto",
+   "thue": 9629.6,
+   "thanhTien": 120370.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 174,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Hỗn Hợp Các loại Phô mai của Ý/ Piatto misto di formaggi Italiana",
+   "thue": 28888.88,
+   "thanhTien": 361111.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 175,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Salad rau trộn/Insalata Mista B",
+   "thue": 11481.52,
+   "thanhTien": 143519.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 176,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Salad DAgostino/Salad rau cải bó xôi trộn cá hồi xông khói B",
+   "thue": 19629.6,
+   "thanhTien": 245370.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 177,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Mỳ tươi nấu sốt bò băm/Tagliatelle con ragu alla Bolognese",
+   "thue": 25925.92,
+   "thanhTien": 324074.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 178,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Bánh Pizza Burratina R",
+   "thue": 32592.56,
+   "thanhTien": 407407.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 179,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Mỳ Ý Vongole",
+   "thue": 23703.68,
+   "thanhTien": 296296.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 180,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Mỳ ý sốt cà chua hải sản/Spaghetti Pescatora Ragu di mare",
+   "thue": 28888.88,
+   "thanhTien": 361111.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 181,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Khoai tây chiên/Patate Fritte",
+   "thue": 8888.880000000001,
+   "thanhTien": 111111.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 182,
+   "kyHieu": "C26MDC",
+   "soHd": "6761",
+   "seller": "Công ty TNHH DragonCello Việt Nam",
+   "desc": "Nước Soda Tonic",
+   "thue": 5186.959999999963,
+   "thanhTien": 64815.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.vanhanhchung",
+    "ten": "CP vận hành chung",
+    "tkno": "6428",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 183,
+   "kyHieu": "C26MLA",
+   "soHd": "171424",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3571904623709221626",
+   "thue": 5120.0,
+   "thanhTien": 64000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 184,
+   "kyHieu": "C26MLA",
+   "soHd": "171425",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3571897041196114319",
+   "thue": 7320.0,
+   "thanhTien": 91500.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 185,
+   "kyHieu": "C26MLA",
+   "soHd": "171426",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3571797198507307962",
+   "thue": 6728.0,
+   "thanhTien": 84100.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 186,
+   "kyHieu": "C26MLA",
+   "soHd": "171427",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3571821090219184274",
+   "thue": 5552.0,
+   "thanhTien": 69400.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 187,
+   "kyHieu": "C26MLA",
+   "soHd": "170281",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3571359966994588656",
+   "thue": 3953.0,
+   "thanhTien": 49407.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 188,
+   "kyHieu": "C26MLA",
+   "soHd": "169207",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3570442168420229325",
+   "thue": 4120.0,
+   "thanhTien": 51500.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 189,
+   "kyHieu": "C26MLA",
+   "soHd": "169208",
+   "seller": "CÔNG TY TNHH LALAMOVE VIETNAM",
+   "desc": "Cước dịch vụ chuyển phát mã đơn 3570268128174891450",
+   "thue": 3696.0,
+   "thanhTien": 46200.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 190,
+   "kyHieu": "K26TAN",
+   "soHd": "7686216",
+   "seller": "TỔNG CÔNG TY CP BƯU CHÍNH VIETTEL",
+   "desc": "Cước chuyển phát tháng 08/2026 (Kèm bảng kê số XHĐTĐ-NKH02-2608-580 Ngày 31 Tháng 08 Năm 2026)",
+   "thue": 2861.0,
+   "thanhTien": 35758.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 191,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1443168647",
+   "thue": 674.4,
+   "thanhTien": 8430.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 192,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1443168647 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 2955.28,
+   "thanhTien": 36941.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 193,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1443926960",
+   "thue": 411.52,
+   "thanhTien": 5144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 194,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1443926960 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1810.72,
+   "thanhTien": 22634.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 195,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1444665733",
+   "thue": 331.52,
+   "thanhTien": 4144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 196,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1444665733 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1446.32,
+   "thanhTien": 18079.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 197,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1444870662",
+   "thue": 1200.16,
+   "thanhTien": 15002.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 198,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1444870662 - Tên hàng hóa: Điện tử",
+   "thue": 5392.48,
+   "thanhTien": 67406.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 199,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1444830125",
+   "thue": 365.76,
+   "thanhTien": 4572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 200,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1444830125 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 2004.56,
+   "thanhTien": 25057.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 201,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1441896295",
+   "thue": 310.0,
+   "thanhTien": 3875.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 202,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1441896295",
+   "thue": 1690.0,
+   "thanhTien": 21125.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 203,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1442058732",
+   "thue": 800.08,
+   "thanhTien": 10001.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 204,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1442058732 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 4385.12,
+   "thanhTien": 54814.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 205,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1442289604",
+   "thue": 571.52,
+   "thanhTien": 7144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 206,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1442289604 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 2465.52,
+   "thanhTien": 30819.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 207,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1442422844",
+   "thue": 548.5600000000001,
+   "thanhTien": 6857.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 208,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1442422844 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 2414.4,
+   "thanhTien": 30180.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 209,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1442558723",
+   "thue": 1360.16,
+   "thanhTien": 17002.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 210,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1442558723 - Tên hàng hóa: Khác",
+   "thue": 6121.360000000001,
+   "thanhTien": 76517.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 211,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1442636970",
+   "thue": 1134.64,
+   "thanhTien": 14183.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 212,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1442636970 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 9828.32,
+   "thanhTien": 122854.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 213,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1445725470",
+   "thue": 1435.2,
+   "thanhTien": 17940.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 214,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1445725470",
+   "thue": 6861.12,
+   "thanhTien": 85764.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 215,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1445659120",
+   "thue": 1205.52,
+   "thanhTien": 15069.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 216,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1445659120",
+   "thue": 5757.440000000001,
+   "thanhTien": 71968.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 217,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1446797471",
+   "thue": 1017.28,
+   "thanhTien": 12716.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 218,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1446797471 - Tên hàng hóa: Điện tử",
+   "thue": 4464.24,
+   "thanhTien": 55803.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 219,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1446808350",
+   "thue": 594.4,
+   "thanhTien": 7430.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 220,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1446808350 - Tên hàng hóa: Điện tử",
+   "thue": 2813.04,
+   "thanhTien": 35163.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 221,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1447025076",
+   "thue": 697.2,
+   "thanhTien": 8715.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 222,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1447025076 - Tên hàng hóa: Điện tử",
+   "thue": 3228.72,
+   "thanhTien": 40359.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 223,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1447602497",
+   "thue": 960.08,
+   "thanhTien": 12001.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 224,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1447602497 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 4225.12,
+   "thanhTien": 52814.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 225,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1447628731",
+   "thue": 548.5600000000001,
+   "thanhTien": 6857.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 226,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1447628731 - Tên hàng hóa: Điện tử",
+   "thue": 2414.4,
+   "thanhTien": 30180.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 227,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1447664760",
+   "thue": 811.52,
+   "thanhTien": 10144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 228,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1447664760 - Tên hàng hóa: Điện tử",
+   "thue": 3558.88,
+   "thanhTien": 44486.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 229,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1447742507",
+   "thue": 548.5600000000001,
+   "thanhTien": 6857.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 230,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1447742507 - Tên hàng hóa: Điện tử",
+   "thue": 2414.4,
+   "thanhTien": 30180.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 231,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448284269",
+   "thue": 377.2,
+   "thanhTien": 4715.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 232,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448284269 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1622.8,
+   "thanhTien": 20285.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 233,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448173260",
+   "thue": 306.64,
+   "thanhTien": 3833.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 234,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448173260 - Tên hàng hóa: Điện tử",
+   "thue": 2360.0,
+   "thanhTien": 29500.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 235,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448219542",
+   "thue": 506.0,
+   "thanhTien": 6325.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 236,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448219542 - Tên hàng hóa: Điện tử",
+   "thue": 3568.08,
+   "thanhTien": 44601.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 237,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448251013",
+   "thue": 525.76,
+   "thanhTien": 6572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 238,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448251013 - Tên hàng hóa: Điện tử",
+   "thue": 2511.28,
+   "thanhTien": 31391.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 239,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448335981",
+   "thue": 342.88,
+   "thanhTien": 4286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 240,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448335981 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1508.96,
+   "thanhTien": 18862.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 241,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448346870",
+   "thue": 342.88,
+   "thanhTien": 4286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 242,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448346870 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1508.96,
+   "thanhTien": 18862.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 243,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448468571",
+   "thue": 559.6800000000001,
+   "thanhTien": 6996.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 244,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448468571 - Tên hàng hóa: Điện tử",
+   "thue": 3884.72,
+   "thanhTien": 48559.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 245,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1448879720",
+   "thue": 287.04,
+   "thanhTien": 3588.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 246,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1448879720",
+   "thue": 1490.72,
+   "thanhTien": 18634.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 247,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1449668384",
+   "thue": 329.68,
+   "thanhTien": 4121.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 248,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1449668384 - Tên hàng hóa: Khác",
+   "thue": 2485.12,
+   "thanhTien": 31064.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 249,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1449035026",
+   "thue": 514.4,
+   "thanhTien": 6430.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 250,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1449035026 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 2226.4,
+   "thanhTien": 27830.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 251,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1449095189",
+   "thue": 182.88,
+   "thanhTien": 2286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 252,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1449095189 - Tên hàng hóa: Điện tử",
+   "thue": 1002.32,
+   "thanhTien": 12529.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 253,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1449117623",
+   "thue": 708.64,
+   "thanhTien": 8858.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 254,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1449117623 - Tên hàng hóa: Quần áo",
+   "thue": 3069.12,
+   "thanhTien": 38364.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 255,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1449810867",
+   "thue": 411.52,
+   "thanhTien": 5144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 256,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1449810867 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 1810.72,
+   "thanhTien": 22634.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 257,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1452823640",
+   "thue": 434.32,
+   "thanhTien": 5429.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 258,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1452823640 - Tên hàng hóa: Tài liệu",
+   "thue": 2380.48,
+   "thanhTien": 29756.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 259,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1452907207",
+   "thue": 514.4,
+   "thanhTien": 6430.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 260,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1452907207 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 2818.96,
+   "thanhTien": 35237.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 261,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1453005190",
+   "thue": 1965.92,
+   "thanhTien": 24574.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 262,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1453005190 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 10774.8,
+   "thanhTien": 134685.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 263,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1453591658",
+   "thue": 422.88,
+   "thanhTien": 5286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 264,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1453591658 - Tên hàng hóa: Điện tử",
+   "thue": 2317.84,
+   "thanhTien": 28973.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 265,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1453529688",
+   "thue": 406.4,
+   "thanhTien": 5080.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 266,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1453529688 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 3519.52,
+   "thanhTien": 43994.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 267,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1453688380",
+   "thue": 548.5600000000001,
+   "thanhTien": 6857.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 268,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1453688380 - Tên hàng hóa: Khác",
+   "thue": 3006.96,
+   "thanhTien": 37587.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 269,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1453913762",
+   "thue": 1165.84,
+   "thanhTien": 14573.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 270,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1453913762 - Tên hàng hóa: Điện tử",
+   "thue": 5056.400000000001,
+   "thanhTien": 63205.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 271,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1454450535",
+   "thue": 445.76,
+   "thanhTien": 5572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 272,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1454450535 - Tên hàng hóa: Khác",
+   "thue": 2443.12,
+   "thanhTien": 30539.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 273,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1454565519",
+   "thue": 697.2,
+   "thanhTien": 8715.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 274,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1454565519 - Tên hàng hóa: Điện tử",
+   "thue": 3821.36,
+   "thanhTien": 47767.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 275,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1454955508",
+   "thue": 918.48,
+   "thanhTien": 11481.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 276,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1454955508",
+   "thue": 5007.440000000001,
+   "thanhTien": 62593.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 277,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1457398137",
+   "thue": 342.88,
+   "thanhTien": 4286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 278,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1457398137 - Tên hàng hóa: Khác",
+   "thue": 1879.36,
+   "thanhTien": 23492.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 279,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458261478",
+   "thue": 365.76,
+   "thanhTien": 4572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 280,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458261478 - Tên hàng hóa: Điện tử",
+   "thue": 2004.56,
+   "thanhTien": 25057.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 281,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458243537",
+   "thue": 262.88,
+   "thanhTien": 3286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 282,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458243537 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 1440.8,
+   "thanhTien": 18010.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 283,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458380691",
+   "thue": 662.88,
+   "thanhTien": 8286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 284,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458380691 - Tên hàng hóa: Dễ vỡ",
+   "thue": 3633.44,
+   "thanhTien": 45418.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 285,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458836529",
+   "thue": 759.04,
+   "thanhTien": 9488.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 286,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458836529 - Tên hàng hóa: Điện tử",
+   "thue": 6574.32,
+   "thanhTien": 82179.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 287,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458864704",
+   "thue": 708.64,
+   "thanhTien": 8858.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 288,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458864704 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 3883.92,
+   "thanhTien": 48549.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 289,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458859912",
+   "thue": 377.2,
+   "thanhTien": 4715.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 290,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458859912 - Tên hàng hóa: Khác",
+   "thue": 2067.28,
+   "thanhTien": 25841.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 291,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1458944034",
+   "thue": 320.0,
+   "thanhTien": 4000.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 292,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1458944034 - Tên hàng hóa: Dễ vỡ",
+   "thue": 1754.08,
+   "thanhTien": 21926.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 293,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1459501550",
+   "thue": 122.64,
+   "thanhTien": 1533.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 294,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1459501550 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 1062.48,
+   "thanhTien": 13281.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 295,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1459515642",
+   "thue": 498.4,
+   "thanhTien": 6230.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 296,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1459515642 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 4316.48,
+   "thanhTien": 53956.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 297,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1459581146",
+   "thue": 560.08,
+   "thanhTien": 7001.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 298,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1459581146 - Tên hàng hóa: Điện tử",
+   "thue": 3069.52,
+   "thanhTien": 38369.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 299,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1459660409",
+   "thue": 685.76,
+   "thanhTien": 8572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 300,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1459660409 - Tên hàng hóa: Thực phẩm tươi,Đồ đóng gói",
+   "thue": 3017.92,
+   "thanhTien": 37724.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 301,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1459728177",
+   "thue": 383.36,
+   "thanhTien": 4792.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 302,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1459728177 - Tên hàng hóa: Điện tử",
+   "thue": 3320.4,
+   "thanhTien": 41505.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 303,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460031032",
+   "thue": 708.64,
+   "thanhTien": 8858.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 304,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460031032 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 3883.92,
+   "thanhTien": 48549.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 305,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460099419",
+   "thue": 822.96,
+   "thanhTien": 10287.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 306,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460099419 - Tên hàng hóa: Điện tử",
+   "thue": 4510.400000000001,
+   "thanhTien": 56380.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 307,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460116196",
+   "thue": 378.88,
+   "thanhTien": 4736.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 308,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460116196",
+   "thue": 2065.52,
+   "thanhTien": 25819.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 309,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460067881",
+   "thue": 310.0,
+   "thanhTien": 3875.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 310,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460067881",
+   "thue": 1690.0,
+   "thanhTien": 21125.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 311,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460360687",
+   "thue": 559.6800000000001,
+   "thanhTien": 6996.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 312,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460360687 - Tên hàng hóa: Đồ đóng gói,Khác",
+   "thue": 4847.68,
+   "thanhTien": 60596.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 313,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460421917",
+   "thue": 685.76,
+   "thanhTien": 8572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 314,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460421917 - Tên hàng hóa: Thực phẩm tươi,Đồ đóng gói",
+   "thue": 3017.92,
+   "thanhTien": 37724.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 315,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1460553019",
+   "thue": 2183.04,
+   "thanhTien": 27288.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 316,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1460553019 - Tên hàng hóa: Điện tử",
+   "thue": 11965.12,
+   "thanhTien": 149564.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 317,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1461217898",
+   "thue": 685.76,
+   "thanhTien": 8572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 318,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1461217898 - Tên hàng hóa: Thực phẩm tươi,Đồ đóng gói",
+   "thue": 3017.92,
+   "thanhTien": 37724.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 319,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1462589211",
+   "thue": 480.08,
+   "thanhTien": 6001.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 320,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1462589211 - Tên hàng hóa: Thực phẩm tươi,Đồ đóng gói",
+   "thue": 2112.48,
+   "thanhTien": 26406.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 321,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1462671141",
+   "thue": 1251.52,
+   "thanhTien": 15644.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 322,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1462671141",
+   "thue": 5859.6,
+   "thanhTien": 73245.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 323,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1462800476",
+   "thue": 858.64,
+   "thanhTien": 10733.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 324,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1462800476 - Tên hàng hóa: Điện tử",
+   "thue": 7437.6,
+   "thanhTien": 92970.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 325,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463206321",
+   "thue": 1400.72,
+   "thanhTien": 17509.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 326,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463206321",
+   "thue": 6525.2,
+   "thanhTien": 81565.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 327,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463217719",
+   "thue": 182.88,
+   "thanhTien": 2286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 328,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463217719 - Tên hàng hóa: Đồ đóng gói",
+   "thue": 1002.32,
+   "thanhTien": 12529.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 329,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463329883",
+   "thue": 662.88,
+   "thanhTien": 8286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 330,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463329883 - Tên hàng hóa: Khác",
+   "thue": 3633.44,
+   "thanhTien": 45418.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 331,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463406433",
+   "thue": 685.76,
+   "thanhTien": 8572.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 332,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463406433 - Tên hàng hóa: Thực phẩm tươi",
+   "thue": 3758.64,
+   "thanhTien": 46983.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 333,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463467843",
+   "thue": 1217.04,
+   "thanhTien": 15213.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 334,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463467843",
+   "thue": 6264.48,
+   "thanhTien": 78306.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 335,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463490074",
+   "thue": 608.48,
+   "thanhTien": 7606.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 336,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463490074",
+   "thue": 2947.04,
+   "thanhTien": 36838.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 337,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463773547",
+   "thue": 631.52,
+   "thanhTien": 7894.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 338,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463773547",
+   "thue": 2405.52,
+   "thanhTien": 30069.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 339,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463666288",
+   "thue": 411.52,
+   "thanhTien": 5144.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 340,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463666288 - Tên hàng hóa: Khác",
+   "thue": 2255.2,
+   "thanhTien": 28190.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 341,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Phí sử dụng ứng dụng Be chuyến 1463660533",
+   "thue": 582.88,
+   "thanhTien": 7286.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 342,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Cước phí vận tải chuyến 1463660533 - Tên hàng hóa: Khác",
+   "thue": 3194.88,
+   "thanhTien": 39936.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 343,
+   "kyHieu": "K26TDG",
+   "soHd": "1074558",
+   "seller": "CÔNG TY CỔ PHẦN BE GROUP",
+   "desc": "Chiết khấu - Cước phí vận tải",
+   "thue": -12666.72000000003,
+   "thanhTien": -158333.0,
+   "expected": {
+    "nguon": "rule_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 344,
+   "kyHieu": "C26TCD",
+   "soHd": "5859",
+   "seller": "CÔNG TY TNHH MỘT THÀNH VIÊN DỊCH VỤ KHO VẬN VIETTEL",
+   "desc": "Phí vận hành kho tháng 08 theo bảng kê T0108 VKVMB0643 ngày 28 tháng 08 năm 2026",
+   "thue": 1106527.0,
+   "thanhTien": 13831592.0,
+   "expected": {
+    "nguon": "hoc_prefix",
+    "kmcp": "cp.thuekho",
+    "ten": "CP thuê kho",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 345,
+   "kyHieu": "C26TKM",
+   "soHd": "779",
+   "seller": "CÔNG TY TNHH MỘT THÀNH VIÊN DỊCH VỤ KHO VẬN VIETTEL",
+   "desc": "Phí chuyển phát tháng 08 theo bảng kê T0826 VKVMB0643 ngày 31 tháng 08 năm 2026",
+   "thue": 141438.0,
+   "thanhTien": 1767979.0,
+   "expected": {
+    "nguon": "",
+    "kmcp": "",
+    "ten": "",
+    "tkno": "",
+    "tkco": "",
+    "vat": "1331",
+    "kind": "unknown"
+   }
+  },
+  {
+   "i": 346,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZP03D541A281J7Y1MYB7Y2D",
+   "thue": 2073.36,
+   "thanhTien": 25917.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 347,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Chiết khấu thương mại/ khuyến mại mã 01KZP03D541A281J7Y1MYB7Y2D",
+   "thue": 444.48,
+   "thanhTien": -5556.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 348,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZP03D541A281J7Y1MYB7Y2D",
+   "thue": 148.88,
+   "thanhTien": 1861.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 349,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZRJA7RTYT33D6AWSF4J7WR8",
+   "thue": 2142.48,
+   "thanhTien": 26781.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 350,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Chiết khấu thương mại/ khuyến mại mã 01KZRJA7RTYT33D6AWSF4J7WR8",
+   "thue": 444.48,
+   "thanhTien": -5556.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 351,
+   "kyHieu": "C26TBC",
+   "soHd": "28679",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZRJA7RTYT33D6AWSF4J7WR8",
+   "thue": -1623.68,
+   "thanhTien": 1923.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 352,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KYH6CTVTNRNWSBTNTYXC6B3Y; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 10296.32,
+   "thanhTien": 128704.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 353,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KYK7H9JH6HXZNVQVM42STCV9",
+   "thue": 7520.0,
+   "thanhTien": 94000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 354,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KYK7H9JH6HXZNVQVM42STCV9",
+   "thue": 480.0,
+   "thanhTien": 6000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 355,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KYK4VDDZZS7191TMQF04CY6H",
+   "thue": 13995.52,
+   "thanhTien": 174944.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 356,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KYK4VDDZZS7191TMQF04CY6H",
+   "thue": 893.36,
+   "thanhTien": 11167.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 357,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ3B1TVDDBVQ2Q3R9WYSKP0J; Tên hàng hóa: Đồ điện tử",
+   "thue": 5390.64,
+   "thanhTien": 67383.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 358,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZ3B1TVDDBVQ2Q3R9WYSKP0J; Tên hàng hóa: Đồ điện tử",
+   "thue": 387.12,
+   "thanhTien": 4839.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 359,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ6KV61P6V4XRR1N2P2HZ7YG",
+   "thue": 15111.12,
+   "thanhTien": 188889.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 360,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ67EDBJB3W7V7X2KJ4VDYH2; Tên hàng hóa: Quần áo",
+   "thue": 4146.64,
+   "thanhTien": 51833.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 361,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZ67EDBJB3W7V7X2KJ4VDYH2; Tên hàng hóa: Quần áo",
+   "thue": 297.76,
+   "thanhTien": 3722.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 362,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ5HGTP6T03KVRJ5CGTHNVVK",
+   "thue": 6405.92,
+   "thanhTien": 80074.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 363,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZ5HGTP6T03KVRJ5CGTHNVVK",
+   "thue": 408.88,
+   "thanhTien": 5111.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 364,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ5G4VYEH2BZ3JD8AFWV6NMV; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 17185.2,
+   "thanhTien": 214815.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 365,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ87Z6BHKB511H1BYZ9DWHHT; Tên hàng hóa: Quần áo",
+   "thue": 1727.76,
+   "thanhTien": 21597.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 366,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZ87Z6BHKB511H1BYZ9DWHHT; Tên hàng hóa: Quần áo",
+   "thue": 124.08,
+   "thanhTien": 1551.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 367,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ85X81E577646AD06393AGJ",
+   "thue": 6754.08,
+   "thanhTien": 84426.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 368,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZ85X81E577646AD06393AGJ",
+   "thue": 431.12,
+   "thanhTien": 5389.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 369,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ85C02GX1X8AB96A8JQ0HFY; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 13259.28,
+   "thanhTien": 165741.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 370,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ856N5VC7FYHY2ACCX3HXD4; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 16888.88,
+   "thanhTien": 211111.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 371,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ7QE9DTKAVJW4WPB9MQV6EY; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 13629.6,
+   "thanhTien": 170370.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 372,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ7NG4PFXSV39BC8RXYWFDKJ; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 13333.36,
+   "thanhTien": 166667.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 373,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZ7J2K0GJJFZZCF21D6Y1ZVR",
+   "thue": 13407.44,
+   "thanhTien": 167593.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 374,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZAS0A0HHSMSF7N5E4T75J9K; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 13259.28,
+   "thanhTien": 165741.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 375,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZAH8P7ZEJWZ8R0NFB94Q504; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 10296.32,
+   "thanhTien": 128704.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 376,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZCXMPMDJ9PE42AC6R2XVDZR; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 14000.0,
+   "thanhTien": 175000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 377,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZKC8963G89RP40MEJY4TGXR",
+   "thue": 8148.16,
+   "thanhTien": 101852.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 378,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZKADSCZJTFHQTKRFNMD64V1",
+   "thue": 8074.08,
+   "thanhTien": 100926.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 379,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZJZXK5DVQNG19W0BB5ZGKWS",
+   "thue": 5629.6,
+   "thanhTien": 70370.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 380,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZT54N3VZ6KT5FWZ9HQKAF85",
+   "thue": 5407.440000000001,
+   "thanhTien": 67593.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 381,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZSXT8R90YJWK6GCV7QKDVB5",
+   "thue": 3333.36,
+   "thanhTien": 41667.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 382,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZWE07GSZY4SBF29YBH0E47F; Tên hàng hóa: Quần áo",
+   "thue": 4630.48,
+   "thanhTien": 57881.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 383,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZWE07GSZY4SBF29YBH0E47F; Tên hàng hóa: Quần áo",
+   "thue": 332.48,
+   "thanhTien": 4156.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 384,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZZVATY27FBHX2WP67YH45J4",
+   "thue": 4296.32,
+   "thanhTien": 53704.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 385,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01KZZ0QKC3XC6H1ZAF8DKC6SN7; Tên hàng hóa: Quần áo",
+   "thue": 5183.36,
+   "thanhTien": 64792.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 386,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01KZZ0QKC3XC6H1ZAF8DKC6SN7; Tên hàng hóa: Quần áo",
+   "thue": 372.24,
+   "thanhTien": 4653.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 387,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M01X7AV4SP50JNJG8Y06B6R0",
+   "thue": 7256.64,
+   "thanhTien": 90708.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 388,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M01X7AV4SP50JNJG8Y06B6R0",
+   "thue": 521.12,
+   "thanhTien": 6514.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 389,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M07R9075DBASFVEW1N95TYMG",
+   "thue": 6148.16,
+   "thanhTien": 76852.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 390,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M075AMKZFCST0RMSWAY6C5T2",
+   "thue": 6740.72,
+   "thanhTien": 84259.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 391,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M09P75RHG239D2TB4HVCAD8C",
+   "thue": 3333.36,
+   "thanhTien": 41667.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 392,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M09KYY946M966GD9HSGBPXWN",
+   "thue": 2158.48,
+   "thanhTien": 26981.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 393,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M09KYY946M966GD9HSGBPXWN",
+   "thue": 137.76,
+   "thanhTien": 1722.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 394,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M09F01DWPB3QR3KWYGS0VY8V; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 13185.2,
+   "thanhTien": 164815.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 395,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0EN0VJYANBSFKCZB0C2T047",
+   "thue": 2222.24,
+   "thanhTien": 27778.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 396,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0EMRJ530HGQQDCHNXEKZZGR; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 10370.4,
+   "thanhTien": 129630.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 397,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0EJG254WW7XR2Q43436W77S",
+   "thue": 4177.76,
+   "thanhTien": 52222.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 398,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M0EJG254WW7XR2Q43436W77S",
+   "thue": 266.64,
+   "thanhTien": 3333.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 399,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0EEFJESAA6BVEEASR23NG2T",
+   "thue": 5259.28,
+   "thanhTien": 65741.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 400,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0H5PTRFTFH9ZM75Q61BZJJK; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 16814.8,
+   "thanhTien": 210185.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 401,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0T09GDC5S9BPDE88AM1YD2J",
+   "thue": 2142.48,
+   "thanhTien": 26781.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 402,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M0T09GDC5S9BPDE88AM1YD2J",
+   "thue": 153.84,
+   "thanhTien": 1923.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 403,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0T04F1YMNNEPX2QC32YMKPT",
+   "thue": 13020.72,
+   "thanhTien": 162759.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 404,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M0T04F1YMNNEPX2QC32YMKPT",
+   "thue": 831.12,
+   "thanhTien": 10389.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 405,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0SB9JVBZWNGVGEH2PM0A07J; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 20444.48,
+   "thanhTien": 255556.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 406,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0S18WDHN39SNWPEXGBZFDHB",
+   "thue": 7185.2,
+   "thanhTien": 89815.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 407,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0S0FD3HQ3G22SSZY8DPAHKV; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 17185.2,
+   "thanhTien": 214815.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 408,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0RVGAMCAY3QQYBYQXNAG2Q0; Tên hàng hóa: Đồ điện gia dụng",
+   "thue": 12962.96,
+   "thanhTien": 162037.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 409,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0VMVEQRM0QWV2BXTEVPX81C",
+   "thue": 6962.96,
+   "thanhTien": 87037.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 410,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M0VMVEQRM0QWV2BXTEVPX81C",
+   "thue": 444.48,
+   "thanhTien": 5556.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 411,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0V6J56AQZSKHYA8EG938C90",
+   "thue": 7629.6,
+   "thanhTien": 95370.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 412,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Cước phí vận chuyển mã 01M0V3T4Z363KHMERDVN81PY9Z; Tên hàng hóa: Quần áo",
+   "thue": 5874.48,
+   "thanhTien": 73431.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 413,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí nền tảng mã 01M0V3T4Z363KHMERDVN81PY9Z; Tên hàng hóa: Quần áo",
+   "thue": 421.84,
+   "thanhTien": 5273.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 414,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Phí quản lý",
+   "thue": 20944.48,
+   "thanhTien": 261806.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 415,
+   "kyHieu": "C26TBB",
+   "soHd": "66836",
+   "seller": "CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM",
+   "desc": "Chiết khấu thương mại/ khuyến mại",
+   "thue": -18000.60000000003,
+   "thanhTien": -225000.0,
+   "expected": {
+    "nguon": "hoc_ncc",
+    "kmcp": "cp.dichuyen",
+    "ten": "CP di chuyển",
+    "tkno": "6427",
+    "tkco": "331",
+    "vat": "",
+    "kind": "kmcp"
+   }
+  },
+  {
+   "i": 416,
+   "kyHieu": "C26TAA",
+   "soHd": "566",
+   "seller": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ DỊCH VỤ T&S",
+   "desc": "CƯỚC CHUYỂN PHÁT AWB 1781968355",
+   "thue": 96035.0,
+   "thanhTien": 1200432.0,
+   "expected": {
+    "nguon": "rule_kw",
+    "kmcp": "DVVC",
+    "ten": "CP vận chuyển",
+    "tkno": "6417",
+    "tkco": "331",
+    "vat": "1331",
+    "kind": "kmcp"
+   }
+  }
+ ]
+}

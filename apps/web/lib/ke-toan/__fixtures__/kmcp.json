@@ -1,0 +1,112 @@
+[
+ {
+  "ma": "DVVC",
+  "ten": "CP vận chuyển",
+  "tkNoDefault": "6417"
+ },
+ {
+  "ma": "cp.642khac",
+  "ten": "CP khác",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.bank",
+  "ten": "Chi Phí ngân hàng",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.bhxh",
+  "ten": "CP bảo hiểm",
+  "tkNoDefault": "6421"
+ },
+ {
+  "ma": "cp.ccdc",
+  "ten": "CP công cụ dụng cụ",
+  "tkNoDefault": "6423"
+ },
+ {
+  "ma": "cp.congdoan",
+  "ten": "CP công đoàn",
+  "tkNoDefault": "6421"
+ },
+ {
+  "ma": "cp.congtac",
+  "ten": "CP công tác",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.dichuyen",
+  "ten": "CP di chuyển",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.dvkt",
+  "ten": "CP dịch vụ kế toán",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.freelance",
+  "ten": "CP thuê ngoài",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.hoahong",
+  "ten": "CP hoa hồng",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.kiemdinh",
+  "ten": "CP kiểm định",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.luong",
+  "ten": "CP lương",
+  "tkNoDefault": "6421"
+ },
+ {
+  "ma": "cp.phucloi",
+  "ten": "CP phúc lợi",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.qc",
+  "ten": "CP quảng cáo",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.shopeemall",
+  "ten": "CP shoppee",
+  "tkNoDefault": "6417"
+ },
+ {
+  "ma": "cp.tangbh",
+  "ten": "CP quà tặng bán hàng",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.thuekho",
+  "ten": "CP thuê kho",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.tiepkhach",
+  "ten": "CP tiếp khách",
+  "tkNoDefault": "6427"
+ },
+ {
+  "ma": "cp.ttqt",
+  "ten": "CP thanh toán quốc tế",
+  "tkNoDefault": "6417"
+ },
+ {
+  "ma": "cp.vanhanhchung",
+  "ten": "CP vận hành chung",
+  "tkNoDefault": "6428"
+ },
+ {
+  "ma": "cp.vattukho",
+  "ten": "CP vật tư kho",
+  "tkNoDefault": "6427"
+ }
+]
