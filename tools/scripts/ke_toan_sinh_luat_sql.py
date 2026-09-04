@@ -19,7 +19,7 @@ OV = json.load(open(os.path.join(PKG, "overrides.json"), encoding="utf-8"))
 N2C = json.load(open(os.path.join(PKG, "ref", "name2code.json"), encoding="utf-8"))
 TEN_NGUOI = re.compile(r"\(?(Nguyễn|Trần|Lê|Phạm|Hoàng|Huỳnh|Phan|Vũ|Võ|Đặng|Bùi|Đỗ|Hồ|Ngô|Dương|Lý)\s+[^)\n,;·]+\)?")
 # NCC cá nhân (không phải công ty) — cột "Nhà cung cấp" đôi khi ghi thẳng tên người + nhãn "(cá nhân)".
-# rà tay 04/09: 2/66 dòng "2.Rule theo NCC" dạng này (Thiều Hữu Long, NGUYỄN THỊ THÚY QÙYNH) — che tên,
+# rà tay 04/09: 2 dòng (chỉ số 8 và 25) "2.Rule theo NCC" dạng này — che tên,
 # giữ nhãn để không đổi ý nghĩa rule; rule mất khả năng khớp NCC thật, cần accountant nhập lại qua app.
 CA_NHAN = re.compile(r"^.*\((c[áa]\s*nh[âa]n)\)\s*$", re.I)
 

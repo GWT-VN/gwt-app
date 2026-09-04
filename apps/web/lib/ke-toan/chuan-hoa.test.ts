@@ -22,11 +22,14 @@ describe('ngoặc', () => {
 })
 
 describe('khoaDong', () => {
-  it('ổn định, 40 hex, khác nhau khi đổi thành tiền', () => {
+  it('ổn định, 40 hex, khác nhau khi đổi thành tiền/lan', () => {
     const a = khoaDong('vao', 'C26MTS', ' 487', 'Má giòn mù tạt', 87000)
     expect(a).toMatch(/^[0-9a-f]{40}$/)
     expect(khoaDong('vao', 'C26MTS', '487', 'MÁ GIÒN MÙ TẠT ', 87000.4)).toBe(a)
     expect(khoaDong('vao', 'C26MTS', '487', 'Má giòn mù tạt', 88000)).not.toBe(a)
     expect(khoaDong('ra', 'C26MTS', '487', 'Má giòn mù tạt', 87000)).not.toBe(a)
+    // lan mặc định = 0, đứng yên; đổi lan → đổi khoá (chống trùng khi 1 dòng bị liệt kê nhiều lần)
+    expect(khoaDong('vao', 'C26MTS', '487', 'Má giòn mù tạt', 87000, 0)).toBe(a)
+    expect(khoaDong('vao', 'C26MTS', '487', 'Má giòn mù tạt', 87000, 1)).not.toBe(a)
   })
 })

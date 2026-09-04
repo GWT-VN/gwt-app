@@ -49,6 +49,8 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_ky_tao", headers=h(SVC), json={"p_em
 chk("ke_toan_ky_tao kỳ sai bị từ chối", r.status_code >= 400, r.status_code)
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
 chk("ke_toan_nguon_list kỳ vừa tạo = []", r.status_code == 200 and r.json() == [], (r.status_code, r.text[:80]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_xoa", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": 0})
+chk("ke_toan_nguon_xoa source không tồn tại → deleted 0", r.status_code == 200 and r.json() == {"deleted": 0}, (r.status_code, r.text[:80]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_luat_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn"})
 chk("luật đã seed ≥ 500", r.status_code == 200 and len(r.json()) >= 500, (r.status_code, len(r.json()) if r.status_code == 200 else r.text[:80]))
 r = requests.get(f"{U}/rest/v1/expense_category?select=ma", headers=h(SVC))

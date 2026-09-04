@@ -120,7 +120,11 @@ Bổ sung ngoài schema:
   `history`), `name2code.json` 444 tên hàng → `rules` kind `product_name`, `kh_map.json` (348 tên
   người — **PII**) → bảng phụ `customer_aliases` chỉ tồn tại trên DB.
 
-**Khoá dòng hoá đơn** = `sha1(direction | ky_hieu | so_hd | norm(ten_hang) | round(thanh_tien))`.
+**Khoá dòng hoá đơn** = `sha1(direction | ky_hieu | so_hd | sd(ten_hang) | round(thanh_tien) | lan)`.
+`lan` là số thứ tự xuất hiện (0, 1, 2…) của cùng khoá tự nhiên (4 trường đầu) trong file, đếm theo
+thứ tự dòng trong file gốc — chống trùng khi 1 hoá đơn liệt kê CÙNG một dòng nhiều lần (vd 1 món
+ăn gọi 4 lần ra 4 dòng giống hệt), nếu không sẽ vi phạm unique `(period_id, line_key)` ngay trong
+cùng 1 lô nhập (đo được trên file T8 thật: 415 dòng chỉ có 387 khoá tự nhiên).
 **Khoá dòng sao kê** = `sha1(account | txn_date | doc_no | debit | credit)`.
 
 ## 6. Module (`apps/web/lib/ke-toan/`)

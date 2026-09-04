@@ -13,7 +13,7 @@ import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { chuanHoaEmail } from '@/lib/nen-tang/vao-cua'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { docNexia, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
-import { khoaDong } from '@/lib/ke-toan/chuan-hoa'
+import { ganKhoaDong } from '@/lib/ke-toan/nhap/khoa-dong'
 import { taoEngineDauVao } from '@/lib/ke-toan/engine/dau-vao'
 import type { Luat, MucCatalog, MucKmcp, KetQuaDauVao } from '@/lib/ke-toan/engine/kieu'
 
@@ -83,10 +83,10 @@ async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; km
   }
 }
 
-function dongSql(direction: 'vao' | 'ra', d: DongTho, engine?: KetQuaDauVao) {
+function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: KetQuaDauVao) {
   const t = d.truong
   return {
-    direction, line_key: khoaDong(direction, t.kyHieu, t.soHd, t.tenHang, t.thanhTien), row_order: d.rowOrder,
+    direction, line_key: lineKey, row_order: d.rowOrder,
     ky_hieu: t.kyHieu || null, so_hd: t.soHd || null, ngay_lap: t.ngayLap, mccqt: t.mccqt || null,
     ten_ban: t.tenBan || null, mst_ban: t.mstBan || null, ten_mua: t.tenMua || null, mst_mua: t.mstMua || null,
     ten_hang: t.tenHang || null, dvt: t.dvt || null, so_luong: t.soLuong, don_gia: t.donGia, thue_suat: t.thueSuat || null,
@@ -110,6 +110,18 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
     if (!f.vao) return { ok: false, error: 'File không có tab "HĐ đầu vào".' }
 
     const { id: periodId } = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky })
+
+    // Tính hết dữ liệu dòng (engine + line_key) TRƯỚC khi đụng Storage/DB — hỏng ở bước này thì
+    // chưa tạo gì phải dọn.
+    const dl = await duLieuEngine()
+    const eng = taoEngineDauVao(dl)
+    const khoaVao = ganKhoaDong(f.vao.dong, 'vao')
+    const khoaRa = f.ra ? ganKhoaDong(f.ra.dong, 'ra') : []
+    const rows = [
+      ...f.vao.dong.map((d, i) => dongSql('vao', d, khoaVao[i], eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue))),
+      ...(f.ra?.dong ?? []).map((d, i) => dongSql('ra', d, khoaRa[i])),
+    ]
+
     const db = dataClient()
     const path = `${ky}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_')}`
     const up = await db.storage.from('accounting').upload(path, buf, { contentType: file.type || 'application/octet-stream', upsert: false })
@@ -120,17 +132,22 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
       p_headers: { vao: f.vao.headers, ra: f.ra?.headers ?? [] }, p_row_count: f.vao.dong.length + (f.ra?.dong.length ?? 0),
     })
 
-    const dl = await duLieuEngine()
-    const eng = taoEngineDauVao(dl)
-    const rows = [
-      ...f.vao.dong.map((d) => dongSql('vao', d, eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue))),
-      ...(f.ra?.dong ?? []).map((d) => dongSql('ra', d)),
-    ]
     let inserted = 0, updated = 0, kept = 0
-    for (let i = 0; i < rows.length; i += LO) {
-      const r = await goi<{ inserted: number; updated: number; kept: number }>('ke_toan_dong_nhap', { p_period_id: periodId, p_source_id: sourceId, p_rows: rows.slice(i, i + LO) })
-      inserted += r.inserted; updated += r.updated; kept += r.kept
+    try {
+      for (let i = 0; i < rows.length; i += LO) {
+        const r = await goi<{ inserted: number; updated: number; kept: number }>('ke_toan_dong_nhap', { p_period_id: periodId, p_source_id: sourceId, p_rows: rows.slice(i, i + LO) })
+        inserted += r.inserted; updated += r.updated; kept += r.kept
+      }
+    } catch (e) {
+      const loi = (e as Error).message
+      // Dọn rác best-effort: file đã lên Storage + source đã tạo nhưng vòng nhập lỗi giữa chừng.
+      // Mỗi bước bọc riêng, nuốt lỗi dọn dẹp — KHÔNG để lỗi dọn dẹp che mất lỗi gốc.
+      try { await db.storage.from('accounting').remove([path]) } catch { /* best-effort */ }
+      try { await goi('ke_toan_nguon_xoa', { p_source_id: sourceId }) } catch { /* best-effort */ }
+      await ghiAudit('ke_toan.upload_nexia_loi', ky, { error: loi }, 'loi')
+      return { ok: false, error: loi }
     }
+
     const canhBao = rows.filter((r) => r.direction === 'vao' && (!r.code || r.engine_conf === 'can review' || r.engine_conf === 'khong ro')).length
     await ghiAudit('ke_toan.upload_nexia', ky, { file: file.name, inserted, updated, kept, canhBao, by: email })
     revalidatePath('/ke-toan'); revalidatePath(`/ke-toan/hoa-don/${ky}`)

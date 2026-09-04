@@ -90,6 +90,13 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
    (`export const foo = async (...) => {}`) sẽ lọt qua cả 4 assertion mà không báo lỗi, kể cả khi
    thiếu `chanKeToan()`. Hiện tại (04/09) mọi action trong `app/ke-toan/actions.ts` đều là
    `async function` nên chưa lộ ra, nhưng đây là lỗ hổng test — xem "Việc treo".
+8. **File NEXIA thật có thể liệt kê CÙNG một dòng nhiều lần trong 1 hoá đơn** (cùng ký hiệu/số
+   HĐ/tên hàng chuẩn hoá/thành tiền — vd hoá đơn nhà hàng liệt kê 1 món ăn 4 lần) — `khoaDong()`
+   bản đầu (không có `lan`) sinh CÙNG line_key cho các dòng này → vi phạm unique
+   `(period_id, line_key)` ngay trong lô insert đầu tiên (đo được: file T8 thật có 12 nhóm trùng,
+   415 dòng chỉ có 387 khoá tự nhiên). Vá bằng `lan` (thứ tự xuất hiện, xem
+   `lib/ke-toan/nhap/khoa-dong.ts`) trong line_key + dedupe intra-lô/`on conflict do nothing` ở
+   `ke_toan_dong_nhap` (migration 04) — mục "Việc treo" c cũ, nay đã sửa.
 
 ## Việc treo sau lát 1
 
@@ -100,9 +107,19 @@ a. Sửa baseline migration dựng-từ-0 đầy đủ (phương án 2), thay ch
    19/08 + 22/08 hiện tại.
 b. Rule Excel tab 5 ("TK Nợ bắt buộc") lệch `expense_category.tk_no_default` — cần chị Trang/CEO
    chốt bên nào đúng (xem "Điểm treo").
-c. `ke_toan_dong_nhap` nên đổi sang `on conflict do nothing` để tái nhập không lỗi.
+c. ~~`ke_toan_dong_nhap` nên đổi sang `on conflict do nothing` để tái nhập không lỗi.~~ **Đã sửa**
+   (migration 04, cùng lúc thêm dedupe intra-lô cho lỗi `lan`/line_key trùng — mục 8, "Bẫy đã gặp").
 d. Nhập lại tên thật cho 2 NCC cá nhân đã bị che tên trong seed luật (mục 5, "Bẫy đã gặp").
 e. Engine `catalogLookup` lọc sớm hơn Python (mục 6, "Bẫy đã gặp") — cân nhắc đồng bộ hai bên khi
    Masterdata thêm dòng "Dịch vụ" mã mới, hoặc chấp nhận lệch có ghi chú.
 f. Guard test `ke-toan-guard.test.ts` chưa bắt action viết dạng arrow function (mục 7, "Bẫy đã
    gặp") — mở rộng regex tách hàm để bắt cả hai dạng khai báo.
+g. 2 luật rác `Mã hàng` / `_x0008_LDPOU` trong seed 01 — CEO quyết xoá bằng data migration (chưa
+   xoá vì golden T8/parity đọc seed 01).
+h. `tuHdct` trong export gán nhầm khi upload NEXIA lần 2 cùng kỳ.
+i. Headers export lấy từ nguồn đầu tiên — cần kiểm shape khi file sau khác cột.
+j. `xlsx@0.18.5` có advisory (prototype pollution/ReDoS) — chỉ 4 vai mới upload được, cân nhắc đổi
+   parser.
+k. 9 entry ledger live 20260820–20260821 có `statements` rỗng (tồn đọng trước nhánh) — branch
+   Supabase sẽ thiếu.
+l. E2e file NEXIA thật chưa chạy trên máy này.
