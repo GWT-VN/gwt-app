@@ -43,7 +43,8 @@ GE), chung đăng nhập / nav / design / deploy / **một Postgres**.
 | **CSKH** | khu gốc (`/`, `/ticket`, `/khach-hang`, `/bao-tri`, `/ky-thuat`…) | schema `public` (`cs_*`, `tickets`, `installed_base`…) | **Production**, dùng thật hằng ngày |
 | **Việc (Work)** | `/work`, `/work/team`, `/work/tu-sinh` | schema `work` | Production: schema + việc tự sinh (pg_cron 15′); GĐ1 còn nợ |
 | **Sales** | `/sales` + đơn/khách CRUD | `customers`, `sales_orders`, `sales_order_items`, `sales_order_lines`, `customer_purchases` | **Production**: đọc (Lát 1+2) + **ghi bản nền** đã lên; đợt lọc/giá/thanh toán đang làm |
-| Kho · Nhân sự · Kế toán · Marketing | chưa có | — | mới là ô xám trong app-launcher |
+| **Kế toán** | `/ke-toan`, `/ke-toan/hoa-don/[ky]` | schema `accounting` (RPC `ke_toan_*`) | Lát 1: upload NEXIA + phân loại đầu vào + tải Excel. Xem `docs/ke-toan/README.md` |
+| Kho · Nhân sự · Marketing | chưa có | — | mới là ô xám trong app-launcher |
 
 Trước 19/08/2026 repo tên `customer-support` và chỉ có CSKH → **mọi tài liệu ghi `app-cskh/`,
 `supabase-cskh/` đều là đường dẫn CHẾT**. Sales gom vào app này 19–20/08.
@@ -322,6 +323,8 @@ không tự làm · Làm xong → chuyển `⏳ CHỜ TÔI CHECK`, ghi rõ **xem
 - **Kho ảnh/video Google Drive** — chặn: CEO cấu hình Google.
 - **Nền tảng phân quyền GĐ2/GĐ3** — chờ CEO check GĐ1.
 - **Kéo thả kanban** khu Việc.
+- **Kế toán** — mới lát 1 (04/09), chưa có `backlog/ke-toan.md`. Việc treo xem
+  `docs/ke-toan/README.md` mục "Việc treo sau lát 1".
 
 ---
 

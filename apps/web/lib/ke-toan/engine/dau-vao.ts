@@ -39,6 +39,12 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const thongKe: ThongKeHoc = input.thongKe ?? { nccToMa: {}, prefixToMa: {} }
 
   // catalog: khớp đúng (sd) / khớp cứng (hard); bỏ mã dịch vụ & mã cp.*
+  // Lệch Python có chủ đích: nexia.py._is_goods() KHÔNG lọc trước khi dựng _CAT_EXACT/_CAT_HARD
+  // (catalog_lookup thấy mọi dòng catalog), chỉ loại 4 mã DVVC/DVBT/DVLD/DVSC SAU lookup (dòng laHangHoa()
+  // dưới cũng làm vậy). Ở đây lọc `cp.*`/tính chất "Dịch vụ" NGAY khi dựng catExact/catHard/catTc —
+  // trung tính với catalog hiện tại vì đúng 4 dòng "Dịch vụ" trong `expense_category` chính là 4 mã đó
+  // (không có mã Dịch vụ nào khác lọt catalog). Masterdata thêm dòng tính chất "Dịch vụ" mã khác 4 mã
+  // trên → hai bên lệch (TS sẽ loại nó ở catalogLookup, Python vẫn cho catalog_lookup khớp rồi mới lọc).
   const catExact = new Map<string, MucCatalog>(); const catHard = new Map<string, MucCatalog>(); const catTc = new Map<string, string>()
   for (const c of input.catalog) {
     if (c.ma.startsWith('cp.') || c.tinhChat === 'Dịch vụ') continue
@@ -57,6 +63,12 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const sigCount = new Map<string, Map<string, number>>()
   for (const [name, code] of n2c) { const g = chuKy(name); if (!g) continue; const m = sigCount.get(g) ?? new Map(); m.set(code, (m.get(code) ?? 0) + 1); sigCount.set(g, m) }
   const sig = new Map<string, string>(); for (const [g, m] of sigCount) sig.set(g, [...m.entries()].sort((a, b) => b[1] - a[1])[0][0])
+  // Lệch Python có chủ đích: nexia.py.match_code() đọc mặc định từ khoá override RIÊNG
+  // `_OV.get("shipping_output_code", "DVVC")` — một khoá config tách biệt khỏi bảng tên hàng. Ở đây
+  // dùng lại chính bảng override tên hàng (`ovName`) với pattern cố định 'dich vu van chuyen' thay vì
+  // một khoá config riêng. Trung tính hôm nay vì chưa có override nào đặt khoá đó (Python) lẫn pattern
+  // này (TS) — cả hai đều rơi về mặc định cứng 'DVVC'. Sẽ lệch nếu sau này ai thêm override qua khoá
+  // `shipping_output_code` bên Python: TS sẽ không đọc được, vẫn dùng 'DVVC'.
   const shipping = ovName.get('dich vu van chuyen') ?? 'DVVC'
 
   function goiYMaNoiBo(tenHang: unknown): { ma: string; conf: 'cao' | 'trung binh' | 'can gan tay' | 'trong'; canCu: string } {

@@ -1,7 +1,7 @@
 # Domain docs — đọc gì trước khi đụng code
 
 > File này để các skill Matt Pocock biết "nguồn sự thật về nghiệp vụ ở đâu".
-> Repo này là **single-context**: một Next.js app, một Postgres, ba khu nghiệp vụ.
+> Repo này là **single-context**: một Next.js app, một Postgres, nhiều khu nghiệp vụ.
 
 ## Đọc trước khi khám phá code
 
@@ -14,7 +14,7 @@ Theo thứ tự:
    với repo `Sales Tracking`).
 2. **[`../../HANDOFF.md`](../../HANDOFF.md)** — bàn giao toàn app: module, route, phân quyền,
    DB, bản đồ nhánh + worktree, việc đang mở, bẫy đã trả giá.
-3. **`docs/<khu>/`** — tài liệu riêng khu mình đang đụng (`cs/`, `sales/`, `work/`).
+3. **`docs/<khu>/`** — tài liệu riêng khu mình đang đụng (`cs/`, `sales/`, `work/`, `ke-toan/`).
 4. **`docs/specs/`** và **`docs/plans/`** — spec/kế hoạch của chính việc đang làm.
 
 Chưa có `docs/adr/`. Chưa có `CONTEXT.md` ở gốc repo. Thiếu thì **đi tiếp, đừng dừng lại
@@ -32,8 +32,8 @@ migration 46 `gop_khach`).
 
 ## Dùng đúng từ vựng của dự án
 
-Tài liệu và giao diện repo này viết **tiếng Việt**. Tên khu là **CSKH · Việc · Sales · Nền tảng**
-— không phải "Customer Support / Work / Platform". Đặt tên biến, tên test, tiêu đề việc thì
+Tài liệu và giao diện repo này viết **tiếng Việt**. Tên khu là **CSKH · Việc · Sales · Nền tảng ·
+Kế toán** — không phải "Customer Support / Work / Platform / Accounting". Đặt tên biến, tên test, tiêu đề việc thì
 bám từ đang dùng trong `SYSTEM.md` và trong khu tương ứng, đừng tự chế từ đồng nghĩa.
 
 Gặp khái niệm chưa có tên chung → đó là tín hiệu: hoặc đang bịa ra khái niệm dự án không dùng

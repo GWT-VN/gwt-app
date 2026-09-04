@@ -228,3 +228,21 @@ Sửa 7 lỗi lint đang làm CI đỏ (việc riêng, nên làm trước lát 1
 - Migration đã áp lên live là bất biến; MCP `apply_migration` ghi `version` theo giờ áp → phải
   SELECT ledger sau khi áp và sửa nếu lệch (luật supabase-mcp).
 - Vercel build mọi commit lên `main` → docs-only commit cũng deploy, vô hại nhưng CEO nên biết.
+
+### Bẫy gặp khi làm (Task 0–12, đo 04/09/2026)
+
+- Migration 02 tính `so_canh_bao` đếm cả dòng hướng `ra` (hoá đơn đầu ra) thay vì chỉ `vao` — vì
+  migration 02 đã áp lên live nên bất biến, phải vá bằng migration 03 riêng thay vì sửa 02.
+- `create extension http` phải nằm trong migration 00 — CI `db-reset`/branch dựng từ 0, extension
+  phải sẵn trước khi các RPC sau dùng tới.
+- `public.expense_category` (bảng gương) cần `revoke` tường minh `anon`/`authenticated` — default
+  ACL của schema `public` cấp quyền rộng hơn ý muốn cho bảng gương này.
+- Engine TS (`apps/web/lib/ke-toan/engine/dau-vao.ts`) lọc `cp.*`/tính chất "Dịch vụ" SỚM hơn
+  Python khi dựng bảng tra catalog (Python chỉ loại 4 mã dịch vụ SAU khi lookup) — trung tính với
+  catalog hiện tại, ghi rõ trong comment tại chỗ + `docs/ke-toan/README.md`.
+- Guard test `apps/web/lib/ke-toan-guard.test.ts` chỉ bắt hàm khai báo `async function`, bỏ lọt
+  action viết dạng arrow function — chưa lộ (mọi action hiện tại đều `async function`) nhưng là
+  lỗ hổng test, ghi ở "Việc treo sau lát 1" của README khu.
+- 2 luật NCC cá nhân bị che tên khi sinh seed SQL (`ke_toan_sinh_luat_sql.py`, nhóm `CA_NHAN`) —
+  cần nhập lại tên thật qua app ở lát sau, không phát hiện trong parity T8 vì 2 luật này không
+  phát sinh giao dịch trong batch đó.

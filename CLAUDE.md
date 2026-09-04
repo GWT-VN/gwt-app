@@ -45,7 +45,7 @@ worktree của người khác thì `git status` + `git branch --show-current` đ
 |---|---|
 | Tên nhánh | `<feat\|fix\|chore\|docs>/<khu>-<việc-ngắn>`, cắt từ `origin/main` mới nhất |
 | Tuổi thọ nhánh | **tối đa 3 ngày làm việc.** Quá hạn chưa merge → kéo `main` về, và nói rõ vì sao còn treo |
-| Cổng dev theo khu | CSKH `3101–3103` · Sales `3201–3203` · Việc `3301–3303` · Nền tảng `3401` |
+| Cổng dev theo khu | CSKH `3101–3103` · Sales `3201–3203` · Việc `3301–3303` · Nền tảng `3401` · Kế toán `3501–3503` |
 | File dùng chung mọi khu | `lib/supabase.ts` · `components/TopNav*.tsx` · `app/actions.ts` · `app/globals.css` — **không hai phiên cùng sửa**. Định đụng thì `wt.sh ds` rồi hỏi trước |
 
 **Không có nhánh dài hạn per-module.** Sales và Việc vẫn merge vào `main` liên tục để khỏi
