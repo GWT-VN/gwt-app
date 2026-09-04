@@ -50,10 +50,10 @@ function Ic({ name, cls = 'w-4 h-4' }: { name: keyof typeof ICON; cls?: string }
 }
 
 export function TopNavClient({
-  quyen, chiKyThuat, coTheVaoCS, coTheVaoSales, email,
+  quyen, chiKyThuat, coTheVaoCS, coTheVaoSales, coTheVaoKeToan, email,
 }: {
   quyen: BangQuyen; chiKyThuat: boolean; coTheVaoCS: boolean
-  coTheVaoSales: boolean; email: string | null
+  coTheVaoSales: boolean; coTheVaoKeToan: boolean; email: string | null
 }) {
   // Mục menu hiện đúng khi CÓ quyền vào trang nó dẫn tới. Thiếu khoá trong bảng
   // = chưa hỏi = coi như không có, tức là hỏng theo hướng ẨN chứ không hở.
@@ -112,14 +112,21 @@ export function TopNavClient({
     ],
   }
 
-  const MODULES: Module[] = [viec, ...(coTheVaoCS ? [cskh] : []), ...(coTheVaoSales ? [sales] : [])]
+  const keToan: Module = {
+    key: 'ke_toan', nhan: 'Kế toán', mau: '#3f8a6a', href: '/ke-toan', icon: 'check',
+    trang: [{ nhan: 'Hoá đơn', href: '/ke-toan' }],
+  }
+
+  const MODULES: Module[] = [viec, ...(coTheVaoCS ? [cskh] : []), ...(coTheVaoSales ? [sales] : []), ...(coTheVaoKeToan ? [keToan] : [])]
   const moduleActive = pathname.startsWith('/work')
     ? 'viec'
     : pathname.startsWith('/sales')
       ? 'sales'
-      : coTheVaoCS
-        ? 'cskh'
-        : 'viec'
+      : pathname.startsWith('/ke-toan')
+        ? 'ke_toan'
+        : coTheVaoCS
+          ? 'cskh'
+          : 'viec'
   const mod = MODULES.find((m) => m.key === moduleActive) ?? viec
 
   const gearItems: Trang[] = [
@@ -135,7 +142,8 @@ export function TopNavClient({
     { nhan: 'Việc', mau: '#0e8c9a', href: '/work', live: true, icon: 'check' },
     { nhan: 'CSKH', mau: '#b5642a', href: '/', live: coTheVaoCS, icon: 'headset' },
     { nhan: 'Sales', mau: '#2f7d8a', href: '/sales', live: coTheVaoSales, icon: 'cart' }, { nhan: 'Kho', mau: '#5560c9', live: false },
-    { nhan: 'Nhân sự', mau: '#b0518f', live: false }, { nhan: 'Kế toán', mau: '#3f8a6a', live: false },
+    { nhan: 'Nhân sự', mau: '#b0518f', live: false },
+    { nhan: 'Kế toán', mau: '#3f8a6a', href: '/ke-toan', live: coTheVaoKeToan, icon: 'check' },
     { nhan: 'Wiki', mau: '#8a52b8', href: '/wiki', live: true, icon: 'phim' },
   ]
 
