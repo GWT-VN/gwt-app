@@ -24,6 +24,29 @@
      trùng version với `cs_may_gan_don_dai_ly` (replay local gãy); ledger live ánh xạ theo tên
      nên không ảnh hưởng live. Luật: hai file không được cùng số hiệu.
 
+## Hợp thức hoá 04/09/2026 (ledger live → repo)
+
+Đối chiếu `supabase_migrations.schema_migrations` (ledger live, cột `statements` = SQL đã
+chạy thật) với `supabase/migrations/`: **32 entry ledger (19–31/08) không có file trùng tên**
+(`<version>_<name>.sql`), và **7 entry khác đã có file trong repo nhưng dưới TÊN KHÁC + số
+hiệu tự gõ tay đặt SAI vị trí** — nặng nhất là `ma_kh_lam_khoa_ve_tinh` (ledger `20260822064931`,
+repo cũ gắn `20260822130000`) chạy SAU cả hai migration cần cột `ma_kh` nó tạo ra, nên `db reset`
+từ 0 sẽ gãy ở đúng chỗ đó dù đã vá vòng 1–2.
+
+**Luật: repo mirrors ledger.** Tên file migration mới PHẢI đúng `<version>_<name>.sql` như ledger
+ghi — không tự đặt timestamp tròn giờ. Sau khi áp live bằng MCP `apply_migration` phải SELECT
+lại `schema_migrations` và sửa `version` bằng `execute_sql` ngay nếu lệch với tên file (xem luật
+`apply_migration` ghi `version` = giờ áp thực, không phải số hiệu trong tên — rules/supabase-mcp.md
+bước 3). 32 file hợp thức hoá đã ghi header nêu rõ "KHÔNG áp lại lên live (đã có)" — cùng quy chế
+mục 3/4 ở trên.
+
+**Chưa xử lý xong (ghi lại để không quên):** rà ledger đầy đủ 19/08→31/08 lộ thêm ~20 file khác
+cũng mang số hiệu tự gõ tay (tròn giờ, kiểu `20260821120000`) lệch với version ledger thật, nhưng
+KHÔNG đổi thứ tự tương đối gây gãy replay (đã qua CI round 1–2 không lỗi) — nên CHƯA đổi, chỉ ghi
+nhận rủi ro. Đồng thời `nen_tang_xoa_nhan_su` xuất hiện 2 lần trong ledger (`20260821000000` —
+`statements` NULL, và `20260821075222` — có nội dung thật, 2130 ký tự); repo chỉ có file khớp
+version đầu. Không đụng vì CI đã qua điểm này không lỗi; cần rà kỹ hơn nếu sau này đổi 2 file đó.
+
 ## Vòng đời 1 migration mới (local → prod)
 ```bash
 # 1. Tạo file trong supabase/migrations/

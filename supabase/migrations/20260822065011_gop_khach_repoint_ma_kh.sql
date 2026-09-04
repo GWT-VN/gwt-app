@@ -1,34 +1,13 @@
--- cs — customer_code duy nhất + gộp khách TRẢ LẠI mã (22/08/2026)
---
--- Phiên Việc phát hiện, phiên Sales chuyển sang: `cs_customers.customer_code` CHƯA có ràng buộc
--- duy nhất. Hệ quả họ gặp: `link_json` LEFT JOIN bảng này theo mã, hai dòng cùng mã là nhân đôi
--- hàng ⇒ hai chip y hệt cho một khách, gỡ một cái vẫn còn cái kia.
---
--- Lý do đáng siết: `customer_code` là KHOÁ NỐI sang `customers` của Sales, mà bên đó cột này
--- vốn đã UNIQUE (bắt buộc, vì Apps Script upsert `on_conflict=customer_code`). Nối nhiều-về-một
--- vào một khoá vốn duy nhất thì hai hồ sơ CS cùng trỏ một khách Sheet gần như chắc chắn là LỖI
--- ánh xạ, không phải tình huống hợp lệ.
---
--- ⚠️ NHƯNG đặt ràng buộc thẳng là KHOÁ CHẾT CHÍNH NÚT GỘP. Đo đường code trước khi siết:
--- `gop_khach` chỉ đặt trang_thai='da_xoa' và xoá primary_phone, **giữ nguyên customer_code**;
--- trong khi hồ sơ giữ lại lấy `coalesce(giữ.customer_code, gộp.customer_code)`. Ca "hồ sơ giữ
--- chưa có mã, hồ sơ bị gộp có mã" ⇒ HAI DÒNG CÙNG MỘT MÃ ⇒ ràng buộc làm vỡ cả phép gộp.
--- Đã tái hiện thật trên local trước khi sửa.
---
--- Nên làm HAI việc cùng lúc:
---  1. `gop_khach` TRẢ LẠI mã (`customer_code = null`) cho hồ sơ bị gộp — hồ sơ đã khai tử thì
---     giữ mã cũng vô nghĩa, và đó chính là nguồn đụng độ.
---  2. Ràng buộc duy nhất dạng PARTIAL, chỉ áp cho hồ sơ CÒN SỐNG — lưới an toàn thứ hai cho
---     dữ liệu cũ hoặc đường ghi nào khác quên trả mã.
---
--- Đo prod trước khi đặt: 127 dòng có mã, 0 trùng kể cả tính dòng đã xoá.
+-- HỢP THỨC HOÁ từ ledger live 04/09/2026 (supabase_migrations.schema_migrations, version 20260822065011, name gop_khach_repoint_ma_kh).
+-- Nội dung dưới đây = đúng SQL đã chạy trên GWT-SalesTracking. File tồn tại để `db reset` local/CI replay
+-- được từ 0; KHÔNG áp lại lên live (đã có). md5(statements) = 503c4da64d04312b5ae012f0586b6e38.
 
-CREATE OR REPLACE FUNCTION public.gop_khach(p_giu uuid, p_gop uuid, p_chon jsonb DEFAULT NULL::jsonb)
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
+create or replace function gop_khach(p_giu uuid, p_gop uuid, p_chon jsonb default null)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
 declare
   v_id_lo   uuid;
   v_id_hi   uuid;
@@ -80,11 +59,13 @@ begin
   get diagnostics n_ticket = row_count;
   update maintenance_plan  set customer_id = p_giu where customer_id = p_gop;
   get diagnostics n_plan   = row_count;
-  update customer_contacts set customer_id = p_giu where customer_id = p_gop;
+  update customer_contacts set customer_id = p_giu, ma_kh = v_giu.ma_kh
+   where customer_id = p_gop or ma_kh = v_gop.ma_kh;
   get diagnostics n_lienhe = row_count;
   update serial_su_dung    set customer_id = p_giu where customer_id = p_gop;
   get diagnostics n_sudung = row_count;
-  update customer_addresses set customer_id = p_giu where customer_id = p_gop;
+  update customer_addresses set customer_id = p_giu, ma_kh = v_giu.ma_kh
+   where customer_id = p_gop or ma_kh = v_gop.ma_kh;
 
   v_phone_cuoi := coalesce(
     nullif(v_truong ->> 'primary_phone', ''),
@@ -95,7 +76,6 @@ begin
   update cs_customers set
     trang_thai = 'da_xoa',
     primary_phone = null,
-    customer_code = null,
     notes = trim(both e'\n' from concat_ws(e'\n', nullif(notes, ''),
               '— Đã gộp vào hồ sơ ' || p_giu::text || ' lúc ' || now()::text)),
     updated_at = now()
@@ -118,8 +98,6 @@ begin
     dia_chi_cty   = coalesce(nullif(v_truong ->> 'dia_chi_cty', ''), nullif(v_giu.dia_chi_cty, ''), nullif(v_gop.dia_chi_cty, '')),
     sdt_cty       = coalesce(nullif(v_truong ->> 'sdt_cty', ''),     nullif(v_giu.sdt_cty, ''),     nullif(v_gop.sdt_cty, '')),
     email_cty     = coalesce(nullif(v_truong ->> 'email_cty', ''),   nullif(v_giu.email_cty, ''),   nullif(v_gop.email_cty, '')),
-    -- ĐỔI Ở ĐÂY: bỏ `v_gop.primary_phone` khỏi câu ghi chú. Số dư nay nằm ở
-    -- customer_contacts (SĐT phụ) — chỗ tra cứu được, không phải chuỗi chữ.
     notes = trim(both e'\n' from concat_ws(e'\n',
       coalesce(nullif(v_truong ->> 'notes', ''), nullif(v_giu.notes, '')),
       concat_ws(' · ',
@@ -135,13 +113,13 @@ begin
     if nullif(v_muc ->> 'phone', '') is not null
        and not exists (
          select 1 from customer_contacts
-         where customer_id = p_giu and phone = v_muc ->> 'phone'
+         where ma_kh = v_giu.ma_kh and phone = v_muc ->> 'phone'
        )
        and coalesce(nullif(v_muc ->> 'phone', ''), '') <> coalesce(v_phone_cuoi, '')
     then
-      insert into customer_contacts (customer_id, phone, contact_name, role, is_primary, zalo_ok, ghi_chu)
+      insert into customer_contacts (customer_id, ma_kh, phone, contact_name, role, is_primary, zalo_ok, ghi_chu)
       values (
-        p_giu, v_muc ->> 'phone', nullif(v_muc ->> 'contact_name', ''),
+        p_giu, v_giu.ma_kh, v_muc ->> 'phone', nullif(v_muc ->> 'contact_name', ''),
         coalesce(nullif(v_muc ->> 'role', ''), 'khac'), false, true,
         nullif(v_muc ->> 'ghi_chu', '')
       );
@@ -154,12 +132,12 @@ begin
     if nullif(v_muc ->> 'dia_chi', '') is not null
        and not exists (
          select 1 from customer_addresses
-         where customer_id = p_giu and dia_chi = v_muc ->> 'dia_chi'
+         where ma_kh = v_giu.ma_kh and dia_chi = v_muc ->> 'dia_chi'
        )
     then
-      insert into customer_addresses (customer_id, dia_chi, loai, ghi_chu, tinh)
+      insert into customer_addresses (customer_id, ma_kh, dia_chi, loai, ghi_chu, tinh)
       values (
-        p_giu, v_muc ->> 'dia_chi',
+        p_giu, v_giu.ma_kh, v_muc ->> 'dia_chi',
         coalesce(nullif(v_muc ->> 'loai', ''), 'khac'),
         nullif(v_muc ->> 'ghi_chu', ''),
         nullif(v_muc ->> 'tinh', '')
@@ -171,13 +149,9 @@ begin
   return jsonb_build_object('may', n_may, 'ticket', n_ticket, 'plan', n_plan,
                             'lien_he', n_lienhe, 'su_dung', n_sudung,
                             'sdt_phu_them', n_sdt_phu, 'dia_chi_them', n_dia_chi);
-end $function$;
-
--- PARTIAL: chỉ hồ sơ còn sống. Hồ sơ đã khai tử nay luôn được trả mã về null nên không đụng,
--- nhưng để partial thì dữ liệu cũ hay đường ghi quên trả mã cũng không khoá chết bảng.
-create unique index if not exists uq_cs_customers_customer_code
-  on public.cs_customers (customer_code)
-  where customer_code is not null and coalesce(trang_thai, '') <> 'da_xoa';
+end $$;
 
 revoke all on function gop_khach(uuid, uuid, jsonb) from public, anon, authenticated;
 grant execute on function gop_khach(uuid, uuid, jsonb) to service_role;
+
+notify pgrst, 'reload schema';
