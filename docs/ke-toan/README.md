@@ -67,7 +67,7 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 1. **MCP `apply_migration` ghi `version` = giờ áp thực tế, không lấy số hiệu trong tên file** —
    ledger 4 migration Kế toán đã bị lệch, đã sửa lại đúng số hiệu `20260904040000…040300` trong
    cùng phiên (luật `supabase-mcp.md`: sau khi áp phải SELECT ledger đối chiếu).
-2. **`create extension http` phải nằm trong migration 00`**, không tách riêng — CI `db-reset` và
+2. **`create extension http` phải nằm trong migration 00**, không tách riêng — CI `db-reset` và
    `branch` dựng từ 0 nên extension phải có mặt trước khi các migration sau dùng nó.
 3. **`expense_category` phải revoke `anon`/`authenticated` tường minh** — default ACL của schema
    `public` cấp quyền rộng hơn mong muốn cho bảng gương này; migration phải tự chỉnh, không dựa
