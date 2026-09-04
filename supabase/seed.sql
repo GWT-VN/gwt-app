@@ -13,7 +13,8 @@ insert into public.staff (email, ten, vai_tro, hoat_dong) values
   ('dev.salesm@gwt.vn',   'Dev Trưởng Sales', array['sales_manager'],         true),
   ('dev.kythuat@gwt.vn',  'Dev Kỹ thuật',     array['ky_thuat'],              true),
   ('dev.multi@gwt.vn',    'Dev Kiêm nhiệm',   array['cs','sales'],            true),
-  ('dev.locked@gwt.vn',   'Dev Nghỉ việc',    array['cs'],                    false)
+  ('dev.locked@gwt.vn',   'Dev Nghỉ việc',    array['cs'],                    false),
+  ('dev.ketoan@gwt.vn',   'Dev Kế toán',      array['ke_toan'],               true)
 on conflict (email) do nothing;
 
 -- --- Team Work: db dump chỉ lấy SCHEMA, không lấy data seed trong migration work_00_init,

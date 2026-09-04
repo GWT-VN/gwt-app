@@ -62,6 +62,10 @@ của mình — đã xảy ra 3 mật khẩu cho cùng một email, CEO gõ đú
 | `dev.admin@gwt.vn` | `gwtlocal123` | vai trò `admin` — **mọi khu**: Việc · CSKH · Sales |
 | `dev.sales@gwt.vn` | `gwtlocal123` | vai trò `sales` — **chỉ Sales** (kèm khu Việc, khu này mở cho mọi nhân viên) |
 
+> `dev.ketoan@gwt.vn` (vai trò `ke_toan`, seed sẵn trong `public.staff`) **chưa có** auth user theo
+> mặc định — tạo bằng `bash tools/user-local.sh` với cùng mật khẩu chung `gwtlocal123` (KHÔNG đổi
+> mật khẩu của hai tài khoản chuẩn ở trên).
+
 > ⚠️ **21/08: `dev.sales@gwt.vn` hiện CHƯA đăng nhập được** — không phải sai mật khẩu. Cửa đăng nhập
 > đang xét bằng luật của khu CSKH, nên tài khoản chỉ có vai trò `sales` bị đăng xuất ngay tại cửa
 > (`ngoai_cs`), kể cả đường Google. Đã ghi thành lỗi **27** ở `backlog/nen-tang.md`, phiên nền tảng
