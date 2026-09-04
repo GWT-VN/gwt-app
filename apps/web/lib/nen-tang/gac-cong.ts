@@ -17,6 +17,16 @@ export async function coTheVaoSales(): Promise<boolean> {
   return nv.vai_tro.some((r) => ['admin', 'sales', 'sales_manager'].includes(r))
 }
 
+/** Vai trò vào được KHU KẾ TOÁN — lát 1 gác bằng danh sách cứng; ma trận quyền chi tiết làm sau (spec §9). */
+export const VAI_TRO_VAO_KE_TOAN = ['admin', 'ke_toan', 'tai_chinh', 'ceo'] as const
+
+/** Người đang đăng nhập có vào được KHU KẾ TOÁN không (admin|ke_toan|tai_chinh|ceo). */
+export async function coTheVaoKeToan(): Promise<boolean> {
+  const nv = await layNhanVien()
+  if (!nv) return false
+  return nv.vai_tro.some((r) => (VAI_TRO_VAO_KE_TOAN as readonly string[]).includes(r))
+}
+
 /** Dùng cho cả chặn ở server LẪN ẩn nút trên giao diện. */
 export async function laAdmin(): Promise<boolean> {
   return laQuyenAdmin((await layNhanVien())?.vai_tro)
