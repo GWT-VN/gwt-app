@@ -47,6 +47,31 @@ nhận rủi ro. Đồng thời `nen_tang_xoa_nhan_su` xuất hiện 2 lần tro
 `statements` NULL, và `20260821075222` — có nội dung thật, 2130 ký tự); repo chỉ có file khớp
 version đầu. Không đụng vì CI đã qua điểm này không lỗi; cần rà kỹ hơn nếu sau này đổi 2 file đó.
 
+- Vòng 2 cùng ngày: 19 file có tên khớp ledger nhưng số hiệu tay lệch được `git mv` về đúng version ledger (nội dung nguyên) để replay đúng thứ tự phụ thuộc; danh sách trong git log commit này.
+
+## Guard dữ liệu live 04/09/2026 (db reset local/CI gãy vì bảng mirror rỗng)
+
+Sau khi hết lỗi thứ tự file, `db reset` gãy ở `20260831075028_sales_nhap_ctkm_ban_le_t1_t9.sql`:
+`insert into public.sales_ctkm_kenh` FK `channel_id → dim_channel(id)` — trên **live** `dim_channel`
+có sẵn (mirror từ Masterdata qua `sync_catalog()`, chạy bằng cron/job không có trên local/CI), trên
+**local rỗng** vì bảng chỉ được TẠO ở baseline, không có dòng nào. `channel_id` trong hai migration
+này là literal (`90`, `81`) viết tay trong `VALUES`, không tự suy từ `dim_channel`, nên chắc chắn vi
+phạm FK khi bảng rỗng.
+
+**Luật thêm:** migration dữ liệu tham chiếu bảng mirror-từ-Masterdata (`dim_channel`, `catalog_item`,
+`product_price`, …) mà insert bằng ID/mã VIẾT TAY (không tự suy từ chính bảng mirror đó) phải bọc
+`where exists (select 1 from <bảng mirror> x where x.id = <giá trị viết tay>)` ở đúng statement
+insert đó — no-op trên live (hàng đã có), tránh FK 23503 trên local/CI (hàng chưa có). Không cần
+bọc khi giá trị SELECT ra thẳng TỪ bảng mirror (vd `cross join dim_channel d` rồi dùng `d.id`) —
+trường hợp đó tự an toàn vì không thể tạo ra ID không tồn tại.
+
+Đã áp cho `20260831075028_sales_nhap_ctkm_ban_le_t1_t9.sql` và
+`20260831091127_sales_ctkm_ban_le_dung_gia_va_qua.sql` (cả hai insert `sales_ctkm_kenh` với
+`channel_id` viết tay). Đã soát `20260831074946_sales_nhap_chinh_sach_gia_3_cap.sql` (không đụng
+bảng mirror nào) và `20260831092608_sales_chinh_sach_va_km_loi_loc.sql` (join/cross join
+`product_price`/`dim_channel` nhưng lấy ID thẳng từ bảng mirror hoặc INNER JOIN nên rỗng = 0 dòng,
+không lỗi) — cả hai KHÔNG cần guard.
+
 ## Vòng đời 1 migration mới (local → prod)
 ```bash
 # 1. Tạo file trong supabase/migrations/

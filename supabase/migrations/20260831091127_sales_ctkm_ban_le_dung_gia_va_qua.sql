@@ -1,6 +1,10 @@
 -- HỢP THỨC HOÁ từ ledger live 04/09/2026 (supabase_migrations.schema_migrations, version 20260831091127, name sales_ctkm_ban_le_dung_gia_va_qua).
 -- Nội dung dưới đây = đúng SQL đã chạy trên GWT-SalesTracking. File tồn tại để `db reset` local/CI replay
 -- được từ 0; KHÔNG áp lại lên live (đã có). md5(statements) = 3383d85e1deba6d0006335289950af7c.
+-- guard thêm 04/09/2026: insert vào sales_ctkm_kenh chỉ lấy dòng có channel tồn tại (`where exists ... dim_channel`)
+-- — cùng lý do FK 23503 như migration 20260831075028 (c.kenh_id là literal 90/81 trong _ct, không tự suy từ
+-- dim_channel nên có thể không tồn tại trên local rỗng); no-op trên live. md5(statements) gốc vẫn là
+-- 3383d85e1deba6d0006335289950af7c.
 
 delete from public.sales_ctkm;
 delete from public.sales_chinh_sach_gia where trang_thai = 'thay_the';
@@ -51,7 +55,8 @@ select ma, ten, tu, den, 'TAT_CA', 'PCT', 15,
 from _ct;
 
 insert into public.sales_ctkm_kenh (ctkm_id, channel_id)
-select k.id, c.kenh_id from _ct c join public.sales_ctkm k on k.ma = c.ma;
+select k.id, c.kenh_id from _ct c join public.sales_ctkm k on k.ma = c.ma
+ where exists (select 1 from public.dim_channel d where d.id = c.kenh_id);
 
 insert into public.sales_ctkm_sp (ctkm_id, internal_code, muc)
 select k.id, x.ma_sp, 15

@@ -1,6 +1,10 @@
 -- HỢP THỨC HOÁ từ ledger live 04/09/2026 (supabase_migrations.schema_migrations, version 20260831075028, name sales_nhap_ctkm_ban_le_t1_t9).
 -- Nội dung dưới đây = đúng SQL đã chạy trên GWT-SalesTracking. File tồn tại để `db reset` local/CI replay
 -- được từ 0; KHÔNG áp lại lên live (đã có). md5(statements) = 9fa9fcb60fff185d927bf5bc2990b291.
+-- guard thêm 04/09/2026: insert vào sales_ctkm_kenh chỉ lấy dòng có channel tồn tại (`where exists ... dim_channel`)
+-- — trên live dim_channel có sẵn (mirror từ Masterdata qua sync_catalog(), không chạy được local) nên đây là no-op;
+-- trên local/CI dim_channel rỗng, thiếu guard này insert văng lỗi FK 23503. md5(statements) gốc vẫn là
+-- 9fa9fcb60fff185d927bf5bc2990b291 (guard không tính vào md5 đã ghi ở dòng trên).
 
 -- KHUYEN MAI BAN LE T1-T9/2026 — CEO duyet 28/08.
 -- Nguon: 2026_CTKM DINH KI GWT.xlsx, tab "Tracking FB", cot GWT va Hannah Olala.
@@ -41,7 +45,8 @@ them as (
   from ct returning id, ma
 )
 insert into public.sales_ctkm_kenh (ctkm_id, channel_id)
-select t.id, c.kenh_id from them t join ct c on c.ma = t.ma;
+select t.id, c.kenh_id from them t join ct c on c.ma = t.ma
+ where exists (select 1 from public.dim_channel d where d.id = c.kenh_id);
 
 -- Muc giam tung ma hang
 with ct(ma, sp_muc) as (values

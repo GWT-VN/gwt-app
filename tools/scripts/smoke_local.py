@@ -8,7 +8,7 @@ import requests
 sys.stdout.reconfigure(encoding="utf-8")
 U = "http://127.0.0.1:54321"
 raw = subprocess.run("npx supabase@2 status -o json", capture_output=True, text=True, shell=True).stdout
-st = json.loads("\n".join(l for l in raw.splitlines() if l.strip().startswith(("{", "}", '"'))))
+st = json.loads(raw[raw.index("{"):])
 ANON, SVC = st["ANON_KEY"], st["SERVICE_ROLE_KEY"]
 ok = True
 
