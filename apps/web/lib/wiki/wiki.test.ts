@@ -472,3 +472,48 @@ describe("kịch bản Riverside 07/2025 + bảng claim trôi", () => {
     expect(md).toMatch(/Đoạn IoT này rất mạnh/);
   });
 });
+
+describe("transcript kho video phải ĐẦY ĐỦ, không cắt xén", () => {
+  // CEO báo 07/09: bản đăng lên đang là bản rút gọn. Kho tư liệu mà thiếu câu thì lần sau
+  // người viết kịch bản bốc lại sẽ thiếu theo, và không ai biết là đã thiếu.
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  /** Bỏ dấu trích dẫn đầu dòng + gộp khoảng trắng — transcript được ngắt dòng cho dễ đọc. */
+  const phang = (slug: string) =>
+    kho().bai.find((b) => b.slug === slug)!.noiDung.replace(/^>\s?/gm, "").replace(/\s+/g, " ");
+
+  const MOC: Record<string, string[]> = {
+    "kich-ban-cts20-chuyen-gia-2026-01": [
+      "Đây Nutiqa em thấy không", "máy siêu âm bốn chiều", "Nano Silver",
+      "ga R600", "năm gam trên một lít", "hai trăm năm tư nanomet",
+      "giữ lại những giá trị tự nhiên của nước",
+    ],
+    "kich-ban-loc-tong-nuoc-mem-2026-04": [
+      "len lỏi qua các tầng khí quyển", "nước sông Đuống", "hơn bốn nghìn bài báo",
+      "thiết bị về quân sự", "mọi thứ phía sau mới thực sự thay đổi",
+    ],
+    "kich-ban-riverside-loc-tong-2025-07": [
+      "Alex Long và Mai Anh", "nhà máy khử mặn Desalina", "gáo dừa Sri Lanka",
+      "Oscar của ngành thiết kế", "em đang ở Mũi Né", "bình chứa kháng khuẩn",
+      "tham khảo hệ thống lọc tổng của GE",
+    ],
+  };
+
+  for (const [slug, moc] of Object.entries(MOC)) {
+    it(`${slug} giữ đủ câu mốc đầu–giữa–cuối`, () => {
+      const md = phang(slug);
+      expect(moc.filter((x) => !md.includes(x)), "câu bị cắt mất").toEqual([]);
+    });
+  }
+
+  it("mỗi transcript đủ dài — chặn việc vô tình rút gọn lại", () => {
+    const toiThieu: Record<string, number> = {
+      "kich-ban-cts20-chuyen-gia-2026-01": 9000,
+      "kich-ban-loc-tong-nuoc-mem-2026-04": 19000,
+      "kich-ban-riverside-loc-tong-2025-07": 18000,
+    };
+    for (const [slug, n] of Object.entries(toiThieu)) {
+      const b = kho().bai.find((x) => x.slug === slug)!;
+      expect(b.noiDung.length, slug).toBeGreaterThan(n);
+    }
+  });
+});
