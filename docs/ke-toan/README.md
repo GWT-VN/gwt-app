@@ -47,13 +47,15 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 4. Tải `_DAXULY.xlsx` gửi kế toán (dòng chưa có mã người dùng điền tay trong Excel — lát 2 sửa
    trên app).
 
-## Trạng thái (04/09/2026)
+## Trạng thái (07/09/2026)
 
-- Migration 00/01/02/03 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
-- tsc/test/build sạch trên máy Windows này. **Máy này không có Docker/Supabase local, không có
-  `.env.local`** → chưa chạy được e2e với file NEXIA thật trên máy này; đối chiếu file thật (Step 4
-  của plan) do phiên có Supabase local thực hiện.
-- Chưa mời CEO xem — cần server local + DB local đang chạy (Step 5 của plan).
+- Migration 00–05 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
+- tsc/test/build sạch. **Máy Windows không có Docker/Supabase local** → nghiệm thu e2e 07/09 làm
+  bằng `next dev -p 3000` cắm **DB production** (`.env.local.prod`, CEO chốt vì không có local);
+  cổng 3000 vì Supabase Auth chỉ cho redirect Google về `localhost:3000` (cổng 3501 chưa nằm
+  trong Redirect URLs — thêm ở Dashboard → Authentication → URL Configuration là Config, ghi đây).
+- CEO đã xem màn kỳ + màn upload 07/09: sửa tương phản (bẫy 10), ô chọn tháng, gộp một nút upload.
+  Upload file T8 thật lần đầu lộ bẫy 9 → migration 05. Chưa đối chiếu Excel `_DAXULY` với golden.
 
 ## Điểm treo
 
@@ -98,6 +100,17 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
    `lib/ke-toan/nhap/khoa-dong.ts`) trong line_key + dedupe intra-lô/`on conflict do nothing` ở
    `ke_toan_dong_nhap` (migration 04) — mục "Việc treo" c cũ, nay đã sửa.
 
+9. **PostgREST trên Supabase nạp `safeupdate`** (`authenticator` có `session_preload_libraries =
+   supautils, safeupdate`) → mọi `UPDATE`/`DELETE` **không có WHERE** bị chặn, kể cả bên trong hàm
+   `security definer` gọi qua RPC. Đo được 07/09/2026 khi upload file NEXIA T8 thật lên production:
+   "UPDATE requires a WHERE clause" — `update tmp_dong set …` trong `ke_toan_dong_nhap` (migration 02/04).
+   Vá bằng migration 05 (gắn cột ngay lúc dựng temp table, không UPDATE). CI `db-reset` không bắt được
+   vì smoke chưa gọi `dong_nhap` — nay smoke gọi qua HTTP như app. **Luật rút ra:** RPC nào cũng phải có
+   phép thử smoke đi qua `/rest/v1/rpc/…`, và không viết UPDATE/DELETE trần trên temp table.
+10. **Windows dark mode làm chữ không khai báo màu thành trắng**: `globals.css` đổi `--foreground`
+   theo `prefers-color-scheme: dark` trong khi nền trang vẫn `bg-slate-50`. Khu Kế toán gán
+   `text-slate-900` ở `<main>`; bẫy này là toàn app (xem "Việc treo" r).
+
 ## Việc treo sau lát 1
 
 Không ghi `BACKLOG.md`/`backlog/*.md` (hệ backlog do CEO quản, xem
@@ -132,3 +145,7 @@ o. `ke_toan_dong_nhap` dedupe trong lô im lặng (dồn vào `kept`) — nên t
 p. `missing_in_last_upload` chưa có chỗ nào set `true` (chỉ set `false` khi update) — lát 2 làm khi
    xử lý upload lại file đã sửa.
 q. `ganKhoaDong` map theo `rowOrder` và giả định duy nhất — `rowOrder` trùng sẽ gộp khoá im lặng.
+r. `globals.css` đổi màu chữ theo dark mode của OS dù app không có giao diện tối (bẫy 10) — sửa tận
+   gốc là bỏ khối `@media (prefers-color-scheme: dark)`; file dùng chung, cần CEO gật + báo khu khác.
+s. Màn Kế toán dùng xanh lá `#3f8a6a` tự đặt, khác accent teal `#0e8c9a` của Sales/Work — đồng bộ khi
+   polish.
