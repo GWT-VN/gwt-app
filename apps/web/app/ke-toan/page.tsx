@@ -13,7 +13,7 @@ export default async function KeToanPage() {
   if (!(await coTheVaoKeToan())) redirect('/?loi=khong_du_quyen')
   const ds = await danhSachKy()
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-[1100px] space-y-4 p-4 sm:p-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-xl font-semibold">Kế toán · Hoá đơn theo kỳ</h1>

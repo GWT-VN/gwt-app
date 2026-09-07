@@ -49,6 +49,20 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_ky_tao", headers=h(SVC), json={"p_em
 chk("ke_toan_ky_tao kỳ sai bị từ chối", r.status_code >= 400, r.status_code)
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
 chk("ke_toan_nguon_list kỳ vừa tạo = []", r.status_code == 200 and r.json() == [], (r.status_code, r.text[:80]))
+# ke_toan_dong_nhap đi QUA PostgREST (role authenticator nạp safeupdate trên Supabase → UPDATE/DELETE
+# không WHERE bị chặn; lỗi thật 07/09/2026 "UPDATE requires a WHERE clause" ở lô đầu tiên). Gọi RPC
+# bằng HTTP như app, không gọi psql, để bắt đúng lớp lỗi này. 2 dòng cùng line_key → dedupe trong lô.
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id,
+    "p_kind": "nexia", "p_file_name": "smoke.xlsx", "p_storage_path": "2026-08/smoke.xlsx", "p_headers": {"vao": ["A"]}, "p_row_count": 2})
+chk("ke_toan_nguon_them (smoke)", r.status_code == 200 and "id" in r.json(), (r.status_code, r.text[:80]))
+src_id = r.json()["id"] if r.status_code == 200 else None
+dong = [{"direction": "vao", "line_key": "smoke-k1", "row_order": i, "raw": ["x"], "period_id": 0, "first_source_id": 0} for i in (1, 2)]
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_id, "p_rows": dong})
+chk("ke_toan_dong_nhap qua PostgREST: 2 dòng trùng khoá → inserted 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 1, "updated": 0, "kept": 1}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_id, "p_rows": dong})
+chk("ke_toan_dong_nhap lần 2 → updated 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 1, "kept": 1}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_xoa", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src_id})
+chk("ke_toan_nguon_xoa source ĐANG có dòng → deleted 0", r.status_code == 200 and r.json() == {"deleted": 0}, (r.status_code, r.text[:80]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_xoa", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": 0})
 chk("ke_toan_nguon_xoa source không tồn tại → deleted 0", r.status_code == 200 and r.json() == {"deleted": 0}, (r.status_code, r.text[:80]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_luat_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn"})

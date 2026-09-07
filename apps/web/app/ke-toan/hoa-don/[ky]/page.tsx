@@ -28,7 +28,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
     tc ? { nhan: 'Độ tin cậy', giaTri: TC_OPTS.find((o) => o.giaTri === tc)?.nhan ?? tc } : null,
   ].filter(Boolean) as { nhan: string; giaTri: string }[]
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-[1320px] space-y-4 p-4 sm:p-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><Link href="/ke-toan" className="text-sm text-slate-500">← Kỳ</Link>
