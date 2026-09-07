@@ -34,10 +34,11 @@ link tới file gốc trên Drive.
 | `USH10_review_202603` | USH10, review sản phẩm, tháng 03/2026 |
 | `WH30A_lapdat_202602` | Lọc tổng WH30A, quay lắp đặt, tháng 02/2026 |
 | `LOCTONG_chuyengia_202604` | Hệ lọc đầu nguồn (POE) nói chung, không riêng bộ nào |
+| `LOCTONG_showcase_202507` | Quay tại nhà khách đã dùng — showcase kết quả thật |
 | `CHUNG_broll_202601` | B-roll dùng chung, không gắn máy nào |
 
 **Định dạng** dùng bộ từ cố định: `chuyengia` · `review` · `lapdat` · `testimonial` ·
-`broll` · `animation` · `intro` · `outro`.
+`broll` · `animation` · `intro` · `outro` · `showcase`.
 
 Dùng `LOCTONG` cho nội dung về hệ đầu nguồn nói chung (không riêng WH15A/WH30A), và
 `CHUNG` cho tư liệu không thuộc máy nào — đó thường là thứ **tái sử dụng nhiều nhất**.
@@ -50,6 +51,24 @@ Dùng `LOCTONG` cho nội dung về hệ đầu nguồn nói chung (không riên
 3. **Transcript** chia theo phân đoạn (hook · dẫn nhập · từng chủ đề · câu kết) — chia
    sẵn thì lần sau bốc lại từng khối được ngay.
 4. **Dữ kiện kỹ thuật rút ra** — nguyên liệu để dựng PKB cho máy đó.
+
+## 🔴 Claim đang trôi giữa các video — đọc trước khi viết kịch bản mới
+
+Rà 3 video trong kho thấy **cùng một ý nhưng mỗi video một con số**, và vài câu vi phạm
+**lặp lại ở cả ba**. Đây không phải lỗi lẻ của một video — nó đã thành **lời nói cửa
+miệng**, nên sửa từng video không giải quyết được.
+
+| Claim | Riverside 07/2025 | Nước mềm 04/2026 | CTS20 01/2026 |
+|---|---|---|---|
+| Tuổi thọ so với thị trường | *gấp **4–5 lần*** | *gấp **3–4 lần*** | — |
+| Chỉ số iốt than hoạt tính | *1200, **cao nhất thị trường*** | ***cao nhất thị trường*** | — |
+| Xếp hạng thương hiệu | — | *GE **top 20** thế giới* | *GE **top 20** thế giới* |
+| % diệt khuẩn | — | — | ***99,9%*** vi khuẩn |
+| Claim sức khoẻ | **ung thư bàng quang, gan** · *cam kết da mịn tóc khoẻ* | *canxi magiê **gây hại** da tóc* | *uống trực tiếp **tốt cho tiêu hoá*** |
+
+> ⛔ **Không câu nào trong bảng này được dùng lại** cho tới khi GWT chốt một bộ số chính
+> thức trong PKB. Cần con số thì tra [khu Sản phẩm](/wiki/san-pham) — không có mã `F-xxx`
+> thì không nói.
 
 ## Hai luật bắt buộc
 

@@ -428,3 +428,47 @@ describe("kịch bản Lọc tổng · Nước mềm 04/2026", () => {
     expect(md).toMatch(/chỉ số iốt/);
   });
 });
+
+describe("kịch bản Riverside 07/2025 + bảng claim trôi", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const rs = () => kho().bai.find((x) => x.slug === "kich-ban-riverside-loc-tong-2025-07")!;
+
+  it("có link Drive và mã đặt tên theo quy ước", () => {
+    expect(rs().noiDung).toContain("drive.google.com/drive/folders/1RvviOClizkKiKNENm4bgf58el2S0K1Np");
+    expect(rs().noiDung).toMatch(/LOCTONG_showcase_202507/);
+  });
+
+  it("claim ung thư giữ nguyên văn NHƯNG phải nằm dưới cảnh báo cấm tuyệt đối", () => {
+    // Đây là vi phạm nặng nhất trong kho — gọi đích danh bệnh ung thư.
+    const md = rs().noiDung;
+    expect(md).toContain("ung thư bàng quang");           // nguyên văn, để đối chiếu
+    expect(md).toMatch(/VI PHẠM NẶNG NHẤT TRONG KHO/);
+    expect(md).toMatch(/Cấm tuyệt đối — claim y khoa/);
+    expect(md).toMatch(/Không kể \*\*bệnh gì\*\*/);
+  });
+
+  it("nêu đủ 4 nhóm lỗi: y khoa · tuyệt đối · sai dữ kiện · claim trôi", () => {
+    const md = rs().noiDung;
+    expect(md).toMatch(/cao nhất thị trường/);
+    expect(md).toMatch(/NSF\/ANSI là bộ TIÊU CHUẨN, không phải giải thưởng/);
+    expect(md).toMatch(/QCVN 01-1:2018\/BYT/);
+    expect(md).toMatch(/claim bị TRÔI giữa các video/i);
+  });
+
+  it("bảng claim trôi ở trang tổ chức kho đối chiếu đủ 3 video", () => {
+    // Sửa từng video không giải quyết được — phải thấy nó lặp lại mới chốt được bộ số.
+    const md = kho().bai.find((x) => x.slug === "cach-to-chuc-kho")!.noiDung;
+    expect(md).toMatch(/Claim đang trôi giữa các video/i);
+    expect(md).toMatch(/gấp \*\*4–5 lần\*\*/);
+    expect(md).toMatch(/gấp \*\*3–4 lần\*\*/);
+    expect(md).toMatch(/99,9%/);
+  });
+
+  it("đánh dấu 3 đoạn dùng lại được — không phải chỉ toàn cấm", () => {
+    // Kho tư liệu mà chỉ có cảnh báo thì không ai dùng; phải chỉ rõ chỗ nào lấy được.
+    const md = rs().noiDung;
+    expect(md).toMatch(/dùng lại được ngay/);
+    expect(md).toMatch(/"Sự đồng bộ" là luận điểm mạnh và an toàn/);
+    expect(md).toMatch(/Đoạn IoT này rất mạnh/);
+  });
+});
