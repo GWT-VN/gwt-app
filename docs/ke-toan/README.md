@@ -22,7 +22,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 - `/ke-toan` — danh sách kỳ (`YYYY-MM`) + tạo kỳ mới.
 - `/ke-toan/hoa-don/[ky]` — upload file NEXIA `.xlsx`, bảng đầu vào (cột engine: mã, TK Nợ/Có,
   VAT, độ tin cậy — dòng vàng = engine không chắc).
-- `GET /ke-toan/hoa-don/[ky]/xuat` — tải Excel `_DAXULY.xlsx` (dựng bằng `exceljs`).
+- `GET /ke-toan/hoa-don/[ky]/xuat` — tải Excel `_DAXULY.xlsx`: mở **chính file NEXIA gốc** (tải từ
+  Storage) và điền khối cột đề xuất vào đó (`lib/ke-toan/xuat/excel-hoa-don.ts` → `dienExcelHoaDon`),
+  giữ nguyên Sheet1/độ rộng/định dạng/màu dòng HDCT như tool Python; file đã có khối cột (bản Python
+  cũ, xuất lần 2) thì ghi đè, không nối bộ thứ hai. File gốc không còn → dựng từ đầu (`dungExcelHoaDon`).
+  Dòng file ↔ DB lệch Số HĐ → 409, không ghi sai dòng.
 - Launcher "Kế toán" trong `TopNav` cho các vai trò trên.
 
 ## Config ngoài migration (ghi để dựng lại được)
@@ -49,13 +53,15 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Trạng thái (07/09/2026)
 
-- Migration 00–05 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
+- Migration 00–06 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
 - tsc/test/build sạch. **Máy Windows không có Docker/Supabase local** → nghiệm thu e2e 07/09 làm
   bằng `next dev -p 3000` cắm **DB production** (`.env.local.prod`, CEO chốt vì không có local);
   cổng 3000 vì Supabase Auth chỉ cho redirect Google về `localhost:3000` (cổng 3501 chưa nằm
   trong Redirect URLs — thêm ở Dashboard → Authentication → URL Configuration là Config, ghi đây).
 - CEO đã xem màn kỳ + màn upload 07/09: sửa tương phản (bẫy 10), ô chọn tháng, gộp một nút upload.
-  Upload file T8 thật lần đầu lộ bẫy 9 → migration 05. Chưa đối chiếu Excel `_DAXULY` với golden.
+  Upload file T8 thật lần đầu lộ bẫy 9 → migration 05. Đối chiếu DB ↔ golden Python: tầng lát 1
+  322/322 khớp; 93 dòng vàng = tầng học lịch sử (lát 2). So file `_DAXULY` với bản Python lộ lặp cột +
+  mất định dạng → viết lại exporter điền vào file gốc (migration 06, bẫy 11–12).
 
 ## Điểm treo
 
@@ -110,6 +116,13 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 10. **Windows dark mode làm chữ không khai báo màu thành trắng**: `globals.css` đổi `--foreground`
    theo `prefers-color-scheme: dark` trong khi nền trang vẫn `bg-slate-50`. Khu Kế toán gán
    `text-slate-900` ở `<main>`; bẫy này là toàn app (xem "Việc treo" r).
+
+11. **exceljs sau `xlsx.load` cho các ô cùng xf dùng CHUNG một object `style`** — `cell.fill = X` là
+   sửa object chung: đo được 07/09 trên file T8 thật, tô cột đề xuất làm 50 dòng HDCT mất màu cam ở
+   cột B. Phải gán `cell.style = { ...cell.style, fill }` (thay object) — xem `datFill()` + test hồi
+   quy trong `excel-dien-goc.test.ts`.
+12. **File trong "Data đã xử lý để gửi kế toán" là bản ĐÃ qua tool Python** (có sẵn 6 cột đề xuất, Sheet1
+   ghi chú, dòng HDCT tô cam) — không phải file thô kế toán gửi. Bộ đọc/xuất phải chịu được cả hai.
 
 ## Việc treo sau lát 1
 
