@@ -150,7 +150,8 @@ export function navTaiLieu(ma: string): NavGroup[] {
 }
 
 export function navCuaKhu(khu: Khu | null): NavGroup[] {
-  if (khu?.ma === "marketing") return NAV_MARKETING;
+  // Marketing có nav viết tay (từ repo Marketing Kit) CỘNG tài liệu dạng trang thêm sau.
+  if (khu?.ma === "marketing") return [...NAV_MARKETING, ...navTaiLieu("marketing")];
   if (khu?.ma === "san-pham") return navSanPham();
   if (khu) return navTaiLieu(khu.ma);
   return [];
