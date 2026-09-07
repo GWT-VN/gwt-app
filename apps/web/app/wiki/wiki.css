@@ -524,3 +524,9 @@
   [data-khu="wiki"] .wiki-chu-giai{grid-template-columns:1fr}
   [data-khu="wiki"] .wiki-nhanh-so{font-size:.72rem}
 }
+
+/* Nhãn hạng tin cậy của tài liệu (A/B/C/D) — cùng thang với cột "Hạng" của PKB. */
+[data-khu="wiki"] .chip.hang-A{background:#e6f4ea;color:#14653a;border-color:#bfe3cd}
+[data-khu="wiki"] .chip.hang-B{background:#e8f0fe;color:#1a4b8f;border-color:#c6dafb}
+[data-khu="wiki"] .chip.hang-C{background:#fef4e5;color:#8a5a08;border-color:#f6dfb4}
+[data-khu="wiki"] .chip.hang-D{background:#fdecec;color:#a3271c;border-color:#f7c9c4}

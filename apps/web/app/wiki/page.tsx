@@ -5,6 +5,7 @@ import { listRules } from "@/lib/marketing/content";
 import { getCounts } from "@/lib/marketing/supabase-mkt";
 import { Icon } from "@/lib/marketing/icons";
 import { SAN_PHAM } from "@/lib/wiki/data/san-pham";
+import { TAI_LIEU } from "@/lib/wiki/data/san-pham";
 import { KHU } from "@/lib/wiki/nav";
 
 /** Trang chủ wiki — cửa vào của mọi khu. */
@@ -25,6 +26,10 @@ export default async function WikiHome() {
       { n: ALL_CASES.length, l: "ca WIN/FAIL" },
     ],
   };
+
+  for (const k of TAI_LIEU) {
+    soLieu[k.khu] = [{ n: k.bai.length, l: k.bai.length === 1 ? "tài liệu" : "tài liệu" }];
+  }
 
   const daCo = KHU.filter((k) => k.trangThai === "co-noi-dung");
   const chuaCo = KHU.filter((k) => k.trangThai === "chua-co");
@@ -59,7 +64,7 @@ export default async function WikiHome() {
         ))}
       </div>
 
-      <h2 className="wiki-tieu-de-muc">Sắp có</h2>
+      {chuaCo.length > 0 && <h2 className="wiki-tieu-de-muc">Sắp có</h2>}
       <div className="wiki-khu-luoi">
         {chuaCo.map((k) => (
           <div className="card wiki-khu-trong" key={k.ma}>

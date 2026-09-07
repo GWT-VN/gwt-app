@@ -1,6 +1,6 @@
 import type { IconName } from "../marketing/icons";
 import { NAV as NAV_MARKETING } from "../marketing/nav";
-import { SAN_PHAM } from "./data/san-pham";
+import { SAN_PHAM, TAI_LIEU } from "./data/san-pham";
 import { NHOM, phanCuaNhom } from "./kieu";
 
 export type NavItem = { href: string; label: string; icon: IconName; badgeKey?: "analyses" | "ideas" };
@@ -49,38 +49,51 @@ export const KHU: Khu[] = [
     moTa: "Cách team làm video: khung 5A/PAAST, luật sửa content, quy trình sản xuất, kho case.",
   },
   {
+    ma: "kien-thuc-nen",
+    ten: "Kiến thức nền",
+    icon: "📚",
+    href: "/wiki/kien-thuc-nen",
+    trangThai: "co-noi-dung",
+    moTa: "Kiến thức cắt ngang: khoa học nước, công nghệ lọc, chân dung khách, thị trường.",
+  },
+  {
     ma: "cong-viec-chung",
     ten: "Công việc chung",
     icon: "🧭",
-    trangThai: "chua-co",
+    href: "/wiki/cong-viec-chung",
+    trangThai: "co-noi-dung",
     moTa: "Cách làm việc chung toàn công ty: quy trình, họp, bàn giao, công cụ nội bộ.",
   },
   {
     ma: "sales",
     ten: "Sales",
     icon: "🛒",
-    trangThai: "chua-co",
+    href: "/wiki/sales",
+    trangThai: "co-noi-dung",
     moTa: "Đào tạo sale mới, quy trình bán, bảng giá, chính sách chiết khấu, hợp đồng.",
   },
   {
     ma: "cskh",
     ten: "CSKH",
     icon: "🎧",
-    trangThai: "chua-co",
+    href: "/wiki/cskh",
+    trangThai: "co-noi-dung",
     moTa: "Đào tạo CSKH, kịch bản tổng đài, quy trình ticket, bảo hành, xử lý khiếu nại.",
   },
   {
     ma: "van-hanh",
     ten: "Vận hành",
     icon: "⚙️",
-    trangThai: "chua-co",
+    href: "/wiki/van-hanh",
+    trangThai: "co-noi-dung",
     moTa: "Lắp đặt, bảo trì, kho vận, điều phối kỹ thuật.",
   },
   {
     ma: "tai-chinh",
     ten: "Tài chính",
     icon: "📊",
-    trangThai: "chua-co",
+    href: "/wiki/tai-chinh",
+    trangThai: "co-noi-dung",
     moTa: "Hạch toán, công nợ, quy định chi, đối soát.",
   },
 ];
@@ -115,9 +128,23 @@ function iconCuaNhom(ma: string): IconName {
   return "book";
 }
 
+/** Sidebar khu tài liệu dạng trang: gom theo `nhom`, không có nhóm thì một danh sách phẳng. */
+export function navTaiLieu(ma: string): NavGroup[] {
+  const k = TAI_LIEU.find((x) => x.khu === ma);
+  if (!k) return [];
+  const gom = new Map<string, NavItem[]>();
+  for (const b of k.bai) {
+    const nhom = b.nhom || "Tài liệu";
+    if (!gom.has(nhom)) gom.set(nhom, []);
+    gom.get(nhom)!.push({ href: `/wiki/${ma}/${b.slug}`, label: b.tieuDe, icon: "book" });
+  }
+  return [...gom.entries()].map(([heading, items]) => ({ heading, items }));
+}
+
 export function navCuaKhu(khu: Khu | null): NavGroup[] {
   if (khu?.ma === "marketing") return NAV_MARKETING;
   if (khu?.ma === "san-pham") return navSanPham();
+  if (khu) return navTaiLieu(khu.ma);
   return [];
 }
 

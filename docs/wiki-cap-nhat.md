@@ -89,14 +89,40 @@ vì kịch bản không tự nói ra được:
 
 ---
 
+## 3.4. Thêm một trang vào khu tài liệu (Công việc chung, Sales, CSKH, Vận hành, Tài chính, Kiến thức nền)
+
+Các khu này dùng **tài liệu dạng trang** — mỗi bài một file `.md`:
+
+```
+apps/web/content/wiki/tai-lieu/<khu>/<slug>.md
+```
+
+Đầu file là frontmatter:
+
+```yaml
+---
+tieuDe: "Văn hoá & nguyên tắc làm việc"
+hang: "A"                    # A/B/C/D — hạng tin cậy của nguồn
+thuTu: 1                     # thứ tự hiện trong danh sách
+nguon: "Quy định công ty"    # hiện dưới tiêu đề
+nhom: "Kiến thức nước"       # tuỳ chọn — để gom bài thành nhóm
+---
+```
+
+Xong chạy `npm --prefix apps/web run sync:wiki`. Không phải sửa code.
+
+**Hạng nguồn** dùng chung thang với PKB: **A** HDSD/quy định chính thức · **B** tài liệu
+chính hãng khác · **C** tài liệu nội bộ · **D** bản AI tổng hợp chưa truy nguồn.
+Bài hạng **D** phải có khối cảnh báo *"⛔ không đọc con số cho khách"* — có test chốt.
+
 ## 4. Thêm một khu wiki mới
 
 Danh sách khu ở [`apps/web/lib/wiki/nav.ts`](../apps/web/lib/wiki/nav.ts). Khu chưa có nội
 dung vẫn hiện trên web (mờ, không bấm được) — cố ý, để mọi người thấy chỗ đó đã có người
 nhận, thay vì lại đẻ thêm một file Google Docs nữa.
 
-Hiện có: **Sản phẩm** · **Marketing video** · Công việc chung · Sales · CSKH · Vận hành ·
-Tài chính. Hai khu đầu đã có nội dung.
+Hiện có 8 khu, **tất cả đã có nội dung**: Sản phẩm · Marketing video · Kiến thức nền ·
+Công việc chung · Sales · CSKH · Vận hành · Tài chính.
 
 **Đào tạo không tách thành khu riêng.** Đào tạo sale nằm trong khu Sales, đào tạo CSKH nằm
 trong khu CSKH. Tách ra thì cùng một quy trình bán hàng lại có hai bản — một bản "để làm",

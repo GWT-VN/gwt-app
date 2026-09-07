@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { SAN_PHAM } from "./data/san-pham";
+import { SAN_PHAM, TAI_LIEU } from "./data/san-pham";
 import { CONG_BO, NHOM, phanCuaNhom, type SanPham } from "./kieu";
-import { KHU, crumbFor, khuCua, navCuaKhu, navSanPham } from "./nav";
+import { KHU, crumbFor, khuCua, navCuaKhu, navSanPham, navTaiLieu } from "./nav";
 import { slugTieuDe } from "../../components/marketing/Markdown";
 
 const ush10 = SAN_PHAM.find((s) => s.ma === "ush10") as SanPham;
@@ -182,5 +182,139 @@ describe("dọn HTML thô khỏi PKB", () => {
       "q20-chi-phi-dung-may-trong-5-nam-khoang-bao-nhieu",
     );
     expect(slugTieuDe("Đèn đỏ — thay lõi")).toBe("den-do-thay-loi");
+  });
+});
+
+describe("khu tài liệu dạng trang", () => {
+  it("mọi khu có tài liệu đều được bật lên và có href", () => {
+    for (const k of TAI_LIEU) {
+      const meta = KHU.find((x) => x.ma === k.khu);
+      expect(meta, `khu "${k.khu}" có ${k.bai.length} bài nhưng KHÔNG có trong KHU`).toBeDefined();
+      expect(meta!.trangThai, k.khu).toBe("co-noi-dung");
+      expect(meta!.href, k.khu).toBe(`/wiki/${k.khu}`);
+    }
+  });
+
+  it("khu Công việc chung đã có nội dung — gồm bài văn hoá làm việc", () => {
+    const k = TAI_LIEU.find((x) => x.khu === "cong-viec-chung");
+    expect(k, "khu Công việc chung phải có tài liệu").toBeDefined();
+    const vh = k!.bai.find((b) => b.slug === "van-hoa-lam-viec");
+    expect(vh).toBeDefined();
+    expect(vh!.hang).toBe("A");
+    // Nội dung CEO bổ sung 28/08 phải có mặt.
+    expect(vh!.noiDung).toContain("Không nhắn riêng công việc");
+    expect(vh!.noiDung).toContain("sếp lớn, quan chức, người nổi tiếng");
+  });
+
+  it("mọi bài đều có tiêu đề, slug duy nhất trong khu, và nội dung không rỗng", () => {
+    for (const k of TAI_LIEU) {
+      const slugs = k.bai.map((b) => b.slug);
+      expect(new Set(slugs).size, `${k.khu}: slug trùng`).toBe(slugs.length);
+      for (const b of k.bai) {
+        expect(b.tieuDe.trim(), `${k.khu}/${b.slug}`).not.toBe("");
+        expect(b.noiDung.length, `${k.khu}/${b.slug} rỗng`).toBeGreaterThan(50);
+      }
+    }
+  });
+
+  it("tài liệu Deep Research đều mang hạng D và có khối cảnh báo", () => {
+    // Nội dung AI tổng hợp mà không gắn nhãn thì nhân viên sẽ tưởng chắc như HDSD hãng.
+    const ktn = TAI_LIEU.find((x) => x.khu === "kien-thuc-nen");
+    expect(ktn).toBeDefined();
+    for (const b of ktn!.bai) {
+      expect(b.hang, `${b.slug}`).toBe("D");
+      expect(b.noiDung, `${b.slug} thiếu cảnh báo`).toContain("không đọc con số");
+    }
+  });
+
+  it("không có bài hạng D nào lọt vào khu KHÁC mà thiếu cảnh báo", () => {
+    for (const k of TAI_LIEU.filter((x) => x.khu !== "kien-thuc-nen")) {
+      for (const b of k.bai.filter((x) => x.hang === "D")) {
+        expect(b.noiDung, `${k.khu}/${b.slug}`).toContain("không đọc con số");
+      }
+    }
+  });
+
+  it("sidebar khu tài liệu dựng đúng số bài", () => {
+    for (const k of TAI_LIEU) {
+      const tong = navTaiLieu(k.khu).flatMap((g) => g.items).length;
+      expect(tong, k.khu).toBe(k.bai.length);
+    }
+    expect(navCuaKhu(KHU.find((k) => k.ma === "cong-viec-chung")!).length).toBeGreaterThan(0);
+  });
+
+  it("training Sales đã mang bản USH10 ĐÃ SỬA, không phải bản cũ sai", () => {
+    const b = TAI_LIEU.find((k) => k.khu === "sales")!.bai.find((x) => x.slug === "training-sales-cskh")!;
+    expect(b.noiDung).toContain("Âm tủ bếp (under-sink)");
+    expect(b.noiDung).not.toContain("Để bàn (không sparkling)");
+    expect(b.noiDung).not.toContain("Thường **hết hàng**");
+  });
+});
+
+describe("dọn nội dung trước khi lên prod (CEO báo 31/08)", () => {
+  const bai = (khu: string, slug: string) =>
+    TAI_LIEU.find((k) => k.khu === khu)!.bai.find((b) => b.slug === slug)!;
+
+  it("KHÔNG còn mục chỉ-nội-bộ nào lọt lên prod", () => {
+    // Nhật ký biên tập / cần kiểm chứng là sổ tay người soạn — giữ trong .md và backlog,
+    // không đẩy cho nhân viên đọc. Nặng hơn: mục "cần kiểm chứng" đặt cạnh nội dung chính
+    // làm người đọc không biết phần nào đã chốt.
+    for (const k of TAI_LIEU) {
+      for (const b of k.bai) {
+        const nhan = `${k.khu}/${b.slug}`;
+        expect(b.noiDung, nhan).not.toMatch(/^#{1,6}.*nhật ký biên tập/im);
+        expect(b.noiDung, nhan).not.toMatch(/^#{1,6}.*ghi chú biên tập/im);
+        expect(b.noiDung, nhan).not.toMatch(/^#{1,6}.*cần bổ sung/im);
+        expect(b.noiDung, nhan).not.toMatch(/^#{1,6}.*kiểm chứng/im);
+      }
+    }
+  });
+
+  it("không còn link .md tương đối — đó là nguyên nhân trang Danh mục folder bị 404", () => {
+    for (const k of TAI_LIEU) {
+      for (const b of k.bai) {
+        const xau = b.noiDung.match(/\]\(\.?\/?[A-Za-z0-9._-]+\.md[)#]/g) ?? [];
+        expect(xau, `${k.khu}/${b.slug}`).toEqual([]);
+      }
+    }
+    expect(bai("cong-viec-chung", "van-hoa-lam-viec").noiDung)
+      .toContain("(/wiki/cong-viec-chung/danh-muc-folder-drive)");
+  });
+
+  it("mục lục sinh lại: neo khớp đúng id mà trình render đặt lên tiêu đề", () => {
+    for (const k of TAI_LIEU) {
+      for (const b of k.bai) {
+        if (!/^##\s+Mục lục/im.test(b.noiDung)) continue;
+        const coSlug = new Set(
+          [...b.noiDung.matchAll(/^#{1,6}\s+(.+?)\s*$/gm)].map((m) => slugTieuDe(m[1])),
+        );
+        const neo = [...b.noiDung.matchAll(/\]\(#([a-z0-9-]+)\)/g)].map((m) => m[1]);
+        expect(neo.length, `${k.khu}/${b.slug}`).toBeGreaterThan(0);
+        expect(neo.filter((x) => !coSlug.has(x)), `${k.khu}/${b.slug}`).toEqual([]);
+      }
+    }
+  });
+
+  it("bảng sản phẩm Sales khớp masterdata thay lõi", () => {
+    const md = bai("sales", "training-sales-cskh").noiDung;
+    expect(md).toMatch(/\*\*B04\*\*.*Để bàn/);            // B04 là để bàn, không phải âm tủ
+    expect(md).toMatch(/\*\*CTS10\*\*.*1 lõi duy nhất.*CFNC/);
+    expect(md).toMatch(/\*\*GN620\*\*.*PCF \+ NF/);       // GN620 có CẢ HAI lõi
+    expect(md).toMatch(/\*\*DN810\*\*.*PPF \+ PCFB \+ NF/);
+  });
+
+  it("đã bỏ mục QA/training chatbot AI — hiện không áp dụng", () => {
+    const md = bai("sales", "training-sales-cskh").noiDung;
+    expect(md).not.toMatch(/^##.*QA \/ training cho chatbot/im);
+  });
+
+  it("trang Công cụ làm việc: bỏ Asana, chat là Discord", () => {
+    const md = bai("cong-viec-chung", "cong-cu-lam-viec").noiDung;
+    expect(md).toContain("Discord");
+    expect(md).toContain("Asana đã ngừng dùng");
+    // Không còn hướng dẫn thao tác Asana, và không còn bảo nhắn Zalo riêng —
+    // trái với nguyên tắc "không nhắn riêng công việc".
+    expect(md).not.toMatch(/tạo task trên Asana/i);
+    expect(md).not.toMatch(/qua Zalo cá nhân/i);
   });
 });
