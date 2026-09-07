@@ -56,6 +56,8 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_them", headers=h(SVC), json={"
     "p_kind": "nexia", "p_file_name": "smoke.xlsx", "p_storage_path": "2026-08/smoke.xlsx", "p_headers": {"vao": ["A"]}, "p_row_count": 2})
 chk("ke_toan_nguon_them (smoke)", r.status_code == 200 and "id" in r.json(), (r.status_code, r.text[:80]))
 src_id = r.json()["id"] if r.status_code == 200 else None
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
+chk("ke_toan_nguon_list có storage_path (migration 06)", r.status_code == 200 and r.json() and r.json()[0].get("storage_path") == "2026-08/smoke.xlsx", (r.status_code, r.text[:120]))
 dong = [{"direction": "vao", "line_key": "smoke-k1", "row_order": i, "raw": ["x"], "period_id": 0, "first_source_id": 0} for i in (1, 2)]
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_id, "p_rows": dong})
 chk("ke_toan_dong_nhap qua PostgREST: 2 dòng trùng khoá → inserted 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 1, "updated": 0, "kept": 1}, (r.status_code, r.text[:120]))

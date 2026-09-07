@@ -163,6 +163,24 @@ async function headersNguonDau(periodId: number, direction: 'vao' | 'ra'): Promi
   return nexia?.headers[direction] ?? []
 }
 
+export type NguonRow = { id: number; kind: string; file_name: string; headers: Record<string, string[]>; row_count: number; uploaded_at: string; storage_path: string | null }
+
+/** File NEXIA mới nhất của kỳ (upload lần 2 thay lần 1) — route xuất mở đúng file gốc này mà điền cột. */
+export async function nguonNexiaMoiNhat(periodId: number): Promise<NguonRow | null> {
+  await chanKeToan()
+  const r = await goi<NguonRow[]>('ke_toan_nguon_list', { p_period_id: periodId })
+  const ds = (r ?? []).filter((s) => s.kind === 'nexia' && s.storage_path)
+  return ds.length ? ds[ds.length - 1] : null
+}
+
+/** Tải file gốc từ bucket `accounting` (riêng tư, chỉ server đọc). null khi file không còn → route rơi về dựng từ đầu. */
+export async function taiFileNguon(storagePath: string): Promise<Uint8Array | null> {
+  await chanKeToan()
+  const { data, error } = await dataClient().storage.from('accounting').download(storagePath)
+  if (error || !data) return null
+  return new Uint8Array(await data.arrayBuffer())
+}
+
 export async function dongCuaKy(ky: string, direction: 'vao' | 'ra'): Promise<{ period: KyRow | null; dong: DongRow[]; headers: string[] }> {
   const ds = await danhSachKy()
   const period = ds.find((k) => k.ky === ky) ?? null
