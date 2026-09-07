@@ -350,3 +350,40 @@ describe("kho video & kịch bản đã quay", () => {
     expect(b.noiDung).toMatch(/ĐẢO NGƯỢC so với/i);
   });
 });
+
+describe("sổ tay viết Hook (khu Marketing video)", () => {
+  const so = () => TAI_LIEU.find((k) => k.khu === "marketing")!.bai
+    .find((b) => b.slug === "so-tay-viet-hook")!;
+
+  it("nằm trong khu Marketing video và hiện trên sidebar khu đó", () => {
+    expect(so()).toBeDefined();
+    const nav = navCuaKhu(KHU.find((k) => k.ma === "marketing")!);
+    expect(nav.flatMap((g) => g.items).map((i) => i.href))
+      .toContain("/wiki/marketing/so-tay-viet-hook");
+  });
+
+  it("cú pháp Obsidian [[#...]] đã chuyển hết — không lọt ra trang", () => {
+    // Team Marketing soạn trong Obsidian; react-markdown không hiểu [[...]] nên để nguyên
+    // là hiện lù lù giữa trang, đúng lỗi thẻ <a id> hôm 28/08.
+    for (const k of TAI_LIEU) {
+      for (const b of k.bai) expect(b.noiDung, `${k.khu}/${b.slug}`).not.toContain("[[#");
+    }
+  });
+
+  it("giữ nguyên nội dung sổ tay: 14 nhóm hook, 4 công thức, checklist", () => {
+    const md = so().noiDung;
+    expect(md).toContain("14 nhóm hook");
+    expect(md).toContain("Anti-hook");
+    expect(md).toContain("knowledge gap");
+    expect(md).toMatch(/Checklist trước khi chốt/i);
+  });
+
+  it("có cảnh báo: câu chạm sản phẩm vẫn phải qua cổng claim", () => {
+    // Sổ tay dạy viết HAY; được nói gì thì PKB quyết. Hai ví dụ hook trong sổ tay đang
+    // trích dữ kiện sản phẩm nên phải trỏ về mã F-xxx.
+    const md = so().noiDung;
+    expect(md).toContain("/wiki/san-pham");
+    expect(md).toMatch(/O-02/);
+    expect(md).toMatch(/F-I08/);
+  });
+});

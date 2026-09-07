@@ -363,6 +363,20 @@ function sinhMucLuc(md) {
   return [...dong.slice(0, iML + 1), "", ...ds, "", ...dong.slice(het)].join("\n");
 }
 
+/**
+ * Link nội bộ kiểu Obsidian `[[#Tiêu đề|Nhãn]]` → link markdown thường.
+ *
+ * Team Marketing soạn tài liệu trong Obsidian, nên file gửi sang hay có cú pháp này.
+ * react-markdown không hiểu — để nguyên là hiện lù lù `[[#MỤC LỤC|↑ Mục lục]]` giữa trang,
+ * đúng loại lỗi CEO đã bắt với thẻ `<a id>` hôm 28/08.
+ */
+function suaLinkObsidian(md) {
+  return md.replace(/\[\[#([^\]|]+?)(?:\|([^\]]+?))?\]\]/g, (all, tieuDe, nhan) => {
+    const t = tieuDe.trim();
+    return `[${(nhan ?? t).trim()}](#${slugTieuDe(t)})`;
+  });
+}
+
 function docTaiLieu() {
   if (!existsSync(NGUON_TL)) return [];
   return readdirSync(NGUON_TL, { withFileTypes: true })
@@ -375,6 +389,7 @@ function docTaiLieu() {
           const [fm, than] = bocFrontmatter(readFileSync(path.join(NGUON_TL, d.name, f), "utf8"));
           const slug = f.replace(/\.md$/, "");
           let noiDung = catMucNoiBo(donDep(than), `${d.name}/${slug}`);
+          noiDung = suaLinkObsidian(noiDung);
           noiDung = suaLinkNoiBo(noiDung, d.name, slugCo);
           noiDung = sinhMucLuc(noiDung);
           return {
