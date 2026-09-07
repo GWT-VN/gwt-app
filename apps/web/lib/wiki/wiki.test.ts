@@ -318,3 +318,35 @@ describe("dọn nội dung trước khi lên prod (CEO báo 31/08)", () => {
     expect(md).not.toMatch(/qua Zalo cá nhân/i);
   });
 });
+
+describe("kho video & kịch bản đã quay", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+
+  it("khu đã bật và có trang hướng dẫn tổ chức kho", () => {
+    expect(KHU.find((k) => k.ma === "kho-video")?.trangThai).toBe("co-noi-dung");
+    expect(kho().bai.map((b) => b.slug)).toContain("cach-to-chuc-kho");
+  });
+
+  it("kịch bản CTS20 có link file gốc trên Drive", () => {
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toContain("drive.google.com/file/d/156l0AzlhmPh6vznd1gncj2DDpT7M6odD");
+  });
+
+  it("kịch bản đã quay có câu vi phạm PHẢI kèm cảnh báo, không được lặng lẽ đăng", () => {
+    // Video đã phát nên transcript giữ nguyên văn — nhưng phải gắn cảnh báo, nếu không
+    // người viết kịch bản sau sẽ bốc nguyên câu cấm sang bài mới.
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toContain("tốt cho tiêu hoá");        // giữ nguyên văn
+    expect(b.noiDung).toContain("ĐỌC TRƯỚC KHI DÙNG LẠI");  // và có cảnh báo
+    expect(b.noiDung).toMatch(/Claim y khoa/i);
+    expect(b.noiDung).toMatch(/bất kỳ % diệt khuẩn nào/i);
+  });
+
+  it("tuổi thọ lõi CTS20 nêu theo masterdata, không theo lời nói trong video", () => {
+    // Video đọc "12–24 tháng" cho lõi tiền xử lý — đảo ngược so với masterdata.
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toMatch(/PCF.*6–12 tháng/);
+    expect(b.noiDung).toMatch(/NF.*12–24 tháng/);
+    expect(b.noiDung).toMatch(/ĐẢO NGƯỢC so với/i);
+  });
+});
