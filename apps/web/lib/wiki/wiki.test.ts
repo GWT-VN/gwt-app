@@ -387,3 +387,44 @@ describe("sổ tay viết Hook (khu Marketing video)", () => {
     expect(md).toMatch(/F-I08/);
   });
 });
+
+describe("kịch bản Lọc tổng · Nước mềm 04/2026", () => {
+  const b = () => TAI_LIEU.find((k) => k.khu === "kho-video")!.bai
+    .find((x) => x.slug === "kich-ban-loc-tong-nuoc-mem-2026-04")!;
+
+  it("có link thư mục Drive", () => {
+    expect(b().noiDung).toContain("drive.google.com/drive/folders/1rKSXxzYP1iSIh8RPXt7yKv_cFjQasbp0");
+  });
+
+  it("4 câu so sánh tuyệt đối giữ nguyên văn NHƯNG phải có cảnh báo", () => {
+    const md = b().noiDung;
+    expect(md).toContain("chỉ số iodine cao nhất trên thị trường"); // nguyên văn
+    expect(md).toContain("ĐỌC TRƯỚC KHI DÙNG LẠI");                  // và có cảnh báo
+    expect(md).toMatch(/So sánh tuyệt đối/i);
+    expect(md).toMatch(/gấp 3–4 lần/);
+    expect(md).toMatch(/top 20 trên toàn thế giới/);
+  });
+
+  it("bảng độ cứng theo vùng có kèm cảnh báo thiếu đơn vị", () => {
+    // Số dùng bán hàng được ngay, nhưng video không nói đơn vị — đọc cho khách mà sai
+    // đơn vị là hỏng niềm tin ngay tại điểm chốt.
+    const md = b().noiDung;
+    expect(md).toMatch(/sông Đuống/);
+    expect(md).toMatch(/không nói rõ đơn vị/i);
+    expect(md).toMatch(/mg\/L CaCO/);
+  });
+
+  it("ghi lại bài học dựng: bản focus mạnh hơn bản có người dẫn", () => {
+    expect(b().noiDung).toMatch(/bản focus mạnh hơn/i);
+    const huongDan = TAI_LIEU.find((k) => k.khu === "kho-video")!.bai
+      .find((x) => x.slug === "cach-to-chuc-kho")!;
+    expect(huongDan.noiDung).toMatch(/Quay cả 2 bản khi nội dung là chuyên môn/);
+  });
+
+  it("có bảng chính tả cần sửa khi trích lại", () => {
+    const md = b().noiDung;
+    expect(md).toMatch(/KDF55/);
+    expect(md).toMatch(/inox 316L/);
+    expect(md).toMatch(/chỉ số iốt/);
+  });
+});

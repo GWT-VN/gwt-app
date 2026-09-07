@@ -33,12 +33,14 @@ link tới file gốc trên Drive.
 | `CTS20_chuyengia_202601` | CTS20, phỏng vấn chuyên gia, tháng 01/2026 |
 | `USH10_review_202603` | USH10, review sản phẩm, tháng 03/2026 |
 | `WH30A_lapdat_202602` | Lọc tổng WH30A, quay lắp đặt, tháng 02/2026 |
+| `LOCTONG_chuyengia_202604` | Hệ lọc đầu nguồn (POE) nói chung, không riêng bộ nào |
 | `CHUNG_broll_202601` | B-roll dùng chung, không gắn máy nào |
 
 **Định dạng** dùng bộ từ cố định: `chuyengia` · `review` · `lapdat` · `testimonial` ·
 `broll` · `animation` · `intro` · `outro`.
 
-Dùng `CHUNG` cho tư liệu không thuộc máy nào — đó thường là thứ **tái sử dụng nhiều nhất**.
+Dùng `LOCTONG` cho nội dung về hệ đầu nguồn nói chung (không riêng WH15A/WH30A), và
+`CHUNG` cho tư liệu không thuộc máy nào — đó thường là thứ **tái sử dụng nhiều nhất**.
 
 ## Mỗi trang kịch bản phải có
 
@@ -65,6 +67,8 @@ nói thay bằng gì.
 Kho hiện mới có **1 kịch bản**. Còn thiếu:
 
 - Rà toàn bộ video đã quay từ trước → mỗi cái một trang ở đây.
+- **Quay cả 2 bản khi nội dung là chuyên môn.** Video Nước mềm 04/2026 cho thấy bản cắt
+  riêng người trong nghề mạnh hơn hẳn bản có người dẫn — nhưng chỉ biết được khi dựng.
 - Lập chỉ mục **footage thô** và **source animation** trên Drive theo quy ước tên ở trên.
 - Chốt **folder Drive gốc** cho kho video (hiện chưa có trong
   [Danh mục folder Drive](/wiki/cong-viec-chung/danh-muc-folder-drive)).
