@@ -49,6 +49,14 @@ export const KHU: Khu[] = [
     moTa: "Cách team làm video: khung 5A/PAAST, luật sửa content, quy trình sản xuất, kho case.",
   },
   {
+    ma: "kho-video",
+    ten: "Kho video",
+    icon: "🎬",
+    href: "/wiki/kho-video",
+    trangThai: "co-noi-dung",
+    moTa: "Kịch bản đã quay, footage và source animation — để video sau không phải làm lại từ đầu.",
+  },
+  {
     ma: "kien-thuc-nen",
     ten: "Kiến thức nền",
     icon: "📚",
