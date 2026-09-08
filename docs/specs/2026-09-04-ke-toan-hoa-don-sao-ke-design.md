@@ -169,6 +169,12 @@ Màu: `FFE699` dòng từ HDCT/HDTQ; `DDEBF7` dòng hàng hoá/156; `FFF2CC` dò
 cột độ tin cậy/căn cứ. Cột `Ghi chú` = `note_for_accountant`. Xuất khi còn dòng cảnh báo → hộp
 xác nhận nêu số dòng, không chặn.
 
+> **Đổi 07/09/2026 (sau khi so file app với bản Python T8):** bản xuất **mở chính file NEXIA gốc** đã
+> upload (tải từ Storage) và điền khối cột chốt vào đó — giữ nguyên Sheet1, độ rộng cột, định dạng số,
+> màu dòng HDCT, bộ lọc như tool Python. File đã có khối cột chốt (bản Python cũ / xuất lần 2) thì ghi đè
+> khối đầu, cắt khối trùng. Dựng từ `sources.headers` chỉ còn là **đường dự phòng** khi file gốc không
+> còn. Dòng không còn trong file mới nhất (`missing_in_last_upload`) không xuất.
+
 **Excel thu chi** (`Báo cáo thu chi - {MM}.{YYYY}.xlsx`): tab `Báo cáo chi` 15 cột, `Báo cáo thu`
 11 cột, `Tiền mặt ngân hàng` số dư theo ngày tính từ `bank_lines`. Số trước VAT = sau VAT / 1.08
 chỉ khi có hoá đơn (quy ước bàn giao §2B).

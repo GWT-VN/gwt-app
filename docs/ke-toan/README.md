@@ -53,7 +53,7 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Trạng thái (07/09/2026)
 
-- Migration 00–06 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
+- Migration 00–07 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
 - tsc/test/build sạch. **Máy Windows không có Docker/Supabase local** → nghiệm thu e2e 07/09 làm
   bằng `next dev -p 3000` cắm **DB production** (`.env.local.prod`, CEO chốt vì không có local);
   cổng 3000 vì Supabase Auth chỉ cho redirect Google về `localhost:3000` (cổng 3501 chưa nằm
@@ -155,10 +155,17 @@ n. `ghiAudit('ke_toan.upload_nexia_loi')` trong nhánh lỗi chưa bọc try —
    thông điệp lỗi gốc.
 o. `ke_toan_dong_nhap` dedupe trong lô im lặng (dồn vào `kept`) — nên trả thêm `deduped` để lộ hồi quy
    của `lan` phía app.
-p. `missing_in_last_upload` chưa có chỗ nào set `true` (chỉ set `false` khi update) — lát 2 làm khi
-   xử lý upload lại file đã sửa.
+p. ~~`missing_in_last_upload` chưa có chỗ nào set `true`~~ **Đã sửa** (migration 07: `ke_toan_nguon_chot`
+   gọi sau mỗi lần upload; nhánh UPDATE của `dong_nhap` cập nhật cả `row_order`). Màn kỳ chưa hiện
+   dòng thiếu — xuất Excel đã bỏ chúng.
 q. `ganKhoaDong` map theo `rowOrder` và giả định duy nhất — `rowOrder` trùng sẽ gộp khoá im lặng.
 r. `globals.css` đổi màu chữ theo dark mode của OS dù app không có giao diện tối (bẫy 10) — sửa tận
    gốc là bỏ khối `@media (prefers-color-scheme: dark)`; file dùng chung, cần CEO gật + báo khu khác.
 s. Màn Kế toán dùng xanh lá `#3f8a6a` tự đặt, khác accent teal `#0e8c9a` của Sales/Work — đồng bộ khi
    polish.
+t. Route `xuat` chưa có test tích hợp (nhánh dự phòng khi file gốc không còn, nhánh redirect `?loi=`) —
+   cần khung mock Next route handler.
+u. Chưa đo bộ nhớ `exceljs` load + write trên Vercel với file 8 MB (trần upload) — đo một lần với T8
+   trước khi kế toán dùng thật, ghi số vào đây.
+v. Màn kỳ chưa hiện dòng `missing_in_last_upload` (dòng của lần upload trước không còn trong file mới) —
+   hiện chỉ đếm ở thông báo upload và bị bỏ khi xuất.

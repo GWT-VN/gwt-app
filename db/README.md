@@ -21,3 +21,8 @@ migration của module. Xem `docs/LOCAL-DEV.md`.
   Changelog trong `../GWT-SHARED/SYSTEM.md` + báo module kia TRƯỚC khi chạy.
 - Module chỉ **ĐỌC** bảng của module khác; ghi ngược qua RPC `security definer` của module gốc.
 - Chạy thử ở **local** trước, đừng chạy thẳng production.
+- **RPC mới/đổi phải có phép thử smoke đi qua `/rest/v1/rpc/…`** (`tools/scripts/smoke_local.py`), không
+  chỉ psql: role `authenticator` của PostgREST trên Supabase nạp `safeupdate` (chặn UPDATE/DELETE không
+  WHERE, kể cả trong hàm security definer) — lỗi thật 07/09/2026 ở `ke_toan_dong_nhap`, CI xanh mà prod
+  gãy vì smoke chưa gọi RPC đó qua HTTP.
+
