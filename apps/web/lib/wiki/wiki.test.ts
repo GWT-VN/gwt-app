@@ -517,3 +517,56 @@ describe("transcript kho video phải ĐẦY ĐỦ, không cắt xén", () => {
     }
   });
 });
+
+describe("video ads Lọc tổng 09/2026", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const ads = () => kho().bai.find((x) => x.slug === "kich-ban-ads-loc-tong-2026-09")!;
+  const phang = (md: string) => md.replace(/^>\s?/gm, "").replace(/\s+/g, " ");
+
+  it("có link Drive và đánh dấu rõ là video ADS", () => {
+    const md = ads().noiDung;
+    expect(md).toContain("drive.google.com/drive/folders/1YBQJA9W-ILGJwXBbIwIj1-GZzCdTy2f3");
+    // Ads chạy ra công chúng — rủi ro khác hẳn nội dung nội bộ, phải nói rõ.
+    expect(md).toMatch(/VIDEO \*\*ADS\*\* — RỦI RO CAO NHẤT/);
+  });
+
+  it("cam kết bảo hành 10 năm phải đối chiếu với F-G02 và O-10 của PKB", () => {
+    // PKB ghi 5 năm bơm+bo, hạng D, O-10 chưa đóng vì "không có văn bản dẫn chứng".
+    // Video ads đã phát ra công chúng con số 10 năm.
+    const md = ads().noiDung;
+    expect(md).toMatch(/bảo hành tới \*\*mười năm\*\*/);
+    expect(md).toMatch(/F-G02/);
+    expect(md).toMatch(/O-10/);
+    expect(md).toMatch(/chưa có văn bản/i);
+  });
+
+  it("chỉ rõ mâu thuẫn độ cứng đầu ra 1–3 mg/L vs < 17 mg/L", () => {
+    const md = ads().noiDung;
+    expect(md).toMatch(/1–3 mg\/L/);
+    expect(md).toMatch(/17 mg\/L/);
+    expect(md).toMatch(/cam kết/);
+  });
+
+  it("bắt lỗi iF Design Award là của ĐỨC, không phải Mỹ", () => {
+    expect(ads().noiDung).toMatch(/iF Design Award là của ĐỨC/);
+  });
+
+  it("transcript giữ đủ cả bản cắt ngắn lẫn bản phỏng vấn đầy đủ", () => {
+    const md = phang(ads().noiDung);
+    // Bản ads
+    expect(md).toContain("nó tự động nó switch sang cái chế độ kỳ nghỉ");
+    // Bản đầy đủ — mốc đầu, giữa, cuối
+    expect(md).toContain("chổi hút xoay ba trăm sáu mươi độ không điểm mù");
+    expect(md).toContain("màng biofilm bám trên bề mặt hạt nhựa");
+    expect(md).toContain("leakage là rò rỉ ion");
+    expect(md).toContain("để bên ngoài, để bên trong đều có thể được");
+    expect(ads().noiDung.length).toBeGreaterThan(14000);
+  });
+
+  it("bảng claim trôi đã mở rộng lên 4 video và nêu 3 việc phải chốt", () => {
+    const md = kho().bai.find((x) => x.slug === "cach-to-chuc-kho")!.noiDung;
+    expect(md).toMatch(/Rà \*\*4 video\*\*/);
+    expect(md).toMatch(/Ba việc phải chốt, không phải ba video phải sửa/);
+    expect(md).toMatch(/Bảo hành: 5 năm hay 10 năm/);
+  });
+});
