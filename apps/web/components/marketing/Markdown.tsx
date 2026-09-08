@@ -1,17 +1,35 @@
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { PROCESS_DOCS } from "@/lib/marketing/content";
+
+/** Tên file quy trình (không đuôi, đã bỏ khoảng trắng thừa) → slug route. */
+const PROCESS_BY_FILE = new Map(PROCESS_DOCS.map((d) => [d.file.trim(), d.slug]));
 
 /**
- * File nguồn viết link theo đường dẫn repo (`../rules/x.md`) — đổi sang route của wiki
- * để bấm trong web không bị 404. Link không khớp thì giữ nguyên.
+ * File nguồn viết link theo đường dẫn repo (`../rules/x.md`, `./Ten-quy-trinh.md`) — đổi sang
+ * route của wiki để bấm trong web không bị 404. Link không khớp thì giữ nguyên.
+ *
+ * Bảng quy trình lấy thẳng từ `PROCESS_DOCS`, KHÔNG chép tay từng tên file: thêm một quy trình
+ * mới vào registry là link chéo giữa các file .md tự chạy, khỏi phải nhớ sửa thêm chỗ này.
  */
 function rewriteHref(href?: string): string | undefined {
   if (!href) return href;
   const rule = href.match(/rules\/([a-z0-9_-]+)\.md$/i);
   if (rule) return `/wiki/marketing/luat/${rule[1]}`;
-  const proc = href.match(/Quy-trinh-editor-ngoai\.md$/i);
-  if (proc) return "/wiki/marketing/khung/quy-trinh/editor-ngoai";
+
+  // Tên file quy trình có dấu + khoảng trắng nên trong markdown thường bị mã hoá URL.
+  let ten: string;
+  try {
+    ten = decodeURIComponent(href);
+  } catch {
+    ten = href; // href mã hoá hỏng — cứ dò theo bản thô.
+  }
+  const proc = ten.match(/([^/]+)\.md$/);
+  if (proc) {
+    const slug = PROCESS_BY_FILE.get(proc[1].trim());
+    if (slug) return `/wiki/marketing/khung/quy-trinh/${slug}`;
+  }
   return href;
 }
 

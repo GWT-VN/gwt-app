@@ -11,8 +11,8 @@ export default function Page() {
         <div className="eyebrow">Khung ④ — Sản xuất</div>
         <h1>Quy trình sản xuất</h1>
         <p>
-          Hai quy trình chuẩn của team — render thẳng từ <code>Work GWT/Quy trình/</code>, không chép lại. Người mới
-          đọc hết hai file này là chạy được trọn một video.
+          Quy trình chuẩn của team — render thẳng từ <code>Work GWT/Quy trình/</code>, không chép lại. Hai file đầu
+          dạy chạy trọn một video; file thứ ba dạy dựng cả một kênh chuyên gia từ số 0.
         </p>
       </div>
 
