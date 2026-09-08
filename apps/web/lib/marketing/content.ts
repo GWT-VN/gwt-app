@@ -74,13 +74,6 @@ export const PROCESS_DOCS: { slug: string; file: string; title: string; blurb: s
     blurb:
       "Tách kênh chuyên gia khỏi kênh brand, setup profile, 10 dạng video mở kênh, đọc chỉ số theo chuỗi hook → retention → lead, tín hiệu Xanh/Vàng/Đỏ. Chia sẻ của anh Cương (VCB).",
   },
-  {
-    slug: "du-an-xay-kenh",
-    file: "Du-an-xay-kenh-trien-khai",
-    title: "Dự án xây kênh — triển khai",
-    blurb:
-      "Bảng công việc của kế hoạch 14 ngày: ai làm, khi nào, output bắt buộc. Giai đoạn 0 setup → ngày 1 khởi động → review tuần 1 → chốt vòng test.",
-  },
 ];
 
 export function readProcessDoc(slug: string): string | null {
