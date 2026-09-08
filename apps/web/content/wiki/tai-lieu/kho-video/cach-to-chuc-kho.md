@@ -25,17 +25,19 @@ link tới file gốc trên Drive.
 ## Quy ước đặt tên
 
 ```
-<MÃ MÁY>_<ĐỊNH DẠNG>_<YYYYMM>
+<MÃ MÁY>_<ĐỊNH DẠNG>_<KHUNG HÌNH>_<YYYYMM>
 ```
+
+**Khung hình** chỉ có hai giá trị: `ngang` (16:9) hoặc `doc` (9:16).
 
 | Ví dụ | Nghĩa |
 |---|---|
-| `CTS20_chuyengia_202601` | CTS20, phỏng vấn chuyên gia, tháng 01/2026 |
-| `USH10_review_202603` | USH10, review sản phẩm, tháng 03/2026 |
-| `WH30A_lapdat_202602` | Lọc tổng WH30A, quay lắp đặt, tháng 02/2026 |
-| `LOCTONG_chuyengia_202604` | Hệ lọc đầu nguồn (POE) nói chung, không riêng bộ nào |
-| `LOCTONG_showcase_202507` | Quay tại nhà khách đã dùng — showcase kết quả thật |
-| `CHUNG_broll_202601` | B-roll dùng chung, không gắn máy nào |
+| `CTS20_chuyengia_ngang_202601` | CTS20, phỏng vấn chuyên gia, quay ngang, 01/2026 |
+| `USH10_review_doc_202603` | USH10, review sản phẩm, quay dọc, 03/2026 |
+| `WH30A_lapdat_ngang_202602` | Lọc tổng WH30A, quay lắp đặt, ngang, 02/2026 |
+| `LOCTONG_chuyengia_ngang_202604` | Hệ lọc đầu nguồn (POE) nói chung, không riêng bộ nào |
+| `LOCTONG_showcase_ngang_202507` | Quay tại nhà khách đã dùng — showcase kết quả thật |
+| `CHUNG_broll_doc_202601` | B-roll dùng chung, không gắn máy nào |
 
 **Định dạng** dùng bộ từ cố định: `chuyengia` · `review` · `lapdat` · `testimonial` ·
 `broll` · `animation` · `intro` · `outro` · `showcase`.
@@ -43,9 +45,29 @@ link tới file gốc trên Drive.
 Dùng `LOCTONG` cho nội dung về hệ đầu nguồn nói chung (không riêng WH15A/WH30A), và
 `CHUNG` cho tư liệu không thuộc máy nào — đó thường là thứ **tái sử dụng nhiều nhất**.
 
+## 📱🖥️ Khung hình — thứ quyết định footage có tái dùng được hay không
+
+**Đây là lý do khung hình nằm ngay trong tên file, không phải một ghi chú phụ.**
+
+Footage quay **ngang** không cắt sang **dọc** được mà không hỏng bố cục: người bị cắt mất
+nửa đầu hoặc phải zoom vào tới mức vỡ hình. Ngược lại cũng vậy. Nên khi đi tìm tư liệu cho
+một video mới, **câu hỏi đầu tiên là "dọc hay ngang"**, trước cả câu hỏi "về máy nào".
+
+| Khung hình | Dùng cho | Ghi chú |
+|---|---|---|
+| 🖥️ **Ngang** (16:9) | YouTube, video dài, showroom, phỏng vấn chuyên gia | Chỗ để chữ và đồ hoạ hai bên |
+| 📱 **Dọc** (9:16) | Reels · TikTok · Shorts · **video ads** | Chủ thể phải nằm giữa khung; chữ phải to |
+
+Hiện trong kho: **4 video ngang, 1 video dọc** (Ads Lọc tổng 09/2026).
+
+> 🔑 **Nếu định chạy ads**, cân nhắc quay **dọc ngay từ đầu** — hoặc quay ngang với chủ thể
+> đặt giữa khung để còn crop được. Cứu một video ngang thành dọc lúc dựng luôn tốn hơn là
+> tính trước lúc quay.
+
 ## Mỗi trang kịch bản phải có
 
-1. **Bảng đầu trang** — sản phẩm · định dạng · trạng thái · **link file gốc trên Drive**.
+1. **Bảng đầu trang** — sản phẩm · định dạng · **khung hình (dọc/ngang)** · trạng thái ·
+   **link file gốc trên Drive**.
 2. **Khối luật phát ngôn** nếu trong video có câu vi phạm — ghi rõ ⛔ câu nào, vì sao,
    ✅ nói thay bằng gì.
 3. **Transcript** chia theo phân đoạn (hook · dẫn nhập · từng chủ đề · câu kết) — chia
