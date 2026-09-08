@@ -63,6 +63,27 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p
 chk("ke_toan_dong_nhap qua PostgREST: 2 dòng trùng khoá → inserted 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 1, "updated": 0, "kept": 1}, (r.status_code, r.text[:120]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_id, "p_rows": dong})
 chk("ke_toan_dong_nhap lần 2 → updated 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 1, "kept": 1}, (r.status_code, r.text[:120]))
+# Upload LẠI file đã sửa (migration 07): source 2 chỉ còn dòng k2 → chốt → k1 bị đánh "không còn trong file
+# mới nhất"; k1 quay lại ở lô sau với row_order mới → UPDATE phải cập nhật row_order + bỏ cờ thiếu.
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_chot", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src_id})
+chk("ke_toan_nguon_chot source 1: mọi dòng đều của nó → missing 0", r.status_code == 200 and r.json() == {"missing": 0}, (r.status_code, r.text[:80]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id,
+    "p_kind": "nexia", "p_file_name": "smoke2.xlsx", "p_storage_path": "2026-08/smoke2.xlsx", "p_headers": {"vao": ["A"]}, "p_row_count": 1})
+src2 = r.json()["id"] if r.status_code == 200 else None
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src2,
+    "p_rows": [{"direction": "vao", "line_key": "smoke-k2", "row_order": 1, "raw": ["y"]}]})
+chk("upload lại: dòng mới k2 inserted 1", r.status_code == 200 and r.json() == {"inserted": 1, "updated": 0, "kept": 0}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_chot", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src2})
+chk("ke_toan_nguon_chot source 2: k1 không còn → missing 1", r.status_code == 200 and r.json() == {"missing": 1}, (r.status_code, r.text[:80]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_direction": "vao"})
+co = {d["line_key"]: d for d in (r.json() if r.status_code == 200 else [])}
+chk("dong_list: k1 missing_in_last_upload=true, k2=false", co.get("smoke-k1", {}).get("missing_in_last_upload") is True and co.get("smoke-k2", {}).get("missing_in_last_upload") is False, (r.status_code, {k: v.get("missing_in_last_upload") for k, v in co.items()}))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src2,
+    "p_rows": [{"direction": "vao", "line_key": "smoke-k1", "row_order": 7, "raw": ["x2"]}]})
+chk("k1 quay lại với row_order 7 → updated 1", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 1, "kept": 0}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_direction": "vao"})
+co = {d["line_key"]: d for d in (r.json() if r.status_code == 200 else [])}
+chk("dong_list: k1 row_order=7 (migration 07) và hết cờ thiếu", co.get("smoke-k1", {}).get("row_order") == 7 and co.get("smoke-k1", {}).get("missing_in_last_upload") is False, (r.status_code, co.get("smoke-k1", {}).get("row_order"), co.get("smoke-k1", {}).get("missing_in_last_upload")))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_xoa", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src_id})
 chk("ke_toan_nguon_xoa source ĐANG có dòng → deleted 0", r.status_code == 200 and r.json() == {"deleted": 0}, (r.status_code, r.text[:80]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_xoa", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": 0})

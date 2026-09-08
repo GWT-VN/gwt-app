@@ -23,7 +23,7 @@ export type DongRow = {
   ten_ban: string | null; ten_hang: string | null; thanh_tien: number | null; tien_thue: number | null
   raw: (string | number | null)[]; engine_code: string | null; engine_conf: string | null; engine_reason: string | null; engine_kind: string | null
   code: string | null; code_name: string | null; tk_no: string | null; tk_co: string | null; vat_1331: string | null
-  note_for_accountant: string | null; first_source_id: number | null
+  note_for_accountant: string | null; first_source_id: number | null; missing_in_last_upload: boolean
 }
 
 const TOI_DA_BYTE = 8 * 1024 * 1024
@@ -97,7 +97,7 @@ function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: 
   }
 }
 
-export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok: true; inserted: number; updated: number; kept: number; canhBao: number } | { ok: false; error: string }> {
+export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok: true; inserted: number; updated: number; kept: number; canhBao: number; thieu: number } | { ok: false; error: string }> {
   const email = await chanKeToan()
   const ky = String(form.get('ky') ?? '').trim()
   const file = form.get('file')
@@ -132,12 +132,14 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
       p_headers: { vao: f.vao.headers, ra: f.ra?.headers ?? [] }, p_row_count: f.vao.dong.length + (f.ra?.dong.length ?? 0),
     })
 
-    let inserted = 0, updated = 0, kept = 0
+    let inserted = 0, updated = 0, kept = 0, thieu = 0
     try {
       for (let i = 0; i < rows.length; i += LO) {
         const r = await goi<{ inserted: number; updated: number; kept: number }>('ke_toan_dong_nhap', { p_period_id: periodId, p_source_id: sourceId, p_rows: rows.slice(i, i + LO) })
         inserted += r.inserted; updated += r.updated; kept += r.kept
       }
+      // Chốt lần upload: dòng của lần trước không còn trong file này → missing_in_last_upload (migration 07).
+      thieu = (await goi<{ missing: number }>('ke_toan_nguon_chot', { p_source_id: sourceId })).missing
     } catch (e) {
       const loi = (e as Error).message
       // Dọn rác best-effort: file đã lên Storage + source đã tạo nhưng vòng nhập lỗi giữa chừng.
@@ -149,9 +151,9 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
     }
 
     const canhBao = rows.filter((r) => r.direction === 'vao' && (!r.code || r.engine_conf === 'can review' || r.engine_conf === 'khong ro')).length
-    await ghiAudit('ke_toan.upload_nexia', ky, { file: file.name, inserted, updated, kept, canhBao, by: email })
+    await ghiAudit('ke_toan.upload_nexia', ky, { file: file.name, inserted, updated, kept, canhBao, thieu, by: email })
     revalidatePath('/ke-toan'); revalidatePath(`/ke-toan/hoa-don/${ky}`)
-    return { ok: true, inserted, updated, kept, canhBao }
+    return { ok: true, inserted, updated, kept, canhBao, thieu }
   } catch (e) {
     return { ok: false, error: (e as Error).message }
   }
@@ -165,20 +167,21 @@ async function headersNguonDau(periodId: number, direction: 'vao' | 'ra'): Promi
 
 export type NguonRow = { id: number; kind: string; file_name: string; headers: Record<string, string[]>; row_count: number; uploaded_at: string; storage_path: string | null }
 
-/** File NEXIA mới nhất của kỳ (upload lần 2 thay lần 1) — route xuất mở đúng file gốc này mà điền cột. */
-export async function nguonNexiaMoiNhat(periodId: number): Promise<NguonRow | null> {
+/**
+ * File NEXIA mới nhất của kỳ + nội dung tải từ bucket `accounting` (riêng tư). MỘT action duy nhất:
+ * đường dẫn Storage tra ở server từ DB, không nhận path từ client (review 08/09/2026 issue 5 — action
+ * nhận path tuỳ ý = ai qua được chanKeToan() đọc được mọi file trong bucket). null khi kỳ chưa có file
+ * hoặc file không còn → route xuất rơi về dựng từ đầu.
+ */
+export async function taiNguonNexiaMoiNhat(periodId: number): Promise<{ id: number; goc: Uint8Array } | null> {
   await chanKeToan()
   const r = await goi<NguonRow[]>('ke_toan_nguon_list', { p_period_id: periodId })
   const ds = (r ?? []).filter((s) => s.kind === 'nexia' && s.storage_path)
-  return ds.length ? ds[ds.length - 1] : null
-}
-
-/** Tải file gốc từ bucket `accounting` (riêng tư, chỉ server đọc). null khi file không còn → route rơi về dựng từ đầu. */
-export async function taiFileNguon(storagePath: string): Promise<Uint8Array | null> {
-  await chanKeToan()
-  const { data, error } = await dataClient().storage.from('accounting').download(storagePath)
+  const nguon = ds[ds.length - 1]
+  if (!nguon?.storage_path) return null
+  const { data, error } = await dataClient().storage.from('accounting').download(nguon.storage_path)
   if (error || !data) return null
-  return new Uint8Array(await data.arrayBuffer())
+  return { id: nguon.id, goc: new Uint8Array(await data.arrayBuffer()) }
 }
 
 export async function dongCuaKy(ky: string, direction: 'vao' | 'ra'): Promise<{ period: KyRow | null; dong: DongRow[]; headers: string[] }> {

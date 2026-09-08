@@ -75,13 +75,21 @@ function docTab(ws: XLSX.WorkSheet, ten: 'vao' | 'ra'): TabNexia {
   return { ten, headers, dong }
 }
 
+/**
+ * Nhận diện tab NEXIA theo tên bỏ dấu, kiểu CHỨA ("HĐ đầu vào", "Hoá đơn đầu vào T8", "HD DAU VAO"…).
+ * Bộ đọc (upload) và bộ xuất (điền file gốc) PHẢI dùng chung hàm này — review 08/09/2026: exporter từng so
+ * bằng đúng tên nên file upload được mà xuất lại 409.
+ */
+export function laTab(name: string, loai: 'vao' | 'ra'): boolean {
+  return sd(name).includes(sd(loai === 'vao' ? 'đầu vào' : 'đầu ra'))
+}
+
 export function docNexia(buf: ArrayBuffer | Uint8Array): FileNexia {
   const wb = XLSX.read(buf, { type: buf instanceof Uint8Array ? 'buffer' : 'array', cellDates: true })
   let vao: TabNexia | null = null, ra: TabNexia | null = null
   for (const name of wb.SheetNames) {
-    const n = sd(name)
-    if (n.includes(sd('đầu vào')) && !vao) vao = docTab(wb.Sheets[name], 'vao')
-    else if (n.includes(sd('đầu ra')) && !ra) ra = docTab(wb.Sheets[name], 'ra')
+    if (laTab(name, 'vao') && !vao) vao = docTab(wb.Sheets[name], 'vao')
+    else if (laTab(name, 'ra') && !ra) ra = docTab(wb.Sheets[name], 'ra')
   }
   return { vao, ra }
 }

@@ -108,6 +108,63 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     expect(ws.getCell(6, 3).value).toBe('555'); expect(fill(ws.getCell(6, 1))).toBe('FFFFE699'); expect(ws.getCell(6, 8).value).toBe('cp.qc')
   })
 
+  it('tên tab lệch ("Hoá đơn đầu vào T8") vẫn nhận; thiếu tab đầu ra mà kỳ có dòng ra → lỗi rõ, không có dòng ra → OK', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    const ws0 = wb0.addWorksheet('Hoá đơn đầu vào T8'); ws0.addRow(H_VAO); ws0.addRow([1, 'C26', '487', 'x', null, null, null])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [dong(1, '487')], ra: [] }))
+    expect(wb.getWorksheet('Hoá đơn đầu vào T8')!.getCell(2, 8).value).toBe('cp.qc')
+    await expect(dienExcelHoaDon({ goc, vao: [dong(1, '487')], ra: [dong(1, '10', { code: null })] })).rejects.toThrow(/không có tab "HĐ Đầu ra"/)
+  })
+
+  it('cột cuối không có tên header nhưng có dữ liệu → giữ nguyên, khối cột thêm nối SAU nó', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    const ws0 = wb0.addWorksheet('HĐ đầu vào'); ws0.addRow([...H_VAO, null]); ws0.addRow([1, 'C26', '487', 'x', null, null, null, 'giá trị cột không tên'])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [dong(1, '487')], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.getCell(2, 8).value).toBe('giá trị cột không tên')
+    expect(ws.getCell(1, 9).value).toBe(COT_THEM_VAO[0]); expect(ws.getCell(2, 9).value).toBe('cp.qc')
+  })
+
+  it('dòng 1 không có cột Số hóa đơn/Tên hàng (header không ở dòng 1) → lỗi rõ, không nối mọi dòng xuống đáy', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    const ws0 = wb0.addWorksheet('HĐ đầu vào'); ws0.addRow([]); ws0.addRow(H_VAO); ws0.addRow([1, 'C26', '487', 'x'])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    await expect(dienExcelHoaDon({ goc, vao: [dong(1, '487')], ra: [] })).rejects.toThrow(/không có cột "Số hóa đơn"/)
+  })
+
+  it('file có HAI khối cột đề xuất (Python chạy 2 lần) → ghi vào khối đầu, cắt khối sau; header lệch dấu/khoảng trắng vẫn nhận', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    const ws0 = wb0.addWorksheet('HĐ đầu vào')
+    const khoiLech = ['Mã KMCP (đề xuất) ', 'Tên KMCP', 'TK  Nợ', 'TK Có', 'Nợ 1331 (VAT)', 'Ghi chú'] // dấu cách thừa
+    ws0.addRow([...H_VAO, ...khoiLech, ...COT_THEM_VAO])
+    ws0.addRow([1, 'C26', '487', 'x', null, null, null, 'cu1', 'cũ', '1', '2', '3', null, 'cu2', 'cũ', '1', '2', '3', null])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [dong(1, '487')], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.columnCount).toBe(H_VAO.length + COT_THEM_VAO.length)
+    expect(ws.getCell(2, 8).value).toBe('cp.qc'); expect(ws.getCell(1, 14).value).toBeNull()
+  })
+
+  it('khối cột cũ có dòng không còn trong DB → xoá số liệu cũ của dòng đó', async () => {
+    const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc({ daCoCotThem: true }), vao: [dong(3, '999')], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.getCell(2, 8).value).toBeNull(); expect(ws.getCell(2, 13).value).toBeNull() // dòng 487 từng có 'cu'
+    expect(ws.getCell(5, 8).value).toBe('cp.qc')
+  })
+
+  it('tab đầu ra đã có khối 2 cột → ghi đè, không nối thêm', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    wb0.addWorksheet('HĐ đầu vào').addRow(H_VAO)
+    const ra0 = wb0.addWorksheet('HĐ Đầu ra'); ra0.addRow([...H_RA, ...COT_THEM_RA]); ra0.addRow([1, '10', 'Máy lọc', null, 'CU', 'KH1'])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [], ra: [dong(1, '10', { code: 'MOI' })] }))
+    const ra = wb.getWorksheet('HĐ Đầu ra')!
+    expect(ra.columnCount).toBe(H_RA.length + 2)
+    expect(ra.getCell(2, 5).value).toBe('MOI'); expect(ra.getCell(2, 6).value).toBeNull()
+  })
+
   it('Số HĐ trong file khác DB → từ chối xuất (không ghi sai dòng)', async () => {
     await expect(dienExcelHoaDon({ goc: await fileGoc(), vao: [dong(1, '488')], ra: [] })).rejects.toThrow(/Số HĐ trong file gốc/)
   })

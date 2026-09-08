@@ -7,6 +7,8 @@ import { uploadNexia } from '../../actions'
  * Một nút duy nhất: bấm → hộp chọn file → chọn xong TỰ gửi (không có bước "Upload" thứ hai).
  * Input file ẩn đi vì hai nút cho một hành động làm người dùng bấm nhầm nút sau khi chưa chọn
  * file (CEO bắt 07/09). `required` bỏ vì form chỉ gửi khi đã có file.
+ * Trước khi mở hộp chọn phải xoá value cũ: chọn lại ĐÚNG file vừa lỗi thì `onChange` không bắn
+ * (review 08/09 issue 6) → nút im, không phản hồi.
  */
 export function FormUpload({ ky }: { ky: string }) {
   const [kq, act, dang] = useActionState(uploadNexia, null)
@@ -18,12 +20,17 @@ export function FormUpload({ ky }: { ky: string }) {
       <input type="hidden" name="ky" value={ky} />
       <input ref={fileRef} type="file" name="file" accept=".xlsx" className="hidden" tabIndex={-1}
         onChange={(e) => { const f = e.target.files?.[0]; if (!f) return; setTenFile(f.name); formRef.current?.requestSubmit() }} />
-      <button type="button" disabled={dang} onClick={() => fileRef.current?.click()}
+      <button type="button" disabled={dang} onClick={() => { if (fileRef.current) fileRef.current.value = ''; fileRef.current?.click() }}
         className="rounded bg-[#3f8a6a] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#35745a] disabled:opacity-50">
         {dang ? 'Đang xử lý…' : 'Chọn file NEXIA (.xlsx) & phân loại'}
       </button>
       {dang && tenFile ? <span className="text-sm text-slate-500">{tenFile}</span> : null}
-      {!dang && kq?.ok ? <span className="text-sm text-emerald-700">{tenFile ? `${tenFile}: ` : ''}Thêm {kq.inserted} · cập nhật {kq.updated} · giữ {kq.kept} · cảnh báo {kq.canhBao}</span> : null}
+      {!dang && kq?.ok ? (
+        <span className="text-sm text-emerald-700">
+          {tenFile ? `${tenFile}: ` : ''}Thêm {kq.inserted} · cập nhật {kq.updated} · giữ {kq.kept} · cảnh báo {kq.canhBao}
+          {kq.thieu > 0 ? ` · ${kq.thieu} dòng của lần trước không còn trong file này` : ''}
+        </span>
+      ) : null}
       {!dang && kq && !kq.ok ? <span className="text-sm text-red-600">{kq.error}</span> : null}
     </form>
   )
