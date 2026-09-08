@@ -62,7 +62,8 @@ export async function proxy(request: NextRequest) {
   }
 
   // /auth = vòng OAuth quay về, lúc đó CHƯA có session nên bắt buộc phải cho qua
-  const DUONG_CONG_KHAI = ['/login', '/auth']
+  // /api/wiki-ingest: routine cloud gọi bằng bearer WIKI_INGEST_SECRET, tự gác trong route (không có session).
+  const DUONG_CONG_KHAI = ['/login', '/auth', '/api/wiki-ingest']
   const congKhai = DUONG_CONG_KHAI.some((p) => request.nextUrl.pathname.startsWith(p))
 
   // Đã đăng nhập mà còn đứng ở /login -> đá thẳng vào trong.

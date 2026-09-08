@@ -2,6 +2,7 @@ import WikiShell from "@/components/wiki/WikiShell";
 import { requireNhanSu } from "@/lib/nen-tang/phien";
 import { buildSearchIndex } from "@/lib/wiki/search-index";
 import { getCounts } from "@/lib/marketing/supabase-mkt";
+import { demDeXuatPending } from "@/lib/wiki-ingest/doc";
 import "./wiki.css";
 
 export const metadata = { title: "Wiki · GWT" };
@@ -17,7 +18,9 @@ export const metadata = { title: "Wiki · GWT" };
  */
 export default async function WikiLayout({ children }: { children: React.ReactNode }) {
   await requireNhanSu();
-  const counts = await getCounts();
+  // Badge "Đề xuất chờ duyệt": null với người không có quyền duyệt (sidebar ẩn số).
+  const [countsMkt, deXuat] = await Promise.all([getCounts(), demDeXuatPending()]);
+  const counts = { ...countsMkt, deXuat };
   const searchIndex = buildSearchIndex();
 
   return (

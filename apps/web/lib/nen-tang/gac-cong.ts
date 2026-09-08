@@ -63,3 +63,11 @@ export async function chanNeuKhongPhaiAdmin() {
 export async function chanNeuKhongPhaiQuanLy() {
   if (!(await laQuanLy())) redirect('/?loi=khong_du_quyen')
 }
+
+/** Vai được DUYỆT đề xuất Q&A từ Discord training vào wiki (spec wiki-training-ingest Q4, lát 1: admin|ceo). */
+export const VAI_TRO_DUYET_WIKI = ['admin', 'ceo'] as const
+export async function coTheDuyetWiki(): Promise<boolean> {
+  const nv = await layNhanVien()
+  if (!nv) return false
+  return nv.vai_tro.some((r) => (VAI_TRO_DUYET_WIKI as readonly string[]).includes(r))
+}

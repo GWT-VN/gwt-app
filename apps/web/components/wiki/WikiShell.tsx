@@ -7,7 +7,7 @@ import { Icon } from "@/lib/marketing/icons";
 import { KHU, crumbFor, khuCua, navCuaKhu } from "@/lib/wiki/nav";
 import Search, { type SearchItem } from "@/components/marketing/Search";
 
-type Counts = { analyses: number | null; ideas: number | null };
+type Counts = { analyses: number | null; ideas: number | null; deXuat?: number | null };
 
 /**
  * Vỏ của wiki: danh sách khu (Sản phẩm · Marketing video · Vận hành · CSKH · Sales ·
@@ -94,7 +94,7 @@ export default function WikiShell({
                   >
                     <span className="ni-ic"><Ic /></span>
                     {item.label}
-                    {badge != null && <span className="nav-badge">{badge}</span>}
+                    {badge != null && (item.badgeKey !== "deXuat" || badge > 0) && <span className="nav-badge">{badge}</span>}
                   </Link>
                 );
               })}

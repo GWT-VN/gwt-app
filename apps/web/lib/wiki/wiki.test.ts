@@ -237,7 +237,12 @@ describe("khu tài liệu dạng trang", () => {
 
   it("sidebar khu tài liệu dựng đúng số bài", () => {
     for (const k of TAI_LIEU) {
-      const tong = navTaiLieu(k.khu).flatMap((g) => g.items).length;
+      const nhom = navTaiLieu(k.khu);
+      // Nhóm cuối "Từ Discord training" (Hỏi–đáp đã duyệt + Đề xuất chờ duyệt) là 2 mục cố định, không phải bài.
+      const cuoi = nhom.at(-1)!;
+      expect(cuoi.heading).toBe("Từ Discord training");
+      expect(cuoi.items.map((i) => i.href)).toEqual([`/wiki/${k.khu}/hoi-dap`, "/wiki/de-xuat"]);
+      const tong = nhom.slice(0, -1).flatMap((g) => g.items).length;
       expect(tong, k.khu).toBe(k.bai.length);
     }
     expect(navCuaKhu(KHU.find((k) => k.ma === "cong-viec-chung")!).length).toBeGreaterThan(0);

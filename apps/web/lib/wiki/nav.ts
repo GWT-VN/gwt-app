@@ -3,7 +3,7 @@ import { NAV as NAV_MARKETING } from "../marketing/nav";
 import { SAN_PHAM, TAI_LIEU } from "./data/san-pham";
 import { NHOM, phanCuaNhom } from "./kieu";
 
-export type NavItem = { href: string; label: string; icon: IconName; badgeKey?: "analyses" | "ideas" };
+export type NavItem = { href: string; label: string; icon: IconName; badgeKey?: "analyses" | "ideas" | "deXuat" };
 export type NavGroup = { heading: string; items: NavItem[] };
 
 /**
@@ -138,7 +138,17 @@ export function navTaiLieu(ma: string): NavGroup[] {
     if (!gom.has(nhom)) gom.set(nhom, []);
     gom.get(nhom)!.push({ href: `/wiki/${ma}/${b.slug}`, label: b.tieuDe, icon: "book" });
   }
-  return [...gom.entries()].map(([heading, items]) => ({ heading, items }));
+  const nhom = [...gom.entries()].map(([heading, items]) => ({ heading, items }));
+  // Q&A từ Discord training (đã duyệt) — trang động đọc DB, khác các bài tĩnh ở trên.
+  // Mục "Đề xuất từ training" chỉ có badge (và ý nghĩa) với người duyệt; người khác bấm vào bị đá về /wiki.
+  nhom.push({
+    heading: "Từ Discord training",
+    items: [
+      { href: `/wiki/${ma}/hoi-dap`, label: "Hỏi–đáp đã duyệt", icon: "book" },
+      { href: "/wiki/de-xuat", label: "Đề xuất chờ duyệt", icon: "edit", badgeKey: "deXuat" },
+    ],
+  });
+  return nhom;
 }
 
 export function navCuaKhu(khu: Khu | null): NavGroup[] {
