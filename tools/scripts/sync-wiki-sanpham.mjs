@@ -16,6 +16,13 @@
  * Đầu ra: `apps/web/lib/wiki/data/san-pham.ts` — KHÔNG sửa tay, lần chạy sau ghi đè.
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+
+/**
+ * Đọc file văn bản và đưa về LF. Checkout Windows (autocrlf) cho file CRLF → `bocFrontmatter` tìm
+ * "\n---" không thấy, mọi bài tài liệu mất hạng/tiêu đề (đo 08/09/2026: 3 test wiki đỏ, 362 dòng
+ * data đổi). Chuẩn hoá ở MỘT chỗ để script cho cùng kết quả trên Mac lẫn Windows.
+ */
+const docVanBan = (f) => readFileSync(f, "utf8").replace(/\r\n?/g, "\n");
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -204,10 +211,10 @@ function docSanPham(ma) {
     return null;
   }
 
-  const the = JSON.parse(readFileSync(fThe, "utf8"));
+  const the = JSON.parse(docVanBan(fThe));
   // Dọn HTML thô NGAY, trước khi cắt phần và bóc bảng — để cả trang đọc lẫn bảng tra
   // đều sạch, không phải dọn hai lần ở hai chỗ rồi lệch nhau.
-  const md = donDep(readFileSync(fPkb, "utf8"));
+  const md = donDep(docVanBan(fPkb));
 
   const doanPhan = catTheoMoc(md, MOC_PHAN);
   // Phần đầu file (trước `# PHẦN 0`) là bìa + mục lục — giữ riêng làm phần mở đầu.
@@ -386,7 +393,7 @@ function docTaiLieu() {
       const slugCo = new Set(tep.map((f) => f.replace(/\.md$/, "")));
       const bai = tep
         .map((f) => {
-          const [fm, than] = bocFrontmatter(readFileSync(path.join(NGUON_TL, d.name, f), "utf8"));
+          const [fm, than] = bocFrontmatter(docVanBan(path.join(NGUON_TL, d.name, f)));
           const slug = f.replace(/\.md$/, "");
           let noiDung = catMucNoiBo(donDep(than), `${d.name}/${slug}`);
           noiDung = suaLinkObsidian(noiDung);

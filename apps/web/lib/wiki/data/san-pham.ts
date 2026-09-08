@@ -7,6 +7,193 @@ import type { KhuTaiLieu, SanPham } from "../kieu";
 
 export const SAN_PHAM: SanPham[] = [
   {
+    "ma": "ctd50",
+    "ten": "Máy lọc nước GE CTD50",
+    "tenDayDu": "Máy lọc nước để bàn GE CTD50",
+    "loai": "POU",
+    "kieuLap": "Để bàn (countertop)",
+    "maNoiBo": "CTD50",
+    "maNSX": "",
+    "phienBanPKB": "v0.1",
+    "capNhat": "2026-09-08",
+    "trangThai": "nhap",
+    "tomTat": "Máy lọc nước để bàn, giữ khoáng, 1 lõi CFNC, có bản dùng bình chứa. PKB mới mở 08/09/2026 với dữ kiện chất liệu bình chứa do NSX xác nhận — các phần khác chưa có dữ liệu.",
+    "anh": null,
+    "bia": "# CTD50 — PRODUCT KNOWLEDGE DATABASE\n\n**Máy lọc nước để bàn GE CTD50** · để bàn (countertop), có bản dùng bình chứa\n\n| | |\n|---|---|\n| **Phiên bản** | `v0.1` |\n| **Ngày phát hành** | 08/09/2026 |\n| **Chủ sở hữu** | GWT — Công ty TNHH Công nghệ Nước General |\n| **Mã nội bộ** | `CTD50` · Model NSX: *chưa có* |\n| **Nguồn ưu tiên số 1** | Chưa có HDSD chính hãng trong hồ sơ — xem Phần 0 |\n| **Số tài liệu nguồn đã hợp nhất** | 2 |\n| **Trạng thái** | 🚧 Bản nháp — mở để ghi dữ kiện chất liệu bình chứa (08/09/2026); các phần khác chưa có dữ liệu |\n\n---\n\n## ⚡ ĐỌC GÌ TRƯỚC — THEO VAI TRÒ\n\n| Bạn là | Đọc theo thứ tự này |\n|---|---|\n| **Sale mới** | Phần 9 → Phần 1 → Phần 2 → Phần 6 |\n| **Sale đang trực** | Phần 6 + bảng cấm nói đầu Phần 6 |\n| **CSKH tổng đài** | Phần 5 → Phần 3 |\n| **Kỹ thuật lắp đặt** | Phần 4 → Phần 5 → Phần 1 mục D |\n| **Marketing / copywriter** | **Phần 2 (bắt buộc)** → Phần 7 → Phần 1 |\n| **Vận hành chatbot / AI** | Phần 1 → Phần 2 → Phần 6 |\n| **Quản lý sản phẩm** | Phần 8 |\n\n## 🚦 BA NGUYÊN TẮC GỐC — ÁP DỤNG CHO MỌI NGƯỜI, MỌI KÊNH\n\n1. **Không bịa.** Mọi câu nói về sản phẩm phải truy được về một mã `F-xxx` trong **Phần 1**. Không có mã → không được nói.\n2. **Không suy diễn.** Không ghép 2 dữ kiện để tạo dữ kiện thứ 3. Không quy đổi, không ngoại suy.\n3. **Không nói y khoa.** Không nói về sức khoẻ, dinh dưỡng, bệnh tật, mẹ bầu, trẻ sơ sinh — kể cả gián tiếp, kể cả khi khách hỏi thẳng.\n\n> **Câu thoát chuẩn khi không có dữ kiện:**\n> *\"Thông tin này em chưa có xác nhận chính thức từ hãng nên em không dám nói bừa. Em kiểm tra rồi báo lại anh/chị.\"*\n\n---",
+    "phan": [
+      {
+        "so": 0,
+        "slug": "chi-dan",
+        "ten": "Chỉ dẫn, nguồn dữ liệu & quy tắc",
+        "nhom": "quan-ly",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 0 — CHỈ DẪN SỬ DỤNG, NGUỒN DỮ LIỆU & QUY TẮC\n\n> 🚧 PKB này mới mở, chỉ có **một nhóm dữ kiện** (chất liệu bình chứa). Hạng tin cậy, quyền công bố\n> và quy trình cập nhật dùng **chung định nghĩa với PKB USH10** (Phần 0, mục 0.4–0.5) — không chép lại\n> để tránh hai bản lệch nhau.\n\n## 0.3. Nguồn dữ liệu — mã nguồn và thứ tự ưu tiên\n\n| Mã | Tài liệu | Loại | Hạng |\n|---|---|---|---|\n| **S1** | Xác nhận của **nhà sản xuất** về chất liệu bình chứa, do nhân viên GWT kiểm tra trực tiếp với NSX và báo lại CEO ngày **08/09/2026** (kênh nội bộ, dạng tin nhắn — **chưa có văn bản/spec sheet của NSX**) | Xác nhận NSX gián tiếp | **B** — chờ văn bản để nâng lên A (xem `O-01`) |\n| **S2** | `Training sales & CSKH` — tài liệu đào tạo nội bộ GWT (wiki · Tài liệu · Sales), phần bảng model và Q&A về CTD50 | Nội bộ GWT | **D** |\n\nThứ tự ưu tiên khi 2 nguồn đá nhau: **S1 > S2**. Chưa có HDSD chính hãng (hạng A) trong hồ sơ — khi có,\nHDSD sẽ đứng đầu và mọi dữ kiện S1/S2 phải rà lại.\n\n## 0.7. Nhật ký thay đổi\n\n| Phiên bản | Ngày | Thay đổi |\n|---|---|---|\n| `v0.1` | 08/09/2026 | Mở PKB. Ghi `F-A01`–`F-A03` (định danh, từ S2) và `F-B01`–`F-B05` (chất liệu bình chứa, từ S1). Thêm quy tắc claim về \"BPA free\" (Phần 2), Q1 (Phần 6), `O-01` (Phần 8). |\n\n---"
+      },
+      {
+        "so": 1,
+        "slug": "bang-su-that",
+        "ten": "Bảng sự thật nguyên tử",
+        "nhom": "xuong-song",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 1 — BẢNG SỰ THẬT NGUYÊN TỬ (FACT TABLE)\n\n> **Đây là nguồn chân lý duy nhất.** Mọi câu trả lời khách, mọi dòng marketing, mọi slide\n> đào tạo phải truy được về một mã `F-xxx` trong phần này.\n\n## A. ĐỊNH DANH SẢN PHẨM\n\n| Mã | Dữ kiện | Giá trị | Nguồn | Hạng | Công bố |\n|---|---|---|---|---|---|\n| `F-A01` | Tên thương mại VN | **Máy lọc nước GE CTD50** | S2 | D | 🟢 |\n| `F-A02` | Kiểu lắp | **Để bàn**, giữ khoáng; có bản dùng **bình chứa** (không kết nối đường nước) | S2 | D | 🔵 chờ HDSD xác nhận trước khi lên tài liệu xuất bản |\n| `F-A03` | Số lõi / vị trí lõi | **1 lõi CFNC**, nằm phía trên cùng của máy ngay dưới nắp; khách tự thay được | S2 | D | 🔵 chờ HDSD xác nhận |\n\n## B. THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA\n\n| Mã | Dữ kiện | Giá trị | Nguồn | Hạng | Công bố |\n|---|---|---|---|---|---|\n| `F-B01` | Chất liệu **bình nước thô 6 L** | Nhựa **ABS** | S1 | B | 🟢 |\n| `F-B02` | Chất liệu **bình nước sạch 2 L** | Nhựa **PC (Polycarbonate)** | S1 | B | 🟢 |\n| `F-B03` | Cấp vật liệu của cả hai bình | **Food-grade** (vật liệu dùng cho tiếp xúc thực phẩm/nước) — theo xác nhận NSX | S1 | B | 🟡 chỉ nói *\"NSX xác nhận vật liệu food-grade\"*, **không** nói \"đạt chứng nhận …\" khi chưa có văn bản (Phần 2) |\n| `F-B04` | Hai bình **không phải** loại BPA free | Đúng — NSX xác nhận vật liệu **không phải BPA free** | S1 | B | 🔴 không được nói \"BPA free\" / \"không BPA\" dưới bất kỳ hình thức nào (Phần 2) |\n| `F-B05` | Dung tích bình thô / bình sạch | **6 L** / **2 L** (số ghi trong câu hỏi–đáp với NSX) | S1 | B | 🟢 |\n\n<!--\nNhóm C–M: chưa có dữ liệu — bỏ hẳn mục, không để bảng rỗng (theo khuôn).\n-->\n\n---"
+      },
+      {
+        "so": 2,
+        "slug": "quy-tac-claim",
+        "ten": "Quy tắc claim",
+        "nhom": "truyen-thong",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 2 — QUY TẮC CLAIM — CẤM NÓI / THẬN TRỌNG / ĐƯỢC NÓI\n\n> 🚧 Mới có quy tắc cho nhóm **chất liệu bình chứa**. Các chủ đề khác chưa có dữ liệu → áp câu thoát chuẩn.\n\n## 🔴 Danh sách đỏ — cấm tuyệt đối\n\n| Cấm nói | Vì sao | Câu thay thế |\n|---|---|---|\n| \"Bình **BPA free**\", \"**không chứa BPA**\", \"an toàn tuyệt đối vì không BPA\" | NSX xác nhận vật liệu **không phải** BPA free (`F-B04`); bình sạch 2 L là **PC** — nhựa PC vốn có BPA trong thành phần | *\"Bình thô 6 L là nhựa ABS, bình sạch 2 L là nhựa PC; nhà sản xuất xác nhận cả hai là vật liệu food-grade dùng cho tiếp xúc với nước.\"* |\n| Mọi câu về **sức khoẻ** liên quan tới nhựa/BPA (ung thư, nội tiết, mẹ bầu, trẻ nhỏ…) | Nguyên tắc gốc số 3 | Câu thoát chuẩn |\n\n## 🟡 Danh sách vàng — nói được, đúng câu chữ\n\n| Nội dung | Cách nói được | Không được |\n|---|---|---|\n| Food-grade (`F-B03`) | *\"Nhà sản xuất xác nhận vật liệu food-grade, phù hợp tiếp xúc với nước/thực phẩm.\"* | \"Đạt chứng nhận FDA/LFGB/…\", \"đã được kiểm định\" — **chưa có văn bản nào** (`O-01`) |\n\n## 🟢 Danh sách xanh\n\n- Chất liệu từng bình: ABS (thô 6 L), PC (sạch 2 L) — `F-B01`, `F-B02`, `F-B05`.\n\n---"
+      },
+      {
+        "so": 3,
+        "slug": "huong-dan-khach",
+        "ten": "Hướng dẫn khách hàng",
+        "nhom": "ky-thuat",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 3 — HƯỚNG DẪN KHÁCH HÀNG — SỬ DỤNG · VỆ SINH · THAY LÕI\n\n> 🚧 *Chưa có dữ liệu.*\n\n---"
+      },
+      {
+        "so": 4,
+        "slug": "an-toan",
+        "ten": "Safety database",
+        "nhom": "ky-thuat",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 4 — SAFETY DATABASE\n\n> 🚧 *Chưa có dữ liệu.*\n\n---"
+      },
+      {
+        "so": 5,
+        "slug": "loi-xu-ly",
+        "ten": "Lỗi thường gặp & cách xử lý",
+        "nhom": "ky-thuat",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 5 — LỖI THƯỜNG GẶP & CÁCH XỬ LÝ\n\n> 🚧 *Chưa có dữ liệu.*\n\n---"
+      },
+      {
+        "so": 6,
+        "slug": "hoi-dap",
+        "ten": "Bộ hỏi–đáp đã kiểm chứng",
+        "nhom": "san-pham",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 6 — BỘ HỎI–ĐÁP ĐÃ KIỂM CHỨNG\n\n> 🚧 Mới có 1 câu. Câu nào không có ở đây → câu thoát chuẩn.\n\n**Q1 — Bình chứa nước của CTD50 làm bằng nhựa gì? Có BPA free không?**\n\n- **Ngắn:** *\"Bình nước thô 6 L là nhựa ABS, bình nước sạch 2 L là nhựa PC. Nhà sản xuất xác nhận cả hai\n  là vật liệu food-grade, dùng được cho tiếp xúc với nước. Dòng này **không** thuộc loại BPA free ạ.\"*\n- **Đầy đủ:** như bản ngắn; nếu khách hỏi thêm về chứng nhận → *\"Hiện em chỉ có xác nhận của nhà sản\n  xuất, chưa có văn bản chứng nhận riêng để gửi anh/chị. Em xin thêm và báo lại.\"*\n- **Chống lưng:** `F-B01` `F-B02` `F-B03` `F-B04` `F-B05` · quy tắc Phần 2.\n- **Không được:** né câu \"không BPA free\" bằng cách nói vòng \"an toàn tuyệt đối\".\n\n---"
+      },
+      {
+        "so": 7,
+        "slug": "nguyen-lieu-mkt",
+        "ten": "Nguyên liệu marketing đã duyệt nguồn",
+        "nhom": "truyen-thong",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 7 — NGUYÊN LIỆU MARKETING ĐÃ DUYỆT NGUỒN\n\n> 🚧 *Chưa có dữ liệu.*\n>\n> ⚠️ **Bắt buộc đọc Phần 2 trước.** Riêng chủ đề bình chứa: **không** dùng \"BPA free\" làm điểm bán.\n\n---"
+      },
+      {
+        "so": 8,
+        "slug": "doi-chieu-nguon",
+        "ten": "Ma trận nguồn & sổ mâu thuẫn",
+        "nhom": "quan-ly",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 8 — MA TRẬN ĐỐI CHIẾU NGUỒN & SỔ MÂU THUẪN\n\nChưa có dữ kiện bị đá nhau. **Sổ mâu thuẫn mở:**\n\n| Mã | Vấn đề | Mức | Ảnh hưởng | Cần ai chốt | Chốt xong sửa |\n|---|---|---|---|---|---|\n| `O-01` | Xác nhận chất liệu/food-grade (S1) mới ở dạng tin nhắn qua nhân viên, **chưa có văn bản hay spec sheet của NSX** | Trung bình | `F-B01`–`F-B05` đang hạng B; chưa được nói \"có chứng nhận\" | Bộ phận sản phẩm xin văn bản NSX | Nâng hạng lên A, mở lại 🟡 ở `F-B03` |\n| `O-02` | Chưa có HDSD chính hãng CTD50 trong hồ sơ; `F-A02`/`F-A03` chỉ có nguồn nội bộ (hạng D) | Cao | Toàn bộ phần kỹ thuật (3–5) trống; định danh chưa xác nhận | CEO / bộ phận sản phẩm thả HDSD vào `data/wiki-nhap/san-pham/` | Viết đủ 10 phần theo quy trình `docs/wiki-cap-nhat.md` §3.1 |\n\n---"
+      },
+      {
+        "so": 9,
+        "slug": "dao-tao",
+        "ten": "Đào tạo & kiểm tra",
+        "nhom": "san-pham",
+        "coNoiDung": true,
+        "noiDung": "# PHẦN 9 — ĐÀO TẠO & KIỂM TRA\n\n> 🚧 *Chưa có dữ liệu.*"
+      }
+    ],
+    "facts": [
+      {
+        "ma": "F-A01",
+        "nhom": "A",
+        "tenNhom": "ĐỊNH DANH SẢN PHẨM",
+        "duKien": "Tên thương mại VN",
+        "giaTri": "**Máy lọc nước GE CTD50**",
+        "nguon": "S2",
+        "hang": "D",
+        "hangGoc": "D",
+        "congBo": "🟢"
+      },
+      {
+        "ma": "F-A02",
+        "nhom": "A",
+        "tenNhom": "ĐỊNH DANH SẢN PHẨM",
+        "duKien": "Kiểu lắp",
+        "giaTri": "**Để bàn**, giữ khoáng; có bản dùng **bình chứa** (không kết nối đường nước)",
+        "nguon": "S2",
+        "hang": "D",
+        "hangGoc": "D",
+        "congBo": "🔵"
+      },
+      {
+        "ma": "F-A03",
+        "nhom": "A",
+        "tenNhom": "ĐỊNH DANH SẢN PHẨM",
+        "duKien": "Số lõi / vị trí lõi",
+        "giaTri": "**1 lõi CFNC**, nằm phía trên cùng của máy ngay dưới nắp; khách tự thay được",
+        "nguon": "S2",
+        "hang": "D",
+        "hangGoc": "D",
+        "congBo": "🔵"
+      },
+      {
+        "ma": "F-B01",
+        "nhom": "B",
+        "tenNhom": "THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA",
+        "duKien": "Chất liệu **bình nước thô 6 L**",
+        "giaTri": "Nhựa **ABS**",
+        "nguon": "S1",
+        "hang": "B",
+        "hangGoc": "B",
+        "congBo": "🟢"
+      },
+      {
+        "ma": "F-B02",
+        "nhom": "B",
+        "tenNhom": "THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA",
+        "duKien": "Chất liệu **bình nước sạch 2 L**",
+        "giaTri": "Nhựa **PC (Polycarbonate)**",
+        "nguon": "S1",
+        "hang": "B",
+        "hangGoc": "B",
+        "congBo": "🟢"
+      },
+      {
+        "ma": "F-B03",
+        "nhom": "B",
+        "tenNhom": "THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA",
+        "duKien": "Cấp vật liệu của cả hai bình",
+        "giaTri": "**Food-grade** (vật liệu dùng cho tiếp xúc thực phẩm/nước) — theo xác nhận NSX",
+        "nguon": "S1",
+        "hang": "B",
+        "hangGoc": "B",
+        "congBo": "🟡"
+      },
+      {
+        "ma": "F-B04",
+        "nhom": "B",
+        "tenNhom": "THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA",
+        "duKien": "Hai bình **không phải** loại BPA free",
+        "giaTri": "Đúng — NSX xác nhận vật liệu **không phải BPA free**",
+        "nguon": "S1",
+        "hang": "B",
+        "hangGoc": "B",
+        "congBo": "🔴"
+      },
+      {
+        "ma": "F-B05",
+        "nhom": "B",
+        "tenNhom": "THÔNG SỐ KỸ THUẬT — CHẤT LIỆU BÌNH CHỨA",
+        "duKien": "Dung tích bình thô / bình sạch",
+        "giaTri": "**6 L** / **2 L** (số ghi trong câu hỏi–đáp với NSX)",
+        "nguon": "S1",
+        "hang": "B",
+        "hangGoc": "B",
+        "congBo": "🟢"
+      }
+    ]
+  },
+  {
     "ma": "ush10",
     "ten": "Máy lọc nước GE USH10",
     "tenDayDu": "Máy lọc nước nóng công nghệ lọc nano GE USH10",
