@@ -435,7 +435,7 @@ describe("kịch bản Riverside 07/2025 + bảng claim trôi", () => {
 
   it("có link Drive và mã đặt tên theo quy ước", () => {
     expect(rs().noiDung).toContain("drive.google.com/drive/folders/1RvviOClizkKiKNENm4bgf58el2S0K1Np");
-    expect(rs().noiDung).toMatch(/LOCTONG_showcase_202507/);
+    expect(rs().noiDung).toMatch(/LOCTONG_showcase_ngang_202507/);
   });
 
   it("claim ung thư giữ nguyên văn NHƯNG phải nằm dưới cảnh báo cấm tuyệt đối", () => {
@@ -568,5 +568,37 @@ describe("video ads Lọc tổng 09/2026", () => {
     expect(md).toMatch(/Rà \*\*4 video\*\*/);
     expect(md).toMatch(/Ba việc phải chốt, không phải ba video phải sửa/);
     expect(md).toMatch(/Bảo hành: 5 năm hay 10 năm/);
+  });
+});
+
+describe("khung hình dọc/ngang trong kho video", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const bai = (slug: string) => kho().bai.find((b) => b.slug === slug)!;
+
+  it("MỌI trang kịch bản đều khai báo khung hình", () => {
+    // Footage ngang không cắt sang dọc được — đi tìm tư liệu thì đây là câu hỏi đầu tiên,
+    // trước cả "về máy nào". Thiếu ô này là trang đó vô dụng cho việc tái dùng.
+    for (const b of kho().bai) {
+      if (!b.slug.startsWith("kich-ban-")) continue;
+      expect(b.noiDung, `${b.slug} thiếu ô Khung hình`).toMatch(/\| \*\*Khung hình\*\* \|/);
+    }
+  });
+
+  it("video ads 09/2026 là video DỌC duy nhất, 3 video kia ngang", () => {
+    expect(bai("kich-ban-ads-loc-tong-2026-09").noiDung).toMatch(/\*\*DỌC\*\* \(9:16\)/);
+    for (const slug of [
+      "kich-ban-cts20-chuyen-gia-2026-01",
+      "kich-ban-riverside-loc-tong-2025-07",
+      "kich-ban-loc-tong-nuoc-mem-2026-04",
+    ]) {
+      expect(bai(slug).noiDung, slug).toMatch(/\*\*Ngang\*\* \(16:9\)/);
+    }
+  });
+
+  it("quy ước đặt tên đã có khung hình, và giải thích vì sao nó quan trọng", () => {
+    const md = bai("cach-to-chuc-kho").noiDung;
+    expect(md).toMatch(/<MÃ MÁY>_<ĐỊNH DẠNG>_<KHUNG HÌNH>_<YYYYMM>/);
+    expect(md).toMatch(/chỉ có hai giá trị: `ngang` \(16:9\) hoặc `doc` \(9:16\)/);
+    expect(md).toMatch(/Footage quay \*\*ngang\*\* không cắt sang \*\*dọc\*\* được/);
   });
 });

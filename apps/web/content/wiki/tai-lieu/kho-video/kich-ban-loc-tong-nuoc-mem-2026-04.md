@@ -12,7 +12,8 @@ nguon: "Video đã quay 04/2026 · GĐ Kỹ thuật (anh Như)"
 |---|---|
 | **Chủ đề** | Độ cứng nước & giải pháp làm mềm — hệ lọc đầu nguồn (POE) |
 | **Người nói** | **Anh Như — Giám đốc Kỹ thuật** |
-| **Mã đặt tên** | `LOCTONG_chuyengia_202604` |
+| **Khung hình** | 🖥️ **Ngang** (16:9) |
+| **Mã đặt tên** | `LOCTONG_chuyengia_ngang_202604` |
 | **Trạng thái** | ✅ Đã quay · có **2 bản dựng** |
 | **File gốc** | [Thư mục Drive](https://drive.google.com/drive/folders/1rKSXxzYP1iSIh8RPXt7yKv_cFjQasbp0) |
 

@@ -13,7 +13,8 @@ nguon: "Video đã quay 18/07/2025 · showcase nhà khách"
 | **Chủ đề** | Showcase hệ lọc tổng **WH30A** tại nhà khách đã dùng hơn 1 năm |
 | **Địa điểm** | Vinhomes Riverside, Long Biên, Hà Nội |
 | **Người nói** | Alex Long (dẫn) + Mai Anh |
-| **Mã đặt tên** | `LOCTONG_showcase_202507` |
+| **Khung hình** | 🖥️ **Ngang** (16:9) |
+| **Mã đặt tên** | `LOCTONG_showcase_ngang_202507` |
 | **Trạng thái** | ✅ Đã quay, đã dựng |
 | **File gốc** | [Thư mục Drive](https://drive.google.com/drive/folders/1RvviOClizkKiKNENm4bgf58el2S0K1Np) |
 
