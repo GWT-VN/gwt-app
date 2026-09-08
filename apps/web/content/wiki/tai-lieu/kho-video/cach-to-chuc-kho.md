@@ -54,17 +54,32 @@ Dùng `LOCTONG` cho nội dung về hệ đầu nguồn nói chung (không riên
 
 ## 🔴 Claim đang trôi giữa các video — đọc trước khi viết kịch bản mới
 
-Rà 3 video trong kho thấy **cùng một ý nhưng mỗi video một con số**, và vài câu vi phạm
-**lặp lại ở cả ba**. Đây không phải lỗi lẻ của một video — nó đã thành **lời nói cửa
+Rà **4 video** trong kho thấy cùng một ý nhưng mỗi video một con số, và vài câu vi phạm
+**lặp lại ở gần hết**. Đây không phải lỗi lẻ của một video — nó đã thành **lời nói cửa
 miệng**, nên sửa từng video không giải quyết được.
 
-| Claim | Riverside 07/2025 | Nước mềm 04/2026 | CTS20 01/2026 |
-|---|---|---|---|
-| Tuổi thọ so với thị trường | *gấp **4–5 lần*** | *gấp **3–4 lần*** | — |
-| Chỉ số iốt than hoạt tính | *1200, **cao nhất thị trường*** | ***cao nhất thị trường*** | — |
-| Xếp hạng thương hiệu | — | *GE **top 20** thế giới* | *GE **top 20** thế giới* |
-| % diệt khuẩn | — | — | ***99,9%*** vi khuẩn |
-| Claim sức khoẻ | **ung thư bàng quang, gan** · *cam kết da mịn tóc khoẻ* | *canxi magiê **gây hại** da tóc* | *uống trực tiếp **tốt cho tiêu hoá*** |
+| Claim | Riverside 07/2025 | CTS20 01/2026 | Nước mềm 04/2026 | **Ads 09/2026** |
+|---|---|---|---|---|
+| Xếp hạng GE | — | *top 20 thế giới* | *top 20 thế giới* | *top 20 thế giới* ×3 |
+| Chỉ số iốt than | *1200, **cao nhất TT*** | — | ***cao nhất TT*** | *1200, **cao nhất TT*** |
+| Tuổi thọ vs thị trường | *gấp **4–5 lần*** | — | *gấp **3–4 lần*** | *than thường **1,5–2 năm*** |
+| **Độ cứng đầu ra** | *< **17 mg/L*** | — | *< **17 mg/L*** | 🔴 ***1–3 mg/L*** |
+| Lõi PP đối thủ | *thay **3 tháng***/lần | — | — | *thay **1 tháng***/lần |
+| **Bảo hành** | — | — | — | 🔴 ***10 năm*** linh kiện cốt lõi |
+| Giải thiết kế | *Red Dot **của Đức*** | — | — | 🔴 *iF **của Mỹ*** (sai — iF là **của Đức**) |
+| % diệt khuẩn | — | ***99,9%*** | — | — |
+| Claim sức khoẻ | **ung thư bàng quang, gan** · *cam kết da mịn tóc khoẻ* | *tốt cho tiêu hoá* | *gây hại da tóc* | *chì **rất nguy hiểm*** |
+
+### Ba việc phải chốt, không phải ba video phải sửa
+
+1. **Độ cứng đầu ra: `< 17 mg/L` hay `1–3 mg/L`?** Hai thứ khác nhau — một là **cam kết**
+   (ngưỡng nước mềm quốc tế, in được vào hợp đồng), một là **kết quả đo điển hình**. Người
+   xem không phân biệt được. Phải tách bạch và ghi rõ điều kiện.
+2. **Bảo hành: 5 năm hay 10 năm?** PKB ghi 5 năm bơm + bo (hạng D, `O-10` **chưa đóng** vì
+   *"không có văn bản dẫn chứng"*). Video ads đã phát ra công chúng con số **10 năm**.
+   👉 Xin **văn bản chính sách bảo hành POE** trước khi video chạy tiếp.
+3. **Bỏ hẳn nhóm câu "cao nhất / top 20 / gấp N lần"** cho tới khi có nguồn. Nêu số của
+   mình, để khách tự so.
 
 > ⛔ **Không câu nào trong bảng này được dùng lại** cho tới khi GWT chốt một bộ số chính
 > thức trong PKB. Cần con số thì tra [khu Sản phẩm](/wiki/san-pham) — không có mã `F-xxx`
