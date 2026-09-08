@@ -17,14 +17,15 @@
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 /**
  * Đọc file văn bản và đưa về LF. Checkout Windows (autocrlf) cho file CRLF → `bocFrontmatter` tìm
  * "\n---" không thấy, mọi bài tài liệu mất hạng/tiêu đề (đo 08/09/2026: 3 test wiki đỏ, 362 dòng
  * data đổi). Chuẩn hoá ở MỘT chỗ để script cho cùng kết quả trên Mac lẫn Windows.
  */
 const docVanBan = (f) => readFileSync(f, "utf8").replace(/\r\n?/g, "\n");
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 // Neo theo vị trí script, KHÔNG theo cwd — chạy từ gốc repo hay từ apps/web đều đúng.
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
