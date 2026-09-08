@@ -12,6 +12,7 @@ nguon: "Video đã hoàn thành 01/2026 · định dạng phỏng vấn chuyên 
 |---|---|
 | **Sản phẩm** | CTS20 — máy lọc nước để bàn, có sparkling |
 | **Định dạng** | Phỏng vấn chuyên gia (2 người: hỏi – đáp) |
+| **Khung hình** | 🖥️ **Ngang** (16:9) |
 | **Trạng thái** | ✅ Đã quay, đã dựng, hoàn thành 01/2026 |
 | **File gốc** | [Xem trên Drive](https://drive.google.com/file/d/156l0AzlhmPh6vznd1gncj2DDpT7M6odD/view?usp=sharing) |
 

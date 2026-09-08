@@ -12,7 +12,8 @@ nguon: "Video ads đã quay 05/09/2026 · GĐ Kỹ thuật"
 |---|---|
 | **Chủ đề** | Hệ lọc đầu nguồn GE — 3 cấp lọc, van tự động, IoT, quy trình & bảo hành |
 | **Định dạng** | **Video ads** — có bản cắt ngắn + bản phỏng vấn đầy đủ |
-| **Mã đặt tên** | `LOCTONG_ads_202609` |
+| **Khung hình** | 📱 **DỌC** (9:16) — **video duy nhất quay dọc trong kho** |
+| **Mã đặt tên** | `LOCTONG_ads_doc_202609` |
 | **File gốc** | [Thư mục Drive](https://drive.google.com/drive/folders/1YBQJA9W-ILGJwXBbIwIj1-GZzCdTy2f3) |
 
 > ✎ Bản ghi gốc có dấu 📍 do công cụ bóc lời chèn vào để đánh mốc cắt. Đã bỏ dấu đó khỏi
