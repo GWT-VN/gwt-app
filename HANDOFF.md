@@ -44,6 +44,7 @@ GE), chung đăng nhập / nav / design / deploy / **một Postgres**.
 | **Việc (Work)** | `/work`, `/work/team`, `/work/tu-sinh` | schema `work` | Production: schema + việc tự sinh (pg_cron 15′); GĐ1 còn nợ |
 | **Sales** | `/sales` + đơn/khách CRUD | `customers`, `sales_orders`, `sales_order_items`, `sales_order_lines`, `customer_purchases` | **Production**: đọc (Lát 1+2) + **ghi bản nền** đã lên; đợt lọc/giá/thanh toán đang làm |
 | **Kế toán** | `/ke-toan`, `/ke-toan/hoa-don/[ky]` | schema `accounting` (RPC `ke_toan_*`) | Lát 1: upload NEXIA + phân loại đầu vào + tải Excel. Xem `docs/ke-toan/README.md` |
+| **Wiki ingest** | `/wiki/de-xuat`, `/wiki/[khu]/hoi-dap`, `POST /api/wiki-ingest` | schema `wiki` (RPC `wiki_*`) | Q&A từ Discord training → duyệt → trang động. Routine cloud dựng sau merge. Xem `docs/wiki-ingest.md` |
 | Kho · Nhân sự · Marketing | chưa có | — | mới là ô xám trong app-launcher |
 
 Trước 19/08/2026 repo tên `customer-support` và chỉ có CSKH → **mọi tài liệu ghi `app-cskh/`,

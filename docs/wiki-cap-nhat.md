@@ -76,6 +76,13 @@ sync, và **rà lan toả** — vì sửa Phần 1 thì thường phải sửa t
 
 Đừng sửa tay `apps/web/lib/wiki/data/san-pham.ts` — file đó do máy sinh, lần sync sau ghi đè.
 
+### 3.2b. Q&A từ Discord training (tự động đề xuất, người duyệt)
+
+Routine cloud quét 3 kênh training mỗi sáng, lọc thành hỏi–đáp, đẩy vào **`/wiki/de-xuat`**. Người
+duyệt (`admin`/`ceo`) sửa, tick "đã rà PII", bấm **Duyệt & đăng** → Q&A hiện ngay ở
+**`/wiki/<khu>/hoi-dap`** (trang động, không cần sync/deploy). Q&A **về sản phẩm** không duyệt được
+ở đó — theo luật §2, phải đưa vào PKB của máy (nhắn Claude như 3.2). Chi tiết: `docs/wiki-ingest.md`.
+
 ### 3.3. Thêm kịch bản đã quay vào kho dữ liệu Marketing
 
 Thả file kịch bản vào `data/wiki-nhap/marketing-video/`. Cần nói thêm cho Claude ba thứ,
