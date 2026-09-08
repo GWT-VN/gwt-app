@@ -199,8 +199,8 @@ HOOK → RETENTION → WATCH TIME → SHARE/SAVE → COMMENT → PROFILE VISIT �
 | **Ngày 11–13** | Gắn GE hợp lý | Đưa 1–2 case GE có giá trị chuyên môn, quan sát profile visit/lead |
 | **Ngày 14** | Chốt vòng test | Đánh giá 15–20 video; quyết định giữ định vị, thu hẹp chủ đề hay thay format |
 
-> 👉 **Bản triển khai chi tiết** (ai làm, khi nào, output bắt buộc) được theo dõi riêng, không
-> nằm trên wiki. Hỏi quản lý marketing để lấy.
+> 👉 **Bản triển khai chi tiết** — định vị/đối tượng/pillar đã chốt, checklist việc đang chạy,
+> khung bảng đo lường: xem [Dự án xây kênh — triển khai công việc](./Du-an-xay-kenh-trien-khai.md).
 
 ---
 
