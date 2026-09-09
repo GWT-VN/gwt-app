@@ -7,7 +7,7 @@
 > **Dành cho:** cả team làm kênh — mục A là danh tính kênh (định vị, đối tượng, content pillar)
 > mà ai viết kịch bản hay dựng video cũng phải nắm; mục B là việc đang chạy.
 > Việc KHÔNG nằm trong module Work — CEO theo dõi bằng chính file này.
-> Cập nhật: 2026-09-08.
+> Cập nhật: 2026-09-09.
 
 ---
 
@@ -44,10 +44,33 @@
 | **2** | **Tư vấn / giải đáp thực tế** | Theo sản phẩm, theo tình huống thật; đưa ra quan điểm về xu hướng và vấn đề của thị trường |
 | **3** | **Case thực tế & chuyện nghề** | Quá trình làm nghề, vận hành, làm việc với khách hàng |
 
-### A5 · Tên kênh — 2 phương án, CHƯA CHỐT
+### A5 · Tên kênh — CHƯA CHỐT
 
-1. `Dr. Như - Chuyện Nước Chuyện Nhà`
-2. `Dr. Như - Giải mã nước sạch`
+**Luật TikTok (đã tra, xem T1): tên hiển thị tối đa 30 ký tự, đổi 7 ngày/lần, không giới hạn
+số lần.** Đã đếm hai phương án:
+
+| | Tên | Ký tự | |
+|---|---|---|---|
+| 1 | `Dr. Như - Chuyện Nước Chuyện Nhà` | **32** | ❌ **VƯỢT KHUNG — không đặt được** |
+| 2 | `Dr. Như - Giải mã nước sạch` | 27 | ✅ vừa |
+
+Phương án 1 phải rút bớt. Các biến thể giữ nguyên ý, đã đếm đủ:
+
+| Nhóm | Tên | Ký tự |
+|---|---|---|
+| Giữ "Dr." | `Dr. Như - Chuyện Nước & Nhà` | 27 ✅ |
+| Giữ "Dr." | `Dr. Như · Chuyện Nước & Nhà` | 27 ✅ |
+| Bỏ tiền tố | `Như - Chuyện Nước Chuyện Nhà` | 28 ✅ |
+| Bỏ tiền tố | `Chuyện Nước Chuyện Nhà` | 22 ✅ |
+| Đổi tiền tố | `Kỹ sư Như - Chuyện Nước & Nhà` | 29 ✅ |
+| Đổi tiền tố | `Kỹ sư Như - Giải mã nước sạch` | 29 ✅ |
+
+> Đếm theo ký tự Unicode dựng sẵn (`Như` = 3 ký tự). Lúc đặt cứ **gõ thử vào ô tên** xem
+> TikTok có báo quá dài không — vài nền tảng đếm kiểu khác, chênh được vài ký tự.
+
+> 💡 **Tên hiển thị là thứ RẺ, đổi thoải mái** (7 ngày/lần, không giới hạn số lần). Đừng cân
+> nhắc quá lâu ở đây — chỗ đắt là **username** (A6). Chốt tạm một tên đọc được rồi chỉnh sau
+> cũng không sao.
 
 > ⚠️ **Chữ "Dr." cần cân nhắc trước khi chốt.** Anh Như là **Giám đốc Kỹ thuật**, không có học vị
 > tiến sĩ. Trục giá trị của kênh là *"tiếng nói độc lập, dựa trên khoa học"* — một danh xưng không
@@ -61,7 +84,17 @@
 1. `drnhu.nuocsach`
 2. `drnhu.chuyennuoc`
 
-> Phụ thuộc A5: đổi tên kênh thì username nên đổi theo. → việc **T4**.
+> 🚨 **ĐÂY MỚI LÀ QUYẾT ĐỊNH ĐẮT, KHÔNG PHẢI TÊN KÊNH.** Luật TikTok (T1): username
+> **đổi 30 ngày/lần**, và **đổi là link profile đổi theo** — mọi link đã phát đi (bio các nền
+> tảng khác, comment, tin nhắn, tài liệu in) **chết hết**. Chỉ dùng chữ cái, số, `_` và `.`
+>
+> ⚠️ **Hệ quả trực tiếp: phải chốt chữ "Dr." (A5) TRƯỚC khi lấy username.** Cả hai phương án
+> đều mở đầu bằng `drnhu`. Lỡ lấy `drnhu.*` rồi sau mới bỏ "Dr." khỏi tên kênh thì kênh rơi
+> vào cảnh tên hiển thị một đằng, link một nẻo — mà sửa thì phải chờ 30 ngày và làm gãy link cũ.
+>
+> Phương án trung tính, không khoá mình vào danh xưng nào: `nhu.chuyennuoc` ·
+> `kysunuoc.nhu` · `chuyennuocchuyennha`.
+> → việc **T4**.
 
 ### A7 · Bio — bản viết lại
 
@@ -102,17 +135,25 @@ Việc mới phát sinh từ buổi chốt 08/09. Đánh dấu `[x]` khi xong.
 
 ### B1 · Tìm hiểu (làm trước, vì nó quyết định các bước sau)
 
-- [ ] **T1 — TikTok cho đổi tên kênh mấy lần, chờ bao lâu mới được đổi lại?**
-      *Ai: —* · Quyết định mức độ rủi ro của việc chốt tên vội. Tra cả **tên hiển thị** (display
-      name) và **username** vì hai cái có luật khác nhau. Có kết quả rồi mới chốt A5.
+- [x] **T1 — TikTok cho đổi tên kênh mấy lần, chờ bao lâu mới được đổi lại?** ✅ **XONG 09/09**
+
+      | | Giới hạn | Chu kỳ đổi | Số lần | Ghi chú |
+      |---|---|---|---|---|
+      | **Tên hiển thị** (Name) | **30 ký tự** | 7 ngày/lần | không giới hạn | Rẻ — cứ đổi |
+      | **Username** (@id) | chỉ `a-z` `0-9` `_` `.` | **30 ngày/lần** | không giới hạn | **Đổi là link profile đổi theo → link cũ chết** |
+
+      **Rút ra:** tên hiển thị rẻ, username đắt. Nên **dồn công sức quyết định vào username**,
+      và chốt chữ "Dr." trước khi lấy username (xem A6). Phát hiện kèm: phương án tên
+      `Dr. Như - Chuyện Nước Chuyện Nhà` **dài 32 ký tự → vượt khung 30**, phải rút (xem A5).
 - [ ] **T2 — Các bên khác viết bio thế nào?**
       *Ai: —* · Xem cả kênh chuyên gia trong ngành nước lẫn kênh chuyên gia ngành khác đang
       chạy tốt. Ghi lại 10 bio + nhận xét cái nào làm mình muốn bấm follow. Đối chiếu với A7.
 - [ ] **T3 — Tìm hiểu cách viết caption cho video**
       *Ai: hỏi anh Cương → **C Trang** · đọc caption các bên khác → **Trang bé*** ·
       Output: ghi lại thành khung caption dùng chung, không để mỗi video một kiểu.
-- [ ] **T4 — Tra username còn available**
-      *Ai: —* · Tra `drnhu.nuocsach`, `drnhu.chuyennuoc` và các biến thể theo tên chốt ở A5.
+- [ ] **T4 — Tra username còn available** 🔴 *việc đắt nhất nhóm này*
+      *Ai: —* · Tra `drnhu.nuocsach`, `drnhu.chuyennuoc` + các biến thể trung tính ở A6.
+      ⚠️ **Chốt chữ "Dr." xong mới lấy** — username khoá 30 ngày và đổi là gãy hết link cũ.
       Giữ chỗ luôn cả biến thể chưa dùng để người khác khỏi lấy mất.
 - [ ] **T5 — Tìm hiểu cách các bên KẾT video**
       *Ai: —* · Mục tiêu: **giữ chân người xem đến cuối**. Xem các kênh chuyên gia kết bằng gì
@@ -126,7 +167,8 @@ Việc mới phát sinh từ buổi chốt 08/09. Đánh dấu `[x]` khi xong.
       **cười thật tươi** · **có thể gắn chữ** (tham khảo kênh **HuyK**).
       Nhắc: tài liệu anh Cương yêu cầu **mặt rõ, dễ nhận diện — không dùng logo làm avatar chính**.
 - [ ] **T7 — Chốt tên kênh + username + bio + SĐT**
-      *Ai: —* · Gộp kết quả T1 · T2 · T4 + quyết định về chữ "Dr." ở A5.
+      *Ai: —* · Gộp kết quả T2 · T4 (T1 đã xong). **Thứ tự bắt buộc:** quyết chữ "Dr." →
+      chốt username (đắt, khoá 30 ngày) → tên hiển thị và bio (rẻ, đổi 7 ngày/lần).
 - [ ] **T8 — Việc cần làm TRƯỚC khi lập kênh (dùng tài khoản như user thường)**
       *Ai: —* · Search 10–20 keyword đúng ngành · follow một số chuyên gia/đối thủ thật sự đáng
       theo dõi · xem và **lưu** các video tốt · dùng **1–2 ngày** như người dùng bình thường.
