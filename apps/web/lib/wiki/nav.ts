@@ -49,6 +49,14 @@ export const KHU: Khu[] = [
     moTa: "Cách team làm video: khung 5A/PAAST, luật sửa content, quy trình sản xuất, kho case.",
   },
   {
+    ma: "kho-video",
+    ten: "Kho video",
+    icon: "🎬",
+    href: "/wiki/kho-video",
+    trangThai: "co-noi-dung",
+    moTa: "Kịch bản đã quay, footage và source animation — để video sau không phải làm lại từ đầu.",
+  },
+  {
     ma: "kien-thuc-nen",
     ten: "Kiến thức nền",
     icon: "📚",
@@ -142,7 +150,8 @@ export function navTaiLieu(ma: string): NavGroup[] {
 }
 
 export function navCuaKhu(khu: Khu | null): NavGroup[] {
-  if (khu?.ma === "marketing") return NAV_MARKETING;
+  // Marketing có nav viết tay (từ repo Marketing Kit) CỘNG tài liệu dạng trang thêm sau.
+  if (khu?.ma === "marketing") return [...NAV_MARKETING, ...navTaiLieu("marketing")];
   if (khu?.ma === "san-pham") return navSanPham();
   if (khu) return navTaiLieu(khu.ma);
   return [];

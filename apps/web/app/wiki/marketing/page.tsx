@@ -4,6 +4,7 @@ import { LUAT_COUNT } from "@/lib/marketing/data/luat-sua";
 import { listRules } from "@/lib/marketing/content";
 import { Icon } from "@/lib/marketing/icons";
 import { getCounts } from "@/lib/marketing/supabase-mkt";
+import { TAI_LIEU } from "@/lib/wiki/data/san-pham";
 
 const CARDS = [
   { href: "/wiki/marketing/khung/5a", icon: "layers", t: "Chiến lược 5A", d: "Video này làm nhiệm vụ gì: phủ, uy tín, niềm tin, chốt, hay hero." },
@@ -49,6 +50,14 @@ export default async function Home() {
       </div>
 
       <div className="grid grid-3">
+        {(TAI_LIEU.find((k) => k.khu === "marketing")?.bai ?? []).map((b) => (
+          <Link className="card link" href={`/wiki/marketing/${b.slug}`} key={b.slug}>
+            <div className="card-ic"><Icon.edit /></div>
+            <h3>{b.tieuDe}</h3>
+            <p>{b.nguon}</p>
+            <div className="go">Mở →</div>
+          </Link>
+        ))}
         {CARDS.map((c) => {
           const Ic = Icon[c.icon];
           return (

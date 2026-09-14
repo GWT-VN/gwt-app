@@ -67,6 +67,20 @@ export const PROCESS_DOCS: { slug: string; file: string; title: string; blurb: s
     blurb:
       "7 bước: chốt đề bài & hook → chọn source → voiceover → dựng edit flow → đóng gói brief → revise theo 7 yếu tố → thanh toán.",
   },
+  {
+    slug: "xay-kenh-tiktok",
+    file: "Xay-kenh-tiktok-chuyen-gia",
+    title: "Xây kênh TikTok chuyên gia",
+    blurb:
+      "Tách kênh chuyên gia khỏi kênh brand, setup profile, 10 dạng video mở kênh, đọc chỉ số theo chuỗi hook → retention → lead, tín hiệu Xanh/Vàng/Đỏ. Chia sẻ của anh Cương (VCB).",
+  },
+  {
+    slug: "du-an-xay-kenh",
+    file: "Du-an-xay-kenh-trien-khai",
+    title: "Dự án xây kênh — triển khai",
+    blurb:
+      "Danh tính kênh đã chốt: định vị, 3 nhóm đối tượng, 3 content pillar, bio. Kèm checklist việc đang chạy và khung bảng đo lường video. Đọc trước khi viết kịch bản.",
+  },
 ];
 
 export function readProcessDoc(slug: string): string | null {

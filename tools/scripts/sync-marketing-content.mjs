@@ -18,11 +18,20 @@ import { fileURLToPath } from "node:url";
 // Neo theo vị trí script, KHÔNG theo cwd — chạy từ gốc repo hay từ apps/web đều đúng.
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
+/**
+ * Nơi dò repo GWT Marketing Kit, theo thứ tự.
+ *
+ * Cả hai repo đã chuyển RA NGOÀI iCloud (28/08) vì iCloud tự dựng lại `node_modules`
+ * và đẻ bản sao xung đột kiểu `node_modules 2` làm gãy build. Vẫn giữ đường iCloud
+ * ở cuối để máy nào chưa chuyển thì vẫn chạy được.
+ */
 const ICLOUD = path.join(os.homedir(), "Library/Mobile Documents/com~apple~CloudDocs/GWT - Claude");
 const CANDIDATES = [
   process.env.MKT_KIT_DIR,
-  path.join(ICLOUD, "GWT Marketing Kit"),
-  path.join(REPO, "..", "..", "GWT Marketing Kit"),
+  path.join(REPO, "..", "GWT-Marketing-Kit"),      // cạnh GWT-App, vd ~/gwt/
+  path.join(os.homedir(), "gwt", "GWT-Marketing-Kit"),
+  path.join(ICLOUD, "GWT Marketing Kit"),          // vị trí cũ trong iCloud
+  path.join(ICLOUD, "GWT-Marketing-Kit"),
 ].filter(Boolean);
 
 const kit = CANDIDATES.find((d) => existsSync(path.join(d, "rules", "ad-compliance-vn.md")));

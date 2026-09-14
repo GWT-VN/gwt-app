@@ -318,3 +318,287 @@ describe("dọn nội dung trước khi lên prod (CEO báo 31/08)", () => {
     expect(md).not.toMatch(/qua Zalo cá nhân/i);
   });
 });
+
+describe("kho video & kịch bản đã quay", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+
+  it("khu đã bật và có trang hướng dẫn tổ chức kho", () => {
+    expect(KHU.find((k) => k.ma === "kho-video")?.trangThai).toBe("co-noi-dung");
+    expect(kho().bai.map((b) => b.slug)).toContain("cach-to-chuc-kho");
+  });
+
+  it("kịch bản CTS20 có link file gốc trên Drive", () => {
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toContain("drive.google.com/file/d/156l0AzlhmPh6vznd1gncj2DDpT7M6odD");
+  });
+
+  it("kịch bản đã quay có câu vi phạm PHẢI kèm cảnh báo, không được lặng lẽ đăng", () => {
+    // Video đã phát nên transcript giữ nguyên văn — nhưng phải gắn cảnh báo, nếu không
+    // người viết kịch bản sau sẽ bốc nguyên câu cấm sang bài mới.
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toContain("tốt cho tiêu hoá");        // giữ nguyên văn
+    expect(b.noiDung).toContain("ĐỌC TRƯỚC KHI DÙNG LẠI");  // và có cảnh báo
+    expect(b.noiDung).toMatch(/Claim y khoa/i);
+    expect(b.noiDung).toMatch(/bất kỳ % diệt khuẩn nào/i);
+  });
+
+  it("tuổi thọ lõi CTS20 nêu theo masterdata, không theo lời nói trong video", () => {
+    // Video đọc "12–24 tháng" cho lõi tiền xử lý — đảo ngược so với masterdata.
+    const b = kho().bai.find((x) => x.slug === "kich-ban-cts20-chuyen-gia-2026-01")!;
+    expect(b.noiDung).toMatch(/PCF.*6–12 tháng/);
+    expect(b.noiDung).toMatch(/NF.*12–24 tháng/);
+    expect(b.noiDung).toMatch(/ĐẢO NGƯỢC so với/i);
+  });
+});
+
+describe("sổ tay viết Hook (khu Marketing video)", () => {
+  const so = () => TAI_LIEU.find((k) => k.khu === "marketing")!.bai
+    .find((b) => b.slug === "so-tay-viet-hook")!;
+
+  it("nằm trong khu Marketing video và hiện trên sidebar khu đó", () => {
+    expect(so()).toBeDefined();
+    const nav = navCuaKhu(KHU.find((k) => k.ma === "marketing")!);
+    expect(nav.flatMap((g) => g.items).map((i) => i.href))
+      .toContain("/wiki/marketing/so-tay-viet-hook");
+  });
+
+  it("cú pháp Obsidian [[#...]] đã chuyển hết — không lọt ra trang", () => {
+    // Team Marketing soạn trong Obsidian; react-markdown không hiểu [[...]] nên để nguyên
+    // là hiện lù lù giữa trang, đúng lỗi thẻ <a id> hôm 28/08.
+    for (const k of TAI_LIEU) {
+      for (const b of k.bai) expect(b.noiDung, `${k.khu}/${b.slug}`).not.toContain("[[#");
+    }
+  });
+
+  it("giữ nguyên nội dung sổ tay: 14 nhóm hook, 4 công thức, checklist", () => {
+    const md = so().noiDung;
+    expect(md).toContain("14 nhóm hook");
+    expect(md).toContain("Anti-hook");
+    expect(md).toContain("knowledge gap");
+    expect(md).toMatch(/Checklist trước khi chốt/i);
+  });
+
+  it("có cảnh báo: câu chạm sản phẩm vẫn phải qua cổng claim", () => {
+    // Sổ tay dạy viết HAY; được nói gì thì PKB quyết. Hai ví dụ hook trong sổ tay đang
+    // trích dữ kiện sản phẩm nên phải trỏ về mã F-xxx.
+    const md = so().noiDung;
+    expect(md).toContain("/wiki/san-pham");
+    expect(md).toMatch(/O-02/);
+    expect(md).toMatch(/F-I08/);
+  });
+});
+
+describe("kịch bản Lọc tổng · Nước mềm 04/2026", () => {
+  const b = () => TAI_LIEU.find((k) => k.khu === "kho-video")!.bai
+    .find((x) => x.slug === "kich-ban-loc-tong-nuoc-mem-2026-04")!;
+
+  it("có link thư mục Drive", () => {
+    expect(b().noiDung).toContain("drive.google.com/drive/folders/1rKSXxzYP1iSIh8RPXt7yKv_cFjQasbp0");
+  });
+
+  it("4 câu so sánh tuyệt đối giữ nguyên văn NHƯNG phải có cảnh báo", () => {
+    const md = b().noiDung;
+    expect(md).toContain("chỉ số iodine cao nhất trên thị trường"); // nguyên văn
+    expect(md).toContain("ĐỌC TRƯỚC KHI DÙNG LẠI");                  // và có cảnh báo
+    expect(md).toMatch(/So sánh tuyệt đối/i);
+    expect(md).toMatch(/gấp 3–4 lần/);
+    expect(md).toMatch(/top 20 trên toàn thế giới/);
+  });
+
+  it("bảng độ cứng theo vùng có kèm cảnh báo thiếu đơn vị", () => {
+    // Số dùng bán hàng được ngay, nhưng video không nói đơn vị — đọc cho khách mà sai
+    // đơn vị là hỏng niềm tin ngay tại điểm chốt.
+    const md = b().noiDung;
+    expect(md).toMatch(/sông Đuống/);
+    expect(md).toMatch(/không nói rõ đơn vị/i);
+    expect(md).toMatch(/mg\/L CaCO/);
+  });
+
+  it("ghi lại bài học dựng: bản focus mạnh hơn bản có người dẫn", () => {
+    expect(b().noiDung).toMatch(/bản focus mạnh hơn/i);
+    const huongDan = TAI_LIEU.find((k) => k.khu === "kho-video")!.bai
+      .find((x) => x.slug === "cach-to-chuc-kho")!;
+    expect(huongDan.noiDung).toMatch(/Quay cả 2 bản khi nội dung là chuyên môn/);
+  });
+
+  it("có bảng chính tả cần sửa khi trích lại", () => {
+    const md = b().noiDung;
+    expect(md).toMatch(/KDF55/);
+    expect(md).toMatch(/inox 316L/);
+    expect(md).toMatch(/chỉ số iốt/);
+  });
+});
+
+describe("kịch bản Riverside 07/2025 + bảng claim trôi", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const rs = () => kho().bai.find((x) => x.slug === "kich-ban-riverside-loc-tong-2025-07")!;
+
+  it("có link Drive và mã đặt tên theo quy ước", () => {
+    expect(rs().noiDung).toContain("drive.google.com/drive/folders/1RvviOClizkKiKNENm4bgf58el2S0K1Np");
+    expect(rs().noiDung).toMatch(/LOCTONG_showcase_ngang_202507/);
+  });
+
+  it("claim ung thư giữ nguyên văn NHƯNG phải nằm dưới cảnh báo cấm tuyệt đối", () => {
+    // Đây là vi phạm nặng nhất trong kho — gọi đích danh bệnh ung thư.
+    const md = rs().noiDung;
+    expect(md).toContain("ung thư bàng quang");           // nguyên văn, để đối chiếu
+    expect(md).toMatch(/VI PHẠM NẶNG NHẤT TRONG KHO/);
+    expect(md).toMatch(/Cấm tuyệt đối — claim y khoa/);
+    expect(md).toMatch(/Không kể \*\*bệnh gì\*\*/);
+  });
+
+  it("nêu đủ 4 nhóm lỗi: y khoa · tuyệt đối · sai dữ kiện · claim trôi", () => {
+    const md = rs().noiDung;
+    expect(md).toMatch(/cao nhất thị trường/);
+    expect(md).toMatch(/NSF\/ANSI là bộ TIÊU CHUẨN, không phải giải thưởng/);
+    expect(md).toMatch(/QCVN 01-1:2018\/BYT/);
+    expect(md).toMatch(/claim bị TRÔI giữa các video/i);
+  });
+
+  it("bảng claim trôi ở trang tổ chức kho đối chiếu đủ 3 video", () => {
+    // Sửa từng video không giải quyết được — phải thấy nó lặp lại mới chốt được bộ số.
+    const md = kho().bai.find((x) => x.slug === "cach-to-chuc-kho")!.noiDung;
+    expect(md).toMatch(/Claim đang trôi giữa các video/i);
+    expect(md).toMatch(/gấp \*\*4–5 lần\*\*/);
+    expect(md).toMatch(/gấp \*\*3–4 lần\*\*/);
+    expect(md).toMatch(/99,9%/);
+  });
+
+  it("đánh dấu 3 đoạn dùng lại được — không phải chỉ toàn cấm", () => {
+    // Kho tư liệu mà chỉ có cảnh báo thì không ai dùng; phải chỉ rõ chỗ nào lấy được.
+    const md = rs().noiDung;
+    expect(md).toMatch(/dùng lại được ngay/);
+    expect(md).toMatch(/"Sự đồng bộ" là luận điểm mạnh và an toàn/);
+    expect(md).toMatch(/Đoạn IoT này rất mạnh/);
+  });
+});
+
+describe("transcript kho video phải ĐẦY ĐỦ, không cắt xén", () => {
+  // CEO báo 07/09: bản đăng lên đang là bản rút gọn. Kho tư liệu mà thiếu câu thì lần sau
+  // người viết kịch bản bốc lại sẽ thiếu theo, và không ai biết là đã thiếu.
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  /** Bỏ dấu trích dẫn đầu dòng + gộp khoảng trắng — transcript được ngắt dòng cho dễ đọc. */
+  const phang = (slug: string) =>
+    kho().bai.find((b) => b.slug === slug)!.noiDung.replace(/^>\s?/gm, "").replace(/\s+/g, " ");
+
+  const MOC: Record<string, string[]> = {
+    "kich-ban-cts20-chuyen-gia-2026-01": [
+      "Đây Nutiqa em thấy không", "máy siêu âm bốn chiều", "Nano Silver",
+      "ga R600", "năm gam trên một lít", "hai trăm năm tư nanomet",
+      "giữ lại những giá trị tự nhiên của nước",
+    ],
+    "kich-ban-loc-tong-nuoc-mem-2026-04": [
+      "len lỏi qua các tầng khí quyển", "nước sông Đuống", "hơn bốn nghìn bài báo",
+      "thiết bị về quân sự", "mọi thứ phía sau mới thực sự thay đổi",
+    ],
+    "kich-ban-riverside-loc-tong-2025-07": [
+      "Alex Long và Mai Anh", "nhà máy khử mặn Desalina", "gáo dừa Sri Lanka",
+      "Oscar của ngành thiết kế", "em đang ở Mũi Né", "bình chứa kháng khuẩn",
+      "tham khảo hệ thống lọc tổng của GE",
+    ],
+  };
+
+  for (const [slug, moc] of Object.entries(MOC)) {
+    it(`${slug} giữ đủ câu mốc đầu–giữa–cuối`, () => {
+      const md = phang(slug);
+      expect(moc.filter((x) => !md.includes(x)), "câu bị cắt mất").toEqual([]);
+    });
+  }
+
+  it("mỗi transcript đủ dài — chặn việc vô tình rút gọn lại", () => {
+    const toiThieu: Record<string, number> = {
+      "kich-ban-cts20-chuyen-gia-2026-01": 9000,
+      "kich-ban-loc-tong-nuoc-mem-2026-04": 19000,
+      "kich-ban-riverside-loc-tong-2025-07": 18000,
+    };
+    for (const [slug, n] of Object.entries(toiThieu)) {
+      const b = kho().bai.find((x) => x.slug === slug)!;
+      expect(b.noiDung.length, slug).toBeGreaterThan(n);
+    }
+  });
+});
+
+describe("video ads Lọc tổng 09/2026", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const ads = () => kho().bai.find((x) => x.slug === "kich-ban-ads-loc-tong-2026-09")!;
+  const phang = (md: string) => md.replace(/^>\s?/gm, "").replace(/\s+/g, " ");
+
+  it("có link Drive và đánh dấu rõ là video ADS", () => {
+    const md = ads().noiDung;
+    expect(md).toContain("drive.google.com/drive/folders/1YBQJA9W-ILGJwXBbIwIj1-GZzCdTy2f3");
+    // Ads chạy ra công chúng — rủi ro khác hẳn nội dung nội bộ, phải nói rõ.
+    expect(md).toMatch(/VIDEO \*\*ADS\*\* — RỦI RO CAO NHẤT/);
+  });
+
+  it("cam kết bảo hành 10 năm phải đối chiếu với F-G02 và O-10 của PKB", () => {
+    // PKB ghi 5 năm bơm+bo, hạng D, O-10 chưa đóng vì "không có văn bản dẫn chứng".
+    // Video ads đã phát ra công chúng con số 10 năm.
+    const md = ads().noiDung;
+    expect(md).toMatch(/bảo hành tới \*\*mười năm\*\*/);
+    expect(md).toMatch(/F-G02/);
+    expect(md).toMatch(/O-10/);
+    expect(md).toMatch(/chưa có văn bản/i);
+  });
+
+  it("chỉ rõ mâu thuẫn độ cứng đầu ra 1–3 mg/L vs < 17 mg/L", () => {
+    const md = ads().noiDung;
+    expect(md).toMatch(/1–3 mg\/L/);
+    expect(md).toMatch(/17 mg\/L/);
+    expect(md).toMatch(/cam kết/);
+  });
+
+  it("bắt lỗi iF Design Award là của ĐỨC, không phải Mỹ", () => {
+    expect(ads().noiDung).toMatch(/iF Design Award là của ĐỨC/);
+  });
+
+  it("transcript giữ đủ cả bản cắt ngắn lẫn bản phỏng vấn đầy đủ", () => {
+    const md = phang(ads().noiDung);
+    // Bản ads
+    expect(md).toContain("nó tự động nó switch sang cái chế độ kỳ nghỉ");
+    // Bản đầy đủ — mốc đầu, giữa, cuối
+    expect(md).toContain("chổi hút xoay ba trăm sáu mươi độ không điểm mù");
+    expect(md).toContain("màng biofilm bám trên bề mặt hạt nhựa");
+    expect(md).toContain("leakage là rò rỉ ion");
+    expect(md).toContain("để bên ngoài, để bên trong đều có thể được");
+    expect(ads().noiDung.length).toBeGreaterThan(14000);
+  });
+
+  it("bảng claim trôi đã mở rộng lên 4 video và nêu 3 việc phải chốt", () => {
+    const md = kho().bai.find((x) => x.slug === "cach-to-chuc-kho")!.noiDung;
+    expect(md).toMatch(/Rà \*\*4 video\*\*/);
+    expect(md).toMatch(/Ba việc phải chốt, không phải ba video phải sửa/);
+    expect(md).toMatch(/Bảo hành: 5 năm hay 10 năm/);
+  });
+});
+
+describe("khung hình dọc/ngang trong kho video", () => {
+  const kho = () => TAI_LIEU.find((k) => k.khu === "kho-video")!;
+  const bai = (slug: string) => kho().bai.find((b) => b.slug === slug)!;
+
+  it("MỌI trang kịch bản đều khai báo khung hình", () => {
+    // Footage ngang không cắt sang dọc được — đi tìm tư liệu thì đây là câu hỏi đầu tiên,
+    // trước cả "về máy nào". Thiếu ô này là trang đó vô dụng cho việc tái dùng.
+    for (const b of kho().bai) {
+      if (!b.slug.startsWith("kich-ban-")) continue;
+      expect(b.noiDung, `${b.slug} thiếu ô Khung hình`).toMatch(/\| \*\*Khung hình\*\* \|/);
+    }
+  });
+
+  it("video ads 09/2026 là video DỌC duy nhất, 3 video kia ngang", () => {
+    expect(bai("kich-ban-ads-loc-tong-2026-09").noiDung).toMatch(/\*\*DỌC\*\* \(9:16\)/);
+    for (const slug of [
+      "kich-ban-cts20-chuyen-gia-2026-01",
+      "kich-ban-riverside-loc-tong-2025-07",
+      "kich-ban-loc-tong-nuoc-mem-2026-04",
+    ]) {
+      expect(bai(slug).noiDung, slug).toMatch(/\*\*Ngang\*\* \(16:9\)/);
+    }
+  });
+
+  it("quy ước đặt tên đã có khung hình, và giải thích vì sao nó quan trọng", () => {
+    const md = bai("cach-to-chuc-kho").noiDung;
+    expect(md).toMatch(/<MÃ MÁY>_<ĐỊNH DẠNG>_<KHUNG HÌNH>_<YYYYMM>/);
+    expect(md).toMatch(/chỉ có hai giá trị: `ngang` \(16:9\) hoặc `doc` \(9:16\)/);
+    expect(md).toMatch(/Footage quay \*\*ngang\*\* không cắt sang \*\*dọc\*\* được/);
+  });
+});
