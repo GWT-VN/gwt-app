@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ALL_CASES } from "@/lib/marketing/data/cases";
+import { ADS_WEEKS } from "@/lib/marketing/data/ads-results";
 import { LUAT_COUNT } from "@/lib/marketing/data/luat-sua";
 import { listRules } from "@/lib/marketing/content";
 import { Icon } from "@/lib/marketing/icons";
@@ -13,6 +14,7 @@ const CARDS = [
   { href: "/wiki/marketing/khung/quy-trinh", icon: "film", t: "Quy trình sản xuất", d: "Từ chuẩn bị quay đến làm việc với editor ngoài." },
   { href: "/wiki/marketing/khung/seci", icon: "refresh", t: "SECI playbook", d: "Cách chạy buổi review để cả team giỏi lên, không phụ thuộc 1 người." },
   { href: "/wiki/marketing/du-lieu/phan-tich-video", icon: "chart", t: "Dữ liệu phân tích video", d: "Video viral đã mổ — bóc riêng hook, câu kết, câu kêu gọi từ transcript." },
+  { href: "/wiki/marketing/du-lieu/ads-results", icon: "chart", t: "Kết quả Ads", d: "Chi phí và hiệu quả từng campaign Facebook Ads — theo dõi hàng tuần." },
   { href: "/wiki/marketing/kho-case", icon: "book", t: "Kho case WIN / FAIL", d: "33 ca đã chấm qua các buổi SECI, mỗi ca ghi đủ điểm sai và hướng sửa." },
 ] as const;
 
@@ -23,6 +25,7 @@ export default async function Home() {
   const stats = [
     { n: counts.analyses ?? "—", l: "Video đã phân tích", href: "/wiki/marketing/du-lieu/phan-tich-video" },
     { n: counts.ideas ?? "—", l: "Video ideas cho GWT", href: "/wiki/marketing/du-lieu/video-ideas" },
+    { n: ADS_WEEKS.length, l: "Tuần ads đã ghi", href: "/wiki/marketing/du-lieu/ads-results" },
     { n: 5, l: "Khung làm việc", href: "/wiki/marketing/khung/5a" },
     { n: LUAT_COUNT, l: "Luật sửa content", href: "/wiki/marketing/khung/luat-sua" },
     { n: ALL_CASES.length, l: "Ca WIN/FAIL đã mổ", href: "/wiki/marketing/kho-case" },
