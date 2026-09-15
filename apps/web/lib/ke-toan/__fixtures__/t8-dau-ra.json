@@ -1,0 +1,939 @@
+{
+ "rows": [
+  {
+   "i": 2,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-1",
+   "buyer": "CÔNG TY TNHH THIẾT BỊ LỌC NƯỚC MINH VƯƠNG",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-1"
+   }
+  },
+  {
+   "i": 3,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-2",
+   "buyer": "CÔNG TY TNHH CLEAN WATER SOLUTIONS",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-2"
+   }
+  },
+  {
+   "i": 4,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-3",
+   "buyer": "CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ CÔNG NGHỆ TÂM ANH",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-3"
+   }
+  },
+  {
+   "i": 5,
+   "desc": "Máy lọc nước GE CTS10 (Trắng)",
+   "mst": "MST-2",
+   "buyer": "CÔNG TY TNHH CLEAN WATER SOLUTIONS",
+   "expected": {
+    "ma": "CTS10NW",
+    "conf": "cao",
+    "makh": "MST-2"
+   }
+  },
+  {
+   "i": 6,
+   "desc": "Vòi sen tắm Aromatherapy GE (Hồng) (Hàng tặng không thu tiền)",
+   "mst": "MST-2",
+   "buyer": "CÔNG TY TNHH CLEAN WATER SOLUTIONS",
+   "expected": {
+    "ma": "GEUS-00X06",
+    "conf": "cao",
+    "makh": "MST-2"
+   }
+  },
+  {
+   "i": 7,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-4",
+   "buyer": "CÔNG TY TNHH LBP VIỆT NAM",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-4"
+   }
+  },
+  {
+   "i": 8,
+   "desc": "Bộ lọc sạch vòi sen tắm thế hệ 2",
+   "mst": "",
+   "buyer": "KH-1 (shopee)",
+   "expected": {
+    "ma": "VOISEN-LOILOC",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 9,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-1",
+   "buyer": "CÔNG TY TNHH THIẾT BỊ LỌC NƯỚC MINH VƯƠNG",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-1"
+   }
+  },
+  {
+   "i": 10,
+   "desc": "Dịch vụ vận chuyển",
+   "mst": "MST-1",
+   "buyer": "CÔNG TY TNHH THIẾT BỊ LỌC NƯỚC MINH VƯƠNG",
+   "expected": {
+    "ma": "DVVC",
+    "conf": "cao",
+    "makh": "MST-1"
+   }
+  },
+  {
+   "i": 11,
+   "desc": "Bộ lọc GE CPF cho máy B04",
+   "mst": "",
+   "buyer": "KH-2 (shopee)",
+   "expected": {
+    "ma": "GT-PCF10-G01-G",
+    "conf": "trung bình",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 12,
+   "desc": "Bộ lọc GE NF cho máy B04",
+   "mst": "",
+   "buyer": "KH-2 (shopee)",
+   "expected": {
+    "ma": "GT-NF50-G01G",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 13,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-3 (shopee)",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 14,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-4 (shopee)",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 15,
+   "desc": "Máy lọc nước GE GN610",
+   "mst": "MST-2",
+   "buyer": "CÔNG TY TNHH CLEAN WATER SOLUTIONS",
+   "expected": {
+    "ma": "GPUN-4000XEN-G",
+    "conf": "cao",
+    "makh": "MST-2"
+   }
+  },
+  {
+   "i": 16,
+   "desc": "Bộ lọc GE PCFB cho máy DN810",
+   "mst": "",
+   "buyer": "KH-5 (shopee)",
+   "expected": {
+    "ma": "LX-PCFB-002-G",
+    "conf": "trung bình",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 17,
+   "desc": "Máy lọc nước GE GN610",
+   "mst": "",
+   "buyer": "KH-6 (shopee)",
+   "expected": {
+    "ma": "GPUN-4000XEN-G",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 18,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "MST-5",
+   "buyer": "CÔNG TY CỔ PHẦN XÂY DỰNG VINACO 6",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "MST-5"
+   }
+  },
+  {
+   "i": 19,
+   "desc": "Vòi sen tắm Aromatheraphy GE",
+   "mst": "MST-5",
+   "buyer": "CÔNG TY CỔ PHẦN XÂY DỰNG VINACO 6",
+   "expected": {
+    "ma": "GEUS-00X06",
+    "conf": "trung bình",
+    "makh": "MST-5"
+   }
+  },
+  {
+   "i": 20,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-7 (shopee)",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHSP"
+   }
+  },
+  {
+   "i": 21,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-8",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 22,
+   "desc": "Muối (Natriclorua) tinh Vissoft",
+   "mst": "",
+   "buyer": "KH-9",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 23,
+   "desc": "Chi phí vận chuyển",
+   "mst": "",
+   "buyer": "KH-9",
+   "expected": {
+    "ma": "DVVC",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 24,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-10",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 25,
+   "desc": "Vòi sen tắm Aromatherapy GE (Hồng)",
+   "mst": "",
+   "buyer": "KH-10",
+   "expected": {
+    "ma": "GEUS-00X06",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 26,
+   "desc": "Máy lọc nước GE DN810",
+   "mst": "",
+   "buyer": "KH-11",
+   "expected": {
+    "ma": "GTUN-8500XDS-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 27,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "",
+   "buyer": "KH-12",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 28,
+   "desc": "Máy lọc nước GE GN610 (Hàng tặng không thu tiền)",
+   "mst": "",
+   "buyer": "KH-12",
+   "expected": {
+    "ma": "GPUN-4000XEN-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 29,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "",
+   "buyer": "KH-13",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 30,
+   "desc": "Máy lọc nước GE GN610 (Hàng tặng không thu tiền)",
+   "mst": "",
+   "buyer": "KH-13",
+   "expected": {
+    "ma": "GPUN-4000XEN-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 31,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-14",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 32,
+   "desc": "Vòi sen tắm Aromatherapy GE (Hồng)",
+   "mst": "",
+   "buyer": "KH-14",
+   "expected": {
+    "ma": "GEUS-00X06",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 33,
+   "desc": "Máy lọc nước GE CTD50",
+   "mst": "",
+   "buyer": "KH-15",
+   "expected": {
+    "ma": "CTD50NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 34,
+   "desc": "Vòi sen tắm Aromatherapy GE (Hồng)",
+   "mst": "",
+   "buyer": "KH-15",
+   "expected": {
+    "ma": "GEUS-00X06",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 35,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "",
+   "buyer": "KH-16",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 36,
+   "desc": "Bộ lọc GE PAC cho máy UPF10",
+   "mst": "",
+   "buyer": "KH-17",
+   "expected": {
+    "ma": "LX-PAC-001-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 37,
+   "desc": "Bộ lọc GE PP cho máy UPF10",
+   "mst": "",
+   "buyer": "KH-17",
+   "expected": {
+    "ma": "LX-PP-003-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 38,
+   "desc": "Bộ lọc GE NF cho máy GN610",
+   "mst": "",
+   "buyer": "KH-18",
+   "expected": {
+    "ma": "GT-NF600-F02G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 39,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-18",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 40,
+   "desc": "Chi phí vận chuyển",
+   "mst": "",
+   "buyer": "KH-18",
+   "expected": {
+    "ma": "DVVC",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 41,
+   "desc": "Bộ lọc GE CFNC cho máy CTS10",
+   "mst": "",
+   "buyer": "KH-19",
+   "expected": {
+    "ma": "LX-CFNC-001-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 42,
+   "desc": "Chi phí vận chuyển",
+   "mst": "",
+   "buyer": "KH-19",
+   "expected": {
+    "ma": "DVVC",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 43,
+   "desc": "Bộ lọc GE PCF cho máy GN610",
+   "mst": "",
+   "buyer": "KH-20",
+   "expected": {
+    "ma": "GT-PCF10-F02G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 44,
+   "desc": "Bộ lọc GE PAC cho máy UPF10",
+   "mst": "",
+   "buyer": "KH-20",
+   "expected": {
+    "ma": "LX-PAC-001-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 45,
+   "desc": "Bộ lọc GE PP cho máy UPF10",
+   "mst": "",
+   "buyer": "KH-20",
+   "expected": {
+    "ma": "LX-PP-003-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 46,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-20",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 47,
+   "desc": "Dịch vụ bảo trì",
+   "mst": "",
+   "buyer": "KH-21",
+   "expected": {
+    "ma": "DVBT",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 48,
+   "desc": "Bộ lọc GE PCFB cho máy USH10",
+   "mst": "",
+   "buyer": "KH-21",
+   "expected": {
+    "ma": "LX-PCFB-003-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 49,
+   "desc": "Muối (Natriclorua) tinh Vissoft",
+   "mst": "",
+   "buyer": "KH-21",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 50,
+   "desc": "Bộ lọc GE CFNC cho máy CTS10",
+   "mst": "",
+   "buyer": "KH-22",
+   "expected": {
+    "ma": "LX-CFNC-001-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 51,
+   "desc": "Máy lọc nước GE GN610",
+   "mst": "",
+   "buyer": "KH-23",
+   "expected": {
+    "ma": "GPUN-4000XEN-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 52,
+   "desc": "Bộ lọc GE PCF cho máy GN620",
+   "mst": "",
+   "buyer": "KH-24",
+   "expected": {
+    "ma": "GT-PCF13-F01G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 53,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-24",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 54,
+   "desc": "Bộ lọc GE CFNC cho máy CTS10",
+   "mst": "",
+   "buyer": "KH-25",
+   "expected": {
+    "ma": "LX-CFNC-001-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 55,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-25",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 56,
+   "desc": "Bộ lọc GE CPF cho máy B04",
+   "mst": "",
+   "buyer": "KH-26",
+   "expected": {
+    "ma": "GT-PCF10-G01-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 57,
+   "desc": "Bộ lọc GE PCFB cho máy DN810",
+   "mst": "",
+   "buyer": "KH-27",
+   "expected": {
+    "ma": "LX-PCFB-002-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 58,
+   "desc": "Bộ lọc GE PCF cho máy GN620",
+   "mst": "",
+   "buyer": "KH-28",
+   "expected": {
+    "ma": "GT-PCF13-F01G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 59,
+   "desc": "Chi phí vận chuyển",
+   "mst": "",
+   "buyer": "KH-29",
+   "expected": {
+    "ma": "DVVC",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 60,
+   "desc": "Muối (Natriclorua) tinh Vissoft",
+   "mst": "",
+   "buyer": "KH-29",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 61,
+   "desc": "Bộ lọc GE PCF cho máy GN610",
+   "mst": "",
+   "buyer": "KH-30",
+   "expected": {
+    "ma": "GT-PCF10-F02G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 62,
+   "desc": "Bộ lọc GE PCFB cho máy USH10",
+   "mst": "",
+   "buyer": "KH-31",
+   "expected": {
+    "ma": "LX-PCFB-003-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 63,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-31",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 64,
+   "desc": "Máy lọc nước GE CTS20",
+   "mst": "MST-4",
+   "buyer": "CÔNG TY TNHH LBP VIỆT NAM",
+   "expected": {
+    "ma": "CTS20NG",
+    "conf": "cao",
+    "makh": "MST-4"
+   }
+  },
+  {
+   "i": 65,
+   "desc": "Bộ lọc GE PCF cho máy GN620",
+   "mst": "",
+   "buyer": "KH-32",
+   "expected": {
+    "ma": "GT-PCF13-F01G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 66,
+   "desc": "Dịch vụ lắp đặt",
+   "mst": "",
+   "buyer": "KH-32",
+   "expected": {
+    "ma": "DVLD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 67,
+   "desc": "Bộ lọc GE PCFB cho máy DN810",
+   "mst": "",
+   "buyer": "KH-33",
+   "expected": {
+    "ma": "LX-PCFB-002-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 68,
+   "desc": "Hệ thống lọc nước GE WH15A",
+   "mst": "",
+   "buyer": "KH-34",
+   "expected": {
+    "ma": "WH15A",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 69,
+   "desc": "Phụ kiện đường ống tính thêm",
+   "mst": "",
+   "buyer": "KH-34",
+   "expected": {
+    "ma": "PKONG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 70,
+   "desc": "Máy lọc nước GE GN620",
+   "mst": "",
+   "buyer": "KH-34",
+   "expected": {
+    "ma": "GTUN-5800EN-G",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 71,
+   "desc": "Muối (Natriclorua) tinh 99.9%",
+   "mst": "",
+   "buyer": "KH-34",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 72,
+   "desc": "Hệ thống lọc nước GE WH15A",
+   "mst": "",
+   "buyer": "KH-35",
+   "expected": {
+    "ma": "WH15A",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 73,
+   "desc": "Phụ kiện đường ống tính thêm",
+   "mst": "",
+   "buyer": "KH-35",
+   "expected": {
+    "ma": "PKONG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 74,
+   "desc": "Máy lọc nước GE CTS10 (Trắng)",
+   "mst": "",
+   "buyer": "KH-35",
+   "expected": {
+    "ma": "CTS10NW",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 75,
+   "desc": "Muối (Natriclorua) tinh Vissoft",
+   "mst": "",
+   "buyer": "KH-35",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 76,
+   "desc": "Hệ thống lọc nước GE WH30A",
+   "mst": "",
+   "buyer": "KH-36",
+   "expected": {
+    "ma": "WH30A",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 77,
+   "desc": "Phụ kiện đường ống tính thêm",
+   "mst": "",
+   "buyer": "KH-36",
+   "expected": {
+    "ma": "PKONG",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 78,
+   "desc": "Tủ inox cho hệ lọc tổng GE",
+   "mst": "",
+   "buyer": "KH-36",
+   "expected": {
+    "ma": "",
+    "conf": "cần gán tay",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 79,
+   "desc": "Máy lọc nước GE USH10",
+   "mst": "",
+   "buyer": "KH-36",
+   "expected": {
+    "ma": "GTUN-8600HP-G",
+    "conf": "trung bình",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 80,
+   "desc": "Muối (Natriclorua) tinh Vissoft",
+   "mst": "",
+   "buyer": "KH-36",
+   "expected": {
+    "ma": "MUOIAD",
+    "conf": "cao",
+    "makh": "KHL"
+   }
+  },
+  {
+   "i": 81,
+   "desc": "Bộ lọc GE PCF cho máy GN610",
+   "mst": "MST-6",
+   "buyer": "CÔNG TY TNHH SẢN XUẤT VÀ TM HẢI NAM",
+   "expected": {
+    "ma": "GT-PCF10-F02G",
+    "conf": "cao",
+    "makh": "MST-6"
+   }
+  },
+  {
+   "i": 82,
+   "desc": "Bộ lọc GE PCFB cho máy DN810",
+   "mst": "MST-6",
+   "buyer": "CÔNG TY TNHH SẢN XUẤT VÀ TM HẢI NAM",
+   "expected": {
+    "ma": "LX-PCFB-002-G",
+    "conf": "trung bình",
+    "makh": "MST-6"
+   }
+  },
+  {
+   "i": 83,
+   "desc": "Máy lọc nước GE GN620",
+   "mst": "MST-7",
+   "buyer": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ SẢN XUẤT HUME",
+   "expected": {
+    "ma": "GTUN-5800EN-G",
+    "conf": "cao",
+    "makh": "MST-7"
+   }
+  },
+  {
+   "i": 84,
+   "desc": "Bộ lọc GE CPF cho máy B04",
+   "mst": "MST-7",
+   "buyer": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ SẢN XUẤT HUME",
+   "expected": {
+    "ma": "GT-PCF10-G01-G",
+    "conf": "trung bình",
+    "makh": "MST-7"
+   }
+  },
+  {
+   "i": 85,
+   "desc": "Bộ lọc GE NF cho máy B04",
+   "mst": "MST-7",
+   "buyer": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ SẢN XUẤT HUME",
+   "expected": {
+    "ma": "GT-NF50-G01G",
+    "conf": "cao",
+    "makh": "MST-7"
+   }
+  },
+  {
+   "i": 86,
+   "desc": "Máy lọc nước GE CTS10 (Trắng)",
+   "mst": "MST-7",
+   "buyer": "CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ SẢN XUẤT HUME",
+   "expected": {
+    "ma": "CTS10NW",
+    "conf": "cao",
+    "makh": "MST-7"
+   }
+  }
+ ]
+}

@@ -17,6 +17,7 @@ function chuKy(name: string): string | null {
   return keep.length ? [...new Set(keep)].sort().join('+') : null
 }
 
+/** Giả định: `luat` chỉ chứa luật đang `active` — hàm không tự lọc, lọc là việc của caller. */
 export function taoGoiYMaNoiBo(luat: Luat[]): (tenHang: unknown) => GoiYMa {
   const ovName = new Map(luat.filter((l) => l.origin === 'override_json' && l.kind === 'product_name').sort((a, b) => a.priority - b.priority).map((l) => [l.pattern, l.targetCode]))
   const n2c = new Map<string, string>(); for (const l of luat) if (l.origin === 'history' && l.kind === 'product_name') n2c.set(l.pattern, l.targetCode)

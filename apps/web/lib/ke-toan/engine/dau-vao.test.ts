@@ -3,19 +3,11 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { taoEngineDauVao, tkNoCuaTinhChat } from './dau-vao'
 import type { Luat, MucCatalog, MucKmcp } from './kieu'
+import { luatTuSeed } from '../__fixtures__/luat-tu-seed'
 
 type Golden = { rows: { i: number; seller: string; desc: string; thue: number; expected: { nguon: string; kmcp: string; ten: string; tkno: string; tkco: string; vat: string; kind: string } }[] }
 const golden = JSON.parse(readFileSync(fileURLToPath(new URL('../__fixtures__/t8-dau-vao.json', import.meta.url)), 'utf8')) as Golden
 
-/** Luật lấy từ chính SQL seed (nguồn sự thật) — parse đơn giản từng dòng `(kind, pattern, target, condition, priority, origin)`. */
-function luatTuSeed(): Luat[] {
-  const sql = readFileSync(fileURLToPath(new URL('../../../../../supabase/migrations/20260904040100_ke_toan_01_luat_seed.sql', import.meta.url)), 'utf8')
-  const re = /^\s*\('(supplier|keyword|product_name)', '((?:[^']|'')*)', '((?:[^']|'')*)', (null|'(?:[^']|'')*'), (\d+), '(\w+)'\)/gm
-  const out: Luat[] = []; let m: RegExpExecArray | null
-  const un = (s: string) => s.replace(/''/g, "'")
-  while ((m = re.exec(sql))) out.push({ kind: m[1] as Luat['kind'], pattern: un(m[2]), targetCode: un(m[3]), condition: m[4] === 'null' ? null : un(m[4].slice(1, -1)), priority: Number(m[5]), origin: m[6] as Luat['origin'], active: true })
-  return out
-}
 /** Catalog & KMCP: bản chụp nhỏ đủ cho T8 — lấy từ fixture riêng để test không cần DB. */
 const catalog = JSON.parse(readFileSync(fileURLToPath(new URL('../__fixtures__/catalog-t8.json', import.meta.url)), 'utf8')) as MucCatalog[]
 const kmcp = JSON.parse(readFileSync(fileURLToPath(new URL('../__fixtures__/kmcp.json', import.meta.url)), 'utf8')) as MucKmcp[]
