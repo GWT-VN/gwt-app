@@ -29,9 +29,13 @@ begin
       from tmp_dong t where l.period_id = p_period_id and l.line_key = t.line_key returning l.id)
     select count(*) into v_upd from up;
   else
-    -- Nguồn bổ sung (HDCT/HDTQ): dòng đã có giữ nguyên raw/thứ tự của NEXIA; dòng mới xếp sau cùng theo hướng.
+    -- Nguồn bổ sung không đụng dòng của kind khác — NEXIA là bản gốc; chỉ HDCT tải lại HDCT mới cập
+    -- nhật (R16). Dòng trùng khoá nhưng nguồn cuối đang là kind khác (vd NEXIA) → bỏ qua, rơi vào
+    -- kept; dòng mới vẫn xếp sau cùng theo hướng như cũ.
     with up as (update accounting.invoice_lines l set last_source_id = p_source_id, missing_in_last_upload = false
-      from tmp_dong t where l.period_id = p_period_id and l.line_key = t.line_key returning l.id)
+      from tmp_dong t where l.period_id = p_period_id and l.line_key = t.line_key
+        and exists (select 1 from accounting.sources o where o.id = l.last_source_id and o.kind = v_kind)
+      returning l.id)
     select count(*) into v_upd from up;
     select coalesce(max(l.row_order), 0) into v_max from accounting.invoice_lines l
       where l.period_id = p_period_id and l.direction = (select direction from tmp_dong limit 1);
