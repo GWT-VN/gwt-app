@@ -62,7 +62,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
                   <td className="p-2 max-w-[280px] truncate" title={d.ten_hang ?? ''}>{d.ten_hang}</td>
                   <td className="p-2 text-right tabular-nums">{d.thanh_tien?.toLocaleString('vi-VN')}</td>
                   <td className="p-2 font-medium">{d.code}</td><td className="p-2">{d.code_name}</td><td className="p-2">{d.tk_no}</td><td className="p-2">{d.tk_co}</td><td className="p-2">{d.vat_1331}</td>
-                  <td className="p-2">{d.engine_conf}</td><td className="p-2 max-w-[260px] truncate text-slate-500" title={d.engine_reason ?? ''}>{d.engine_reason}</td>
+                  <td className="p-2">{d.engine_conf}</td><td className="p-2 min-w-[260px] max-w-[360px] text-slate-500">{d.engine_reason}</td>
                 </tr>))}
             </tbody>
           </table>
