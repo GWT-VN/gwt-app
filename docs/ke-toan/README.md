@@ -77,8 +77,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   merge `main`**, CEO chưa xem.
 - Lịch sử chi phí T1–T6/2026 (bảng `expense` tool Python): `tools/scripts/ke_toan_nap_lich_su.py --dry`
   đếm **720 dòng** (`ma_kmcp` khác rỗng) sẽ nạp vào `accounting.corrections` origin `history` để engine
-  tầng C có dữ liệu học ngay cả trước khi ai sửa tay trên app. Chưa chạy thật — chạy tay một lần khi
-  merge, xem docstring trong script (cách xoá/nạp lại nếu chạy nhầm 2 lần).
+  tầng C có dữ liệu học ngay cả trước khi ai sửa tay trên app. **Đã chạy thật 15/09** → 720 dòng
+  origin `history`; `ke_toan_thong_ke_hoc` cho 83 NCC + 69 tiền tố. Đo trên kỳ 2026-08 (bỏ 12 luật
+  app để mô phỏng kỳ chưa ai sửa): học phủ **91/93** dòng "không rõ", đúng mã CEO 63/91 (~69%, còn
+  lại sai → vì thế học chỉ xếp `trung binh`, phải review). Có đủ luật app + học: 415/415 khớp CEO,
+  0 lệch. Nạp lại: xem docstring trong script (xoá origin `history` trước, RPC không dedupe).
 
 ## Trạng thái (07/09/2026)
 
