@@ -1,7 +1,8 @@
-# Khu Kế toán — hoá đơn NEXIA (lát 1)
+# Khu Kế toán — hoá đơn NEXIA (lát 1–2)
 
 Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
-`docs/plans/2026-09-04-ke-toan-lat-1-hoa-don-dau-vao.md`
+`docs/plans/2026-09-04-ke-toan-lat-1-hoa-don-dau-vao.md` · Plan lát 2:
+`docs/plans/2026-09-15-ke-toan-lat-2-4-hoa-don.md`
 
 ## Kiến trúc tóm tắt
 
@@ -13,6 +14,10 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   (`__fixtures__/`, đã che PII) — parity **322/322** dòng tầng 0/A/B/goods.
 - Luật: `accounting.rules` (seed từ Rule Excel + overrides + lịch sử tên hàng, 659 dòng). Sửa
   luật trên app từ lát 2; **file Excel Rule không còn là nguồn sự thật** sau khi seed.
+- Engine tầng C (lát 2): sửa tay tại ô ghi vào `accounting.corrections` (origin `app`/`history`);
+  RPC `ke_toan_thong_ke_hoc` tính 2 kiểu học — NCC (`seller_norm` ≥70% cùng mã, ≥1 lần) và tiền tố
+  5 từ đầu diễn giải (`desc_norm` ≥80% cùng mã, ≥2 lần) — engine (`dau-vao.ts`) đọc gợi ý này
+  SAU luật `app`/override, độ tin cậy "trung bình" (`nguon: 'hoc_ncc' | 'hoc_prefix'`).
 - File gốc: Storage bucket `accounting` (private), đường dẫn `<kỳ>/<timestamp>-<tên file>`.
 - Danh mục: `public.expense_category` gương từ Masterdata qua `sync_catalog()` (24 dòng); catalog
   từ `public.catalog_item`.
@@ -20,9 +25,15 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 ## Route
 
 - `/ke-toan` — danh sách kỳ (`YYYY-MM`) + ô tháng (mặc định tháng trước, giờ VN) + nút chọn file NEXIA:
-  upload tự tạo kỳ nếu chưa có rồi chuyển vào màn kỳ (CEO 15/09: không có bước "tạo kỳ" riêng).
+  upload tự tạo kỳ nếu chưa có rồi chuyển vào màn kỳ (CEO 15/09: không có bước "tạo kỳ" riêng). Cột
+  **Trạng thái**: "Đang xử lý" hoặc "Đã gửi · N sửa" (`edits_after_sent`, mục sửa sau khi bấm Đã gửi).
 - `/ke-toan/hoa-don/[ky]` — upload file NEXIA `.xlsx`, bảng đầu vào (cột engine: mã, TK Nợ/Có,
-  VAT, độ tin cậy — dòng vàng = engine không chắc).
+  VAT, độ tin cậy — dòng vàng = engine không chắc). Mỗi dòng sửa tại chỗ (`DongSua.tsx`, lát 2):
+  ô **Mã** gõ-để-tìm (`OChonGoiY`), **Ghi chú cho kế toán** (lưu khi blur nếu đổi), nút **"Đặt
+  thành luật"** (NCC hoặc 3 từ đầu diễn giải → mã, ghi `accounting.rules` origin `app`, xem mục
+  "Luật origin app" dưới) — mọi lần sửa ghi vào `accounting.corrections` (nguồn cho engine tầng C).
+  Nút **"Đã gửi kế toán"** (`NutGuiKeToan.tsx`): xác nhận nếu còn dòng cảnh báo, đổi trạng thái kỳ,
+  sau đó vẫn sửa được (đếm vào `edits_after_sent`, hiện trên nút).
 - `GET /ke-toan/hoa-don/[ky]/xuat` — tải Excel `_DAXULY.xlsx`: mở **chính file NEXIA gốc** (tải từ
   Storage) và điền khối cột đề xuất vào đó (`lib/ke-toan/xuat/excel-hoa-don.ts` → `dienExcelHoaDon`),
   giữ nguyên Sheet1/độ rộng/định dạng như tool Python; file đã có khối cột (bản Python cũ, xuất lần 2)
@@ -46,13 +57,28 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 - Sinh lại fixture/seed khi tool Python đổi: `python tools/scripts/ke_toan_sinh_golden.py`,
   `python tools/scripts/ke_toan_sinh_luat_sql.py` (cần `data/ke-toan/`, có PII — không commit).
 
-## Quy trình tháng (lát 1)
+## Quy trình tháng (lát 1–2, theo spec §4)
 
 1. `/ke-toan` → chọn tháng `YYYY-MM` + chọn file NEXIA `.xlsx` (một nút; kỳ tự tạo).
 2. App chuyển vào màn kỳ; upload lại file mới hơn ngay trong màn kỳ.
 3. Xem bảng đầu vào, dòng vàng = engine không chắc.
-4. Tải `_DAXULY.xlsx` gửi kế toán (dòng chưa có mã người dùng điền tay trong Excel — lát 2 sửa
-   trên app).
+4. Sửa trên app (lát 2, thay cho "sửa tay trong Excel" của lát 1): sửa mã/ghi chú tại ô
+   (`DongSua.tsx`), mỗi lần sửa ghi vào `accounting.corrections`; "Đặt thành luật" khi muốn ép
+   một NCC/diễn giải luôn về một mã (ghi `accounting.rules` origin `app`).
+5. Tải `_DAXULY.xlsx` gửi kế toán, rồi bấm **"Đã gửi kế toán"** (`NutGuiKeToan.tsx`) — đổi trạng
+   thái kỳ; vẫn sửa được sau đó, đếm vào `edits_after_sent`.
+
+## Trạng thái (15/09/2026, lát 2)
+
+- Migration 09 (`ke_toan_09_sua_tay_hoc.sql`) đã áp live: RPC `ke_toan_dong_sua`, `ke_toan_luat_them`,
+  `ke_toan_thong_ke_hoc`, `ke_toan_ky_gui`, `ke_toan_lich_su_nap`; `ke_toan_ky_list` thêm
+  `edits_after_sent`. Actions `suaDong`/`datThanhLuat`/`guiKeToan`/`danhSachMa`, màn `DongSua.tsx`/
+  `NutGuiKeToan.tsx`, cột Trạng thái ở `/ke-toan` — xong trên nhánh `feat/ke-toan-lat-2`, **chưa
+  merge `main`**, CEO chưa xem.
+- Lịch sử chi phí T1–T6/2026 (bảng `expense` tool Python): `tools/scripts/ke_toan_nap_lich_su.py --dry`
+  đếm **720 dòng** (`ma_kmcp` khác rỗng) sẽ nạp vào `accounting.corrections` origin `history` để engine
+  tầng C có dữ liệu học ngay cả trước khi ai sửa tay trên app. Chưa chạy thật — chạy tay một lần khi
+  merge, xem docstring trong script (cách xoá/nạp lại nếu chạy nhầm 2 lần).
 
 ## Trạng thái (07/09/2026)
 
@@ -96,8 +122,12 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
   (6427). App theo Masterdata. CEO quyết với Masterdata.
 - Lint CI đỏ từ 22/08 (7 lỗi cũ) — ngoài phạm vi khu này; đếm lỗi không được tăng khi commit vào
   khu Kế toán (xem `npx eslint .`).
+- `get_advisors` (security) 15/09: 2 ERROR có sẵn TRƯỚC lát 2, của khu khác — `security_definer_view`
+  (18 view `public`), `rls_disabled_in_public` (10 bảng `sales_*`) — ngoài phạm vi Kế toán, không sửa
+  ở đây. INFO `rls_enabled_no_policy` trên 6 bảng `accounting` là cố ý (chỉ `service_role` qua
+  `dataClient()`, xem spec §5).
 
-## Bẫy đã gặp (khi build lát 1)
+## Bẫy đã gặp (khi build lát 1–2)
 
 1. **MCP `apply_migration` ghi `version` = giờ áp thực tế, không lấy số hiệu trong tên file** —
    ledger 4 migration Kế toán đã bị lệch, đã sửa lại đúng số hiệu `20260904040000…040300` trong
@@ -150,8 +180,11 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
    quy trong `excel-dien-goc.test.ts`.
 12. **File trong "Data đã xử lý để gửi kế toán" là bản ĐÃ qua tool Python** (có sẵn 6 cột đề xuất, Sheet1
    ghi chú, dòng HDCT tô cam) — không phải file thô kế toán gửi. Bộ đọc/xuất phải chịu được cả hai.
+13. **`chuan-hoa.ts` (hàm `norm()`) import `node:crypto`** — component client không được import file
+   này thẳng (vỡ bundle, Ruling R2 lát 2). Pattern của "Đặt thành luật" phải tính ở server
+   (`datThanhLuat` trong `actions.ts`), `DongSua.tsx` chỉ gửi `tenBan`/`tenHang` thô lên action.
 
-## Việc treo sau lát 1
+## Việc treo sau lát 1–2
 
 Không ghi `BACKLOG.md`/`backlog/*.md` (hệ backlog do CEO quản, xem
 `docs/agents/issue-tracker.md`) — CEO tự chuyển các mục dưới vào backlog nếu muốn theo dõi.
@@ -198,3 +231,17 @@ u. Chưa đo bộ nhớ `exceljs` load + write trên Vercel với file 8 MB (tr�
    trước khi kế toán dùng thật, ghi số vào đây.
 v. Màn kỳ chưa hiện dòng `missing_in_last_upload` (dòng của lần upload trước không còn trong file mới) —
    hiện chỉ đếm ở thông báo upload và bị bỏ khi xuất.
+w. ~~Sửa mã sai phải tải Excel về, điền tay, gửi lại kế toán~~ **Đã sửa lát 2**: sửa tại ô ngay trên
+   app (`DongSua.tsx` → `suaDong`), ghi `accounting.corrections`.
+x. ~~Không có cách ép một NCC/diễn giải luôn về một mã~~ **Đã sửa lát 2**: nút "Đặt thành luật"
+   (`datThanhLuat`) ghi `accounting.rules` origin `app`.
+y. `tenVaTk` (`actions.ts`, gọi trong `suaDong` mỗi lần sửa 1 dòng) gọi lại `duLieuEngine()` — 4
+   truy vấn (luật + catalog + expense_category + thongKe học) cho một lần đổi mã — tách/cache riêng
+   khi volume sửa tăng.
+z. Ô Ghi chú (`DongSua.tsx`) blur so với prop gốc `d.note_for_accountant`: nếu cha chưa kịp
+   refresh sau lần sửa trước, blur kế tiếp có thể gọi `suaDong` thừa một round-trip — vô hại (ghi
+   đúng giá trị) nhưng phí request.
+aa. `so_canh_bao` tính KHÁC nhau ở 2 RPC: `ke_toan_ky_gui` (ghi vào audit log sau khi gửi) loại
+   `missing_in_last_upload` khỏi đếm; `ke_toan_ky_list` (hộp xác nhận trong `NutGuiKeToan.tsx` đọc
+   `period.so_canh_bao` từ đây, TRƯỚC khi gửi) thì không loại — hộp xác nhận có thể đếm cao hơn số
+   dòng audit ghi lại. Đồng bộ công thức ở migration sau.
