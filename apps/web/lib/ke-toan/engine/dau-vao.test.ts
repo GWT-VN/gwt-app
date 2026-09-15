@@ -94,3 +94,20 @@ describe('luật origin app (CEO chốt 15/09, migration 08) — kw: và khong_p
     expect(co.phanLoai('CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01', 'Tê đều Vesbo 25mm', 1).code).toBe('cp.vattukho')
   })
 })
+
+describe('tầng C — học từ corrections (ke_toan_thong_ke_hoc)', () => {
+  const thongKe = { ncc: { 'cong ty tnhh hoc thu': 'cp.qc' }, prefix: { 'phi quang cao facebook thang': 'cp.qc' } }
+  const co = taoEngineDauVao({ luat: luatTuSeed(), catalog, kmcp, thongKe })
+  const khong = taoEngineDauVao({ luat: luatTuSeed(), catalog, kmcp })
+  it('NCC từng được sửa ≥70% về một mã → mã đó, trung bình, nguon hoc_ncc', () => {
+    expect(khong.phanLoai('CÔNG TY TNHH HỌC THỬ', 'dich vu abc', 1).kind).toBe('unknown')
+    expect(co.phanLoai('CÔNG TY TNHH HỌC THỬ', 'dich vu abc', 1)).toMatchObject({ code: 'cp.qc', conf: 'trung binh', nguon: 'hoc_ncc' })
+  })
+  it('tiền tố 5 từ diễn giải ≥80% → mã đó, nguon hoc_prefix; NCC < 6 ký tự không học', () => {
+    expect(co.phanLoai('X', 'Phí quảng cáo Facebook tháng 8 chiến dịch A', 1)).toMatchObject({ code: 'cp.qc', nguon: 'hoc_prefix' })
+    expect(co.phanLoai('ABC', 'khong khop gi', 1).kind).toBe('unknown')
+  })
+  it('luật (override/rule) vẫn thắng học', () => {
+    expect(co.phanLoai('CÔNG TY TNHH LALAMOVE VIETNAM', 'Phí quảng cáo Facebook tháng 8', 1).nguon).toBe('rule_ncc')
+  })
+})

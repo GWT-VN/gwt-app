@@ -1,5 +1,5 @@
 import { norm, sd, hard, boNgoac, boTuNgoac } from '../chuan-hoa'
-import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp } from './kieu'
+import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp, ThongKeHoc } from './kieu'
 
 /**
  * Engine phân loại HĐ ĐẦU VÀO — port 1:1 từ gwt_ketoan/engine.py (Classifier.suggest) và
@@ -9,7 +9,9 @@ import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp } from './kieu'
  * TRƯỚC override, cùng độ tin cậy "cao". `condition` của luật app có nghĩa cấu trúc:
  *   'kw:<x>'          → luật NCC chỉ áp khi diễn giải chứa x (tách một NCC thành nhiều mã)
  *   'khong_phai_hang' → NCC khớp luật này bỏ qua tầng 0 hàng hoá (nhà hàng: "lẩu vị muối" ≠ muối viên)
- * Tầng C của Python (học lịch sử) CHƯA port — lát 2; golden T8 lọc `TANG_LAT_1` nên không so tầng đó.
+ * Tầng C của Python (học lịch sử) đã port (lát 2): đọc `ThongKeHoc` (từ `corrections` qua RPC
+ * `ke_toan_thong_ke_hoc`) — NCC/tiền tố ≥ngưỡng thì gợi ý mã đó, độ tin cậy "trung bình", đứng SAU
+ * mọi luật; golden T8 lọc `TANG_LAT_1` nên không so tầng này.
  * Hàm thuần: không DB, không React. Mọi input đã là dữ liệu đọc từ DB/fixture.
  */
 const MA_DICH_VU_KHONG_PHAI_HANG = ['DVVC', 'DVBT', 'DVLD', 'DVSC'] as const
@@ -26,7 +28,7 @@ function chuKy(name: string): string | null {
   const keep = toks.filter((t) => /\d/.test(t) || KWSET.has(t))
   return keep.length ? [...new Set(keep)].sort().join('+') : null
 }
-export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[] }) {
+export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; thongKe?: ThongKeHoc }) {
   const L = input.luat.filter((l) => l.active)
   const byPri = (a: Luat, b: Luat) => a.priority - b.priority
   const ovSup = L.filter((l) => l.origin === 'override_json' && l.kind === 'supplier').sort(byPri)
@@ -37,6 +39,8 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const appSup = L.filter((l) => l.origin === 'app' && l.kind === 'supplier').sort(byPri)
   const appKw = L.filter((l) => l.origin === 'app' && l.kind === 'keyword').sort(byPri)
   const kwCua = (l: Luat) => (l.condition?.startsWith('kw:') ? l.condition.slice(3) : null)
+  const thongKe: ThongKeHoc = input.thongKe ?? { ncc: {}, prefix: {} }
+  const tienTo = (desc: unknown, n = 5) => norm(desc).split(' ').slice(0, n).join(' ')
   const n2c = new Map<string, string>(); for (const l of L) if (l.origin === 'history' && l.kind === 'product_name') n2c.set(l.pattern, l.targetCode)
   const kmTen = new Map(input.kmcp.map((k) => [k.ma, k.ten])); const kmTk = new Map(input.kmcp.map((k) => [k.ma, k.tkNoDefault]))
 
@@ -118,6 +122,8 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
     }
     if (best) { const dk = best.l.condition ?? ''; return { kmcp: best.l.targetCode, conf: dk ? 'trung binh' : 'cao', reason: `Rule Excel: tên NCC khớp "${best.l.pattern}"` + (dk ? ` — điều kiện tách: ${dk.slice(0, 50)}` : ''), nguon: 'rule_ncc' } }
     for (const l of ruleKw) if (l.pattern && d.includes(l.pattern)) { const nl = l.condition ?? ''; return { kmcp: l.targetCode, conf: nl ? 'can review' : 'trung binh', reason: `Rule Excel: diễn giải chứa "${l.pattern}" → ${l.targetCode}` + (nl ? ` (ngoại lệ: ${nl.slice(0, 50)})` : ''), nguon: 'rule_kw' } }
+    if (p.length >= 6 && thongKe.ncc[p]) return { kmcp: thongKe.ncc[p], conf: 'trung binh', reason: `Lịch sử sửa tay: NCC này ≥70% vào '${thongKe.ncc[p]}'`, nguon: 'hoc_ncc' }
+    const pref = tienTo(desc); if (pref && thongKe.prefix[pref]) return { kmcp: thongKe.prefix[pref], conf: 'trung binh', reason: `Lịch sử sửa tay: diễn giải "${pref}…" ≥80% vào '${thongKe.prefix[pref]}'`, nguon: 'hoc_prefix' }
     return { kmcp: '', conf: 'khong ro', reason: 'Không khớp luật nào — cần gán tay', nguon: '' }
   }
 

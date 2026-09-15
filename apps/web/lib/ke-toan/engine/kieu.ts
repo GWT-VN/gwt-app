@@ -14,3 +14,6 @@ export type DoTinCay = 'cao' | 'trung binh' | 'can review' | 'khong ro'
 
 // Kết quả engine phân loại một dòng hoá đơn đầu vào.
 export type KetQuaDauVao = { kind: 'goods' | 'muahang' | 'kmcp' | 'unknown'; code: string; codeName: string; tkNo: string; tkCo: string; vat1331: string; conf: DoTinCay; reason: string; nguon: string }
+
+// Thống kê học từ corrections (RPC ke_toan_thong_ke_hoc) — ngưỡng tính ở SQL, engine chỉ tra.
+export type ThongKeHoc = { ncc: Record<string, string>; prefix: Record<string, string> }
