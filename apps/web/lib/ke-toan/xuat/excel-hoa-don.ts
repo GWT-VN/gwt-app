@@ -58,6 +58,14 @@ function datFill(cell: ExcelJS.Cell, f: ExcelJS.FillPattern | null) {
   cell.style = f ? { ...conLai, fill: f } : conLai
 }
 
+const MONG: ExcelJS.Border = { style: 'thin', color: { argb: 'FF000000' } }
+const VIEN: Partial<ExcelJS.Borders> = { top: MONG, left: MONG, bottom: MONG, right: MONG }
+/** Kẻ viền mỏng nếu ô chưa có — cùng cách thay object style (bẫy exceljs ở `datFill`). */
+function keVien(cell: ExcelJS.Cell) {
+  if (cell.border?.left) return
+  cell.style = { ...cell.style, border: VIEN }
+}
+
 function toCotThem(row: ExcelJS.Row, c0: number, n: number, d: DongXuat, tab: 'vao' | 'ra') {
   // Tab đầu ra lát 1 chưa có engine → không tô (tô vàng cả tab chỉ gây nhiễu). Lát 3 bật lại.
   const f = tab === 'ra' ? null : d.engineKind === 'goods' || d.engineKind === 'muahang' ? GOOD : !d.code ? WARN : null
@@ -163,6 +171,11 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
     const row = ws.getRow(r)
     for (let c = c0; c < c0 + them.length; c++) { row.getCell(c).value = null; datFill(row.getCell(c), null) }
   }
+  // Viền: file gốc qua tool Python có 99/250 dòng tô cam mất viền (openpyxl rơi border khi tô) và
+  // khối cột thêm chưa có viền → kẻ cho mọi ô dòng dữ liệu + header (CEO 15/09: "mất line bảng").
+  const cCuoi = c0 + them.length - 1
+  for (let c = 1; c <= cCuoi; c++) keVien(ws.getRow(1).getCell(c))
+  for (const r of map.values()) { const row = ws.getRow(r); for (let c = 1; c <= cCuoi; c++) keVien(row.getCell(c)) }
 }
 
 /** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. */

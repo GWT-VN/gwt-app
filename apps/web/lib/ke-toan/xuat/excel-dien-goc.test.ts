@@ -62,6 +62,9 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     expect(ws.getColumn(1).width).toBe('Mẫu số HD'.length + 2); expect(ws.getColumn(6).width).toBe(6) // cột trống → sàn 6
     expect(ws.getCell(5, 4).numFmt).toBe('#,##0')
     expect(ws.autoFilter).toBeTruthy()
+    // viền mỏng cho header + mọi ô dòng dữ liệu (cột gốc lẫn cột thêm); dòng trống (3) không kẻ
+    for (const [r, c] of [[1, 1], [1, 13], [2, 1], [2, 13], [4, 8], [5, 13]]) expect(ws.getCell(r, c).border?.left?.style, `ô ${r},${c}`).toBe('thin')
+    expect(ws.getCell(3, 1).border?.left).toBeUndefined()
     // dòng 2 = row_order 1; dòng 3 trống bị bỏ; dòng 4 = row_order 2 (chỉ có tên hàng); dòng 5 = row_order 3
     expect(ws.getCell(2, 8).value).toBe('cp.qc'); expect(ws.getCell(2, 10).value).toBe('6427'); expect(ws.getCell(2, 13).value).toBeNull()
     expect(ws.getCell(3, 8).value).toBeNull()
