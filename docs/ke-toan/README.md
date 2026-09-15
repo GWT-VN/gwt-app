@@ -19,7 +19,8 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Route
 
-- `/ke-toan` — danh sách kỳ (`YYYY-MM`) + tạo kỳ mới.
+- `/ke-toan` — danh sách kỳ (`YYYY-MM`) + ô tháng (mặc định tháng trước, giờ VN) + nút chọn file NEXIA:
+  upload tự tạo kỳ nếu chưa có rồi chuyển vào màn kỳ (CEO 15/09: không có bước "tạo kỳ" riêng).
 - `/ke-toan/hoa-don/[ky]` — upload file NEXIA `.xlsx`, bảng đầu vào (cột engine: mã, TK Nợ/Có,
   VAT, độ tin cậy — dòng vàng = engine không chắc).
 - `GET /ke-toan/hoa-don/[ky]/xuat` — tải Excel `_DAXULY.xlsx`: mở **chính file NEXIA gốc** (tải từ
@@ -47,8 +48,8 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Quy trình tháng (lát 1)
 
-1. `/ke-toan` → tạo kỳ `YYYY-MM`.
-2. Upload file NEXIA `.xlsx`.
+1. `/ke-toan` → chọn tháng `YYYY-MM` + chọn file NEXIA `.xlsx` (một nút; kỳ tự tạo).
+2. App chuyển vào màn kỳ; upload lại file mới hơn ngay trong màn kỳ.
 3. Xem bảng đầu vào, dòng vàng = engine không chắc.
 4. Tải `_DAXULY.xlsx` gửi kế toán (dòng chưa có mã người dùng điền tay trong Excel — lát 2 sửa
    trên app).

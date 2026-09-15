@@ -57,17 +57,6 @@ export async function danhSachKy(): Promise<KyRow[]> {
   return (await goi<KyRow[]>('ke_toan_ky_list', {})) ?? []
 }
 
-/** Tạo kỳ (đã có thì trả kỳ cũ) rồi vào thẳng màn kỳ — bấm "Tạo kỳ" mà đứng yên là tưởng hỏng (CEO 15/09). */
-export async function taoKy(ky: string): Promise<{ ok: false; error: string }> {
-  await chanKeToan()
-  const k = ky.trim()
-  try {
-    await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: k })
-    revalidatePath('/ke-toan')
-  } catch (e) { return { ok: false, error: (e as Error).message } }
-  redirect(`/ke-toan/hoa-don/${k}`) // ngoài try: redirect() ném NEXT_REDIRECT, try/catch sẽ nuốt
-}
-
 async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[] }> {
   await chanKeToan()
   const db = dataClient()
@@ -99,8 +88,21 @@ function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: 
   }
 }
 
-export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok: true; inserted: number; updated: number; kept: number; canhBao: number; thieu: number } | { ok: false; error: string }> {
+type KetQuaUpload = { ok: true; inserted: number; updated: number; kept: number; canhBao: number; thieu: number } | { ok: false; error: string }
+
+/**
+ * Upload file NEXIA vào kỳ `ky` (tự tạo kỳ nếu chưa có). Form có `vao_ky=1` (màn danh sách) thì
+ * xong chuyển vào màn kỳ; không có (đang ở màn kỳ) thì trả kết quả để hiện tại chỗ.
+ */
+export async function uploadNexia(_prev: unknown, form: FormData): Promise<KetQuaUpload> {
   const email = await chanKeToan()
+  const kq = await nhapNexia(email, form)
+  if (kq.ok && form.get('vao_ky')) redirect(`/ke-toan/hoa-don/${String(form.get('ky')).trim()}`) // ngoài try: redirect() ném NEXT_REDIRECT
+  return kq
+}
+
+async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
+  await chanKeToan()
   const ky = String(form.get('ky') ?? '').trim()
   const file = form.get('file')
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ky)) return { ok: false, error: 'Kỳ không hợp lệ.' }
