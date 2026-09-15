@@ -63,6 +63,35 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p
 chk("ke_toan_dong_nhap qua PostgREST: 2 dòng trùng khoá → inserted 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 1, "updated": 0, "kept": 1}, (r.status_code, r.text[:120]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_id, "p_rows": dong})
 chk("ke_toan_dong_nhap lần 2 → updated 1, kept 1", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 1, "kept": 1}, (r.status_code, r.text[:120]))
+
+# --- Lát 2 (migration 09): sửa tay, học, luật, gửi ---
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_direction": "vao"})
+line_id = r.json()[0]["id"] if r.status_code == 200 and r.json() else None
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_sua", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_line_id": line_id,
+    "p_code": "cp.qc", "p_code_name": "CP quảng cáo", "p_tk_no": "6427", "p_tk_co": "331", "p_note": "smoke",
+    "p_seller_norm": "cong ty smoke", "p_desc_norm": "phi quang cao thang 8 smoke"})
+chk("ke_toan_dong_sua: đổi mã + ghi chú → so_sua 2", r.status_code == 200 and r.json()["so_sua"] == 2, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_sua", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_line_id": line_id,
+    "p_code": "cp.qc", "p_code_name": "CP quảng cáo", "p_tk_no": "6427", "p_tk_co": "331", "p_note": "smoke",
+    "p_seller_norm": "cong ty smoke", "p_desc_norm": "phi quang cao thang 8 smoke"})
+chk("ke_toan_dong_sua: sửa lại y nguyên → so_sua 0", r.status_code == 200 and r.json()["so_sua"] == 0, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_thong_ke_hoc", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn"})
+chk("ke_toan_thong_ke_hoc: NCC 1 lần đủ 70% → có 'cong ty smoke'", r.status_code == 200 and r.json()["ncc"].get("cong ty smoke") == "cp.qc", (r.status_code, r.text[:160]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_luat_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_kind": "supplier", "p_pattern": "cong ty smoke", "p_target_code": "cp.qc", "p_condition": ""})
+chk("ke_toan_luat_them lần 1 → moi true", r.status_code == 200 and r.json()["moi"] is True, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_luat_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_kind": "supplier", "p_pattern": "cong ty smoke", "p_target_code": "cp.qc", "p_condition": ""})
+chk("ke_toan_luat_them lần 2 → moi false (không trùng luật)", r.status_code == 200 and r.json()["moi"] is False, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_lich_su_nap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_rows": [{"seller_norm": "ncc lich su", "desc_norm": "tien dien thang", "code": "cp.vanhanhchung"}, {"seller_norm": "x", "desc_norm": "y", "code": ""}]})
+chk("ke_toan_lich_su_nap: bỏ dòng không mã → inserted 1", r.status_code == 200 and r.json() == {"inserted": 1}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_ky_gui", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
+chk("ke_toan_ky_gui → da_gui", r.status_code == 200 and r.json()["status"] == "da_gui", (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_sua", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_line_id": line_id,
+    "p_code": "cp.642khac", "p_code_name": "CP khác", "p_tk_no": "6427", "p_tk_co": "331", "p_note": "smoke",
+    "p_seller_norm": "cong ty smoke", "p_desc_norm": "phi quang cao thang 8 smoke"})
+chk("sửa sau khi gửi → edits_after_sent 1", r.status_code == 200 and r.json()["edits_after_sent"] == 1, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_sua", headers=h(SVC), json={"p_email": "dev.cs@gwt.vn", "p_line_id": line_id, "p_code": "x", "p_code_name": "x", "p_tk_no": "", "p_tk_co": "", "p_note": "", "p_seller_norm": "", "p_desc_norm": ""})
+chk("vai cs: ke_toan_dong_sua BỊ từ chối", r.status_code >= 400, r.status_code)
+
 # Upload LẠI file đã sửa (migration 07): source 2 chỉ còn dòng k2 → chốt → k1 bị đánh "không còn trong file
 # mới nhất"; k1 quay lại ở lô sau với row_order mới → UPDATE phải cập nhật row_order + bỏ cờ thiếu.
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_chot", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src_id})
