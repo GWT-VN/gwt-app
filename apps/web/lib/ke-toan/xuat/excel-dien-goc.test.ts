@@ -110,8 +110,13 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     expect(ghiChuMacDinh(dong(1, '1'))).toBe('')
   })
 
-  it('dòng DB không có trong file gốc → từ chối xuất, không nối xuống đáy', async () => {
-    await expect(dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, dong(4, '555', { raw: [1, 'HDCT', '555', 'Combo'] })], ra: [] })).rejects.toThrow(/không có trong file gốc/)
+  it('dòng nguồn NEXIA không có trong file gốc → từ chối xuất', async () => {
+    await expect(dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, dong(4, '555', { raw: [1, 'C26', '555', 'Combo'], nguon: 'nexia' })], ra: [] })).rejects.toThrow(/không có trong file gốc/)
+  })
+  it('dòng nguồn HDCT không có trong file gốc → nối cuối, tô FFE699 cột gốc, có cột đề xuất + viền', async () => {
+    const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, dong(4, '555', { raw: [1, 'C26', '555', 'Combo', null, null, null], nguon: 'hdct' })], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.rowCount).toBe(6); expect(ws.getCell(6, 3).value).toBe('555'); expect(fill(ws.getCell(6, 1))).toBe('FFFFE699'); expect(ws.getCell(6, 8).value).toBe('cp.qc'); expect(ws.getCell(6, 1).border?.left?.style).toBe('thin')
   })
 
   it('tên tab lệch ("Hoá đơn đầu vào T8") vẫn nhận; thiếu tab đầu ra mà kỳ có dòng ra → lỗi rõ, không có dòng ra → OK', async () => {

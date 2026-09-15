@@ -44,6 +44,7 @@ const FILL = (argb: string): ExcelJS.FillPattern => ({ type: 'pattern', pattern:
 const GOOD = FILL('FFDDEBF7') // hàng hoá / mua hàng NK — engineKind goods|muahang (Python _GOOD)
 const WARN = FILL('FFFFF2CC') // chưa có mã đề xuất (Python _WARN)
 const HEAD = FILL('FF305496') // header của cột thêm vào (Python _HFILL)
+const HDCT = FILL('FFFFE699') // dòng nối cuối từ nguồn HDCT/HDTQ — không có trong file NEXIA gốc (Task 10)
 
 /** Ghi chú cho kế toán khi người dùng chưa ghi gì — cùng câu chữ tool Python để kế toán không thấy lạ. */
 export function ghiChuMacDinh(d: DongXuat): string {
@@ -75,7 +76,7 @@ function keVien(cell: ExcelJS.Cell) {
 }
 
 function toCotThem(row: ExcelJS.Row, c0: number, n: number, d: DongXuat, tab: 'vao' | 'ra') {
-  // Tab đầu ra lát 1 chưa có engine → không tô (tô vàng cả tab chỉ gây nhiễu). Lát 3 bật lại.
+  // Tab đầu ra: engine đã chạy (lát 2) nhưng cố ý không tô — tô vàng cả tab chỉ gây nhiễu, khác nghiệp vụ tab vào.
   const f = tab === 'ra' ? null : d.engineKind === 'goods' || d.engineKind === 'muahang' ? GOOD : !d.code ? WARN : null
   for (let c = c0; c < c0 + n; c++) datFill(row.getCell(c), f)
 }
@@ -160,13 +161,21 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
   if (map.size === 0 && dong.length > 0) throw new Error(`Tab "${ws.name}" trong file gốc không có dòng dữ liệu nào nhưng kỳ có ${dong.length} dòng.`)
   const cSo = timCot(headers, 'số hóa đơn')
   const daGhi = new Set<number>()
+  let cuoi = ws.rowCount
   const lech = (d: DongXuat, chiTiet: string) =>
     new Error(`Dòng ${d.rowOrder}: ${chiTiet} — file trên Storage và dữ liệu kỳ không còn khớp nhau; upload lại file NEXIA mới nhất rồi xuất.`)
   for (const d of dong) {
-    // Mọi dòng DB (đã lọc missing_in_last_upload) đều phải có trong file gốc — lát 1 chưa có dòng
-    // HDCT/HDTQ bổ sung ngoài file (lát 4). Không có → lệch, báo lỗi thay vì âm thầm nối xuống đáy.
-    const r = d.rowOrder != null ? map.get(d.rowOrder) : undefined
-    if (r == null) throw lech(d, `Số HĐ «${d.soHd ?? ''}» không có trong file gốc`)
+    // Mọi dòng nguồn NEXIA phải có trong file gốc — lệch thì báo lỗi thay vì âm thầm nối xuống đáy.
+    // Dòng nguồn HDCT/HDTQ không có trong file gốc (Task 10 — bổ sung ngoài NEXIA) thì NỐI CUỐI, tô
+    // cam để kế toán thấy ngay đây là dữ liệu ngoài file gốc.
+    let r = d.rowOrder != null ? map.get(d.rowOrder) : undefined
+    if (r == null) {
+      if (d.nguon === 'nexia') throw lech(d, `Số HĐ «${d.soHd ?? ''}» không có trong file gốc`)
+      const rowMoi = ws.getRow(++cuoi)
+      for (let c = 1; c <= nGoc; c++) { rowMoi.getCell(c).value = d.raw[c - 1] ?? null; datFill(rowMoi.getCell(c), HDCT) }
+      r = cuoi
+      map.set(d.rowOrder!, r)
+    }
     const row = ws.getRow(r)
     if (cSo >= 0 && d.soHd != null) {
       const trongFile = chuoiO(row.getCell(cSo + 1).value)

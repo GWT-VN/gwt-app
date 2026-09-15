@@ -38,7 +38,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
         channelL1: d.channel_l1,
         channelL2: d.channel_l2,
         dealerName: d.dealer_name,
-        nguon: 'nexia', // R14: cột first_source_kind chưa có (Task 10) — tạm cố định nexia
+        // Task 10 R14: first_source_kind null/'nexia' → nexia; 'hdtq_*' → hdtq; còn lại (hdct_*) → hdct.
+        nguon: d.first_source_kind == null || d.first_source_kind === 'nexia' ? 'nexia' : d.first_source_kind.startsWith('hdtq') ? 'hdtq' : 'hdct',
       }))
 
   let buf: Uint8Array

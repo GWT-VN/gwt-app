@@ -12,7 +12,7 @@ import { coTheVaoKeToan } from '@/lib/nen-tang/gac-cong'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { chuanHoaEmail } from '@/lib/nen-tang/vao-cua'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
-import { docNexia, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
+import { docNexia, docHoaDon, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
 import { ganKhoaDong } from '@/lib/ke-toan/nhap/khoa-dong'
 import { taoEngineDauVao, tkNoCuaTinhChat } from '@/lib/ke-toan/engine/dau-vao'
 import { taoEngineDauRa } from '@/lib/ke-toan/engine/dau-ra'
@@ -28,6 +28,8 @@ export type DongRow = {
   code: string | null; code_name: string | null; tk_no: string | null; tk_co: string | null; vat_1331: string | null
   customer_code: string | null; product_group: string | null; channel_l1: string | null; channel_l2: string | null; dealer_name: string | null
   note_for_accountant: string | null; first_source_id: number | null; missing_in_last_upload: boolean
+  /** Loại nguồn của dòng đầu tiên tạo dòng này — nexia|hdct_vao|hdct_ra|hdtq_vao|hdtq_ra (migration 10). */
+  first_source_kind?: string | null
 }
 
 const TOI_DA_BYTE = 8 * 1024 * 1024
@@ -97,34 +99,41 @@ function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: 
     code: engine?.code || engineRa?.code || null, code_name: engine?.codeName || engineRa?.codeName || null,
     tk_no: engine?.tkNo || null, tk_co: engine?.tkCo || null, vat_1331: engine?.vat1331 || null,
     customer_code: engineRa?.customerCode ?? null, product_group: engineRa?.productGroup || null,
-    channel_l1: engineRa?.channelL1 ?? null, channel_l2: engineRa?.channelL2 ?? null, dealer_name: engineRa?.dealerName ?? null,
+    channel_l1: engineRa?.channelL1 || null, channel_l2: engineRa?.channelL2 || null, dealer_name: engineRa?.dealerName || null,
   }
 }
 
 type KetQuaUpload = { ok: true; inserted: number; updated: number; kept: number; canhBao: number; thieu: number } | { ok: false; error: string }
 
 /**
- * Upload file NEXIA vào kỳ `ky` (tự tạo kỳ nếu chưa có). Form có `vao_ky=1` (màn danh sách) thì
- * xong chuyển vào màn kỳ; không có (đang ở màn kỳ) thì trả kết quả để hiện tại chỗ.
+ * Upload file vào kỳ `ky` (tự tạo kỳ nếu chưa có) — NEXIA hoặc nguồn bổ sung HDCT/HDTQ (Task 10, form
+ * `loai`, mặc định 'nexia' khi form chưa gửi trường này — FormUpload hiện tại chưa đổi). Form có
+ * `vao_ky=1` (màn danh sách) thì xong chuyển vào màn kỳ; không có (đang ở màn kỳ) thì trả kết quả.
  */
-export async function uploadNexia(_prev: unknown, form: FormData): Promise<KetQuaUpload> {
+export async function uploadNguon(_prev: unknown, form: FormData): Promise<KetQuaUpload> {
   const email = await chanKeToan()
-  const kq = await nhapNexia(email, form)
+  const kq = await nhapNguon(email, form)
   if (kq.ok && form.get('vao_ky')) redirect(`/ke-toan/hoa-don/${String(form.get('ky')).trim()}`) // ngoài try: redirect() ném NEXT_REDIRECT
   return kq
 }
+/** Alias tên cũ — FormUpload chưa đổi lời gọi, đổi tên hàm không được phá vỡ chỗ dùng hiện có. */
+export const uploadNexia = uploadNguon
 
-async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
+async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
   await chanKeToan()
   const ky = String(form.get('ky') ?? '').trim()
   const file = form.get('file')
+  const loai = String(form.get('loai') ?? 'nexia').trim() || 'nexia'
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ky)) return { ok: false, error: 'Kỳ không hợp lệ.' }
   if (!(file instanceof File) || !file.name.toLowerCase().endsWith('.xlsx')) return { ok: false, error: 'Chọn file .xlsx (file NEXIA kế toán gửi).' }
   if (file.size > TOI_DA_BYTE) return { ok: false, error: 'File quá 8 MB.' }
   try {
     const buf = new Uint8Array(await file.arrayBuffer())
-    const f = await docNexia(buf)
-    if (!f.vao) return { ok: false, error: 'File không có tab "HĐ đầu vào".' }
+    // nexia: hai sheet, tự nhận diện hướng. hdct_*/hdtq_*: một sheet, hướng lấy từ hậu tố loai.
+    const huong: 'vao' | 'ra' | null = loai === 'nexia' ? null : loai.endsWith('_vao') ? 'vao' : 'ra'
+    const f = loai === 'nexia' ? await docNexia(buf) : null
+    if (f && !f.vao) return { ok: false, error: 'File không có tab "HĐ đầu vào".' }
+    const t = huong ? await docHoaDon(buf, { huong }) : null
 
     const { id: periodId } = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky })
 
@@ -133,12 +142,23 @@ async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
     const dl = await duLieuEngine()
     const eng = taoEngineDauVao(dl)
     const engRa = taoEngineDauRa({ luat: dl.luat, catalog: dl.catalog, kenh: dl.kenh })
-    const khoaVao = ganKhoaDong(f.vao.dong, 'vao')
-    const khoaRa = f.ra ? ganKhoaDong(f.ra.dong, 'ra') : []
-    const rows = [
-      ...f.vao.dong.map((d, i) => dongSql('vao', d, khoaVao[i], eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue))),
-      ...(f.ra?.dong ?? []).map((d, i) => dongSql('ra', d, khoaRa[i], undefined, engRa.phanLoaiRa(d.truong.tenHang, d.truong.mstMua, d.truong.tenMua))),
-    ]
+
+    let rows: ReturnType<typeof dongSql>[], headers: Record<string, string[]>
+    if (f) {
+      const khoaVao = ganKhoaDong(f.vao!.dong, 'vao')
+      const khoaRa = f.ra ? ganKhoaDong(f.ra.dong, 'ra') : []
+      rows = [
+        ...f.vao!.dong.map((d, i) => dongSql('vao', d, khoaVao[i], eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue))),
+        ...(f.ra?.dong ?? []).map((d, i) => dongSql('ra', d, khoaRa[i], undefined, engRa.phanLoaiRa(d.truong.tenHang, d.truong.mstMua, d.truong.tenMua))),
+      ]
+      headers = { vao: f.vao!.headers, ra: f.ra?.headers ?? [] }
+    } else {
+      const khoa = ganKhoaDong(t!.dong, huong!)
+      rows = t!.dong.map((d, i) => dongSql(huong!, d, khoa[i],
+        huong === 'vao' ? eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue) : undefined,
+        huong === 'ra' ? engRa.phanLoaiRa(d.truong.tenHang, d.truong.mstMua, d.truong.tenMua) : undefined))
+      headers = { [huong!]: t!.headers }
+    }
 
     const db = dataClient()
     const path = `${ky}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_')}`
@@ -146,8 +166,8 @@ async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
     if (up.error) return { ok: false, error: 'Không lưu được file gốc: ' + up.error.message }
 
     const { id: sourceId } = await goi<{ id: number }>('ke_toan_nguon_them', {
-      p_period_id: periodId, p_kind: 'nexia', p_file_name: file.name, p_storage_path: path,
-      p_headers: { vao: f.vao.headers, ra: f.ra?.headers ?? [] }, p_row_count: f.vao.dong.length + (f.ra?.dong.length ?? 0),
+      p_period_id: periodId, p_kind: loai, p_file_name: file.name, p_storage_path: path,
+      p_headers: headers, p_row_count: rows.length,
     })
 
     let inserted = 0, updated = 0, kept = 0, thieu = 0
