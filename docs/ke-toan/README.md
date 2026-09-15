@@ -87,6 +87,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   exporter nối dòng bổ sung tô cam, UI chọn Loại khi upload + lọc/tô "Nguồn" — code xong trên nhánh
   `feat/ke-toan-lat-2`, **migration 10 chưa áp live**, **CEO chưa xem**. Fixture HDCT/HDTQ vẫn là
   khuôn NEXIA tạm (Bẫy 14) — chờ CEO chép file T8 thật (Việc treo bb).
+- **Kỳ 2026-08 có 85 dòng `ra` từ lát 1 chưa có mã** — nhánh nguồn ≠ nexia của `ke_toan_dong_nhap`
+  chỉ update `raw`/`row_order`/`last_source_id`, engine tầng đầu ra chỉ chạy lúc INSERT (upload lần
+  đầu) → upload lại HDCT/HDTQ trên kỳ 08 KHÔNG chạy lại engine cho các dòng đã có sẵn. Muốn demo tab
+  ra có mã đề xuất: dùng một kỳ MỚI, hoặc xoá hết dòng `ra` của kỳ 08 (không mã, không sửa tay) rồi
+  upload lại NEXIA T8 (Việc treo cc).
 - Task 8 (tab đầu ra): `duLieuEngine()` thêm `kenh` (`dim_channel`) + catalog `capHai/capBa`;
   `taoEngineDauRa` chạy trong `nhapNexia` cho mọi dòng `ra`; `dongSql` ghi `customer_code/
   product_group/channel_l1/channel_l2/dealer_name` (cột đã có sẵn từ migration 00, không cần
@@ -217,7 +222,9 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
    (`datThanhLuat` trong `actions.ts`), `DongSua.tsx` chỉ gửi `tenBan`/`tenHang` thô lên action.
 14. **Khuôn HDCT/HDTQ chưa đo** (máy Windows không có file, 15/09) — khi có file:
    `python tools/scripts/ke_toan_do_header.py <file>` rồi đối chiếu mảnh `timCot` trong `docTab`;
-   fixture `hdct-t8-vao.json` hiện là khuôn NEXIA tạm.
+   fixture `hdct-t8-vao.json` hiện là khuôn NEXIA tạm. Đường nối cuối (`dienTab`, dòng nguồn
+   HDCT/HDTQ không có trong file gốc) ghi thẳng `raw` theo THỨ TỰ CỘT của file HDCT vào lưới cột file
+   NEXIA — khi có file thật phải đo cả chỗ ghi này (thứ tự cột hai file có thể khác nhau).
 
 ## Việc treo sau lát 1–2
 
@@ -270,9 +277,9 @@ w. ~~Sửa mã sai phải tải Excel về, điền tay, gửi lại kế toán~
    app (`DongSua.tsx` → `suaDong`), ghi `accounting.corrections`.
 x. ~~Không có cách ép một NCC/diễn giải luôn về một mã~~ **Đã sửa lát 2**: nút "Đặt thành luật"
    (`datThanhLuat`) ghi `accounting.rules` origin `app`.
-y. `tenVaTk` (`actions.ts`, gọi trong `suaDong` mỗi lần sửa 1 dòng) gọi lại `duLieuEngine()` — 4
-   truy vấn (luật + catalog + expense_category + thongKe học) cho một lần đổi mã — tách/cache riêng
-   khi volume sửa tăng.
+y. `tenVaTk` (`actions.ts`, gọi trong `suaDong` mỗi lần sửa 1 dòng) gọi lại `duLieuEngine()` — 5
+   truy vấn (luật + catalog + expense_category + kênh + thongKe học) cho một lần đổi mã — tách/cache
+   riêng khi volume sửa tăng.
 z. Ô Ghi chú (`DongSua.tsx`) blur so với prop gốc `d.note_for_accountant`: nếu cha chưa kịp
    refresh sau lần sửa trước, blur kế tiếp có thể gọi `suaDong` thừa một round-trip — vô hại (ghi
    đúng giá trị) nhưng phí request.
@@ -283,3 +290,15 @@ aa. `so_canh_bao` tính KHÁC nhau ở 2 RPC: `ke_toan_ky_gui` (ghi vào audit l
 bb. CEO chép 4 file T8 HDCT/HDTQ vào
    `data/ke-toan/Báo cáo tài chính/Báo cáo tài chính/HDCT/2026.08/` (mục "Bẫy đã gặp" 14) — sau đó
    đo header lại bằng `ke_toan_do_header.py` và sinh lại `hdct-t8-vao.json` bằng `ke_toan_sinh_golden.py`.
+cc. Dòng `ra` đã có sẵn trong DB không nhận engine lát 3 khi upload lại: nhánh nguồn ≠ nexia của
+   `ke_toan_dong_nhap` chỉ update `raw`/`row_order`/`last_source_id`, engine chỉ chạy lúc INSERT —
+   kỳ 2026-08 có 85 dòng ra từ lát 1 chưa có mã (xem "Trạng thái"). Muốn mọi dòng ra đều có engine
+   chạy lại được cần một đường "chạy lại engine" riêng, chưa có.
+dd. `ke_toan_thong_ke_hoc` không lọc theo `direction` — dòng sửa ở tab `ra` cũng gộp vào bảng học
+   dùng cho gợi ý mã ở tab `vao` (hai bảng mã khác nhau: KMCP/catalog vs. mã nội bộ khách hàng).
+ee. Dòng nối cuối (HDCT/HDTQ, `dienTab`) nằm ngoài `ws.autoFilter` của file gốc — kế toán lọc/sort
+   trong Excel sẽ không thấy các dòng này trừ khi kéo lại vùng lọc bằng tay.
+ff. `tenVaTk` (`suaDong`) và `danhSachMa` đều tự gọi `duLieuEngine()` — mỗi ô sửa/mỗi lần mở màn kéo
+   lại đủ 5 truy vấn kể cả `thongKe` (mục "y") dù `danhSachMa` không dùng `thongKe`.
+gg. `ke_toan_ky_gui` không reset `edits_after_sent` khi gửi lại kỳ đã "Đã gửi" — bấm gửi lần 2 sau
+   khi đã có sửa-sau-gửi thì bộ đếm không về 0, cộng dồn qua nhiều lần gửi thay vì tính riêng mỗi lần.
