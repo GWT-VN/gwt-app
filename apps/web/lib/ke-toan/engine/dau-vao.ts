@@ -1,5 +1,6 @@
-import { norm, sd, hard, boNgoac, boTuNgoac } from '../chuan-hoa'
+import { norm, sd, hard, boTuNgoac } from '../chuan-hoa'
 import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp, ThongKeHoc } from './kieu'
+import { taoGoiYMaNoiBo } from './ma-noi-bo'
 
 /**
  * Engine phân loại HĐ ĐẦU VÀO — port 1:1 từ gwt_ketoan/engine.py (Classifier.suggest) và
@@ -21,21 +22,11 @@ const TK_HANG_MAC_DINH = '1561'
 /** TK Nợ theo tính chất catalog — dùng khi sửa tay 1 dòng (suaDong) không đi qua laHangHoa(). */
 export function tkNoCuaTinhChat(tinhChat: string | null | undefined): string { return TINH_CHAT_TK[tinhChat ?? ''] ?? TK_HANG_MAC_DINH }
 
-const STOP = new Set('loc nuoc may ge cho bo loi filter use for machine dung cua phan bphan the he generation cai chiec va don gia hang tang khong tinh tien mua ban thiet bi bung 2nd showerhead shower'.split(' '))
-const KWSET = new Set(['cpf', 'pcf', 'pcfb', 'pcff', 'nf', 'cfnc', 'pp', 'pac', 'sparkling', 'sen', 'muoi', 'aromatherapy'])
-
-function chuKy(name: string): string | null {
-  const s = sd(name).replace(/[^a-z0-9 ]/g, ' ')
-  const toks = s.split(' ').filter((t) => t && !STOP.has(t) && t.length >= 2 && !/^\d+$/.test(t))
-  const keep = toks.filter((t) => /\d/.test(t) || KWSET.has(t))
-  return keep.length ? [...new Set(keep)].sort().join('+') : null
-}
 export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; thongKe?: ThongKeHoc }) {
   const L = input.luat.filter((l) => l.active)
   const byPri = (a: Luat, b: Luat) => a.priority - b.priority
   const ovSup = L.filter((l) => l.origin === 'override_json' && l.kind === 'supplier').sort(byPri)
   const ovKw = L.filter((l) => l.origin === 'override_json' && l.kind === 'keyword').sort(byPri)
-  const ovName = new Map(L.filter((l) => l.origin === 'override_json' && l.kind === 'product_name').sort(byPri).map((l) => [l.pattern, l.targetCode]))
   const ruleSup = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'supplier').sort(byPri)
   const ruleKw = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'keyword').sort(byPri)
   const appSup = L.filter((l) => l.origin === 'app' && l.kind === 'supplier').sort(byPri)
@@ -43,7 +34,7 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const kwCua = (l: Luat) => (l.condition?.startsWith('kw:') ? l.condition.slice(3) : null)
   const thongKe: ThongKeHoc = input.thongKe ?? { ncc: {}, prefix: {} }
   const tienTo = (desc: unknown, n = 5) => norm(desc).split(' ').slice(0, n).join(' ')
-  const n2c = new Map<string, string>(); for (const l of L) if (l.origin === 'history' && l.kind === 'product_name') n2c.set(l.pattern, l.targetCode)
+  const goiYMaNoiBo = taoGoiYMaNoiBo(L)
   const kmTen = new Map(input.kmcp.map((k) => [k.ma, k.ten])); const kmTk = new Map(input.kmcp.map((k) => [k.ma, k.tkNoDefault]))
 
   // catalog: khớp đúng (sd) / khớp cứng (hard); bỏ mã dịch vụ & mã cp.*
@@ -67,33 +58,6 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
     const h2 = hard(s2); if (h2 && catHard.has(h2)) return catHard.get(h2)!
     return null
   }
-  // chữ ký từ lịch sử tên hàng: sig → mã áp đảo
-  const sigCount = new Map<string, Map<string, number>>()
-  for (const [name, code] of n2c) { const g = chuKy(name); if (!g) continue; const m = sigCount.get(g) ?? new Map(); m.set(code, (m.get(code) ?? 0) + 1); sigCount.set(g, m) }
-  const sig = new Map<string, string>(); for (const [g, m] of sigCount) sig.set(g, [...m.entries()].sort((a, b) => b[1] - a[1])[0][0])
-  // Lệch Python có chủ đích: nexia.py.match_code() đọc mặc định từ khoá override RIÊNG
-  // `_OV.get("shipping_output_code", "DVVC")` — một khoá config tách biệt khỏi bảng tên hàng. Ở đây
-  // dùng lại chính bảng override tên hàng (`ovName`) với pattern cố định 'dich vu van chuyen' thay vì
-  // một khoá config riêng. Trung tính hôm nay vì chưa có override nào đặt khoá đó (Python) lẫn pattern
-  // này (TS) — cả hai đều rơi về mặc định cứng 'DVVC'. Sẽ lệch nếu sau này ai thêm override qua khoá
-  // `shipping_output_code` bên Python: TS sẽ không đọc được, vẫn dùng 'DVVC'.
-  const shipping = ovName.get('dich vu van chuyen') ?? 'DVVC'
-
-  function goiYMaNoiBo(tenHang: unknown): { ma: string; conf: 'cao' | 'trung binh' | 'can gan tay' | 'trong'; canCu: string } {
-    const s = sd(tenHang); if (!s) return { ma: '', conf: 'trong', canCu: '' }
-    if (ovName.has(s)) return { ma: ovName.get(s)!, conf: 'cao', canCu: 'đã chốt tay' }
-    if (n2c.has(s)) return { ma: n2c.get(s)!, conf: 'cao', canCu: 'khớp tên lịch sử' }
-    const s2 = boNgoac(s)
-    if (ovName.has(s2)) return { ma: ovName.get(s2)!, conf: 'cao', canCu: 'đã chốt tay' }
-    if (n2c.has(s2)) return { ma: n2c.get(s2)!, conf: 'cao', canCu: 'khớp tên (bỏ ngoặc)' }
-    if (s.includes('cts10')) { if (s.includes('trang')) return { ma: 'CTS10NW', conf: 'cao', canCu: 'CTS10 trắng' }; if (s.includes('den')) return { ma: 'CTS10NB', conf: 'cao', canCu: 'CTS10 đen' } }
-    if (s.includes('aromatherapy') || s.includes('aromatheraphy')) { if (s.includes('hong')) return { ma: 'GEUS-00X06', conf: 'cao', canCu: 'vòi sen Hồng' }; if (s.includes('trang')) return { ma: 'GEUS-00X05', conf: 'cao', canCu: 'vòi sen Trắng' } }
-    if (s.includes('van chuyen')) return { ma: shipping, conf: 'cao', canCu: 'dịch vụ vận chuyển' }
-    const g = chuKy(String(tenHang ?? '')); if (g && sig.has(g)) return { ma: sig.get(g)!, conf: 'trung binh', canCu: 'khớp chữ ký ' + g }
-    for (const [k, v] of n2c) if (k.length >= 12 && (s.includes(k) || k.includes(s))) return { ma: v, conf: 'trung binh', canCu: 'gần khớp tên' }
-    return { ma: '', conf: 'can gan tay', canCu: 'chưa khớp' }
-  }
-
   function laHangHoa(desc: unknown): { ma: string; tk: string; nhan: string } | null {
     const s = sd(desc)
     if (['phi ', 'phi(', 'dich vu', 'cuoc', 'hoa hong'].some((w) => s.includes(w))) return null
