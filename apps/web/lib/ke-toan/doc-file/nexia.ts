@@ -57,7 +57,7 @@ function oTho(v: unknown): string | number | null {
   return String(v)
 }
 
-function docTab(ws: ExcelJS.Worksheet, ten: 'vao' | 'ra'): TabNexia {
+export function docTab(ws: ExcelJS.Worksheet, ten: 'vao' | 'ra'): TabNexia {
   const o = (row: ExcelJS.Row, i: number) => giaTriO(row.getCell(i + 1).value)
   const soCot = ws.columnCount // getter quét cả sheet — hoist
   const r1 = ws.getRow(1)
@@ -106,6 +106,16 @@ export async function moWorkbook(buf: ArrayBuffer | Uint8Array): Promise<ExcelJS
   const wb = new ExcelJS.Workbook()
   await wb.xlsx.load(Buffer.from(buf as Uint8Array) as unknown as Parameters<typeof wb.xlsx.load>[0])
   return wb
+}
+
+/** Đọc file HDCT/HDTQ (một sheet, hướng chọn từ ngoài — khác NEXIA hai sheet tự nhận diện tên). */
+export async function docHoaDon(buf: ArrayBuffer | Uint8Array, opt: { huong: 'vao' | 'ra' }): Promise<TabNexia> {
+  const wb = await moWorkbook(buf)
+  const ws = wb.worksheets.find((w) => laTab(w.name, opt.huong)) ?? wb.worksheets[0]
+  if (!ws) throw new Error('File không có sheet nào.')
+  const t = docTab(ws, opt.huong)
+  if (timCot(t.headers, 'số hóa đơn') < 0 && timCot(t.headers, 'tên hàng') < 0) throw new Error('File không đúng khuôn hoá đơn: thiếu cột Số hóa đơn / Tên hàng ở dòng 1.')
+  return t
 }
 
 export async function docNexia(buf: ArrayBuffer | Uint8Array): Promise<FileNexia> {

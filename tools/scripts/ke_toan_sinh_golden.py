@@ -11,7 +11,7 @@ dính marker này đều nguồn `rule_ncc`/`hoc_ncc` (phân loại theo NCC, kh
 cắt) và `_is_goods()` thoát sớm nhờ từ khoá "cuoc"/"phi " nằm ở phần đầu còn giữ nguyên — nên
 cắt đuôi không đổi `expected` đã tính trên desc gốc.
 """
-import glob, json, os, re, sys, warnings
+import datetime, glob, json, os, re, sys, warnings
 warnings.filterwarnings("ignore")
 import openpyxl
 
@@ -119,3 +119,60 @@ for i, r in enumerate(rows_ra_all[1:], start=2):
     rows_ra.append({"i": i, "desc": che(desc), "mst": mst_che, "buyer": b_che, "expected": {"ma": ic, "conf": conf, "makh": makh_exp}})
 json.dump({"rows": rows_ra}, open(os.path.join(OUT, "t8-dau-ra.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print("t8-dau-ra.json:", len(rows_ra), "dòng")
+
+# --- Task 9 (R15): fixture cho docHoaDon (đọc file HDCT/HDTQ một sheet). Máy này CHƯA có file HDCT
+# thật (CEO chưa chép, xem README "Việc treo") → ưu tiên đọc file thật nếu glob khớp, fallback tạm
+# = sheet "HĐ đầu vào" NEXIA T8 đã load ở trên (biến `rows`) — cùng khuôn cột nên bộ đọc chạy được,
+# nhưng KHÔNG phải khuôn HDCT thật. Đo lại (ke_toan_do_header.py) khi có file, sinh lại fixture.
+hdct_glob = glob.glob(os.path.join(ROOT, "data", "ke-toan", "**", "HDCT", "2026.08", "*HDCTMuaVao*.xlsx"), recursive=True)
+if hdct_glob:
+    rows_h = list(openpyxl.load_workbook(hdct_glob[0], read_only=True, data_only=True).active.iter_rows(values_only=True))
+    ghi_chu_h = "Khuôn HDCT thật T8 (đo lại 15/09 trở về sau); sinh bởi ke_toan_sinh_golden.py"
+else:
+    rows_h = rows  # sheet "HĐ đầu vào" NEXIA T8
+    ghi_chu_h = ("TẠM — khuôn NEXIA đầu vào T8 (chưa có file HDCT thật, đo lại khi CEO chép file); "
+                 "sinh bởi ke_toan_sinh_golden.py")
+
+hdr_h = {str(v).strip(): i for i, v in enumerate(rows_h[0]) if v}
+def _col(*ten):
+    return next((hdr_h[t] for t in ten if t in hdr_h), -1)
+i_ban, i_mua = _col("Tên người bán"), _col("Tên người mua")
+i_mstb, i_mstm = _col("MST người bán"), _col("MST người mua")
+i_diachi = {_col("Địa chỉ người bán"), _col("Địa chỉ người mua")} - {-1}
+i_hang = _col("Tên hàng hóa, dịch vụ", "Tên hàng")
+
+ncc_map_h, mst_map_h = {}, {}
+def _ncc(v):
+    s = str(v or "")
+    if not s or CTY.search(s):
+        return s
+    return ncc_map_h.setdefault(s, f"NCC-{len(ncc_map_h) + 1}")
+def _mst(v):
+    s = str(v or "").strip()
+    return mst_map_h.setdefault(s, f"MST-{len(mst_map_h) + 1}") if s else s
+def _jval(v):
+    return v.strftime("%Y-%m-%d") if isinstance(v, (datetime.date, datetime.datetime)) else v
+
+rows_out = []
+for r in rows_h[1:]:
+    if all(v is None for v in r):
+        continue
+    row = list(r)
+    for i, v in enumerate(row):
+        if i in (i_ban, i_mua):
+            row[i] = _ncc(v)
+        elif i in (i_mstb, i_mstm):
+            row[i] = _mst(v)
+        elif i in i_diachi:
+            row[i] = None
+        elif i == i_hang:
+            row[i] = che(v)
+        else:
+            row[i] = _jval(v)
+    rows_out.append(row)
+    if len(rows_out) >= 10:
+        break
+headers_h = [str(v).strip() if v else "" for v in rows_h[0]]
+json.dump({"ghi_chu": ghi_chu_h, "headers": headers_h, "rows": rows_out},
+          open(os.path.join(OUT, "hdct-t8-vao.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+print("hdct-t8-vao.json:", len(rows_out), "dòng —", ghi_chu_h[:12])

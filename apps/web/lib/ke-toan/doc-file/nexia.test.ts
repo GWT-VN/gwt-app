@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import ExcelJS from 'exceljs'
-import { docNexia, timCot } from './nexia'
+import { docNexia, docHoaDon, timCot } from './nexia'
 
 async function wb(sheets: Record<string, unknown[][]>): Promise<Uint8Array> {
   const w = new ExcelJS.Workbook()
@@ -55,5 +57,17 @@ describe('docNexia', () => {
   it('timCot khớp mảnh, không phân biệt hoa thường/khoảng trắng đôi', () => {
     expect(timCot(HDR as string[], 'ký hiệu', 'hóa')).toBe(1)
     expect(timCot(HDR as string[], 'không có')).toBe(-1)
+  })
+})
+
+describe('docHoaDon — file HDCT/HDTQ một sheet, chọn hướng từ ngoài', () => {
+  const fx = JSON.parse(readFileSync(fileURLToPath(new URL('../__fixtures__/hdct-t8-vao.json', import.meta.url)), 'utf8')) as { headers: string[]; rows: unknown[][] }
+  it('sheet không tên "đầu vào" vẫn đọc theo huong; số HĐ + tên hàng + thành tiền ra đúng', async () => {
+    const t = await docHoaDon(await wb({ Sheet1: [fx.headers, ...fx.rows] }), { huong: 'vao' })
+    expect(t.ten).toBe('vao'); expect(t.dong).toHaveLength(fx.rows.length)
+    expect(t.dong[0].truong.soHd).not.toBe(''); expect(typeof t.dong[0].truong.thanhTien).toBe('number')
+  })
+  it('file không có cột Số hóa đơn/Tên hàng → lỗi rõ', async () => {
+    await expect(docHoaDon(await wb({ Sheet1: [['a', 'b'], [1, 2]] }), { huong: 'ra' })).rejects.toThrow(/không đúng khuôn/)
   })
 })
