@@ -53,14 +53,21 @@ print("dòng lịch sử:", len(rows))
 if "--dry" in sys.argv:
     sys.exit(0)
 
-r = requests.post(
-    f"{U}/rest/v1/rpc/ke_toan_lich_su_nap",
-    headers={
-        "apikey": K,
-        "Authorization": f"Bearer {K}",
-        "Content-Type": "application/json",
-    },
-    json={"p_email": "ai@gwt.vn", "p_rows": rows},
-    timeout=120,
-)
+try:
+    r = requests.post(
+        f"{U}/rest/v1/rpc/ke_toan_lich_su_nap",
+        headers={
+            "apikey": K,
+            "Authorization": f"Bearer {K}",
+            "Content-Type": "application/json",
+        },
+        json={"p_email": "ai@gwt.vn", "p_rows": rows},
+        timeout=120,
+    )
+except requests.RequestException as e:
+    print("Lỗi mạng khi gọi RPC:", type(e).__name__)
+    sys.exit(1)
+
 print(r.status_code, r.text[:200])
+if r.status_code != 200:
+    sys.exit(1)
