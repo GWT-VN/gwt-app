@@ -57,7 +57,7 @@ function oTho(v: unknown): string | number | null {
   return String(v)
 }
 
-export function docTab(ws: ExcelJS.Worksheet, ten: 'vao' | 'ra'): TabNexia {
+function docTab(ws: ExcelJS.Worksheet, ten: 'vao' | 'ra'): TabNexia {
   const o = (row: ExcelJS.Row, i: number) => giaTriO(row.getCell(i + 1).value)
   const soCot = ws.columnCount // getter quét cả sheet — hoist
   const r1 = ws.getRow(1)

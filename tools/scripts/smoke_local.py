@@ -106,6 +106,20 @@ chk("dong_list: k9 row_order > mọi dòng cũ, first_source_kind == hdct_vao",
     (r.status_code, co.get("smoke-k9")))
 chk("dong_list: k1 (nguồn NEXIA gốc) giữ raw == ['x']", co.get("smoke-k1", {}).get("raw") == ["x"], co.get("smoke-k1", {}).get("raw"))
 
+# HDCT tải lại HDCT (R16): nguồn hdct_vao thứ 2 dong_nhap lại k9 — cùng kind với last_source hiện tại
+# → UPDATE (last_source_id đổi, missing_in_last_upload=false), raw KHÔNG đổi (chỉ nhánh nexia đè raw).
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id,
+    "p_kind": "hdct_vao", "p_file_name": "smoke-hdct2.xlsx", "p_storage_path": "2026-08/smoke-hdct2.xlsx", "p_headers": {"vao": ["A"]}, "p_row_count": 1})
+src_hdct2 = r.json()["id"] if r.status_code == 200 else None
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_hdct2,
+    "p_rows": [{"direction": "vao", "line_key": "smoke-k9", "row_order": 1, "raw": ["z2"]}]})
+chk("hdct_vao tải lại HDCT: k9 cùng kind → inserted 0, updated 1, kept 0", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 1, "kept": 0}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_dong_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_direction": "vao"})
+co = {d["line_key"]: d for d in (r.json() if r.status_code == 200 else [])}
+chk("dong_list: k9 last_source_id đổi sang nguồn hdct thứ 2, raw vẫn ['z'] (nhánh ≠ nexia không cập nhật raw)",
+    co.get("smoke-k9", {}).get("last_source_id") == src_hdct2 and co.get("smoke-k9", {}).get("raw") == ["z"],
+    (r.status_code, co.get("smoke-k9")))
+
 # Upload LẠI file đã sửa (migration 07): source 2 chỉ còn dòng k2 → chốt → k1 bị đánh "không còn trong file
 # mới nhất"; k1 quay lại ở lô sau với row_order mới → UPDATE phải cập nhật row_order + bỏ cờ thiếu.
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_chot", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_source_id": src_id})

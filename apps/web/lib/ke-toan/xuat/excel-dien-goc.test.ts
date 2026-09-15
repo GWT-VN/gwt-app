@@ -199,4 +199,24 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     const goc = new Uint8Array(await wb.xlsx.writeBuffer())
     await expect(dienExcelHoaDon({ goc, vao: [], ra: [] })).rejects.toThrow(/HĐ đầu vào/)
   })
+
+  it('dòng HDCT row_order 1000001 (dải nối đuôi migration 10) nối cuối, không ghi đè dòng NEXIA N', async () => {
+    const hdct = dong(1000001, '777', { raw: [1, 'C26', '777', 'Dòng HDCT nối đuôi', null, null, null], nguon: 'hdct' })
+    const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, hdct], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.rowCount).toBe(6) // 5 dòng gốc (kể cả dòng trống) + 1 dòng HDCT nối cuối
+    expect(ws.getCell(6, 3).value).toBe('777'); expect(fill(ws.getCell(6, 1))).toBe('FFFFE699')
+    // dòng N (row_order 3 = dòng Excel 5, "999"/ONN25) vẫn đúng cột đề xuất — không bị dòng HDCT ghi đè
+    expect(ws.getCell(5, 3).value).toBe('999'); expect(ws.getCell(5, 8).value).toBe('ONN25')
+  })
+
+  it('tab gốc rỗng nhưng chỉ có dòng HDCT (không có dòng NEXIA nào cần khớp) → xuất được, nối cuối', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    const ws0 = wb0.addWorksheet('HĐ đầu vào'); ws0.addRow(H_VAO) // header, không có dòng dữ liệu
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const hdct = dong(1, '321', { raw: [1, 'C26', '321', 'Chỉ có HDCT', null, null, null], nguon: 'hdct' })
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [hdct], ra: [] }))
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    expect(ws.rowCount).toBe(2); expect(ws.getCell(2, 3).value).toBe('321'); expect(fill(ws.getCell(2, 1))).toBe('FFFFE699')
+  })
 })

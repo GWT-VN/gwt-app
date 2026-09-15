@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useRef, useState } from 'react'
-import { uploadNexia } from '../../actions'
+import { uploadNguon } from '../../actions'
 
 /** 5 loại nguồn (Task 10 `nhapNguon`, form field `loai`) — `ngan` dùng cho nhãn nút. */
 const LOAI_OPTS = [
@@ -27,7 +27,7 @@ const LOAI_OPTS = [
  * vì HDCT/HDTQ gộp VÀO một kỳ đã có, không phải bước tạo kỳ.
  */
 export function FormUpload(props: { ky: string } | { macDinh: string }) {
-  const [kq, act, dang] = useActionState(uploadNexia, null)
+  const [kq, act, dang] = useActionState(uploadNguon, null)
   const formRef = useRef<HTMLFormElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [tenFile, setTenFile] = useState<string | null>(null)

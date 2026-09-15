@@ -22,7 +22,7 @@ export function DongSua({ d, ma, huong }: { d: DongRow; ma: MucChon[]; huong: 'v
   }
   function luu(codeMoi: string | null, noteMoi: string) {
     batDau(async () => {
-      const r = await suaDong({ lineId: d.id, code: codeMoi, note: noteMoi, tenBan: d.ten_ban, tenHang: d.ten_hang })
+      const r = await suaDong({ lineId: d.id, code: codeMoi, note: noteMoi, tenBan: d.ten_ban, tenHang: d.ten_hang, huong })
       if (!r.ok) { setTb({ ok: false, msg: r.error }); return }
       setCode(codeMoi); setCodeName(ma.find((m) => m.gt === codeMoi)?.nhan.split(' · ')[1] ?? null)
       baoXanh(r.suaSauGui > 0 ? `Đã lưu · sửa sau gửi #${r.suaSauGui}` : 'Đã lưu')

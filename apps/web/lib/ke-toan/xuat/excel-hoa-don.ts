@@ -158,7 +158,9 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
   const hGoc = headers.slice(0, nGoc)
   const cTpl = tab === 'ra' ? { maHang: timCot(hGoc, 'mã hàng'), loai: timCot(hGoc, 'loại'), kenh: timCot(hGoc, 'kênh'), daiLy: timCot(hGoc, 'đại lý') } : null
   const map = anhXaDong(ws, headers.slice(0, nGoc), ws.name)
-  if (map.size === 0 && dong.length > 0) throw new Error(`Tab "${ws.name}" trong file gốc không có dòng dữ liệu nào nhưng kỳ có ${dong.length} dòng.`)
+  // Tab gốc rỗng nhưng kỳ chỉ toàn dòng HDCT/HDTQ (nối cuối, không cần khớp file gốc) thì vẫn xuất
+  // được — chỉ chặn khi có dòng NEXIA thật sự cần khớp mà không có gì để khớp vào.
+  if (map.size === 0 && dong.some((d) => d.nguon === 'nexia')) throw new Error(`Tab "${ws.name}" trong file gốc không có dòng dữ liệu nào nhưng kỳ có ${dong.length} dòng.`)
   const cSo = timCot(headers, 'số hóa đơn')
   const daGhi = new Set<number>()
   let cuoi = ws.rowCount
@@ -169,6 +171,7 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
     // Dòng nguồn HDCT/HDTQ không có trong file gốc (Task 10 — bổ sung ngoài NEXIA) thì NỐI CUỐI, tô
     // cam để kế toán thấy ngay đây là dữ liệu ngoài file gốc.
     let r = d.rowOrder != null ? map.get(d.rowOrder) : undefined
+    const vuaNoi = r == null // dòng vừa tự ghi (HDCT/HDTQ nối cuối) — raw của nó đến từ nguồn khác cột Số HĐ trong file gốc, không so được với chính nó
     if (r == null) {
       if (d.nguon === 'nexia') throw lech(d, `Số HĐ «${d.soHd ?? ''}» không có trong file gốc`)
       const rowMoi = ws.getRow(++cuoi)
@@ -177,7 +180,7 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
       map.set(d.rowOrder!, r)
     }
     const row = ws.getRow(r)
-    if (cSo >= 0 && d.soHd != null) {
+    if (!vuaNoi && cSo >= 0 && d.soHd != null) {
       const trongFile = chuoiO(row.getCell(cSo + 1).value)
       if (trongFile !== String(d.soHd).trim()) throw lech(d, `Số HĐ trong file gốc («${trongFile}») khác dữ liệu đã nạp («${d.soHd}»)`)
     }

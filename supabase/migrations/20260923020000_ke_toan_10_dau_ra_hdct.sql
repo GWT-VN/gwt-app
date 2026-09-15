@@ -11,7 +11,7 @@ $$;
 
 create or replace function public.ke_toan_dong_nhap(p_email text, p_period_id bigint, p_source_id bigint, p_rows jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare v_ins int := 0; v_upd int := 0; v_tong int; v_kind text; v_max int;
+declare v_ins int := 0; v_upd int := 0; v_tong int; v_kind text;
 begin
   perform accounting.nv(p_email);
   if p_rows is null or jsonb_typeof(p_rows) <> 'array' then raise exception 'p_rows phải là mảng'; end if;
@@ -37,11 +37,16 @@ begin
         and exists (select 1 from accounting.sources o where o.id = l.last_source_id and o.kind = v_kind)
       returning l.id)
     select count(*) into v_upd from up;
-    select coalesce(max(l.row_order), 0) into v_max from accounting.invoice_lines l
-      where l.period_id = p_period_id and l.direction = (select direction from tmp_dong limit 1);
-    update tmp_dong t set row_order = v_max + r.rn
-      from (select line_key, row_number() over (order by row_order) rn from tmp_dong
-            where not exists (select 1 from accounting.invoice_lines l where l.period_id = p_period_id and l.line_key = tmp_dong.line_key)) r
+    -- row_order dòng mới nối đuôi TỪNG direction riêng (tmp_dong có thể mang cả vao lẫn ra khi
+    -- HDCT/HDTQ gộp 2 hướng trong 1 lô) — sàn 1000000 để dải nối đuôi nằm hẳn ngoài tầm vị-trí-file
+    -- NEXIA (1..N, N chưa từng tới triệu dòng) nên hai nguồn không bao giờ trùng row_order (bẫy R17).
+    update tmp_dong t set row_order = m.base + r.rn
+      from (select line_key, direction, row_number() over (partition by direction order by row_order) rn from tmp_dong x
+            where not exists (select 1 from accounting.invoice_lines l where l.period_id = p_period_id and l.line_key = x.line_key)) r
+      join (select d.direction, greatest(coalesce(max(l.row_order), 0), 1000000) base
+            from (select distinct direction from tmp_dong) d
+            left join accounting.invoice_lines l on l.period_id = p_period_id and l.direction = d.direction
+            group by d.direction) m on m.direction = r.direction
      where t.line_key = r.line_key;
   end if;
 

@@ -51,7 +51,7 @@ async function chanKeToan(): Promise<string> {
  * trong lib/nen-tang/phien.ts). requireNhanSu()/layNhanVien() dùng cache() của React trong CÙNG
  * request, nên chanKeToan() gọi lại bên trong goi() sau khi đã gọi ở ngoài chỉ là đọc cache —
  * không redirect lần hai, không tốn thêm mạng. VÌ VẬY: hàm nào có `try {` phải tự
- * `await chanKeToan()` NGAY TRƯỚC try, giống hệt uploadNexia().
+ * `await chanKeToan()` NGAY TRƯỚC try, giống hệt uploadNguon().
  */
 async function goi<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await dataClient().rpc(fn, { p_email: await chanKeToan(), ...args })
@@ -98,7 +98,7 @@ function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: 
     engine_reason: engine?.reason ?? engineRa?.reason ?? null, engine_kind: engine?.kind ?? (engineRa ? 'goods' : null),
     code: engine?.code || engineRa?.code || null, code_name: engine?.codeName || engineRa?.codeName || null,
     tk_no: engine?.tkNo || null, tk_co: engine?.tkCo || null, vat_1331: engine?.vat1331 || null,
-    customer_code: engineRa?.customerCode ?? null, product_group: engineRa?.productGroup || null,
+    customer_code: engineRa?.customerCode || null, product_group: engineRa?.productGroup || null,
     channel_l1: engineRa?.channelL1 || null, channel_l2: engineRa?.channelL2 || null, dealer_name: engineRa?.dealerName || null,
   }
 }
@@ -116,8 +116,6 @@ export async function uploadNguon(_prev: unknown, form: FormData): Promise<KetQu
   if (kq.ok && form.get('vao_ky')) redirect(`/ke-toan/hoa-don/${String(form.get('ky')).trim()}`) // ngoài try: redirect() ném NEXT_REDIRECT
   return kq
 }
-/** Alias tên cũ — FormUpload chưa đổi lời gọi, đổi tên hàm không được phá vỡ chỗ dùng hiện có. */
-export const uploadNexia = uploadNguon
 
 async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
   await chanKeToan()
@@ -125,6 +123,8 @@ async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
   const file = form.get('file')
   const loai = String(form.get('loai') ?? 'nexia').trim() || 'nexia'
   if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(ky)) return { ok: false, error: 'Kỳ không hợp lệ.' }
+  // Whitelist tường minh — accounting.sources.kind (DB) còn cho cả bank_*, form nắn tay lọt được nếu chỉ dựa constraint DB.
+  if (!['nexia', 'hdct_vao', 'hdct_ra', 'hdtq_vao', 'hdtq_ra'].includes(loai)) return { ok: false, error: 'Loại nguồn không hợp lệ.' }
   if (!(file instanceof File) || !file.name.toLowerCase().endsWith('.xlsx')) return { ok: false, error: 'Chọn file .xlsx (file NEXIA kế toán gửi).' }
   if (file.size > TOI_DA_BYTE) return { ok: false, error: 'File quá 8 MB.' }
   try {
@@ -233,15 +233,20 @@ async function tenVaTk(code: string): Promise<{ codeName: string; tkNo: string }
 }
 
 export type KetQuaSua = { ok: true; soSua: number; suaSauGui: number } | { ok: false; error: string }
-/** Sửa mã / ghi chú một dòng. tenBan/tenHang chỉ để tính khoá học (norm), không ghi vào dòng. */
-export async function suaDong(input: { lineId: number; code: string | null; note: string | null; tenBan: string | null; tenHang: string | null }): Promise<KetQuaSua> {
+/**
+ * Sửa mã / ghi chú một dòng. tenBan/tenHang chỉ để tính khoá học (norm), không ghi vào dòng.
+ * `huong` quyết định TK: đầu vào ghi TK Nợ/Có (1561/331…), đầu ra KHÔNG có bút toán TK (R16 —
+ * trước lát 4 `suaDong` luôn ghi TK mua vào 331 kể cả cho dòng bán, sai bản chất kế toán).
+ */
+export async function suaDong(input: { lineId: number; code: string | null; note: string | null; tenBan: string | null; tenHang: string | null; huong: 'vao' | 'ra' }): Promise<KetQuaSua> {
   await chanKeToan()
   try {
     const code = input.code?.trim() || null
     const tt = code ? await tenVaTk(code) : null
     if (code && !tt) return { ok: false, error: `Mã "${code}" không có trong danh mục KMCP/catalog.` }
     const r = await goi<{ so_sua: number; edits_after_sent: number }>('ke_toan_dong_sua', {
-      p_line_id: input.lineId, p_code: code, p_code_name: tt?.codeName ?? null, p_tk_no: tt?.tkNo ?? null, p_tk_co: code ? '331' : null,
+      p_line_id: input.lineId, p_code: code, p_code_name: tt?.codeName ?? null,
+      p_tk_no: input.huong === 'ra' ? null : tt?.tkNo ?? null, p_tk_co: input.huong === 'ra' ? null : (code ? '331' : null),
       p_note: input.note?.trim() || null, p_seller_norm: norm(input.tenBan), p_desc_norm: norm(input.tenHang),
     })
     return { ok: true, soSua: r.so_sua, suaSauGui: r.edits_after_sent }
