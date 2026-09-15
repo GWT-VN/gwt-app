@@ -5,6 +5,13 @@ import { FormTaoKy } from './FormTaoKy'
 export const metadata = { title: 'Kế toán · Kỳ hoá đơn' }
 export const dynamic = 'force-dynamic'
 
+/** Tháng TRƯỚC theo giờ VN (file NEXIA tháng N về đầu tháng N+1, spec §4). Múi giờ cố định để server (UTC) không lệch trình duyệt. */
+function thangTruoc(): string {
+  const [y, m] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit' }).format(new Date()).split('-').map(Number)
+  const t = new Date(Date.UTC(y, m - 2, 1))
+  return `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}`
+}
+
 export default async function KeToanPage() {
   const ds = await danhSachKy() // gác quyền nằm trong action (chanKeToan → redirect), không lặp ở page
   return (
@@ -13,7 +20,7 @@ export default async function KeToanPage() {
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-xl font-semibold">Kế toán · Hoá đơn theo kỳ</h1>
             <p className="text-sm text-slate-500">Upload file NEXIA, app gán mã KMCP, tải lại Excel gửi kế toán.</p></div>
-          <FormTaoKy />
+          <FormTaoKy macDinh={thangTruoc()} />
         </header>
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-sm">

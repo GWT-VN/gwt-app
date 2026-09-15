@@ -57,13 +57,15 @@ export async function danhSachKy(): Promise<KyRow[]> {
   return (await goi<KyRow[]>('ke_toan_ky_list', {})) ?? []
 }
 
-export async function taoKy(ky: string): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+/** Tạo kỳ (đã có thì trả kỳ cũ) rồi vào thẳng màn kỳ — bấm "Tạo kỳ" mà đứng yên là tưởng hỏng (CEO 15/09). */
+export async function taoKy(ky: string): Promise<{ ok: false; error: string }> {
   await chanKeToan()
+  const k = ky.trim()
   try {
-    const r = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky.trim() })
+    await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: k })
     revalidatePath('/ke-toan')
-    return { ok: true, id: r.id }
   } catch (e) { return { ok: false, error: (e as Error).message } }
+  redirect(`/ke-toan/hoa-don/${k}`) // ngoài try: redirect() ném NEXT_REDIRECT, try/catch sẽ nuốt
 }
 
 async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[] }> {
