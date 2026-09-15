@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { BoLocChon, OTimKiem, ThanhDangLoc, boDau } from '@/bang'
-import { dongCuaKy } from '../../actions'
+import { dongCuaKy, danhSachMa } from '../../actions'
 import { FormUpload } from './FormUpload'
+import { DongSua } from './DongSua'
+import { NutGuiKeToan } from './NutGuiKeToan'
 
 export const dynamic = 'force-dynamic'
 type ThamSo = { q?: string; tc?: string; tab?: string; loi?: string }
@@ -16,6 +18,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
   const direction = tab === 'ra' ? 'ra' : 'vao'
   const { period, dong } = await dongCuaKy(ky, direction) // gác quyền trong action (chanKeToan → redirect)
   if (!period) redirect('/ke-toan')
+  const ma = await danhSachMa()
   const qd = boDau(q)
   const rows = dong.filter((d) => (!tc || d.engine_conf === tc || (tc === 'khong ro' && !d.code))
     && (!qd || boDau(`${d.ten_ban ?? ''} ${d.ten_hang ?? ''} ${d.so_hd ?? ''}`).includes(qd)))
@@ -28,8 +31,11 @@ export default async function KyPage({ params, searchParams }: { params: Promise
       <div className="mx-auto max-w-[1320px] space-y-4 p-4 sm:p-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><Link href="/ke-toan" className="text-sm text-slate-500">← Kỳ</Link>
-            <h1 className="text-xl font-semibold">Kỳ {period.ky}</h1></div>
-          <a href={`/ke-toan/hoa-don/${period.ky}/xuat`} className="rounded border border-[#3f8a6a] px-3 py-1 text-[#3f8a6a]">Tải Excel _DAXULY</a>
+            <h1 className="text-xl font-semibold">Kỳ {period.ky}{period.status === 'da_gui' ? <span className="ml-2 text-sm font-normal text-emerald-700">(đã gửi kế toán)</span> : null}</h1></div>
+          <div className="flex items-center gap-2">
+            <a href={`/ke-toan/hoa-don/${period.ky}/xuat`} className="rounded border border-[#3f8a6a] px-3 py-1 text-[#3f8a6a]">Tải Excel _DAXULY</a>
+            <NutGuiKeToan period={period} />
+          </div>
         </header>
         {loi ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">Không xuất được Excel: {loi}</p> : null}
         <FormUpload ky={period.ky} />
@@ -48,7 +54,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
           <table className="w-full text-xs">
             <thead className="bg-slate-100 text-left"><tr>
               <th className="p-2">#</th><th className="p-2">Số HĐ</th><th className="p-2">Ngày</th><th className="p-2">Người bán</th><th className="p-2">Tên hàng</th>
-              <th className="p-2 text-right">Thành tiền</th><th className="p-2">Mã</th><th className="p-2">Tên mã</th><th className="p-2">TK Nợ</th><th className="p-2">TK Có</th><th className="p-2">1331</th>
+              <th className="p-2 text-right">Thành tiền</th><th className="p-2">Mã (sửa)</th><th className="p-2">Ghi chú</th><th className="p-2">Luật</th><th className="p-2">TK Nợ</th><th className="p-2">TK Có</th><th className="p-2">1331</th>
               <th className="p-2">Độ tin cậy</th><th className="p-2">Căn cứ</th></tr></thead>
             <tbody>
               {rows.map((d) => (
@@ -57,7 +63,8 @@ export default async function KyPage({ params, searchParams }: { params: Promise
                   <td className="p-2 max-w-[220px] truncate" title={d.ten_ban ?? ''}>{d.ten_ban}</td>
                   <td className="p-2 max-w-[280px] truncate" title={d.ten_hang ?? ''}>{d.ten_hang}</td>
                   <td className="p-2 text-right tabular-nums">{d.thanh_tien?.toLocaleString('vi-VN')}</td>
-                  <td className="p-2 font-medium">{d.code}</td><td className="p-2">{d.code_name}</td><td className="p-2">{d.tk_no}</td><td className="p-2">{d.tk_co}</td><td className="p-2">{d.vat_1331}</td>
+                  <DongSua d={d} ma={ma} huong={direction} />
+                  <td className="p-2">{d.tk_no}</td><td className="p-2">{d.tk_co}</td><td className="p-2">{d.vat_1331}</td>
                   <td className="p-2">{d.engine_conf}</td><td className="p-2 min-w-[260px] max-w-[360px] text-slate-500">{d.engine_reason}</td>
                 </tr>))}
             </tbody>
