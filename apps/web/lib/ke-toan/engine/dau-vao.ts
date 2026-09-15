@@ -98,16 +98,16 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
 
   function suggest(seller: unknown, desc: unknown): { kmcp: string; conf: DoTinCay; reason: string; nguon: string } {
     const p = norm(seller), d = norm(desc)
-    for (const l of ovSup) if (l.pattern && p.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: NCC ~«${l.pattern}» → ${l.targetCode}`, nguon: 'override_ncc' }
-    for (const l of ovKw) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: từ khoá «${l.pattern}» → ${l.targetCode}`, nguon: 'override_kw' }
+    for (const l of ovSup) if (l.pattern && p.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật chốt tay: tên NCC chứa "${l.pattern}" → ${l.targetCode}`, nguon: 'override_ncc' }
+    for (const l of ovKw) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật chốt tay: diễn giải chứa "${l.pattern}" → ${l.targetCode}`, nguon: 'override_kw' }
     let best: { len: number; l: Luat } | null = null
     for (const l of ruleSup) {
       if (l.pattern.length < 5) continue
       if (p.includes(l.pattern) || (p.length >= 8 && l.pattern.includes(p))) if (!best || l.pattern.length > best.len) best = { len: l.pattern.length, l }
     }
-    if (best) { const dk = best.l.condition ?? ''; return { kmcp: best.l.targetCode, conf: dk ? 'trung binh' : 'cao', reason: `NCC khớp Rule «${best.l.pattern}»` + (dk ? ` — điều kiện tách: ${dk.slice(0, 50)}` : ''), nguon: 'rule_ncc' } }
-    for (const l of ruleKw) if (l.pattern && d.includes(l.pattern)) { const nl = l.condition ?? ''; return { kmcp: l.targetCode, conf: nl ? 'can review' : 'trung binh', reason: `Từ khoá khớp «${l.pattern}» → ${l.targetCode}` + (nl ? ` (ngoại lệ: ${nl.slice(0, 50)})` : ''), nguon: 'rule_kw' } }
-    return { kmcp: '', conf: 'khong ro', reason: 'Không khớp Rule/lịch sử — cần gán tay', nguon: '' }
+    if (best) { const dk = best.l.condition ?? ''; return { kmcp: best.l.targetCode, conf: dk ? 'trung binh' : 'cao', reason: `Rule Excel: tên NCC khớp "${best.l.pattern}"` + (dk ? ` — điều kiện tách: ${dk.slice(0, 50)}` : ''), nguon: 'rule_ncc' } }
+    for (const l of ruleKw) if (l.pattern && d.includes(l.pattern)) { const nl = l.condition ?? ''; return { kmcp: l.targetCode, conf: nl ? 'can review' : 'trung binh', reason: `Rule Excel: diễn giải chứa "${l.pattern}" → ${l.targetCode}` + (nl ? ` (ngoại lệ: ${nl.slice(0, 50)})` : ''), nguon: 'rule_kw' } }
+    return { kmcp: '', conf: 'khong ro', reason: 'Không khớp luật nào — cần gán tay', nguon: '' }
   }
 
   function phanLoai(seller: unknown, desc: unknown, thue: number | null): KetQuaDauVao {
