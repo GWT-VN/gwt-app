@@ -11,14 +11,18 @@ const catalog = JSON.parse(readFileSync(fileURLToPath(new URL('../__fixtures__/c
 
 describe('engine đầu ra — parity Python classify_output_row trên T8', () => {
   const eng = taoEngineDauRa({ luat: luatTuSeed(), catalog, kenh: [] })
+  const lech: string[] = []; const themDuoc: string[] = []
+  for (const r of golden.rows) {
+    const kq = eng.phanLoaiRa(r.desc, r.mst, r.buyer)
+    if (r.expected.ma) { if (kq.code !== r.expected.ma) lech.push(`#${r.i} ${r.desc}: python=${r.expected.ma} ts=${kq.code}`) }
+    else if (kq.code) themDuoc.push(`#${r.i} ${r.desc} → ts=${kq.code} (${kq.conf})`)
+    if (kq.customerCode !== r.expected.makh) lech.push(`#${r.i} mã khách: python=${r.expected.makh} ts=${kq.customerCode}`)
+  }
   it('mã nội bộ + mã khách khớp Python trên mọi dòng Python đã gán', () => {
-    const lech: string[] = []
-    for (const r of golden.rows) {
-      const kq = eng.phanLoaiRa(r.desc, r.mst, r.buyer)
-      if (r.expected.ma && kq.code !== r.expected.ma) lech.push(`#${r.i} ${r.desc}: python=${r.expected.ma} ts=${kq.code}`)
-      if (kq.customerCode !== r.expected.makh) lech.push(`#${r.i} mã khách: python=${r.expected.makh} ts=${kq.customerCode}`)
-    }
     expect(lech, lech.join('\n')).toEqual([])
+  })
+  it('liệt kê dòng Python trống mà TS điền thêm (không fail)', () => {
+    console.log(`TS điền thêm ${themDuoc.length} dòng:\n` + themDuoc.join('\n'))
   })
   it('nhóm SP theo danh mục cấp 2/3', () => {
     expect(nhomSpCua({ ma: 'CTD50NG', ten: '', tinhChat: 'Hàng hóa', capHai: 'POU', capBa: 'Countertop' })).toBe('POU-Countertop')
