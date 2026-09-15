@@ -73,7 +73,6 @@ function ghiHeaderThem(ws: ExcelJS.Worksheet, c0: number, them: readonly string[
     const cell = ws.getRow(1).getCell(c0 + i)
     cell.value = h
     cell.style = { ...cell.style, font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: HEAD, alignment: { wrapText: true, vertical: 'middle' } }
-    ws.getColumn(c0 + i).width = 16
   })
 }
 
@@ -176,5 +175,29 @@ export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; va
   if (!wsRa && input.ra.length > 0) throw new Error(`File gốc không có tab "HĐ Đầu ra" nhưng kỳ có ${input.ra.length} dòng đầu ra.`)
   dienTab(wsVao, 'vao', COT_THEM_VAO, input.vao)
   if (wsRa) dienTab(wsRa, 'ra', COT_THEM_RA, input.ra)
+  coCotTheoNoiDung(wsVao)
+  if (wsRa) coCotTheoNoiDung(wsRa)
   return new Uint8Array(await wb.xlsx.writeBuffer())
+}
+
+/** Độ dài hiển thị ước lượng của một ô (số có dấu phân cách nghìn, ngày 10 ký tự). */
+function doDaiO(v: ExcelJS.CellValue): number {
+  if (typeof v === 'number') return Math.round(v).toLocaleString('en-US').length + (Number.isInteger(v) ? 0 : 3)
+  if (v instanceof Date) return 10
+  return chuoiO(v).length
+}
+
+/**
+ * Co giãn mọi cột vừa nội dung (CEO 15/09: file NEXIA gốc nhiều cột hẹp cắt số/header). exceljs không
+ * có autofit → ước lượng theo ký tự dài nhất trong cột, kẹp [6, 60] để cột diễn giải dài không phình.
+ * Ghi đè độ rộng file gốc có chủ đích — kế toán đọc được số quan trọng hơn giữ y nguyên khung cũ.
+ */
+export function coCotTheoNoiDung(ws: ExcelJS.Worksheet) {
+  const soCot = ws.columnCount, soDong = ws.rowCount
+  const dai = new Array<number>(soCot + 1).fill(0)
+  for (let r = 1; r <= soDong; r++) {
+    const row = ws.getRow(r)
+    for (let c = 1; c <= soCot; c++) dai[c] = Math.max(dai[c], doDaiO(row.getCell(c).value))
+  }
+  for (let c = 1; c <= soCot; c++) ws.getColumn(c).width = Math.min(60, Math.max(6, dai[c] + 2))
 }

@@ -49,15 +49,17 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     dong(3, '999', { code: 'ONN25', codeName: 'VẬT TƯ (NVL)', tkNo: '152', engineKind: 'goods' }),
   ]
 
-  it('file chưa có cột thêm: nối 6 cột sau cột cuối, giữ Sheet1/độ rộng/header vàng/định dạng số/bộ lọc, bỏ dòng trống đúng chỗ', async () => {
+  it('file chưa có cột thêm: nối 6 cột sau cột cuối, giữ Sheet1/header vàng/định dạng số/bộ lọc, cột co theo nội dung, bỏ dòng trống đúng chỗ', async () => {
     const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc(), vao, ra: [dong(1, '10', { code: null, engineKind: null })] }))
     expect(wb.worksheets.map((w) => w.name)).toEqual(['Sheet1', 'HĐ đầu vào', 'HĐ Đầu ra'])
     const ws = wb.getWorksheet('HĐ đầu vào')!
     expect(ws.getRow(1).values).toEqual([undefined, ...H_VAO, ...COT_THEM_VAO])
-    expect(ws.getColumn(4).width).toBeCloseTo(67.9, 1)
+    // cột co theo nội dung: cột 4 (tên hàng dài nhất 'Chỉ có tên hàng' + header 21 ký tự) thu từ 67.9 về vừa header; cột 8 vừa 'Mã KMCP (đề xuất)'
+    expect(ws.getColumn(4).width).toBe('Tên hàng hóa, dịch vụ'.length + 2)
     expect(fill(ws.getCell(1, 1))).toBe('FFFFFF00')
     expect(fill(ws.getCell(1, 8))).toBe('FF305496')
-    expect(ws.getColumn(8).width).toBe(16)
+    expect(ws.getColumn(8).width).toBe('Mã KMCP (đề xuất)'.length + 2)
+    expect(ws.getColumn(1).width).toBe('Mẫu số HD'.length + 2); expect(ws.getColumn(6).width).toBe(6) // cột trống → sàn 6
     expect(ws.getCell(5, 4).numFmt).toBe('#,##0')
     expect(ws.autoFilter).toBeTruthy()
     // dòng 2 = row_order 1; dòng 3 trống bị bỏ; dòng 4 = row_order 2 (chỉ có tên hàng); dòng 5 = row_order 3
