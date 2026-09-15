@@ -203,6 +203,9 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
 13. **`chuan-hoa.ts` (hàm `norm()`) import `node:crypto`** — component client không được import file
    này thẳng (vỡ bundle, Ruling R2 lát 2). Pattern của "Đặt thành luật" phải tính ở server
    (`datThanhLuat` trong `actions.ts`), `DongSua.tsx` chỉ gửi `tenBan`/`tenHang` thô lên action.
+14. **Khuôn HDCT/HDTQ chưa đo** (máy Windows không có file, 15/09) — khi có file:
+   `python tools/scripts/ke_toan_do_header.py <file>` rồi đối chiếu mảnh `timCot` trong `docTab`;
+   fixture `hdct-t8-vao.json` hiện là khuôn NEXIA tạm.
 
 ## Việc treo sau lát 1–2
 
@@ -265,3 +268,6 @@ aa. `so_canh_bao` tính KHÁC nhau ở 2 RPC: `ke_toan_ky_gui` (ghi vào audit l
    `missing_in_last_upload` khỏi đếm; `ke_toan_ky_list` (hộp xác nhận trong `NutGuiKeToan.tsx` đọc
    `period.so_canh_bao` từ đây, TRƯỚC khi gửi) thì không loại — hộp xác nhận có thể đếm cao hơn số
    dòng audit ghi lại. Đồng bộ công thức ở migration sau.
+bb. CEO chép 4 file T8 HDCT/HDTQ vào
+   `data/ke-toan/Báo cáo tài chính/Báo cáo tài chính/HDCT/2026.08/` (mục "Bẫy đã gặp" 14) — sau đó
+   đo header lại bằng `ke_toan_do_header.py` và sinh lại `hdct-t8-vao.json` bằng `ke_toan_sinh_golden.py`.
