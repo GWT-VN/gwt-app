@@ -48,17 +48,21 @@ export function DongSua({ d, ma, huong }: { d: DongRow; ma: MucChon[]; huong: 'v
           placeholder="Ghi chú cho kế toán" aria-label="Ghi chú cho kế toán" className="w-full rounded border px-1 py-0.5 text-xs" />
         {tb ? <div className={`px-1 text-[11px] ${tb.ok ? 'text-emerald-700' : 'text-red-600'}`}>{tb.msg}</div> : null}
       </td>
-      <td className="p-1 whitespace-nowrap">
-        {huong === 'vao' && code ? (
-          moLuat ? (
-            <span className="inline-flex gap-1">
-              <button type="button" disabled={dang} onClick={() => datLuat('supplier')} className="rounded border px-1.5 text-[11px]">NCC → {code}</button>
-              <button type="button" disabled={dang} onClick={() => datLuat('keyword')} className="rounded border px-1.5 text-[11px]">Diễn giải → {code}</button>
-              <button type="button" onClick={() => setMoLuat(false)} className="px-1 text-[11px] text-slate-400">✕</button>
-            </span>
-          ) : <button type="button" onClick={() => setMoLuat(true)} className="text-[11px] text-[#3f8a6a] underline">Đặt thành luật</button>
-        ) : null}
-      </td>
+      {/* Cột "Đặt thành luật" chỉ có ở tab đầu vào — tab ra KHÔNG render <td> này (không phải chỉ để
+          trống), để tổng số cột khớp header của bảng tab ra (page.tsx). */}
+      {huong === 'vao' ? (
+        <td className="p-1 whitespace-nowrap">
+          {code ? (
+            moLuat ? (
+              <span className="inline-flex gap-1">
+                <button type="button" disabled={dang} onClick={() => datLuat('supplier')} className="rounded border px-1.5 text-[11px]">NCC → {code}</button>
+                <button type="button" disabled={dang} onClick={() => datLuat('keyword')} className="rounded border px-1.5 text-[11px]">Diễn giải → {code}</button>
+                <button type="button" onClick={() => setMoLuat(false)} className="px-1 text-[11px] text-slate-400">✕</button>
+              </span>
+            ) : <button type="button" onClick={() => setMoLuat(true)} className="text-[11px] text-[#3f8a6a] underline">Đặt thành luật</button>
+          ) : null}
+        </td>
+      ) : null}
     </>
   )
 }

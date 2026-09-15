@@ -26,7 +26,11 @@ async function fileGoc(opts: { daCoCotThem?: boolean } = {}): Promise<Uint8Array
 }
 
 function dong(rowOrder: number, soHd: string | null, phan: Partial<DongXuat> = {}): DongXuat {
-  return { rowOrder, soHd, raw: [], code: 'cp.qc', codeName: 'CP quảng cáo', tkNo: '6427', tkCo: '331', vat1331: '1331', note: null, engineConf: 'cao', engineKind: 'kmcp', ...phan }
+  return {
+    rowOrder, soHd, raw: [], code: 'cp.qc', codeName: 'CP quảng cáo', tkNo: '6427', tkCo: '331', vat1331: '1331', note: null, engineConf: 'cao', engineKind: 'kmcp',
+    customerCode: null, productGroup: null, channelL1: null, channelL2: null, dealerName: null, nguon: 'nexia',
+    ...phan,
+  }
 }
 
 async function doc(buf: Uint8Array) {
@@ -165,6 +169,20 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     const ra = wb.getWorksheet('HĐ Đầu ra')!
     expect(ra.columnCount).toBe(H_RA.length + 2)
     expect(ra.getCell(2, 5).value).toBe('MOI'); expect(ra.getCell(2, 6).value).toBeNull()
+  })
+
+  it('tab đầu ra: 2 cột thêm + điền cột template có sẵn (Mã hàng, Loại, Kênh, Đại lý) đúng dòng', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    wb0.addWorksheet('HĐ đầu vào').addRow(H_VAO)
+    const ra0 = wb0.addWorksheet('HĐ Đầu ra'); ra0.addRow([...H_RA, 'Loại', 'Kênh', 'Đại lý']); ra0.addRow([1, '10', 'Máy lọc', null, null, null, null])
+    const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [], ra: [dong(1, '10', { code: 'CTD50NG', customerCode: 'KHSP', productGroup: 'POU-Countertop', channelL1: 'Ecom', channelL2: 'Shopee', dealerName: '' })] }))
+    const ra = wb.getWorksheet('HĐ Đầu ra')!
+    expect(ra.getCell(2, 4).value).toBe('CTD50NG')          // Mã hàng (template)
+    expect(ra.getCell(2, 5).value).toBe('POU-Countertop')   // Loại
+    expect(ra.getCell(2, 6).value).toBe('Ecom / Shopee')    // Kênh
+    expect(ra.getCell(2, 7).value).toBeNull()               // Đại lý rỗng
+    expect(ra.getCell(1, 8).value).toBe('Mã nội bộ (đề xuất)'); expect(ra.getCell(2, 8).value).toBe('CTD50NG'); expect(ra.getCell(2, 9).value).toBe('KHSP')
   })
 
   it('Số HĐ trong file khác DB → từ chối xuất (không ghi sai dòng)', async () => {

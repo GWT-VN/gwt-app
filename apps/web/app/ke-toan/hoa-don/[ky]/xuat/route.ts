@@ -33,6 +33,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
         note: d.note_for_accountant,
         engineConf: d.engine_conf,
         engineKind: d.engine_kind,
+        customerCode: d.customer_code,
+        productGroup: d.product_group,
+        channelL1: d.channel_l1,
+        channelL2: d.channel_l2,
+        dealerName: d.dealer_name,
+        nguon: 'nexia', // R14: cột first_source_kind chưa có (Task 10) — tạm cố định nexia
       }))
 
   let buf: Uint8Array

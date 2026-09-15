@@ -15,16 +15,18 @@ import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { docNexia, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
 import { ganKhoaDong } from '@/lib/ke-toan/nhap/khoa-dong'
 import { taoEngineDauVao, tkNoCuaTinhChat } from '@/lib/ke-toan/engine/dau-vao'
-import type { Luat, MucCatalog, MucKmcp, KetQuaDauVao, ThongKeHoc } from '@/lib/ke-toan/engine/kieu'
+import { taoEngineDauRa } from '@/lib/ke-toan/engine/dau-ra'
+import type { Luat, MucCatalog, MucKenh, MucKmcp, KetQuaDauVao, KetQuaDauRa, ThongKeHoc } from '@/lib/ke-toan/engine/kieu'
 import { norm } from '@/lib/ke-toan/chuan-hoa'
 import type { MucChon } from '@/bang'
 
 export type KyRow = { id: number; ky: string; status: 'dang_xu_ly' | 'da_gui'; sent_at: string | null; cap_nhat: string; so_dong_vao: number; so_dong_ra: number; so_canh_bao: number; edits_after_sent: number }
 export type DongRow = {
   id: number; row_order: number; line_key: string; ky_hieu: string | null; so_hd: string | null; ngay_lap: string | null
-  ten_ban: string | null; ten_hang: string | null; thanh_tien: number | null; tien_thue: number | null
+  ten_ban: string | null; ten_mua: string | null; ten_hang: string | null; thanh_tien: number | null; tien_thue: number | null
   raw: (string | number | null)[]; engine_code: string | null; engine_conf: string | null; engine_reason: string | null; engine_kind: string | null
   code: string | null; code_name: string | null; tk_no: string | null; tk_co: string | null; vat_1331: string | null
+  customer_code: string | null; product_group: string | null; channel_l1: string | null; channel_l2: string | null; dealer_name: string | null
   note_for_accountant: string | null; first_source_id: number | null; missing_in_last_upload: boolean
 }
 
@@ -59,26 +61,29 @@ export async function danhSachKy(): Promise<KyRow[]> {
   return (await goi<KyRow[]>('ke_toan_ky_list', {})) ?? []
 }
 
-async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; thongKe: ThongKeHoc }> {
+async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; kenh: MucKenh[]; thongKe: ThongKeHoc }> {
   await chanKeToan()
   const db = dataClient()
-  const [luat, cat, km, thongKe] = await Promise.all([
+  const [luat, cat, km, kenh, thongKe] = await Promise.all([
     goi<{ id: number; kind: Luat['kind']; pattern: string; target_code: string; condition: string | null; priority: number; origin: Luat['origin']; active: boolean }[]>('ke_toan_luat_list', {}),
-    db.from('catalog_item').select('"Mã nội bộ", "Tên ngắn gọn (đề xuất)", "Tính chất"'),
+    db.from('catalog_item').select('"Mã nội bộ", "Tên ngắn gọn (đề xuất)", "Tính chất", "Danh mục cấp 2", "Danh mục cấp 3"'),
     db.from('expense_category').select('ma, ten, tk_no_default'),
+    db.from('dim_channel').select('mst, company_name, channel_l1, channel_l2'),
     goi<ThongKeHoc>('ke_toan_thong_ke_hoc', {}),
   ])
   if (cat.error) throw new Error(cat.error.message)
   if (km.error) throw new Error(km.error.message)
+  if (kenh.error) throw new Error(kenh.error.message)
   return {
     luat: (luat ?? []).map((l) => ({ id: l.id, kind: l.kind, pattern: l.pattern, targetCode: l.target_code, condition: l.condition, priority: l.priority, origin: l.origin, active: l.active })),
-    catalog: (cat.data as Record<string, string | null>[]).map((c) => ({ ma: c['Mã nội bộ'] ?? '', ten: c['Tên ngắn gọn (đề xuất)'] ?? '', tinhChat: c['Tính chất'] ?? '' })).filter((c) => c.ma && c.ten),
+    catalog: (cat.data as Record<string, string | null>[]).map((c) => ({ ma: c['Mã nội bộ'] ?? '', ten: c['Tên ngắn gọn (đề xuất)'] ?? '', tinhChat: c['Tính chất'] ?? '', capHai: c['Danh mục cấp 2'] ?? undefined, capBa: c['Danh mục cấp 3'] ?? undefined })).filter((c) => c.ma && c.ten),
     kmcp: (km.data as { ma: string; ten: string | null; tk_no_default: string | null }[]).map((k) => ({ ma: k.ma, ten: k.ten ?? '', tkNoDefault: k.tk_no_default ?? '' })),
+    kenh: (kenh.data as { mst: string | null; company_name: string | null; channel_l1: string; channel_l2: string }[]).map((k) => ({ mst: k.mst, companyName: k.company_name, channelL1: k.channel_l1, channelL2: k.channel_l2 })),
     thongKe: thongKe ?? { ncc: {}, prefix: {} },
   }
 }
 
-function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: KetQuaDauVao) {
+function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: KetQuaDauVao, engineRa?: KetQuaDauRa) {
   const t = d.truong
   return {
     direction, line_key: lineKey, row_order: d.rowOrder,
@@ -87,8 +92,12 @@ function dongSql(direction: 'vao' | 'ra', d: DongTho, lineKey: string, engine?: 
     ten_hang: t.tenHang || null, dvt: t.dvt || null, so_luong: t.soLuong, don_gia: t.donGia, thue_suat: t.thueSuat || null,
     thanh_tien: t.thanhTien, tien_thue: t.tienThue, tong_thanh_toan: t.tongThanhToan, trang_thai: t.trangThai || null, tinh_chat: t.tinhChat || null,
     raw: d.raw,
-    engine_code: engine?.code ?? null, engine_conf: engine?.conf ?? null, engine_reason: engine?.reason ?? null, engine_kind: engine?.kind ?? null,
-    code: engine?.code || null, code_name: engine?.codeName || null, tk_no: engine?.tkNo || null, tk_co: engine?.tkCo || null, vat_1331: engine?.vat1331 || null,
+    engine_code: engine?.code ?? engineRa?.code ?? null, engine_conf: engine?.conf ?? engineRa?.conf ?? null,
+    engine_reason: engine?.reason ?? engineRa?.reason ?? null, engine_kind: engine?.kind ?? (engineRa ? 'goods' : null),
+    code: engine?.code || engineRa?.code || null, code_name: engine?.codeName || engineRa?.codeName || null,
+    tk_no: engine?.tkNo || null, tk_co: engine?.tkCo || null, vat_1331: engine?.vat1331 || null,
+    customer_code: engineRa?.customerCode ?? null, product_group: engineRa?.productGroup || null,
+    channel_l1: engineRa?.channelL1 ?? null, channel_l2: engineRa?.channelL2 ?? null, dealer_name: engineRa?.dealerName ?? null,
   }
 }
 
@@ -123,11 +132,12 @@ async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
     // chưa tạo gì phải dọn.
     const dl = await duLieuEngine()
     const eng = taoEngineDauVao(dl)
+    const engRa = taoEngineDauRa({ luat: dl.luat, catalog: dl.catalog, kenh: dl.kenh })
     const khoaVao = ganKhoaDong(f.vao.dong, 'vao')
     const khoaRa = f.ra ? ganKhoaDong(f.ra.dong, 'ra') : []
     const rows = [
       ...f.vao.dong.map((d, i) => dongSql('vao', d, khoaVao[i], eng.phanLoai(d.truong.tenBan, d.truong.tenHang, d.truong.tienThue))),
-      ...(f.ra?.dong ?? []).map((d, i) => dongSql('ra', d, khoaRa[i])),
+      ...(f.ra?.dong ?? []).map((d, i) => dongSql('ra', d, khoaRa[i], undefined, engRa.phanLoaiRa(d.truong.tenHang, d.truong.mstMua, d.truong.tenMua))),
     ]
 
     const db = dataClient()
@@ -158,7 +168,7 @@ async function nhapNexia(email: string, form: FormData): Promise<KetQuaUpload> {
       return { ok: false, error: loi }
     }
 
-    const canhBao = rows.filter((r) => r.direction === 'vao' && (!r.code || r.engine_conf === 'can review' || r.engine_conf === 'khong ro')).length
+    const canhBao = rows.filter((r) => (r.direction === 'vao' && (!r.code || r.engine_conf === 'can review' || r.engine_conf === 'khong ro')) || (r.direction === 'ra' && !r.code)).length
     await ghiAudit('ke_toan.upload_nexia', ky, { file: file.name, inserted, updated, kept, canhBao, thieu, by: email })
     revalidatePath('/ke-toan'); revalidatePath(`/ke-toan/hoa-don/${ky}`)
     return { ok: true, inserted, updated, kept, canhBao, thieu }

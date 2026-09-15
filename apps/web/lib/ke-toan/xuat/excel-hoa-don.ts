@@ -27,6 +27,14 @@ export type DongXuat = {
   note: string | null
   engineConf: string | null
   engineKind: string | null
+  /** đầu ra (engine dau-ra.ts) — điền cột đề xuất + cột template Loại/Kênh/Đại lý. */
+  customerCode: string | null
+  productGroup: string | null
+  channelL1: string | null
+  channelL2: string | null
+  dealerName: string | null
+  /** Nguồn dòng: nexia (file NEXIA) | hdct | hdtq (cổng thuế, Task 10). */
+  nguon: 'nexia' | 'hdct' | 'hdtq'
 }
 
 export const COT_THEM_VAO = ['Mã KMCP (đề xuất)', 'Tên KMCP', 'TK Nợ', 'TK Có', 'Nợ 1331 (VAT)', 'Ghi chú'] as const
@@ -73,7 +81,7 @@ function toCotThem(row: ExcelJS.Row, c0: number, n: number, d: DongXuat, tab: 'v
 }
 
 function giaTriThem(d: DongXuat, tab: 'vao' | 'ra'): (string | null)[] {
-  return tab === 'vao' ? [d.code, d.codeName, d.tkNo, d.tkCo, d.vat1331, ghiChuMacDinh(d) || null] : [d.code, null]
+  return tab === 'vao' ? [d.code, d.codeName, d.tkNo, d.tkCo, d.vat1331, ghiChuMacDinh(d) || null] : [d.code, d.customerCode]
 }
 
 function ghiHeaderThem(ws: ExcelJS.Worksheet, c0: number, them: readonly string[]) {
@@ -144,6 +152,10 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
     nGoc = Math.max(headers.length, soCot); c0 = nGoc + 1
     ghiHeaderThem(ws, c0, them)
   }
+  // Tab đầu ra: file NEXIA gốc có sẵn cột "Mã hàng/Loại/Kênh/Đại lý" (khuôn Excel kế toán) — điền
+  // thẳng vào đó thay vì chỉ nối khối 2 cột đề xuất. Không thấy cột nào thì bỏ qua, không lỗi.
+  const hGoc = headers.slice(0, nGoc)
+  const cTpl = tab === 'ra' ? { maHang: timCot(hGoc, 'mã hàng'), loai: timCot(hGoc, 'loại'), kenh: timCot(hGoc, 'kênh'), daiLy: timCot(hGoc, 'đại lý') } : null
   const map = anhXaDong(ws, headers.slice(0, nGoc), ws.name)
   if (map.size === 0 && dong.length > 0) throw new Error(`Tab "${ws.name}" trong file gốc không có dòng dữ liệu nào nhưng kỳ có ${dong.length} dòng.`)
   const cSo = timCot(headers, 'số hóa đơn')
@@ -162,6 +174,12 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
     }
     daGhi.add(d.rowOrder!)
     giaTriThem(d, tab).forEach((v, i) => { row.getCell(c0 + i).value = v })
+    if (cTpl) {
+      if (cTpl.maHang >= 0 && d.code) row.getCell(cTpl.maHang + 1).value = d.code
+      if (cTpl.loai >= 0) row.getCell(cTpl.loai + 1).value = d.productGroup || null
+      if (cTpl.kenh >= 0) row.getCell(cTpl.kenh + 1).value = d.channelL1 ? (d.channelL2 ? `${d.channelL1} / ${d.channelL2}` : d.channelL1) : null
+      if (cTpl.daiLy >= 0) row.getCell(cTpl.daiLy + 1).value = d.dealerName || null
+    }
     toCotThem(row, c0, them.length, d, tab)
   }
   // Dòng trong file có khối cột cũ (bản Python) nhưng không còn dòng DB tương ứng → xoá số liệu cũ,
