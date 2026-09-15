@@ -106,7 +106,7 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
   if (file.size > TOI_DA_BYTE) return { ok: false, error: 'File quá 8 MB.' }
   try {
     const buf = new Uint8Array(await file.arrayBuffer())
-    const f = docNexia(buf)
+    const f = await docNexia(buf)
     if (!f.vao) return { ok: false, error: 'File không có tab "HĐ đầu vào".' }
 
     const { id: periodId } = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky })
@@ -159,12 +159,6 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
   }
 }
 
-async function headersNguonDau(periodId: number, direction: 'vao' | 'ra'): Promise<string[]> {
-  const r = await goi<{ headers: Record<string, string[]> }[]>('ke_toan_nguon_list', { p_period_id: periodId })
-  const nexia = (r ?? []).find((s) => s.headers && s.headers[direction]?.length)
-  return nexia?.headers[direction] ?? []
-}
-
 export type NguonRow = { id: number; kind: string; file_name: string; headers: Record<string, string[]>; row_count: number; uploaded_at: string; storage_path: string | null }
 
 /**
@@ -184,13 +178,10 @@ export async function taiNguonNexiaMoiNhat(periodId: number): Promise<{ id: numb
   return { id: nguon.id, goc: new Uint8Array(await data.arrayBuffer()) }
 }
 
-export async function dongCuaKy(ky: string, direction: 'vao' | 'ra'): Promise<{ period: KyRow | null; dong: DongRow[]; headers: string[] }> {
+export async function dongCuaKy(ky: string, direction: 'vao' | 'ra'): Promise<{ period: KyRow | null; dong: DongRow[] }> {
   const ds = await danhSachKy()
   const period = ds.find((k) => k.ky === ky) ?? null
-  if (!period) return { period: null, dong: [], headers: [] }
-  const [dong, headers] = await Promise.all([
-    goi<DongRow[]>('ke_toan_dong_list', { p_period_id: period.id, p_direction: direction }),
-    headersNguonDau(period.id, direction),
-  ])
-  return { period, dong: dong ?? [], headers }
+  if (!period) return { period: null, dong: [] }
+  const dong = await goi<DongRow[]>('ke_toan_dong_list', { p_period_id: period.id, p_direction: direction })
+  return { period, dong: dong ?? [] }
 }

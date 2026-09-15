@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { docNexia, timCot } from './nexia'
 
-function wb(sheets: Record<string, unknown[][]>): ArrayBuffer {
-  const w = XLSX.utils.book_new()
-  for (const [ten, aoa] of Object.entries(sheets)) XLSX.utils.book_append_sheet(w, XLSX.utils.aoa_to_sheet(aoa), ten)
-  return XLSX.write(w, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+async function wb(sheets: Record<string, unknown[][]>): Promise<Uint8Array> {
+  const w = new ExcelJS.Workbook()
+  for (const [ten, aoa] of Object.entries(sheets)) { const ws = w.addWorksheet(ten); for (const r of aoa) ws.addRow(r) }
+  return new Uint8Array(await w.xlsx.writeBuffer())
 }
 const HDR = ['Mẫu số HD', 'Ký hiệu hóa  đơn', 'Số hóa đơn', 'Ngày lập hóa đơn', 'Ngày người bán ký số', 'MCCQT',
   'Ngày CQT ký số', 'Đơn vị tiền tệ', 'Tỷ giá', 'Tên người bán', 'MST người bán', 'Địa chỉ người bán',
@@ -17,32 +17,40 @@ const DONG = [1, 'C26MTS', ' 487', '23/08/2026', '23/08/2026', 'M1-26-X', '23/08
   'Hóa đơn mới', null, null, null, 'ghi ở cột 32', 'TM/CK']
 
 describe('docNexia', () => {
-  it('đọc 2 tab, header giữ vị trí kể cả trùng tên và rỗng', () => {
-    const f = docNexia(wb({ Sheet1: [['ghi chú']], 'HĐ đầu vào': [HDR, DONG], 'HĐ Đầu ra': [HDR] }))
+  it('đọc 2 tab, header giữ vị trí kể cả trùng tên và rỗng', async () => {
+    const f = await docNexia(await wb({ Sheet1: [['ghi chú']], 'HĐ đầu vào': [HDR, DONG], 'HĐ Đầu ra': [HDR] }))
     expect(f.vao?.headers).toHaveLength(33)
     expect(f.vao?.headers[30]).toBe('')
     expect(f.vao?.headers[28]).toBe('Ghi chú 2'); expect(f.vao?.headers[31]).toBe('Ghi chú 2')
     expect(f.ra?.dong).toHaveLength(0)
   })
-  it('trường nghiệp vụ tìm theo tên cột; raw giữ đúng vị trí', () => {
-    const f = docNexia(wb({ 'HĐ đầu vào': [HDR, DONG] }))
+  it('trường nghiệp vụ tìm theo tên cột; raw giữ đúng vị trí', async () => {
+    const f = await docNexia(await wb({ 'HĐ đầu vào': [HDR, DONG] }))
     const d = f.vao!.dong[0]
     expect(d.rowOrder).toBe(1)
     expect(d.truong).toMatchObject({ kyHieu: 'C26MTS', soHd: '487', ngayLap: '2026-08-23', tenBan: 'CÔNG TY A',
       tenHang: 'Má giòn mù tạt', thanhTien: 87000, tienThue: 6960, tongThanhToan: 93960, trangThai: 'Hóa đơn mới', tinhChat: 'TM/CK' })
-    expect(d.raw[31]).toBe('ghi ở cột 32'); expect(d.raw[30]).toBeNull()
+    expect(d.raw[31]).toBe('ghi ở cột 32'); expect(d.raw[30]).toBeNull(); expect(d.raw[0]).toBe(1)
   })
-  it('bỏ dòng trống, cột thiếu không ném lỗi', () => {
+  it('bỏ dòng trống, cột thiếu không ném lỗi', async () => {
     const hdrThieu = HDR.filter((h) => h !== 'Tính chất' && h !== 'MCCQT')
     const dongThieu = DONG.filter((_, i) => HDR[i] !== 'Tính chất' && HDR[i] !== 'MCCQT')
-    const f = docNexia(wb({ 'HĐ đầu vào': [hdrThieu, dongThieu, [null, null, null], []] }))
+    const f = await docNexia(await wb({ 'HĐ đầu vào': [hdrThieu, dongThieu, [null, null, null], []] }))
     expect(f.vao!.dong).toHaveLength(1)
     expect(f.vao!.dong[0].truong.tinhChat).toBe(''); expect(f.vao!.dong[0].truong.mccqt).toBe('')
   })
-  it('ngày dạng Date của Excel cũng ra YYYY-MM-DD', () => {
+  it('ngày dạng Date của Excel cũng ra YYYY-MM-DD', async () => {
     const dong: unknown[] = [...DONG]; dong[3] = new Date(2026, 7, 5)
-    const f = docNexia(wb({ 'HĐ đầu vào': [HDR, dong] }))
+    const f = await docNexia(await wb({ 'HĐ đầu vào': [HDR, dong] }))
     expect(f.vao!.dong[0].truong.ngayLap).toBe('2026-08-05')
+  })
+  it('ô công thức / rich text đọc ra giá trị hiển thị', async () => {
+    const dong: unknown[] = [...DONG]
+    dong[22] = { formula: '19*20', result: 87000 }
+    dong[16] = { richText: [{ text: 'Má giòn ' }, { text: 'mù tạt', font: { bold: true } }] }
+    const f = await docNexia(await wb({ 'HĐ đầu vào': [HDR, dong] }))
+    expect(f.vao!.dong[0].truong.thanhTien).toBe(87000)
+    expect(f.vao!.dong[0].truong.tenHang).toBe('Má giòn mù tạt')
   })
   it('timCot khớp mảnh, không phân biệt hoa thường/khoảng trắng đôi', () => {
     expect(timCot(HDR as string[], 'ký hiệu', 'hóa')).toBe(1)

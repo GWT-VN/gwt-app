@@ -24,9 +24,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   VAT, độ tin cậy — dòng vàng = engine không chắc).
 - `GET /ke-toan/hoa-don/[ky]/xuat` — tải Excel `_DAXULY.xlsx`: mở **chính file NEXIA gốc** (tải từ
   Storage) và điền khối cột đề xuất vào đó (`lib/ke-toan/xuat/excel-hoa-don.ts` → `dienExcelHoaDon`),
-  giữ nguyên Sheet1/độ rộng/định dạng/màu dòng HDCT như tool Python; file đã có khối cột (bản Python
-  cũ, xuất lần 2) thì ghi đè, không nối bộ thứ hai. File gốc không còn → dựng từ đầu (`dungExcelHoaDon`).
-  Dòng file ↔ DB lệch Số HĐ → 409, không ghi sai dòng.
+  giữ nguyên Sheet1/độ rộng/định dạng như tool Python; file đã có khối cột (bản Python cũ, xuất lần 2)
+  thì ghi đè, không nối bộ thứ hai. File gốc không còn trên Storage, hoặc dòng DB không có trong file /
+  lệch Số HĐ → quay về màn kỳ với `?loi=` (upload lại), **không** dựng file khác, không ghi sai dòng.
+  Đọc lẫn xuất đều bằng `exceljs` (bỏ `xlsx` khỏi khu này 15/09/2026 — dep vẫn còn vì CSKH
+  `NhapKhoSerial` dùng phía trình duyệt).
 - Launcher "Kế toán" trong `TopNav` cho các vai trò trên.
 
 ## Config ngoài migration (ghi để dựng lại được)
@@ -142,10 +144,12 @@ f. Guard test `ke-toan-guard.test.ts` chưa bắt action viết dạng arrow fun
    gặp") — mở rộng regex tách hàm để bắt cả hai dạng khai báo.
 g. 2 luật rác `Mã hàng` / `_x0008_LDPOU` trong seed 01 — CEO quyết xoá bằng data migration (chưa
    xoá vì golden T8/parity đọc seed 01).
-h. `tuHdct` trong export gán nhầm khi upload NEXIA lần 2 cùng kỳ.
-i. Headers export lấy từ nguồn đầu tiên — cần kiểm shape khi file sau khác cột.
-j. `xlsx@0.18.5` có advisory (prototype pollution/ReDoS) — chỉ 4 vai mới upload được, cân nhắc đổi
-   parser.
+h. ~~`tuHdct` trong export gán nhầm khi upload NEXIA lần 2 cùng kỳ.~~ **Bỏ hẳn `tuHdct` + nhánh nối
+   cuối** (audit 15/09): lát 1 mọi dòng đều từ file gốc; dòng DB không có trong file → từ chối xuất.
+   Lát 4 (HDCT bổ sung) thêm lại có chủ đích.
+i. ~~Headers export lấy từ nguồn đầu tiên.~~ **Hết** — bỏ đường dựng từ đầu, header luôn là của file gốc.
+j. ~~`xlsx@0.18.5` có advisory~~ — khu Kế toán đọc bằng `exceljs` (15/09); dep `xlsx` còn vì CSKH
+   `components/NhapKhoSerial.tsx` dùng phía trình duyệt (ngoài khu này).
 k. 9 entry ledger live 20260820–20260821 có `statements` rỗng (tồn đọng trước nhánh) — branch
    Supabase sẽ thiếu.
 l. E2e file NEXIA thật chưa chạy trên máy này.
@@ -163,7 +167,7 @@ r. `globals.css` đổi màu chữ theo dark mode của OS dù app không có gi
    gốc là bỏ khối `@media (prefers-color-scheme: dark)`; file dùng chung, cần CEO gật + báo khu khác.
 s. Màn Kế toán dùng xanh lá `#3f8a6a` tự đặt, khác accent teal `#0e8c9a` của Sales/Work — đồng bộ khi
    polish.
-t. Route `xuat` chưa có test tích hợp (nhánh dự phòng khi file gốc không còn, nhánh redirect `?loi=`) —
+t. Route `xuat` chưa có test tích hợp (nhánh redirect `?loi=` khi không có file gốc / lệch dòng) —
    cần khung mock Next route handler.
 u. Chưa đo bộ nhớ `exceljs` load + write trên Vercel với file 8 MB (trần upload) — đo một lần với T8
    trước khi kế toán dùng thật, ghi số vào đây.

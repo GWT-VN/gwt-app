@@ -26,7 +26,7 @@ async function fileGoc(opts: { daCoCotThem?: boolean } = {}): Promise<Uint8Array
 }
 
 function dong(rowOrder: number, soHd: string | null, phan: Partial<DongXuat> = {}): DongXuat {
-  return { rowOrder, soHd, raw: [], code: 'cp.qc', codeName: 'CP quảng cáo', tkNo: '6427', tkCo: '331', vat1331: '1331', note: null, engineConf: 'cao', engineKind: 'kmcp', tuHdct: false, ...phan }
+  return { rowOrder, soHd, raw: [], code: 'cp.qc', codeName: 'CP quảng cáo', tkNo: '6427', tkCo: '331', vat1331: '1331', note: null, engineConf: 'cao', engineKind: 'kmcp', ...phan }
 }
 
 async function doc(buf: Uint8Array) {
@@ -101,11 +101,8 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     expect(ghiChuMacDinh(dong(1, '1'))).toBe('')
   })
 
-  it('dòng không có trong file gốc (HDCT bổ sung) nối cuối và tô cam', async () => {
-    const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, dong(4, '555', { raw: [1, 'HDCT', '555', 'Combo'], tuHdct: true })], ra: [] }))
-    const ws = wb.getWorksheet('HĐ đầu vào')!
-    expect(ws.rowCount).toBe(6)
-    expect(ws.getCell(6, 3).value).toBe('555'); expect(fill(ws.getCell(6, 1))).toBe('FFFFE699'); expect(ws.getCell(6, 8).value).toBe('cp.qc')
+  it('dòng DB không có trong file gốc → từ chối xuất, không nối xuống đáy', async () => {
+    await expect(dienExcelHoaDon({ goc: await fileGoc(), vao: [...vao, dong(4, '555', { raw: [1, 'HDCT', '555', 'Combo'] })], ra: [] })).rejects.toThrow(/không có trong file gốc/)
   })
 
   it('tên tab lệch ("Hoá đơn đầu vào T8") vẫn nhận; thiếu tab đầu ra mà kỳ có dòng ra → lỗi rõ, không có dòng ra → OK', async () => {

@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { sd } from '../chuan-hoa'
 
 export type TruongDong = {
@@ -17,25 +17,38 @@ export function timCot(headers: string[], ...manh: string[]): number {
   return headers.findIndex((h) => { const t = sd(h); return m.every((x) => t.includes(x)) })
 }
 
+/** Gỡ vỏ giá trị ô exceljs về nguyên thuỷ: công thức → kết quả, rich text/hyperlink → text, ô lỗi → null. */
+export function giaTriO(v: ExcelJS.CellValue): string | number | Date | null {
+  if (v == null) return null
+  if (typeof v !== 'object') return typeof v === 'boolean' ? String(v) : v
+  if (v instanceof Date) return v
+  if ('richText' in v) return v.richText.map((t) => t.text).join('')
+  if ('result' in v) return giaTriO(v.result as ExcelJS.CellValue)
+  if ('text' in v) return giaTriO(v.text as ExcelJS.CellValue)
+  return null
+}
+
+function ngay(v: unknown): string | null {
+  if (v instanceof Date) {
+    // Ngày theo giờ máy, không toISOString() (bẫy UTC — docs/CHUAN-FILTER.md).
+    const p = (n: number) => String(n).padStart(2, '0')
+    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())}`
+  }
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(v ?? ''))
+  if (!m) return null
+  return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`
+}
 function chuoi(v: unknown): string {
   if (v == null) return ''
-  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : String(v)
-  return String(v).trim()
+  return (v instanceof Date ? ngay(v)! : String(v)).trim()
 }
+/** Giá trị ô exceljs → chuỗi trim (ngày → YYYY-MM-DD). Bộ đọc và bộ xuất dùng chung để so/khớp một kiểu. */
+export function chuoiO(v: ExcelJS.CellValue): string { return chuoi(giaTriO(v)) }
 function so(v: unknown): number | null {
   if (v == null || v === '') return null
   if (typeof v === 'number') return v
   const n = Number(String(v).replace(/[,\s]/g, ''))
   return Number.isFinite(n) ? n : null
-}
-function ngay(v: unknown): string | null {
-  if (v instanceof Date) {
-    const p = (n: number) => String(n).padStart(2, '0')
-    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())}`
-  }
-  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(chuoi(v))
-  if (!m) return null
-  return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`
 }
 function oTho(v: unknown): string | number | null {
   if (v == null || v === '') return null
@@ -44,9 +57,11 @@ function oTho(v: unknown): string | number | null {
   return String(v)
 }
 
-function docTab(ws: XLSX.WorkSheet, ten: 'vao' | 'ra'): TabNexia {
-  const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, raw: true, blankrows: false, defval: null })
-  const headers = (aoa[0] ?? []).map((h) => chuoi(h))
+function docTab(ws: ExcelJS.Worksheet, ten: 'vao' | 'ra'): TabNexia {
+  const o = (row: ExcelJS.Row, i: number) => giaTriO(row.getCell(i + 1).value)
+  const soCot = ws.columnCount // getter quét cả sheet — hoist
+  const r1 = ws.getRow(1)
+  const headers = Array.from({ length: soCot }, (_, i) => chuoi(o(r1, i)))
   const c = {
     kyHieu: timCot(headers, 'ký hiệu', 'hóa'), soHd: timCot(headers, 'số hóa đơn'), ngayLap: timCot(headers, 'ngày lập'),
     mccqt: timCot(headers, 'mccqt'), tenBan: timCot(headers, 'tên người bán'), mstBan: timCot(headers, 'mst người bán'),
@@ -55,12 +70,14 @@ function docTab(ws: XLSX.WorkSheet, ten: 'vao' | 'ra'): TabNexia {
     thueSuat: timCot(headers, 'thuế suất'), thanhTien: timCot(headers, 'thành tiền chưa thuế'), tienThue: timCot(headers, 'tiền thuế'),
     tongThanhToan: timCot(headers, 'tổng tiền thanh toán'), trangThai: timCot(headers, 'trạng thái hóa đơn'), tinhChat: timCot(headers, 'tính chất'),
   }
-  const g = (r: unknown[], i: number) => (i >= 0 ? r[i] : null)
+  const g = (row: ExcelJS.Row, i: number) => (i >= 0 ? o(row, i) : null)
   const dong: DongTho[] = []
-  for (let r = 1; r < aoa.length; r++) {
-    const row = aoa[r] ?? []
+  const soDong = ws.rowCount
+  for (let r = 2; r <= soDong; r++) {
+    const row = ws.getRow(r)
+    // Cùng luật bỏ dòng với `anhXaDong` bên xuất — lệch là cột đề xuất rơi sai dòng.
     if (!chuoi(g(row, c.soHd)) && !chuoi(g(row, c.tenHang))) continue
-    const raw = headers.map((_, i) => oTho(row[i]))
+    const raw = headers.map((_, i) => oTho(o(row, i)))
     dong.push({
       rowOrder: dong.length + 1, raw,
       truong: {
@@ -84,12 +101,19 @@ export function laTab(name: string, loai: 'vao' | 'ra'): boolean {
   return sd(name).includes(sd(loai === 'vao' ? 'đầu vào' : 'đầu ra'))
 }
 
-export function docNexia(buf: ArrayBuffer | Uint8Array): FileNexia {
-  const wb = XLSX.read(buf, { type: buf instanceof Uint8Array ? 'buffer' : 'array', cellDates: true })
+/** Mở workbook từ nội dung .xlsx — bộ đọc và bộ xuất dùng chung (một thư viện Excel duy nhất: exceljs). */
+export async function moWorkbook(buf: ArrayBuffer | Uint8Array): Promise<ExcelJS.Workbook> {
+  const wb = new ExcelJS.Workbook()
+  await wb.xlsx.load(Buffer.from(buf as Uint8Array) as unknown as Parameters<typeof wb.xlsx.load>[0])
+  return wb
+}
+
+export async function docNexia(buf: ArrayBuffer | Uint8Array): Promise<FileNexia> {
+  const wb = await moWorkbook(buf)
   let vao: TabNexia | null = null, ra: TabNexia | null = null
-  for (const name of wb.SheetNames) {
-    if (laTab(name, 'vao') && !vao) vao = docTab(wb.Sheets[name], 'vao')
-    else if (laTab(name, 'ra') && !ra) ra = docTab(wb.Sheets[name], 'ra')
+  for (const ws of wb.worksheets) {
+    if (laTab(ws.name, 'vao') && !vao) vao = docTab(ws, 'vao')
+    else if (laTab(ws.name, 'ra') && !ra) ra = docTab(ws, 'ra')
   }
   return { vao, ra }
 }

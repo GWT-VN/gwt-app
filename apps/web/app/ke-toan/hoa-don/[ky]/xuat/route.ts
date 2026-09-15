@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { dongCuaKy, taiNguonNexiaMoiNhat } from '../../../actions'
-import { dienExcelHoaDon, dungExcelHoaDon, type DongXuat } from '@/lib/ke-toan/xuat/excel-hoa-don'
+import { dienExcelHoaDon, type DongXuat } from '@/lib/ke-toan/xuat/excel-hoa-don'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -13,12 +13,10 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
   const [vao, ra] = await Promise.all([dongCuaKy(ky, 'vao'), dongCuaKy(ky, 'ra')])
   if (!vao.period) return NextResponse.redirect(new URL('/ke-toan', req.url))
 
-  // Đường chính: điền vào file NEXIA gốc (giữ nguyên định dạng kế toán quen). Dự phòng: dựng từ đầu
-  // khi file gốc không còn trên Storage. Lệch dòng file ↔ DB thì BÁO LỖI, không âm thầm rơi về dự phòng.
+  // Điền vào file NEXIA gốc (giữ nguyên định dạng kế toán quen). File gốc không còn trên Storage hay
+  // lệch dòng file ↔ DB → BÁO LỖI về màn kỳ, không dựng file khác.
   const nguon = await taiNguonNexiaMoiNhat(vao.period.id)
-  // Nguồn NEXIA gốc của kỳ: file đang điền (mới nhất) — cùng quy ước cho tuHdct và cho ánh xạ dòng.
-  // Không có file → lấy nguồn đầu tiên trong dữ liệu (đường dự phòng).
-  const nexiaId = nguon?.id ?? (vao.dong.length ? Math.min(...vao.dong.map((d) => d.first_source_id ?? Number.MAX_SAFE_INTEGER)) : null)
+  if (!nguon) return veManKy('Kỳ chưa có file NEXIA gốc trên Storage — upload file NEXIA rồi xuất.')
 
   const toXuat = (rows: typeof vao.dong): DongXuat[] =>
     rows
@@ -35,20 +33,13 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
         note: d.note_for_accountant,
         engineConf: d.engine_conf,
         engineKind: d.engine_kind,
-        tuHdct: nexiaId != null && d.first_source_id != null && d.first_source_id !== nexiaId,
       }))
-  const dsVao = toXuat(vao.dong)
-  const dsRa = toXuat(ra.dong)
 
   let buf: Uint8Array
-  if (nguon) {
-    try {
-      buf = await dienExcelHoaDon({ goc: nguon.goc, vao: dsVao, ra: dsRa })
-    } catch (e) {
-      return veManKy((e as Error).message)
-    }
-  } else {
-    buf = await dungExcelHoaDon({ headersVao: vao.headers, vao: dsVao, headersRa: ra.headers, ra: dsRa })
+  try {
+    buf = await dienExcelHoaDon({ goc: nguon.goc, vao: toXuat(vao.dong), ra: toXuat(ra.dong) })
+  } catch (e) {
+    return veManKy((e as Error).message)
   }
 
   const [y, m] = ky.split('-')

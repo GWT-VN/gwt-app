@@ -1,18 +1,16 @@
 /**
- * Xuất Excel "_DAXULY" cho một kỳ kế toán.
+ * Xuất Excel "_DAXULY" cho một kỳ kế toán — `dienExcelHoaDon`: mở đúng file NEXIA gốc (tải từ
+ * Storage) và ĐIỀN cột đề xuất vào đó, như tool Python (openpyxl load → ghi → save). Giữ nguyên mọi
+ * thứ kế toán đã quen: Sheet1, độ rộng cột, header vàng, định dạng số, bộ lọc. Nếu file đã có sẵn
+ * khối cột đề xuất (bản Python xử lý trước, hoặc xuất lần 2) thì ghi đè vào khối ĐẦU TIÊN và xoá
+ * các khối trùng phía sau — KHÔNG nối thêm bộ thứ hai (Python bị lỗi này: file T8 "đã xử lý" mang
+ * 2 bộ cột sau khi chạy lại).
  *
- * Đường CHÍNH — `dienExcelHoaDon`: mở đúng file NEXIA gốc (tải từ Storage) và ĐIỀN cột đề xuất vào
- * đó, như tool Python (openpyxl load → ghi → save). Giữ nguyên mọi thứ kế toán đã quen: Sheet1, độ
- * rộng cột, header vàng, định dạng số, màu dòng HDCT (FFE699), bộ lọc. Nếu file đã có sẵn khối cột
- * đề xuất (bản Python xử lý trước, hoặc xuất lần 2) thì ghi đè vào khối ĐẦU TIÊN và xoá các khối
- * trùng phía sau — KHÔNG nối thêm bộ thứ hai (Python bị lỗi này: file T8 "đã xử lý" mang 2 bộ cột
- * sau khi chạy lại).
- *
- * Đường DỰ PHÒNG — `dungExcelHoaDon`: dựng workbook mới từ header thô + dòng trong DB, dùng khi
- * không tải được file gốc (source bị xoá). Mất định dạng gốc nhưng vẫn ra đủ dữ liệu.
+ * Không có đường dự phòng "dựng từ đầu": file gốc mất trên Storage → route báo lỗi, người dùng upload
+ * lại (audit 15/09/2026 — đường đó chưa từng chạy thật, và mất định dạng kế toán quen).
  */
 import ExcelJS from 'exceljs'
-import { timCot, laTab } from '../doc-file/nexia'
+import { timCot, laTab, chuoiO, moWorkbook } from '../doc-file/nexia'
 import { sd } from '../chuan-hoa'
 
 export type DongXuat = {
@@ -29,14 +27,12 @@ export type DongXuat = {
   note: string | null
   engineConf: string | null
   engineKind: string | null
-  tuHdct: boolean
 }
 
 export const COT_THEM_VAO = ['Mã KMCP (đề xuất)', 'Tên KMCP', 'TK Nợ', 'TK Có', 'Nợ 1331 (VAT)', 'Ghi chú'] as const
 export const COT_THEM_RA = ['Mã nội bộ (đề xuất)', 'Mã khách hàng'] as const
 
 const FILL = (argb: string): ExcelJS.FillPattern => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } })
-const HDCT = FILL('FFFFE699') // dòng đã tách từ hoá đơn combo trước (tuHdct)
 const GOOD = FILL('FFDDEBF7') // hàng hoá / mua hàng NK — engineKind goods|muahang (Python _GOOD)
 const WARN = FILL('FFFFF2CC') // chưa có mã đề xuất (Python _WARN)
 const HEAD = FILL('FF305496') // header của cột thêm vào (Python _HFILL)
@@ -79,22 +75,6 @@ function ghiHeaderThem(ws: ExcelJS.Worksheet, c0: number, them: readonly string[
     cell.style = { ...cell.style, font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: HEAD, alignment: { wrapText: true, vertical: 'middle' } }
     ws.getColumn(c0 + i).width = 16
   })
-}
-
-// ───────────────────────── Đường chính: điền vào file gốc ─────────────────────────
-
-/** Giá trị ô exceljs → chuỗi trim (rich text, công thức, ngày… đều về text để so/khớp). */
-function chuoiO(v: ExcelJS.CellValue): string {
-  if (v == null) return ''
-  if (typeof v === 'object') {
-    // Ngày theo giờ máy, không toISOString() (bẫy UTC — docs/CHUAN-FILTER.md); chỉ dùng để so khớp.
-    if (v instanceof Date) return `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, '0')}-${String(v.getDate()).padStart(2, '0')}`
-    if ('richText' in v) return v.richText.map((t) => t.text).join('').trim()
-    if ('result' in v) return chuoiO(v.result as ExcelJS.CellValue)
-    if ('text' in v) return String(v.text).trim()
-    return ''
-  }
-  return String(v).trim()
 }
 
 /** Header dòng 1, bỏ ô rỗng ở đuôi. `soCot` = ws.columnCount đã hoist (getter đó quét cả sheet mỗi lần gọi). */
@@ -160,26 +140,20 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
   const map = anhXaDong(ws, headers.slice(0, nGoc), ws.name)
   if (map.size === 0 && dong.length > 0) throw new Error(`Tab "${ws.name}" trong file gốc không có dòng dữ liệu nào nhưng kỳ có ${dong.length} dòng.`)
   const cSo = timCot(headers, 'số hóa đơn')
-  let cuoi = ws.rowCount
   const daGhi = new Set<number>()
+  const lech = (d: DongXuat, chiTiet: string) =>
+    new Error(`Dòng ${d.rowOrder}: ${chiTiet} — file trên Storage và dữ liệu kỳ không còn khớp nhau; upload lại file NEXIA mới nhất rồi xuất.`)
   for (const d of dong) {
+    // Mọi dòng DB (đã lọc missing_in_last_upload) đều phải có trong file gốc — lát 1 chưa có dòng
+    // HDCT/HDTQ bổ sung ngoài file (lát 4). Không có → lệch, báo lỗi thay vì âm thầm nối xuống đáy.
     const r = d.rowOrder != null ? map.get(d.rowOrder) : undefined
-    let row: ExcelJS.Row
-    if (r != null) {
-      row = ws.getRow(r)
-      if (cSo >= 0 && d.soHd != null) {
-        const trongFile = chuoiO(row.getCell(cSo + 1).value)
-        if (trongFile !== String(d.soHd).trim()) {
-          throw new Error(`Dòng ${d.rowOrder}: Số HĐ trong file gốc («${trongFile}») khác dữ liệu đã nạp («${d.soHd}») — file trên Storage và dữ liệu kỳ không còn khớp nhau; upload lại file NEXIA mới nhất rồi xuất.`)
-        }
-      }
-      daGhi.add(d.rowOrder!)
-    } else {
-      // Dòng không có trong file gốc (HDCT/HDTQ bổ sung — lát 4) → nối cuối, tô cam như quy ước cũ.
-      row = ws.getRow(++cuoi)
-      for (let c = 1; c <= nGoc; c++) row.getCell(c).value = d.raw[c - 1] ?? null
-      if (d.tuHdct) for (let c = 1; c <= nGoc; c++) datFill(row.getCell(c), HDCT)
+    if (r == null) throw lech(d, `Số HĐ «${d.soHd ?? ''}» không có trong file gốc`)
+    const row = ws.getRow(r)
+    if (cSo >= 0 && d.soHd != null) {
+      const trongFile = chuoiO(row.getCell(cSo + 1).value)
+      if (trongFile !== String(d.soHd).trim()) throw lech(d, `Số HĐ trong file gốc («${trongFile}») khác dữ liệu đã nạp («${d.soHd}»)`)
     }
+    daGhi.add(d.rowOrder!)
     giaTriThem(d, tab).forEach((v, i) => { row.getCell(c0 + i).value = v })
     toCotThem(row, c0, them.length, d, tab)
   }
@@ -194,9 +168,7 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
 
 /** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. */
 export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; vao: DongXuat[]; ra: DongXuat[] }): Promise<Uint8Array> {
-  const wb = new ExcelJS.Workbook()
-  const buf = input.goc instanceof Uint8Array ? input.goc : new Uint8Array(input.goc)
-  await wb.xlsx.load(Buffer.from(buf) as unknown as Parameters<typeof wb.xlsx.load>[0])
+  const wb = await moWorkbook(input.goc)
   // Cùng luật nhận diện tab với bộ đọc (laTab) — upload được thì xuất phải mở được.
   const wsVao = wb.worksheets.find((w) => laTab(w.name, 'vao'))
   const wsRa = wb.worksheets.find((w) => laTab(w.name, 'ra'))
@@ -204,29 +176,5 @@ export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; va
   if (!wsRa && input.ra.length > 0) throw new Error(`File gốc không có tab "HĐ Đầu ra" nhưng kỳ có ${input.ra.length} dòng đầu ra.`)
   dienTab(wsVao, 'vao', COT_THEM_VAO, input.vao)
   if (wsRa) dienTab(wsRa, 'ra', COT_THEM_RA, input.ra)
-  return new Uint8Array(await wb.xlsx.writeBuffer())
-}
-
-// ───────────────────────── Đường dự phòng: dựng từ đầu ─────────────────────────
-
-function ghiTab(wb: ExcelJS.Workbook, ten: string, tab: 'vao' | 'ra', headers: string[], them: readonly string[], dong: DongXuat[]) {
-  const ws = wb.addWorksheet(ten)
-  const n = headers.length
-  ws.addRow([...headers])
-  for (let c = 1; c <= n; c++) ws.getRow(1).getCell(c).font = { bold: true }
-  ghiHeaderThem(ws, n + 1, them)
-  for (const d of dong) {
-    const raw = Array.from({ length: n }, (_, i) => d.raw[i] ?? null)
-    const row = ws.addRow([...raw, ...giaTriThem(d, tab)])
-    if (d.tuHdct) for (let c = 1; c <= n; c++) row.getCell(c).fill = HDCT
-    toCotThem(row, n + 1, them.length, d, tab)
-  }
-  ws.views = [{ state: 'frozen', ySplit: 1 }]
-}
-
-export async function dungExcelHoaDon(input: { headersVao: string[]; vao: DongXuat[]; headersRa: string[]; ra: DongXuat[] }): Promise<Uint8Array> {
-  const wb = new ExcelJS.Workbook()
-  ghiTab(wb, 'HĐ đầu vào', 'vao', input.headersVao, COT_THEM_VAO, input.vao)
-  ghiTab(wb, 'HĐ Đầu ra', 'ra', input.headersRa, COT_THEM_RA, input.ra)
   return new Uint8Array(await wb.xlsx.writeBuffer())
 }
