@@ -66,6 +66,26 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   322/322 khớp; 93 dòng vàng = tầng học lịch sử (lát 2). So file `_DAXULY` với bản Python lộ lặp cột +
   mất định dạng → viết lại exporter điền vào file gốc (migration 06, bẫy 11–12).
 
+## Đề xuất luật từ kỳ 2026-08 (CEO duyệt mã 15/09, CHƯA chuẩn hoá thành rule)
+
+Kỳ 08: 93 dòng engine "không rõ" được Claude đề xuất mã, CEO duyệt/chốt trên file rồi ghi thẳng vào
+`invoice_lines` (ghi chú `CEO duyệt 15/09` / `CEO chốt 15/09`). Engine chưa có luật tương ứng → tháng sau
+vẫn vàng cho tới khi viết seed (migration data). Luật cần thêm:
+
+1. NCC chứa `di chuyen xanh va thong minh gsm` (Xanh SM): diễn giải chứa `ten hang hoa` → `DVVC` (chở
+   hàng cho khách); còn lại (điểm đi/đến, phí nền tảng, chiết khấu, phí quản lý) → `cp.dichuyen`. Luật NCC
+   có điều kiện tách, cùng kiểu Be Group.
+2. NCC `kho van viettel`: `van hanh kho` → `cp.thuekho`; `chuyen phat` → `DVVC`.
+3. NCC `dragoncello` → `cp.vanhanhchung` (CEO: đồ ăn = vận hành chung, không phải tiếp khách).
+4. NCC `tap doan cong nghiep - vien thong quan doi` → `cp.vanhanhchung`.
+5. NCC `an phu group` (bia) → `cp.vanhanhchung` (CEO 15/09, "sai sửa tay sau"); NCC `van tai a dong` →
+   `DVVC`; vật tư ống nước Xuân Lành (`te deu vesbo`, `bang cuon ong nuoc`) → `cp.vattukho` cho tới khi
+   Masterdata có mã catalog.
+
+**Lỗi thứ tự tầng lộ ra 15/09:** tầng 0 "hàng hoá" chạy TRƯỚC luật NCC nên "Dưa chuột muối"/"Lẩu vị
+muối" (Tsuiteru, nhà hàng) khớp gần catalog `MUOIAD` (muối viên) thành mua hàng nội bộ. Khi chuẩn hoá:
+luật NCC chốt tay cần cờ "không phải hàng hoá" để tầng 0 bỏ qua NCC đó (Tsuiteru, DragonCello, UNICB…).
+
 ## Điểm treo
 
 - Tab 5 Excel Rule ("TK Nợ bắt buộc", vd `cp.qc → 6417`) KHÁC `expense_category.tk_no_default`
