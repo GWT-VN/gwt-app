@@ -104,6 +104,7 @@ describe('tầng C — học từ corrections (ke_toan_thong_ke_hoc)', () => {
     expect(co.phanLoai('CÔNG TY TNHH HỌC THỬ', 'dich vu abc', 1)).toMatchObject({ code: 'cp.qc', conf: 'trung binh', nguon: 'hoc_ncc' })
   })
   it('tiền tố 5 từ diễn giải ≥80% → mã đó, nguon hoc_prefix; NCC < 6 ký tự không học', () => {
+    expect(khong.phanLoai('X', 'Phí quảng cáo Facebook tháng 8 chiến dịch A', 1).kind).toBe('unknown')
     expect(co.phanLoai('X', 'Phí quảng cáo Facebook tháng 8 chiến dịch A', 1)).toMatchObject({ code: 'cp.qc', nguon: 'hoc_prefix' })
     expect(co.phanLoai('ABC', 'khong khop gi', 1).kind).toBe('unknown')
   })
