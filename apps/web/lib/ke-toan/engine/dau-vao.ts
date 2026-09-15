@@ -1,16 +1,17 @@
 import { norm, sd, hard, boNgoac, boTuNgoac } from '../chuan-hoa'
-import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp, ThongKeHoc } from './kieu'
+import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp } from './kieu'
 
 /**
  * Engine phân loại HĐ ĐẦU VÀO — port 1:1 từ gwt_ketoan/engine.py (Classifier.suggest) và
  * gwt_ketoan/nexia.py (_is_goods, match_code, classify_input_row). Thứ tự tầng GIỮ NGUYÊN:
- *   goods? → 0) override NCC → override từ khoá → A) rule NCC (khớp dài nhất) → B) rule từ khoá
- *   → C) học lịch sử (NCC ≥70%, tiền tố diễn giải ≥80%; lát 2 mới có dữ liệu) → không rõ.
+ *   goods? → 0) override NCC → override từ khoá → A) rule NCC (khớp dài nhất) → B) rule từ khoá → không rõ.
+ * Tầng C của Python (học lịch sử: NCC ≥70%, tiền tố diễn giải ≥80%) và luật origin `app` ("Đặt thành
+ * luật") CHƯA port — lát 2 mới có dữ liệu; golden T8 lọc `TANG_LAT_1` nên không so tầng đó.
  * Hàm thuần: không DB, không React. Mọi input đã là dữ liệu đọc từ DB/fixture.
  */
-export const MA_DICH_VU_KHONG_PHAI_HANG = ['DVVC', 'DVBT', 'DVLD', 'DVSC'] as const
-export const TINH_CHAT_TK: Record<string, string> = { 'Hàng hóa': '1561', 'Thành phẩm': '1561', 'Nguyên vật liệu': '152', 'Công cụ dụng cụ': '153' }
-export const TK_NHAN: Record<string, string> = { '1561': 'HÀNG HOÁ', '152': 'VẬT TƯ (NVL)', '153': 'CCDC' }
+const MA_DICH_VU_KHONG_PHAI_HANG = ['DVVC', 'DVBT', 'DVLD', 'DVSC'] as const
+const TINH_CHAT_TK: Record<string, string> = { 'Hàng hóa': '1561', 'Thành phẩm': '1561', 'Nguyên vật liệu': '152', 'Công cụ dụng cụ': '153' }
+const TK_NHAN: Record<string, string> = { '1561': 'HÀNG HOÁ', '152': 'VẬT TƯ (NVL)', '153': 'CCDC' }
 const TK_HANG_MAC_DINH = '1561'
 
 const STOP = new Set('loc nuoc may ge cho bo loi filter use for machine dung cua phan bphan the he generation cai chiec va don gia hang tang khong tinh tien mua ban thiet bi bung 2nd showerhead shower'.split(' '))
@@ -22,9 +23,7 @@ function chuKy(name: string): string | null {
   const keep = toks.filter((t) => /\d/.test(t) || KWSET.has(t))
   return keep.length ? [...new Set(keep)].sort().join('+') : null
 }
-function tienTo(desc: unknown, n = 5): string { return norm(desc).split(' ').slice(0, n).join(' ') }
-
-export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; thongKe?: ThongKeHoc }) {
+export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[] }) {
   const L = input.luat.filter((l) => l.active)
   const byPri = (a: Luat, b: Luat) => a.priority - b.priority
   const ovSup = L.filter((l) => l.origin === 'override_json' && l.kind === 'supplier').sort(byPri)
@@ -32,11 +31,8 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const ovName = new Map(L.filter((l) => l.origin === 'override_json' && l.kind === 'product_name').sort(byPri).map((l) => [l.pattern, l.targetCode]))
   const ruleSup = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'supplier').sort(byPri)
   const ruleKw = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'keyword').sort(byPri)
-  const appSup = L.filter((l) => l.origin === 'app' && l.kind === 'supplier').sort(byPri)   // "Đặt thành luật" (lát 2) — ưu tiên như override
-  const appKw = L.filter((l) => l.origin === 'app' && l.kind === 'keyword').sort(byPri)
   const n2c = new Map<string, string>(); for (const l of L) if (l.origin === 'history' && l.kind === 'product_name') n2c.set(l.pattern, l.targetCode)
   const kmTen = new Map(input.kmcp.map((k) => [k.ma, k.ten])); const kmTk = new Map(input.kmcp.map((k) => [k.ma, k.tkNoDefault]))
-  const thongKe: ThongKeHoc = input.thongKe ?? { nccToMa: {}, prefixToMa: {} }
 
   // catalog: khớp đúng (sd) / khớp cứng (hard); bỏ mã dịch vụ & mã cp.*
   // Lệch Python có chủ đích: nexia.py._is_goods() KHÔNG lọc trước khi dựng _CAT_EXACT/_CAT_HARD
@@ -102,8 +98,8 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
 
   function suggest(seller: unknown, desc: unknown): { kmcp: string; conf: DoTinCay; reason: string; nguon: string } {
     const p = norm(seller), d = norm(desc)
-    for (const l of [...ovSup, ...appSup]) if (l.pattern && p.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: NCC ~«${l.pattern}» → ${l.targetCode}`, nguon: 'override_ncc' }
-    for (const l of [...ovKw, ...appKw]) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: từ khoá «${l.pattern}» → ${l.targetCode}`, nguon: 'override_kw' }
+    for (const l of ovSup) if (l.pattern && p.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: NCC ~«${l.pattern}» → ${l.targetCode}`, nguon: 'override_ncc' }
+    for (const l of ovKw) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Đã chốt tay: từ khoá «${l.pattern}» → ${l.targetCode}`, nguon: 'override_kw' }
     let best: { len: number; l: Luat } | null = null
     for (const l of ruleSup) {
       if (l.pattern.length < 5) continue
@@ -111,8 +107,6 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
     }
     if (best) { const dk = best.l.condition ?? ''; return { kmcp: best.l.targetCode, conf: dk ? 'trung binh' : 'cao', reason: `NCC khớp Rule «${best.l.pattern}»` + (dk ? ` — điều kiện tách: ${dk.slice(0, 50)}` : ''), nguon: 'rule_ncc' } }
     for (const l of ruleKw) if (l.pattern && d.includes(l.pattern)) { const nl = l.condition ?? ''; return { kmcp: l.targetCode, conf: nl ? 'can review' : 'trung binh', reason: `Từ khoá khớp «${l.pattern}» → ${l.targetCode}` + (nl ? ` (ngoại lệ: ${nl.slice(0, 50)})` : ''), nguon: 'rule_kw' } }
-    if (p.length >= 6 && thongKe.nccToMa[p]) return { kmcp: thongKe.nccToMa[p], conf: 'trung binh', reason: `NCC này trong lịch sử luôn vào '${thongKe.nccToMa[p]}'`, nguon: 'hoc_ncc' }
-    const pref = tienTo(desc); if (thongKe.prefixToMa[pref]) return { kmcp: thongKe.prefixToMa[pref], conf: 'trung binh', reason: `Diễn giải cùng mẫu «${pref}…» → '${thongKe.prefixToMa[pref]}'`, nguon: 'hoc_prefix' }
     return { kmcp: '', conf: 'khong ro', reason: 'Không khớp Rule/lịch sử — cần gán tay', nguon: '' }
   }
 
@@ -126,5 +120,5 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
     return { kind: 'unknown', code: '', codeName: '', tkNo: '', tkCo: '', vat1331: vat, conf: 'khong ro', reason: sg.reason, nguon: '' }
   }
 
-  return { phanLoai, goiYMaNoiBo }
+  return { phanLoai }
 }

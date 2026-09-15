@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import { coTheVaoKeToan } from '@/lib/nen-tang/gac-cong'
-import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { BoLocChon, OTimKiem, ThanhDangLoc, boDau } from '@/bang'
 import { dongCuaKy } from '../../actions'
 import { FormUpload } from './FormUpload'
@@ -13,12 +11,10 @@ const TC_OPTS = [{ giaTri: 'cao', nhan: 'Cao' }, { giaTri: 'trung binh', nhan: '
 const MAU_TC: Record<string, string> = { 'can review': 'bg-amber-50', 'khong ro': 'bg-amber-100' }
 
 export default async function KyPage({ params, searchParams }: { params: Promise<{ ky: string }>; searchParams: Promise<ThamSo> }) {
-  await requireNhanSu()
-  if (!(await coTheVaoKeToan())) redirect('/?loi=khong_du_quyen')
   const { ky } = await params
   const { q = '', tc, tab = 'vao', loi } = await searchParams
   const direction = tab === 'ra' ? 'ra' : 'vao'
-  const { period, dong } = await dongCuaKy(ky, direction)
+  const { period, dong } = await dongCuaKy(ky, direction) // gác quyền trong action (chanKeToan → redirect)
   if (!period) redirect('/ke-toan')
   const qd = boDau(q)
   const rows = dong.filter((d) => (!tc || d.engine_conf === tc || (tc === 'khong ro' && !d.code))
@@ -32,7 +28,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
       <div className="mx-auto max-w-[1320px] space-y-4 p-4 sm:p-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><Link href="/ke-toan" className="text-sm text-slate-500">← Kỳ</Link>
-            <h1 className="text-xl font-semibold">Kỳ {period.ky} · {period.status === 'da_gui' ? 'Đã gửi kế toán' : 'Đang xử lý'}</h1></div>
+            <h1 className="text-xl font-semibold">Kỳ {period.ky}</h1></div>
           <a href={`/ke-toan/hoa-don/${period.ky}/xuat`} className="rounded border border-[#3f8a6a] px-3 py-1 text-[#3f8a6a]">Tải Excel _DAXULY</a>
         </header>
         {loi ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">Không xuất được Excel: {loi}</p> : null}

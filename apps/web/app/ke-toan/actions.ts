@@ -159,7 +159,7 @@ export async function uploadNexia(_prev: unknown, form: FormData): Promise<{ ok:
   }
 }
 
-export type NguonRow = { id: number; kind: string; file_name: string; headers: Record<string, string[]>; row_count: number; uploaded_at: string; storage_path: string | null }
+type NguonRow = { id: number; kind: string; file_name: string; headers: Record<string, string[]>; row_count: number; uploaded_at: string; storage_path: string | null }
 
 /**
  * File NEXIA mới nhất của kỳ + nội dung tải từ bucket `accounting` (riêng tư). MỘT action duy nhất:
