@@ -41,6 +41,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   lệch Số HĐ → quay về màn kỳ với `?loi=` (upload lại), **không** dựng file khác, không ghi sai dòng.
   Đọc lẫn xuất đều bằng `exceljs` (bỏ `xlsx` khỏi khu này 15/09/2026 — dep vẫn còn vì CSKH
   `NhapKhoSerial` dùng phía trình duyệt).
+- Tab **HĐ đầu ra** (`?tab=ra`, live từ 15/09/2026): engine `engine/dau-ra.ts` chạy khi upload
+  (mã nội bộ gợi ý, mã khách theo MST/Shopee, nhóm SP theo Danh mục cấp 2/3, kênh theo
+  `dim_channel`). Bảng có cột riêng Mã khách/Nhóm/Kênh/Đại lý, sửa tại ô như tab đầu vào nhưng ô
+  mã chỉ gợi ý catalog (không KMCP) và không có nút "Đặt thành luật". Xuất Excel điền cả khối 2 cột
+  đề xuất lẫn cột có sẵn trong template gốc (Mã hàng/Loại/Kênh/Đại lý — `dienTab` tab `ra`).
 - Launcher "Kế toán" trong `TopNav` cho các vai trò trên.
 
 ## Config ngoài migration (ghi để dựng lại được)
@@ -70,6 +75,12 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Trạng thái (15/09/2026, lát 2)
 
+- Task 8 (tab đầu ra): `duLieuEngine()` thêm `kenh` (`dim_channel`) + catalog `capHai/capBa`;
+  `taoEngineDauRa` chạy trong `nhapNexia` cho mọi dòng `ra`; `dongSql` ghi `customer_code/
+  product_group/channel_l1/channel_l2/dealer_name` (cột đã có sẵn từ migration 00, không cần
+  migration mới). Bảng tab ra + exporter điền template — xong trên nhánh `feat/ke-toan-lat-2`,
+  **chưa merge `main`**, CEO chưa xem. `DongSua.tsx` bỏ hẳn `<td>` "Đặt thành luật" khi
+  `huong==='ra'` (không chỉ để trống) để khớp số cột header tab ra.
 - Migration 09 (`ke_toan_09_sua_tay_hoc.sql`) đã áp live: RPC `ke_toan_dong_sua`, `ke_toan_luat_them`,
   `ke_toan_thong_ke_hoc`, `ke_toan_ky_gui`, `ke_toan_lich_su_nap`; `ke_toan_ky_list` thêm
   `edits_after_sent`. Actions `suaDong`/`datThanhLuat`/`guiKeToan`/`danhSachMa`, màn `DongSua.tsx`/
@@ -121,6 +132,12 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
 
 ## Điểm treo
 
+- `nhomSpCua()` (`engine/dau-ra.ts`) map "Danh mục cấp 2" = `POU Filters` → nhóm `POU-Undersink`
+  (comment tại chỗ ghi "CEO chốt") — **chưa thật sự có CEO gật riêng cho nhóm này**, đoán theo suy
+  luận filter POU thường đi kèm máy Undersink. Chờ CEO xác nhận khi xem tab đầu ra.
+- `dim_channel.mst` rỗng ở toàn bộ 0/26 dòng hiện tại (đo 15/09) → nhánh "kênh theo MST" trong
+  `phanLoaiRa()` chưa bắn được (luôn rơi về `channelL1/L2` rỗng trừ trường hợp Shopee theo tên
+  người mua) cho tới khi Sales điền `mst` vào `dim_channel`.
 - Tab 5 Excel Rule ("TK Nợ bắt buộc", vd `cp.qc → 6417`) KHÁC `expense_category.tk_no_default`
   (6427). App theo Masterdata. CEO quyết với Masterdata.
 - Lint CI đỏ từ 22/08 (7 lỗi cũ) — ngoài phạm vi khu này; đếm lỗi không được tăng khi commit vào
