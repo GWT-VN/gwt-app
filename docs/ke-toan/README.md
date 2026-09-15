@@ -27,8 +27,13 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 - `/ke-toan` — danh sách kỳ (`YYYY-MM`) + ô tháng (mặc định tháng trước, giờ VN) + nút chọn file NEXIA:
   upload tự tạo kỳ nếu chưa có rồi chuyển vào màn kỳ (CEO 15/09: không có bước "tạo kỳ" riêng). Cột
   **Trạng thái**: "Đang xử lý" hoặc "Đã gửi · N sửa" (`edits_after_sent`, mục sửa sau khi bấm Đã gửi).
-- `/ke-toan/hoa-don/[ky]` — upload file NEXIA `.xlsx`, bảng đầu vào (cột engine: mã, TK Nợ/Có,
-  VAT, độ tin cậy — dòng vàng = engine không chắc). Mỗi dòng sửa tại chỗ (`DongSua.tsx`, lát 2):
+- `/ke-toan/hoa-don/[ky]` — upload file `.xlsx` (chọn **Loại** nguồn: `nexia` "NEXIA (kế toán gửi)",
+  `hdct_vao`/`hdct_ra` "HDCT mua vào/bán ra (cổng thuế)", `hdtq_vao`/`hdtq_ra` "HDTQ mua/bán ra" —
+  màn danh sách `/ke-toan` chỉ tạo kỳ bằng NEXIA, HDCT/HDTQ luôn gộp VÀO một kỳ đã có nên chỉ chọn
+  được ở màn kỳ, lát 4), bảng đầu vào (cột engine: mã, TK Nợ/Có, VAT, độ tin cậy — dòng vàng = engine
+  không chắc). Bộ lọc **Nguồn** (`nguon=nexia|hdct|hdtq`, theo `first_source_kind` của dòng) bên
+  cạnh bộ lọc Độ tin cậy; dòng nguồn ≠ NEXIA tô `bg-amber-200/60` (≈ Excel `FFE699`, thấp hơn màu
+  cảnh báo Độ tin cậy) và có cột **Nguồn** riêng ngay sau `#`. Mỗi dòng sửa tại chỗ (`DongSua.tsx`, lát 2):
   ô **Mã** gõ-để-tìm (`OChonGoiY`), **Ghi chú cho kế toán** (lưu khi blur nếu đổi), nút **"Đặt
   thành luật"** (NCC hoặc 3 từ đầu diễn giải → mã, ghi `accounting.rules` origin `app`, xem mục
   "Luật origin app" dưới) — mọi lần sửa ghi vào `accounting.corrections` (nguồn cho engine tầng C).
@@ -66,7 +71,9 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 1. `/ke-toan` → chọn tháng `YYYY-MM` + chọn file NEXIA `.xlsx` (một nút; kỳ tự tạo).
 2. App chuyển vào màn kỳ; upload lại file mới hơn ngay trong màn kỳ.
-3. Xem bảng đầu vào, dòng vàng = engine không chắc.
+3. Xem bảng đầu vào, dòng vàng = engine không chắc. Có file HDCT/HDTQ (cổng thuế) bổ sung thì chọn
+   **Loại** tương ứng ở form upload rồi gộp — dòng trùng khoá với NEXIA thì giữ nguyên (không đè
+   `raw`/`row_order` gốc), dòng mới nối cuối, tô cam để phân biệt (lát 4).
 4. Sửa trên app (lát 2, thay cho "sửa tay trong Excel" của lát 1): sửa mã/ghi chú tại ô
    (`DongSua.tsx`), mỗi lần sửa ghi vào `accounting.corrections`; "Đặt thành luật" khi muốn ép
    một NCC/diễn giải luôn về một mã (ghi `accounting.rules` origin `app`).
@@ -75,6 +82,11 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Trạng thái (15/09/2026, lát 2)
 
+- Lát 3+4 (HDCT/HDTQ bổ sung sau NEXIA): migration 10 (`ke_toan_dong_list` thêm `first_source_kind`,
+  `ke_toan_dong_nhap` v3 nối đuôi nguồn khác nexia thay vì đè), `nhapNguon`/`uploadNguon` đọc `loai`,
+  exporter nối dòng bổ sung tô cam, UI chọn Loại khi upload + lọc/tô "Nguồn" — code xong trên nhánh
+  `feat/ke-toan-lat-2`, **migration 10 chưa áp live**, **CEO chưa xem**. Fixture HDCT/HDTQ vẫn là
+  khuôn NEXIA tạm (Bẫy 14) — chờ CEO chép file T8 thật (Việc treo bb).
 - Task 8 (tab đầu ra): `duLieuEngine()` thêm `kenh` (`dim_channel`) + catalog `capHai/capBa`;
   `taoEngineDauRa` chạy trong `nhapNexia` cho mọi dòng `ra`; `dongSql` ghi `customer_code/
   product_group/channel_l1/channel_l2/dealer_name` (cột đã có sẵn từ migration 00, không cần
