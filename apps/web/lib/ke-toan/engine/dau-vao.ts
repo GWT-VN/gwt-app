@@ -18,6 +18,8 @@ const MA_DICH_VU_KHONG_PHAI_HANG = ['DVVC', 'DVBT', 'DVLD', 'DVSC'] as const
 const TINH_CHAT_TK: Record<string, string> = { 'Hàng hóa': '1561', 'Thành phẩm': '1561', 'Nguyên vật liệu': '152', 'Công cụ dụng cụ': '153' }
 const TK_NHAN: Record<string, string> = { '1561': 'HÀNG HOÁ', '152': 'VẬT TƯ (NVL)', '153': 'CCDC' }
 const TK_HANG_MAC_DINH = '1561'
+/** TK Nợ theo tính chất catalog — dùng khi sửa tay 1 dòng (suaDong) không đi qua laHangHoa(). */
+export function tkNoCuaTinhChat(tinhChat: string | null | undefined): string { return TINH_CHAT_TK[tinhChat ?? ''] ?? TK_HANG_MAC_DINH }
 
 const STOP = new Set('loc nuoc may ge cho bo loi filter use for machine dung cua phan bphan the he generation cai chiec va don gia hang tang khong tinh tien mua ban thiet bi bung 2nd showerhead shower'.split(' '))
 const KWSET = new Set(['cpf', 'pcf', 'pcfb', 'pcff', 'nf', 'cfnc', 'pp', 'pac', 'sparkling', 'sen', 'muoi', 'aromatherapy'])

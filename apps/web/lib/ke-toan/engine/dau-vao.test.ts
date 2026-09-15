@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { taoEngineDauVao } from './dau-vao'
+import { taoEngineDauVao, tkNoCuaTinhChat } from './dau-vao'
 import type { Luat, MucCatalog, MucKmcp } from './kieu'
 
 type Golden = { rows: { i: number; seller: string; desc: string; thue: number; expected: { nguon: string; kmcp: string; ten: string; tkno: string; tkco: string; vat: string; kind: string } }[] }
@@ -92,6 +92,12 @@ describe('luật origin app (CEO chốt 15/09, migration 08) — kw: và khong_p
     expect(co.phanLoai(VT, 'Phí vận hành kho tháng 08 theo bảng kê', 1).code).toBe('cp.thuekho')
     expect(co.phanLoai(VT, 'Phí chuyển phát tháng 08 theo bảng kê', 1).code).toBe('DVVC')
     expect(co.phanLoai('CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01', 'Tê đều Vesbo 25mm', 1).code).toBe('cp.vattukho')
+  })
+})
+
+describe('tkNoCuaTinhChat', () => {
+  it('tkNoCuaTinhChat theo bảng TINH_CHAT_TK, mặc định 1561', () => {
+    expect(tkNoCuaTinhChat('Nguyên vật liệu')).toBe('152'); expect(tkNoCuaTinhChat('Công cụ dụng cụ')).toBe('153'); expect(tkNoCuaTinhChat(null)).toBe('1561')
   })
 })
 

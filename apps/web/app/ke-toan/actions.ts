@@ -14,10 +14,12 @@ import { chuanHoaEmail } from '@/lib/nen-tang/vao-cua'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { docNexia, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
 import { ganKhoaDong } from '@/lib/ke-toan/nhap/khoa-dong'
-import { taoEngineDauVao } from '@/lib/ke-toan/engine/dau-vao'
-import type { Luat, MucCatalog, MucKmcp, KetQuaDauVao } from '@/lib/ke-toan/engine/kieu'
+import { taoEngineDauVao, tkNoCuaTinhChat } from '@/lib/ke-toan/engine/dau-vao'
+import type { Luat, MucCatalog, MucKmcp, KetQuaDauVao, ThongKeHoc } from '@/lib/ke-toan/engine/kieu'
+import { norm } from '@/lib/ke-toan/chuan-hoa'
+import type { MucChon } from '@/bang'
 
-export type KyRow = { id: number; ky: string; status: 'dang_xu_ly' | 'da_gui'; sent_at: string | null; cap_nhat: string; so_dong_vao: number; so_dong_ra: number; so_canh_bao: number }
+export type KyRow = { id: number; ky: string; status: 'dang_xu_ly' | 'da_gui'; sent_at: string | null; cap_nhat: string; so_dong_vao: number; so_dong_ra: number; so_canh_bao: number; edits_after_sent: number }
 export type DongRow = {
   id: number; row_order: number; line_key: string; ky_hieu: string | null; so_hd: string | null; ngay_lap: string | null
   ten_ban: string | null; ten_hang: string | null; thanh_tien: number | null; tien_thue: number | null
@@ -57,13 +59,14 @@ export async function danhSachKy(): Promise<KyRow[]> {
   return (await goi<KyRow[]>('ke_toan_ky_list', {})) ?? []
 }
 
-async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[] }> {
+async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; kmcp: MucKmcp[]; thongKe: ThongKeHoc }> {
   await chanKeToan()
   const db = dataClient()
-  const [luat, cat, km] = await Promise.all([
+  const [luat, cat, km, thongKe] = await Promise.all([
     goi<{ id: number; kind: Luat['kind']; pattern: string; target_code: string; condition: string | null; priority: number; origin: Luat['origin']; active: boolean }[]>('ke_toan_luat_list', {}),
     db.from('catalog_item').select('"Mã nội bộ", "Tên ngắn gọn (đề xuất)", "Tính chất"'),
     db.from('expense_category').select('ma, ten, tk_no_default'),
+    goi<ThongKeHoc>('ke_toan_thong_ke_hoc', {}),
   ])
   if (cat.error) throw new Error(cat.error.message)
   if (km.error) throw new Error(km.error.message)
@@ -71,6 +74,7 @@ async function duLieuEngine(): Promise<{ luat: Luat[]; catalog: MucCatalog[]; km
     luat: (luat ?? []).map((l) => ({ id: l.id, kind: l.kind, pattern: l.pattern, targetCode: l.target_code, condition: l.condition, priority: l.priority, origin: l.origin, active: l.active })),
     catalog: (cat.data as Record<string, string | null>[]).map((c) => ({ ma: c['Mã nội bộ'] ?? '', ten: c['Tên ngắn gọn (đề xuất)'] ?? '', tinhChat: c['Tính chất'] ?? '' })).filter((c) => c.ma && c.ten),
     kmcp: (km.data as { ma: string; ten: string | null; tk_no_default: string | null }[]).map((k) => ({ ma: k.ma, ten: k.ten ?? '', tkNoDefault: k.tk_no_default ?? '' })),
+    thongKe: thongKe ?? { ncc: {}, prefix: {} },
   }
 }
 
@@ -188,4 +192,63 @@ export async function dongCuaKy(ky: string, direction: 'vao' | 'ra'): Promise<{ 
   if (!period) return { period: null, dong: [] }
   const dong = await goi<DongRow[]>('ke_toan_dong_list', { p_period_id: period.id, p_direction: direction })
   return { period, dong: dong ?? [] }
+}
+
+/** Tra tên + TK Nợ của một mã: KMCP (expense_category) hoặc mã nội bộ (catalog_item). null = không có trong danh mục. */
+async function tenVaTk(code: string): Promise<{ codeName: string; tkNo: string } | null> {
+  const dl = await duLieuEngine()
+  const k = dl.kmcp.find((x) => x.ma === code); if (k) return { codeName: k.ten, tkNo: k.tkNoDefault }
+  const c = dl.catalog.find((x) => x.ma === code); if (c) return { codeName: c.ten, tkNo: tkNoCuaTinhChat(c.tinhChat) }
+  return null
+}
+
+export type KetQuaSua = { ok: true; soSua: number; suaSauGui: number } | { ok: false; error: string }
+/** Sửa mã / ghi chú một dòng. tenBan/tenHang chỉ để tính khoá học (norm), không ghi vào dòng. */
+export async function suaDong(input: { lineId: number; code: string | null; note: string | null; tenBan: string | null; tenHang: string | null }): Promise<KetQuaSua> {
+  await chanKeToan()
+  try {
+    const code = input.code?.trim() || null
+    const tt = code ? await tenVaTk(code) : null
+    if (code && !tt) return { ok: false, error: `Mã "${code}" không có trong danh mục KMCP/catalog.` }
+    const r = await goi<{ so_sua: number; edits_after_sent: number }>('ke_toan_dong_sua', {
+      p_line_id: input.lineId, p_code: code, p_code_name: tt?.codeName ?? null, p_tk_no: tt?.tkNo ?? null, p_tk_co: code ? '331' : null,
+      p_note: input.note?.trim() || null, p_seller_norm: norm(input.tenBan), p_desc_norm: norm(input.tenHang),
+    })
+    return { ok: true, soSua: r.so_sua, suaSauGui: r.edits_after_sent }
+  } catch (e) { return { ok: false, error: (e as Error).message } }
+}
+
+/**
+ * Đặt thành luật (origin 'app') từ 1 dòng đã gán mã. Tự tính pattern ở server (không nhận pattern
+ * thô từ client — component chọn mã không được import chuan-hoa.ts vì file đó dùng node:crypto):
+ *   supplier → norm(tenBan) nguyên chuỗi; keyword → 3 từ đầu của norm(tenHang).
+ */
+export async function datThanhLuat(input: { kind: 'supplier' | 'keyword'; tenBan: string | null; tenHang: string | null; targetCode: string }): Promise<{ ok: true; id: number; moi: boolean; pattern: string } | { ok: false; error: string }> {
+  await chanKeToan()
+  try {
+    const pattern = input.kind === 'supplier' ? norm(input.tenBan) : norm(input.tenHang).split(' ').slice(0, 3).join(' ')
+    if (pattern.length < 3) return { ok: false, error: 'Không đủ dữ liệu để đặt luật' }
+    const r = await goi<{ id: number; moi: boolean }>('ke_toan_luat_them', { p_kind: input.kind, p_pattern: pattern, p_target_code: input.targetCode, p_condition: '' })
+    await ghiAudit('ke_toan.dat_luat', input.targetCode, { kind: input.kind, pattern, moi: r.moi })
+    return { ok: true, ...r, pattern }
+  } catch (e) { return { ok: false, error: (e as Error).message } }
+}
+
+export async function guiKeToan(periodId: number, ky: string): Promise<{ ok: false; error: string }> {
+  await chanKeToan()
+  try {
+    const r = await goi<{ so_canh_bao: number }>('ke_toan_ky_gui', { p_period_id: periodId })
+    await ghiAudit('ke_toan.da_gui', ky, { so_canh_bao: r.so_canh_bao })
+    revalidatePath('/ke-toan'); revalidatePath(`/ke-toan/hoa-don/${ky}`)
+  } catch (e) { return { ok: false, error: (e as Error).message } }
+  redirect(`/ke-toan/hoa-don/${ky}`) // ngoài try: redirect() ném NEXT_REDIRECT
+}
+
+/** Danh sách mã cho ô chọn: KMCP trước, rồi catalog. gt = mã. */
+export async function danhSachMa(): Promise<MucChon[]> {
+  const dl = await duLieuEngine()
+  return [
+    ...dl.kmcp.map((k) => ({ gt: k.ma, nhan: `${k.ma} · ${k.ten}`, phu: `KMCP · TK ${k.tkNoDefault || '—'}` })),
+    ...dl.catalog.map((c) => ({ gt: c.ma, nhan: `${c.ma} · ${c.ten}`, phu: c.tinhChat })),
+  ]
 }
