@@ -16,19 +16,24 @@ export function DongSua({ d, ma, huong }: { d: DongRow; ma: MucChon[]; huong: 'v
   const [moLuat, setMoLuat] = useState(false)
   const [dang, batDau] = useTransition()
 
+  /** Chấm xanh tự tắt sau 2s (lỗi đỏ thì gọi setTb thẳng, giữ nguyên trên màn). */
+  function baoXanh(msg: string) {
+    setTb({ ok: true, msg }); setTimeout(() => setTb(null), 2000)
+  }
   function luu(codeMoi: string | null, noteMoi: string) {
     batDau(async () => {
       const r = await suaDong({ lineId: d.id, code: codeMoi, note: noteMoi, tenBan: d.ten_ban, tenHang: d.ten_hang })
       if (!r.ok) { setTb({ ok: false, msg: r.error }); return }
       setCode(codeMoi); setCodeName(ma.find((m) => m.gt === codeMoi)?.nhan.split(' · ')[1] ?? null)
-      setTb({ ok: true, msg: r.suaSauGui > 0 ? `Đã lưu · sửa sau gửi #${r.suaSauGui}` : 'Đã lưu' }); setTimeout(() => setTb(null), 2000)
+      baoXanh(r.suaSauGui > 0 ? `Đã lưu · sửa sau gửi #${r.suaSauGui}` : 'Đã lưu')
     })
   }
   function datLuat(kind: 'supplier' | 'keyword') {
     if (!code) return
     batDau(async () => {
       const r = await datThanhLuat({ kind, tenBan: d.ten_ban, tenHang: d.ten_hang, targetCode: code })
-      setTb(r.ok ? { ok: true, msg: r.moi ? `Đã đặt luật: ${kind === 'supplier' ? 'NCC' : 'diễn giải'} chứa "${r.pattern}" → ${code}` : 'Luật này đã có' } : { ok: false, msg: r.error })
+      if (r.ok) baoXanh(r.moi ? `Đã đặt luật: ${kind === 'supplier' ? 'NCC' : 'diễn giải'} chứa "${r.pattern}" → ${code}` : 'Luật này đã có')
+      else setTb({ ok: false, msg: r.error })
       setMoLuat(false)
     })
   }
