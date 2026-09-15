@@ -5,8 +5,11 @@ import type { DoTinCay, KetQuaDauVao, Luat, MucCatalog, MucKmcp } from './kieu'
  * Engine phân loại HĐ ĐẦU VÀO — port 1:1 từ gwt_ketoan/engine.py (Classifier.suggest) và
  * gwt_ketoan/nexia.py (_is_goods, match_code, classify_input_row). Thứ tự tầng GIỮ NGUYÊN:
  *   goods? → 0) override NCC → override từ khoá → A) rule NCC (khớp dài nhất) → B) rule từ khoá → không rõ.
- * Tầng C của Python (học lịch sử: NCC ≥70%, tiền tố diễn giải ≥80%) và luật origin `app` ("Đặt thành
- * luật") CHƯA port — lát 2 mới có dữ liệu; golden T8 lọc `TANG_LAT_1` nên không so tầng đó.
+ * Thêm ngoài Python (15/09/2026): luật origin `app` (CEO chốt qua app/migration data, sửa được) đứng
+ * TRƯỚC override, cùng độ tin cậy "cao". `condition` của luật app có nghĩa cấu trúc:
+ *   'kw:<x>'          → luật NCC chỉ áp khi diễn giải chứa x (tách một NCC thành nhiều mã)
+ *   'khong_phai_hang' → NCC khớp luật này bỏ qua tầng 0 hàng hoá (nhà hàng: "lẩu vị muối" ≠ muối viên)
+ * Tầng C của Python (học lịch sử) CHƯA port — lát 2; golden T8 lọc `TANG_LAT_1` nên không so tầng đó.
  * Hàm thuần: không DB, không React. Mọi input đã là dữ liệu đọc từ DB/fixture.
  */
 const MA_DICH_VU_KHONG_PHAI_HANG = ['DVVC', 'DVBT', 'DVLD', 'DVSC'] as const
@@ -31,6 +34,9 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
   const ovName = new Map(L.filter((l) => l.origin === 'override_json' && l.kind === 'product_name').sort(byPri).map((l) => [l.pattern, l.targetCode]))
   const ruleSup = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'supplier').sort(byPri)
   const ruleKw = L.filter((l) => l.origin === 'rule_excel' && l.kind === 'keyword').sort(byPri)
+  const appSup = L.filter((l) => l.origin === 'app' && l.kind === 'supplier').sort(byPri)
+  const appKw = L.filter((l) => l.origin === 'app' && l.kind === 'keyword').sort(byPri)
+  const kwCua = (l: Luat) => (l.condition?.startsWith('kw:') ? l.condition.slice(3) : null)
   const n2c = new Map<string, string>(); for (const l of L) if (l.origin === 'history' && l.kind === 'product_name') n2c.set(l.pattern, l.targetCode)
   const kmTen = new Map(input.kmcp.map((k) => [k.ma, k.ten])); const kmTk = new Map(input.kmcp.map((k) => [k.ma, k.tkNoDefault]))
 
@@ -98,6 +104,11 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
 
   function suggest(seller: unknown, desc: unknown): { kmcp: string; conf: DoTinCay; reason: string; nguon: string } {
     const p = norm(seller), d = norm(desc)
+    for (const l of appSup) {
+      const kw = kwCua(l)
+      if (l.pattern && p.includes(l.pattern) && (!kw || d.includes(kw))) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật CEO: tên NCC chứa "${l.pattern}"${kw ? ` và diễn giải chứa "${kw}"` : ''} → ${l.targetCode}`, nguon: 'app_ncc' }
+    }
+    for (const l of appKw) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật CEO: diễn giải chứa "${l.pattern}" → ${l.targetCode}`, nguon: 'app_kw' }
     for (const l of ovSup) if (l.pattern && p.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật chốt tay: tên NCC chứa "${l.pattern}" → ${l.targetCode}`, nguon: 'override_ncc' }
     for (const l of ovKw) if (l.pattern && d.includes(l.pattern)) return { kmcp: l.targetCode, conf: 'cao', reason: `Luật chốt tay: diễn giải chứa "${l.pattern}" → ${l.targetCode}`, nguon: 'override_kw' }
     let best: { len: number; l: Luat } | null = null
@@ -112,7 +123,9 @@ export function taoEngineDauVao(input: { luat: Luat[]; catalog: MucCatalog[]; km
 
   function phanLoai(seller: unknown, desc: unknown, thue: number | null): KetQuaDauVao {
     const vat = thue && thue > 0 ? '1331' : ''
-    const hh = laHangHoa(desc)
+    const p = norm(seller)
+    const boQuaHang = appSup.some((l) => l.condition === 'khong_phai_hang' && p.includes(l.pattern))
+    const hh = boQuaHang ? null : laHangHoa(desc)
     if (hh) return { kind: 'goods', code: hh.ma, codeName: hh.nhan, tkNo: hh.tk, tkCo: '331', vat1331: vat, conf: 'cao', reason: 'Mua vào (mã nội bộ) — không phải chi phí', nguon: 'goods' }
     const sg = suggest(seller, desc)
     if (sg.kmcp === 'cp.muahang') return { kind: 'muahang', code: 'cp.muahang', codeName: 'CP mua hàng nhập khẩu', tkNo: '156', tkCo: '331', vat1331: vat, conf: sg.conf, reason: sg.reason, nguon: sg.nguon }

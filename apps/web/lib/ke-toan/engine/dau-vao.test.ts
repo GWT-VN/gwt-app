@@ -59,3 +59,38 @@ describe('luật cứng ngoài fixture', () => {
     expect(eng.phanLoai('X', 'abc xyz', 0)).toMatchObject({ kind: 'unknown', code: '', vat1331: '', conf: 'khong ro' })
   })
 })
+
+/** Luật origin 'app' lấy từ chính migration 08 (nguồn sự thật) — parse dòng `('kind', 'pattern', 'code', cond, priority)`. */
+function luatApp(): Luat[] {
+  const sql = readFileSync(fileURLToPath(new URL('../../../../../supabase/migrations/20260915090000_ke_toan_08_luat_ky08.sql', import.meta.url)), 'utf8')
+  const re = /^\s*\('(supplier|keyword)',\s*'([^']*)',\s*'([^']*)',\s*(null|'[^']*'),\s*(\d+)\)/gm
+  const out: Luat[] = []; let m: RegExpExecArray | null
+  while ((m = re.exec(sql))) out.push({ kind: m[1] as Luat['kind'], pattern: m[2], targetCode: m[3], condition: m[4] === 'null' ? null : m[4].slice(1, -1), priority: Number(m[5]), origin: 'app', active: true })
+  return out
+}
+
+describe('luật origin app (CEO chốt 15/09, migration 08) — kw: và khong_phai_hang', () => {
+  const app = luatApp()
+  const co = taoEngineDauVao({ luat: [...luatTuSeed(), ...app], catalog, kmcp })
+  const khong = taoEngineDauVao({ luat: luatTuSeed(), catalog, kmcp })
+  const GSM = 'CÔNG TY CỔ PHẦN DI CHUYỂN XANH VÀ THÔNG MINH GSM'
+  it('migration 08 đọc được ≥ 12 luật', () => expect(app.length).toBeGreaterThanOrEqual(12))
+  it('nhà hàng: khong_phai_hang chặn tầng hàng hoá — "Lẩu vị muối" không còn thành muối viên MUOIAD', () => {
+    expect(khong.phanLoai('CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1', 'Lẩu vị muối', 1).code).toBe('MUOIAD') // bug cũ, để ghi nhận
+    expect(co.phanLoai('CÔNG TY TNHH STR TSUITERU - CHI NHÁNH SỐ 1', 'Lẩu vị muối', 1)).toMatchObject({ code: 'cp.vanhanhchung', tkNo: '6428', conf: 'cao' })
+    expect(co.phanLoai('Công ty TNHH DragonCello Việt Nam', 'Mỳ Ý Vongole', 1).code).toBe('cp.vanhanhchung')
+  })
+  it('kw: tách Xanh SM theo diễn giải — chở hàng → DVVC, đi lại/phí nền tảng/phí quản lý → cp.dichuyen', () => {
+    expect(co.phanLoai(GSM, 'Cước phí vận chuyển mã 01KZ; Tên hàng hóa: Đồ điện gia dụng; Tên người gửi: A', 1)).toMatchObject({ code: 'DVVC', tkNo: '6417' })
+    expect(co.phanLoai(GSM, 'Phí nền tảng mã 01KZ; Tên hàng hóa: Quần áo', 1).code).toBe('DVVC')
+    expect(co.phanLoai(GSM, 'Cước phí vận chuyển mã 01KZ; Điểm đi: Lieu Giai Gate; Điểm đến: X', 1)).toMatchObject({ code: 'cp.dichuyen', tkNo: '6427' })
+    expect(co.phanLoai(GSM, 'Phí quản lý', 1).code).toBe('cp.dichuyen')
+    expect(khong.phanLoai(GSM, 'Phí quản lý', 1).kind).toBe('unknown')
+  })
+  it('Viettel kho vận tách vận hành kho / chuyển phát; vật tư ống nước → cp.vattukho', () => {
+    const VT = 'CÔNG TY TNHH MỘT THÀNH VIÊN DỊCH VỤ KHO VẬN VIETTEL'
+    expect(co.phanLoai(VT, 'Phí vận hành kho tháng 08 theo bảng kê', 1).code).toBe('cp.thuekho')
+    expect(co.phanLoai(VT, 'Phí chuyển phát tháng 08 theo bảng kê', 1).code).toBe('DVVC')
+    expect(co.phanLoai('CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01', 'Tê đều Vesbo 25mm', 1).code).toBe('cp.vattukho')
+  })
+})

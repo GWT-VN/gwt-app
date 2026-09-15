@@ -66,11 +66,15 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   322/322 khớp; 93 dòng vàng = tầng học lịch sử (lát 2). So file `_DAXULY` với bản Python lộ lặp cột +
   mất định dạng → viết lại exporter điền vào file gốc (migration 06, bẫy 11–12).
 
-## Đề xuất luật từ kỳ 2026-08 (CEO duyệt mã 15/09, CHƯA chuẩn hoá thành rule)
+## Luật origin `app` — CEO chốt 15/09 (migration 08, dữ liệu sửa được)
 
 Kỳ 08: 93 dòng engine "không rõ" được Claude đề xuất mã, CEO duyệt/chốt trên file rồi ghi thẳng vào
-`invoice_lines` (ghi chú `CEO duyệt 15/09` / `CEO chốt 15/09`). Engine chưa có luật tương ứng → tháng sau
-vẫn vàng cho tới khi viết seed (migration data). Luật cần thêm:
+`invoice_lines` (ghi chú `CEO duyệt 15/09` / `CEO chốt 15/09`). Luật rút ra nằm ở
+`supabase/migrations/20260915090000_ke_toan_08_luat_ky08.sql` → bảng `accounting.rules`, `origin = 'app'`.
+**Không khoá cứng**: sửa/tắt bằng data (`active=false`, đổi `target_code`), không sửa engine. Engine đọc
+luật `app` TRƯỚC override, độ tin cậy "cao"; `condition` có nghĩa cấu trúc (`kw:<x>` = chỉ áp khi diễn giải
+chứa x; `khong_phai_hang` = NCC bỏ tầng hàng hoá). Test: `engine/dau-vao.test.ts` khối "luật origin app"
+đọc thẳng file migration. Nội dung:
 
 1. NCC chứa `di chuyen xanh va thong minh gsm` (Xanh SM): diễn giải chứa `ten hang hoa` → `DVVC` (chở
    hàng cho khách); còn lại (điểm đi/đến, phí nền tảng, chiết khấu, phí quản lý) → `cp.dichuyen`. Luật NCC
@@ -82,9 +86,9 @@ vẫn vàng cho tới khi viết seed (migration data). Luật cần thêm:
    `DVVC`; vật tư ống nước Xuân Lành (`te deu vesbo`, `bang cuon ong nuoc`) → `cp.vattukho` cho tới khi
    Masterdata có mã catalog.
 
-**Lỗi thứ tự tầng lộ ra 15/09:** tầng 0 "hàng hoá" chạy TRƯỚC luật NCC nên "Dưa chuột muối"/"Lẩu vị
-muối" (Tsuiteru, nhà hàng) khớp gần catalog `MUOIAD` (muối viên) thành mua hàng nội bộ. Khi chuẩn hoá:
-luật NCC chốt tay cần cờ "không phải hàng hoá" để tầng 0 bỏ qua NCC đó (Tsuiteru, DragonCello, UNICB…).
+**Lỗi thứ tự tầng lộ ra 15/09 (đã xử lý bằng `khong_phai_hang`):** tầng 0 "hàng hoá" chạy TRƯỚC luật NCC
+nên "Dưa chuột muối"/"Lẩu vị muối" (Tsuiteru, nhà hàng) khớp gần catalog `MUOIAD` (muối viên) thành mua
+hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ này.
 
 ## Điểm treo
 
