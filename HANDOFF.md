@@ -4,9 +4,16 @@
 > hiện tại** với phiên khác. Đọc hết trước khi gõ lệnh đầu tiên — đặc biệt §1 (trạng thái thư mục)
 > và §9 (nhánh & worktree), vì đây là chỗ dễ làm hỏng việc của phiên khác nhất.
 >
-> Cập nhật: **21/08/2026** · Không chứa PII (an toàn commit).
+> Cập nhật: **16/09/2026** · Không chứa PII (an toàn commit).
 > File này mô tả **cấu trúc + quy ước + trạng thái**. Sự thật SỐNG luôn ở nguồn:
 > schema → query DB; tiến độ việc → `BACKLOG.md` + `backlog/<khu>.md`; lịch sử code → `git log`.
+
+> **Thay đổi mới nhất (16/09/2026, commit `88f5b9b` trên `main`):** khu Wiki/Marketing thêm 2 trang
+> dữ liệu — **Phân tích chuyên sâu** (`/wiki/marketing/du-lieu/phan-tich-sau` + `.../[id]`, đọc bảng
+> `video_deep_analysis`) và **Kho hook/CTA** (`/wiki/marketing/du-lieu/kho-hook`, đọc bảng
+> `hook_library`, component `components/marketing/HookLibraryView.tsx`). Query nằm ở
+> `lib/marketing/supabase-mkt.ts` (`getDeepAnalyses`/`getDeepAnalysis`/`getHooks`, `getCounts` thêm
+> `deep`+`hooks`). ⚠️ **2 bảng này CHƯA có migration trong repo** — xem §7.
 
 ---
 
@@ -204,6 +211,12 @@ Spec chung: `../GWT-SHARED/2026-08-19-gwt-nav-shell-spec.md`.
   Ai merge thì **dời sang `supabase/migrations/`**, không thì local ≠ prod.
 - Đổi **chữ ký RPC** → phải `notify pgrst, 'reload schema';`, không thì PostgREST giữ cache cũ và app
   production gãy **im lặng** (PGRST202). Đã dính một lần với nút Thêm việc.
+- ⚠️ **Wiki Marketing (16/09): `video_deep_analysis` + `hook_library` KHÔNG có migration trong repo.**
+  Trang đọc trực tiếp qua PostgREST (`lib/marketing/supabase-mkt.ts`). Bảng phải tồn tại sẵn trên
+  prod `bwzmqfbcgouhvhoslmmm` thì trang mới có data; chưa có thì `getCounts` nuốt lỗi → ô đếm hiện
+  "—" và trang trống. **Việc còn treo:** viết migration `supabase/migrations/<ts>_wiki_deep_hook.sql`
+  cho 2 bảng này (cột khớp type trong `supabase-mkt.ts`: `VideoDeepAnalysis`, `HookItem`) + RLS đọc,
+  rồi seed. Query DB để xem bảng đã có trên prod chưa trước khi tạo lại.
 
 ---
 
