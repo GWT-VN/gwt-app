@@ -56,10 +56,15 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   (`docVcb`/`docTcbPdf`) → assert tổng khớp header (TCB: Σnợ/Σcó; VCB: `soDuDau + Σcó − Σnợ = soDuCuoi`,
   lệch thì từ chối nhập) → mỗi dòng tự khớp hoá đơn (`khopSaoKe`) + phân loại KMCP (`taoEngineSaoKe`) →
   ghi `bank_lines` bằng MỘT RPC (không chia lô — RPC chạy 1 transaction, chia lô sẽ làm mồ côi dòng khi lô
-  sau lỗi; ngưỡng 2000 dòng/lần xem "Điểm treo"). Thanh tổng 3 thẻ so Σ dòng với
-  header sao kê (VCB chỉ hiện Σ trơn vì header = chính Σ; TCB hiện `Σ / header`, tô đỏ khi lệch). Bộ lọc
-  Tài khoản/Chiều/Khớp (`chac`/`goi_y`/`chua`/`tay`) + ô tìm; mỗi dòng sửa tại chỗ (Khớp HĐ · Mã ·
-  Đối tượng · Ghi chú) qua `suaSaoKe`. Nút **Tải Excel thu chi** (`GET .../xuat`) xuất
+  sau lỗi; ngưỡng 2000 dòng/lần xem "Điểm treo"). Kiểm kỳ file ↔ kỳ đang chọn và số TK trên file ↔
+  tài khoản đang chọn (VCB) trước khi ghi gì — sai kỳ/nhầm tài khoản thì từ chối ngay. Thanh tổng 3 thẻ
+  so Σ dòng với header sao kê (VCB chỉ hiện Σ trơn vì header = chính Σ; TCB hiện `Σ / header`, tô đỏ khi
+  lệch). Bộ lọc Tài khoản/Chiều/Khớp (`chac`/`goi_y`/`chua`/`khong`/`tay`) + ô tìm; bảng luôn sắp theo
+  ngày → tài khoản → thời gian giao dịch thật trong TK (TCB row_order giảm dần vì PDF liệt kê mới nhất
+  trước). Mỗi dòng sửa tại chỗ (Khớp HĐ · Mã · Đối tượng · Ghi chú) qua `suaSaoKe` — sửa BẤT KỲ trường
+  nào (kể cả chỉ gõ ghi chú) đều đặt `match_conf='tay'` trên dòng đó, nên upload lại sao kê cùng kỳ sau
+  này sẽ GIỮ NGUYÊN các trường đã chốt tay (không bị engine đè lại — trừ `engine_reason`, xem "Việc treo"
+  sau lát 5). Nút **Tải Excel thu chi** (`GET .../xuat`) xuất
   `Báo cáo thu chi - MM.YYYY.xlsx` (tab Chi 15 cột, Thu 11 cột, Tiền mặt ngân hàng theo ngày).
 - Launcher "Kế toán" trong `TopNav` cho các vai trò trên.
 
@@ -153,7 +158,7 @@ gợi ý để nối HĐ → sửa mã còn thiếu → **Tải Excel thu chi** 
 
 ## Trạng thái (07/09/2026)
 
-- Migration 00–07 đã áp lên production, ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
+- Migration 00–11 đã áp (10 áp 15/09, 11 áp 16/09), ledger đã sửa khớp số hiệu file (xem "Bẫy đã gặp").
 - tsc/test/build sạch. **Máy Windows không có Docker/Supabase local** → nghiệm thu e2e 07/09 làm
   bằng `next dev -p 3000` cắm **DB production** (`.env.local.prod`, CEO chốt vì không có local);
   cổng 3000 vì Supabase Auth chỉ cho redirect Google về `localhost:3000` (cổng 3501 chưa nằm
@@ -211,6 +216,10 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
   có thể cần nới.
 - Luật `bank_keyword` (seed 14 dòng) — bổ sung theo các chỗ lệch đo được ở T8 (xem "Trạng thái lát 5"):
   `cp.freelance`/`cp.luong` theo tên người, "100kg muối" → HÀNG HOÁ, FAIRMONT → `cp.vanhanhchung`.
+- `pdfjs-dist@6.3` (đọc TCB PDF, `tcb-pdf.ts`) yêu cầu Node ≥ 22.13 — xác nhận Node runtime của project
+  trên Vercel trước khi nhánh khu Kế toán lên `main` (Vercel mặc định có thể pin bản Node cũ hơn).
+  `@napi-rs/canvas` là optional dep của `pdfjs-dist`, không cần cài — không dùng render canvas, chỉ bóc
+  toạ độ chữ.
 
 ## Bẫy đã gặp (khi build lát 1–2)
 
@@ -296,6 +305,12 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
    định) — fixture PDF/Excel có tên khách phải ĐỌC TAY từng dòng trước khi commit, không tin scanner
    xanh là đủ. Fixture TCB (`tcb-t8-muc-chu.json`) từng lọt tên khách dạng Title-Case (scanner ban đầu
    chỉ che chuỗi VIẾT HOA TOÀN BỘ) — phải làm lại và commit lại trước khi push.
+19. **Số hiệu trong tên file migration 11 (`20260916100000`) NHỎ HƠN migration 10 (`20260923020000`)**
+   — lát 5 (11) làm và áp live TRƯỚC khi lát 3+4 (10) đổi timestamp tạo file (nhánh khác, xong sau).
+   CI `db-reset`/branch replay theo THỜI GIAN trong tên file, không theo số thứ tự đặt tên → thứ tự
+   replay thật là 09 → 11 → 10, không phải 09 → 10 → 11 như số đọc gợi ý. Vô hại vì hai migration
+   không phụ thuộc chéo nhau (CI vẫn xanh) — ghi lại để phiên sau khỏi hoang mang khi thấy "11" chạy
+   trước "10" trong log CI.
 
 ## Việc treo sau lát 1–2
 
@@ -380,7 +395,16 @@ hh. Đơn Sales chưa có SĐT (`sales_orders` rỗng, `sales_order_lines` khôn
    được vào đơn, chỉ gợi ý theo tên. Bật lại khi Sales có dữ liệu SĐT.
 ii. Công nợ dựng từ kết quả khớp sao kê ↔ hoá đơn (spec Q23-b) — chờ lát 5 chạy thật 2 tháng.
 jj. Sửa luật `bank_keyword` hiện chỉ qua DB (`execute_sql`) — chờ màn luật lát 7 để sửa qua app.
-kk. `apps/web/lib/ke-toan/nhap/noi-dung.ts` và `khop-sao-ke.ts` import `chuan-hoa.ts` (dùng
+kk. `apps/web/lib/ke-toan/sao-ke/noi-dung.ts` và `khop-sao-ke.ts` import `chuan-hoa.ts` (dùng
    `node:crypto`) gián tiếp — chỉ dùng được phía server; tách khi có nơi cần dùng phía client.
 ll. `OChonGoiY` (component dùng chung, khu hoá đơn lẫn sao kê) thiếu `aria-label` — sửa một lần ở
    component gốc, không vá riêng từng chỗ gọi.
+mm. Chưa có RPC xoá sao kê một tài khoản (`ke_toan_sao_ke_xoa`) — upload nhầm tài khoản (trước khi có
+   gate kiểm số TK, mục review 16/09) hoặc muốn nạp lại từ đầu phải xoá tay qua `execute_sql`, không
+   có đường trên app. Thêm ở migration 12.
+nn. `ke_toan_sao_ke_nhap` (migration 11) đè `engine_reason = t.engine_reason` VÔ ĐIỀU KIỆN khi upload
+   lại — khác các cột `match_kind/match_id/match_conf/suggestions/code/code_name/party_code/
+   customer_code/has_invoice` chỉ đè khi `edited_at is null`. Dòng đã chốt tay (mục "match_conf='tay'"
+   ở phần Route) vẫn giữ đúng mã/khớp HĐ sau khi nạp lại sao kê, nhưng cột "Căn cứ" (`engine_reason`)
+   trên bảng sẽ đổi theo lần chấm engine MỚI NHẤT, không còn khớp với lý do đã chốt tay trước đó — sửa
+   ở migration 12 (thêm nhánh `case when edited_at is null` cho cột này).
