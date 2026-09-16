@@ -18,6 +18,7 @@ const CARDS = [
   { href: "/wiki/marketing/du-lieu/phan-tich-sau", icon: "layers", t: "Phân tích chuyên sâu", d: "Bản mổ sâu: cấu trúc theo mốc, lời khuyên dùng ngay, cơ chế phễu, cách áp GWT + full transcript." },
   { href: "/wiki/marketing/du-lieu/kho-hook", icon: "bulb", t: "Kho hook / CTA", d: "Ngân hàng hook, kêu gọi, câu hỏi, câu kết dùng lại được — kèm bản viết cho GWT." },
   { href: "/wiki/marketing/kho-case", icon: "book", t: "Kho case WIN / FAIL", d: "33 ca đã chấm qua các buổi SECI, mỗi ca ghi đủ điểm sai và hướng sửa." },
+  { href: "/wiki/marketing/phan-tich-kenh/bs-phuc", icon: "chart", t: "Phân tích kênh BS Phúc", d: "Mổ hệ 3 kênh chống lão hóa: flow 9 bước, kỹ thuật giữ chân, mô hình 5A, playbook kích comment cho GWT." },
 ] as const;
 
 export default async function Home() {

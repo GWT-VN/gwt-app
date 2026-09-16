@@ -27,7 +27,13 @@ export const NAV: NavGroup[] = [
       { href: "/wiki/marketing/du-lieu/ads-results", label: "Kết quả Ads", icon: "chart" },
     ],
   },
-  { heading: "Học hỏi", items: [{ href: "/wiki/marketing/kho-case", label: "Kho case WIN / FAIL", icon: "book" }] },
+  {
+    heading: "Học hỏi",
+    items: [
+      { href: "/wiki/marketing/kho-case", label: "Kho case WIN / FAIL", icon: "book" },
+      { href: "/wiki/marketing/phan-tich-kenh/bs-phuc", label: "Phân tích kênh BS Phúc", icon: "chart" },
+    ],
+  },
 ];
 
 /** Breadcrumb: khớp đường dẫn dài nhất (để /marketing/luat/<slug> vẫn nhận nhóm Luật QC). */
