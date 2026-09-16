@@ -1,0 +1,706 @@
+{
+"rows": [
+[
+"",
+"",
+"",
+"SAO KÊ TÀI KHOẢN\nSTATEMENT OF ACCOUNT",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Chủ tài khoản/ Account name:",
+"",
+"CHU TAI KHOAN",
+"",
+"Ngày thực hiện/ Date:",
+"03/09/2026",
+""
+],
+[
+"Số tài khoản/ Account number:",
+"",
+"CHU TAI KHOAN",
+"",
+"Kênh giao dịch/ Trans.Channel:",
+"VCB DigiBiz",
+""
+],
+[
+"Loại tài khoản/ Type of account:",
+"",
+"Tài khoản thanh toán",
+"",
+"Số lượng đồng chủ sở hữu tài khoản (nếu có)/ Number of Joint account holders (if any):",
+"1",
+""
+],
+[
+"Địa chỉ/ Address:",
+"",
+"CHU TAI KHOAN",
+"",
+"",
+"",
+""
+],
+[
+"Mã số thuế/Đăng ký kinh doanh:\nTax Identification No./Business Registration No:",
+"",
+"CHU TAI KHOAN",
+"",
+"",
+"",
+""
+],
+[
+"CIF:",
+"",
+"CHU TAI KHOAN",
+"",
+"",
+"",
+""
+],
+[
+"Loại tiền/ Currency:",
+"",
+"VND",
+"",
+"",
+"",
+""
+],
+[
+"Từ/ From:",
+"",
+"01/08/2026",
+"",
+"Đến/ To:",
+"31/08/2026",
+""
+],
+[
+"Số dư đầu kỳ/ Opening balance:",
+"",
+"393,025,120 VND",
+"",
+"",
+"",
+""
+],
+[
+"(Bằng chữ/ Inwords: ….)",
+"",
+"CHU TAI KHOAN",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"STT\nNo.",
+"Ngày1/\nTNX Date/ Số CT/ Doc No",
+"Ngày hiệu lực2/\nEffective date",
+"Số tiền ghi nợ/\nDebit",
+"Số tiền ghi có/\nCredit",
+"Số dư/\nBalance",
+"Nội dung chi tiết/\nTransactions in detail"
+],
+[
+"1.0",
+"07/08/2026 / 5224 - 17669",
+"07/08/2026",
+"4,659,560",
+"",
+"388,365,560",
+"IBBIZ##########.017669.GWT thanh toan vat tu Xuan Lanh 0508 0608"
+],
+[
+"2.0",
+"07/08/2026 / 5225 - 17671",
+"07/08/2026",
+"4,605,152",
+"",
+"383,760,408",
+"IBBIZ##########.017671.GWT thanh toan ETON van hanh kho thang 7.2026"
+],
+[
+"3.0",
+"07/08/2026 / 5434 - 17672",
+"07/08/2026",
+"402,300",
+"",
+"383,358,108",
+"IBBIZ.##########.6219BFTVGLLB472I.GWT thanh toan KH-1 van chuyen hang HN HCM"
+],
+[
+"4.0",
+"07/08/2026 / 5221 - 17673",
+"07/08/2026",
+"3,200,000",
+"",
+"380,158,108",
+"IBBIZ##########.017673.GWT thanh toan 100kg muoi duc"
+],
+[
+"5.0",
+"07/08/2026 / 5221 - 17674",
+"07/08/2026",
+"82,480",
+"",
+"380,075,628",
+"IBBIZ##########.017674.GWT thanh toan Viettel cuoc chuyen phat thang 07.2026  NKH5277"
+],
+[
+"6.0",
+"07/08/2026 / 5136 - 50790",
+"07/08/2026",
+"1,404,000",
+"",
+"378,671,628",
+"IBBIZ##########.GWT thanh toan ANZEN van chuyen Ha Noi Da Nang"
+],
+[
+"7.0",
+"07/08/2026 / 5222 - 17677",
+"07/08/2026",
+"1,903,800",
+"",
+"376,767,828",
+"IBBIZ##########.017677.GWT thanh toan vat tu Xuan Lanh ngay 0708"
+],
+[
+"8.0",
+"07/08/2026 / 5221 - 17804",
+"07/08/2026",
+"10,330,254",
+"",
+"366,437,574",
+"IBBIZ##########.017804.GWT thanh toan van hanh kho Viettel Post thang 7.2026"
+],
+[
+"9.0",
+"07/08/2026 / 5223 - 17805",
+"07/08/2026",
+"5,291,000",
+"",
+"361,146,574",
+"IBBIZ##########.017805.GWT thanh toan KH-2 thi cong duong ong T7 2026"
+],
+[
+"10.0",
+"07/08/2026 / 5224 - 17806",
+"07/08/2026",
+"350,000",
+"",
+"360,796,574",
+"IBBIZ##########.017806.GWT thanh toan KH-3 thay van may CTD50 ngay 24/07"
+],
+[
+"11.0",
+"09/08/2026 / 5136 - 30161",
+"09/08/2026",
+"50,000,000",
+"",
+"310,796,574",
+"MBBIZ##########.GWT chuyen tien noi bo tu VCB63 sang VCB21"
+],
+[
+"12.0",
+"10/08/2026 / 5139 - 69328",
+"10/08/2026",
+"25,000,000",
+"",
+"285,796,574",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"13.0",
+"10/08/2026 / 5139 - 69330",
+"10/08/2026",
+"20,029,000",
+"",
+"265,767,574",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"14.0",
+"10/08/2026 / 5136 - 69329",
+"10/08/2026",
+"30,135,000",
+"",
+"235,632,574",
+"IBBIZ##########.GWT thanh toan luong thang 072026"
+],
+[
+"15.0",
+"10/08/2026 / 5139 - 69331",
+"10/08/2026",
+"15,000,000",
+"",
+"220,632,574",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"16.0",
+"10/08/2026 / 5139 - 69332",
+"10/08/2026",
+"19,395,000",
+"",
+"201,237,574",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"17.0",
+"10/08/2026 / 5139 - 69333",
+"10/08/2026",
+"15,166,000",
+"",
+"186,071,574",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"18.0",
+"10/08/2026 / 5136 - 69334",
+"10/08/2026",
+"20,426,000",
+"",
+"165,645,574",
+"IBBIZ##########.GWT thanh toan luong thang 072026"
+],
+[
+"19.0",
+"10/08/2026 / 5136 - 69336",
+"10/08/2026",
+"9,963,250",
+"",
+"155,682,324",
+"IBBIZ##########.GWT thanh toan luong thang 072026"
+],
+[
+"20.0",
+"10/08/2026 / 5139 - 69337",
+"10/08/2026",
+"5,422,000",
+"",
+"150,260,324",
+"IBBIZ##########.IBPS.GWT thanh toan luong thang 072026"
+],
+[
+"21.0",
+"11/08/2026 / 5009 - 76359",
+"11/08/2026",
+"",
+"500,000,000",
+"650,260,324",
+"SHGD:########.DD:260811.BO:CT TNHH CONG NGHE NUOC GENERAL.Remark:GWT chuyen tien noi bo tu TCB sang VCB63"
+],
+[
+"22.0",
+"11/08/2026 / 5136 - 83286",
+"11/08/2026",
+"249,619,552",
+"",
+"400,640,772",
+"IBBIZ.##########.HQDT+ID0+MST##########+C755+NNT#########HQ03YY-03YY-#######+TK############+NDK########+LHA11+NTK1+LT1+KB0061+TKNS7111-VND"
+],
+[
+"23.0",
+"12/08/2026 / 5136 - 42424",
+"12/08/2026",
+"3,440,000",
+"",
+"397,200,772",
+"IBBIZ##########.GWT thanh toan KH-4 mien Bac Initial Jet 3-4"
+],
+[
+"24.0",
+"19/08/2026 / 5223 - 11829",
+"19/08/2026",
+"972,000",
+"",
+"396,228,772",
+"IBBIZ##########.011829.GWT thanh toan Hustle thue den mic ngay 0808"
+],
+[
+"25.0",
+"19/08/2026 / 5222 - 12089",
+"19/08/2026",
+"300,000",
+"",
+"395,928,772",
+"IBBIZ##########.012089.GWT thanh toan KH-5 lap may GN620 ngay 0808"
+],
+[
+"26.0",
+"19/08/2026 / 5225 - 12090",
+"19/08/2026",
+"28,620,000",
+"",
+"367,308,772",
+"IBBIZ##########.012090.GWT thanh toan NEXTGENTAX dich vu quy 2 1208"
+],
+[
+"27.0",
+"19/08/2026 / 5136 - 01143",
+"19/08/2026",
+"1,903,532",
+"",
+"365,405,240",
+"IBBIZ##########.GWT thanh toan KH-6 to CEO Intern 07.2026"
+],
+[
+"28.0",
+"19/08/2026 / 5224 - 12092",
+"19/08/2026",
+"765,897",
+"",
+"364,639,343",
+"IBBIZ##########.012092.GWT thanh toan KH-7 thang 7.2026"
+],
+[
+"29.0",
+"19/08/2026 / 5433 - 12093",
+"19/08/2026",
+"1,706,400",
+"",
+"362,932,943",
+"IBBIZ.##########.6231BFTVGLYTJUDY.GWT thanh toan vat tu dong hang HLC HD 1C26THL"
+],
+[
+"30.0",
+"19/08/2026 / 5222 - 12099",
+"19/08/2026",
+"2,186,600",
+"",
+"360,746,343",
+"IBBIZ##########.012099.GWT thanh toan vat tu Xuan Lanh lap dat Iconcept Him Lam Q6"
+],
+[
+"31.0",
+"19/08/2026 / 5435 - 12101",
+"19/08/2026",
+"7,550,000",
+"",
+"353,196,343",
+"IBBIZ.##########.6231BFTVGLYTJU9H.GWT thanh toan KH-8 nau com trua thang 7/2026"
+],
+[
+"32.0",
+"19/08/2026 / 5436 - 12104",
+"19/08/2026",
+"2,970,240",
+"",
+"350,226,103",
+"IBBIZ.##########.6231BFTVGLYTJUNG.GWT thanh toan KH-9 cuoc van chuyen dich vu thang 7"
+],
+[
+"33.0",
+"19/08/2026 / 5136 - 01563",
+"19/08/2026",
+"51,585",
+"",
+"350,174,518",
+"IBBIZ##########.GWT thanh toan FPT cuoc dien thoai co dinh thang 7"
+],
+[
+"34.0",
+"21/08/2026 / 5136 - 13767",
+"21/08/2026",
+"50,000,000",
+"",
+"300,174,518",
+"IBBIZ##########.chuyen tien noi bo tu VCB63 sang VCB21"
+],
+[
+"35.0",
+"22/08/2026 / 5225 - 16861",
+"22/08/2026",
+"6,187,917",
+"",
+"293,986,601",
+"IBBIZ##########.016861.GWT thanh toan KH-10 truc page ca toi thang 07/2026"
+],
+[
+"36.0",
+"22/08/2026 / 5435 - 16862",
+"22/08/2026",
+"7,695,000",
+"",
+"286,291,601",
+"IBBIZ.##########.6234BFTVGLYVEDNH.GWT thanh toan Vietcert lo hang bill JHSHNF########"
+],
+[
+"37.0",
+"25/08/2026 / 9401 - ##########",
+"25/08/2026",
+"22,000",
+"",
+"286,269,601",
+"THU PHI QLTK TO CHUC-VND"
+],
+[
+"38.0",
+"25/08/2026 / 9702 - ##########",
+"25/08/2026",
+"",
+"65,291",
+"286,334,892",
+"INTEREST PAYMENT"
+],
+[
+"39.0",
+"27/08/2026 / 5433 - 49486",
+"27/08/2026",
+"16,790,000",
+"",
+"269,544,892",
+"IBBIZ.##########.6239BFTVGLQATPVX.GWT thanh toan KH-11 lap dat sua chua may thang 7.2026"
+],
+[
+"40.0",
+"28/08/2026 / 5224 - 82185",
+"28/08/2026",
+"600,000",
+"",
+"268,944,892",
+"IBBIZ##########.082185.GWT thanh toan KH-12 lap dat may CTD50 va khao sat cong trinh"
+],
+[
+"41.0",
+"28/08/2026 / 5224 - 82186",
+"28/08/2026",
+"20,625,000",
+"",
+"248,319,892",
+"IBBIZ##########.082186.GWT thanh toan INOX TIEN THO lan 1"
+],
+[
+"42.0",
+"28/08/2026 / 5136 - 23333",
+"28/08/2026",
+"2,669,837",
+"",
+"245,650,055",
+"IBBIZ##########.GWT thanh toan KH-13  Intern thang 7.2026"
+],
+[
+"43.0",
+"28/08/2026 / 5136 - 23151",
+"28/08/2026",
+"3,400,000",
+"",
+"242,250,055",
+"IBBIZ##########.GWT thanh toan KH-14 500kg muoi HCM"
+],
+[
+"44.0",
+"28/08/2026 / 5223 - 57527",
+"28/08/2026",
+"35,497,600",
+"",
+"206,752,455",
+"IBBIZ##########.057527.+BHXH+103+00+TF03482+00106+dong BHXH thang 08.2026"
+],
+[
+"45.0",
+"28/08/2026 / 5223 - 57529",
+"28/08/2026",
+"2,218,600",
+"",
+"204,533,855",
+"IBBIZ##########.057529.MST ##########, Cong ty TNHH Cong nghe nuoc General dong 2% KPCD thang 08 nam 2026"
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Tổng số/ Total:",
+"",
+"-188,491,265 VND",
+"",
+"",
+"",
+""
+],
+[
+"Số dư cuối kỳ/ Closing balance:",
+"",
+"204,533,855 VND",
+"",
+"",
+"",
+""
+],
+[
+"(Bằng chữ/ Inwords: ….)",
+"",
+"Hai trăm lẻ bốn triệu năm trăm ba mươi ba nghìn tám trăm năm mươi lăm đồng",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Ngày1: Là ngày khách hàng thực hiện giao dịch",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Ngày hiệu lực2: Là ngày giao dịch được ghi nhận trên hệ thống công nghệ của Vietcombank",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Trân trọng cảm ơn quý khách đã sử dụng dịch vụ Vietcombank!\nThank you for using Vietcombank’s services!\n__________________",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"VIETCOMBANK – Chung niềm tin vững tương lai\nVIETCOMBANK – Together for the future\n*********",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Ghi chú: Giấy Xác nhận này của Ngân hàng TMCP Ngoại thương Việt Nam đảm bảo thông tin chính xác tại thời điểm xác nhận theo nội dung yêu cầu của Khách hàng. Văn bản Xác nhận này không cấu thành bất kỳ cam đoan hay bảo đảm nào của Ngân hàng TMCP Ngoại thương Việt Nam tại thời điểm hiện tại hay tương lai đối với các nghĩa vụ của Khách hàng xác lập với bên thứ ba./.",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Note: This letter of confirmation of the Joint Stock Commercial Bank for Foreign Trade of Vietnam ensures accurate information at the time of confirmation as requested by the customer. This acknowledgment does not constitute any current or future guarantees of the customer's obligations confirmed to third parties./.",
+"",
+"",
+"",
+"",
+"",
+""
+]
+]
+}
