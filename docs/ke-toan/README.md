@@ -82,6 +82,8 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 ## Trạng thái (15/09/2026, lát 2)
 
+- **16/09 (rule CEO):** đã gộp lát 2–4 (`feat/ke-toan-lat-2`) vào `feat/ke-toan-hoa-don` sau khi CEO duyệt format `_DAXULY` tab đầu ra (kỳ 08 upload lại: 84/85 dòng ra có mã, 59 KHL / 18 MST / 8 KHSP). Luật từ nay: lát mới gộp về nhánh khu `feat/ke-toan-hoa-don`; lên `main` một lần khi CEO test xong cả khu.
+
 - Lát 3+4 (HDCT/HDTQ bổ sung sau NEXIA): migration 10 (`ke_toan_dong_list` thêm `first_source_kind`,
   `ke_toan_dong_nhap` v3 nối đuôi nguồn khác nexia thay vì đè), `nhapNguon`/`uploadNguon` đọc `loai`,
   exporter nối dòng bổ sung tô cam, UI chọn Loại khi upload + lọc/tô "Nguồn" — code xong trên nhánh
