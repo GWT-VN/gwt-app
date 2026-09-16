@@ -7,11 +7,12 @@ const chuoi = (v: unknown) => String(v ?? '').trim()
 export function saoKeTuBangVcb(rows: unknown[][], taiKhoan: 'VCB21' | 'VCB63'): SaoKe {
   const iHdr = rows.findIndex((r) => /^STT/i.test(chuoi(r[0])))
   if (iHdr < 0) throw new Error('File không đúng khuôn sao kê VCB: không thấy hàng header "STT".')
-  let tu: string | null = null, den: string | null = null, soDuDau: number | null = null
+  let tu: string | null = null, den: string | null = null, soDuDau: number | null = null, soTaiKhoan: string | null = null
   for (const r of rows.slice(0, iHdr)) {
     const a = chuoi(r[0])
     if (/^Từ\//i.test(a)) { tu = ngayIso(chuoi(r[2])) || null; den = ngayIso(chuoi(r[5])) || null }
     if (/^Số dư đầu kỳ/i.test(a)) soDuDau = so(r[2])
+    if (/^Số tài khoản/i.test(a)) soTaiKhoan = chuoi(r[2]) || null
   }
   const dong: DongSaoKe[] = []
   for (const r of rows.slice(iHdr + 1)) {
@@ -21,7 +22,7 @@ export function saoKeTuBangVcb(rows: unknown[][], taiKhoan: 'VCB21' | 'VCB63'): 
       noiDung: chuoi(r[6]), tenDoiUng: null, raw: r.slice(0, 7).map((v) => (v == null || v === '' ? null : typeof v === 'number' ? v : String(v))) })
   }
   return { taiKhoan, tu, den, soDuDau, soDuCuoi: dong.at(-1)?.soDu ?? null, tongNo: dong.reduce((s, d) => s + d.no, 0), tongCo: dong.reduce((s, d) => s + d.co, 0),
-    headers: (rows[iHdr] as unknown[]).map((h) => chuoi(h).replace(/\s+/g, ' ')), dong }
+    headers: (rows[iHdr] as unknown[]).map((h) => chuoi(h).replace(/\s+/g, ' ')), dong, soTaiKhoan }
 }
 export function docVcb(buf: ArrayBuffer | Uint8Array, taiKhoan: 'VCB21' | 'VCB63'): SaoKe {
   const wb = XLSX.read(buf instanceof Uint8Array ? buf : new Uint8Array(buf), { type: 'array', raw: false })

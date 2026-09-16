@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { BoLocChon, OTimKiem, ThanhDangLoc, boDau } from '@/bang'
 import { saoKeCuaKy, type SaoKeRow, type TongTaiKhoan } from '../actions'
 import { danhSachMa } from '../../actions'
+import { soSanhTaiKhoanVaThoiGian } from '@/lib/ke-toan/xuat/excel-thu-chi'
 import { FormUploadSaoKe } from './FormUploadSaoKe'
 import { DongSaoKe } from './DongSaoKe'
 
@@ -74,12 +75,16 @@ export default async function SaoKeKyPage({ params, searchParams }: { params: Pr
 
   const hoaDonMap = new Map(hoaDon.map((h) => [h.id, h]))
   const qd = boDau(q)
-  const rows = dong.filter((d) =>
-    (!tk || d.account === tk) &&
-    (!chieu || d.direction === chieu) &&
-    (!khop || khopCuaDong(d) === khop) &&
-    (!qd || boDau(`${d.description ?? ''} ${d.counter_name ?? ''} ${d.match_id != null ? (hoaDonMap.get(d.match_id)?.soHd ?? '') : ''}`).includes(qd))
-  )
+  // Sắp theo ngày → tài khoản → thời gian giao dịch thật trong TK (cùng quy tắc `soSanhTaiKhoanVaThoiGian`
+  // dùng khi xuất Excel thu chi) — để TCB (row_order giảm = mới nhất trước) hiện cùng chiều thời gian với VCB.
+  const rows = dong
+    .filter((d) =>
+      (!tk || d.account === tk) &&
+      (!chieu || d.direction === chieu) &&
+      (!khop || khopCuaDong(d) === khop) &&
+      (!qd || boDau(`${d.description ?? ''} ${d.counter_name ?? ''} ${d.match_id != null ? (hoaDonMap.get(d.match_id)?.soHd ?? '') : ''}`).includes(qd))
+    )
+    .sort((a, b) => (a.txn_date !== b.txn_date ? a.txn_date.localeCompare(b.txn_date) : soSanhTaiKhoanVaThoiGian(a.account, a.row_order, b.account, b.row_order)))
   const dieuKien = [
     q ? { nhan: 'Tìm', giaTri: q } : null,
     tk ? { nhan: 'TK', giaTri: TK_OPTS.find((o) => o.giaTri === tk)?.nhan ?? tk } : null,

@@ -36,18 +36,22 @@ function sapNgayTk(a: DongThuChi, b: DongThuChi): number {
 }
 
 /**
- * Sắp lại theo THỜI GIAN GIAO DỊCH THẬT trong ngày (không phải thứ tự dòng thô `row_order`).
- * VCB (.xls/.xlsx đọc tuần tự) liệt kê tăng dần theo thời gian → row_order tăng = thời gian tăng.
- * TCB (đọc từ PDF sao kê) liệt kê MỚI NHẤT TRƯỚC → row_order tăng = thời gian GIẢM, nên đảo chiều.
- * Chỉ ảnh hưởng thứ tự các dòng CÙNG (tài khoản, ngày); khác tài khoản/ngày giữ nguyên tương đối
- * (dựa vào sort ổn định của JS) vì không ảnh hưởng số dư — mỗi tài khoản tính riêng.
+ * So sánh THEO THỜI GIAN GIAO DỊCH THẬT giữa 2 dòng CÙNG NGÀY (không phải thứ tự dòng thô
+ * `row_order`). VCB (.xls/.xlsx đọc tuần tự) liệt kê tăng dần theo thời gian → row_order tăng =
+ * thời gian tăng. TCB (đọc từ PDF sao kê) liệt kê MỚI NHẤT TRƯỚC → row_order tăng = thời gian
+ * GIẢM, nên đảo chiều. Khác tài khoản: so theo tên (bắc cầu — KHÔNG trả 0, vì `Array.sort` chỉ đảm
+ * bảo ổn định giữa các phần tử SO SÁNH BẰNG NHAU của MỌI cặp trong toàn mảng; trả 0 cho một cặp
+ * (VCB21,VCB63) rồi so ra khác 0 cho cặp (VCB63,VCB21) vi phạm tính bắc cầu, engine sort có thể xếp
+ * sai thứ tự tuỳ thuật toán). Export vì bảng hiển thị sao kê (`sao-ke/[ky]/page.tsx`) dùng chung quy
+ * tắc này để TCB/VCB hiện cùng chiều thời gian.
  */
+export function soSanhTaiKhoanVaThoiGian(tkA: TaiKhoan, rowOrderA: number, tkB: TaiKhoan, rowOrderB: number): number {
+  if (tkA !== tkB) return tkA.localeCompare(tkB)
+  return tkA === 'TCB' ? rowOrderB - rowOrderA : rowOrderA - rowOrderB
+}
+
 function theoThoiGianThat(dong: DongThuChi[]): DongThuChi[] {
-  return [...dong].sort((a, b) => {
-    if (a.ngay !== b.ngay) return a.ngay.localeCompare(b.ngay)
-    if (a.taiKhoan !== b.taiKhoan) return 0
-    return a.taiKhoan === 'TCB' ? b.rowOrder - a.rowOrder : a.rowOrder - b.rowOrder
-  })
+  return [...dong].sort((a, b) => (a.ngay !== b.ngay ? a.ngay.localeCompare(b.ngay) : soSanhTaiKhoanVaThoiGian(a.taiKhoan, a.rowOrder, b.taiKhoan, b.rowOrder)))
 }
 
 const PHAN_LOAI_CHI: Record<string, string> = { NOI_BO: 'Chuyển tiền nội bộ', HANG_HOA: 'HÀNG HOÁ' } // R11: engine trả HANG_HOA cho HĐ hàng hoá

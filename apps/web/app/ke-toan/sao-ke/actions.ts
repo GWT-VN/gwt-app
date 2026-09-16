@@ -79,6 +79,11 @@ export async function uploadSaoKe(_prev: unknown, form: FormData): Promise<KetQu
     const sk: SaoKe = tk === 'TCB' ? await docTcbPdf(buf) : docVcb(buf, tk as 'VCB21' | 'VCB63')
     if (!sk.dong.length) return { ok: false, error: 'File không có dòng giao dịch nào.' }
 
+    // Chặn upload nhầm tài khoản (vd chọn VCB21 nhưng chọn file .xls của VCB63) — số TK đọc từ chính
+    // file, null (khuôn lạ/PDF không bóc được) thì cho qua, để gate khuôn khác chặn.
+    if (tk !== 'TCB' && sk.soTaiKhoan && !sk.soTaiKhoan.endsWith(tk.slice(-2)))
+      return { ok: false, error: `File sao kê số TK …${sk.soTaiKhoan.slice(-4)} không phải ${tk}.` }
+
     const sumNo = sk.dong.reduce((s, d) => s + d.no, 0)
     const sumCo = sk.dong.reduce((s, d) => s + d.co, 0)
     if (tk === 'TCB') {
@@ -90,11 +95,16 @@ export async function uploadSaoKe(_prev: unknown, form: FormData): Promise<KetQu
         return { ok: false, error: `Số dư tính được (${soDuTinh}) ≠ số dư cuối trên sao kê (${sk.soDuCuoi ?? '?'}) — kiểm tra lại file, báo dev.` }
     }
 
+    // Kiểm kỳ file ↔ kỳ đang chọn — chặn upload nhầm tháng (vd còn mở kỳ trước, chọn nhầm file tháng
+    // này) trước khi ghi bất cứ gì. sk.tu null (khuôn lạ) thì bỏ qua nhánh này, để gate khuôn khác chặn.
+    if ((sk.tu && !sk.tu.startsWith(ky)) || sk.dong.some((d) => !d.ngay.startsWith(ky)))
+      return { ok: false, error: `Sao kê kỳ ${sk.tu ?? '?'}…${sk.den ?? '?'} không phải kỳ ${ky} — chọn đúng file.` }
+
     const { id: periodId } = await goi<{ id: number }>('ke_toan_ky_tao', { p_ky: ky })
 
     const [dl, khachQ, donHangQ, vaoRaw, raRaw] = await Promise.all([
       duLieuEngine(),
-      dataClient().from('customers').select('customer_code, name, phone_chuan').limit(1000),
+      dataClient().from('customers').select('customer_code, name, phone_chuan').not('phone_chuan', 'is', null).limit(1000),
       dataClient().from('sales_order_lines').select('order_code, customer_name, amount_vat, order_date').gte('order_date', `${ky}-01`).lt('order_date', thangSau(ky)),
       goi<DongHoaDonRpc[]>('ke_toan_dong_list', { p_period_id: periodId, p_direction: 'vao' }),
       goi<DongHoaDonRpc[]>('ke_toan_dong_list', { p_period_id: periodId, p_direction: 'ra' }),

@@ -22,6 +22,7 @@ export function rutGonNoiDung(noiDung: string, taiKhoan: TaiKhoan): string {
 
 export function timSdt(s: string): string | null {
   // 10 số bắt đầu 0, cho phép 1 khoảng trắng/dấu chấm xen giữa các chữ số (091278 8899 | 0912.788.899)
+  // Cũng khớp MST 10 số bắt đầu 0 — không dùng hàm này để suy khách lẻ (dễ nhầm MST thành SĐT).
   const m = /(?<!\d)0(?:[ .]?\d){9}(?!\d)/.exec(String(s ?? ''))
   return m ? m[0].replace(/\D/g, '') : null
 }

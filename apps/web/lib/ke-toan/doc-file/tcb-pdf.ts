@@ -52,6 +52,7 @@ export function saoKeTuMucChu(items: MucChu[]): SaoKe {
   const lay = (re: RegExp) => { const m = re.exec(tieuDe); return m ? m[1] : null }
   const tu = lay(/From:\s*(\d{4}-\d{2}-\d{2})/), den = lay(/To:\s*(\d{4}-\d{2}-\d{2})/)
   const soDuDau = lay(/Opening balance\s+([\d,]+)/), soDuCuoi = lay(/Closing balance\s+([\d,]+)/), tongNo = lay(/Total debits\s+([\d,]+)/), tongCo = lay(/Total credits\s+([\d,]+)/)
+  const soTaiKhoan = lay(/Account number\s+(\d+)/)
   const soTrang = Math.max(...items.map((m) => m.trang))
   const yHdrTrang = new Map<number, number>()
   for (let p = 1; p <= soTrang; p++) { const h = hangHeader(items, p); if (h) yHdrTrang.set(p, h.yMax) }
@@ -98,7 +99,7 @@ export function saoKeTuMucChu(items: MucChu[]): SaoKe {
   }
   const ra: DongSaoKe[] = hien.map((h) => ({ rowOrder: h.rowOrder, ngay: h.ngay, soCt: h.soCt, no: h.no, co: h.co, soDu: h.soDu, noiDung: h.noiDung, tenDoiUng: h.tenDoiUng, raw: h.raw }))
   return { taiKhoan: 'TCB', tu, den, soDuDau: soDuDau ? so(soDuDau) : null, soDuCuoi: soDuCuoi ? so(soDuCuoi) : null, tongNo: tongNo ? so(tongNo) : null, tongCo: tongCo ? so(tongCo) : null,
-    headers: ['Số thứ tự', 'Ngày KH thực hiện', 'Ngày giao dịch', 'Số bút toán', 'Ngân hàng đối ứng', 'Tài khoản đối ứng', 'Tên tài khoản đối ứng', 'Diễn giải', 'Nợ', 'Có', 'Phí - Lãi', 'Thuế', 'Số dư'], dong: ra }
+    headers: ['Số thứ tự', 'Ngày KH thực hiện', 'Ngày giao dịch', 'Số bút toán', 'Ngân hàng đối ứng', 'Tài khoản đối ứng', 'Tên tài khoản đối ứng', 'Diễn giải', 'Nợ', 'Có', 'Phí - Lãi', 'Thuế', 'Số dư'], dong: ra, soTaiKhoan }
 }
 export async function mucChuTuPdf(buf: ArrayBuffer | Uint8Array): Promise<MucChu[]> {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs')

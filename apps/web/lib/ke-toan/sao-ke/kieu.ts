@@ -24,6 +24,9 @@ export type SaoKe = {
   tongCo: number | null
   headers: string[]
   dong: DongSaoKe[]
+  /** Số TK trên chính file sao kê (VCB: ô "Số tài khoản/ Account number"; TCB: "Account number" ở tiêu đề) —
+   *  chặn upload nhầm file của tài khoản khác. null = khuôn lạ không đọc được, không chặn (gate khác đã bắt). */
+  soTaiKhoan: string | null
 }
 
 export type HoaDonTom = {

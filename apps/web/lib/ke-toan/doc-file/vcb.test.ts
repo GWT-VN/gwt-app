@@ -25,4 +25,13 @@ describe('docVcb — sao kê VCB .xls (BIFF)', () => {
     expect(docVcb(buf, 'VCB63').dong).toHaveLength(45)
   })
   it('file không có hàng STT → lỗi rõ', () => expect(() => saoKeTuBangVcb([['a', 'b']], 'VCB21')).toThrow(/không đúng khuôn sao kê VCB/))
+  // Fixture thật che ô "Số tài khoản" thành 'CHU TAI KHOAN' (PII, xem ke_toan_sinh_fixture_sao_ke.py) —
+  // dùng rows tổng hợp riêng với số TK giả để test đọc đúng ô, không đưa số TK thật vào fixture commit.
+  it('đọc số tài khoản từ ô "Số tài khoản/ Account number" (hàng 4, cột C)', () => {
+    const rows = [['Số tài khoản/ Account number:', '', '0000000063', '', '', '', ''], ['STT', 'Ngày/ Số CT', 'Ngày hiệu lực', 'Nợ', 'Có', 'Số dư', 'Nội dung']]
+    expect(saoKeTuBangVcb(rows, 'VCB63').soTaiKhoan).toBe('0000000063')
+  })
+  it('không có hàng "Số tài khoản" → soTaiKhoan null', () => {
+    expect(saoKeTuBangVcb([['STT', 'Ngày/ Số CT', 'Ngày hiệu lực', 'Nợ', 'Có', 'Số dư', 'Nội dung']], 'VCB21').soTaiKhoan).toBeNull()
+  })
 })

@@ -55,4 +55,11 @@ describe('Excel thu chi', () => {
     expect(ws.getCell(6, 4).value).toBe(200) // ngày 5 (dòng 6), cột D = TCB
     expect(ws.getCell(6, 3).value).toBe(70)  // ngày 5 (dòng 6), cột C = VCB21
   })
+  it('kết quả KHÔNG đổi khi đảo thứ tự mảng đầu vào (comparator bắc cầu — review R13: khác tài khoản từng trả 0)', async () => {
+    const wb = await doc(await dungExcelThuChi({ ky: '2026-08', dong: [...D].reverse(), soDuDau: { VCB21: 42892241, VCB63: 393025120, TCB: 508219466 } }))
+    const wsChi = wb.getWorksheet('Báo cáo chi')!
+    expect(wsChi.getCell(2, 4).value).toBe(-5270776); expect(wsChi.getCell(3, 5).value).toBe(-4659560); expect(wsChi.getCell(4, 8).value).toBe('Chuyển tiền nội bộ')
+    const wsThu = wb.getWorksheet('Báo cáo thu')!
+    expect(wsThu.getCell(4, 4).value).toBe(1000000); expect(wsThu.getCell(6, 8).value).toBe('Lãi ngân hàng')
+  })
 })

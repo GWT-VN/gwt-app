@@ -1,7 +1,7 @@
 """Sinh fixture sao kê VCB đã che PII: apps/web/lib/ke-toan/__fixtures__/vcb63-t8.json = { rows: string[][] } toàn bộ ô sheet (kể cả phần đầu),
 che: số tài khoản/CIF/số bút toán ≥7 số → '#', SĐT 10 số → 0900000nnn ổn định, tên người trong nội dung giữ nguyên chữ HOA của công ty,
 tên cá nhân (dòng luong/freelancer/thanh toan <Tên>) → 'KH-n'. Giữ số tiền, ngày, số chứng từ ngắn, mã lệnh. Chạy: python tools/scripts/ke_toan_sinh_fixture_sao_ke.py"""
-import glob, json, os, re, sys, xlrd
+import glob, json, os, re, xlrd
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC = glob.glob(os.path.join(ROOT, "data", "ke-toan", "B*", "B*", "Sao k*", "2026.08", "Sao kê VCB63.xls"))[0]
 OUT = os.path.join(ROOT, "apps", "web", "lib", "ke-toan", "__fixtures__", "vcb63-t8.json")

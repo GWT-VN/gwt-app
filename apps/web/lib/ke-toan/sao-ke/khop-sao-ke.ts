@@ -45,7 +45,9 @@ function boSdt(noiDung: string): string {
 
 /** Tín hiệu "cứng": số HĐ hoặc MST xuất hiện nguyên trong nội dung — phân định được khi nhiều HĐ trùng tên. */
 function tinHieuCung(hd: HoaDonTom, noiDung: string): string | null {
-  if (hd.soHd.length >= 3) {
+  // Guard trước new RegExp: soHd không thuần số (dữ liệu bẩn, ký tự đặc biệt kiểu regex) sẽ vỡ cú
+  // pháp regex hoặc so khớp sai — bỏ qua tín hiệu số HĐ cho trường hợp này, vẫn còn tín hiệu MST/tên.
+  if (hd.soHd.length >= 3 && /^\d+$/.test(hd.soHd)) {
     const re = new RegExp(`(?<!\\d)0*${hd.soHd}(?!\\d)`)
     if (re.test(boSdt(noiDung))) return `số HĐ ${hd.soHd} trong nội dung`
   }
@@ -55,8 +57,9 @@ function tinHieuCung(hd: HoaDonTom, noiDung: string): string | null {
 
 /** Tín hiệu "mềm": tên trùng từ khoá, hoặc (thu) khách nhận diện qua SĐT trùng tên HĐ. */
 function tinHieuMem(hd: HoaDonTom, noiDung: string, tenDoiUng: string | null, kh: KhachTom | null): string | null {
-  if (kh && [...tuKhoa(kh.ten)].some((t) => tuKhoa(hd.ten).has(t))) return `khách ${kh.ten} qua SĐT`
-  if ([...tuKhoa(hd.ten)].some((t) => tuKhoa(`${noiDung} ${tenDoiUng ?? ''}`).has(t))) return `tên NCC/khách trùng từ khoá (${hd.ten})`
+  const tuHd = tuKhoa(hd.ten) // hoist khỏi .some() — tuKhoa() chuẩn hoá + tách từ, không cần tính lại mỗi lần lặp
+  if (kh && [...tuKhoa(kh.ten)].some((t) => tuHd.has(t))) return `khách ${kh.ten} qua SĐT`
+  if ([...tuHd].some((t) => tuKhoa(`${noiDung} ${tenDoiUng ?? ''}`).has(t))) return `tên NCC/khách trùng từ khoá (${hd.ten})`
   return null
 }
 
