@@ -169,6 +169,7 @@ r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_sua", headers=h(SVC), json={"
     "p_code": "cp.vanhanhchung", "p_code_name": "CP vận hành chung", "p_party_code": None, "p_customer_code": None, "p_has_invoice": False, "p_note": "sửa tay"})
 chk("ke_toan_sao_ke_sua → ok", r.status_code == 200 and r.json() == {"ok": True}, (r.status_code, r.text[:80]))
 rows_bank[0]["description"] = "UHHT..DG:FACEBK *Y"
+rows_bank[1]["code"] = "LAI_NH"; rows_bank[1]["code_name"] = "Lãi ngân hàng"; rows_bank[1]["engine_reason"] = "đổi lần 2"
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_bank, "p_rows": rows_bank})
 chk("sao_ke_nhap lại → updated 2", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 2}, (r.status_code, r.text[:120]))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
@@ -176,7 +177,7 @@ bl = {x["line_key"]: x for x in (r.json() if r.status_code == 200 else [])}
 chk("upload lại: mô tả cập nhật nhưng mã chốt tay giữ (cp.vanhanhchung, match_conf tay)",
     bl.get("smoke-b1", {}).get("description") == "UHHT..DG:FACEBK *Y" and bl.get("smoke-b1", {}).get("code") == "cp.vanhanhchung" and bl.get("smoke-b1", {}).get("match_conf") == "tay",
     bl.get("smoke-b1"))
-chk("dòng chưa chốt tay nhận lại engine (b2 code NOI_BO)", bl.get("smoke-b2", {}).get("code") == "NOI_BO", bl.get("smoke-b2"))
+chk("dòng chưa chốt tay nhận lại engine (b2 NOI_BO → LAI_NH)", bl.get("smoke-b2", {}).get("code") == "LAI_NH", bl.get("smoke-b2"))
 r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_sua", headers=h(SVC), json={"p_email": "dev.cs@gwt.vn", "p_line_id": b1.get("id"), "p_match_kind": "none", "p_match_id": None, "p_code": None, "p_code_name": None, "p_party_code": None, "p_customer_code": None, "p_has_invoice": False, "p_note": None})
 chk("vai cs: ke_toan_sao_ke_sua BỊ từ chối", r.status_code >= 400 and "Kế toán" in r.text, (r.status_code, r.text[:80]))
 
