@@ -45,6 +45,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
           <div><Link href="/ke-toan" className="text-sm text-slate-500">← Kỳ</Link>
             <h1 className="text-xl font-semibold">Kỳ {period.ky}{period.status === 'da_gui' ? <span className="ml-2 text-sm font-normal text-emerald-700">(đã gửi kế toán)</span> : null}</h1></div>
           <div className="flex items-center gap-2">
+            <Link href={`/ke-toan/sao-ke/${period.ky}`} className="text-sm text-slate-500">Sao kê →</Link>
             <a href={`/ke-toan/hoa-don/${period.ky}/xuat`} className="rounded border border-[#3f8a6a] px-3 py-1 text-[#3f8a6a]">Tải Excel _DAXULY</a>
             <NutGuiKeToan period={period} />
           </div>

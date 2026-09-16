@@ -26,9 +26,9 @@ export default async function KeToanPage() {
           <table className="w-full text-sm">
             <thead className="bg-slate-100 text-left"><tr>
               <th className="p-2">Kỳ</th><th className="p-2">Trạng thái</th><th className="p-2 text-right">Dòng vào</th>
-              <th className="p-2 text-right">Dòng ra</th><th className="p-2 text-right">Cảnh báo</th><th className="p-2">Cập nhật</th></tr></thead>
+              <th className="p-2 text-right">Dòng ra</th><th className="p-2 text-right">Cảnh báo</th><th className="p-2">Cập nhật</th><th className="p-2">Sao kê</th></tr></thead>
             <tbody>
-              {ds.length === 0 ? <tr><td colSpan={6} className="p-4 text-center text-slate-500">Chưa có kỳ nào — chọn tháng và file NEXIA ở trên.</td></tr> : null}
+              {ds.length === 0 ? <tr><td colSpan={7} className="p-4 text-center text-slate-500">Chưa có kỳ nào — chọn tháng và file NEXIA ở trên.</td></tr> : null}
               {ds.map((k) => (
                 <tr key={k.id} className="border-t">
                   <td className="p-2"><Link className="font-medium text-[#3f8a6a] underline" href={`/ke-toan/hoa-don/${k.ky}`}>{k.ky}</Link></td>
@@ -36,6 +36,7 @@ export default async function KeToanPage() {
                   <td className="p-2 text-right">{k.so_dong_vao}</td><td className="p-2 text-right">{k.so_dong_ra}</td>
                   <td className="p-2 text-right">{k.so_canh_bao > 0 ? <span className="rounded bg-amber-100 px-2 text-amber-800">{k.so_canh_bao}</span> : 0}</td>
                   <td className="p-2 text-slate-500">{new Date(k.cap_nhat).toLocaleString('vi-VN')}</td>
+                  <td className="p-2"><Link className="text-[#3f8a6a] underline" href={`/ke-toan/sao-ke/${k.ky}`}>Sao kê</Link></td>
                 </tr>))}
             </tbody>
           </table>
