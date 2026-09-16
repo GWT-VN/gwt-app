@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest'
 import ExcelJS from 'exceljs'
 import { dungExcelThuChi, type DongThuChi } from './excel-thu-chi'
 const D: DongThuChi[] = [
-  { taiKhoan: 'VCB21', ngay: '2026-08-03', noiDung: 'FACEBK *73DRRVZD42 DUBLI', no: 5270776, co: 0, soDu: 37621465, code: 'cp.qc', codeName: 'CP quảng cáo', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null },
-  { taiKhoan: 'VCB63', ngay: '2026-08-07', noiDung: 'GWT thanh toan vat tu Xuan Lanh', no: 4659560, co: 0, soDu: 388365560, code: 'cp.vattukho', codeName: 'CP vật tư kho', partyCode: '0311054784', hasInvoice: true, thueHoaDon: 345153, note: 'HĐ 8121' },
-  { taiKhoan: 'VCB63', ngay: '2026-08-09', noiDung: 'GWT chuyen tien noi bo tu VCB63 sang VCB21', no: 50000000, co: 0, soDu: 338365560, code: 'NOI_BO', codeName: 'Chuyển tiền nội bộ', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null },
-  { taiKhoan: 'VCB21', ngay: '2026-08-09', noiDung: 'GWT chuyen tien noi bo tu VCB63 sang VCB21', no: 0, co: 50000000, soDu: 87621465, code: 'NOI_BO', codeName: 'Chuyển tiền nội bộ', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null },
-  { taiKhoan: 'TCB', ngay: '2026-08-03', noiDung: 'LE NAM HAI 0900000001 may CTD50', no: 0, co: 1000000, soDu: 509219466, code: 'BAN_HANG', codeName: 'Bán hàng', partyCode: 'KHL', hasInvoice: true, thueHoaDon: 74074, note: null },
-  { taiKhoan: 'TCB', ngay: '2026-08-25', noiDung: 'INTEREST PAYMENT', no: 0, co: 5843, soDu: 509225309, code: 'LAI_NH', codeName: 'Lãi ngân hàng', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null },
+  { taiKhoan: 'VCB21', ngay: '2026-08-03', noiDung: 'FACEBK *73DRRVZD42 DUBLI', no: 5270776, co: 0, soDu: 37621465, code: 'cp.qc', codeName: 'CP quảng cáo', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 1 },
+  { taiKhoan: 'VCB63', ngay: '2026-08-07', noiDung: 'GWT thanh toan vat tu Xuan Lanh', no: 4659560, co: 0, soDu: 388365560, code: 'cp.vattukho', codeName: 'CP vật tư kho', partyCode: '0311054784', hasInvoice: true, thueHoaDon: 345153, note: 'HĐ 8121', rowOrder: 2 },
+  { taiKhoan: 'VCB63', ngay: '2026-08-09', noiDung: 'GWT chuyen tien noi bo tu VCB63 sang VCB21', no: 50000000, co: 0, soDu: 338365560, code: 'NOI_BO', codeName: 'Chuyển tiền nội bộ', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 3 },
+  { taiKhoan: 'VCB21', ngay: '2026-08-09', noiDung: 'GWT chuyen tien noi bo tu VCB63 sang VCB21', no: 0, co: 50000000, soDu: 87621465, code: 'NOI_BO', codeName: 'Chuyển tiền nội bộ', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 4 },
+  { taiKhoan: 'TCB', ngay: '2026-08-03', noiDung: 'LE NAM HAI 0900000001 may CTD50', no: 0, co: 1000000, soDu: 509219466, code: 'BAN_HANG', codeName: 'Bán hàng', partyCode: 'KHL', hasInvoice: true, thueHoaDon: 74074, note: null, rowOrder: 5 },
+  { taiKhoan: 'TCB', ngay: '2026-08-25', noiDung: 'INTEREST PAYMENT', no: 0, co: 5843, soDu: 509225309, code: 'LAI_NH', codeName: 'Lãi ngân hàng', partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 6 },
 ]
 async function doc(buf: Uint8Array) { const wb = new ExcelJS.Workbook(); await wb.xlsx.load(Buffer.from(buf) as unknown as Parameters<typeof wb.xlsx.load>[0]); return wb }
 describe('Excel thu chi', () => {
@@ -40,5 +40,19 @@ describe('Excel thu chi', () => {
     // Cuối kỳ = cột H (8): header hàng 1 chỉ có 8 tên (A..H), brief T8 dòng test gốc ghi cột 9 — lệch 1,
     // sửa về 8 cho khớp header thật (xem báo cáo Task 8, mục "self-review").
     expect(ws.getCell(10, 8).value).toBe(ws.getCell(10, 5).value as number + 50000000 - 50000000) // ngày 9 nội bộ: cuối = đầu
+  })
+  it('tiền mặt: số dư cuối ngày theo THỜI GIAN THẬT, không theo row_order thô (TCB mới nhất trước)', async () => {
+    const dong: DongThuChi[] = [
+      // TCB: rowOrder NHỎ hơn = giao dịch SAU (PDF liệt kê mới nhất trước) — rowOrder 2 (soDu 200) phải thắng dù rowOrder 3 đứng trước trong mảng.
+      { taiKhoan: 'TCB', ngay: '2026-08-05', noiDung: 'TCB rowOrder 3 (trước)', no: 0, co: 0, soDu: 100, code: null, codeName: null, partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 3 },
+      { taiKhoan: 'TCB', ngay: '2026-08-05', noiDung: 'TCB rowOrder 2 (sau)', no: 0, co: 0, soDu: 200, code: null, codeName: null, partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 2 },
+      // VCB: rowOrder LỚN hơn = giao dịch SAU (đọc tuần tự) — rowOrder 2 (soDu 70) thắng.
+      { taiKhoan: 'VCB21', ngay: '2026-08-05', noiDung: 'VCB21 rowOrder 1 (trước)', no: 0, co: 0, soDu: 50, code: null, codeName: null, partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 1 },
+      { taiKhoan: 'VCB21', ngay: '2026-08-05', noiDung: 'VCB21 rowOrder 2 (sau)', no: 0, co: 0, soDu: 70, code: null, codeName: null, partyCode: null, hasInvoice: false, thueHoaDon: 0, note: null, rowOrder: 2 },
+    ]
+    const wb = await doc(await dungExcelThuChi({ ky: '2026-08', dong, soDuDau: { VCB21: 0, VCB63: 0, TCB: 0 } }))
+    const ws = wb.getWorksheet('Tiền mặt ngân hàng')!
+    expect(ws.getCell(6, 4).value).toBe(200) // ngày 5 (dòng 6), cột D = TCB
+    expect(ws.getCell(6, 3).value).toBe(70)  // ngày 5 (dòng 6), cột C = VCB21
   })
 })

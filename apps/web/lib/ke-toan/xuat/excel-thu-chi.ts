@@ -10,6 +10,8 @@ import type { TaiKhoan } from '../sao-ke/kieu'
 export type DongThuChi = {
   taiKhoan: TaiKhoan; ngay: string; noiDung: string; no: number; co: number; soDu: number | null
   code: string | null; codeName: string | null; partyCode: string | null; hasInvoice: boolean; thueHoaDon: number; note: string | null
+  /** row_order gốc trong `accounting.bank_lines` — cần để sắp đúng thời gian thật trong ngày, xem `theoThoiGianThat`. */
+  rowOrder: number
 }
 
 const HEAD_FILL: ExcelJS.FillPattern = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } }
@@ -33,13 +35,30 @@ function sapNgayTk(a: DongThuChi, b: DongThuChi): number {
   return a.ngay === b.ngay ? a.taiKhoan.localeCompare(b.taiKhoan) : a.ngay.localeCompare(b.ngay)
 }
 
+/**
+ * Sắp lại theo THỜI GIAN GIAO DỊCH THẬT trong ngày (không phải thứ tự dòng thô `row_order`).
+ * VCB (.xls/.xlsx đọc tuần tự) liệt kê tăng dần theo thời gian → row_order tăng = thời gian tăng.
+ * TCB (đọc từ PDF sao kê) liệt kê MỚI NHẤT TRƯỚC → row_order tăng = thời gian GIẢM, nên đảo chiều.
+ * Chỉ ảnh hưởng thứ tự các dòng CÙNG (tài khoản, ngày); khác tài khoản/ngày giữ nguyên tương đối
+ * (dựa vào sort ổn định của JS) vì không ảnh hưởng số dư — mỗi tài khoản tính riêng.
+ */
+function theoThoiGianThat(dong: DongThuChi[]): DongThuChi[] {
+  return [...dong].sort((a, b) => {
+    if (a.ngay !== b.ngay) return a.ngay.localeCompare(b.ngay)
+    if (a.taiKhoan !== b.taiKhoan) return 0
+    return a.taiKhoan === 'TCB' ? b.rowOrder - a.rowOrder : a.rowOrder - b.rowOrder
+  })
+}
+
 const PHAN_LOAI_CHI: Record<string, string> = { NOI_BO: 'Chuyển tiền nội bộ', HANG_HOA: 'HÀNG HOÁ' } // R11: engine trả HANG_HOA cho HĐ hàng hoá
 const HEADER_CHI = ['Ngày', 'Tháng', 'Nội dung chi', 'Số tiền trước VAT', 'Số tiền sau VAT', 'Số tiền lũy kế trong tháng', 'Tài khoản', 'Phân loại chi phí', 'Tình trạng thanh toán', 'Không hoàn tiền', 'HĐ', 'Note', 'Đã hoàn', 'Tình trạng hoá đơn', 'Link chứng từ'] as const
 
 function tabChi(wb: ExcelJS.Workbook, dong: DongThuChi[]) {
   const ws = wb.addWorksheet('Báo cáo chi')
   ghiHeader(ws, 1, HEADER_CHI)
-  const rows = dong.filter((d) => d.no > 0).sort(sapNgayTk)
+  // theoThoiGianThat() trước rồi mới sort(sapNgayTk) ổn định (JS sort ổn định) — dòng cùng
+  // ngày/tài khoản giữ đúng thứ tự thời gian thay vì rơi lại thứ tự row_order thô.
+  const rows = theoThoiGianThat(dong).filter((d) => d.no > 0).sort(sapNgayTk)
   rows.forEach((d, i) => {
     const r = ws.getRow(i + 2)
     r.getCell(1).value = ngayUtc(d.ngay); r.getCell(1).numFmt = 'dd/mm/yyyy'
@@ -66,7 +85,7 @@ const HEADER_THU = ['Ngày', 'Tháng', 'Nội dung thu', 'Số tiền sau VAT', 
 function tabThu(wb: ExcelJS.Workbook, dong: DongThuChi[]) {
   const ws = wb.addWorksheet('Báo cáo thu')
   ghiHeader(ws, 3, HEADER_THU)
-  const rows = dong.filter((d) => d.co > 0).sort(sapNgayTk)
+  const rows = theoThoiGianThat(dong).filter((d) => d.co > 0).sort(sapNgayTk)
   rows.forEach((d, i) => {
     const r = ws.getRow(i + 4)
     r.getCell(1).value = ngayUtc(d.ngay); r.getCell(1).numFmt = 'dd/mm/yyyy'
@@ -93,16 +112,15 @@ function soNgayCuaKy(ky: string): number {
 
 /**
  * Tab "Tiền mặt ngân hàng": mỗi dòng một ngày trong tháng `ky`. Số dư mỗi TK = số dư của giao dịch
- * cuối cùng trong ngày (dòng sau cùng trong `dong` cho cùng (TK, ngày) — ponytail: giả định `dong`
- * đã theo đúng thứ tự thời gian trong ngày; TCB nhập ngược dòng thì route phải tự sắp lại trước khi
- * truyền vào, hàm này không tự phát hiện). Chưa có giao dịch → kéo từ ngày trước, ngày đầu tháng
+ * CUỐI CÙNG THEO THỜI GIAN THẬT trong ngày (`theoThoiGianThat` — không phải dòng cuối theo row_order
+ * thô, vì TCB nhập ngược: mới nhất trước). Chưa có giao dịch → kéo từ ngày trước, ngày đầu tháng
  * chưa có → `soDuDau`.
  */
 function tabTienMat(wb: ExcelJS.Workbook, dong: DongThuChi[], ky: string, soDuDau: Record<TaiKhoan, number | null>) {
   const ws = wb.addWorksheet('Tiền mặt ngân hàng')
   ghiHeader(ws, 1, ['Ngày', 'VCB 63', 'VCB21', 'TCB', 'Đầu kỳ', 'Thu', 'Chi', 'Cuối kỳ'])
   const soDuTheoNgay: Record<TaiKhoan, Map<string, number | null>> = { VCB21: new Map(), VCB63: new Map(), TCB: new Map() }
-  for (const d of dong) soDuTheoNgay[d.taiKhoan].set(d.ngay, d.soDu)
+  for (const d of theoThoiGianThat(dong)) soDuTheoNgay[d.taiKhoan].set(d.ngay, d.soDu)
 
   const soDuHienTai: Record<TaiKhoan, number | null> = { VCB21: soDuDau.VCB21 ?? null, VCB63: soDuDau.VCB63 ?? null, TCB: soDuDau.TCB ?? null }
   let dauKyTruoc = CAC_TK.reduce((s, tk) => s + (soDuHienTai[tk] ?? 0), 0)

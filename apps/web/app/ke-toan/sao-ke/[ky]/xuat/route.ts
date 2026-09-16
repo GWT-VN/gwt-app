@@ -17,6 +17,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
   const soDuDau = Object.fromEntries(tong.map((t) => [t.taiKhoan, t.soDuDau])) as Record<TaiKhoan, number | null>
   const dongThuChi: DongThuChi[] = dong.map((d) => ({
     taiKhoan: d.account,
+    rowOrder: d.row_order,
     ngay: d.txn_date,
     noiDung: d.description ?? '',
     no: d.debit,
