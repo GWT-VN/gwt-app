@@ -118,6 +118,48 @@ export type VideoIdea = {
   tags: string[] | null;
 };
 
+export type DeepStructureStep = { role?: string; time?: string; content?: string };
+
+export type VideoDeepAnalysis = {
+  id: string;
+  created_at: string | null;
+  updated_at: string | null;
+  url: string | null;
+  platform: string | null;
+  channel_name: string | null;
+  video_title: string | null;
+  transcript: string | null;
+  content_category: string | null;
+  channel_type: string | null;
+  structure: DeepStructureStep[] | null;
+  s_faces: string[] | null;
+  craves_triggers: string[] | null;
+  viral_elements: string[] | null;
+  maslow_layer: string | null;
+  useful_advice: string[] | null;
+  funnel_notes: string | null;
+  evaluation: string | null;
+  conclusion: string | null;
+  gwt_application: string | null;
+  compliance_notes: string | null;
+  tags: string[] | null;
+  analyzed_by: string | null;
+};
+
+export type HookItem = {
+  id: string;
+  created_at: string | null;
+  text: string;
+  kind: string | null;
+  hook_style: string | null;
+  source_url: string | null;
+  source_channel: string | null;
+  reuse_note: string | null;
+  gwt_adapted: string | null;
+  tags: string[] | null;
+  added_by: string | null;
+};
+
 /* ---------- Truy vấn dùng cho các trang ---------- */
 
 const ANALYSIS_COLS = [
@@ -201,7 +243,60 @@ export async function listIdeaIds(): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-export async function getCounts(): Promise<{ analyses: number | null; ideas: number | null }> {
+/* ---------- video_deep_analysis (phân tích chuyên sâu) ---------- */
+
+const DEEP_COLS = [
+  "id","created_at","updated_at","url","platform","channel_name","video_title",
+  "content_category","channel_type","s_faces","craves_triggers","viral_elements",
+  "maslow_layer","useful_advice","funnel_notes","evaluation","conclusion",
+  "gwt_application","compliance_notes","tags","analyzed_by",
+].join(",");
+
+/** Dòng cho trang bảng: bỏ transcript (dài) + structure. */
+export type DeepRow = Omit<VideoDeepAnalysis, "transcript" | "structure">;
+
+export async function getDeepAnalyses(): Promise<{ rows: DeepRow[]; total: number }> {
+  const { rows, total } = await rest<DeepRow>("video_deep_analysis", {
+    select: DEEP_COLS,
+    order: "created_at.desc.nullslast",
+  });
+  return { rows, total };
+}
+
+export async function getDeepAnalysis(id: string): Promise<VideoDeepAnalysis | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const { rows } = await rest<VideoDeepAnalysis>("video_deep_analysis", {
+    select: `${DEEP_COLS},transcript,structure`,
+    filter: `id=eq.${id}`,
+    limit: 1,
+  });
+  return rows[0] ?? null;
+}
+
+export async function listDeepAnalysisIds(): Promise<string[]> {
+  const { rows } = await rest<{ id: string }>("video_deep_analysis", { select: "id", limit: 1000 });
+  return rows.map((r) => r.id);
+}
+
+/* ---------- hook_library (kho hook / CTA) ---------- */
+
+export async function getHooks(): Promise<{ rows: HookItem[]; total: number }> {
+  const { rows, total } = await rest<HookItem>("hook_library", {
+    select: "*",
+    order: "kind.asc,hook_style.asc,created_at.desc",
+  });
+  return { rows, total };
+}
+
+export type MktCounts = {
+  analyses: number | null;
+  ideas: number | null;
+  deep: number | null;
+  hooks: number | null;
+};
+
+export async function getCounts(): Promise<MktCounts> {
+  const empty: MktCounts = { analyses: null, ideas: null, deep: null, hooks: null };
   try {
     const { url, key } = conn();
     const head = async (table: string) => {
@@ -213,9 +308,14 @@ export async function getCounts(): Promise<{ analyses: number | null; ideas: num
       const n = Number(res.headers.get("content-range")?.split("/")[1]);
       return Number.isFinite(n) ? n : null;
     };
-    const [analyses, ideas] = await Promise.all([head("video_analyses"), head("video_ideas")]);
-    return { analyses, ideas };
+    const [analyses, ideas, deep, hooks] = await Promise.all([
+      head("video_analyses"),
+      head("video_ideas"),
+      head("video_deep_analysis"),
+      head("hook_library"),
+    ]);
+    return { analyses, ideas, deep, hooks };
   } catch {
-    return { analyses: null, ideas: null };
+    return empty;
   }
 }

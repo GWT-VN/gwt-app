@@ -15,6 +15,8 @@ const CARDS = [
   { href: "/wiki/marketing/khung/seci", icon: "refresh", t: "SECI playbook", d: "Cách chạy buổi review để cả team giỏi lên, không phụ thuộc 1 người." },
   { href: "/wiki/marketing/du-lieu/phan-tich-video", icon: "chart", t: "Dữ liệu phân tích video", d: "Video viral đã mổ — bóc riêng hook, câu kết, câu kêu gọi từ transcript." },
   { href: "/wiki/marketing/du-lieu/ads-results", icon: "chart", t: "Kết quả Ads", d: "Chi phí và hiệu quả từng campaign Facebook Ads — theo dõi hàng tuần." },
+  { href: "/wiki/marketing/du-lieu/phan-tich-sau", icon: "layers", t: "Phân tích chuyên sâu", d: "Bản mổ sâu: cấu trúc theo mốc, lời khuyên dùng ngay, cơ chế phễu, cách áp GWT + full transcript." },
+  { href: "/wiki/marketing/du-lieu/kho-hook", icon: "bulb", t: "Kho hook / CTA", d: "Ngân hàng hook, kêu gọi, câu hỏi, câu kết dùng lại được — kèm bản viết cho GWT." },
   { href: "/wiki/marketing/kho-case", icon: "book", t: "Kho case WIN / FAIL", d: "33 ca đã chấm qua các buổi SECI, mỗi ca ghi đủ điểm sai và hướng sửa." },
 ] as const;
 
@@ -24,6 +26,8 @@ export default async function Home() {
 
   const stats = [
     { n: counts.analyses ?? "—", l: "Video đã phân tích", href: "/wiki/marketing/du-lieu/phan-tich-video" },
+    { n: counts.deep ?? "—", l: "Phân tích chuyên sâu", href: "/wiki/marketing/du-lieu/phan-tich-sau" },
+    { n: counts.hooks ?? "—", l: "Hook / CTA trong kho", href: "/wiki/marketing/du-lieu/kho-hook" },
     { n: counts.ideas ?? "—", l: "Video ideas cho GWT", href: "/wiki/marketing/du-lieu/video-ideas" },
     { n: ADS_WEEKS.length, l: "Tuần ads đã ghi", href: "/wiki/marketing/du-lieu/ads-results" },
     { n: 5, l: "Khung làm việc", href: "/wiki/marketing/khung/5a" },

@@ -21,6 +21,8 @@ export const NAV: NavGroup[] = [
     heading: "Dữ liệu",
     items: [
       { href: "/wiki/marketing/du-lieu/phan-tich-video", label: "Phân tích video", icon: "chart", badgeKey: "analyses" },
+      { href: "/wiki/marketing/du-lieu/phan-tich-sau", label: "Phân tích chuyên sâu", icon: "layers" },
+      { href: "/wiki/marketing/du-lieu/kho-hook", label: "Kho hook / CTA", icon: "bulb" },
       { href: "/wiki/marketing/du-lieu/video-ideas", label: "Video Ideas", icon: "bulb", badgeKey: "ideas" },
       { href: "/wiki/marketing/du-lieu/ads-results", label: "Kết quả Ads", icon: "chart" },
     ],
