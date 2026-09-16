@@ -78,7 +78,14 @@ export function DongSaoKe({ d, hoaDon, ma, ky }: { d: SaoKeRow; hoaDon: HoaDonTo
                 onClick={() => luu({ matchKind: 'pending', matchId: null, hasInvoice: false }, 'Đã bỏ khớp')}
                 className="text-slate-400 hover:text-rose-600">×</button>
             </span>
-          ) : <span className="text-slate-400">HĐ #{d.match_id}</span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-slate-400">
+              HĐ #{d.match_id} (không thấy trong danh sách)
+              <button type="button" disabled={dang} aria-label="Bỏ khớp" title="Bỏ khớp"
+                onClick={() => luu({ matchKind: 'pending', matchId: null, hasInvoice: false }, 'Đã bỏ khớp')}
+                className="text-slate-400 hover:text-rose-600">×</button>
+            </span>
+          )
         ) : (
           <div className="space-y-1">
             {(d.suggestions ?? []).slice(0, 3).map((s, i) => (

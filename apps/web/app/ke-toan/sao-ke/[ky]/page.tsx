@@ -17,9 +17,12 @@ const KHOP_OPTS = [
   { giaTri: 'khong', nhan: 'Không có HĐ' }, { giaTri: 'tay', nhan: 'Đã chốt tay' },
 ]
 
+// match_conf='tay' xét TRƯỚC match_kind==='none': RPC set 'tay' trên MỌI lần chốt tay, kể cả
+// chốt "Không có HĐ" hay sửa mã/ghi chú một dòng NOI_BO/LAI_NH (match_kind vẫn 'none') — xét
+// 'none' trước sẽ làm những dòng đó không bao giờ lọt vào bộ lọc "Đã chốt tay" (review 16/09/2026).
 function khopCuaDong(d: SaoKeRow): 'chac' | 'goi_y' | 'chua' | 'khong' | 'tay' {
-  if (d.match_kind === 'none') return 'khong'
   if (d.match_conf === 'tay') return 'tay'
+  if (d.match_kind === 'none') return 'khong'
   if (d.match_conf === 'chac') return 'chac'
   if (d.match_conf === 'goi_y') return 'goi_y'
   return 'chua'
