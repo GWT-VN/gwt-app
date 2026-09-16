@@ -152,5 +152,33 @@ chk("expense_category gương = 24", r.status_code == 200 and len(r.json()) == 2
 r = requests.get(f"{U}/storage/v1/bucket/accounting", headers=h(SVC))
 chk("storage: bucket accounting riêng tư", r.status_code == 200 and r.json().get("public") is False, (r.status_code, r.text[:80]))
 
+# --- Lát 5 (migration 11): sao kê ---
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_nguon_them", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id,
+    "p_kind": "bank_vcb21", "p_file_name": "smoke-vcb21.xls", "p_storage_path": "2026-08/smoke-vcb21.xls", "p_headers": {"tai_khoan": "VCB21", "so_du_dau": 1000}, "p_row_count": 2})
+src_bank = r.json()["id"] if r.status_code == 200 else None
+rows_bank = [
+    {"account": "VCB21", "line_key": "smoke-b1", "row_order": 1, "txn_date": "2026-08-03", "doc_no": "5254-1", "debit": 5270776, "credit": 0, "balance": 100, "description": "UHHT..DG:FACEBK *X", "direction": "chi", "raw": ["1"], "match_kind": "pending", "code": "cp.qc", "code_name": "CP quảng cáo", "has_invoice": False, "engine_reason": "luật facebk"},
+    {"account": "VCB21", "line_key": "smoke-b2", "row_order": 2, "txn_date": "2026-08-09", "doc_no": "5254-2", "debit": 0, "credit": 50000000, "balance": 200, "description": "GWT chuyen tien noi bo", "direction": "thu", "raw": ["2"], "match_kind": "none", "code": "NOI_BO", "code_name": "Chuyển tiền nội bộ", "has_invoice": False},
+]
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_bank, "p_rows": rows_bank})
+chk("ke_toan_sao_ke_nhap 2 dòng mới → inserted 2", r.status_code == 200 and r.json() == {"inserted": 2, "updated": 0}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
+bl = {x["line_key"]: x for x in (r.json() if r.status_code == 200 else [])}
+b1 = bl.get("smoke-b1", {})
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_sua", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_line_id": b1.get("id"), "p_match_kind": "none", "p_match_id": None,
+    "p_code": "cp.vanhanhchung", "p_code_name": "CP vận hành chung", "p_party_code": None, "p_customer_code": None, "p_has_invoice": False, "p_note": "sửa tay"})
+chk("ke_toan_sao_ke_sua → ok", r.status_code == 200 and r.json() == {"ok": True}, (r.status_code, r.text[:80]))
+rows_bank[0]["description"] = "UHHT..DG:FACEBK *Y"
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_nhap", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id, "p_source_id": src_bank, "p_rows": rows_bank})
+chk("sao_ke_nhap lại → updated 2", r.status_code == 200 and r.json() == {"inserted": 0, "updated": 2}, (r.status_code, r.text[:120]))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_list", headers=h(SVC), json={"p_email": "dev.admin@gwt.vn", "p_period_id": ky_id})
+bl = {x["line_key"]: x for x in (r.json() if r.status_code == 200 else [])}
+chk("upload lại: mô tả cập nhật nhưng mã chốt tay giữ (cp.vanhanhchung, match_conf tay)",
+    bl.get("smoke-b1", {}).get("description") == "UHHT..DG:FACEBK *Y" and bl.get("smoke-b1", {}).get("code") == "cp.vanhanhchung" and bl.get("smoke-b1", {}).get("match_conf") == "tay",
+    bl.get("smoke-b1"))
+chk("dòng chưa chốt tay nhận lại engine (b2 code NOI_BO)", bl.get("smoke-b2", {}).get("code") == "NOI_BO", bl.get("smoke-b2"))
+r = requests.post(f"{U}/rest/v1/rpc/ke_toan_sao_ke_sua", headers=h(SVC), json={"p_email": "dev.cs@gwt.vn", "p_line_id": b1.get("id"), "p_match_kind": "none", "p_match_id": None, "p_code": None, "p_code_name": None, "p_party_code": None, "p_customer_code": None, "p_has_invoice": False, "p_note": None})
+chk("vai cs: ke_toan_sao_ke_sua BỊ từ chối", r.status_code >= 400 and "Kế toán" in r.text, (r.status_code, r.text[:80]))
+
 print("\nALL OK" if ok else "\nCÓ LỖI")
 sys.exit(0 if ok else 1)
