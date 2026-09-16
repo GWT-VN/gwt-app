@@ -15,7 +15,7 @@ import { ganKhoaSaoKe } from '@/lib/ke-toan/nhap/khoa-sao-ke'
 import { gomHoaDon, khopSaoKe } from '@/lib/ke-toan/sao-ke/khop-sao-ke'
 import { taoEngineSaoKe } from '@/lib/ke-toan/engine/sao-ke'
 import type { TaiKhoan, SaoKe, HoaDonTom, KhachTom, DonHangTom, Khop } from '@/lib/ke-toan/sao-ke/kieu'
-import { chanKeToan, goi, duLieuEngine, TOI_DA_BYTE, LO, type KyRow } from '../_chung'
+import { chanKeToan, goi, duLieuEngine, TOI_DA_BYTE, type KyRow } from '../_chung'
 import { danhSachKy } from '../actions'
 
 const TAI_KHOAN: readonly TaiKhoan[] = ['VCB21', 'VCB63', 'TCB']
@@ -125,6 +125,12 @@ export async function uploadSaoKe(_prev: unknown, form: FormData): Promise<KetQu
       }
     })
 
+    // ke_toan_sao_ke_nhap nhập MỘT LẦN (không chia lô như ke_toan_dong_nhap ở actions.ts): RPC chạy
+    // trong 1 transaction nên toàn bộ dòng đậu hoặc không dòng nào — chia lô thì lô sau lỗi giữa
+    // chừng bỏ lại bank_lines mồ côi (source_id đã bị xoá ở nhánh dọn rác dưới, nhưng dòng lô trước
+    // đã insert/update vẫn còn) — R12 (review 16/09/2026). Chặn file quá lớn trước khi ghi gì.
+    if (rows.length > 2000) return { ok: false, error: 'Sao kê quá 2000 dòng — tách file theo tháng.' }
+
     const db = dataClient()
     const path = `${ky}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_')}`
     const up = await db.storage.from('accounting').upload(path, buf, { contentType: file.type || 'application/octet-stream', upsert: false })
@@ -138,10 +144,8 @@ export async function uploadSaoKe(_prev: unknown, form: FormData): Promise<KetQu
 
     let inserted = 0, updated = 0
     try {
-      for (let i = 0; i < rows.length; i += LO) {
-        const r = await goi<{ inserted: number; updated: number }>('ke_toan_sao_ke_nhap', { p_period_id: periodId, p_source_id: sourceId, p_rows: rows.slice(i, i + LO) })
-        inserted += r.inserted; updated += r.updated
-      }
+      const r = await goi<{ inserted: number; updated: number }>('ke_toan_sao_ke_nhap', { p_period_id: periodId, p_source_id: sourceId, p_rows: rows })
+      inserted = r.inserted; updated = r.updated
     } catch (e) {
       const loi = (e as Error).message
       // Dọn rác best-effort — cùng khuôn nhapNguon() ở actions.ts: KHÔNG để lỗi dọn dẹp che lỗi gốc.
