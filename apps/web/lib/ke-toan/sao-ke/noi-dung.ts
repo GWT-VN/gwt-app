@@ -3,7 +3,12 @@
 import type { TaiKhoan } from './kieu'
 import { norm } from '../chuan-hoa'
 
-const TU_CHUNG = new Set(['cong', 'ty', 'tnhh', 'co', 'phan', 'thuong', 'mai', 'dich', 'vu', 'san', 'xuat', 'viet', 'nam', 'quoc', 'te', 'chi', 'nhanh', 'tap', 'doan', 'tong', 'va', 'cp', 'mtv', 'thanh', 'toan', 'gwt', 'dung'])
+const TU_CHUNG = new Set(['cong', 'ty', 'tnhh', 'co', 'phan', 'thuong', 'mai', 'dich', 'vu', 'san', 'xuat', 'viet', 'nam', 'quoc', 'te', 'chi', 'nhanh', 'tap', 'doan', 'tong', 'va', 'cp', 'mtv', 'thanh', 'toan', 'gwt'])
+// Cụm nhiều từ bỏ TRƯỚC khi tách token — tách theo từng từ đơn (TU_CHUNG) sẽ nuốt luôn tên riêng
+// trùng chữ (vd 'dung' là stop-word của "XÂY DỰNG" nhưng cũng là tên "Dũng" — không được loại tên
+// riêng). Sắp dài→ngắn để cụm dài khớp trước khi cụm con của nó (không cụm nào hiện là con của cụm
+// khác trong danh sách này nên thứ tự không đổi kết quả, giữ quy ước cho an toàn khi thêm cụm mới).
+const CUM_CHUNG = ['trach nhiem huu han', 'xay dung', 'thuong mai', 'dich vu', 'san xuat', 'co phan', 'quoc te', 'viet nam', 'chi nhanh', 'tap doan'].sort((a, b) => b.length - a.length)
 
 export function rutGonNoiDung(noiDung: string, taiKhoan: TaiKhoan): string {
   let s = String(noiDung ?? '')
@@ -32,5 +37,7 @@ export function laLaiNganHang(noiDung: string): boolean {
 }
 
 export function tuKhoa(ten: unknown): Set<string> {
-  return new Set(norm(ten).split(' ').filter((t) => t.length >= 3 && !TU_CHUNG.has(t)))
+  let s = norm(ten)
+  for (const cum of CUM_CHUNG) s = s.replace(new RegExp(`\\b${cum}\\b`, 'g'), ' ')
+  return new Set(s.split(/\s+/).filter((t) => t.length >= 3 && !TU_CHUNG.has(t)))
 }

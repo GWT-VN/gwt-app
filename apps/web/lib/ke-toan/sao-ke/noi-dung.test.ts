@@ -29,8 +29,10 @@ describe('tín hiệu', () => {
     expect(laNoiBo('GWT chuyen tien noi bo tu VCB63 sang VCB21')).toBe(true); expect(laNoiBo('GWT thanh toan luong')).toBe(false)
     expect(laLaiNganHang('INTEREST PAYMENT')).toBe(true); expect(laLaiNganHang('Tra lai so du tren tai khoan - thang 08/2026')).toBe(true); expect(laLaiNganHang('thanh toan')).toBe(false)
   })
-  it('tuKhoa bỏ từ chung (cong ty tnhh co phan…), giữ token ≥3', () =>
-    expect([...tuKhoa('CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01')].sort()).toEqual(['lanh', 'xay', 'xuan']))
+  it('tuKhoa bỏ cụm chung (cong ty tnhh, thuong mai, xay dung…), giữ phần riêng biệt', () =>
+    expect([...tuKhoa('CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ XÂY DỰNG XUÂN LÀNH 01')].sort()).toEqual(['lanh', 'xuan']))
+  it('tuKhoa không nuốt tên riêng trùng chữ với cụm chung (Dũng ≠ "xây dựng")', () =>
+    expect(tuKhoa('Nguyễn Văn Dũng').has('dung')).toBe(true))
 })
 describe('khoá dòng sao kê', () => {
   it('ổn định và đổi theo từng trường', () => {
