@@ -20,6 +20,14 @@ describe('khopSaoKe — chi', () => {
     const k = khopSaoKe({ chieu: 'chi', soTien: 4605152, noiDung: 'IBBIZ thanh toan', tenDoiUng: null }, HD, KH, [])
     expect(k.chac).toBeNull(); expect(k.goiY.map((g) => g.soHd)).toEqual(['220'])
   })
+  it('số HĐ trùng cụm số trong SĐT → không tính là tín hiệu (không chắc, chỉ gợi ý theo tiền)', () => {
+    const k = khopSaoKe({ chieu: 'chi', soTien: 4605152, noiDung: 'GWT thanh toan 0912.220.678', tenDoiUng: null }, HD, KH, [])
+    expect(k.chac).toBeNull(); expect(k.goiY.map((g) => g.soHd)).toEqual(['220'])
+  })
+  it('số HĐ ngoài SĐT vẫn phân định được → chắc (đối chứng)', () => {
+    const k = khopSaoKe({ chieu: 'chi', soTien: 4605152, noiDung: 'GWT thanh toan HD 220', tenDoiUng: null }, HD, KH, [])
+    expect(k.chac?.soHd).toBe('220')
+  })
   it('hai HĐ cùng tiền cùng NCC → không chắc, 2 gợi ý; số HĐ trong nội dung phân định → chắc', () => {
     expect(khopSaoKe({ chieu: 'chi', soTien: 540000, noiDung: 'GWT thanh toan Phuc Anh Quoc', tenDoiUng: null }, HD, KH, []).goiY).toHaveLength(2)
     expect(khopSaoKe({ chieu: 'chi', soTien: 540000, noiDung: 'GWT thanh toan Phuc Anh Quoc HD 5489', tenDoiUng: null }, HD, KH, []).chac?.soHd).toBe('5489')

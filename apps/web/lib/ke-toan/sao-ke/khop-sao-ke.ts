@@ -36,11 +36,18 @@ export function gomHoaDon(lines: DongHoaDonTho[]): HoaDonTom[] {
   return ra
 }
 
+// Cùng mẫu SĐT của timSdt() (noi-dung.ts) — dùng để loại nhóm số SĐT khỏi nội dung trước khi soi
+// tín hiệu số HĐ, tránh số HĐ 3-4 chữ số khớp trúng một cụm trong SĐT (vd '220' trong '0912.220.678').
+const RE_SDT_G = /(?<!\d)0(?:[ .]?\d){9}(?!\d)/g
+function boSdt(noiDung: string): string {
+  return noiDung.replace(RE_SDT_G, ' ')
+}
+
 /** Tín hiệu "cứng": số HĐ hoặc MST xuất hiện nguyên trong nội dung — phân định được khi nhiều HĐ trùng tên. */
 function tinHieuCung(hd: HoaDonTom, noiDung: string): string | null {
   if (hd.soHd.length >= 3) {
     const re = new RegExp(`(?<!\\d)0*${hd.soHd}(?!\\d)`)
-    if (re.test(noiDung)) return `số HĐ ${hd.soHd} trong nội dung`
+    if (re.test(boSdt(noiDung))) return `số HĐ ${hd.soHd} trong nội dung`
   }
   if (hd.mst && noiDung.includes(hd.mst)) return `MST ${hd.mst} trong nội dung`
   return null
