@@ -66,3 +66,9 @@ export function khoaDong(
   const chuoi = khoaTuNhien(direction, kyHieu, soHd, tenHang, thanhTien) + '|' + String(lan)
   return createHash('sha1').update(chuoi, 'utf8').digest('hex')
 }
+
+/** line_key của 1 dòng sao kê ngân hàng — cùng khuôn khoaDong(), khoá tự nhiên = tk|ngay|soCt|no|co. */
+export function khoaSaoKe(taiKhoan: string, ngay: string, soCt: string, no: number, co: number, lan = 0): string {
+  const chuoi = [taiKhoan, ngay, soCt, String(no), String(co), String(lan)].join('|')
+  return createHash('sha1').update(chuoi, 'utf8').digest('hex')
+}

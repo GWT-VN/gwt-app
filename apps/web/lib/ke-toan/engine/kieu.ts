@@ -1,7 +1,7 @@
 // Kiểu dữ liệu cho engine phân loại kế toán (lát 1: rule-based; lát 2 sẽ thêm học từ corrections).
 
 // Một luật phân loại lưu ở bảng accounting.rules — pattern đã chuẩn hoá (norm() hoặc sd()) theo kind.
-export type Luat = { id?: number; kind: 'supplier' | 'keyword' | 'product_name'; pattern: string; targetCode: string; condition: string | null; priority: number; origin: 'rule_excel' | 'override_json' | 'history' | 'app'; active: boolean }
+export type Luat = { id?: number; kind: 'supplier' | 'keyword' | 'product_name' | 'bank_keyword'; pattern: string; targetCode: string; condition: string | null; priority: number; origin: 'rule_excel' | 'override_json' | 'history' | 'app'; active: boolean }
 
 // Một mã trong catalog hàng hoá (gương từ Masterdata). capHai/capBa = "Danh mục cấp 2/3" (dùng cho nhóm SP đầu ra).
 export type MucCatalog = { ma: string; ten: string; tinhChat: string; capHai?: string; capBa?: string }
