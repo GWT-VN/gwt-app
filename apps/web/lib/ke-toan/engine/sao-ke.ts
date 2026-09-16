@@ -20,7 +20,16 @@ export function taoEngineSaoKe(input: { luat: Luat[]; kmcp: MucKmcp[] }) {
       const n = norm(d.noiDung)
       const luat = luatBank.find((l) => n.includes(l.pattern))
       if (luat) return { code: luat.targetCode, codeName: kmTen.get(luat.targetCode) ?? '', partyCode: khop.chac?.mst ?? null, hasInvoice: !!khop.chac, reason: `Luật diễn giải ngân hàng: chứa "${luat.pattern}"`, conf: 'cao' }
-      if (khop.chac?.code) return { code: khop.chac.code, codeName: kmTen.get(khop.chac.code) ?? '', partyCode: khop.chac.mst, hasInvoice: true, reason: `Khớp chắc hoá đơn ${khop.chac.soHd}`, conf: 'trung binh' }
+      if (khop.chac?.code) {
+        // code của HĐ có thể là mã KMCP (chi phí) hoặc mã sản phẩm/hàng hoá (catalog) — chỉ mã KMCP
+        // mới đứng tên chính nó trong báo cáo thu-chi; mã hàng hoá (không có trong kmcp) → gộp chung
+        // nhãn 'HÀNG HOÁ' (R11, dry run T8: mã sản phẩm như 'WILOJET44' không phải khoản mục chi phí).
+        const laKmcp = kmTen.has(khop.chac.code)
+        const code = laKmcp ? khop.chac.code : 'HANG_HOA'
+        const codeName = laKmcp ? kmTen.get(khop.chac.code)! : 'HÀNG HOÁ'
+        const reason = laKmcp ? `Khớp chắc hoá đơn ${khop.chac.soHd}` : `Khớp chắc hoá đơn ${khop.chac.soHd} — mã sản phẩm ${khop.chac.code}`
+        return { code, codeName, partyCode: khop.chac.mst, hasInvoice: true, reason, conf: 'trung binh' }
+      }
       return { code: null, codeName: '', partyCode: null, hasInvoice: !!khop.chac, reason: 'Không khớp luật/hoá đơn — cần gán tay', conf: 'can gan tay' }
     }
 

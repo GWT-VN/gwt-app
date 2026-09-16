@@ -16,6 +16,9 @@ describe('engine sao kê', () => {
     expect(e.phanLoai({ chieu: 'chi', noiDung: 'GWT thanh toan vat tu Xuan Lanh', tenDoiUng: null, soTien: 4659560 }, { ...rong, chac: { ...hd, code: 'cp.vattukho', mst: '0311054784' } })).toMatchObject({ code: 'cp.vattukho', conf: 'trung binh', hasInvoice: true, partyCode: '0311054784' })
     expect(e.phanLoai({ chieu: 'chi', noiDung: 'SUPABASE (25 USD)', tenDoiUng: null, soTien: 1 }, rong)).toMatchObject({ code: null, conf: 'can gan tay', hasInvoice: false })
   })
+  it('chi: khớp chắc HĐ hàng hoá (code không phải KMCP) → HANG_HOA, không lấy mã sản phẩm (R11)', () => {
+    expect(e.phanLoai({ chieu: 'chi', noiDung: 'GWT thanh toan may loc nuoc', tenDoiUng: null, soTien: 1 }, { ...rong, chac: { ...hd, code: 'WILOJET44', mst: '0311054784' } })).toMatchObject({ code: 'HANG_HOA', codeName: 'HÀNG HOÁ', hasInvoice: true })
+  })
   it('thu: mặc định Bán hàng; MST công ty / KHSP shopee / KHL khách lẻ / null', () => {
     expect(e.phanLoai({ chieu: 'thu', noiDung: 'CK', tenDoiUng: null, soTien: 1 }, { ...rong, chac: { ...hd, mst: '0314937308', code: null, ten: 'CÔNG TY TNHH CLEAN WATER' } })).toMatchObject({ code: 'BAN_HANG', partyCode: '0314937308', conf: 'cao' })
     expect(e.phanLoai({ chieu: 'thu', noiDung: 'CK', tenDoiUng: null, soTien: 1 }, { ...rong, chac: { ...hd, mst: null, code: null, ten: 'Lan anh (shopee)' } }).partyCode).toBe('KHSP')
