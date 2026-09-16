@@ -325,6 +325,8 @@ không tự làm · Làm xong → chuyển `⏳ CHỜ TÔI CHECK`, ghi rõ **xem
 - **Kéo thả kanban** khu Việc.
 - **Kế toán** — mới lát 1 (04/09), chưa có `backlog/ke-toan.md`. Việc treo xem
   `docs/ke-toan/README.md` mục "Việc treo sau lát 1".
+- **Kế toán lát 5** (16/09) — route `/ke-toan/sao-ke/[ky]` (sao kê ngân hàng VCB21/VCB63/TCB + Excel thu
+  chi), migration 11 `ke_toan_11_sao_ke` áp live, code trên `feat/ke-toan-lat-5`, CEO chưa xem/merge.
 
 ---
 

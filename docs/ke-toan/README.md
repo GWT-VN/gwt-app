@@ -51,6 +51,16 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
   `dim_channel`). Bảng có cột riêng Mã khách/Nhóm/Kênh/Đại lý, sửa tại ô như tab đầu vào nhưng ô
   mã chỉ gợi ý catalog (không KMCP) và không có nút "Đặt thành luật". Xuất Excel điền cả khối 2 cột
   đề xuất lẫn cột có sẵn trong template gốc (Mã hàng/Loại/Kênh/Đại lý — `dienTab` tab `ra`).
+- `/ke-toan/sao-ke/[ky]` (lát 5, chưa merge `main`) — nút **Sao kê →** từ màn kỳ. Upload sao kê 3 tài
+  khoản (VCB21/VCB63 `.xls`, TCB `.pdf`) qua `uploadSaoKe` (`app/ke-toan/sao-ke/actions.ts`): đọc file
+  (`docVcb`/`docTcbPdf`) → assert tổng khớp header (TCB: Σnợ/Σcó; VCB: `soDuDau + Σcó − Σnợ = soDuCuoi`,
+  lệch thì từ chối nhập) → mỗi dòng tự khớp hoá đơn (`khopSaoKe`) + phân loại KMCP (`taoEngineSaoKe`) →
+  ghi `bank_lines` bằng MỘT RPC (không chia lô — RPC chạy 1 transaction, chia lô sẽ làm mồ côi dòng khi lô
+  sau lỗi; ngưỡng 2000 dòng/lần xem "Điểm treo"). Thanh tổng 3 thẻ so Σ dòng với
+  header sao kê (VCB chỉ hiện Σ trơn vì header = chính Σ; TCB hiện `Σ / header`, tô đỏ khi lệch). Bộ lọc
+  Tài khoản/Chiều/Khớp (`chac`/`goi_y`/`chua`/`tay`) + ô tìm; mỗi dòng sửa tại chỗ (Khớp HĐ · Mã ·
+  Đối tượng · Ghi chú) qua `suaSaoKe`. Nút **Tải Excel thu chi** (`GET .../xuat`) xuất
+  `Báo cáo thu chi - MM.YYYY.xlsx` (tab Chi 15 cột, Thu 11 cột, Tiền mặt ngân hàng theo ngày).
 - Launcher "Kế toán" trong `TopNav` cho các vai trò trên.
 
 ## Config ngoài migration (ghi để dựng lại được)
@@ -79,6 +89,34 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
    một NCC/diễn giải luôn về một mã (ghi `accounting.rules` origin `app`).
 5. Tải `_DAXULY.xlsx` gửi kế toán, rồi bấm **"Đã gửi kế toán"** (`NutGuiKeToan.tsx`) — đổi trạng
    thái kỳ; vẫn sửa được sau đó, đếm vào `edits_after_sent`.
+6. (lát 5) Từ màn kỳ bấm **Sao kê →**, upload sao kê 3 tài khoản ngân hàng của tháng, xem/sửa khớp hoá
+   đơn + mã KMCP tại ô cho các dòng chưa chắc, rồi **Tải Excel thu chi** gửi kế toán.
+
+## Trạng thái lát 5 (16/09/2026, sao kê ngân hàng)
+
+Code xong trên `feat/ke-toan-lat-5` (migration 11 `ke_toan_11_sao_ke` **ÁP LIVE 16/09**, CI `db-reset`
+xanh). **CEO chưa xem, chưa merge.**
+
+Đo trên kỳ T8 thật (đo bởi controller 16/09): **127 dòng sao kê** (VCB21 27, VCB63 45, TCB 55). Khớp
+hoá đơn **chắc**: chi 8/68, thu 13/59; **gợi ý**: chi 19, thu 28; nối khách theo SĐT → `customers`:
+14/20. Phân loại KMCP: `cp.qc` 22 dòng (= đúng báo cáo tay), `cp.luong` 9 (tay ghi 12) — còn lại cần
+gán tay **20 dòng chi / 12 dòng thu**.
+
+Excel thu chi dựng từ pipeline so với file tay `Báo cáo thu chi - Tháng 8.xlsx`:
+
+- **Thu**: 59/59 dòng, mã trùng 59/59, tổng khớp **2.016.016.501**.
+- **Chi**: 68/68 dòng, mã trùng 40/56 khoá chung (16 lệch — người gán theo TÊN NGƯỜI thay vì luật:
+  `cp.freelance`/`cp.luong` cho "thanh toan <Tên>", Assistant/Intern; `HÀNG HOÁ` cho "100kg muối" chưa
+  khớp HĐ; "CP logistics nhập khẩu" không phải mã KMCP; FAIRMONT → `cp.vanhanhchung`. Sửa bằng luật
+  `bank_keyword` mới hoặc chốt tay trên màn, xem "Điểm treo").
+- **Tiền mặt ngân hàng**: 31 ngày, cuối kỳ = Σ số dư 3 tài khoản.
+
+## Nghiệm thu lát 5
+
+`localhost:3000/ke-toan/hoa-don/2026-08` → **Sao kê →** → upload VCB21/VCB63/TCB tháng 8 (file ở
+`Sao kê các tài khoản NH/2026.08/`) → thanh tổng 3 tài khoản khớp header → lọc **Có gợi ý** → bấm
+gợi ý để nối HĐ → sửa mã còn thiếu → **Tải Excel thu chi** → so với file tay. Bản xem trước dựng sẵn ở
+`Desktop/xem-truoc-thu-chi-08.2026.xlsx`.
 
 ## Trạng thái (15/09/2026, lát 2)
 
@@ -165,6 +203,14 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
   (18 view `public`), `rls_disabled_in_public` (10 bảng `sales_*`) — ngoài phạm vi Kế toán, không sửa
   ở đây. INFO `rls_enabled_no_policy` trên 6 bảng `accounting` là cố ý (chỉ `service_role` qua
   `dataClient()`, xem spec §5).
+- **TCB Business có xuất Excel/CSV không?** (lát 5) — chưa biết. Có thì thêm bộ đọc Excel (`docTcbExcel`,
+  đo header bằng `ke_toan_do_header.py`), PDF (`docTcbPdf`/`saoKeTuMucChu`) lùi thành dự phòng — xem
+  bảng "Sau plan này" trong spec/plan lát 5.
+- Ngưỡng **2000 dòng/lần nhập** sao kê (`uploadSaoKe`) là ước lượng (một tháng thực tế vài trăm
+  dòng/tài khoản), chưa đo từ dữ liệu thật nhiều — tài khoản giao dịch cực nhiều (sàn TMĐT dồn 1 TK)
+  có thể cần nới.
+- Luật `bank_keyword` (seed 14 dòng) — bổ sung theo các chỗ lệch đo được ở T8 (xem "Trạng thái lát 5"):
+  `cp.freelance`/`cp.luong` theo tên người, "100kg muối" → HÀNG HOÁ, FAIRMONT → `cp.vanhanhchung`.
 
 ## Bẫy đã gặp (khi build lát 1–2)
 
@@ -227,6 +273,29 @@ hàng nội bộ. Luật app của Tsuiteru/DragonCello/UNICB/An Phú mang cờ 
    fixture `hdct-t8-vao.json` hiện là khuôn NEXIA tạm. Đường nối cuối (`dienTab`, dòng nguồn
    HDCT/HDTQ không có trong file gốc) ghi thẳng `raw` theo THỨ TỰ CỘT của file HDCT vào lưới cột file
    NEXIA — khi có file thật phải đo cả chỗ ghi này (thứ tự cột hai file có thể khác nhau).
+
+15. **TCB PDF không bóc bảng được bằng `extract_tables`** — phải bóc theo TOẠ ĐỘ CHỮ (`pdfjs-dist`,
+   `tcb-pdf.ts`). Trang xoay 90° (`page.rotate===90`) phải qua
+   `pdfjs.Util.transform(viewport.transform, item.transform)`, công thức toạ độ thường cho trang không
+   xoay ra sai hoàn toàn. Header 3 tầng bị pdfjs gộp dòng khác brief đoán (`gomDong` ±3px làm ba tầng
+   header rơi vào 3 "dòng" riêng) → phải so tiền tố (`startsWith`), không so `===`. **TCB liệt kê dòng
+   MỚI NHẤT TRƯỚC** (`row_order` 1 = giao dịch mới nhất) — mọi tính toán theo thời gian thật (số dư
+   cuối ngày trong Excel thu chi) phải đảo lại cho TCB, không dùng thẳng `row_order`. SĐT trong diễn
+   giải có thể bị PDF tách rời từng chữ số. Gate bắt buộc: Σnợ/Σcó tính từ dòng phải khớp header —
+   lệch nghĩa là khuôn PDF đã đổi, từ chối nhập thay vì nhập nửa vời.
+16. **File VCB `.xls` là định dạng BIFF cũ** — chỉ `xlsx` (SheetJS) đọc được, `exceljs` không hỗ trợ.
+   Header nằm ở hàng 14 (không phải hàng 1); cột tiền là CHUỖI có dấu phẩy (không phải number); cột B
+   gộp cả ngày và số chứng từ trong 1 ô, phải tách bằng regex.
+17. **File `'use server'` (`actions.ts`) chỉ được export `async function`** — const/type dùng chung
+   (`TOI_DA_BYTE`, `LO`, `KyRow`) phải tách ra `app/ke-toan/_chung.ts` (không có `'use server'`), cả
+   `actions.ts` và `sao-ke/actions.ts` cùng import từ đó. Re-export type qua một file `'use server'`
+   (`export type { KyRow } from './_chung'`) cũng KHÔNG được — Turbopack RSC action transform báo lỗi
+   `Export ... doesn't exist in target module` dù `tsc`/`vitest` xanh; **chỉ `next build` mới bắt được**
+   lỗi này. Import type cần dùng nhiều nơi thẳng từ `_chung.ts`, đừng re-export qua file action.
+18. **Scanner PII (`scan_pii_secrets.py`) KHÔNG bắt tên người** (chỉ bắt SĐT/số thẻ/khoá dạng mẫu cố
+   định) — fixture PDF/Excel có tên khách phải ĐỌC TAY từng dòng trước khi commit, không tin scanner
+   xanh là đủ. Fixture TCB (`tcb-t8-muc-chu.json`) từng lọt tên khách dạng Title-Case (scanner ban đầu
+   chỉ che chuỗi VIẾT HOA TOÀN BỘ) — phải làm lại và commit lại trước khi push.
 
 ## Việc treo sau lát 1–2
 
@@ -304,3 +373,14 @@ ff. `tenVaTk` (`suaDong`) và `danhSachMa` đều tự gọi `duLieuEngine()` �
    lại đủ 5 truy vấn kể cả `thongKe` (mục "y") dù `danhSachMa` không dùng `thongKe`.
 gg. `ke_toan_ky_gui` không reset `edits_after_sent` khi gửi lại kỳ đã "Đã gửi" — bấm gửi lần 2 sau
    khi đã có sửa-sau-gửi thì bộ đếm không về 0, cộng dồn qua nhiều lần gửi thay vì tính riêng mỗi lần.
+
+## Việc treo sau lát 5
+
+hh. Đơn Sales chưa có SĐT (`sales_orders` rỗng, `sales_order_lines` không có SĐT) → khớp thu chưa nối
+   được vào đơn, chỉ gợi ý theo tên. Bật lại khi Sales có dữ liệu SĐT.
+ii. Công nợ dựng từ kết quả khớp sao kê ↔ hoá đơn (spec Q23-b) — chờ lát 5 chạy thật 2 tháng.
+jj. Sửa luật `bank_keyword` hiện chỉ qua DB (`execute_sql`) — chờ màn luật lát 7 để sửa qua app.
+kk. `apps/web/lib/ke-toan/nhap/noi-dung.ts` và `khop-sao-ke.ts` import `chuan-hoa.ts` (dùng
+   `node:crypto`) gián tiếp — chỉ dùng được phía server; tách khi có nơi cần dùng phía client.
+ll. `OChonGoiY` (component dùng chung, khu hoá đơn lẫn sao kê) thiếu `aria-label` — sửa một lần ở
+   component gốc, không vá riêng từng chỗ gọi.
