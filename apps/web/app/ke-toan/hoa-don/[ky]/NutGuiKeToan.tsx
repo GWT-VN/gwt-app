@@ -1,6 +1,7 @@
 'use client'
 import { useActionState } from 'react'
-import { guiKeToan, type KyRow } from '../../actions'
+import { guiKeToan } from '../../actions'
+import type { KyRow } from '../../_chung'
 
 /** guiKeToan() luôn redirect khi thành công (NEXT_REDIRECT) — never trả ok:true; state chỉ giữ lỗi. */
 export function NutGuiKeToan({ period }: { period: KyRow }) {

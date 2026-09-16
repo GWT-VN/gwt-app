@@ -2,9 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-const src = readFileSync(fileURLToPath(new URL('../app/ke-toan/actions.ts', import.meta.url)), 'utf8')
+const doc = (rel: string) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8')
+// chanKeToan()/goi()/duLieuEngine() giờ sống ở _chung.ts (lát 5, tách để cả hai file action dùng
+// chung — 'use server' chỉ được export hàm async, không export được TOI_DA_BYTE/LO/KyRow) — gộp cả
+// ba file vào MỘT nguồn duy nhất thì luật cũ (chưa đổi 1 dòng) áp được lên mọi file mới thêm sau này.
+const FILES = ['../app/ke-toan/actions.ts', '../app/ke-toan/sao-ke/actions.ts', '../app/ke-toan/_chung.ts']
+const src = FILES.map(doc).join('\n')
 
-describe('ke-toan/actions.ts — mọi hàm chạm DB đều gác chanKeToan()', () => {
+describe('khu Kế toán — mọi hàm chạm DB đều gác chanKeToan()', () => {
   const doan = src.split(/(?=async function )/)
   const viPham: string[] = []
   for (const p of doan) {
