@@ -13,7 +13,8 @@
 > `video_deep_analysis`) và **Kho hook/CTA** (`/wiki/marketing/du-lieu/kho-hook`, đọc bảng
 > `hook_library`, component `components/marketing/HookLibraryView.tsx`). Query nằm ở
 > `lib/marketing/supabase-mkt.ts` (`getDeepAnalyses`/`getDeepAnalysis`/`getHooks`, `getCounts` thêm
-> `deep`+`hooks`). ⚠️ **2 bảng này CHƯA có migration trong repo** — xem §7.
+> `deep`+`hooks`). Hai bảng `video_deep_analysis`+`hook_library` nằm ở **Supabase RIÊNG của repo GWT
+> Marketing Kit** (env `MKT_SUPABASE_*`), KHÔNG phải DB chính — xem §7.
 
 ---
 
@@ -211,12 +212,13 @@ Spec chung: `../GWT-SHARED/2026-08-19-gwt-nav-shell-spec.md`.
   Ai merge thì **dời sang `supabase/migrations/`**, không thì local ≠ prod.
 - Đổi **chữ ký RPC** → phải `notify pgrst, 'reload schema';`, không thì PostgREST giữ cache cũ và app
   production gãy **im lặng** (PGRST202). Đã dính một lần với nút Thêm việc.
-- ⚠️ **Wiki Marketing (16/09): `video_deep_analysis` + `hook_library` KHÔNG có migration trong repo.**
-  Trang đọc trực tiếp qua PostgREST (`lib/marketing/supabase-mkt.ts`). Bảng phải tồn tại sẵn trên
-  prod `bwzmqfbcgouhvhoslmmm` thì trang mới có data; chưa có thì `getCounts` nuốt lỗi → ô đếm hiện
-  "—" và trang trống. **Việc còn treo:** viết migration `supabase/migrations/<ts>_wiki_deep_hook.sql`
-  cho 2 bảng này (cột khớp type trong `supabase-mkt.ts`: `VideoDeepAnalysis`, `HookItem`) + RLS đọc,
-  rồi seed. Query DB để xem bảng đã có trên prod chưa trước khi tạo lại.
+- ℹ️ **Wiki Marketing đọc một Supabase KHÁC — không phải `bwzmqfbcgouhvhoslmmm`.**
+  `lib/marketing/supabase-mkt.ts` dùng env RIÊNG `MKT_SUPABASE_URL` + `MKT_SUPABASE_SERVICE_ROLE_KEY`
+  (DB của repo **GWT Marketing Kit**). Mọi bảng wiki marketing — `video_analyses`, `video_ideas`, và
+  2 bảng thêm 16/09 `video_deep_analysis` + `hook_library` — sống ở DB đó, **quản lý/migrate bên repo
+  Marketing Kit**, KHÔNG có migration trong repo này (cố ý). Cần chạy local/preview thì copy 2 env
+  `MKT_*` vào `.env.local` và đặt trong Vercel env; thiếu env thì `conn()` ném lỗi rõ ràng, `getCounts`
+  nuốt lỗi → ô đếm hiện "—". Đừng viết migration cho 2 bảng này trong `supabase/migrations/`.
 
 ---
 
