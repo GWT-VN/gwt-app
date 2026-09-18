@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { NutQuayLai } from '@/components/NutQuayLai'
 import { notFound } from 'next/navigation'
-import { getMachine, mayKhoInfo, ticketsOfSerial, lichSuSerial, dsTrangThai, daiLyCuaMay, donDaiLyChon, doiTacChon } from '@/app/actions'
+import { getMachine, ticketsOfSerial, lichSuSerial, dsTrangThai, daiLyCuaMay, donDaiLyChon, doiTacChon } from '@/app/actions'
 import { NHAN_DO_CHAC } from '@/lib/danhSach'
 import { WarrantyBadge, vnDate } from '@/components/Badge'
 import { ActivateForm } from '@/components/ActivateForm'
@@ -13,11 +13,8 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 
 export default async function MachinePage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params
-  const serialGoc = decodeURIComponent(serial)
-  const m = await getMachine(serialGoc)
-  // Máy CHƯA lắp khách không có trong v_installed_base -> vẫn cho xem trang máy KHO
-  // (thông tin gọn + nhật ký vòng đời trạng thái), thay vì 404.
-  if (!m) return <MayKhoView serial={serialGoc} />
+  const m = await getMachine(decodeURIComponent(serial))
+  if (!m) notFound()
   const [tickets, vongDoi, quyen, dsTT, daiLy, donDaiLy, doiTacDs] = await Promise.all([
     ticketsOfSerial(m.serial), lichSuSerial(m.serial), hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
@@ -132,65 +129,6 @@ export default async function MachinePage({ params }: { params: Promise<{ serial
 
           <QuanLyMay serial={m.serial} internalCode={m.internal_code} trangThai={vongDoi.trang_thai} suKien={vongDoi.su_kien}
             dangLap={!!m.customer_id} ds={dsTT}
-            choLapThuDoi={quyen.lapThuDoi} choSuaKhach={quyen.suaKhach} choKhoSerial={quyen.khoSerial} />
-        </section>
-      </div>
-    </main>
-  )
-}
-
-/** Trang gọn cho máy CHƯA lắp khách (đang ở kho: trưng bày/mkt/bảo trì…). Không có
- *  trong v_installed_base nên thiếu BH/khách; nhưng vẫn cần xem + đổi trạng thái và
- *  NHẤT LÀ nhật ký vòng đời (lịch sử trạng thái theo thời gian). */
-async function MayKhoView({ serial }: { serial: string }) {
-  const kho = await mayKhoInfo(serial)
-  if (!kho) notFound()
-  const [vongDoi, quyen, dsTT] = await Promise.all([
-    lichSuSerial(kho.serial),
-    hoiQuyen({
-      lapThuDoi: ['cs.may.lap_thu_doi', 'QUANLY'],
-      suaKhach: ['cs.khach.xin_xoa', 'NHANVIEN'],
-      khoSerial: ['cs.serial.kho', 'QUANLY'],
-    }),
-    dsTrangThai(),
-  ])
-  const mapTT = new Map(dsTT.map((t) => [t.code, t]))
-  const nhanTT = (c: string | null) => (c ? mapTT.get(c)?.nhan ?? c : '—')
-  const rows: { label: string; value: React.ReactNode; mono?: boolean }[] = [
-    { label: 'Serial', value: kho.serial, mono: true },
-    { label: 'Tên nội bộ', value: kho.ten_noi_bo ?? '—' },
-    { label: 'Mã nội bộ', value: kho.ma_noi_bo ?? '—', mono: true },
-    { label: 'Trạng thái', value: nhanTT(kho.trang_thai) },
-  ]
-
-  return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <NutQuayLai macDinh="/serial" />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold text-slate-900">{kho.ten_noi_bo ?? kho.serial}</h1>
-          <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600 whitespace-nowrap">Máy trong kho — chưa lắp khách</span>
-        </div>
-
-        <section className="bg-white rounded-xl border p-5">
-          <h2 className="font-medium text-slate-900 mb-3">Thông tin máy</h2>
-          <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            {rows.map(({ label, value, mono }) => (
-              <div key={label} className="flex justify-between border-b border-slate-100 py-1.5">
-                <dt className="text-slate-500">{label}</dt>
-                <dd className={`text-slate-900 text-right${mono ? ' font-mono text-xs' : ''}`}>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section className="bg-white rounded-xl border p-5">
-          <h2 className="font-medium text-slate-900 mb-3">Quản lý máy & lịch sử trạng thái</h2>
-          <QuanLyMay serial={kho.serial} internalCode={kho.ma_noi_bo} trangThai={vongDoi.trang_thai} suKien={vongDoi.su_kien}
-            dangLap={false} ds={dsTT}
             choLapThuDoi={quyen.lapThuDoi} choSuaKhach={quyen.suaKhach} choKhoSerial={quyen.khoSerial} />
         </section>
       </div>

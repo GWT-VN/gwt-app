@@ -12,12 +12,6 @@ import { DoiTrangThaiKho } from '@/components/DoiTrangThaiKho'
 import { TrangThaiCauHinh } from '@/components/TrangThaiCauHinh'
 import { KhungChon, OChonTatCa, OChonDong, ThanhDaChon } from '@/bang'
 
-/** Mốc thời gian trạng thái -> dd/mm/yy gọn (luc là timestamptz, chỉ lấy phần ngày). */
-function ngayNgan(luc: string): string {
-  const [y, m, d] = luc.slice(0, 10).split('-')
-  return `${d}/${m}/${y.slice(2)}`
-}
-
 export default async function SerialPage({
   searchParams,
 }: {
@@ -148,18 +142,11 @@ export default async function SerialPage({
                   {rows.map((s) => (
                     <tr key={s.serial} className="hover:bg-slate-50">
                       <OChonDong khoa={s.serial} moTa={`serial ${s.serial}`} />
-                      <td className="px-4 py-2.5 font-mono text-xs">
-                        <Link href={`/may/${encodeURIComponent(s.serial)}`} prefetch={false} className="text-slate-900 hover:underline">{s.serial}</Link>
-                        <Link href={`/may/${encodeURIComponent(s.serial)}`} prefetch={false}
-                          className="ml-2 font-sans text-[11px] text-sky-600 hover:underline whitespace-nowrap">Lịch sử ↗</Link>
-                      </td>
+                      <td className="px-4 py-2.5 font-mono text-xs text-slate-900">{s.serial}</td>
                       <td className="px-4 py-2.5 font-mono text-xs text-slate-700">{s.internal_code ?? '—'}</td>
                       <td className="px-4 py-2.5 text-slate-700">{s.model ?? '—'}</td>
                       <td className="px-4 py-2.5">
                         <DoiTrangThaiKho serial={s.serial} trangThai={s.trang_thai} choDoiTrangThai={quyen.kho} ds={dsTT} />
-                        {s.trang_thai_luc && (
-                          <div className="text-[11px] text-slate-400 mt-1">{ngayNgan(s.trang_thai_luc)}</div>
-                        )}
                       </td>
                       <td className="px-4 py-2.5 text-slate-600">{s.ten_noi_bo ?? '—'}</td>
                     </tr>
