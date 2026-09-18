@@ -2702,6 +2702,8 @@ export type SerialRow = {
   serial: string; code: string | null; model: string | null
   internal_code: string | null; ma_quoc_te: string | null; ten_noi_bo: string | null; po: string | null
   trang_thai: string | null
+  /** Mốc thời gian máy vào trạng thái hiện tại (lần đổi trạng thái mới nhất). */
+  trang_thai_luc?: string | null
 }
 export type SerialPending = {
   id: string; serial: string; internal_code: string | null; model: string | null
@@ -2740,6 +2742,23 @@ export async function searchSerials(q: string, limit = 50): Promise<SerialRow[]>
   return (await truyVanSerial(q, limit)).rows
 }
 
+/** Gắn mốc thời gian VÀO trạng thái hiện tại (dòng serial_su_dung mới nhất) cho từng
+ *  serial của MỘT trang — 1 truy vấn/ trang, không N+1. Máy chưa từng đổi trạng thái
+ *  (không có sự kiện) thì để null. Không export -> không đụng luật 'use server'. */
+async function ganTrangThaiLuc(rows: SerialRow[]): Promise<SerialRow[]> {
+  if (rows.length === 0) return rows
+  const { data } = await dataClient()
+    .from('serial_su_dung')
+    .select('serial, luc')
+    .in('serial', rows.map((r) => r.serial))
+    .order('luc', { ascending: false })
+  const moiNhat = new Map<string, string>()
+  for (const r of (data ?? []) as { serial: string; luc: string }[]) {
+    if (!moiNhat.has(r.serial)) moiNhat.set(r.serial, r.luc)  // dòng đầu = mới nhất
+  }
+  return rows.map((r) => ({ ...r, trang_thai_luc: moiNhat.get(r.serial) ?? null }))
+}
+
 /**
  * Bản CÓ PHÂN TRANG cho trang /serial.
  *
@@ -2757,7 +2776,7 @@ export async function searchSerialsTrang(
   const moi = tuyChon.moiTrang ?? MOI_TRANG
   const { rows, tong } = await truyVanSerial(q, moi, (trang - 1) * moi, tt)
   return {
-    rows,
+    rows: await ganTrangThaiLuc(rows),
     tong,
     trang,
     soTrang: Math.max(1, Math.ceil(tong / moi)),

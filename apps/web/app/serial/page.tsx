@@ -9,6 +9,7 @@ import { SerialTao } from '@/components/SerialTao'
 import { SerialPendingList } from '@/components/SerialPendingList'
 import { NhapKhoSerial } from '@/components/NhapKhoSerial'
 import { DoiTrangThaiKho } from '@/components/DoiTrangThaiKho'
+import { vnDate } from '@/components/Badge'
 import { TrangThaiCauHinh } from '@/components/TrangThaiCauHinh'
 import { KhungChon, OChonTatCa, OChonDong, ThanhDaChon } from '@/bang'
 
@@ -151,6 +152,9 @@ export default async function SerialPage({
                       <td className="px-4 py-2.5 text-slate-700">{s.model ?? '—'}</td>
                       <td className="px-4 py-2.5">
                         <DoiTrangThaiKho serial={s.serial} trangThai={s.trang_thai} choDoiTrangThai={quyen.kho} ds={dsTT} />
+                        {s.trang_thai_luc && (
+                          <div className="text-[11px] text-slate-400 mt-1">từ {vnDate(s.trang_thai_luc)}</div>
+                        )}
                       </td>
                       <td className="px-4 py-2.5 text-slate-600">{s.ten_noi_bo ?? '—'}</td>
                     </tr>
