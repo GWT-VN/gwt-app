@@ -2791,6 +2791,22 @@ export async function serialKho(q: string, trangThai?: string, limit = 100): Pro
   return (data ?? []) as SerialKho[]
 }
 
+export type MayKhoInfo = {
+  serial: string; ma_noi_bo: string | null; ten_noi_bo: string | null
+  trang_thai: string | null; da_lap: boolean | null; customer_id: string | null
+}
+/** Thông tin gọn 1 serial (v_serial_kho) — cho trang máy khi máy CHƯA lắp khách nên
+ *  KHÔNG có trong v_installed_base. Trả null nếu serial không tồn tại. */
+export async function mayKhoInfo(serial: string): Promise<MayKhoInfo | null> {
+  await requireStaff()
+  await doQuyen('cs.may.xem')
+  const { data, error } = await dataClient().from('v_serial_kho')
+    .select('serial, ma_noi_bo, ten_noi_bo, trang_thai, da_lap, customer_id')
+    .eq('serial', serial).maybeSingle()
+  if (error) throw new Error(error.message)
+  return (data as MayKhoInfo) ?? null
+}
+
 export async function listSerialPending(trangThai = 'cho_duyet'): Promise<SerialPending[]> {
   await requireStaff()
   await doQuyen('cs.serial.duyet')
