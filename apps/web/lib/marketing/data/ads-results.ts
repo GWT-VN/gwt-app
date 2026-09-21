@@ -54,6 +54,33 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH nước mềm", startDate: "11/9", budgetDaily: "100k", cost: 322, results: 3, costPerResult: 107333, sdt: null, note: "Rất đắt", status: "expensive" },
     ],
   },
+  {
+    id: "2025-09-14--09-20",
+    label: "14/9 – 20/9",
+    range: "14/9 – 20/9/2025",
+    ads: [
+      { name: "WH Riverside", startDate: "8/9", budgetDaily: "100k", cost: 674, results: 69, costPerResult: 9768, sdt: null, note: "", status: "active" },
+      { name: "CTS20 chuyên gia", startDate: "7/9", budgetDaily: "100k", cost: 688, results: 36, costPerResult: 19111, sdt: 0, note: "Mở lại", status: "active" },
+      { name: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 2088, results: 83, costPerResult: 25157, sdt: 7, note: "", status: "active" },
+      { name: "WH lọc tổng 260905", startDate: "7/9", budgetDaily: "100k", cost: 687, results: 20, costPerResult: 34350, sdt: 0, note: "", status: "active" },
+      { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "300k (chung)", cost: 1916, results: 54, costPerResult: 35481, sdt: 6, note: "Chung camp với CG", status: "active" },
+      { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 705, results: 19, costPerResult: 37105, sdt: 3, note: "", status: "active" },
+      { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6186, results: 149, costPerResult: 41517, sdt: 15, note: "SĐT cao nhất", status: "active" },
+      { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 693, results: 15, costPerResult: 46200, sdt: 0, note: "", status: "active" },
+      { name: "CTS20 Dino", startDate: "29/8", budgetDaily: "100k", cost: 710, results: 14, costPerResult: 50714, sdt: 0, note: "", status: "active" },
+      { name: "CTD50 chuyên gia", startDate: "28/8", budgetDaily: "300k (chung)", cost: 179, results: 3, costPerResult: 59667, sdt: 0, note: "Chung camp với ND · Đắt", status: "expensive" },
+    ],
+  },
+  {
+    id: "2025-09-18--09-21",
+    label: "18/9 – 21/9",
+    range: "18/9 – 21/9/2025",
+    ads: [
+      { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 300, results: 9, costPerResult: 33333, sdt: null, note: "", status: "active" },
+      { name: "CTS20 Dino", startDate: "29/8", budgetDaily: "100k", cost: 298, results: 6, costPerResult: 49667, sdt: null, note: "", status: "active" },
+      { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 316, results: 4, costPerResult: 79000, sdt: null, note: "Chỉ 3 ngày, 4 result", status: "active" },
+    ],
+  },
 ];
 
 export function getLatestWeek(): AdsWeek {
