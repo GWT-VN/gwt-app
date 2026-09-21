@@ -13,7 +13,7 @@ import { KhachPicker } from '@/components/KhachPicker'
 import { vnDateTime } from '@/components/TicketBadge'
 
 type KetQua = { ok: true; applied?: boolean; ma_moi?: string } | { ok: false; error: string }
-type Panel = '' | 'doi_may' | 'doi_serial' | 'doi_khach' | 'go' | 'lap'
+type Panel = '' | 'doi_may' | 'doi_serial' | 'doi_khach' | 'go' | 'lap' | 'doi_tt'
 
 /**
  * MỘT chỗ quản lý máy: trạng thái + nhật ký + thao tác.
@@ -155,24 +155,29 @@ export function QuanLyMay({
       )}
 
       {choKhoSerial && !dangLap && (
-        <div className="rounded-lg border p-3 space-y-3 bg-slate-50">
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-slate-600">Máy ở kho — đổi trạng thái (bắt buộc mô tả + được chỉnh ngày):</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <select value={den} onChange={(e) => setDen(e.target.value)} className="rounded-lg border px-3 py-1.5 text-sm bg-white text-slate-900">
-                <option value="">— Chọn trạng thái —</option>
-                {datTayList.map((t) => <option key={t.code} value={t.code}>{t.nhan}</option>)}
-              </select>
-              <input type="date" value={ngay} onChange={(e) => setNgay(e.target.value)} title="Ngày (bỏ trống = hôm nay)" className="rounded-lg border px-2 py-1.5 text-sm text-slate-900" />
-              <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Mô tả hiện trạng máy (bắt buộc)" className="rounded-lg border px-3 py-1.5 text-sm text-slate-900 min-w-56" />
-              <button disabled={busy || !den || !ghiChu.trim()} onClick={() => chay(() => datTrangThaiSerial(serial, den, ghiChu, ngay || undefined), `Đổi trạng thái serial ${serial} → ${nhan(den)}?`, 'Đã cập nhật.')} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">Đặt</button>
-            </div>
+        <div className="rounded-lg border p-3 space-y-2 bg-slate-50">
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => mo(panel === 'doi_tt' ? '' : 'doi_tt')} className={`${nut} text-slate-700`}>Đổi trạng thái</button>
+            <button onClick={() => mo(panel === 'lap' ? '' : 'lap')} className={`${nut} border-emerald-300 text-emerald-800`}>Lắp cho khách (từ kho)</button>
           </div>
 
-          <div className="border-t pt-2">
-            <button onClick={() => mo(panel === 'lap' ? '' : 'lap')} className={`${nut} border-emerald-300 text-emerald-800`}>Lắp cho khách (từ kho)</button>
-            {panel === 'lap' && (
-              <div className="rounded-lg border bg-white p-2.5 space-y-2 mt-2">
+          {panel === 'doi_tt' && (
+            <div className="rounded-lg border bg-white p-2.5 space-y-2">
+              <p className="text-xs text-slate-500">Bắt buộc mô tả hiện trạng, được chỉnh ngày. Đổi xong lịch sử trạng thái cũ vẫn giữ nguyên.</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <select value={den} onChange={(e) => setDen(e.target.value)} className="rounded-lg border px-3 py-1.5 text-sm bg-white text-slate-900">
+                  <option value="">— Chọn trạng thái —</option>
+                  {datTayList.map((t) => <option key={t.code} value={t.code}>{t.nhan}</option>)}
+                </select>
+                <input type="date" value={ngay} onChange={(e) => setNgay(e.target.value)} title="Ngày (bỏ trống = hôm nay)" className="rounded-lg border px-2 py-1.5 text-sm text-slate-900" />
+                <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Vị trí / mô tả hiện trạng — vd: Kho Vạn Bảo (bắt buộc)" className="rounded-lg border px-3 py-1.5 text-sm text-slate-900 min-w-72" />
+                <button disabled={busy || !den || !ghiChu.trim()} onClick={() => chay(() => datTrangThaiSerial(serial, den, ghiChu, ngay || undefined), `Đổi trạng thái serial ${serial} → ${nhan(den)}?`, 'Đã cập nhật.')} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">Đặt</button>
+              </div>
+            </div>
+          )}
+
+          {panel === 'lap' && (
+              <div className="rounded-lg border bg-white p-2.5 space-y-2">
                 <p className="text-xs text-slate-500">Gắn máy này cho khách → thành <strong>Đã lắp</strong>, hiện ở &ldquo;Máy đã lắp&rdquo;. Bỏ tick BH cho ca <strong>lắp nội bộ</strong> (không kích hoạt bảo hành).</p>
                 {khachId ? <p className="text-xs text-emerald-700">✓ đã chọn khách</p> : <KhachPicker onPick={(id) => setKhachId(id)} />}
                 <div className="flex flex-wrap items-center gap-2">
@@ -184,7 +189,6 @@ export function QuanLyMay({
                 {!ngay && <p className="text-[11px] text-amber-600">Chọn ngày lắp.</p>}
               </div>
             )}
-          </div>
         </div>
       )}
 
@@ -206,14 +210,14 @@ export function QuanLyMay({
                 ) : (
                   <>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-slate-800">
+                      <span className="text-base font-semibold text-slate-900">
                         {nhan(s.den_trang_thai) !== '—' ? nhan(s.den_trang_thai) : s.su_kien}
                         {s.tu_trang_thai && s.den_trang_thai && (
-                          <span className="text-slate-400"> ({nhan(s.tu_trang_thai)} → {nhan(s.den_trang_thai)})</span>
+                          <span className="text-xs font-normal text-slate-400"> ({nhan(s.tu_trang_thai)} → {nhan(s.den_trang_thai)})</span>
                         )}
                       </span>
                       <span className="flex items-center gap-2 flex-none">
-                        <span className="text-[11px] text-slate-400">{vnDateTime(s.luc)}</span>
+                        <span className="text-base font-medium text-slate-700">{vnDateTime(s.luc)}</span>
                         {choKhoSerial && (
                           <button onClick={() => { setSuaId(s.id); setSNgay(s.luc.slice(0, 10)); setSGhi(s.ghi_chu ?? ''); setErr(null) }}
                             className="text-[11px] text-slate-500 underline">sửa ngày</button>
