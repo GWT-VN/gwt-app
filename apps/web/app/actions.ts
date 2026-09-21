@@ -3346,26 +3346,60 @@ export async function datSoLanBaoTri(
 }
 
 /** Sửa MỐC NGÀY (và mô tả) của 1 sự kiện vòng đời đã ghi — để chỉnh mốc lịch sử. CHỈ ADMIN. */
-export async function suaSuKien(id: string, ngay: string, ghiChu?: string): Promise<{ ok: true } | { ok: false; error: string }> {
+/** Đồng bộ serial_registry.trang_thai = den_trang_thai của sự kiện đổi trạng thái MỚI NHẤT
+ *  còn lại trong nhật ký. Gọi sau khi XOÁ/SỬA một sự kiện để trạng thái hiện tại luôn khớp
+ *  nhật ký (vd xoá lần đặt "Trưng bày" sai thì máy quay về trạng thái trước đó). */
+async function dongBoTrangThaiTuNhatKy(db: ReturnType<typeof dataClient>, serial: string) {
+  const { data } = await db.from('serial_su_dung')
+    .select('den_trang_thai').eq('serial', serial).not('den_trang_thai', 'is', null)
+    .order('luc', { ascending: false }).limit(1)
+  const den = ((data ?? [])[0] as { den_trang_thai: string | null } | undefined)?.den_trang_thai
+  if (den) await db.from('serial_registry').update({ trang_thai: den }).eq('serial', serial)
+  // Không còn sự kiện có trạng thái đích -> để nguyên (không rõ nên đưa về đâu).
+}
+
+export async function suaSuKien(id: string, ngay: string, ghiChu?: string, den?: string): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireStaff()
-  // Sửa NGÀY của một sự kiện vòng đời serial (serial_su_dung) — cùng họ với
-  // datTrangThaiSerial, nên quyền phải là cs.serial.kho.
-  //
-  // Trước đây gán nhầm sang cs.bao_tri.tao_plan (di sản đợt phân loại bằng grep,
-  // không đọc thân hàm). Hậu quả nếu để nguyên: người chỉ được "tạo plan bảo trì"
-  // lại sửa được ngày vòng đời máy, còn người phụ trách kho serial thì không.
-  // Luật cũ hai bên đều là QUANLY nên hành vi HÔM NAY không đổi.
+  // Sửa một sự kiện vòng đời serial (serial_su_dung) — ngày, mô tả, và (tuỳ) TRẠNG THÁI
+  // nếu lỡ đặt sai. Cùng họ với datTrangThaiSerial nên quyền phải là cs.serial.kho.
   if (!(await coQuyen('cs.serial.kho', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ngay)) return { ok: false, error: 'Ngày không hợp lệ (YYYY-MM-DD).' }
   const db = dataClient()
   const { data: ev } = await db.from('serial_su_dung').select('serial').eq('id', id).maybeSingle()
   if (!ev) return { ok: false, error: 'Không thấy sự kiện.' }
+  const serial = (ev as { serial: string }).serial
   const patch: Record<string, string> = { luc: ngay }
   if (ghiChu !== undefined) patch.ghi_chu = ghiChu.trim()
+  if (den && den.trim()) {
+    const { data: hopLe } = await db.from('serial_trang_thai').select('code')
+      .eq('code', den).eq('hoat_dong', true).maybeSingle()
+    if (!hopLe) return { ok: false, error: 'Trạng thái không hợp lệ hoặc đã ngừng dùng.' }
+    patch.den_trang_thai = den
+  }
   const { error } = await db.from('serial_su_dung').update(patch).eq('id', id)
   if (error) return { ok: false, error: error.message }
-  await ghiAudit('sua_su_kien_vong_doi', `su-kien:${id}`, { ngay })
-  revalidatePath(`/may/${encodeURIComponent((ev as { serial: string }).serial)}`)
+  if (patch.den_trang_thai) await dongBoTrangThaiTuNhatKy(db, serial)
+  await ghiAudit('sua_su_kien_vong_doi', `su-kien:${id}`, { ngay, ...(den ? { den } : {}) })
+  revalidatePath(`/may/${encodeURIComponent(serial)}`)
+  revalidatePath('/serial')
+  return { ok: true }
+}
+
+/** Xoá 1 sự kiện vòng đời serial (đặt trạng thái nhầm). CHỈ cs.serial.kho. Xoá xong tính
+ *  lại trạng thái hiện tại của máy theo sự kiện mới nhất còn lại. */
+export async function xoaSuKien(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireStaff()
+  if (!(await coQuyen('cs.serial.kho', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
+  const db = dataClient()
+  const { data: ev } = await db.from('serial_su_dung').select('serial').eq('id', id).maybeSingle()
+  if (!ev) return { ok: false, error: 'Không thấy sự kiện.' }
+  const serial = (ev as { serial: string }).serial
+  const { error } = await db.from('serial_su_dung').delete().eq('id', id)
+  if (error) return { ok: false, error: error.message }
+  await dongBoTrangThaiTuNhatKy(db, serial)
+  await ghiAudit('xoa_su_kien_vong_doi', `su-kien:${id}`, { serial })
+  revalidatePath(`/may/${encodeURIComponent(serial)}`)
+  revalidatePath('/serial')
   return { ok: true }
 }
 

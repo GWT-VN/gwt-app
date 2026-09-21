@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   datTrangThaiSerial, doiMayChoKhach, doiKhachMay, doiSerialMay, xoaMayDaLap,
-  lapMayChoKhach, suaSuKien, serialsTheoMay, type SuDungSerial, type SerialKho, type TrangThai,
+  lapMayChoKhach, suaSuKien, xoaSuKien, serialsTheoMay, type SuDungSerial, type SerialKho, type TrangThai,
 } from '@/app/actions'
 import { MAU_TRANG_THAI } from '@/lib/danhSach'
 import { KhachPicker } from '@/components/KhachPicker'
@@ -46,10 +46,11 @@ export function QuanLyMay({
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
-  // sửa mốc ngày 1 sự kiện
+  // sửa 1 sự kiện vòng đời: ngày + mô tả + trạng thái
   const [suaId, setSuaId] = useState<string | null>(null)
   const [sNgay, setSNgay] = useState('')
   const [sGhi, setSGhi] = useState('')
+  const [sDen, setSDen] = useState('')
 
   const mapTT = new Map(ds.map((t) => [t.code, t]))
   const nhan = (code: string | null | undefined) => (code ? mapTT.get(code)?.nhan ?? code : '—')
@@ -75,10 +76,18 @@ export function QuanLyMay({
   async function luuSuaMoc() {
     if (!suaId || !sNgay) return
     setBusy(true); setErr(null); setMsg(null)
-    const r = await suaSuKien(suaId, sNgay, sGhi)
+    const r = await suaSuKien(suaId, sNgay, sGhi, sDen || undefined)
     setBusy(false)
     if (!r.ok) { setErr(r.error); return }
-    setSuaId(null); router.refresh()
+    setSuaId(null); setMsg('Đã sửa.'); router.refresh()
+  }
+  async function xoaMoc(id: string) {
+    if (!window.confirm('Xoá dòng trạng thái này khỏi lịch sử? Trạng thái hiện tại của máy sẽ tính lại theo dòng mới nhất còn lại.')) return
+    setBusy(true); setErr(null); setMsg(null)
+    const r = await xoaSuKien(id)
+    setBusy(false)
+    if (!r.ok) { setErr(r.error); return }
+    setSuaId(null); setMsg('Đã xoá dòng trạng thái.'); router.refresh()
   }
 
   const nut = 'rounded-lg border px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50'
@@ -202,8 +211,12 @@ export function QuanLyMay({
               <li key={s.id} className="px-3 py-2">
                 {suaId === s.id ? (
                   <div className="flex flex-wrap items-center gap-2">
+                    <select value={sDen} onChange={(e) => setSDen(e.target.value)} className="rounded border px-2 py-1 text-sm bg-white text-slate-900">
+                      <option value="">(giữ trạng thái)</option>
+                      {ds.filter((t) => t.hoat_dong).map((t) => <option key={t.code} value={t.code}>{t.nhan}</option>)}
+                    </select>
                     <input type="date" value={sNgay} onChange={(e) => setSNgay(e.target.value)} className="rounded border px-2 py-1 text-sm" />
-                    <input value={sGhi} onChange={(e) => setSGhi(e.target.value)} placeholder="Mô tả" className="flex-1 min-w-40 rounded border px-2 py-1 text-sm" />
+                    <input value={sGhi} onChange={(e) => setSGhi(e.target.value)} placeholder="Vị trí / mô tả" className="flex-1 min-w-40 rounded border px-2 py-1 text-sm" />
                     <button disabled={busy || !sNgay} onClick={luuSuaMoc} className="rounded bg-slate-900 text-white px-2.5 py-1 text-sm disabled:opacity-50">Lưu</button>
                     <button onClick={() => setSuaId(null)} className="text-slate-500 underline text-sm">Huỷ</button>
                   </div>
@@ -219,8 +232,12 @@ export function QuanLyMay({
                       <span className="flex items-center gap-2 flex-none">
                         <span className="text-base font-medium text-slate-700">{vnDateTime(s.luc)}</span>
                         {choKhoSerial && (
-                          <button onClick={() => { setSuaId(s.id); setSNgay(s.luc.slice(0, 10)); setSGhi(s.ghi_chu ?? ''); setErr(null) }}
-                            className="text-[11px] text-slate-500 underline">sửa ngày</button>
+                          <>
+                            <button onClick={() => { setSuaId(s.id); setSNgay(s.luc.slice(0, 10)); setSGhi(s.ghi_chu ?? ''); setSDen(s.den_trang_thai ?? ''); setErr(null) }}
+                              className="text-[11px] text-slate-500 underline">sửa</button>
+                            <button onClick={() => xoaMoc(s.id)} disabled={busy}
+                              className="text-[11px] text-red-600 underline disabled:opacity-50">xoá</button>
+                          </>
                         )}
                       </span>
                     </div>
