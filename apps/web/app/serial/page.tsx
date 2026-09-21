@@ -157,8 +157,11 @@ export default async function SerialPage({
                       <td className="px-4 py-2.5 text-slate-700">{s.model ?? '—'}</td>
                       <td className="px-4 py-2.5">
                         <DoiTrangThaiKho serial={s.serial} trangThai={s.trang_thai} choDoiTrangThai={quyen.kho} ds={dsTT} />
-                        {s.trang_thai_luc && (
-                          <div className="text-[11px] text-slate-400 mt-1">{ngayNgan(s.trang_thai_luc)}</div>
+                        {(s.trang_thai_luc || s.trang_thai_ghi_chu) && (
+                          <div className="text-[11px] text-slate-500 mt-1">
+                            {s.trang_thai_ghi_chu && <span>📍 {s.trang_thai_ghi_chu}</span>}
+                            {s.trang_thai_luc && <span className="text-slate-400">{s.trang_thai_ghi_chu ? ' · ' : ''}{ngayNgan(s.trang_thai_luc)}</span>}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-2.5 text-slate-600">{s.ten_noi_bo ?? '—'}</td>
