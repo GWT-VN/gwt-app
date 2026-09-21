@@ -2704,6 +2704,8 @@ export type SerialRow = {
   trang_thai: string | null
   /** Mốc thời gian máy vào trạng thái hiện tại (lần đổi trạng thái mới nhất). */
   trang_thai_luc?: string | null
+  /** Ghi chú (vị trí / mô tả) của lần đổi trạng thái mới nhất — vd "Kho Vạn Bảo". */
+  trang_thai_ghi_chu?: string | null
 }
 export type SerialPending = {
   id: string; serial: string; internal_code: string | null; model: string | null
@@ -2749,14 +2751,17 @@ async function ganTrangThaiLuc(rows: SerialRow[]): Promise<SerialRow[]> {
   if (rows.length === 0) return rows
   const { data } = await dataClient()
     .from('serial_su_dung')
-    .select('serial, luc')
+    .select('serial, luc, ghi_chu')
     .in('serial', rows.map((r) => r.serial))
     .order('luc', { ascending: false })
-  const moiNhat = new Map<string, string>()
-  for (const r of (data ?? []) as { serial: string; luc: string }[]) {
-    if (!moiNhat.has(r.serial)) moiNhat.set(r.serial, r.luc)  // dòng đầu = mới nhất
+  const moiNhat = new Map<string, { luc: string; ghi_chu: string | null }>()
+  for (const r of (data ?? []) as { serial: string; luc: string; ghi_chu: string | null }[]) {
+    if (!moiNhat.has(r.serial)) moiNhat.set(r.serial, { luc: r.luc, ghi_chu: r.ghi_chu })  // dòng đầu = mới nhất
   }
-  return rows.map((r) => ({ ...r, trang_thai_luc: moiNhat.get(r.serial) ?? null }))
+  return rows.map((r) => {
+    const m = moiNhat.get(r.serial)
+    return { ...r, trang_thai_luc: m?.luc ?? null, trang_thai_ghi_chu: m?.ghi_chu ?? null }
+  })
 }
 
 /**
