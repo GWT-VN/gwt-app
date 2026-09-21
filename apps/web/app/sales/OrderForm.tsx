@@ -573,7 +573,7 @@ export function OrderForm({
                   />
                 </div>
                 <input type="number" min={0} className={inp + ' col-span-3 sm:col-span-2 text-right'} value={l.quantity} onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} title="Số lượng (DVBT = số lần)" />
-                <input type="number" min={0} step={1000} className={inp + ' col-span-4 sm:col-span-2 text-right'} value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
+                <input type="number" min={0} step="any" className={inp + ' col-span-4 sm:col-span-2 text-right'} value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
                 <LineGiaNhan
                   g={goiY[l.key]}
                   daGo={Number(l.unit_price_vat) || 0}
@@ -662,7 +662,7 @@ export function OrderForm({
           <div><label className={lbl}>Mã vận đơn</label><input className={inp} value={shippingCode} onChange={(e) => setShippingCode(e.target.value)} /></div>
           <div className="sm:col-span-2"><label className={lbl}>Link tracking</label><input className={inp} value={linkTracking} onChange={(e) => setLinkTracking(e.target.value)} placeholder="https://…" /></div>
           <div><label className={lbl}>Số tiền đã cọc</label>
-            <input type="number" min={0} step={1000} className={inp + ' text-right tabular-nums'} value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
+            <input type="number" min={0} step="any" className={inp + ' text-right tabular-nums'} value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
           </div>
           <div><label className={lbl}>Còn cần thu</label>
             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-right text-sm font-semibold tabular-nums text-slate-700">
@@ -751,7 +751,7 @@ export function OrderForm({
 
               <div className="grid gap-3 sm:grid-cols-4">
                 <div><label className={lbl}>Tiền sẽ thu</label>
-                  <input type="number" min={0} step={1000} className={inp + ' text-right tabular-nums'} value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
+                  <input type="number" min={0} step="any" className={inp + ' text-right tabular-nums'} value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
                 <div><label className={lbl}>Tiến độ lắp đặt</label><input className={inp} value={tienDoLap} onChange={(e) => setTienDoLap(e.target.value)} /></div>
                 <div><label className={lbl}>Ngày hoàn thành lắp</label><input type="date" className={inp} value={ngayXongLap} onChange={(e) => setNgayXongLap(e.target.value)} /></div>
                 <div><label className={lbl}>Tủ điện</label><input className={inp} value={tuDien} onChange={(e) => setTuDien(e.target.value)} /></div>
