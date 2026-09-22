@@ -296,6 +296,62 @@ export const LUAT_GROUPS: LuatGroup[] = [
       },
     ],
   },
+  {
+    g: "Văn nói anh Như — từ đệm cần sửa",
+    sub: "Phân tích từ 2 transcript thật (POE 8: H₂S nước giếng, POE 15: lọc tổng). 3 từ đệm dày nhất: "ấy", "cái", "thì" — chiếm gần hết số pin đỏ trong bản gốc Descript.",
+    items: [
+      {
+        t: ""ấy" — đệm cuối cụm để nhấn",
+        d: "Dày nhất. Ví dụ: "nồng độ thấp ấy", "trang trại lợn ấy", "nước uống ấy", "trường hợp đấy á". Xuất hiện gần như mỗi câu.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""cái / các cái / những cái" — lượng từ đệm trước danh từ",
+        d: "Ví dụ: "cái mùi", "cái khí", "cái cơ chế", "các cái cặn", "cái ngưỡng". Thói quen chêm "cái" trước mọi danh từ.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""thì" — nối câu",
+        d: "Ví dụ: "Thì nó do…", "thì thông thường…", "Thì đấy là…". Dùng "thì" thay cho dấu phẩy hoặc bỏ trống.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""á" — trợ từ cuối mệnh đề",
+        d: "Ví dụ: "giếng khơi á", "Nước máy á", "như vậy á". Kết hợp với "ấy" tạo cặp "ấy á" rất dày.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""là / rằng là / cho nên là / coi như là" — đệm thừa",
+        d: "Ví dụ: "nói rằng là", "cho nên là thường thường ấy", "thậm chí rằng là coi như là". Xếp chồng nhiều từ đệm liên tiếp.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""thế thì / thế còn / vậy thì / vậy" — mở câu",
+        d: "Dùng liên tục khi chuyển ý. Có thể thay bằng im lặng ngắn hoặc câu dẫn gọn hơn.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""rất là" thay "rất"",
+        d: "Ví dụ: "rất là nhiều", "rất là thấp", "rất là cao". Thừa chữ "là" — bỏ đi không mất nghĩa.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""Ờ / à / ừm" — âm ậm ừ",
+        d: "Xuất hiện khi chuyển ý hoặc tìm từ. Bình thường trong nói chuyện nhưng dày quá thì cắt khi dựng.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: ""nữa" — đệm cuối liệt kê",
+        d: "Ví dụ: "cái việc thứ hai nữa", "thứ ba nữa", "còn cao nữa". Thừa khi đã có số thứ tự.",
+        from: "Descript POE 8 + 15",
+      },
+      {
+        t: "Nói lặp / sửa lời giữa câu",
+        d: "Ví dụ: "thực ra ra", "không-- cứ nghĩ", "đem đi-- nước đi", "mùi-- màu", "thông, thông khí". Dấu hiệu đang tìm từ — cắt khi dựng, hoặc luyện nói chậm hơn.",
+        from: "Descript POE 8 + 15",
+      },
+    ],
+  },
 ];
 
 export const LUAT_COUNT = LUAT_GROUPS.reduce((n, g) => n + g.items.length, 0);
