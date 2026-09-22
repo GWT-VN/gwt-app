@@ -27,6 +27,8 @@ export const RULE_BLURB: Record<string, string> = {
     "Video lọc tổng (POE): KHÔNG nêu mã bộ (WH15A…), chỉ nói giải pháp lọc tổng GE. Bán kết quả đo được.",
   "_adlaw-from-notebook":
     "Bản trích nguyên văn điều khoản luật QC từ NotebookLM — tài liệu nền của ad-compliance-vn.",
+  "chuyen-gia-rewrite-brief":
+    "Brief viết kịch bản kênh chuyên gia Nguyễn Hữu Như — 11 mục: đối tượng, 5A, giọng AI, cấu trúc 7 nhịp, nguồn khoa học, PAAST, luật sửa content, workflow, output chuẩn.",
 };
 
 export type RuleDoc = { slug: string; title: string; blurb: string };
