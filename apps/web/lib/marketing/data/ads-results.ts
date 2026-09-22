@@ -59,11 +59,11 @@ export const ADS_WEEKS: AdsWeek[] = [
     label: "14/9 – 20/9",
     range: "14/9 – 20/9/2025",
     ads: [
-      { name: "CTS10 Dino", startDate: "01/6", budgetDaily: "200k", cost: 2041, results: 233, costPerResult: 8760, sdt: 5, note: "Giảm 300k→200k (21/9) — ra số nhưng chưa có người mua", status: "active" },
+      { name: "CTS10 Dino", startDate: "01/6", budgetDaily: "200k", cost: 2041, results: 233, costPerResult: 8760, sdt: 5, note: "Tắt 22/9 — chuyển đổi đếm lead qua conversation, không phải conversation thật → CPR rẻ ảo", status: "off" },
       { name: "WH Riverside", startDate: "8/9", budgetDaily: "100k", cost: 674, results: 69, costPerResult: 9768, sdt: null, note: "Tắt 21/9 — test lên camp chung với Lắp đặt", status: "off" },
       { name: "CTS20 chuyên gia", startDate: "7/9", budgetDaily: "100k", cost: 688, results: 36, costPerResult: 19111, sdt: 0, note: "Mở lại", status: "active" },
       { name: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 2088, results: 83, costPerResult: 25157, sdt: 7, note: "", status: "active" },
-      { name: "WH lọc tổng 260905", startDate: "7/9", budgetDaily: "100k", cost: 687, results: 20, costPerResult: 34350, sdt: 0, note: "", status: "active" },
+      { name: "WH lọc tổng 260905", startDate: "7/9", budgetDaily: "100k", cost: 687, results: 20, costPerResult: 34350, sdt: 0, note: "Tắt 22/9 — cùng lý do CTS10: chuyển đổi lead qua conversation, lên lại", status: "off" },
       { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1916, results: 54, costPerResult: 35481, sdt: 6, note: "Giảm budget từ 300k→200k (21/9)", status: "active" },
       { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "150k", cost: 705, results: 19, costPerResult: 37105, sdt: 3, note: "Tăng budget 100k→150k (21/9)", status: "active" },
       { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6186, results: 149, costPerResult: 41517, sdt: 15, note: "SĐT cao nhất", status: "active" },
