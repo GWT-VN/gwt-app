@@ -64,7 +64,11 @@ Ghi rõ `Dạng: A2` (hoặc A1/A3/A4/A5) ngay đầu kịch bản.
 Mỗi kịch bản phải có ĐỦ 7 nhịp (không nhất thiết đều dài):
 
 ### 3.1. HOOK (0–5s) — dừng lướt
-Chọn 1 trong các style đã chứng minh hiệu quả (xem §6 Kho hook):
+Luôn đề xuất **3 option** hook, mỗi option style khác nhau. Đánh dấu option **khuyến nghị**.
+Đến nghịch lý / insight **nhanh nhất có thể** — không kéo dài intro, không giải thích trước khi
+đặt câu hỏi. Hook ngắn, mỗi option 2–3 câu.
+
+Style đã chứng minh hiệu quả (xem §6 Kho hook):
 - **Myth-busting:** "Có phải [niềm tin phổ biến]? Thực ra không hẳn."
 - **Số sốc + nghịch lý:** "[Con số bất ngờ] giúp/khiến [kết quả bất ngờ]."
 - **Câu hỏi tương phản:** "Vì sao [A] thì được mà [B] thì không?"
@@ -75,29 +79,65 @@ Chọn 1 trong các style đã chứng minh hiệu quả (xem §6 Kho hook):
 ### 3.2. GIỚI THIỆU CHUYÊN GIA (5–12s)
 "Kỹ sư Nguyễn Hữu Như, [N] năm trong ngành xử lý nước" — 1 câu, đặt ngay sau hook để người lạ tin.
 
-### 3.3. HÔM NAY CHIA SẺ GÌ + ĐÁNH SỐ (12–18s)
-Nói rõ: "Hôm nay mình chia sẻ [vấn đề], gồm [N] ý chính."
-→ Đánh số giúp người xem biết mình đang ở đâu, còn bao nhiêu → giảm lướt.
+### 3.3. DÀN Ý + OPEN LOOP (12–18s)
+Chỉ nói **"N ý"** + **open loop** — KHÔNG liệt kê hết các ý.
+
+**Đúng:** *"Video này tôi sẽ nói 5 ý. Và trong đó có một ý mà rất nhiều người đang làm sai
+ngay tại nhà mình mà không biết."*
+
+**Sai:** *"Hôm nay mình sẽ nói về: thứ nhất tiêu chuẩn nước, thứ hai clo, thứ ba khảo sát..."*
+→ Liệt kê hết = mất bất ngờ, viewer biết trước nội dung → lướt.
+
+**Open loop = hứa sớm, trả muộn.** Tease 1 ý hấp dẫn/gây tò mò ngay mở bài ("có 1 điều mà
+nhiều người đang làm sai") → pay off ý đó ở phần **cuối** video → nhắc lại trong kết luận.
+Đây là kỹ thuật giữ retention mạnh nhất cho video dài.
 
 ### 3.4. NỘI DUNG CHÍNH — theo khối, mỗi khối 1 payoff
 Mỗi ý đánh số có cấu trúc:
 ```
 Ý chính (1 câu) → Cơ chế / giải thích tại sao → Số liệu hoặc ví dụ cụ thể → So what cho gia đình
 ```
-- Giấu ý hấp dẫn nhất ở cuối (open loop: "đặc biệt ý cuối cùng...").
-- Xen câu hỏi từ host giữa các khối để giữ nhịp hội thoại.
+- **Escalation dần:** mỗi ý bất ngờ/sâu hơn ý trước. Ý cuối = pay-off open loop.
+- Xen câu hỏi tu từ giữa các khối để giữ nhịp (monologue không host thì tự hỏi).
+- **Retention hook (🔁)** ở cuối mỗi phần: tease ý tiếp ("nhưng chưa phải chỗ bất ngờ nhất").
+- Ít nhất 1 ý có **kinh nghiệm VN thật** từ anh Như / khách hàng GWT (kết nối quốc tế → VN).
+
+### 3.4b. BRIDGE VIỆT NAM — bắt buộc
+Mọi data point nước ngoài **phải có mốc Việt Nam** để viewer thấy liên quan trực tiếp.
+Không nêu số nước ngoài mà không so sánh.
+
+| Nước ngoài nói gì | Bridge VN |
+|---|---|
+| Nhật 52 thông số bắt buộc | → VN 8 nhóm A bắt buộc / 99 tổng (QCVN 01-1:2018/BYT) |
+| Nhật clo tối thiểu 0,1 mg/L | → VN 0,2 mg/L = gấp đôi |
+| EU 56 thông số | → VN vs EU vs WHO: bảng so sánh |
+
+**Clo VN đặc biệt quan trọng:** bất kỳ đoạn nào nói về clo nước ngoài → thêm ngay data clo VN.
+Lý do: đây là thứ viewer VN **ngửi thấy hàng ngày**, dễ liên hệ nhất.
 
 ### 3.5. CÂN BẰNG / THỪA NHẬN GIỚI HẠN
 Ít nhất 1 chỗ trong video: "Tuy nhiên, cần lưu ý rằng..." hoặc "Điều này không có nghĩa là..."
 → Tạo cảm giác khách quan, không bán hàng — đúng phong cách chuyên gia.
 
-### 3.6. CTA TƯƠNG TÁC (cuối)
+### 3.6. KẾT LUẬN — cụ thể, nhiều lý do
+**KHÔNG** kết bằng 1 câu triết lý chung chung. Liệt kê **3–4 lý do cụ thể** trả lời câu
+hỏi đặt ra ở hook + open loop. Mỗi lý do 1–2 câu, có data callback (nhắc lại số đã nêu).
+
+Ví dụ (v4 "Nước Nhật"):
+> **Thứ nhất:** loại mùi clo (Fukuoka: lý do hàng đầu; VN clo gấp đôi Nhật → càng có lý).
+> **Thứ hai:** cảm giác yên tâm (96.5% biết nước ổn, vẫn chọn lọc).
+> **Thứ ba:** tiện ích tích hợp (nóng/lạnh ngay tức thì).
+> **Thứ tư:** cá nhân hoá ("tiêu chuẩn công cộng kết thúc → tiêu chuẩn cá nhân bắt đầu").
+
+Câu cuối kết luận có thể là **reframe** (đổi góc nhìn) — nhưng phải đi SAU các lý do cụ thể.
+
+### 3.7. CTA TƯƠNG TÁC (cuối)
 Dùng 2–3 CTA chồng theo thứ tự:
 1. **Comment bait (identity):** "Anh chị đang dùng nước ở khu nào? Comment cho mình biết nhé." (người xem tự khai → data remarketing)
 2. **Share cho gia đình:** "Chia sẻ video này cho người thân để cùng biết nhé." (identity share)
 3. **Save + fake scarcity:** "Lưu lại để khi cần có ngay, kẻo lướt qua rồi khó tìm lại."
 
-### 3.7. CÂU KẾT SIGNATURE
+### 3.8. CÂU KẾT SIGNATURE
 Câu kết cố định lặp lại mọi video để xây nhận diện:
 > *"Kỹ sư Như luôn ở đây để chia sẻ kiến thức nước sạch cùng anh chị. Chúc gia đình mình luôn khoẻ."*
 (Điều chỉnh nếu anh Như muốn câu khác — nhưng phải CỐ ĐỊNH, không đổi mỗi video.)
@@ -134,7 +174,7 @@ Câu kết cố định lặp lại mọi video để xây nhận diện:
 |---|---|---|
 | Hook nhanh | 30–60s | 1 ý duy nhất, giải đáp 1 câu hỏi nhanh |
 | Chuyên gia chia sẻ | 1–3 phút | 2–4 ý, có đánh số, format chính của kênh |
-| Deep dive | 3–5 phút | Chủ đề phức tạp, có host hỏi đáp qua lại |
+| Deep dive | 5–7 phút | Chủ đề phức tạp, monologue hoặc có host. Phải có open loop + escalation |
 
 **Nguyên tắc:** ngắn hơn luôn tốt hơn. Nếu cắt được 1 câu mà không mất ý → cắt. Video chuyên gia được phép dài hơn giải trí, nhưng mỗi giây phải có payoff (số, ví dụ, so what). Đoạn nào nghe như "bài giảng" → viết lại.
 
@@ -219,24 +259,29 @@ Marketing-OS wiki đã chắt thành 46 luật / 8 nhóm (`marketing-os/src/data
 
 ---
 
-## 9. QUY TRÌNH MẶC ĐỊNH KHI VIẾT SCRIPT
+## 9. QUY TRÌNH VIẾT SCRIPT
 
-> **Nguồn dẫn đường cho nội dung. Không viết lời thoại trước rồi tìm nguồn để hợp thức hoá.**
+> **Research phải XONG trước khi viết** — xem `rules/research-deep-dive.md` (Phase 0).
+> File này chỉ cover Phase 1 (viết kịch bản). Không viết lời thoại trước rồi tìm nguồn.
 
 ```
-1. RESEARCH      — tìm paper, quy chuẩn, data liên quan đến chủ đề
-2. FACT-CHECK    — kiểm chứng từng claim, loại bỏ cái không có nguồn
-3. TÌM INSIGHT   — từ dữ liệu thật, chọn 1 insight chính video muốn thay đổi nhận thức
-4. CHỌN HOOK     — tra hook_library + đề xuất 3–5 lựa chọn
-5. TẠO OPEN LOOP — xác định vòng tò mò mở ở đâu, đóng ở đâu
-6. VIẾT FLOW     — dàn ý theo 7 nhịp (§3), chưa viết lời thoại
-7. VIẾT LỜI THOẠI — văn nói tự nhiên (§2), bám flow
-8. KIỂM TRA CLAIM — rà lại từng câu có số liệu/khẳng định
-9. BỔ SUNG NGUỒN  — gắn nguồn cho mỗi claim (§4)
-10. ĐỀ XUẤT VISUAL — text overlay + b-roll/hình minh hoạ theo từng đoạn
+1. CHỌN GÓC      — từ research (đã được user duyệt ở Phase 0 gate)
+2. CHỌN HOOK      — tra hook_library + đề xuất 3 option, đánh dấu khuyến nghị
+3. TẠO OPEN LOOP  — xác định: mở ở đâu, pay off ở ý nào, nhắc lại ở kết luận
+4. VIẾT DÀN Ý     — "N ý" + open loop + escalation, KHÔNG liệt kê hết (§3.3)
+5. VIẾT LỜI THOẠI — văn nói tự nhiên (§2), bám dàn ý, bridge VN ở mỗi data (§3.4b)
+6. KIỂM TRA CLAIM — rà từng câu có số liệu → có nguồn hạng A/B không
+7. CAPTION CARD    — thay text overlay khi video full sub (§10.6)
+8. KEYWORD GỐC    — bảng keyword tiếng gốc + English cho editor tìm stock (§10.7)
+9. VIDEO REF       — tìm video tham khảo bằng keyword gốc, ghi bản quyền (§10.8)
+10. CHẤM + RÀ LỖI — scoring theo chuyen-gia.md §6 + rà lỗi (§10.11–10.12)
+11. KHUNG VIDEO    — timeline + cấu trúc logic + tuyến emotional (§10.13)
+12. BẢNG NGUỒN     — đầy đủ, phân hạng A/B/C/D (§10.14)
 ```
 
-⚠️ Bước 1–3 phải XONG trước khi bắt đầu bước 7. Nếu bước 1–2 không tìm đủ nguồn → thu hẹp phạm vi nội dung hoặc đổi góc, KHÔNG bịa.
+**Mỗi lần sửa = version mới** (`v1` → `v2` → ...), KHÔNG ghi đè file cũ.
+Header file ghi rõ thay đổi so với version trước.
+Version cuối user duyệt = version đẩy wiki (`rules/research-deep-dive.md` Phase 2).
 
 ---
 
@@ -253,9 +298,9 @@ Mỗi video viết cho kênh Nguyễn Hữu Như, trả về ĐỦ các phần s
 ### 10.2. INSIGHT CHÍNH
 Video muốn thay đổi nhận thức gì ở người xem? (1–2 câu)
 
-### 10.3. HOOK (3–5 lựa chọn)
-Liệt kê 3–5 hook, ghi rõ style (myth-busting / số sốc / câu hỏi tương phản / ...).
-Đánh dấu hook khuyến nghị.
+### 10.3. HOOK (3 lựa chọn)
+Luôn **đúng 3 option**, mỗi option style khác nhau. Ghi rõ style.
+Đánh dấu option **khuyến nghị**. Mỗi option 2–3 câu, đến nghịch lý ngay.
 
 ### 10.4. OPEN LOOP MAP
 - Vòng tò mò **mở** ở đâu (câu nào, giây thứ mấy)
@@ -266,71 +311,140 @@ Liệt kê 3–5 hook, ghi rõ style (myth-busting / số sốc / câu hỏi tư
 Viết đúng **ngôn ngữ nói** (§2). Format:
 
 ```
-🪝 HOOK
-[Lời thoại]
+🪝 HOOK — CHỌN 1 TRONG 3
+> Option A (khuyến nghị): [2–3 câu]
+> Option B: [2–3 câu]
+> Option C: [2–3 câu]
 
 👤 GIỚI THIỆU
-[Lời thoại]
+[1 câu]
 
-📋 HÔM NAY CHIA SẺ GÌ
-[Lời thoại]
+📋 DÀN Ý + OPEN LOOP
+"Video này tôi sẽ nói N ý. Và trong đó có [open loop tease]."
+🔁 [retention hook giữ xem tiếp]
 
 1️⃣ Ý 1: [Tiêu đề]
-[Lời thoại]
+[Lời thoại — có bridge VN nếu nêu data nước ngoài]
+🖼️ [caption card nếu cần]
+🔒 [câu neo — tối đa 1/phần]
+🔁 [retention hook → tease ý tiếp]
 
 2️⃣ Ý 2: [Tiêu đề]
 [Lời thoại]
-
 ...
 
-⚖️ CÂN BẰNG / GIỚI HẠN
-[Lời thoại]
+(Ý cuối = PAY-OFF open loop)
+
+🎯 KẾT LUẬN
+[3–4 lý do cụ thể, mỗi lý do có data callback]
+🔒 [câu reframe]
 
 💬 CTA
 [Lời thoại]
-
-🔒 CÂU KẾT SIGNATURE
-[Lời thoại]
 ```
 
-### 10.6. TEXT OVERLAY
-Chỉ những từ/cụm từ **thực sự cần xuất hiện trên màn hình** — con số, tên tổ chức, keyword.
-Không chép lại lời thoại. Ghi theo từng đoạn tương ứng.
+**Ký hiệu trong script:**
+- 🔒 = câu neo (giữ gần nguyên chữ khi nói)
+- 🔁 = retention hook (tease ý tiếp, giữ viewer)
+- 🖼️ = caption card (khung text + hình cho editor)
+- `[ghi chú]` = hướng dẫn editor/quay, KHÔNG đọc
 
-### 10.7. VISUAL / B-ROLL
-Gợi ý hình ảnh / cảnh quay / đồ hoạ cho từng đoạn. Ví dụ:
-- Hook: cận cảnh vòi nước công viên
-- Ý 1: infographic 51 thông số
-- Ý 2: hình kỹ thuật viên đo nước tại vòi
+### 10.6. CAPTION CARD & MEDIA CHO EDITOR
+> Video dùng **full sub** (phụ đề toàn bộ lời nói) → KHÔNG cần text overlay truyền thống.
+> Thay bằng **caption card** = khung text + hình minh hoạ (kiểu infographic card) ở
+> những frame cần nhấn mạnh data.
 
-### 10.8. CTA
+**Bảng caption card:** mỗi card ghi vị trí (ý nào), nội dung text, hình kèm gợi ý.
+
+**Bảng media cho editor:** mỗi đoạn script ghi: b-roll/stock gợi ý, từ khoá tìm stock, ghi chú.
+
+### 10.7. KEYWORD TIẾNG GỐC CHO EDITOR
+Bảng keyword **ngôn ngữ gốc của chủ đề** + English backup, để editor tìm stock/b-roll.
+Luôn search bằng ngôn ngữ gốc trước (tiếng Nhật cho chủ đề Nhật, tiếng Trung cho Trung...).
+
+| Đoạn script | Keyword gốc | Keyword English backup |
+|---|---|---|
+| (ví dụ) Hook — vòi nước Nhật | 日本 水道水 蛇口 | japan tap water faucet |
+
+### 10.8. VIDEO THAM KHẢO + BẢN QUYỀN
+Tìm video tham khảo bằng **keyword gốc** (§10.7). Mỗi video ghi:
+
+| # | Video | URL | Dùng cho | Bản quyền |
+|---|---|---|---|---|
+
+> ⚠️ **BẢN QUYỀN BẮT BUỘC CHECK:**
+> - Video chính phủ nước ngoài **KHÔNG mặc định được dùng thương mại** — phải kiểm điều khoản.
+> - **Cách dùng an toàn:** (1) Xem làm storyboard → tự quay/mua stock tương đương.
+>   (2) Quay anh Như reaction xem trên màn hình → fair use commentary.
+>   (3) Liên hệ phòng PR xin phép editorial.
+> - Ghi rõ trạng thái bản quyền từng video.
+
+### 10.9. CTA
 Ghi rõ mục tiêu video này ưu tiên gì: Save / Share / Comment / Follow.
 Kèm lời CTA đã viết trong script.
 
-### 10.9. FACT-CHECK
-Bảng liệt kê từng claim quan trọng:
+### 10.10. GHI CHÚ SẢN XUẤT
+Ghi chú cho team quay/dựng:
+- Format (monologue / host hỏi đáp), thời lượng ước tính
+- Phần nào cắt được nếu cần rút ngắn
+- Tóm tắt kỹ thuật viết: open loop ở đâu/pay off ở đâu, bridge VN ở đâu
+- Props / đạo cụ cần chuẩn bị
 
-| # | Claim trong script | Đúng/Cần kiểm | Nguồn |
-|---|---|---|---|
-| 1 | "51 thông số bắt buộc" | ✅ | MHLW Japan — Drinking Water Quality Standards |
-| 2 | ... | ... | ... |
+### 10.11. CHẤM ĐIỂM (SCORING)
+Chấm theo checklist `style-notes/chuyen-gia.md` §6, thang **A/B/C/D**.
 
-### 10.10. NGUỒN
-Liệt kê đầy đủ, mỗi nguồn ghi: **Tên · Tổ chức/tác giả · Năm · Link (nếu có) · Nội dung được sử dụng trong script**.
-Phân hạng A/B/C/D theo `rules/nguon-dan-chung.md`.
+Bảng chi tiết từng tiêu chí + đánh giá + ghi chú. Tổng điểm ở cuối.
 
-### 10.11. CAPTION NỀN TẢNG *(bổ sung)*
+### 10.12. RÀ LỖI
+Rà theo danh sách lỗi thường gặp trong `style-notes/chuyen-gia.md`:
+
+| Lỗi thường gặp | Có dính không? | Chi tiết |
+|---|---|---|
+| Beat chỉ tóm gọn điều ai cũng biết | | |
+| Beat giao việc ("nên/hãy/nhớ") | | |
+| Tính từ marketing rỗng | | |
+| Số không mốc | | |
+| Thuật ngữ không giải | | |
+| 3 thuật ngữ liên tiếp chưa quy đổi | | |
+| Nhắc thương hiệu GE trong 60s đầu | | |
+| Thiếu "hoá ra là thế" | | |
+| ... | | |
+
+### 10.13. KHUNG VIDEO (FRAMEWORK ANALYSIS)
+3 phần bắt buộc:
+
+**1. Timeline:** phân bổ thời gian từng phần.
+```
+[0:00–0:08]  HOOK
+[0:08–0:30]  MỞ + DÀN Ý (open loop)
+[0:30–2:00]  Ý 1
+...
+```
+
+**2. Cấu trúc logic:** cây logic cho thấy flow ý + escalation.
+```
+HOOK (nghịch lý)
+  └→ MỞ (N ý + open loop)
+      ├→ Ý1 NỀN (← bridge VN)
+      ├→ Ý2 CƠ CHẾ (← bridge VN)
+      ├→ Ý3 DATA BẤT NGỜ
+      └→ Ý cuối PAY-OFF (open loop close)
+           └→ KẾT (N lý do + reframe) → CTA
+```
+
+**3. Tuyến emotional:** chuỗi cảm xúc viewer qua từng phần.
+Ví dụ: Tò mò → Ấn tượng → "Hoá ra" → Bất ngờ → Cảnh tỉnh → Rõ ràng → Tương tác
+
+### 10.14. NGUỒN TRÍCH DẪN
+Bảng đầy đủ, mỗi nguồn ghi: **Data · Nguồn · Hạng (A/B/C/D)**.
+Phân hạng theo `rules/nguon-dan-chung.md`. Tất cả số liệu dùng trong lời kể
+PHẢI từ nguồn hạng A hoặc B.
+
+### 10.15. CAPTION NỀN TẢNG *(tuỳ chọn)*
 Đề xuất caption đăng kèm video trên mỗi nền tảng (TikTok / Facebook). Lưu ý:
 - Caption Facebook: câu đầu = hook thứ 2 (hiển thị trước "xem thêm").
 - Caption TikTok: ngắn hơn, có hashtag.
 - Cả hai: kèm CTA phù hợp nền tảng.
-
-### 10.12. GHI CHÚ SẢN XUẤT *(bổ sung)*
-Ghi chú cho team quay/dựng:
-- Góc quay đề xuất (talking head / 2 shot host-chuyên gia / insert)
-- Nhạc nền gợi ý (tông, nhịp)
-- Props / đạo cụ cần chuẩn bị
-- Cảnh báo kỹ thuật (nếu có)
 
 ---
 
@@ -340,16 +454,20 @@ Ghi chú cho team quay/dựng:
 - [ ] Đã ghi rõ **dạng 5A** (A1/A2/A3/A4/A5) ngay đầu kịch bản? (§1b)
 - [ ] Đã **tự chấm PAAST** đủ 5 chữ, không thiếu chữ nào? (§7)
 
-### B. Cấu trúc 7 nhịp
-- [ ] Hook thuộc 1 trong các style đã chứng minh? Đã tra `hook_library`? (§6)
-- [ ] Có giới thiệu chuyên gia trong 12s đầu?
-- [ ] Có đánh số nội dung + nói rõ "hôm nay chia sẻ gì"?
-- [ ] Mỗi ý có: cơ chế + số/ví dụ + so what?
-- [ ] Có open loop giữ đến cuối?
+### B. Cấu trúc (§3)
+- [ ] Hook: **3 option**, đánh dấu khuyến nghị, đến nghịch lý nhanh? (§3.1)
+- [ ] Có giới thiệu chuyên gia trong 12s đầu? (§3.2)
+- [ ] Dàn ý: chỉ nói "N ý" + **open loop**, KHÔNG liệt kê hết? (§3.3)
+- [ ] Mỗi ý có: cơ chế + số/ví dụ + so what? **Escalation dần?** (§3.4)
+- [ ] **Bridge VN** ở mọi data nước ngoài? Clo VN ở mọi đoạn nói clo? (§3.4b)
+- [ ] Ít nhất 1 ý có **kinh nghiệm VN thật** từ anh Như/khách hàng? (§3.4)
+- [ ] Retention hook (🔁) ở cuối mỗi phần? (§3.4)
+- [ ] Open loop **pay off** ở ý cuối + **nhắc lại** ở kết luận? (§3.3)
 - [ ] Có mini-hook giữa video nếu body >30s liên tục?
-- [ ] Có ít nhất 1 câu thừa nhận giới hạn / cân bằng 2 phía?
-- [ ] CTA đủ 2–3 lớp (comment + share + save)?
-- [ ] Câu kết signature?
+- [ ] Có ít nhất 1 câu thừa nhận giới hạn / cân bằng 2 phía? (§3.5)
+- [ ] **Kết luận: 3–4 lý do cụ thể** (không 1 câu triết lý)? Data callback? (§3.6)
+- [ ] CTA đủ 2–3 lớp (comment + share + save)? (§3.7)
+- [ ] Câu kết signature? (§3.8)
 
 ### C. Luật sửa content (Thiện)
 - [ ] Tò mò có kết — hook đặt câu hỏi gì, kết trả lời đúng câu đó? (§8 luật 1)
@@ -370,7 +488,16 @@ Ghi chú cho team quay/dựng:
 - [ ] Không chộp giật / giật tít gây hoảng?
 - [ ] Thời lượng đọc thử ≤ mức phù hợp (§5)?
 
-### E. Tra dữ liệu marketing (bước cuối)
+### E. Output đầy đủ (§10)
+- [ ] Có **caption card** (bảng) thay text overlay? (§10.6)
+- [ ] Có **bảng keyword tiếng gốc** + English backup? (§10.7)
+- [ ] Có **video tham khảo** với ghi chú bản quyền? (§10.8)
+- [ ] Có **scoring** theo checklist chuyen-gia.md §6? (§10.11)
+- [ ] Có **rà lỗi** đầy đủ? (§10.12)
+- [ ] Có **khung video** (timeline + logic + emotional)? (§10.13)
+- [ ] Có **bảng nguồn** đầy đủ, phân hạng A/B/C/D? (§10.14)
+
+### F. Tra dữ liệu marketing (bước cuối)
 - [ ] Đã tra `hook_library` (Supabase) để chọn/tham khảo hook + CTA? (`query-supabase.py hook_library`)
 - [ ] Đã tra `video_deep_analysis` để xem có video cùng chủ đề đã phân tích? (`query-supabase.py video_deep_analysis`)
 - [ ] Nếu có video cùng chủ đề → đã đọc `gwt_application` + `useful_advice` + `compliance_notes` của nó?
@@ -381,6 +508,9 @@ Ghi chú cho team quay/dựng:
 
 | Tài liệu | Đường dẫn | Khi nào đọc |
 |---|---|---|
+| **Rule research deep-dive** | `rules/research-deep-dive.md` | **TRƯỚC khi viết** — Phase 0 research + Phase 2 wiki |
+| Văn nói anh Như (style reference) | `style-notes/van-noi-anh-nhu.md` | Khi viết lời thoại — bám giọng anh Như thật |
+| Style chuyên gia | `style-notes/chuyen-gia.md` | Giọng điệu, khung sườn, nhịp, **scoring §6** |
 | Viral video framework (5A, S-FACES, CRAVES, Maslow) | `docs/viral-video-framework.md` | Phân loại video, xây kịch bản mới |
 | Rule tuân thủ QC VN | `rules/ad-compliance-vn.md` | Mọi kịch bản — rà trước khi giao |
 | Rule nguồn dẫn chứng | `rules/nguon-dan-chung.md` | Khi chọn nguồn cho số liệu/claim |
@@ -389,11 +519,141 @@ Ghi chú cho team quay/dựng:
 | Rule claim cần chứng nhận | `rules/claim-can-chung-nhan.md` | Khi nêu công dụng sản phẩm |
 | Luật sửa content (Sharing 2 — VCB) | `Work GWT/Thiện Sharing/Thiện - Sharing 2 - Tổng hợp.md` | Tra case fail/win cụ thể |
 | Luật sửa content (Sharing 3 — TS Phúc) | `Work GWT/Thiện Sharing/Thiện - Sharing 3 - Tổng hợp.md` | Tra case chuyên gia y tế/sức khoẻ |
-| Style chuyên gia | `style-notes/chuyen-gia.md` | Giọng điệu, khung sườn, nhịp trao đổi |
 | Kho hook (Supabase) | `hook_library` — tra bằng `query-supabase.py` | Chọn hook/CTA đã phân tích |
 | Phân tích video chuyên sâu (Supabase) | `video_deep_analysis` — tra bằng `query-supabase.py` | Xem cấu trúc + bài học từ video cùng ngách |
 
 ---
 
 *Brief này thay thế cho mọi yêu cầu lặp lại khi viết/viết lại kịch bản kênh chuyên gia.
-Khi gọi Claude viết kịch bản, chỉ cần nói: "Viết lại [tên beat] theo brief chuyên gia" là đủ.*
+Khi gọi Claude viết kịch bản, chỉ cần nói: "Viết lại [tên beat] theo brief chuyên gia" là đủ.
+Research trước khi viết → `rules/research-deep-dive.md`. Viết kịch bản → file này.*
+
+---
+
+## 12. BẢN ELEVENLABS — sau khi kịch bản được duyệt
+
+> **Khi nào:** ngay sau khi kịch bản (khung sườn v-cuối) được user duyệt.
+> **Mục đích:** tạo bản text thuần lời nói, dán thẳng vào ElevenLabs để thu AI voice
+> hoặc để anh Như đọc theo.
+> **Ví dụ mẫu:** `260921-John-Snow-ElevenLabs-format-v4.md` (Downloads).
+
+### 12.1. Quy tắc chuyển đổi
+
+**GIỮ LẠI** (chỉ lời nói thật):
+- Toàn bộ lời thoại anh Như nói (kể cả câu hỏi tu từ, retention hook 🔁, câu neo 🔒)
+- Transition giữa các phần ("Tốt như vậy, nhưng tại sao vẫn lọc?")
+- CTA cuối
+
+**BỎ HOÀN TOÀN** (không phải lời nói):
+- Header markdown, tiêu đề phần (`## Ý 1`, `## KẾT LUẬN`)
+- Emoji marker (🔒, 🔁, 🖼️, 🪝, 🎯, 💬)
+- `[ghi chú]`, `[gợi ý b-roll]`, `[nhìn cam]`, `[anh Như kể]` — mọi stage direction
+- 🖼️ caption card (hướng dẫn cho editor, không đọc)
+- Bảng caption card, bảng media, keyword, video ref, scoring, rà lỗi, khung video, nguồn
+- Ghi chú sản xuất
+- Bold markdown (`**chữ**` → `chữ`)
+
+### 12.2. ĐỦ 3 HOOK — bắt buộc
+
+Bản ElevenLabs phải có **cả 3 hook** (A, B, C) — mỗi hook là một khối `[calm] [conversational]`
+riêng, cách nhau bằng dấu phân tách `---`. Lý do: thu voice TẤT CẢ hook để chọn lúc dựng,
+không chọn trước.
+
+Sau 3 khối hook, phần thân bắt đầu từ **giới thiệu** ("Tôi là Nguyễn Hữu Như...") và nối
+liền đến CTA — đây là một khối duy nhất.
+
+### 12.3. Tone tag
+
+Dùng **ít nhất có thể** — chỉ đặt khi cảm xúc thay đổi RÕ RỆT. Mặc định `[calm] [conversational]`.
+
+| Tag | Khi nào dùng |
+|---|---|
+| `[calm] [conversational]` | Mặc định — chuyên gia kể chuyện bình tĩnh |
+| `[serious]` | Cảnh báo, dịch bệnh, sai lầm nguy hiểm — giọng trầm lại |
+| `[warm] [conversational]` | Kết luận, thừa nhận giới hạn, CTA — giọng gần gũi |
+
+**Tối đa 2–3 lần chuyển tone** trong 1 video 6 phút. Nhiều hơn = giả.
+Đặt tone tag **ở đầu đoạn**, ngay sau `[pause]`.
+
+### 12.4. Nhịp nghỉ
+
+| Tag | Nghĩa | Dùng ở |
+|---|---|---|
+| `[pause]` | Nghỉ dài (~1.5–2s) | Chuyển phần lớn (Ý 1 → Ý 2), trước câu neo, trước chuyển tone |
+| `[short pause]` | Hít hơi (~0.5–1s) | Giữa 2 ý nhỏ, sau câu hỏi tu từ, giữa các mục liệt kê |
+
+### 12.5. Xử lý cho TTS
+
+| Gốc (trong khung sườn) | ElevenLabs | Lý do |
+|---|---|---|
+| `mg/L` | "miligam trên lít" | TTS đọc ký hiệu khó nghe |
+| `QCVN 01-1:2018` | Lần đầu: nói đủ tên → lần sau: "Quy chuẩn Bộ Y tế" | Mã số lần 2+ thừa |
+| `2020/2184` (EU Directive) | Bỏ số hiệu, giữ "Chỉ thị mới nhất" | Mã EU vô nghĩa khi nghe |
+| Ký tự CJK (東京水, ほんまや) | Phiên âm Latin hoặc dịch ("Tokyo Water", "Honmaya") | TTS Việt không đọc CJK |
+| Danh sách bullet | Liệt kê liền câu, cách bằng `[short pause]` | TTS không render bullet |
+| `km` | "cây số" (văn nói) hoặc giữ "km" tuỳ ngữ cảnh | |
+| `**bold**` | Bỏ markdown | TTS không render |
+| Dấu `—` (em dash) | Thay bằng dấu `,` hoặc `[short pause]` | Tự nhiên hơn khi nói |
+
+### 12.6. Format file output
+
+```markdown
+# Kịch bản [TÊN] — Format ElevenLabs [version]
+
+> **Tone tag chính:** `[calm] [conversational]` — mặc định
+> **Chuyển tone:** N lần — [liệt kê vị trí + tag]
+> **Nhịp nghỉ:** `[pause]` = chuyển phần lớn · `[short pause]` = hít hơi
+
+---
+
+HOOK A
+​```
+[calm] [conversational] [lời hook A]
+​```
+
+HOOK B
+​```
+[calm] [conversational] [lời hook B]
+​```
+
+HOOK C
+​```
+[calm] [conversational] [lời hook C]
+​```
+
+THÂN + KẾT
+​```
+[calm] [conversational] Tôi là Nguyễn Hữu Như... [toàn bộ từ giới thiệu đến CTA]
+​```
+
+---
+
+## Tone tag map
+[bảng vị trí + tag + lý do]
+
+## Ghi chú chuyển đổi
+[bảng gốc → ElevenLabs → lý do — chỉ liệt kê những chỗ đã đổi]
+```
+
+### 12.7. Đặt tên file
+
+`[TÊN-GỐC]-ElevenLabs-[version].md` — cùng thư mục với kịch bản gốc.
+Ví dụ: `NUOC-NHAT-nghich-ly-purifier-ElevenLabs-v4.md`.
+
+### 12.8. Checklist trước khi giao
+
+- [ ] Đủ **3 hook** riêng biệt
+- [ ] Bỏ sạch mọi ghi chú editor / caption card / emoji marker
+- [ ] Tone tag chỉ đặt ở chỗ cảm xúc thay đổi rõ (≤3 lần chuyển)
+- [ ] Ký tự CJK đã phiên âm Latin
+- [ ] Đơn vị `mg/L` đã viết thành chữ
+- [ ] Mã quy chuẩn chỉ nói đủ 1 lần, sau đó dùng tên gọi
+- [ ] Đọc to toàn bộ — nghe tự nhiên, không có chỗ nào "đọc bài"
+- [ ] Lời nói khớp 100% bản kịch bản đã duyệt (không tự ý sửa chữ)
+
+---
+
+*Cập nhật 2026-09-23: thêm §12 bản ElevenLabs (3 hook, tone tag, TTS, checklist).
+Cập nhật 2026-09-22: thêm open loop (§3.3), bridge VN (§3.4b), kết luận cụ thể (§3.6),
+caption card + keyword gốc + video ref (§10.6–10.8), scoring + rà lỗi + khung video (§10.11–10.13).
+Dựa trên feedback thực tế qua 4 version kịch bản "Nghịch lý nước Nhật".*
