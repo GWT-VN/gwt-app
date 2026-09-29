@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+
+  "//": "Cấu hình Claude Code DÙNG CHUNG cả đội — có commit. Cấu hình riêng của bạn để ở .claude/settings.local.json (đã gitignore). Xem docs/QUY-TRINH-CLAUDE.md.",
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/tools/hook_tsc.sh\"",
+            "async": true,
+            "asyncRewake": true,
+            "timeout": 180,
+            "statusMessage": "Soát kiểu TypeScript…"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/tools/hook_chan_lenh_nguy.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(bash tools/wt.sh ds)",
+      "Bash(npm --prefix apps/web run test*)",
+      "Bash(npx --prefix apps/web tsc --noEmit*)",
+      "Bash(python3 tools/scripts/scan_pii_secrets.py*)",
+      "Bash(python3 tools/doi_chieu_db.py*)"
+    ]
+  }
+}
