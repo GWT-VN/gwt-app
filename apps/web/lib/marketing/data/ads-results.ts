@@ -82,6 +82,24 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 316, results: 4, costPerResult: 79000, sdt: null, note: "Chỉ 3 ngày, 4 result", status: "active" },
     ],
   },
+  {
+    id: "2025-09-21--09-27",
+    label: "21/9 – 27/9",
+    range: "21/9 – 27/9/2025",
+    ads: [
+      { name: "CTS20 chuyên gia", startDate: "14/9", budgetDaily: "100k", cost: 684, results: 55, costPerResult: 12436, sdt: 1, note: "", status: "active" },
+      { name: "CTS10 Dino", startDate: "01/6", budgetDaily: "200k", cost: 1424, results: 67, costPerResult: 21254, sdt: 11, note: "Giảm budget về 100k (29/9)", status: "active" },
+      { name: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 2110, results: 75, costPerResult: 28133, sdt: 4, note: "", status: "active" },
+      { name: "CTD50 CG mới", startDate: "21/9", budgetDaily: "100k", cost: 688, results: 23, costPerResult: 29913, sdt: 1, note: "Camp mới thay CTD50 CG cũ", status: "active" },
+      { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1457, results: 47, costPerResult: 31000, sdt: 5, note: "", status: "active" },
+      { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6141, results: 166, costPerResult: 36994, sdt: 12, note: "SĐT cao nhất", status: "active" },
+      { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "150k", cost: 1085, results: 22, costPerResult: 49318, sdt: 1, note: "", status: "active" },
+      { name: "WH Anh Như", startDate: "25/9", budgetDaily: "100k", cost: 308, results: 4, costPerResult: 77000, sdt: 1, note: "Lên ngày 25/9", status: "new" },
+      { name: "CTS10 Remake", startDate: "25/9", budgetDaily: "100k", cost: 272, results: 3, costPerResult: 90667, sdt: null, note: "Lên ngày 25/9 — đến 29/9: 421k/9 result", status: "new" },
+      { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 693, results: 7, costPerResult: 99000, sdt: 0, note: "", status: "active" },
+      { name: "WH lọc tổng 260905", startDate: "7/9", budgetDaily: "100k", cost: 732, results: 4, costPerResult: 183000, sdt: 2, note: "Lên lại sau khi tắt 22/9", status: "active" },
+    ],
+  },
 ];
 
 export function getLatestWeek(): AdsWeek {
