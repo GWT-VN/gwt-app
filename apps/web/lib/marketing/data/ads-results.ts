@@ -100,6 +100,16 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH lọc tổng 260905", startDate: "7/9", budgetDaily: "100k", cost: 732, results: 4, costPerResult: 183000, sdt: 2, note: "Lên lại sau khi tắt 22/9", status: "active" },
     ],
   },
+  {
+    id: "2025-09-29--10-05",
+    label: "29/9 – 5/10",
+    range: "29/9 – 5/10/2025",
+    ads: [
+      { name: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 239, results: 7, costPerResult: 34143, sdt: 0, note: "Remake WH Riverside cũ", status: "new" },
+      { name: "WH lọc tổng 260905", startDate: "30/9", budgetDaily: "100k", cost: 241, results: 3, costPerResult: 80333, sdt: 0, note: "Lên lại 30/9", status: "active" },
+      { name: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 275, results: 3, costPerResult: 91667, sdt: 1, note: "1 khách add Zalo", status: "new" },
+    ],
+  },
 ];
 
 export function getLatestWeek(): AdsWeek {
