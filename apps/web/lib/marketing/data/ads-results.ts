@@ -110,6 +110,7 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 239, results: 7, costPerResult: 34143, sdt: 0, note: "Remake WH Riverside cũ", status: "new" },
       { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 1143, results: 30, costPerResult: 38100, sdt: 5, note: "", status: "active" },
       { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1506, results: 37, costPerResult: 40703, sdt: 3, note: "", status: "active" },
+      { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6302, results: 161, costPerResult: 39143, sdt: 18, note: "SĐT cao nhất", status: "active" },
       { name: "CTD50 CG mới", startDate: "21/9", budgetDaily: "100k", cost: 794, results: 19, costPerResult: 41789, sdt: 0, note: "", status: "active" },
       { name: "WH lọc tổng 260905", startDate: "30/9", budgetDaily: "100k", cost: 241, results: 3, costPerResult: 80333, sdt: 0, note: "Lên lại 30/9", status: "active" },
       { name: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 275, results: 3, costPerResult: 91667, sdt: 1, note: "1 khách add Zalo", status: "new" },
