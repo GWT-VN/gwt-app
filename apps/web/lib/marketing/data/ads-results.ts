@@ -112,8 +112,12 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1506, results: 37, costPerResult: 40703, sdt: 3, note: "", status: "active" },
       { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6302, results: 161, costPerResult: 39143, sdt: 18, note: "SĐT cao nhất", status: "active" },
       { name: "CTD50 CG mới", startDate: "21/9", budgetDaily: "100k", cost: 794, results: 19, costPerResult: 41789, sdt: 0, note: "", status: "active" },
+      { name: "CTS10 HDSD Remake", startDate: "28/9", budgetDaily: "100k", cost: 239, results: 5, costPerResult: 47800, sdt: 0, note: "", status: "new" },
       { name: "WH lọc tổng 260905", startDate: "30/9", budgetDaily: "100k", cost: 241, results: 3, costPerResult: 80333, sdt: 0, note: "Lên lại 30/9", status: "active" },
       { name: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 275, results: 3, costPerResult: 91667, sdt: 1, note: "1 khách add Zalo", status: "new" },
+      { name: "CTS10 Coldbrew Remake", startDate: "28/9", budgetDaily: "100k", cost: 95, results: 1, costPerResult: 95000, sdt: 0, note: "", status: "new" },
+      { name: "CTS10 Dino", startDate: "01/6", budgetDaily: "100k", cost: 404, results: 22, costPerResult: 18364, sdt: 1, note: "Tắt tuần trước · 1 SĐT đã mua", status: "off" },
+      { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 283, results: 3, costPerResult: 94333, sdt: 0, note: "Tắt tuần trước", status: "off" },
     ],
   },
 ];
