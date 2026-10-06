@@ -18,10 +18,10 @@ nhom: "Khách hàng"
 
 Dưới đây là thông tin tổng hợp từ các lần giao tiếp trực tiếp với khách hàng
 
-- Nước thiếu khoáng => 1 chị khách hàng ở HCM có lo lắng vì các bác sĩ có khuyến nghị rằng hiện tại trẻ em rất thiếu khoáng nên khiến răng yếu (thiếu canxi) so với ngày xưa, 1 trong những lý do đó là nước lọc ra đã là nước tinh khiết
+- Nước thiếu khoáng => Chị Quỳnh Anh (Thảo Điền HCM) có lo lắng vì các bác sĩ có khuyến nghị rằng hiện tại trẻ em rất thiếu khoáng nên khiến răng yếu (thiếu canxi) so với ngày xưa, 1 trong những lý do đó là nước lọc ra đã là nước tinh khiết
 
-- Da nhạy cảm => 1 chị khách hàng cơ địa da nhạy cảm nên lo ngại clo dư, chất bẩn trong nước sẽ ảnh hưởng đến da  nên khi chuyển về căn hộ mới chị có tìm 1 đơn vị để xử lý lọc tổng cho căn của mình
+- Da nhạy cảm => Chị Alice Ngân cơ địa da nhạy cảm nên lo ngại clo dư, chất bẩn trong nước sẽ ảnh hưởng đến da  nên khi chuyển về Heritage Westlake chị có tìm 1 đơn vị để xử lý lọc tổng cho căn của mình
 
 - Vi nhựa => 1 khách hàng CTS10 rất quan ngại về vấn đề vi nhựa trong nước do nhiều khuyến cáo sức khoẻ gần đây, 1 chị khách hàng lọc tổng khác cũng lo lắng không biết nước sau máy lọc nước còn vi nhựa không (lõi lọc, các bình chứa vẫn là nhựa)
 
-- Da của con cái => 1 chị khách hàng khi chuyển từ Hạ Long về Hà Nội thấy nước  bẩn hơn lo cho con gái da sẽ bị ảnh hưởng
+- Da của con cái => Chị Bùi Trang khi chuyển từ Hạ Long về Hà Nội khu vực Hà Đông thấy nước  bẩn hơn lo cho con gái da sẽ bị ảnh hưởng
