@@ -76,8 +76,16 @@ Style đã chứng minh hiệu quả (xem §6 Kho hook):
 
 ⚠️ Hook PHẢI liên quan trực tiếp đến nội dung — không câu view bằng chủ đề khác rồi bẻ lái.
 
-### 3.2. GIỚI THIỆU CHUYÊN GIA (5–12s)
-"Kỹ sư Nguyễn Hữu Như, [N] năm trong ngành xử lý nước" — 1 câu, đặt ngay sau hook để người lạ tin.
+### 3.2. GIỚI THIỆU CHUYÊN GIA (5–12s) — ⭐ CÂU CỐ ĐỊNH (chốt 2026-10-07)
+
+**Mọi kịch bản có anh Như** (series AI, celeb, chuyên gia, short, bản ElevenLabs) dùng **đúng một câu**, không tự biến tấu:
+
+> **"Tôi là Nguyễn Hữu Như, chuyên gia kỹ thuật về nước với 25 năm kinh nghiệm trong ngành."**
+
+- Bản ElevenLabs viết số bằng chữ: *"…với **hai mươi lăm năm** kinh nghiệm trong ngành."*
+- ⛔ Không dùng các bản cũ: "kỹ sư xử lý nước", "kỹ sư trong lĩnh vực xử lý nước", "làm việc trong ngành xử lý nước",
+  "hơn 25 năm". Không thêm "Dr.", học vị hay chức danh công ty.
+- Đặt ngay sau hook, một câu, để người lạ tin. Câu dẫn ý/open loop đi **sau** câu này.
 
 ### 3.3. DÀN Ý + OPEN LOOP (12–18s)
 Chỉ nói **"N ý"** + **open loop** — KHÔNG liệt kê hết các ý.
@@ -559,7 +567,8 @@ Bản ElevenLabs phải có **cả 3 hook** (A, B, C) — mỗi hook là một k
 riêng, cách nhau bằng dấu phân tách `---`. Lý do: thu voice TẤT CẢ hook để chọn lúc dựng,
 không chọn trước.
 
-Sau 3 khối hook, phần thân bắt đầu từ **giới thiệu** ("Tôi là Nguyễn Hữu Như...") và nối
+Sau 3 khối hook, phần thân bắt đầu từ **câu giới thiệu cố định** (§3.2: "Tôi là Nguyễn Hữu Như, chuyên gia kỹ thuật
+về nước với hai mươi lăm năm kinh nghiệm trong ngành.") và nối
 liền đến CTA — đây là một khối duy nhất.
 
 ### 12.3. Tone tag

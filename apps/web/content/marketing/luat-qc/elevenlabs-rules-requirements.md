@@ -1,6 +1,6 @@
-# ElevenLabs v3 — Rules & Requirements
+# ElevenLabs v4 — Rules & Requirements
 
-> Bộ quy tắc sản xuất giọng nói AI cho content tiếng Việt, rút ra từ quá trình test thực tế với ElevenLabs v3.
+> Bộ quy tắc sản xuất giọng nói AI cho content tiếng Việt, rút ra từ quá trình test thực tế với ElevenLabs v4 (và v3 trước đó).
 
 ---
 
@@ -10,7 +10,7 @@
 
 - Cut một đoạn nói **chất lượng tốt nhất** của speaker (giọng rõ, không tạp âm, không filler words)
 - Upload lên ElevenLabs → tạo IVC
-- Test bằng **model v3** với một đoạn text ngắn (dưới 500 ký tự)
+- Test bằng **model v4** với một đoạn text ngắn (dưới 500 ký tự)
 - Đánh giá: voice similarity có đạt không? Đọc tiếng Việt có đúng dấu không?
 - Nếu ổn → dùng IVC luôn, không cần PVC
 
@@ -30,10 +30,14 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 
 - **Clone voice không tốn credit** — chỉ tốn credit khi generate audio ở bước Text to Speech
 - **Verification bắt buộc:** khi tạo voice clone (cả IVC lẫn PVC), ElevenLabs yêu cầu xác minh danh tính người nói (voice verification) — cần chuẩn bị sẵn
-- **v3 ưu tiên biểu cảm hơn voice similarity** — đây là trade-off cố hữu của model, không phải lỗi
-- **v3 là non-deterministic** — cùng input có thể ra output khác nhau giữa các lần generate. Nếu một lần ra tệ, generate lại 2-3 lần trước khi kết luận
+- **Model chính: v4** — expressive hơn v3 rất nhiều, cảm xúc tự nhiên hơn. v3 vẫn dùng được làm fallback nếu v4 có vấn đề
+- **v4 launch special:** 228.3K credit free chỉ dùng cho v4, hết hạn khoảng **13/10/2026** — tận dụng hết trước hạn
+- **v4 ưu tiên biểu cảm hơn voice similarity** — đây là trade-off cố hữu của model, không phải lỗi (v3 cũng tương tự)
+- **Context stitching (v4):** v4 giữ pacing và delivery ổn định qua các đoạn dài — ít bị vocal drift hơn v3 khi generate nhiều đoạn liên tiếp
+- **v4 là non-deterministic** — cùng input có thể ra output khác nhau giữa các lần generate. Nếu một lần ra tệ, generate lại 2-3 lần trước khi kết luận
+- **Voice Design (chưa test nhiều):** v4 có tính năng tạo giọng mới từ mô tả text (ví dụ: "giọng nam trung niên, Bắc, bình thản") — có thể consider test thêm nếu cần giọng mới mà không có sample audio
 - **v2.5 Turbo** có voice similarity tốt hơn nhưng đọc sai dấu tiếng Việt → không dùng cho content tiếng Việt
-- **Voice Changer** không có model hỗ trợ tiếng Việt → không dùng workaround v3 + Voice Changer được
+- **Voice Changer** không có model hỗ trợ tiếng Việt → không dùng workaround v4 + Voice Changer được
 - Nếu cả IVC lẫn PVC đều bị mất similarity cùng lúc → khả năng cao là lỗi phía server, report support và chờ — không cần xoá voice clone hay tạo lại
 
 ---
@@ -41,13 +45,16 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 ## 2. Quy trình Text to Speech (TTS)
 
 > **Lưu ý:** Mỗi lần generate audio đều **tốn credit** — khác với clone voice (miễn phí). Nên check server đầu ngày trước khi sản xuất để tránh tốn credit vô ích.
+>
+> **Credit free v4:** ElevenLabs đang tặng **228.3K credit v4** (hết hạn ~13/10/2026) — credit này chỉ dùng được cho model v4, không dùng cho v3. Ưu tiên generate bằng v4 trong giai đoạn này.
 
 ### 2.1 Thiết lập trên ElevenLabs
 
 1. Vào **Text to Speech**
-2. Chọn đúng **voice profile** đã clone (kiểm tra dropdown — dễ chọn nhầm voice)
-3. Chọn **model v3** (kiểm tra model selector — không dùng v2.5 Turbo cho tiếng Việt)
-4. Chọn **Language Override → Vietnamese** (bắt buộc để v3 đọc đúng dấu tiếng Việt)
+2. Chọn đúng **voice profile** đã clone — hiện tại dùng **IVC anh Như** (kiểm tra dropdown — dễ chọn nhầm voice)
+3. Chọn **model v4** (kiểm tra model selector — v4 expressive hơn v3, ưu tiên dùng v4. Fallback: v3 nếu v4 có vấn đề. Không dùng v2.5 Turbo cho tiếng Việt)
+4. Chọn **Language Override → Vietnamese** (bắt buộc để đọc đúng dấu tiếng Việt)
+5. Nếu engine có **Voice Settings**: đặt **Similarity → highest**, **Stability → default** — giữ giọng giống speaker nhất có thể trong khi vẫn để v4 tự nhiên về nhịp và cảm xúc
 
 ### 2.2 Check server đầu ngày
 
@@ -58,7 +65,7 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 ### 2.3 Generate audio
 
 - **Giữ dưới 800 ký tự/đoạn** khi generate — đoạn dài làm giọng mất ổn định
-- Generate **2-3 lần** nếu lần đầu chưa ưng — v3 non-deterministic, lần sau có thể tốt hơn
+- Generate **2-3 lần** nếu lần đầu chưa ưng — v4 non-deterministic, lần sau có thể tốt hơn
 - Nếu output không giống giọng speaker → **ấn 👎** ở output đó và **chọn nguyên nhân feedback** để ElevenLabs ghi nhận
 
 ### 2.4 Download audio
@@ -69,9 +76,31 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 
 ---
 
-## 3. Quy trình Format Kịch Bản cho ElevenLabs v3
+## 3. Quy trình Format Kịch Bản cho ElevenLabs v4
 
 > Khi viết xong kịch bản văn nói, **đẩy lên Claude** để chèn tone tag, pause tag, CAPS nhấn mạnh theo các quy tắc bên dưới trước khi paste vào ElevenLabs.
+
+### 3.0 ⭐ Độ dài: kịch bản 3–4 phút, đo bằng SỐ KÝ TỰ (chốt 2026-10-06)
+
+- **Kịch bản cho ElevenLabs chỉ làm 3–4 phút.** Viết thẳng ở độ dài này, **không** viết bản full 6–7 phút rồi cắt.
+- **Đo bằng ký tự, không đo bằng số từ.** Tiếng Việt mỗi chữ là một âm tiết, nên "từ/phút" kiểu tiếng Anh bị lệch.
+- **Tốc độ thực đo** (giọng clone anh Như, v4, `[calm] [conversational]`, có pause như các bản đã làm):
+  **khoảng 1.200 ký tự/phút** (dao động 1.150–1.250), tương đương khoảng 270 âm tiết/phút.
+  Đối chiếu: purifier v4 short 4.260 ký tự ≈ 3:30 · minamata v2 short 4.750 ký tự ≈ 3:50–4:05.
+- **Khung đếm:** tổng = thân bài + **một** hook (bản dài nhất), **bỏ tag** `[...]`, **tính cả dấu cách**,
+  đếm **sau khi đã viết số bằng chữ** (số viết bằng chữ dài hơn nhiều).
+
+| Thời lượng | Số ký tự |
+|---|---|
+| 3:00 | khoảng 3.600 |
+| **3:30 (mục tiêu)** | **khoảng 4.200** |
+| 4:00 (trần) | khoảng 4.800 |
+
+- **Lệnh đếm:** `python3 scripts/dem-ky-tu-elevenlabs.py <file.md>`. Script đọc từng khối ```, bỏ tag, báo
+  số ký tự từng khối, cảnh báo khối > 800 ký tự, cộng một hook dài nhất, ước thời lượng, và báo cần cắt bao nhiêu.
+  File có 2 bản song song (heading `## … BẢN 1` / `## … BẢN 2`) thì script tính riêng từng bản.
+- Nhiều pause hơn bình thường thì đọc chậm hơn → ước theo mức 1.150. Đổi giọng hoặc đổi tag mặc định thì
+  đo lại một bản, cập nhật số ở đây.
 
 ### 3.1 Nguyên tắc chung
 
@@ -83,6 +112,8 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 - **Giữ dưới 800 ký tự/đoạn** khi generate — đoạn dài làm giọng mất ổn định
 
 ### 3.2 Tone Tags
+
+> ⚠️ **Lưu ý v4:** v4 expressive hơn v3 rất nhiều — cùng một tone tag, v4 có thể đẩy cảm xúc mạnh hơn so với v3. Khi dùng tone tag, nên test kỹ trước khi production vì kết quả có thể "đậm" hơn mong đợi.
 
 **Combo mặc định cho giọng chuyên gia kể chuyện (nam, Bắc, lớn tuổi):**
 
@@ -128,18 +159,18 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 
 ### 3.4 Nhấn mạnh (Emphasis)
 
-**v3 không có tag `[emphasis]` riêng.** Dùng các kỹ thuật sau:
+**v4 không có tag `[emphasis]` riêng.** Dùng các kỹ thuật sau:
 
 | Kỹ thuật | Cách dùng | Mức độ |
 |---|---|---|
-| **VIẾT HOA** | Từ khóa bẻ hướng hoặc tạo tương phản | Chính — hiệu quả nhất với v3 |
+| **VIẾT HOA** | Từ khóa bẻ hướng hoặc tạo tương phản | Chính — hiệu quả nhất với v4 |
 | `[short pause]` trước từ quan trọng | Tạo khoảng lặng trước reveal | Phụ trợ |
 | Dấu ngoặc kép `"..."` | Trích dẫn, thuật ngữ | Nhẹ |
 
 **Kỹ thuật đã bỏ (không phù hợp cho giọng chuyên gia lớn tuổi):**
 
 - ~~Kéo nguyên âm "chảả"~~ — nghe đa cấp với speaker profile này
-- ~~Gạch ngang em dash "—"~~ — hiệu quả không rõ ràng trên v3
+- ~~Gạch ngang em dash "—"~~ — hiệu quả không rõ ràng trên v3/v4
 - ~~CAPS quá nhiều (8+ chỗ)~~ — v1 có 8 chỗ, nghe kịch tính quá
 
 **Quy tắc đặt CAPS:**
@@ -153,16 +184,17 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
   - Key message: MỚI BIẾT ĐƯỢC
 - Không CAPS các từ thông thường, chỉ CAPS từ mang trọng lượng câu chuyện
 
-### 3.5 Danh sách đầy đủ Audio Tags v3 (tham khảo)
+### 3.5 Danh sách đầy đủ Audio Tags v3/v4 (tham khảo)
 
 > Nguồn: [elevenlabs.io/blog/v3-audiotags](https://elevenlabs.io/blog/v3-audiotags)
+> v4 kế thừa hệ thống audio tags từ v3 — các tag dưới đây hoạt động tương tự trên cả hai model.
 
 **Quy tắc chung:**
 
 - Tag đặt trong ngoặc vuông `[ ]`, viết thường
 - Đặt ở bất kỳ đâu trong script — đầu đoạn, giữa câu, hoặc trước từ cần hiệu ứng
 - Có thể kết hợp nhiều tag trong một câu để tạo lớp biểu cảm
-- Tag là chỉ dẫn diễn xuất — v3 không đọc thành tiếng
+- Tag là chỉ dẫn diễn xuất — v4 không đọc thành tiếng
 - Kết hợp với dấu câu (ba chấm, phẩy, CAPS) để tăng hiệu quả
 
 **Emotions (cảm xúc):**
@@ -240,7 +272,7 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 
 ### 3.6 SSML Tags (không chính thức nhưng chạy được)
 
-> ElevenLabs nói v3 **không hỗ trợ SSML** trong tài liệu chính thức, nhưng qua test thực tế thì engine vẫn parse được. Dùng cẩn thận — có thể mất hỗ trợ bất cứ lúc nào nếu ElevenLabs cập nhật.
+> ElevenLabs nói v3/v4 **không hỗ trợ SSML** trong tài liệu chính thức, nhưng qua test thực tế thì engine vẫn parse được. Dùng cẩn thận — có thể mất hỗ trợ bất cứ lúc nào nếu ElevenLabs cập nhật.
 
 **Đã test chạy được:**
 
@@ -274,15 +306,16 @@ Khi format kịch bản cho TTS tiếng Việt, giữ các đặc trưng văn n�
 ## 4. Checklist trước khi Generate
 
 - [ ] Text dưới 800 ký tự/đoạn
+- [ ] Tổng 3.600–4.800 ký tự (3–4 phút) — chạy `python3 scripts/dem-ky-tu-elevenlabs.py <file.md>`
 - [ ] Tone tag đặt ở đầu đoạn hoặc đầu câu mới
 - [ ] Pause hợp lý — không liền mạch quá, không ngắt quá nhiều
 - [ ] CAPS chỉ ở từ khóa có chức năng, tối đa 8-11 chỗ/bài
 - [ ] Số viết bằng chữ
 - [ ] Văn nói, không văn viết
 - [ ] Đúng voice clone đã chọn (kiểm tra dropdown trước khi generate)
-- [ ] Đúng model v3 (kiểm tra model selector)
+- [ ] Đúng model v4 (kiểm tra model selector — fallback: v3)
 - [ ] Language Override = Vietnamese
-- [ ] Generate 2-3 lần nếu lần đầu chưa ưng — v3 non-deterministic
+- [ ] Generate 2-3 lần nếu lần đầu chưa ưng — v4 non-deterministic
 - [ ] Download: MP3, 44.1 kHz, 128 kbps
 
 ---
@@ -291,14 +324,14 @@ Khi format kịch bản cho TTS tiếng Việt, giữ các đặc trưng văn n�
 
 | Vấn đề | Nguyên nhân | Cách xử lý |
 |---|---|---|
-| Giọng không giống speaker | v3 ưu tiên biểu cảm hơn similarity | Generate lại 2-3 lần; bỏ hết tag thử; **ấn 👎 ở output đó và chọn nguyên nhân feedback** để ElevenLabs ghi nhận; nếu cả IVC & PVC đều bị → lỗi server, report support |
+| Giọng không giống speaker | v4 ưu tiên biểu cảm hơn similarity | Generate lại 2-3 lần; bỏ hết tag thử; **ấn 👎 ở output đó và chọn nguyên nhân feedback** để ElevenLabs ghi nhận; nếu cả IVC & PVC đều bị → lỗi server, report support |
 | Đọc monotone, phẳng | Thiếu CAPS, thiếu pause, thiếu chuyển tone | Thêm CAPS ở điểm tương phản, thêm `[short pause]` trước reveal |
 | Đọc quá kịch / đa cấp | Quá nhiều CAPS, dùng `[narration]`, kéo nguyên âm | Giảm CAPS, chuyển về `[calm] [conversational]` |
 | Đọc quá nhanh | Dùng `[steady]` hoặc không có tone tag | Thêm `[calm]`, thêm pause |
 | Đọc quá chậm | Dùng `[measured]` hoặc `[slow]` | Bỏ, dùng `[calm] [conversational]` |
-| Đọc sai dấu tiếng Việt | Dùng model v2.5 Turbo | Chuyển sang v3 — v3 đọc tiếng Việt đúng dấu hơn |
+| Đọc sai dấu tiếng Việt | Dùng model v2.5 Turbo | Chuyển sang v4 (hoặc v3 fallback) — đọc tiếng Việt đúng dấu hơn |
 | Giọng bị "reset" giữa bài | Chuyển tone tag quá nhiều lần | Giảm xuống tối đa 2-3 lần chuyển tone |
-| Tag `[pause]` phát ra tiếng click | Ký tự ẩn khi copy-paste, hoặc lỗi server/model v3 | Paste qua Notepad trước; gõ lại tag bằng tay; nếu vẫn bị → generate lại 2-3 lần; hoặc thay tag bằng dấu câu (`...`, `--`, dấu chấm) làm fallback; nếu lỗi vẫn persist → kéo audio vào **Descript** và mute đoạn click trong timeline; nếu mọi cách đều bị → lỗi server, chờ |
+| Tag `[pause]` phát ra tiếng click | Ký tự ẩn khi copy-paste, hoặc lỗi server/model | Paste qua Notepad trước; gõ lại tag bằng tay; nếu vẫn bị → generate lại 2-3 lần; hoặc thay tag bằng dấu câu (`...`, `--`, dấu chấm) làm fallback; nếu lỗi vẫn persist → kéo audio vào **Descript** và mute đoạn click trong timeline; nếu mọi cách đều bị → lỗi server, chờ |
 
 ---
 
@@ -308,9 +341,10 @@ Khi format kịch bản cho TTS tiếng Việt, giữ các đặc trưng văn n�
 |---|---|
 | Tên | Nguyễn Hữu Như |
 | Vai trò | Chuyên gia kỹ thuật về nước |
-| Kinh nghiệm | 25+ năm |
+| Kinh nghiệm | 25 năm |
+| **Câu giới thiệu (cố định)** | "Tôi là Nguyễn Hữu Như, chuyên gia kỹ thuật về nước với **hai mươi lăm năm** kinh nghiệm trong ngành." — xem `rules/chuyen-gia-rewrite-brief.md` §3.2 |
 | Giọng | Nam, miền Bắc Việt Nam |
 | Tuổi | Lớn tuổi |
 | Tone mong muốn | Bình thản, uy tín, kể chuyện tự nhiên — KHÔNG kịch tính, KHÔNG đa cấp |
 | Tag combo | `[calm] [conversational]` mặc định, `[serious]` cho đoạn nghiêm trọng |
-| Tốc độ đọc | ~150-170 từ/phút (calm conversational) |
+| Tốc độ đọc | **khoảng 1.200 ký tự/phút ≈ 270 âm tiết/phút** (calm conversational, đo 2026-10-06 — xem §3.0). Số cũ "150–170 từ/phút" là cách đếm tiếng Anh, không dùng cho tiếng Việt |
