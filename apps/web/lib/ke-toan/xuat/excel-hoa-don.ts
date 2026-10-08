@@ -210,28 +210,31 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
 
 export type MucDanhMucRa = { ma: string; ten: string; loai: string }
 export const TAB_DANH_MUC_RA = 'Danh mục SP đầu ra'
+/** Đầu vào: mã KMCP (expense_category) + mã hàng hoá catalog — cột cuối là TK Nợ mặc định. */
+export type MucDanhMucVao = { ma: string; ten: string; tkNo: string }
+export const TAB_DANH_MUC_VAO = 'Danh mục mã đầu vào'
 
 /**
- * Tab danh mục + dropdown "chip" cho cột Mã hàng / Mã nội bộ (đề xuất) ở tab đầu ra — y khuôn file NEXIA
- * kế toán làm tay (T5/2026: list validation trỏ `'Danh mục SP đầu ra'!$B:$B`, Google Sheets hiện thành chip).
- * Tab cũ cùng tên (xuất lần 2) bị thay, không nhân đôi.
+ * Tab danh mục + dropdown "chip" (list validation trỏ cột Mã của tab đó) cho các cột mã của `ws` — y khuôn
+ * file NEXIA kế toán làm tay (T5/2026: `'Danh mục SP đầu ra'!$B:$B`). Google Sheets hiện thành dropdown;
+ * sửa mã ở đây chỉ đổi ô mã — Tên/TK được tính lại khi đồng bộ về app (suaDong). Tab cũ cùng tên bị thay.
  */
-function ganChipMaNoiBo(wb: ExcelJS.Workbook, wsRa: ExcelJS.Worksheet, ds: MucDanhMucRa[]) {
-  const cu = wb.getWorksheet(TAB_DANH_MUC_RA)
+function ganChip(wb: ExcelJS.Workbook, ws: ExcelJS.Worksheet, tenTab: string, header: string[], ds: (string | number)[][], cotMa: string[]) {
+  const cu = wb.getWorksheet(tenTab)
   if (cu) wb.removeWorksheet(cu.id)
-  const dm = wb.addWorksheet(TAB_DANH_MUC_RA)
-  dm.addRow(['STT', 'Mã hàng', 'Tên', 'Phân loại'])
+  const dm = wb.addWorksheet(tenTab)
+  dm.addRow(['STT', ...header])
   dm.getRow(1).font = { bold: true }
-  ds.forEach((m, i) => dm.addRow([i + 1, m.ma, m.ten, m.loai]))
-  dm.columns.forEach((c, i) => { c.width = [6, 20, 45, 16][i] })
-  const headers = headersCua(wsRa, wsRa.columnCount)
-  const cot = [timCot(headers, 'mã hàng'), timCot(headers, 'mã nội bộ')].filter((c) => c >= 0)
-  const dv: ExcelJS.DataValidation = { type: 'list', allowBlank: true, showErrorMessage: true, formulae: [`'${TAB_DANH_MUC_RA}'!$B$2:$B$${ds.length + 1}`] }
-  for (const r of anhXaDong(wsRa, headers, wsRa.name).values()) for (const c of cot) wsRa.getRow(r).getCell(c + 1).dataValidation = dv
+  ds.forEach((m, i) => dm.addRow([i + 1, ...m]))
+  dm.columns.forEach((c, i) => { c.width = [6, 20, 45, 16][i] ?? 16 })
+  const headers = headersCua(ws, ws.columnCount)
+  const cot = cotMa.map((t) => timCot(headers, t)).filter((c) => c >= 0)
+  const dv: ExcelJS.DataValidation = { type: 'list', allowBlank: true, showErrorMessage: true, formulae: [`'${tenTab}'!$B$2:$B$${ds.length + 1}`] }
+  for (const r of anhXaDong(ws, headers, ws.name).values()) for (const c of cot) ws.getRow(r).getCell(c + 1).dataValidation = dv
 }
 
-/** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. `danhMucRa` có → thêm chip mã nội bộ. */
-export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; vao: DongXuat[]; ra: DongXuat[]; danhMucRa?: MucDanhMucRa[] }): Promise<Uint8Array> {
+/** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. Có danh mục → thêm chip chọn lại mã. */
+export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; vao: DongXuat[]; ra: DongXuat[]; danhMucRa?: MucDanhMucRa[]; danhMucVao?: MucDanhMucVao[] }): Promise<Uint8Array> {
   const wb = await moWorkbook(input.goc)
   // Cùng luật nhận diện tab với bộ đọc (laTab) — upload được thì xuất phải mở được.
   const wsVao = wb.worksheets.find((w) => laTab(w.name, 'vao'))
@@ -242,7 +245,8 @@ export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; va
   if (wsRa) dienTab(wsRa, 'ra', COT_THEM_RA, input.ra)
   coCotTheoNoiDung(wsVao)
   if (wsRa) coCotTheoNoiDung(wsRa)
-  if (wsRa && input.danhMucRa?.length) ganChipMaNoiBo(wb, wsRa, input.danhMucRa)
+  if (input.danhMucVao?.length) ganChip(wb, wsVao, TAB_DANH_MUC_VAO, ['Mã', 'Tên', 'TK Nợ'], input.danhMucVao.map((m) => [m.ma, m.ten, m.tkNo]), ['mã kmcp'])
+  if (wsRa && input.danhMucRa?.length) ganChip(wb, wsRa, TAB_DANH_MUC_RA, ['Mã hàng', 'Tên', 'Phân loại'], input.danhMucRa.map((m) => [m.ma, m.ten, m.loai]), ['mã hàng', 'mã nội bộ'])
   return new Uint8Array(await wb.xlsx.writeBuffer())
 }
 

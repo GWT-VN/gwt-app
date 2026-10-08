@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { dongCuaKy, taiNguonNexiaMoiNhat } from '../../../actions'
 import { duLieuEngine } from '../../../_chung'
 import { nhomSpCua } from '@/lib/ke-toan/engine/dau-ra'
+import { tkNoCuaTinhChat } from '@/lib/ke-toan/engine/dau-vao'
 import { dienExcelHoaDon, type DongXuat } from '@/lib/ke-toan/xuat/excel-hoa-don'
 
 export const runtime = 'nodejs'
@@ -47,8 +48,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
   let buf: Uint8Array
   try {
     // Danh mục cho chip mã nội bộ tab đầu ra: mọi mã catalog trừ mã chi phí cp.*.
-    const danhMucRa = (await duLieuEngine()).catalog.filter((c) => !c.ma.startsWith('cp.')).map((c) => ({ ma: c.ma, ten: c.ten, loai: nhomSpCua(c) }))
-    buf = await dienExcelHoaDon({ goc: nguon.goc, vao: toXuat(vao.dong), ra: toXuat(ra.dong), danhMucRa })
+    // Danh mục cho chip chọn lại mã: đầu ra = catalog trừ cp.*; đầu vào = mã KMCP rồi tới mã hàng hoá catalog.
+    const dl = await duLieuEngine()
+    const hang = dl.catalog.filter((c) => !c.ma.startsWith('cp.'))
+    const danhMucRa = hang.map((c) => ({ ma: c.ma, ten: c.ten, loai: nhomSpCua(c) }))
+    const danhMucVao = [...dl.kmcp.map((k) => ({ ma: k.ma, ten: k.ten, tkNo: k.tkNoDefault })), ...hang.map((c) => ({ ma: c.ma, ten: c.ten, tkNo: tkNoCuaTinhChat(c.tinhChat) }))]
+    buf = await dienExcelHoaDon({ goc: nguon.goc, vao: toXuat(vao.dong), ra: toXuat(ra.dong), danhMucRa, danhMucVao })
   } catch (e) {
     return veManKy((e as Error).message)
   }

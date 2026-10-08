@@ -208,6 +208,17 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     expect(ws.getCell(1, 4).dataValidation?.type).toBeUndefined() // header không gắn chip
   })
 
+  it('danhMucVao → tab "Danh mục mã đầu vào" + chip ở cột Mã KMCP (đề xuất)', async () => {
+    const danhMucVao = [{ ma: 'cp.nvl', ten: 'Phụ kiện lắp đặt trực tiếp', tkNo: '' }, { ma: 'CTD50NG', ten: 'Máy lọc nước GE CTD50', tkNo: '1561' }]
+    const wb = await doc(await dienExcelHoaDon({ goc: await fileGoc(), vao: [dong(1, '487', { code: 'cp.nvl' })], ra: [], danhMucVao }))
+    const dm = wb.getWorksheet('Danh mục mã đầu vào')!
+    expect(dm.getCell('B2').value).toBe('cp.nvl'); expect(dm.getCell('D3').value).toBe('1561')
+    const ws = wb.getWorksheet('HĐ đầu vào')!
+    const c = H_VAO.length + 1 // cột Mã KMCP (đề xuất) nối sau header gốc
+    expect(ws.getCell(1, c).value).toBe('Mã KMCP (đề xuất)')
+    expect(ws.getCell(2, c).dataValidation).toMatchObject({ type: 'list', formulae: ["'Danh mục mã đầu vào'!$B$2:$B$3"] })
+  })
+
   it('Số HĐ trong file khác DB → từ chối xuất (không ghi sai dòng)', async () => {
     await expect(dienExcelHoaDon({ goc: await fileGoc(), vao: [dong(1, '488')], ra: [] })).rejects.toThrow(/Số HĐ trong file gốc/)
   })
