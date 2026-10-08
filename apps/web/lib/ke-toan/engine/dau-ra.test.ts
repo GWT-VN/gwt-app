@@ -25,10 +25,14 @@ describe('engine đầu ra — parity Python classify_output_row trên T8', () =
     console.log(`TS điền thêm ${themDuoc.length} dòng:\n` + themDuoc.join('\n'))
   })
   it('nhóm SP theo danh mục cấp 2/3', () => {
-    expect(nhomSpCua({ ma: 'CTD50NG', ten: '', tinhChat: 'Hàng hóa', capHai: 'POU', capBa: 'Countertop' })).toBe('POU-Countertop')
-    expect(nhomSpCua({ ma: 'GTUN-8500VNDS', ten: '', tinhChat: 'Hàng hóa', capHai: 'POU', capBa: 'Undersink' })).toBe('POU-Undersink')
+    expect(nhomSpCua({ ma: 'CTD50NG', ten: '', tinhChat: 'Hàng hóa', capHai: 'POU', capBa: 'Countertop' })).toBe('POU - Countertop')
+    expect(nhomSpCua({ ma: 'GTUN-8500VNDS', ten: '', tinhChat: 'Hàng hóa', capHai: 'POU', capBa: 'Undersink' })).toBe('POU - Undersink')
     expect(nhomSpCua({ ma: 'WH15A', ten: '', tinhChat: 'Thành phẩm', capHai: 'POE', capBa: 'System' })).toBe('POE')
     expect(nhomSpCua({ ma: 'GEUS-00X06', ten: '', tinhChat: 'Thành phẩm', capHai: 'Others', capBa: 'Showerhead' })).toBe('Others')
+    expect(nhomSpCua({ ma: 'LX-CFNC-001-G', ten: '', tinhChat: 'Nguyên vật liệu', capHai: 'POU Filters' })).toBe('Others')
+    expect(nhomSpCua({ ma: 'MUOIAD', ten: '', tinhChat: 'Hàng hóa', capHai: 'POE Filters', capBa: 'Salt' })).toBe('Others')
+    expect(nhomSpCua({ ma: 'TUBAOCHE', ten: '', tinhChat: 'Nguyên vật liệu', capHai: 'Stainless Frames' })).toBe('Others')
+    expect(nhomSpCua({ ma: 'DVLD', ten: '', tinhChat: 'Dịch vụ', capHai: 'Installation' })).toBe('Others')
     expect(nhomSpCua(undefined)).toBe('')
   })
   it('kênh: Shopee → Ecom/Shopee; MST khớp dim_channel → kênh + đại lý', () => {

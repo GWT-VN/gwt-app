@@ -2,12 +2,17 @@ import { norm } from '../chuan-hoa'
 import { taoGoiYMaNoiBo } from './ma-noi-bo'
 import type { KetQuaDauRa, Luat, MucCatalog, MucKenh, NhomSP } from './kieu'
 
+/**
+ * Cột "Loại" tab đầu ra — nhãn y hệt file NEXIA kế toán làm tay (T5/2026: "POU - Countertop" có dấu cách).
+ * CEO 08/10/2026 (feedback file T9): POE = chỉ hệ lọc tổng (Machines > POE); POU = máy để bàn / âm tủ;
+ * còn lại — lõi lọc, muối, tủ/khung inox, vòi sen, ống, dịch vụ, vận chuyển — = Others (khớp file T5 làm
+ * tay). Thay luật cũ "POU Filters → Undersink" và "POE Filters → POE".
+ */
 export function nhomSpCua(c: MucCatalog | undefined): NhomSP | '' {
-  if (!c || c.ma.startsWith('cp.') || c.tinhChat === 'Dịch vụ') return ''
+  if (!c || c.ma.startsWith('cp.')) return ''
   const c2 = c.capHai ?? '', c3 = c.capBa ?? ''
-  if (c2 === 'POE' || c2 === 'POE Filters') return 'POE'
-  if (c2 === 'POU') return c3 === 'Undersink' ? 'POU-Undersink' : 'POU-Countertop'
-  if (c2 === 'POU Filters') return 'POU-Undersink' // ⚠ CEO chốt (README Điểm treo)
+  if (c2 === 'POE') return 'POE'
+  if (c2 === 'POU') return c3 === 'Undersink' ? 'POU - Undersink' : 'POU - Countertop'
   return 'Others'
 }
 

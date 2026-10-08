@@ -181,13 +181,31 @@ describe('dienExcelHoaDon — điền vào file gốc', () => {
     wb0.addWorksheet('HĐ đầu vào').addRow(H_VAO)
     const ra0 = wb0.addWorksheet('HĐ Đầu ra'); ra0.addRow([...H_RA, 'Loại', 'Kênh', 'Đại lý']); ra0.addRow([1, '10', 'Máy lọc', null, null, null, null])
     const goc = new Uint8Array(await wb0.xlsx.writeBuffer())
-    const wb = await doc(await dienExcelHoaDon({ goc, vao: [], ra: [dong(1, '10', { code: 'CTD50NG', customerCode: 'KHSP', productGroup: 'POU-Countertop', channelL1: 'Ecom', channelL2: 'Shopee', dealerName: '' })] }))
+    const wb = await doc(await dienExcelHoaDon({ goc, vao: [], ra: [dong(1, '10', { code: 'CTD50NG', customerCode: 'KHSP', productGroup: 'POU - Countertop', channelL1: 'Ecom', channelL2: 'Shopee', dealerName: '' })] }))
     const ra = wb.getWorksheet('HĐ Đầu ra')!
     expect(ra.getCell(2, 4).value).toBe('CTD50NG')          // Mã hàng (template)
-    expect(ra.getCell(2, 5).value).toBe('POU-Countertop')   // Loại
+    expect(ra.getCell(2, 5).value).toBe('POU - Countertop')   // Loại
     expect(ra.getCell(2, 6).value).toBe('Ecom / Shopee')    // Kênh
     expect(ra.getCell(2, 7).value).toBeNull()               // Đại lý rỗng
     expect(ra.getCell(1, 8).value).toBe('Mã nội bộ (đề xuất)'); expect(ra.getCell(2, 8).value).toBe('CTD50NG'); expect(ra.getCell(2, 9).value).toBe('KHSP')
+  })
+
+  it('danhMucRa → tab "Danh mục SP đầu ra" + chip (list validation) ở Mã hàng & Mã nội bộ; xuất lần 2 không nhân đôi tab', async () => {
+    const wb0 = new ExcelJS.Workbook()
+    wb0.addWorksheet('HĐ đầu vào').addRow(H_VAO)
+    const ra0 = wb0.addWorksheet('HĐ Đầu ra'); ra0.addRow([...H_RA, 'Loại']); ra0.addRow([1, '10', 'Máy lọc', null, null])
+    const danhMucRa = [{ ma: 'CTD50NG', ten: 'Máy lọc nước GE CTD50', loai: 'POU - Countertop' }, { ma: 'DVLD', ten: 'Dịch vụ lắp đặt', loai: 'Others' }]
+    const ra = [dong(1, '10', { code: 'CTD50NG', customerCode: 'KHL', productGroup: 'POU - Countertop' })]
+    const lan1 = await dienExcelHoaDon({ goc: new Uint8Array(await wb0.xlsx.writeBuffer()), vao: [], ra, danhMucRa })
+    const wb = await doc(await dienExcelHoaDon({ goc: lan1, vao: [], ra, danhMucRa }))
+    expect(wb.worksheets.filter((w) => w.name === 'Danh mục SP đầu ra')).toHaveLength(1)
+    const dm = wb.getWorksheet('Danh mục SP đầu ra')!
+    expect(dm.getCell('B3').value).toBe('DVLD'); expect(dm.getCell('D2').value).toBe('POU - Countertop')
+    const ws = wb.getWorksheet('HĐ Đầu ra')!
+    const chip = { type: 'list', formulae: ["'Danh mục SP đầu ra'!$B$2:$B$3"] }
+    expect(ws.getCell(2, 4).dataValidation).toMatchObject(chip) // Mã hàng
+    expect(ws.getCell(1, 6).value).toBe('Mã nội bộ (đề xuất)'); expect(ws.getCell(2, 6).dataValidation).toMatchObject(chip)
+    expect(ws.getCell(1, 4).dataValidation?.type).toBeUndefined() // header không gắn chip
   })
 
   it('Số HĐ trong file khác DB → từ chối xuất (không ghi sai dòng)', async () => {

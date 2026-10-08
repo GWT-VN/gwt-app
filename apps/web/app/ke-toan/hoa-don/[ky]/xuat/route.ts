@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { dongCuaKy, taiNguonNexiaMoiNhat } from '../../../actions'
+import { duLieuEngine } from '../../../_chung'
+import { nhomSpCua } from '@/lib/ke-toan/engine/dau-ra'
 import { dienExcelHoaDon, type DongXuat } from '@/lib/ke-toan/xuat/excel-hoa-don'
 
 export const runtime = 'nodejs'
@@ -44,7 +46,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ ky: string }> }
 
   let buf: Uint8Array
   try {
-    buf = await dienExcelHoaDon({ goc: nguon.goc, vao: toXuat(vao.dong), ra: toXuat(ra.dong) })
+    // Danh mục cho chip mã nội bộ tab đầu ra: mọi mã catalog trừ mã chi phí cp.*.
+    const danhMucRa = (await duLieuEngine()).catalog.filter((c) => !c.ma.startsWith('cp.')).map((c) => ({ ma: c.ma, ten: c.ten, loai: nhomSpCua(c) }))
+    buf = await dienExcelHoaDon({ goc: nguon.goc, vao: toXuat(vao.dong), ra: toXuat(ra.dong), danhMucRa })
   } catch (e) {
     return veManKy((e as Error).message)
   }

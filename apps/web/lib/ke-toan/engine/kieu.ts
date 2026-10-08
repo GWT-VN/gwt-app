@@ -7,7 +7,7 @@ export type Luat = { id?: number; kind: 'supplier' | 'keyword' | 'product_name' 
 export type MucCatalog = { ma: string; ten: string; tinhChat: string; capHai?: string; capBa?: string }
 
 // Nhóm sản phẩm đầu ra, suy từ danh mục cấp 2/3.
-export type NhomSP = 'POE' | 'POU-Countertop' | 'POU-Undersink' | 'Others'
+export type NhomSP = 'POE' | 'POU - Countertop' | 'POU - Undersink' | 'Others'
 
 // Một dòng kênh bán hàng theo MST (gương public.dim_channel).
 export type MucKenh = { mst: string | null; companyName: string | null; channelL1: string; channelL2: string }

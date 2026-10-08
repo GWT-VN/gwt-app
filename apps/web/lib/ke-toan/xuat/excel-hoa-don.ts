@@ -208,8 +208,30 @@ function dienTab(ws: ExcelJS.Worksheet, tab: 'vao' | 'ra', them: readonly string
   for (const r of map.values()) { const row = ws.getRow(r); for (let c = 1; c <= cCuoi; c++) keVien(row.getCell(c)) }
 }
 
-/** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. */
-export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; vao: DongXuat[]; ra: DongXuat[] }): Promise<Uint8Array> {
+export type MucDanhMucRa = { ma: string; ten: string; loai: string }
+export const TAB_DANH_MUC_RA = 'Danh mục SP đầu ra'
+
+/**
+ * Tab danh mục + dropdown "chip" cho cột Mã hàng / Mã nội bộ (đề xuất) ở tab đầu ra — y khuôn file NEXIA
+ * kế toán làm tay (T5/2026: list validation trỏ `'Danh mục SP đầu ra'!$B:$B`, Google Sheets hiện thành chip).
+ * Tab cũ cùng tên (xuất lần 2) bị thay, không nhân đôi.
+ */
+function ganChipMaNoiBo(wb: ExcelJS.Workbook, wsRa: ExcelJS.Worksheet, ds: MucDanhMucRa[]) {
+  const cu = wb.getWorksheet(TAB_DANH_MUC_RA)
+  if (cu) wb.removeWorksheet(cu.id)
+  const dm = wb.addWorksheet(TAB_DANH_MUC_RA)
+  dm.addRow(['STT', 'Mã hàng', 'Tên', 'Phân loại'])
+  dm.getRow(1).font = { bold: true }
+  ds.forEach((m, i) => dm.addRow([i + 1, m.ma, m.ten, m.loai]))
+  dm.columns.forEach((c, i) => { c.width = [6, 20, 45, 16][i] })
+  const headers = headersCua(wsRa, wsRa.columnCount)
+  const cot = [timCot(headers, 'mã hàng'), timCot(headers, 'mã nội bộ')].filter((c) => c >= 0)
+  const dv: ExcelJS.DataValidation = { type: 'list', allowBlank: true, showErrorMessage: true, formulae: [`'${TAB_DANH_MUC_RA}'!$B$2:$B$${ds.length + 1}`] }
+  for (const r of anhXaDong(wsRa, headers, wsRa.name).values()) for (const c of cot) wsRa.getRow(r).getCell(c + 1).dataValidation = dv
+}
+
+/** Điền cột đề xuất vào chính file NEXIA gốc. `goc` = nội dung .xlsx tải từ Storage. `danhMucRa` có → thêm chip mã nội bộ. */
+export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; vao: DongXuat[]; ra: DongXuat[]; danhMucRa?: MucDanhMucRa[] }): Promise<Uint8Array> {
   const wb = await moWorkbook(input.goc)
   // Cùng luật nhận diện tab với bộ đọc (laTab) — upload được thì xuất phải mở được.
   const wsVao = wb.worksheets.find((w) => laTab(w.name, 'vao'))
@@ -220,6 +242,7 @@ export async function dienExcelHoaDon(input: { goc: ArrayBuffer | Uint8Array; va
   if (wsRa) dienTab(wsRa, 'ra', COT_THEM_RA, input.ra)
   coCotTheoNoiDung(wsVao)
   if (wsRa) coCotTheoNoiDung(wsRa)
+  if (wsRa && input.danhMucRa?.length) ganChipMaNoiBo(wb, wsRa, input.danhMucRa)
   return new Uint8Array(await wb.xlsx.writeBuffer())
 }
 
