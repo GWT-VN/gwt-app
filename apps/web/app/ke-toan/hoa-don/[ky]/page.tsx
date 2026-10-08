@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { BoLocChon, OTimKiem, ThanhDangLoc, boDau } from '@/bang'
 import { dongCuaKy, danhSachMa } from '../../actions'
 import { FormUpload } from './FormUpload'
+import { FormThuMuc } from '../../FormThuMuc'
 import { DongSua } from './DongSua'
 import { NutGuiKeToan } from './NutGuiKeToan'
 
@@ -51,6 +52,7 @@ export default async function KyPage({ params, searchParams }: { params: Promise
           </div>
         </header>
         {loi ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">Không xuất được Excel: {loi}</p> : null}
+        <FormThuMuc ky={period.ky} />
         <FormUpload ky={period.ky} />
         <nav className="flex gap-2 text-sm">
           <Link href={`/ke-toan/hoa-don/${period.ky}?tab=vao`} className={`rounded px-3 py-1 ${direction === 'vao' ? 'bg-[#3f8a6a] text-white' : 'bg-white border'}`}>HĐ đầu vào ({period.so_dong_vao})</Link>

@@ -28,7 +28,7 @@ export function giaTriO(v: ExcelJS.CellValue): string | number | Date | null {
   return null
 }
 
-function ngay(v: unknown): string | null {
+export function ngay(v: unknown): string | null {
   if (v instanceof Date) {
     // Ngày theo giờ máy, không toISOString() (bẫy UTC — docs/CHUAN-FILTER.md).
     const p = (n: number) => String(n).padStart(2, '0')
@@ -44,7 +44,7 @@ function chuoi(v: unknown): string {
 }
 /** Giá trị ô exceljs → chuỗi trim (ngày → YYYY-MM-DD). Bộ đọc và bộ xuất dùng chung để so/khớp một kiểu. */
 export function chuoiO(v: ExcelJS.CellValue): string { return chuoi(giaTriO(v)) }
-function so(v: unknown): number | null {
+export function so(v: unknown): number | null {
   if (v == null || v === '') return null
   if (typeof v === 'number') return v
   const n = Number(String(v).replace(/[,\s]/g, ''))

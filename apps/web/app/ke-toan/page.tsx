@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { danhSachKy } from './actions'
 import { FormUpload } from './hoa-don/[ky]/FormUpload'
+import { FormThuMuc } from './FormThuMuc'
 
 export const metadata = { title: 'Kế toán · Kỳ hoá đơn' }
 export const dynamic = 'force-dynamic'
@@ -19,16 +20,20 @@ export default async function KeToanPage() {
       <div className="mx-auto max-w-[1100px] space-y-4 p-4 sm:p-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div><h1 className="text-xl font-semibold">Kế toán · Hoá đơn theo kỳ</h1>
-            <p className="text-sm text-slate-500">Chọn tháng + file NEXIA: app tạo kỳ, gán mã KMCP, rồi tải lại Excel gửi kế toán.</p></div>
+            <p className="text-sm text-slate-500">Chọn thư mục NEXIA gửi (file cổng thuế Mua vào/Bán ra): app tạo kỳ, gán mã, rồi tải lại Excel gửi kế toán.</p></div>
         </header>
-        <FormUpload macDinh={thangTruoc()} />
+        <FormThuMuc />
+        <details className="text-sm text-slate-500">
+          <summary className="cursor-pointer">File NEXIA khuôn cũ (workbook hai tab «HĐ đầu vào» / «HĐ Đầu ra», tới T8/2026)</summary>
+          <div className="mt-2"><FormUpload macDinh={thangTruoc()} /></div>
+        </details>
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-slate-100 text-left"><tr>
               <th className="p-2">Kỳ</th><th className="p-2">Trạng thái</th><th className="p-2 text-right">Dòng vào</th>
               <th className="p-2 text-right">Dòng ra</th><th className="p-2 text-right">Cảnh báo</th><th className="p-2">Cập nhật</th><th className="p-2">Sao kê</th></tr></thead>
             <tbody>
-              {ds.length === 0 ? <tr><td colSpan={7} className="p-4 text-center text-slate-500">Chưa có kỳ nào — chọn tháng và file NEXIA ở trên.</td></tr> : null}
+              {ds.length === 0 ? <tr><td colSpan={7} className="p-4 text-center text-slate-500">Chưa có kỳ nào — chọn thư mục NEXIA ở trên.</td></tr> : null}
               {ds.map((k) => (
                 <tr key={k.id} className="border-t">
                   <td className="p-2"><Link className="font-medium text-[#3f8a6a] underline" href={`/ke-toan/hoa-don/${k.ky}`}>{k.ky}</Link></td>

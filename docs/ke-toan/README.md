@@ -72,6 +72,31 @@ Spec: `docs/specs/2026-09-04-ke-toan-hoa-don-sao-ke-design.md` · Plan lát 1:
 
 - Không có (lát 1). Lát 6 sẽ thêm biến môi trường `GOOGLE_SERVICE_ACCOUNT_KEY` và
   `accounting.settings`.
+- **Mẫu sheet bìa NEXIA** (05/10/2026): `accounting/_mau/nexia-bia.xlsx` trên Storage — `Sheet1` (checklist
+  chứng từ) chép nguyên từ file NEXIA T8. Không commit vì có tên người + link Drive nội bộ. Thay mẫu = ghi
+  đè file đó; thiếu file thì upload thư mục vẫn chạy, chỉ không kèm bìa (form báo).
+
+## Quy trình tháng từ T9/2026 — thư mục cổng thuế (05/10/2026)
+
+NEXIA không gửi workbook khuôn 2024 nữa mà gửi **một thư mục** file xuất thẳng từ cổng hoá đơn điện tử:
+`Mua vào/` + `Bán ra/`, mỗi bên `… - Chi tiết - ….xlsx` (mỗi dòng một mặt hàng) và `… - Tổng quan - ….xlsx`
+(mỗi HĐ một dòng). Plan: `docs/plans/2026-10-05-ke-toan-nexia-cong-thue.md`.
+
+1. `/ke-toan` → **Chọn thư mục NEXIA tháng** (hoặc chọn các file .xlsx). Kỳ lấy theo ngày lập.
+2. App (`lib/ke-toan/doc-file/cong-thue.ts`) nhận diện file theo **nội dung**: header dòng 1 có Số HĐ + Tên
+   hàng = Chi tiết, header dòng 4–10 = Tổng quan; hướng theo MST GWT `0110530659` (người mua = vào). Chặn
+   trước khi ghi: thiếu/trùng file Chi tiết, hoá đơn khác tháng kỳ đang chọn, Tổng quan lệch số HĐ/tổng tiền.
+3. Ghép thành workbook khuôn NEXIA (`Sheet1` bìa + `HĐ đầu vào` + `HĐ Đầu ra` có thêm cột khuôn
+   `Mã hàng · Loại · Thành phố · Kênh · Đại lý · Note`) rồi nhập như **một** file NEXIA (`nhapBuf`, kind
+   `nexia`) — engine, sửa tại ô, xuất `_DAXULY`, sao kê không đổi, không migration. File gốc lưu `<kỳ>/goc/`.
+4. Tải `MM.YYYY - GWT - NEXIA_DAXULY.xlsx` như cũ.
+
+Đo T9 thật: 343 dòng / 50 HĐ mua vào (584.005.126 đ), 65 dòng / 43 HĐ bán ra (892.958.090 đ), khớp Tổng quan;
+2 dòng mua vào có Tên hàng trống ngay trong file cổng thuế (không phải lỗi đọc).
+
+**Bẫy:** đừng upload từng file Chi tiết riêng làm NEXIA — `ke_toan_nguon_chot` đánh dấu "không còn trong
+file" mọi dòng của kỳ đến từ source NEXIA khác, kể cả hướng kia → mất cả hướng khỏi file xuất. Thư mục
+luôn ghép hai hướng vào MỘT source nên không dính.
 
 ## Chạy local
 

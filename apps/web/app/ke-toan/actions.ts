@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation'
 import { dataClient } from '@/lib/nen-tang/db'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { docNexia, docHoaDon, type DongTho } from '@/lib/ke-toan/doc-file/nexia'
+import { chuanBiThuMuc, type TomTatThuMuc, type KetQuaThuMuc as KetQuaThuMucThuan } from '@/lib/ke-toan/doc-file/cong-thue'
 import { ganKhoaDong } from '@/lib/ke-toan/nhap/khoa-dong'
 import { taoEngineDauVao, tkNoCuaTinhChat } from '@/lib/ke-toan/engine/dau-vao'
 import { taoEngineDauRa } from '@/lib/ke-toan/engine/dau-ra'
@@ -65,6 +66,63 @@ export async function uploadNguon(_prev: unknown, form: FormData): Promise<KetQu
   return kq
 }
 
+/** Mẫu sheet bìa (checklist chứng từ NEXIA) — trên Storage, không commit vì có tên người/link nội bộ. Thiếu → không kèm bìa. */
+const DUONG_MAU_BIA = '_mau/nexia-bia.xlsx'
+
+export type KetQuaThuMuc =
+  | { ok: true; ky: string; upload: Extract<KetQuaUpload, { ok: true }>; tomTat: TomTatThuMuc; coBia: boolean; luuGocLoi: number }
+  | { ok: false; error: string; loi?: string[] }
+
+/**
+ * Upload CẢ THƯ MỤC NEXIA gửi (từ T9/2026: file cổng thuế Mua vào/Bán ra × Chi tiết/Tổng quan). Ghép hai file
+ * Chi tiết thành workbook khuôn NEXIA (`chuanBiThuMuc` — mọi kiểm tra chặn chạy trước, chưa ghi gì) rồi nhập
+ * như MỘT file NEXIA: một source cho cả hai hướng, nên `ke_toan_nguon_chot` không đánh dấu thiếu nhầm hướng kia.
+ * File gốc lưu thêm `<kỳ>/goc/` (spec #16). Plan: docs/plans/2026-10-05-ke-toan-nexia-cong-thue.md.
+ */
+export async function uploadThuMuc(_prev: unknown, form: FormData): Promise<KetQuaThuMuc> {
+  const email = await chanKeToan()
+  const kyChon = String(form.get('ky') ?? '').trim() || null
+  if (kyChon && !/^\d{4}-(0[1-9]|1[0-2])$/.test(kyChon)) return { ok: false, error: 'Kỳ không hợp lệ.' }
+  const ds = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0)
+  if (ds.length === 0) return { ok: false, error: 'Chưa chọn thư mục / file nào.' }
+  if (ds.reduce((s, f) => s + f.size, 0) > TOI_DA_BYTE) return { ok: false, error: 'Thư mục quá 8 MB.' }
+  // Trình duyệt gửi đường dẫn tương đối của thư mục trong tên file (webkitRelativePath) khi chọn thư mục.
+  const files = await Promise.all(ds.map(async (f) => ({ ten: f.name, buf: new Uint8Array(await f.arrayBuffer()), type: f.type })))
+
+  let kq: KetQuaThuMucThuan, coBia = false
+  try {
+    const db = dataClient()
+    const mau = await db.storage.from('accounting').download(DUONG_MAU_BIA)
+    const bia = !mau.error && mau.data ? new Uint8Array(await mau.data.arrayBuffer()) : null
+    coBia = bia != null
+    kq = await chuanBiThuMuc(files, { ky: kyChon, bia })
+  } catch (e) {
+    return { ok: false, error: (e as Error).message }
+  }
+  if (!kq.ok) {
+    await ghiAudit('ke_toan.upload_thu_muc_loi', kyChon ?? '', { loi: kq.loi, by: email }, 'loi')
+    return { ok: false, error: 'Thư mục chưa nhập được — chưa ghi gì vào kỳ.', loi: kq.loi }
+  }
+
+  const [m, y] = [kq.ky.slice(5, 7), kq.ky.slice(0, 4)]
+  const up = await nhapBuf(email, {
+    ky: kq.ky, loai: 'nexia', buf: kq.nexia, tenFile: `${m}.${y} - GWT - NEXIA (ghép từ cổng thuế).xlsx`,
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  if (!up.ok) return up
+
+  // File gốc: best-effort, lỗi không làm hỏng lần nhập đã xong — chỉ báo số file không lưu được.
+  let luuGocLoi = 0
+  const db = dataClient(), ts = Date.now()
+  const cacXlsx = files.filter((f) => f.ten.toLowerCase().endsWith('.xlsx'))
+  for (const f of cacXlsx) {
+    const r = await db.storage.from('accounting').upload(`${kq.ky}/goc/${ts}-${f.ten.replace(/[^\w.-]+/g, '_')}`, f.buf, { contentType: f.type || 'application/octet-stream', upsert: false })
+    if (r.error) luuGocLoi++
+  }
+  await ghiAudit('ke_toan.upload_thu_muc', kq.ky, { tomTat: { ...kq.tomTat }, coBia, luuGocLoi, by: email })
+  return { ok: true, ky: kq.ky, upload: up, tomTat: kq.tomTat, coBia, luuGocLoi }
+}
+
 async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
   await chanKeToan()
   const ky = String(form.get('ky') ?? '').trim()
@@ -75,8 +133,19 @@ async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
   if (!['nexia', 'hdct_vao', 'hdct_ra', 'hdtq_vao', 'hdtq_ra'].includes(loai)) return { ok: false, error: 'Loại nguồn không hợp lệ.' }
   if (!(file instanceof File) || !file.name.toLowerCase().endsWith('.xlsx')) return { ok: false, error: 'Chọn file .xlsx (file NEXIA kế toán gửi).' }
   if (file.size > TOI_DA_BYTE) return { ok: false, error: 'File quá 8 MB.' }
+  const buf = new Uint8Array(await file.arrayBuffer())
+  return nhapBuf(email, { ky, loai, buf, tenFile: file.name, contentType: file.type })
+}
+
+/**
+ * Lõi nhập MỘT file nguồn (đã đọc thành buffer) vào kỳ: đọc → engine → lưu file lên Storage → source →
+ * dòng → chốt. Dùng chung cho upload file lẻ (`nhapNguon`) và workbook ghép từ thư mục cổng thuế
+ * (`uploadThuMuc` — đi đúng đường `nexia` nên engine/xuất _DAXULY không phải biết nguồn đổi khuôn).
+ */
+async function nhapBuf(email: string, p: { ky: string; loai: string; buf: Uint8Array; tenFile: string; contentType: string }): Promise<KetQuaUpload> {
+  await chanKeToan() // gác lại ở lõi: hàm ghi DB không dựa vào việc mọi caller đã gác (ke-toan-guard.test)
+  const { ky, loai, buf } = p
   try {
-    const buf = new Uint8Array(await file.arrayBuffer())
     // nexia: hai sheet, tự nhận diện hướng. hdct_*/hdtq_*: một sheet, hướng lấy từ hậu tố loai.
     const huong: 'vao' | 'ra' | null = loai === 'nexia' ? null : loai.endsWith('_vao') ? 'vao' : 'ra'
     const f = loai === 'nexia' ? await docNexia(buf) : null
@@ -109,12 +178,12 @@ async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
     }
 
     const db = dataClient()
-    const path = `${ky}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_')}`
-    const up = await db.storage.from('accounting').upload(path, buf, { contentType: file.type || 'application/octet-stream', upsert: false })
+    const path = `${ky}/${Date.now()}-${p.tenFile.replace(/[^\w.-]+/g, '_')}`
+    const up = await db.storage.from('accounting').upload(path, buf, { contentType: p.contentType || 'application/octet-stream', upsert: false })
     if (up.error) return { ok: false, error: 'Không lưu được file gốc: ' + up.error.message }
 
     const { id: sourceId } = await goi<{ id: number }>('ke_toan_nguon_them', {
-      p_period_id: periodId, p_kind: loai, p_file_name: file.name, p_storage_path: path,
+      p_period_id: periodId, p_kind: loai, p_file_name: p.tenFile, p_storage_path: path,
       p_headers: headers, p_row_count: rows.length,
     })
 
@@ -137,7 +206,7 @@ async function nhapNguon(email: string, form: FormData): Promise<KetQuaUpload> {
     }
 
     const canhBao = rows.filter((r) => (r.direction === 'vao' && (!r.code || r.engine_conf === 'can review' || r.engine_conf === 'khong ro')) || (r.direction === 'ra' && !r.code)).length
-    await ghiAudit('ke_toan.upload_nexia', ky, { file: file.name, inserted, updated, kept, canhBao, thieu, by: email })
+    await ghiAudit('ke_toan.upload_nexia', ky, { file: p.tenFile, inserted, updated, kept, canhBao, thieu, by: email })
     revalidatePath('/ke-toan'); revalidatePath(`/ke-toan/hoa-don/${ky}`)
     return { ok: true, inserted, updated, kept, canhBao, thieu }
   } catch (e) {
