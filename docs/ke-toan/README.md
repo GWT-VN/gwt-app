@@ -98,6 +98,39 @@ NEXIA không gửi workbook khuôn 2024 nữa mà gửi **một thư mục** fil
 file" mọi dòng của kỳ đến từ source NEXIA khác, kể cả hướng kia → mất cả hướng khỏi file xuất. Thư mục
 luôn ghép hai hướng vào MỘT source nên không dính.
 
+## Học từ feedback T9 (08/10/2026) — luật theo TÊN CÔNG TY
+
+CEO sửa trực tiếp file `_DAXULY` T9 trên Drive (cột Ghi chú + tô vàng). Không học theo nội dung dòng hàng
+mà theo **tên NCC** (luật `app`/`supplier`). Nguyên tắc CEO: **chắc chắn thì áp, không chắc thì giữ thông
+báo để người dùng tự sửa.** Mã CP chỉ lấy từ `expense_category` hoặc tab chip «Chi phí» của file NEXIA cũ —
+không tự đặt mã.
+
+- Mã mới (thêm vào `expense_category` ở CẢ Masterdata lẫn SalesTracking — hai bản giống hệt, không có job
+  đồng bộ): `cp.nvl` (Phụ kiện lắp đặt trực tiếp, **TK trống**), `cp.dienthoai` (6427, theo sổ NKC kế toán),
+  `cp.vanphongpham` (**TK trống**). Kế toán chốt TK → điền `tk_no_default` ở cả hai project.
+- Luật đã áp: Mediatech (#704), Thành Trang (#708), Xuân Lành 01, Thành Hưng Phát, Nước Vũ Trụ, Xuân Thường
+  → `cp.nvl`; MUJI, Âu Châu (Cotton On) → `cp.vanhanhchung`; Hoàng Phương → `cp.dichuyen`; GELEX →
+  `cp.vanhanhchung` + `khong_phai_hang` (rượu «Xi Muoi» từng khớp nhầm mã muối MUOIAD). Kiểm: engine + luật
+  live khớp 322/343 dòng T9 đã chốt, 21 dòng lệch đều thuộc nhóm dưới.
+- Cột Loại đầu ra: POE = chỉ hệ lọc tổng; `POU - Countertop`/`POU - Undersink`; còn lại Others. File xuất có
+  tab «Danh mục SP đầu ra» + chip (list validation) ở Mã hàng / Mã nội bộ.
+
+**⚠ Thông báo — KHÔNG đặt luật, người dùng tự sửa từng tháng** (một NCC bán/làm nhiều loại khác nhau):
+
+| NCC | Luật hiện tại cho ra | T9 CEO sửa thành | Vì sao chưa đặt luật |
+|---|---|---|---|
+| F.C Việt Nam (vé máy bay) | `cp.congtac` | `cp.tiepkhach` (16 dòng) | vé đi công tác vs vé cho khách — phải xem từng chuyến |
+| Vận chuyển & DVTM 126 | `cp.muahang` (156) | DVVC | cước NK (giá vốn) vs cước nội địa |
+| Tập đoàn Viettel | `cp.vanhanhchung` | `cp.dienthoai` | Viettel còn internet, dịch vụ khác; Rule Excel cũ lại để DVVC |
+| Nhật Minh (phân phối tổng hợp) | ∅ | `cp.vanphongpham` | NCC tổng hợp, không chỉ văn phòng phẩm |
+| Hoàng Hà (công nghệ) | ∅ | `cp.vanphongpham` | bán cả laptop/điện thoại (→ `cp.ccdc`) |
+| Mỳ Tay To | `cp.vanhanhchung` | `cp.phucloi` | luật chung CEO: đồ ăn → vận hành chung; T9 là ngoại lệ |
+
+Treo khác: (1) WH30A tách 3 thiết bị — CEO ghi GTEC/GTEF-**30A02**, `product_bundle` ghi **30A01**;
+(2) đầu ra HĐ 285 là HĐ điều chỉnh tăng (đổi CTS10→CTS20 của HĐ 28 tháng 5) và HĐ 260 điều chỉnh HĐ 255
+(cả hai trong T9) — app vẫn coi là doanh thu máy mới, kế toán cần xem; (3) dòng EZS hoa hồng 377,4 tr
+(HĐ 1328) CEO xoá khỏi file T9, chưa rõ lý do — DB vẫn còn dòng này.
+
 ## Chạy local
 
 - Cổng dev **3501–3503** (dải riêng khu Kế toán, xem `CLAUDE.md`).
