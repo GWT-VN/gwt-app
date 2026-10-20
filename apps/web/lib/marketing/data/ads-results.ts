@@ -141,7 +141,7 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH Dino Hom 2", creative: "WH Dino Hom 2", startDate: "5/10", budgetDaily: "—", cost: 689, results: 15, costPerResult: 45933, sdt: 1, note: "Camp mới lên 5/10", status: "new" },
       { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 2083, results: 45, costPerResult: 46289, sdt: 4, note: "Đắt lên nhiều (38k → 46k) · 1 khách đặt mua", status: "active" },
       { name: "WH lọc tổng 260905", creative: "WH chuyên gia 260905", startDate: "30/9", budgetDaily: "100k", cost: 702, results: 3, costPerResult: 234000, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 3 result", status: "off" },
-      { name: "WH nước mềm", creative: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 710, results: 4, costPerResult: 177500, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 4 result", status: "off" },
+      { name: "WH nước mềm", creative: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 710, results: 7, costPerResult: 101429, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 7 result", status: "off" },
       { name: "WH Riverside Remake", creative: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 696, results: 1, costPerResult: 696000, sdt: 1, note: "Tắt sau 18/10 — 2 tuần chỉ 1 result", status: "off" },
     ],
   },
