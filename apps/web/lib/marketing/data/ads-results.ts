@@ -120,6 +120,24 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH Dino2", startDate: "28/8", budgetDaily: "100k", cost: 283, results: 3, costPerResult: 94333, sdt: 0, note: "Tắt tuần trước", status: "off" },
     ],
   },
+  {
+    id: "2025-10-05--10-18",
+    label: "5/10 – 18/10",
+    range: "5/10 – 18/10/2025",
+    ads: [
+      { name: "CTS20 chuyên gia", startDate: "14/9", budgetDaily: "150k", cost: 2104, results: 136, costPerResult: 15471, sdt: 3, note: "", status: "active" },
+      { name: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 4185, results: 155, costPerResult: 27000, sdt: 9, note: "", status: "active" },
+      { name: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 2791, results: 97, costPerResult: 28773, sdt: 1, note: "", status: "active" },
+      { name: "CTS20 Dino", startDate: "5/10", budgetDaily: "—", cost: 683, results: 21, costPerResult: 32524, sdt: 1, note: "Camp mới lên 5/10", status: "new" },
+      { name: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 12588, results: 332, costPerResult: 37916, sdt: 13, note: "SĐT cao nhất", status: "active" },
+      { name: "CTD50 CG mới", startDate: "21/9", budgetDaily: "100k", cost: 1384, results: 34, costPerResult: 40706, sdt: null, note: "", status: "active" },
+      { name: "WH Dino Hom 2", startDate: "5/10", budgetDaily: "—", cost: 689, results: 15, costPerResult: 45933, sdt: 1, note: "Camp mới lên 5/10", status: "new" },
+      { name: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 2083, results: 45, costPerResult: 46289, sdt: 4, note: "Đắt lên nhiều (38k → 46k) · 1 khách đặt mua", status: "active" },
+      { name: "WH lọc tổng 260905", startDate: "30/9", budgetDaily: "100k", cost: 702, results: 3, costPerResult: 234000, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 3 result", status: "off" },
+      { name: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 710, results: 4, costPerResult: 177500, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 4 result", status: "off" },
+      { name: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 696, results: 1, costPerResult: 696000, sdt: 1, note: "Tắt sau 18/10 — 2 tuần chỉ 1 result", status: "off" },
+    ],
+  },
 ];
 
 export function getLatestWeek(): AdsWeek {
