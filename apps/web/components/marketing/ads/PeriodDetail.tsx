@@ -14,7 +14,7 @@ import { CprPill, dec1, money, pct } from "./shared";
 
 const isRunning = (a: AdResult) => a.status === "active" || a.status === "new";
 const statOf = (a: AdResult): PeriodStat | null =>
-  a.cost != null && a.results != null ? { cost: a.cost, results: a.results, sdt: a.sdt } : null;
+  a.cost != null && a.results != null ? { cost: a.cost, results: a.results, sdt: a.sdt, orders: a.orders ?? null } : null;
 
 function VsBenchmark({ p, benchmark, small }: { p: PeriodStat | null; benchmark: number; small?: boolean }) {
   const cpr = costPerResult(p);
@@ -97,6 +97,7 @@ export default function PeriodDetail({
         <td className="num-cell">{p?.sdt ?? <span className="ads-muted">—</span>}</td>
         <td className="num-cell"><CprPill cpr={costPerResult(p)} benchmark={benchmark} /></td>
         <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
+        <td className="num-cell">{p?.orders ? <span className="sdt-val">{p.orders}</span> : <span className="ads-muted">—</span>}</td>
         <td className="num-cell"><VsBenchmark p={p} benchmark={benchmark} small={sub} /></td>
       </tr>
     );
@@ -165,6 +166,7 @@ export default function PeriodDetail({
                 <th>SĐT</th>
                 <th>Cost/result</th>
                 <th>Cost/SĐT</th>
+                <th>Khách mua</th>
                 <th>So chuẩn</th>
               </tr>
             </thead>

@@ -31,6 +31,8 @@ export const DECISION_RULES = {
   scaleMaxRise: 0.1,
   /** Đắt lên ≥ 15% so với kỳ trước → theo dõi kỹ */
   watchRise: 0.15,
+  /** Có khách mua trong 2 kỳ gần nhất → không đề xuất tắt, chuyển sang theo dõi kỹ */
+  ordersLookbackPeriods: 2,
   /** Từ 30 result trở lên mà SĐT dưới 2% → cờ "nhiều mess, ít SĐT" */
   lowLeadMinResults: 30,
   lowLeadRate: 0.02,
@@ -45,6 +47,8 @@ export interface PeriodStat {
   cost: number;
   results: number;
   sdt: number | null;
+  /** Khách mua từ ads; null = chưa ghi. */
+  orders: number | null;
 }
 
 /** Một camp = creative + ngày lên + tên ads. Tắt rồi lên lại là camp mới. */
@@ -126,12 +130,22 @@ export function costPerSdt(p: PeriodStat | null | undefined): number | null {
 function sumPeriods(stats: (PeriodStat | null)[]): PeriodStat | null {
   const have = stats.filter((s): s is PeriodStat => s != null);
   if (!have.length) return null;
-  const sdts = have.map((s) => s.sdt).filter((v): v is number => v != null);
+  const sumOrNull = (vals: (number | null)[]) => {
+    const known = vals.filter((v): v is number => v != null);
+    return known.length ? known.reduce((t, v) => t + v, 0) : null;
+  };
   return {
     cost: have.reduce((t, s) => t + s.cost, 0),
     results: have.reduce((t, s) => t + s.results, 0),
-    sdt: sdts.length ? sdts.reduce((t, v) => t + v, 0) : null,
+    sdt: sumOrNull(have.map((s) => s.sdt)),
+    orders: sumOrNull(have.map((s) => s.orders)),
   };
+}
+
+/** Cost/khách mua (đồng). */
+export function costPerOrder(p: PeriodStat | null | undefined): number | null {
+  if (!p || !p.orders) return null;
+  return Math.round((p.cost * 1000) / p.orders);
 }
 
 /** Tổng nhiều kỳ của một camp/creative. */
@@ -189,7 +203,7 @@ export function buildCreatives(weeks: AdsWeek[]): CreativeGroup[] {
       c.budgetDaily = ad.budgetDaily;
       c.note = ad.note;
       if (ad.cost != null && ad.results != null) {
-        c.periods[wi] = { cost: ad.cost, results: ad.results, sdt: ad.sdt };
+        c.periods[wi] = { cost: ad.cost, results: ad.results, sdt: ad.sdt, orders: ad.orders ?? null };
       }
     }
   });
@@ -265,6 +279,18 @@ export function judgeCamp(camp: Camp, weeks: AdsWeek[]): Verdict | null {
     if (reasons.length) decision = "watch";
   }
   if (decision === "off" && prevCpr != null) reasons.push(`Kỳ trước ${formatCost(prevCpr)}`);
+
+  const recentOrders = withData
+    .slice(-R.ordersLookbackPeriods)
+    .reduce((t, x) => t + (x.p.orders ?? 0), 0);
+  if (recentOrders > 0) {
+    if (decision === "off") {
+      decision = "watch";
+      reasons.unshift(`Có ${recentOrders} khách mua trong ${R.ordersLookbackPeriods} kỳ gần nhất — cân nhắc trước khi tắt`);
+    } else {
+      reasons.push(`Có ${recentOrders} khách mua trong ${R.ordersLookbackPeriods} kỳ gần nhất`);
+    }
+  }
 
   const flags: string[] = [];
   if (latest.sdt == null) flags.push("Chưa ghi SĐT");

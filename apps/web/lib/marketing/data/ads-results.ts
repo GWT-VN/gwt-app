@@ -8,6 +8,8 @@ export interface AdResult {
   results: number | null;
   costPerResult: number | null;
   sdt: number | null;
+  /** Số khách mua từ ads trong kỳ (tính theo ngày khách vào từ ads). Bỏ trống = chưa ghi. */
+  orders?: number;
   note: string;
   status: "active" | "off" | "new" | "expensive";
 }
@@ -113,7 +115,7 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "CTS20 chuyên gia", creative: "CTS20 chuyên gia", startDate: "14/9", budgetDaily: "150k", cost: 1165, results: 51, costPerResult: 22843, sdt: 1, note: "", status: "active" },
       { name: "CTS20 người dùng", creative: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 2235, results: 76, costPerResult: 29408, sdt: 6, note: "", status: "active" },
       { name: "WH Riverside Remake", creative: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 239, results: 7, costPerResult: 34143, sdt: 0, note: "Remake WH Riverside cũ", status: "new" },
-      { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 1143, results: 30, costPerResult: 38100, sdt: 5, note: "", status: "active" },
+      { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 1143, results: 30, costPerResult: 38100, sdt: 5, orders: 1, note: "1 khách mua (ads 28/9)", status: "active" },
       { name: "CTD50 người dùng", creative: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1506, results: 37, costPerResult: 40703, sdt: 3, note: "", status: "active" },
       { name: "WH lắp đặt", creative: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6302, results: 161, costPerResult: 39143, sdt: 18, note: "SĐT cao nhất", status: "active" },
       { name: "CTD50 CG mới", creative: "CTD50 chuyên gia", startDate: "21/9", budgetDaily: "100k", cost: 794, results: 19, costPerResult: 41789, sdt: 0, note: "", status: "active" },
@@ -121,7 +123,7 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH lọc tổng 260905", creative: "WH chuyên gia 260905", startDate: "30/9", budgetDaily: "100k", cost: 241, results: 3, costPerResult: 80333, sdt: 0, note: "Lên lại 30/9", status: "active" },
       { name: "WH nước mềm", creative: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 275, results: 3, costPerResult: 91667, sdt: 1, note: "1 khách add Zalo", status: "new" },
       { name: "CTS10 Coldbrew Remake", creative: "CTS10 Remake", startDate: "28/9", budgetDaily: "100k", cost: 95, results: 1, costPerResult: 95000, sdt: 0, note: "", status: "new" },
-      { name: "CTS10 Dino", creative: "CTS10 Dino", startDate: "01/6", budgetDaily: "100k", cost: 404, results: 22, costPerResult: 18364, sdt: 1, note: "Tắt tuần trước · 1 SĐT đã mua", status: "off" },
+      { name: "CTS10 Dino", creative: "CTS10 Dino", startDate: "01/6", budgetDaily: "100k", cost: 404, results: 22, costPerResult: 18364, sdt: 1, orders: 1, note: "Tắt tuần trước · 1 SĐT đã mua", status: "off" },
       { name: "WH Dino2", creative: "WH Dino Hom 2", startDate: "28/8", budgetDaily: "100k", cost: 283, results: 3, costPerResult: 94333, sdt: 0, note: "Tắt tuần trước", status: "off" },
     ],
   },
@@ -139,7 +141,7 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH lắp đặt", creative: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 12588, results: 332, costPerResult: 37916, sdt: 13, note: "SĐT cao nhất", status: "active" },
       { name: "CTD50 CG mới", creative: "CTD50 chuyên gia", startDate: "21/9", budgetDaily: "100k", cost: 1384, results: 34, costPerResult: 40706, sdt: null, note: "", status: "active" },
       { name: "WH Dino Hom 2", creative: "WH Dino Hom 2", startDate: "5/10", budgetDaily: "—", cost: 689, results: 15, costPerResult: 45933, sdt: 1, note: "Camp mới lên 5/10", status: "new" },
-      { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 2083, results: 45, costPerResult: 46289, sdt: 4, note: "Đắt lên nhiều (38k → 46k) · 1 khách đặt mua", status: "active" },
+      { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "100k", cost: 2083, results: 45, costPerResult: 46289, sdt: 4, orders: 1, note: "Đắt lên nhiều (38k → 46k) · 1 khách mua (ads 13/10)", status: "active" },
       { name: "WH lọc tổng 260905", creative: "WH chuyên gia 260905", startDate: "30/9", budgetDaily: "100k", cost: 702, results: 3, costPerResult: 234000, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 3 result", status: "off" },
       { name: "WH nước mềm", creative: "WH nước mềm", startDate: "29/9", budgetDaily: "100k", cost: 710, results: 7, costPerResult: 101429, sdt: 0, note: "Tắt sau 18/10 — 2 tuần chỉ 7 result", status: "off" },
       { name: "WH Riverside Remake", creative: "WH Riverside Remake", startDate: "30/9", budgetDaily: "100k", cost: 696, results: 1, costPerResult: 696000, sdt: 1, note: "Tắt sau 18/10 — 2 tuần chỉ 1 result", status: "off" },

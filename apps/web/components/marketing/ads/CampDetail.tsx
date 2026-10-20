@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { OChonGoiY, type MucChon } from "@/bang";
 import {
+  costPerOrder,
   costPerResult,
   costPerSdt,
   periodDays,
@@ -118,6 +119,16 @@ export default function CampDetail({
             <div className="num">{money(costPerResult(total)!)}</div>
             <div className="lab">Cost/result TB</div>
           </div>
+          <div className="ads-stat">
+            <div className="num">{costPerSdt(total) != null ? money(costPerSdt(total)!) : "—"}</div>
+            <div className="lab">Cost/SĐT TB</div>
+          </div>
+          <div className="ads-stat">
+            <div className="num">{total.orders ?? "—"}</div>
+            <div className="lab">
+              Khách mua{costPerOrder(total) != null && ` · ${money(costPerOrder(total)!)}/khách`}
+            </div>
+          </div>
         </div>
       )}
 
@@ -131,6 +142,7 @@ export default function CampDetail({
               <th>SĐT</th>
               <th>Cost/result</th>
               <th>Cost/SĐT</th>
+              <th>Khách mua</th>
             </tr>
           </thead>
           <tbody>
@@ -175,6 +187,16 @@ export default function CampDetail({
                     <Delta cur={cpr} prev={prev && costPerResult(prev.p)} goodWhenUp={false} />
                   </td>
                   <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
+                  <td className="num-cell">
+                    {p.orders ? (
+                      <>
+                        <span className="sdt-val">{p.orders}</span>
+                        <small className="ads-sub-num">{money(costPerOrder(p)!)}/khách</small>
+                      </>
+                    ) : (
+                      <span className="ads-muted">—</span>
+                    )}
+                  </td>
                 </tr>
               );
             })}

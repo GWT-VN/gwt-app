@@ -39,9 +39,9 @@ const W = [
   wk("2026-09-28", "2026-10-04"),
 ];
 
-/** Dựng 1 camp CTS (chuẩn 30k) với chi phí/result từng kỳ; null = kỳ đó không chạy. */
+/** Dựng 1 camp CTS (chuẩn 30k): mỗi kỳ [chi (k), result, SĐT, khách mua?]; null = kỳ đó không chạy. */
 function camp(
-  periods: ([number, number, number | null] | null)[],
+  periods: ([number, number, number | null, number?] | null)[],
   opts: Partial<Pick<Camp, "status" | "startDate" | "creative">> = {},
 ): Camp {
   return {
@@ -52,7 +52,7 @@ function camp(
     status: opts.status ?? "active",
     note: "",
     budgetDaily: "100k",
-    periods: periods.map((p) => (p ? { cost: p[0], results: p[1], sdt: p[2] } : null)),
+    periods: periods.map((p) => (p ? { cost: p[0], results: p[1], sdt: p[2], orders: p[3] ?? null } : null)),
   };
 }
 
@@ -81,7 +81,7 @@ describe("periodDays", () => {
 describe("buildCreatives", () => {
   const weeks = [
     wk("2026-09-21", "2026-09-27", [
-      { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "29/8", cost: 700, results: 14, sdt: 1, status: "off" },
+      { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "29/8", cost: 700, results: 14, sdt: 1, orders: 1, status: "off" },
     ]),
     wk("2026-09-28", "2026-10-04", [
       { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "5/10", cost: 300, results: 10, sdt: null, status: "new" },
@@ -95,8 +95,8 @@ describe("buildCreatives", () => {
     expect(dino.camps.map((c) => c.startDate)).toEqual(["29/8", "5/10"]);
   });
   it("số liệu creative mỗi kỳ = cộng mọi camp có số kỳ đó", () => {
-    expect(dino.periods[0]).toEqual({ cost: 700, results: 14, sdt: 1 });
-    expect(dino.periods[1]).toEqual({ cost: 300, results: 10, sdt: null });
+    expect(dino.periods[0]).toEqual({ cost: 700, results: 14, sdt: 1, orders: 1 });
+    expect(dino.periods[1]).toEqual({ cost: 300, results: 10, sdt: null, orders: null });
   });
   it("creative còn chạy khi có ít nhất 1 camp đang chạy", () => {
     expect(dino.running).toBe(true);
@@ -167,6 +167,17 @@ describe("judgeCamp", () => {
   it("nhiều result mà SĐT dưới 2% → gắn cờ nhiều mess, ít SĐT", () => {
     const v = judgeCamp(camp([null, null, [2800, 97, 1], [2800, 97, 1]]), W)!;
     expect(v.flags).toContain("Nhiều mess, ít SĐT (1/97)");
+  });
+
+  it("đắt quá ngưỡng tắt nhưng có khách mua trong 2 kỳ gần nhất → theo dõi kỹ, chưa tắt", () => {
+    // 46k so với chuẩn 30k, kỳ trước có 1 khách mua
+    const v = judgeCamp(camp([null, null, [1100, 30, 1, 1], [2300, 50, 4]]), W)!;
+    expect(v.decision).toBe("watch");
+    expect(v.reasons[0]).toBe("Có 1 khách mua trong 2 kỳ gần nhất — cân nhắc trước khi tắt");
+  });
+
+  it("khách mua từ 3 kỳ trước không giữ camp lại", () => {
+    expect(judgeCamp(camp([null, [700, 30, 1, 1], [1100, 30, 1], [2300, 50, 4]]), W)!.decision).toBe("off");
   });
 
   it("kỳ gần nhất chưa ghi SĐT → gắn cờ", () => {
