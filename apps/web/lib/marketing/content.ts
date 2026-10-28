@@ -83,6 +83,13 @@ export const PROCESS_DOCS: { slug: string; file: string; title: string; blurb: s
     blurb:
       "Danh tính kênh đã chốt: định vị, 3 nhóm đối tượng, 3 content pillar, bio. Kèm checklist việc đang chạy và khung bảng đo lường video. Đọc trước khi viết kịch bản.",
   },
+  {
+    slug: "ky-xao-giu-chan",
+    file: "Nghien-cuu-ky-xao-giu-chan-nguoi-xem",
+    title: "Kỹ xảo giữ chân người xem",
+    blurb:
+      "Nghiên cứu từ phim, truyền hình, YouTube cho video ngắn: hồi hộp vs bất ngờ, plot twist gieo trước trả sau, đẩy cao trào, peak-end. Kèm bảng 24 kỹ xảo theo thời lượng, template nhịp, checklist và 3 khung đề tài nước.",
+  },
 ];
 
 export function readProcessDoc(slug: string): string | null {
