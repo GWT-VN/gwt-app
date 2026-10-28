@@ -101,3 +101,54 @@ view/lượt xem** làm bằng chứng.
 
 **KPI thật:** số điện thoại · inbox · khách nhắc lại nội dung video khi tư vấn ·
 đơn chốt.
+
+## 6. ⛔ KHÔNG dùng ngôn từ bạo lực, tục, nhạy cảm
+
+Áp cho **mọi lớp chữ và tiếng**: lời thoại, VO, text overlay, phụ đề, hook, caption,
+tiêu đề, hashtag. Nguồn: yêu cầu GWT 2026-10-28.
+
+**Vì sao:** Meta và TikTok tự quét chữ + tiếng trong video; dính từ bạo lực/nhạy cảm
+là bị từ chối duyệt ads, bóp phân phối hoặc khoá tài khoản quảng cáo. Luật QC cũng cấm
+quảng cáo trái thuần phong mỹ tục (Đ8 Luật 16/2012; số khoản chưa đối chiếu notebook).
+Danh sách dưới là tổng hợp theo nhóm chính sách của nền tảng, **không phải danh sách
+chính thức** (Meta/TikTok không công bố bộ từ khoá) → gặp từ lạ cùng nghĩa thì cũng tránh.
+
+> 📋 Danh sách đầy đủ + từ thay + script rà tự động: `rules/tu-nhay-cam-nen-tang.md`
+> (`python3 scripts/ra-tu-nhay-cam.py <file.md>`). Hai file phải khớp; lệch thì bản chặt hơn thắng.
+
+### 6.1. Nhóm từ CẤM (kể cả nói ví von, đùa, viết lái)
+
+| Nhóm | Ví dụ |
+|---|---|
+| Giết chóc, chết | giết, sát hại, thảm sát, tàn sát, chém, đâm, bắn, xử tử, treo cổ, chặt đầu, xác chết, tử vong, chết người, chết chóc, mạng người |
+| Tình dục, xâm hại | hiếp, hiếp dâm, cưỡng hiếp, dâm, sàm sỡ, quấy rối, ấu dâm, khiêu dâm, sex, nude |
+| Đánh đập, hành hạ | đánh đập, hành hạ, tra tấn, bạo hành, đấm, đá, cắt cổ, đổ máu, máu me, tàn bạo |
+| Tự hại | tự tử, tự sát, nhảy lầu, cắt tay, muốn chết |
+| Vũ khí, khủng bố | súng, dao găm, bom, mìn, nổ tung, khủng bố, đánh bom, ám sát |
+| Tội phạm, chất cấm | ma tuý, thuốc phiện, cần sa, buôn lậu, trộm, cướp, lừa đảo (khi buộc tội người khác) |
+| Thù ghét, kỳ thị | chửi vùng miền, dân tộc, tôn giáo, giới tính, ngoại hình, khuyết tật; từ miệt thị người |
+| Tục tĩu | mọi từ chửi thề, viết tắt chửi (vd "vl", "vcl", "dm"), bíp nửa chừng mà vẫn đọc ra |
+
+### 6.2. Nhóm TRÁNH: dễ dính trong video lọc nước
+
+Không phạm luật nhưng hay bị nền tảng gắn cờ hoặc tạo cảm giác hù doạ. Thay bằng từ trung tính:
+
+| Đừng nói | Nói thay |
+|---|---|
+| giết / tiêu diệt / diệt sạch vi khuẩn | loại bỏ, giữ lại, xử lý vi khuẩn |
+| sát thủ thầm lặng, kẻ giết người trong nước | chất cần quan tâm trong nước |
+| nước độc, đầu độc, chất độc chết người | nước có chất vượt ngưỡng (nêu chất + ngưỡng có nguồn) |
+| gây ung thư, chết sớm, huỷ hoại cơ thể | không nói (dính cả rule thuốc/sức khoẻ ở `ad-compliance-vn.md`) |
+| tấn công, tàn phá đường ống / thiết bị | làm đóng cặn, làm giảm tuổi thọ thiết bị |
+| cuộc chiến với cặn, đánh bại clo | xử lý cặn, giảm clo dư |
+| thảm hoạ, kinh hoàng, rùng mình, ám ảnh | (bỏ; dùng con số đo được thay cảm xúc) |
+
+**Kể chuyện thảm hoạ nước** (tuyến `POE-tuyen-cauchuyen-nuoc-v1.md`): nêu sự kiện bằng
+số liệu có nguồn, **không mô tả chi tiết cái chết, thương tích, hình ảnh nạn nhân**;
+dùng "ảnh hưởng tới X người" thay vì "giết X người".
+
+### 6.3. Kiểm trước khi xuất
+
+- Rà toàn bộ transcript/phụ đề + caption theo 2 bảng trên trước khi đưa duyệt.
+- Chuyên gia nói tự nhiên lỡ dùng từ cấm → **cắt hoặc thay phụ đề + tắt tiếng đoạn đó**,
+  không để nguyên chỉ vì là lời nói thật.

@@ -108,6 +108,7 @@
 | Y khoa | chữa, trị, phòng bệnh, kháng, miễn dịch | Bỏ hoàn toàn | K9 Đ8 + K1 Đ19 |
 | So sánh | hơn hãng X, vượt trội đối thủ | Bỏ, trừ khi có tài liệu chứng minh | K10 Đ8 (sửa 2025) |
 | Cam kết tuyệt đối | 100% an toàn, đảm bảo khỏi bệnh | Bỏ / chuyển thành claim kiểm chứng được | K9 Đ8 + K1 Đ19 |
+| Nhạy cảm nền tảng | giết, cướp, hiếp, tự tử, chết, độc… | Thay theo `rules/tu-nhay-cam-nen-tang.md` (không phải luật QC, mà là chính sách TikTok/Meta/YouTube) | Chính sách nền tảng |
 
 ## E. LƯU Ý THEO TỪNG KÊNH (đã gắn căn cứ)
 

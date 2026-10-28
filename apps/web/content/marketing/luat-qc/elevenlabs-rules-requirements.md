@@ -147,7 +147,7 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 | Tag | Dùng khi | Ví dụ |
 |---|---|---|
 | `[pause]` | Chuyển phần lớn, đổi chủ đề, sau reveal quan trọng | Giữa "bối cảnh" → "dịch bùng" |
-| `[short pause]` | Hít hơi tự nhiên, trước twist, giữa 2 ý trong cùng phần | Trước "cho tới khi ông nhìn vào những người KHÔNG chết" |
+| `[short pause]` | Hít hơi tự nhiên, trước twist, giữa 2 ý trong cùng phần | Trước "cho tới khi ông nhìn vào những người KHÔNG hề mắc bệnh" |
 | `[long pause]` | Quá dài — KHÔNG dùng | Đã test, nghỉ lâu quá mất nhịp kể chuyện |
 
 **Quy tắc:**
@@ -178,7 +178,7 @@ PVC yêu cầu **~3 tiếng dữ liệu training**, nên cần chuẩn bị kỹ
 - **Tối đa 8-11 chỗ CAPS** cho bài ~1400 từ — đủ phá monotone, không quá kịch
 - Chỉ CAPS ở các vị trí có **chức năng rõ ràng:**
   - Con số gây sốc: SÁU TRĂM, MƯỜI NGÀY
-  - Tương phản / đối lập: GẦN / XA, KHÔNG chết
+  - Tương phản / đối lập: GẦN / XA, KHÔNG mắc bệnh (tránh chữ "chết" — `rules/tu-nhay-cam-nen-tang.md`)
   - Reveal / bẻ hướng câu chuyện: CHÍNH NGUỒN NƯỚC
   - Irony: PHẢN BÁC (cố bác nhưng lại tìm ra bằng chứng)
   - Key message: MỚI BIẾT ĐƯỢC

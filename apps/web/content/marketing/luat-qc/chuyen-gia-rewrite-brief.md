@@ -231,6 +231,7 @@ và `Thiện - Sharing 3 - Tổng hợp.md` §2–3). Mỗi kịch bản **tự 
 - **Prefer phải ở ĐẦU:** insight/tò mò đặt ngay mở bài, đừng để cuối.
 - **Hook phải gần gũi:** không dùng thuật ngữ khó hiểu ngay câu đầu — vào bằng hiện tượng quen thuộc rồi mới giải thích thuật ngữ sau.
 - **Mini-hook giữa video:** đoạn giải thích dài → cần "hụt nhỏ" (câu hỏi, visual hook) để kéo chú ý.
+  Chi tiết (nhịp đáp án, plot twist, bản đồ ô chìm): `rules/giu-chan-video-ke-chuyen.md`.
 - **Enrichment phải kèm hành động cụ thể:** không nói "tham khảo" chung chung — dạy cách làm cụ thể.
 - **Logic phải thông, không bế tắc:** nội dung đẩy người xem vào kết luận nản/tiêu cực → bỏ.
 - **Văn nói > văn viết:** mềm, tự nhiên, chất phác. Không hoa mỹ, không "hô" quá.
@@ -255,7 +256,8 @@ Marketing-OS wiki đã chắt thành 46 luật / 8 nhóm (`marketing-os/src/data
 | 3 | Đơn giản để ai cũng hiểu | Thuật ngữ kỹ thuật nước → giải thích bằng hình ảnh/so sánh ngay |
 | 4 | Hook gần gũi, không thuật ngữ câu đầu | "Nước trong nhà vẫn có mùi" > "Clo dư vượt ngưỡng 0.5mg/L" |
 | 5 | Insight/Prefer phải ở ĐẦU | Đừng kể dài rồi mới vào insight |
-| 6 | Mini-hook giữa video | Đoạn giải thích >30s → cần câu hỏi/visual hook chia nhịp |
+| 6 | Mini-hook giữa video | Mỗi ô 20–30s phải có móc; đáp án nhỏ giọt + plot twist — `rules/giu-chan-video-ke-chuyen.md` |
+| 6b | Từ nhạy cảm nền tảng | Không giết/chết/tử vong/cướp/hiếp… → "không qua khỏi", "cướp đi sinh mạng" — `rules/tu-nhay-cam-nen-tang.md` |
 | 7 | Enrichment kèm hành động cụ thể | "Mở vòi hứng 1 cốc, để 30 phút ngửi thử" > "nên kiểm tra" |
 | 8 | Đừng quảng cáo trần trụi | Cơ chế → lời khuyên chung → nhắc nhẹ sản phẩm cuối |
 | 9 | Logic thông, không bế tắc | Không kết luận nản ("nước VN ô nhiễm không cứu được") |
