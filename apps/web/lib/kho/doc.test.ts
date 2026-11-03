@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { taoKho, HAM_DOC } from './doc'
-import { n, nhanLoaiPhieu } from './nhan'
+import { taoKho, HAM_DOC, MOI_TRANG } from './doc'
+import { nhanCanhBao, nhanTrangThai, linkTinDiscord } from './nhan'
 
 /** Bộ truy vấn giả: ghi lại câu SQL + tham số, trả kết quả dựng sẵn theo tên hàm. */
 function gia(traVe: Record<string, unknown>) {
@@ -13,65 +13,56 @@ function gia(traVe: Record<string, unknown>) {
   return { q, goi }
 }
 
-describe('lib/kho/doc — chỉ gọi hàm ĐỌC đã cấp cho kho_app_doc', () => {
-  it('danh sách hàm đọc khớp đúng quyền đã cấp ở DB (không có hàm ghi)', () => {
-    expect([...HAM_DOC].sort()).toEqual([
-      'wh_dia_diem_ds', 'wh_doi_chieu_so', 'wh_ds_giao_dich', 'wh_ds_kiem_ke', 'wh_ds_may', 'wh_kiem_ke_doi_chieu',
-      'wh_may_can_xu_ly', 'wh_ton_serial', 'wh_tong_hop_sheet', 'wh_tra_serial',
-    ])
-    for (const f of HAM_DOC) expect(f).not.toMatch(/ghi|_ap$|cap_quyen|cau_hinh|dong_bo_xong/)
+describe('lib/kho/doc — sổ số lượng kho v2, CHỈ hàm đọc đã cấp cho kho_app_doc', () => {
+  it('danh sách hàm đọc: đúng 5 hàm sổ, không có hàm ghi', () => {
+    expect([...HAM_DOC].sort()).toEqual(['wh_app_bao_cao', 'wh_app_cho_duyet', 'wh_app_nhat_ky', 'wh_app_the_kho', 'wh_app_ton'])
+    for (const f of HAM_DOC) expect(f).not.toMatch(/ghi|approve|reject|kiemke|_ap$/)
   })
 
   it('tham số đi qua placeholder ($1), không ghép chuỗi vào SQL', async () => {
-    const { q, goi } = gia({ wh_ds_may: { tong: 0, dong: [] } })
-    await taoKho(q).dsMay({ tuKhoa: "x'; drop table wh_may; --" })
-    expect(goi[0].sql).toBe('select public.wh_ds_may($1::jsonb) r')
-    expect(JSON.parse(goi[0].ts[0] as string)).toMatchObject({ tu_khoa: "x'; drop table wh_may; --" })
+    const { q, goi } = gia({ wh_app_nhat_ky: { tong: 0, dong: [] } })
+    await taoKho(q).nhatKy({ tuKhoa: "x'; drop table wh_master; --" })
+    expect(goi[0].sql).toBe('select public.wh_app_nhat_ky($1::jsonb) r')
+    expect(JSON.parse(goi[0].ts[0] as string)).toMatchObject({ tu_khoa: "x'; drop table wh_master; --" })
   })
 
-  it('dsMay: chuyển bộ lọc trang sang tham số hàm, bỏ ô trống, phân trang 100/trang', async () => {
-    const { q, goi } = gia({ wh_ds_may: { tong: 3, dong: [{ id: 1 }] } })
-    const r = await taoKho(q).dsMay({ diaDiem: 'KHO_NX', tinhTrang: '', trang: 3 })
-    expect(JSON.parse(goi[0].ts[0] as string)).toEqual({ dia_diem: 'KHO_NX', gioi_han: 100, bo_qua: 200 })
-    expect(r).toEqual({ tong: 3, dong: [{ id: 1 }] })
+  it('nhatKy: bộ lọc trang → tham số hàm, bỏ ô trống, phân trang', async () => {
+    const { q, goi } = gia({ wh_app_nhat_ky: { tong: 250, dong: [{ id: 1 }] } })
+    const r = await taoKho(q).nhatKy({ kho: 'NX', loai: 'Xuất', trangThai: '', tuNgay: '2026-11-01', trang: 3 })
+    expect(JSON.parse(goi[0].ts[0] as string)).toEqual({ kho: 'NX', loai: 'Xuất', tu_ngay: '2026-11-01', gioi_han: MOI_TRANG, bo_qua: 2 * MOI_TRANG })
+    expect(r.tong).toBe(250)
   })
 
-  it('tonKho: gộp dòng tồn theo model, tính tổng trong kho / ngoài kho', async () => {
-    const { q } = gia({
-      wh_tong_hop_sheet: {
-        ton: [
-          { internal_code: 'CTD50NG', ten: 'CTD50', dia_diem: 'KHO_NX', dia_diem_ten: 'Kho Nguyễn Xiển', loai_dia_diem: 'kho', tinh_trang: 'moi', so_luong: 2, serials: ['A', 'B'] },
-          { internal_code: 'CTD50NG', ten: 'CTD50', dia_diem: 'KHO_NX', dia_diem_ten: 'Kho Nguyễn Xiển', loai_dia_diem: 'kho', tinh_trang: 'chua_dinh_danh', so_luong: 6, serials: [] },
-          { internal_code: 'CTD50NG', ten: 'CTD50', dia_diem: 'X', dia_diem_ten: 'Cơ sở X', loai_dia_diem: 'kiem_dinh', tinh_trang: 'moi', so_luong: 1, serials: ['C'] },
-        ],
-        can_xu_ly: [], doi_soat: [],
-      },
-    })
-    const r = await taoKho(q).tonKho()
-    expect(r.theoModel).toEqual([{ internal_code: 'CTD50NG', ten: 'CTD50', trongKho: 8, ngoaiKho: 1, chuaSerial: 6, tong: 9 }])
-    expect(r.dong).toHaveLength(3)
+  it('ton: số dạng chuỗi (numeric của Postgres) → number; tổng hợp số mã / sắp hết / âm', async () => {
+    const { q } = gia({ wh_app_ton: { kho: 'NX', cho_duyet: 3, ghi_gan_nhat: '2026-11-03T10:00:00Z', dong: [
+      { internal_code: 'A', ten: 'Aa', danh_muc: 'POU', don_vi: 'Cái', tong_nhap: '6', tong_xuat: '3', dieu_chinh: '-1', ton: '2', ton_toi_thieu: '5', cap_nhat: '2026-11-02', canh_bao: 'sap_het' },
+      { internal_code: 'B', ten: 'Bb', danh_muc: 'POU', don_vi: null, tong_nhap: '1', tong_xuat: '2', dieu_chinh: '0', ton: '-1', ton_toi_thieu: null, cap_nhat: '2026-11-02', canh_bao: 'am' },
+    ] } })
+    const r = await taoKho(q).ton()
+    expect(r.dong[0].ton).toBe(2); expect(r.dong[0].dieu_chinh).toBe(-1); expect(r.dong[1].ton_toi_thieu).toBeNull()
+    expect(r.tom).toEqual({ soMa: 2, sapHet: 1, am: 1, choDuyet: 3 })
   })
 
-  it('traSerial rỗng → không gọi DB', async () => {
+  it('theKho: mã rỗng → không gọi DB', async () => {
     const { q, goi } = gia({})
-    expect(await taoKho(q).traSerial('  ')).toEqual({ tim_thay: false, serial: '' })
+    expect(await taoKho(q).theKho('  ')).toBeNull()
     expect(goi).toHaveLength(0)
   })
 
   it('lỗi DB: không lộ chuỗi kết nối ra ngoài', async () => {
     const q = async () => { throw new Error('connect ECONNREFUSED postgres://kho_app_doc:matkhau@db.x.supabase.co:6543/postgres') }
-    await expect(taoKho(q).dsKiemKe()).rejects.toThrow(/^Chưa đọc được dữ liệu kho/)
-    await expect(taoKho(q).dsKiemKe()).rejects.not.toThrow(/matkhau/)
+    await expect(taoKho(q).choDuyet()).rejects.toThrow(/^Chưa đọc được dữ liệu kho/)
+    await expect(taoKho(q).choDuyet()).rejects.not.toThrow(/matkhau/)
   })
 })
 
-describe('lib/kho/nhan — nhãn tiếng Việt như Sheet', () => {
-  it('mã → nhãn; mã lạ giữ nguyên; trống → chuỗi rỗng', () => {
-    expect(n('da_qua_su_dung')).toBe('đã qua sử dụng')
-    expect(n('chua_dinh_danh')).toBe('chưa định danh (chưa có serial)')
-    expect(n('ma_la')).toBe('ma_la')
-    expect(n(null)).toBe('')
-    expect(nhanLoaiPhieu('nhap', 'hang_moi')).toBe('Nhập kho — hàng mới')
-    expect(nhanLoaiPhieu('dieu_chuyen', 'dieu_chuyen')).toBe('Điều chuyển')
+describe('lib/kho/nhan', () => {
+  it('trạng thái dòng sổ, cảnh báo tồn, link tin Discord kho NX', () => {
+    expect(nhanTrangThai('approved')).toBe('đã vào sổ')
+    expect(nhanTrangThai('need_review')).toBe('chờ duyệt mã')
+    expect(nhanCanhBao('sap_het')).toBe('Sắp hết')
+    expect(nhanCanhBao(null)).toBe('')
+    expect(linkTinDiscord('1500000000000000001')).toMatch(/discord\.com\/channels\/\d+\/1484056527173062737\/1500000000000000001$/)
+    expect(linkTinDiscord('seed-x')).toBeNull()
   })
 })

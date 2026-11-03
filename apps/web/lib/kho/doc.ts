@@ -1,7 +1,8 @@
 /**
- * Đọc dữ liệu kho serial cho khu Kho (/kho) — từ DB GWT-Masterdata, nơi bot Bắp ghi phiếu kho (cùng nguồn với Google
- * Sheet theo dõi). CHỈ ĐỌC: kết nối bằng role `kho_app_doc` chỉ được EXECUTE các hàm đọc `wh_*`
- * (GWT-Masterdata supabase/migrations/*_wh_kho_app_doc.sql), giao dịch mặc định read-only. Ghi kho vẫn đi qua bot.
+ * Đọc SỔ KHO (sổ số lượng kho v2 `wh_master`, DB GWT-Masterdata) cho khu Kho (/kho). Bot Bắp đọc kênh Discord kho Nguyễn
+ * Xiển và ghi sổ này mỗi 5 phút; Google Sheet theo dõi + Portal "Duyệt kho" cùng đọc một sổ.
+ * CHỈ ĐỌC: kết nối bằng role `kho_app_doc` chỉ được EXECUTE các hàm đọc `wh_app_*`
+ * (GWT-Masterdata supabase/migrations/*_wh_kho_app_doc.sql), giao dịch mặc định read-only. Ghi sổ đi qua bot / Sheet / Portal.
  *
  * `taoKho(q)` thuần (test bằng bộ truy vấn giả); `kho()` nối DB thật bằng KHO_DB_URL (chỉ server).
  */
@@ -10,63 +11,41 @@ import type { Pool } from 'pg'
 export type TruyVan = (sql: string, ts: unknown[]) => Promise<{ r: unknown }[]>
 
 /** Hàm ĐỌC đã cấp cho kho_app_doc. Gọi hàm ngoài danh sách = lỗi ngay ở đây, không tới DB. */
-export const HAM_DOC = new Set([
-  'wh_tong_hop_sheet', 'wh_ton_serial', 'wh_tra_serial', 'wh_may_can_xu_ly', 'wh_doi_chieu_so', 'wh_dia_diem_ds',
-  'wh_kiem_ke_doi_chieu', 'wh_ds_may', 'wh_ds_giao_dich', 'wh_ds_kiem_ke',
-] as const)
+export const HAM_DOC = new Set(['wh_app_ton', 'wh_app_nhat_ky', 'wh_app_cho_duyet', 'wh_app_bao_cao', 'wh_app_the_kho'] as const)
 type HamDoc = typeof HAM_DOC extends Set<infer T> ? T : never
 
-// ---------------------------------------------------------------- kiểu dữ liệu (đúng hình JSON hàm DB trả)
-export type May = {
-  id: number; serial: string; internal_code: string; ten_model: string | null; tinh_trang: string; trang_thai: string; so_huu: string
-  dia_diem: string; dia_diem_ten: string; trong_kho: boolean; dia_diem_chi_tiet: string | null; muc_dich_hien_tai: string | null
-  phuong_an: string | null; ghi_chu: string | null; installed_serial: string | null; ma_gd_gan_nhat: string | null
-  nguoi_phu_trach: string | null; cap_nhat: string
-}
+export const MOI_TRANG = 100
+
+// ---------------------------------------------------------------- kiểu dữ liệu (Postgres numeric về dạng chuỗi → đổi sang number)
 export type DongTon = {
-  internal_code: string; ten: string | null; dia_diem: string; dia_diem_ten: string; loai_dia_diem: string
-  tinh_trang: string; so_luong: number; serials: string[]
+  internal_code: string; ten: string | null; danh_muc: string | null; don_vi: string | null
+  tong_nhap: number; tong_xuat: number; dieu_chinh: number; ton: number; ton_toi_thieu: number | null; cap_nhat: string | null
+  canh_bao: 'sap_het' | 'am' | null
 }
-export type TonModel = { internal_code: string; ten: string | null; trongKho: number; ngoaiKho: number; chuaSerial: number; tong: number }
-export type MayTrongPhieu = {
-  serial: string; serial_truoc: string | null; internal_code: string; ten_model: string | null
-  tinh_trang_truoc: string | null; tinh_trang_sau: string | null; trang_thai_sau: string | null; tu: string | null; den: string | null
+export type DongSo = {
+  id: number; ngay: string; loai: string; internal_code: string | null; ten: string | null; raw_name: string; qty: number
+  purpose: string | null; note: string | null; keeper: string | null; trang_thai: string; discord_msg_id: string | null; ghi_luc: string
 }
-export type Phieu = {
-  ma: string; loai: string; muc_dich: string | null; ngay: string; ghi_nhan_luc: string; tu: string | null; den: string | null
-  den_chi_tiet: string | null; nguoi_giao: string | null; nguoi_nhan: string | null; nguoi_phu_trach: string | null
-  de_xuat: string | null; xac_nhan: string | null; nguon: string | null; ghi_chu: string | null; ly_do: string | null; may: MayTrongPhieu[]
+export type DongChoDuyet = {
+  id: number; ngay: string; loai: string; raw_name: string; qty: number; purpose: string | null; keeper: string | null
+  suggest_code: string | null; suggest_name: string | null; discord_msg_id: string | null; ghi_luc: string
 }
-export type DotKiemKe = {
-  ma: string; dia_diem: string; dia_diem_ten: string; trang_thai: string; nguoi_tao: string; ghi_chu: string | null
-  tao_luc: string; ap_luc: string | null; so_dong: number; so_khong_serial: number
+export type DongBaoCao = { internal_code: string; ten: string | null; don_vi: string | null; dau_ky: number; nhap: number; xuat: number; dieu_chinh: number; cuoi_ky: number }
+export type TheKho = {
+  internal_code: string; ten: string | null; don_vi: string | null
+  dong: { id: number; ngay: string; loai: string; raw_name: string; qty: number; so_du: number; purpose: string | null; note: string | null; keeper: string | null; discord_msg_id: string | null }[]
 }
-export type BuocHanhTrinh = {
-  luc: string; ngay: string; phieu: string; loai: string; muc_dich: string | null; tu: string | null; den: string | null
-  tinh_trang_truoc: string | null; tinh_trang_sau: string | null; trang_thai_sau: string | null; so_huu_sau: string | null
-  serial_truoc: string | null; serial_sau: string | null; de_xuat: string | null; xac_nhan: string | null
-  nguoi_giao: string | null; nguoi_nhan: string | null; nguoi_phu_trach: string | null; nguon: string | null; ghi_chu: string | null; ly_do: string | null
-}
-export type HoSoSerial =
-  | { tim_thay: false; serial: string }
-  | { tim_thay: true; may: Record<string, unknown> & { serial: string; internal_code: string; tinh_trang: string; trang_thai: string; so_huu: string; dia_diem_ma?: string }
-      ten_model: string | null; dia_diem_ten: string | null; lich_su: BuocHanhTrinh[] }
-
-export type LocMay = { diaDiem?: string; tinhTrang?: string; trangThai?: string; soHuu?: string; model?: string; tuKhoa?: string; trang?: number }
-export type LocPhieu = { loai?: string; tuNgay?: string; denNgay?: string; tuKhoa?: string; trang?: number }
-
-export const MOI_TRANG_MAY = 100
-export const MOI_TRANG_PHIEU = 50
+export type LocNhatKy = { kho?: string; loai?: string; trangThai?: string; ma?: string; tuKhoa?: string; tuNgay?: string; denNgay?: string; trang?: number }
 
 const boTrong = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ''))
+const so = (x: unknown) => (x === null || x === undefined || x === '' ? null : Number(x))
+const soBat = (x: unknown) => so(x) ?? 0
 
 export function taoKho(q: TruyVan) {
-  async function goi<T>(fn: HamDoc, arg?: string | Record<string, unknown>): Promise<T> {
+  async function goi<T>(fn: HamDoc, arg: Record<string, unknown>): Promise<T> {
     if (!HAM_DOC.has(fn)) throw new Error(`Hàm không được phép: ${fn}`)
-    const kieu = typeof arg === 'string' ? 'text' : 'jsonb'
-    const sql = arg === undefined ? `select public.${fn}() r` : `select public.${fn}($1::${kieu}) r`
     try {
-      const rows = await q(sql, arg === undefined ? [] : [kieu === 'text' ? arg : JSON.stringify(arg)])
+      const rows = await q(`select public.${fn}($1::jsonb) r`, [JSON.stringify(arg)])
       return rows[0]?.r as T
     } catch (e) {
       // Không lộ chuỗi kết nối / mật khẩu ra giao diện hay log phía client.
@@ -76,52 +55,41 @@ export function taoKho(q: TruyVan) {
   }
 
   return {
-    /** Tồn theo model × nơi để × tình trạng (giống tab "Tồn kho") + gộp theo model. */
-    async tonKho(): Promise<{ dong: DongTon[]; theoModel: TonModel[] }> {
-      const th = await goi<{ ton: DongTon[] }>('wh_tong_hop_sheet')
-      const dong = th?.ton ?? []
-      const gom = new Map<string, TonModel>()
-      for (const d of dong) {
-        const m = gom.get(d.internal_code) ?? { internal_code: d.internal_code, ten: d.ten, trongKho: 0, ngoaiKho: 0, chuaSerial: 0, tong: 0 }
-        const sl = Number(d.so_luong) || 0
-        if (d.loai_dia_diem === 'kho') m.trongKho += sl; else m.ngoaiKho += sl
-        if (d.tinh_trang === 'chua_dinh_danh') m.chuaSerial += sl
-        m.tong += sl
-        gom.set(d.internal_code, m)
+    /** Tồn theo mã (chỉ dòng đã duyệt) + tóm tắt cho thẻ số. */
+    async ton(kho = 'NX') {
+      const r = await goi<{ kho: string; cho_duyet: number; ghi_gan_nhat: string | null; dong: Record<string, unknown>[] }>('wh_app_ton', { kho })
+      const dong: DongTon[] = (r?.dong ?? []).map((d) => ({
+        internal_code: String(d.internal_code), ten: (d.ten as string) ?? null, danh_muc: (d.danh_muc as string) ?? null, don_vi: (d.don_vi as string) ?? null,
+        tong_nhap: soBat(d.tong_nhap), tong_xuat: soBat(d.tong_xuat), dieu_chinh: soBat(d.dieu_chinh), ton: soBat(d.ton),
+        ton_toi_thieu: so(d.ton_toi_thieu), cap_nhat: (d.cap_nhat as string) ?? null, canh_bao: (d.canh_bao as DongTon['canh_bao']) ?? null,
+      }))
+      return {
+        kho: r?.kho ?? kho, ghiGanNhat: r?.ghi_gan_nhat ?? null, dong,
+        tom: { soMa: dong.length, sapHet: dong.filter((d) => d.canh_bao === 'sap_het').length, am: dong.filter((d) => d.canh_bao === 'am').length, choDuyet: Number(r?.cho_duyet ?? 0) },
       }
-      return { dong, theoModel: [...gom.values()].sort((a, b) => a.internal_code.localeCompare(b.internal_code)) }
     },
-    async dsMay(loc: LocMay = {}): Promise<{ tong: number; dong: May[] }> {
+    async nhatKy(loc: LocNhatKy = {}): Promise<{ tong: number; dong: DongSo[] }> {
       const trang = Math.max(1, loc.trang ?? 1)
-      return goi('wh_ds_may', boTrong({
-        dia_diem: loc.diaDiem, tinh_trang: loc.tinhTrang, trang_thai: loc.trangThai, so_huu: loc.soHuu, internal_code: loc.model,
-        tu_khoa: loc.tuKhoa, gioi_han: MOI_TRANG_MAY, bo_qua: trang > 1 ? (trang - 1) * MOI_TRANG_MAY : undefined,
+      const r = await goi<{ tong: number; dong: Record<string, unknown>[] }>('wh_app_nhat_ky', boTrong({
+        kho: loc.kho, loai: loc.loai, trang_thai: loc.trangThai, ma: loc.ma, tu_khoa: loc.tuKhoa, tu_ngay: loc.tuNgay, den_ngay: loc.denNgay,
+        gioi_han: MOI_TRANG, bo_qua: trang > 1 ? (trang - 1) * MOI_TRANG : undefined,
       }))
+      return { tong: Number(r?.tong ?? 0), dong: (r?.dong ?? []).map((d) => ({ ...(d as DongSo), qty: soBat(d.qty) })) }
     },
-    async dsPhieu(loc: LocPhieu = {}): Promise<{ tong: number; dong: Phieu[] }> {
-      const trang = Math.max(1, loc.trang ?? 1)
-      return goi('wh_ds_giao_dich', boTrong({
-        loai: loc.loai, tu_ngay: loc.tuNgay, den_ngay: loc.denNgay, tu_khoa: loc.tuKhoa,
-        gioi_han: MOI_TRANG_PHIEU, bo_qua: trang > 1 ? (trang - 1) * MOI_TRANG_PHIEU : undefined,
-      }))
+    async choDuyet(kho = 'NX'): Promise<DongChoDuyet[]> {
+      const r = await goi<Record<string, unknown>[]>('wh_app_cho_duyet', { kho })
+      return (r ?? []).map((d) => ({ ...(d as DongChoDuyet), qty: soBat(d.qty) }))
     },
-    async canXuLy(): Promise<May[]> {
-      const th = await goi<{ can_xu_ly: (May | null)[] }>('wh_tong_hop_sheet')
-      return (th?.can_xu_ly ?? []).filter((m): m is May => !!m)
+    async baoCao(thang: string, kho = 'NX'): Promise<DongBaoCao[]> {
+      const r = await goi<Record<string, unknown>[]>('wh_app_bao_cao', boTrong({ kho, thang }))
+      return (r ?? []).map((d) => ({ internal_code: String(d.internal_code), ten: (d.ten as string) ?? null, don_vi: (d.don_vi as string) ?? null,
+        dau_ky: soBat(d.dau_ky), nhap: soBat(d.nhap), xuat: soBat(d.xuat), dieu_chinh: soBat(d.dieu_chinh), cuoi_ky: soBat(d.cuoi_ky) }))
     },
-    async dsKiemKe(): Promise<DotKiemKe[]> {
-      return (await goi<DotKiemKe[]>('wh_ds_kiem_ke')) ?? []
-    },
-    async doiChieuKiemKe(ma: string): Promise<unknown> {
-      return goi('wh_kiem_ke_doi_chieu', ma)
-    },
-    async traSerial(serial: string): Promise<HoSoSerial> {
-      const s = serial.trim()
-      if (!s) return { tim_thay: false, serial: '' }
-      return goi('wh_tra_serial', s)
-    },
-    async diaDiem(): Promise<{ ma: string; ten: string; loai: string }[]> {
-      return (await goi<{ ma: string; ten: string; loai: string }[]>('wh_dia_diem_ds')) ?? []
+    async theKho(ma: string, kho = 'NX'): Promise<TheKho | null> {
+      const m = ma.trim()
+      if (!m) return null
+      const r = await goi<TheKho>('wh_app_the_kho', { kho, ma: m })
+      return r ? { ...r, dong: (r.dong ?? []).map((d) => ({ ...d, qty: soBat(d.qty), so_du: soBat(d.so_du) })) } : null
     },
   }
 }

@@ -30,7 +30,7 @@ const CHA: ReadonlyArray<readonly [string, string]> = [
   // '/khach/gop' phải đứng TRƯỚC '/khach/': find() lấy cái khớp đầu tiên, để sau
   // thì màn gộp lại sáng đèn ở mục "Khách hàng".
   ['/khach/gop', '/khach/gop'], ['/khach/moi', '/khach-hang'], ['/khach/', '/khach-hang'],
-  ['/kho/may/', '/kho/may'], ['/kho/kiem-ke/', '/kho/kiem-ke'],
+  ['/kho/ma/', '/kho'],
   ['/sales/don/', '/sales'], ['/sales/khach/', '/sales/khach'], ['/sales/ctkm/', '/sales/ctkm'], ['/sales/gia/', '/sales/gia'],
 ]
 function khopHref(pathname: string, href: string): boolean {
@@ -115,17 +115,16 @@ export function TopNavClient({
     ],
   }
 
-  // Khu Kho (03/11/2026): CHỈ XEM dữ liệu kho bot Bắp ghi (DB Masterdata). Gác bằng kho.ton.xem — cặp
+  // Khu Kho (03/11/2026): CHỈ XEM sổ số lượng kho v2 do bot Bắp ghi từ kênh Discord kho (DB Masterdata). Gác bằng kho.ton.xem — cặp
   // (mã quyền, luật cũ) khớp chanKho() ở app/kho/_gac.ts.
   const coTheVaoKho = co('kho.ton.xem')
   const kho: Module = {
     key: 'kho', nhan: 'Kho', mau: '#5560c9', href: '/kho', icon: 'kho',
     trang: [
       { nhan: 'Tồn kho', href: '/kho' },
-      { nhan: 'Danh sách máy', href: '/kho/may' },
-      { nhan: 'Phiếu nhập / xuất', href: '/kho/phieu' },
-      { nhan: 'Máy cần xử lý', href: '/kho/can-xu-ly' },
-      { nhan: 'Kiểm kê', href: '/kho/kiem-ke' },
+      { nhan: 'Nhật ký nhập / xuất', href: '/kho/nhat-ky' },
+      { nhan: 'Chờ duyệt mã', href: '/kho/cho-duyet' },
+      { nhan: 'Báo cáo tháng', href: '/kho/bao-cao' },
     ],
   }
 

@@ -1,70 +1,68 @@
+import Link from 'next/link'
 import { Suspense } from 'react'
-import { BoLocChon } from '@/bang'
+import { BoLocChon, OTimKiem } from '@/bang'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
-import { n } from '@/lib/kho/nhan'
+import { KHO, nhanCanhBao } from '@/lib/kho/nhan'
 import { chanKho } from './_gac'
-import { Bang, KhungKho, LinkMay, LoiKho, Nhan, O, TheSo, thu } from './_ui'
+import { Bang, KhungKho, LinkMa, LoiKho, O, TheSo, khoTu, ngayVN, sl, thu } from './_ui'
 
 export const metadata = { title: 'Tồn kho · GWT Kho' }
 export const dynamic = 'force-dynamic'
 
-export default async function KhoTonPage({ searchParams }: { searchParams: Promise<{ nd?: string; model?: string }> }) {
-  await chanKho()
-  const { nd, model } = await searchParams
-  if (!daCauHinhKho()) return <KhungKho tieuDe="Tồn kho"><LoiKho /></KhungKho>
-  const r = await thu(() => kho().tonKho())
-  if (!r.ok) return <KhungKho tieuDe="Tồn kho"><LoiKho loi={r.loi} /></KhungKho>
-  const { dong, theoModel } = r.v
+type ThamSo = { kho?: string; q?: string; dm?: string; cb?: string }
 
-  const noiDe = [...new Map(dong.map((d) => [d.dia_diem, d.dia_diem_ten])).entries()].map(([giaTri, nhan]) => ({ giaTri, nhan }))
-  const loc = dong.filter((d) => (!nd || d.dia_diem === nd) && (!model || d.internal_code === model))
-  const tong = (f: (x: (typeof theoModel)[number]) => number) => theoModel.reduce((s, x) => s + f(x), 0)
+export default async function KhoTonPage({ searchParams }: { searchParams: Promise<ThamSo> }) {
+  await chanKho()
+  const sp = await searchParams
+  const k = khoTu(sp.kho)
+  if (!daCauHinhKho()) return <KhungKho tieuDe="Tồn kho" kho={k}><LoiKho /></KhungKho>
+  const r = await thu(() => kho().ton(k))
+  if (!r.ok) return <KhungKho tieuDe="Tồn kho" kho={k}><LoiKho loi={r.loi} /></KhungKho>
+  const { dong, tom, ghiGanNhat } = r.v
+
+  const q = (sp.q ?? '').trim().toLowerCase()
+  const loc = dong.filter((d) => (!q || d.internal_code.toLowerCase().includes(q) || (d.ten ?? '').toLowerCase().includes(q))
+    && (!sp.dm || d.danh_muc === sp.dm) && (!sp.cb || (sp.cb === 'co' ? !!d.canh_bao : d.canh_bao === sp.cb)))
+  const danhMuc = [...new Set(dong.map((d) => d.danh_muc).filter(Boolean))].sort().map((x) => ({ giaTri: x!, nhan: x! }))
 
   return (
-    <KhungKho tieuDe="Tồn kho" moTa="Máy theo serial, tính theo hồ sơ máy + sổ số lượng (dòng “chưa định danh” = máy có trong sổ nhưng chưa gắn serial).">
+    <KhungKho tieuDe="Tồn kho" kho={k} moTa={`Tính từ các dòng sổ đã duyệt mã · bot ghi gần nhất ${ngayVN(ghiGanNhat)}`}>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <TheSo nhan="Trong kho" so={tong((x) => x.trongKho)} phu="kể cả máy chưa có serial" />
-        <TheSo nhan="Máy công ty ở ngoài" so={tong((x) => x.ngoaiKho)} phu="trưng bày, test nước, quay, bảo hành…" />
-        <TheSo nhan="Chưa gắn serial" so={tong((x) => x.chuaSerial)} phu="cần định danh / kiểm kê" />
-        <TheSo nhan="Số model" so={theoModel.length} />
+        <TheSo nhan="Số mã có tồn / phát sinh" so={tom.soMa} />
+        <TheSo nhan="Sắp hết (dưới tồn tối thiểu)" so={tom.sapHet} mau={tom.sapHet ? 'text-amber-700' : ''} />
+        <TheSo nhan="Tồn âm (cần kiểm lại)" so={tom.am} mau={tom.am ? 'text-red-700' : ''} />
+        <TheSo nhan="Dòng chờ duyệt mã" so={tom.choDuyet} mau={tom.choDuyet ? 'text-amber-700' : ''}
+          phu={tom.choDuyet ? <Link href={`/kho/cho-duyet${k !== 'NX' ? `?kho=${k}` : ''}`} className="text-indigo-700 underline">xem — chưa tính vào tồn</Link> : 'không có'} />
       </div>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-semibold text-slate-700">Theo model</h2>
-        <Bang dau={['Model', 'Tên', 'Trong kho', 'Ở ngoài', 'Chưa serial', 'Tổng']} trong={!theoModel.length}>
-          {theoModel.map((m) => (
-            <tr key={m.internal_code} className="hover:bg-slate-50">
-              <O><a href={`/kho?model=${encodeURIComponent(m.internal_code)}`} className="font-medium text-indigo-700 hover:underline">{m.internal_code}</a></O>
-              <O>{m.ten ?? ''}</O>
-              <O cls="text-center">{m.trongKho}</O><O cls="text-center">{m.ngoaiKho}</O>
-              <O cls="text-center">{m.chuaSerial || ''}</O><O cls="text-center font-semibold">{m.tong}</O>
-            </tr>
-          ))}
-        </Bang>
-      </section>
-
-      <section className="space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-700">Chi tiết theo nơi để · tình trạng{model ? ` — ${model}` : ''}</h2>
-          <Suspense fallback={null}><BoLocChon param="nd" nhan="Mọi nơi để" tuyChon={noiDe} /></Suspense>
+      <Suspense fallback={<div className="h-20" />}>
+        <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+          <OTimKiem placeholder="Tìm mã / tên hàng…" />
+          <div className="flex flex-wrap items-center gap-2">
+            <BoLocChon param="kho" nhan="Kho Nguyễn Xiển" tuyChon={KHO.filter((x) => x.ma !== 'NX').map((x) => ({ giaTri: x.ma, nhan: x.ten }))} />
+            <BoLocChon param="dm" nhan="Mọi danh mục" tuyChon={danhMuc} />
+            <BoLocChon param="cb" nhan="Mọi tình trạng tồn" tuyChon={[{ giaTri: 'co', nhan: 'Có cảnh báo' }, { giaTri: 'sap_het', nhan: 'Sắp hết' }, { giaTri: 'am', nhan: 'Tồn âm' }]} />
+          </div>
         </div>
-        <Bang dau={['Model', 'Nơi để', 'Trong / ngoài kho', 'Tình trạng', 'SL', 'Serial']} trong={!loc.length}>
-          {loc.map((d, i) => (
-            <tr key={i} className="hover:bg-slate-50">
-              <O cls="font-medium">{d.internal_code}</O>
-              <O>{d.dia_diem_ten}</O>
-              <O cls="text-slate-500">{d.loai_dia_diem === 'kho' ? 'trong kho' : `ngoài kho (${n(d.loai_dia_diem)})`}</O>
-              <O><Nhan ma={d.tinh_trang} /></O>
-              <O cls="text-center font-semibold">{d.so_luong}</O>
-              <O>
-                <div className="flex max-w-[520px] flex-wrap gap-x-2 gap-y-0.5">
-                  {d.serials.length ? d.serials.map((s) => <LinkMay key={s} serial={s} />) : <span className="text-slate-400">—</span>}
-                </div>
-              </O>
-            </tr>
-          ))}
-        </Bang>
-      </section>
+      </Suspense>
+
+      <Bang dau={['Mã', 'Tên', 'Danh mục', 'ĐVT', 'Nhập', 'Xuất', 'Điều chỉnh', 'Tồn', 'Tối thiểu', 'Cảnh báo', 'Phát sinh gần nhất']} trong={!loc.length} phai={[4, 5, 6, 7, 8]}>
+        {loc.map((d) => (
+          <tr key={d.internal_code} className="hover:bg-slate-50">
+            <O><LinkMa ma={d.internal_code} kho={k} /></O>
+            <O>{d.ten ?? ''}</O>
+            <O cls="text-slate-500">{d.danh_muc ?? ''}</O>
+            <O cls="text-slate-500">{d.don_vi ?? ''}</O>
+            <O cls="text-right">{sl(d.tong_nhap)}</O>
+            <O cls="text-right">{sl(d.tong_xuat)}</O>
+            <O cls="text-right text-slate-500">{d.dieu_chinh ? sl(d.dieu_chinh) : ''}</O>
+            <O cls={`text-right font-semibold ${d.ton < 0 ? 'text-red-700' : ''}`}>{sl(d.ton)}</O>
+            <O cls="text-right text-slate-500">{d.ton_toi_thieu ?? ''}</O>
+            <O>{d.canh_bao && <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${d.canh_bao === 'am' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800'}`}>{nhanCanhBao(d.canh_bao)}</span>}</O>
+            <O cls="whitespace-nowrap text-xs text-slate-500">{ngayVN(d.cap_nhat)}</O>
+          </tr>
+        ))}
+      </Bang>
     </KhungKho>
   )
 }
