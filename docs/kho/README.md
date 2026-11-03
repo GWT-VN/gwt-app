@@ -24,6 +24,7 @@ code ở `GWT-VN/gwt-discord-bot` `admin/kho/nx-chay.mjs`). Duyệt mã / kiểm
 - Quyền: `kho.ton.xem` (nhóm Kho, mức TCS = luật cũ `QUANLY`: admin + cs_manager). Gác ở `app/kho/_gac.ts`, menu ở `components/TopNav*.tsx`.
 
 ## Bật lần đầu
-1. Áp migration `20261103090112_wh_kho_app_doc.sql` lên GWT-Masterdata (CI db-reset xanh) + ghi ledger.
-2. SQL Editor Masterdata: `alter role kho_app_doc login password '<mật khẩu mạnh>';`
-3. Đặt `KHO_DB_URL` trên Vercel (Production) → merge nhánh.
+1. ✅ 03/11/2026: áp migration `20261103090112_wh_kho_app_doc.sql` lên GWT-Masterdata (CI db-reset xanh) + ghi ledger.
+2. ✅ 03/11/2026: `kho_app_doc` bật login (mật khẩu đặt bằng bản băm SCRAM; chuỗi kết nối lưu ở Mac mini
+   `~/Bots/.secrets/kho-app-doc.env`). Đã kiểm kết nối thật: đọc OK; đọc thẳng bảng / ghi / gọi hàm duyệt đều bị chặn.
+3. Đặt `KHO_DB_URL` trên Vercel (Production + Preview, loại Sensitive) → merge nhánh.
