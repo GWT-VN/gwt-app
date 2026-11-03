@@ -13,7 +13,7 @@ import { VAI_TRO, type VaiTro } from './vai-tro'
 
 export type NhomQuyen =
   | 'khach' | 'may' | 'ticket' | 'bao_tri' | 'ky_thuat'
-  | 'bao_cao' | 'yeu_cau' | 'work' | 'sales' | 'he_thong'
+  | 'bao_cao' | 'yeu_cau' | 'work' | 'sales' | 'kho' | 'he_thong'
 
 export const NHAN_NHOM: Record<NhomQuyen, string> = {
   khach: 'Khách hàng',
@@ -25,6 +25,7 @@ export const NHAN_NHOM: Record<NhomQuyen, string> = {
   yeu_cau: 'Sửa dữ liệu',
   work: 'Việc',
   sales: 'Sales',
+  kho: 'Kho',
   he_thong: 'Hệ thống',
 }
 
@@ -128,6 +129,10 @@ const BANG_QUYEN = {
   // được DUYỆT. Đặt mức 'CEO' thay vì gán cứng, để sau cấp thêm cho Trưởng Sales
   // chỉ cần tick ô trên màn ma trận.
   'sales.ctkm.duyet': { nhom: 'sales', nhan: 'Duyệt & ban hành chương trình khuyến mãi', mucMacDinh: 'CEO' },
+
+  // Khu Kho (03/11/2026): CHỈ XEM tồn / máy / phiếu kho do bot Bắp ghi (DB Masterdata, role chỉ đọc kho_app_doc).
+  // Ghi kho vẫn qua bot Discord. Mức TCS = khớp luật cũ 'QUANLY' (admin + cs_manager) ở trang /kho.
+  'kho.ton.xem': { nhom: 'kho', nhan: 'Xem tồn kho, máy, phiếu kho (khu Kho)', mucMacDinh: 'TCS', chiXem: true },
 
   'he_thong.nhan_su.xem': { nhom: 'he_thong', nhan: 'Xem danh sách nhân sự', mucMacDinh: 'A', chiXem: true },
   'he_thong.nhan_su.sua': { nhom: 'he_thong', nhan: 'Đổi vai trò, khoá, mời người', mucMacDinh: 'A' },

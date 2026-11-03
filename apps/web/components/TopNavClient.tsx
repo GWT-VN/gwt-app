@@ -30,6 +30,7 @@ const CHA: ReadonlyArray<readonly [string, string]> = [
   // '/khach/gop' phải đứng TRƯỚC '/khach/': find() lấy cái khớp đầu tiên, để sau
   // thì màn gộp lại sáng đèn ở mục "Khách hàng".
   ['/khach/gop', '/khach/gop'], ['/khach/moi', '/khach-hang'], ['/khach/', '/khach-hang'],
+  ['/kho/ma/', '/kho'],
   ['/sales/don/', '/sales'], ['/sales/khach/', '/sales/khach'], ['/sales/ctkm/', '/sales/ctkm'], ['/sales/gia/', '/sales/gia'],
 ]
 function khopHref(pathname: string, href: string): boolean {
@@ -44,6 +45,8 @@ const ICON = {
   cart: <path d="M2.5 3.5h2l2.2 11a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L20 7H6M9 20.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm9 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />,
   // khu Wiki — cuộn phim (giữ icon cũ từ hồi khu này còn là Marketing)
   phim: <path d="M3 5.5h18v13H3zM7 5.5v13M17 5.5v13M3 9.5h4M17 9.5h4M3 14.5h4M17 14.5h4" />,
+  // khu Kho — thùng hàng
+  kho: <path d="M21 8 12 3 3 8v8l9 5 9-5V8ZM3 8l9 5 9-5M12 13v8" />,
 } as const
 function Ic({ name, cls = 'w-4 h-4' }: { name: keyof typeof ICON; cls?: string }) {
   return <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">{ICON[name]}</svg>
@@ -112,11 +115,26 @@ export function TopNavClient({
     ],
   }
 
-  const MODULES: Module[] = [viec, ...(coTheVaoCS ? [cskh] : []), ...(coTheVaoSales ? [sales] : [])]
+  // Khu Kho (03/11/2026): CHỈ XEM sổ số lượng kho v2 do bot Bắp ghi từ kênh Discord kho (DB Masterdata). Gác bằng kho.ton.xem — cặp
+  // (mã quyền, luật cũ) khớp chanKho() ở app/kho/_gac.ts.
+  const coTheVaoKho = co('kho.ton.xem')
+  const kho: Module = {
+    key: 'kho', nhan: 'Kho', mau: '#5560c9', href: '/kho', icon: 'kho',
+    trang: [
+      { nhan: 'Tồn kho', href: '/kho' },
+      { nhan: 'Nhật ký nhập / xuất', href: '/kho/nhat-ky' },
+      { nhan: 'Chờ duyệt mã', href: '/kho/cho-duyet' },
+      { nhan: 'Báo cáo tháng', href: '/kho/bao-cao' },
+    ],
+  }
+
+  const MODULES: Module[] = [viec, ...(coTheVaoCS ? [cskh] : []), ...(coTheVaoSales ? [sales] : []), ...(coTheVaoKho ? [kho] : [])]
   const moduleActive = pathname.startsWith('/work')
     ? 'viec'
     : pathname.startsWith('/sales')
       ? 'sales'
+      : pathname.startsWith('/kho')
+        ? 'kho'
       : coTheVaoCS
         ? 'cskh'
         : 'viec'
@@ -134,7 +152,7 @@ export function TopNavClient({
   const APPS: App[] = [
     { nhan: 'Việc', mau: '#0e8c9a', href: '/work', live: true, icon: 'check' },
     { nhan: 'CSKH', mau: '#b5642a', href: '/', live: coTheVaoCS, icon: 'headset' },
-    { nhan: 'Sales', mau: '#2f7d8a', href: '/sales', live: coTheVaoSales, icon: 'cart' }, { nhan: 'Kho', mau: '#5560c9', live: false },
+    { nhan: 'Sales', mau: '#2f7d8a', href: '/sales', live: coTheVaoSales, icon: 'cart' }, { nhan: 'Kho', mau: '#5560c9', href: '/kho', live: coTheVaoKho, icon: 'kho' },
     { nhan: 'Nhân sự', mau: '#b0518f', live: false }, { nhan: 'Kế toán', mau: '#3f8a6a', live: false },
     { nhan: 'Wiki', mau: '#8a52b8', href: '/wiki', live: true, icon: 'phim' },
   ]
