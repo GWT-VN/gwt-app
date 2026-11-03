@@ -4,11 +4,11 @@ import { HO_SO_QUYEN, MAC_DINH, QUYEN, laMaQuyenHopLe } from './quyen'
 import { maTranDangLamLuat } from './kiem-quyen'
 
 describe('kho quyền', () => {
-  it('có đủ 55 quyền, không trùng mã', () => {
+  it('có đủ 56 quyền, không trùng mã', () => {
     // 52 -> 55 ngày 22/08/2026: thêm sales.ctkm.xem / .soan / .duyet cho module
-    // Khuyến mãi & Chiết khấu.
-    expect(QUYEN.length).toBe(55)
-    expect(new Set(QUYEN).size).toBe(55)
+    // Khuyến mãi & Chiết khấu. 55 -> 56 ngày 03/11/2026: kho.ton.xem (khu Kho).
+    expect(QUYEN.length).toBe(56)
+    expect(new Set(QUYEN).size).toBe(56)
   })
 
   it('mã quyền theo khuôn khu.đối_tượng.hành_động', () => {
