@@ -14,9 +14,35 @@ function gia(traVe: Record<string, unknown>) {
 }
 
 describe('lib/kho/doc — sổ số lượng kho v2, CHỈ hàm đọc đã cấp cho kho_app_doc', () => {
-  it('danh sách hàm đọc: đúng 5 hàm sổ, không có hàm ghi', () => {
-    expect([...HAM_DOC].sort()).toEqual(['wh_app_bao_cao', 'wh_app_cho_duyet', 'wh_app_nhat_ky', 'wh_app_the_kho', 'wh_app_ton'])
-    for (const f of HAM_DOC) expect(f).not.toMatch(/ghi|approve|reject|kiemke|_ap$/)
+  it('danh sách hàm đọc: đúng 7 hàm wh_app_*, không có hàm ghi', () => {
+    expect([...HAM_DOC].sort()).toEqual(['wh_app_bao_cao', 'wh_app_cho_duyet', 'wh_app_danh_muc', 'wh_app_lich_su_sua', 'wh_app_nhat_ky', 'wh_app_the_kho', 'wh_app_ton'])
+    for (const f of HAM_DOC) expect(f).toMatch(/^wh_app_/)
+    for (const f of HAM_DOC) expect(f).not.toMatch(/ghi|approve|reject|kiemke|kiem_ke|sua_dong|huy|duyet_dong|_ap$/)
+  })
+
+  it('nhatKy: trả kèm cờ sửa tay (sua_tay_luc / sua_tay_boi), thiếu thì null', async () => {
+    const { q } = gia({ wh_app_nhat_ky: { tong: 2, dong: [
+      { id: 1, qty: '2', sua_tay_luc: '2026-11-04T03:00:00Z', sua_tay_boi: 'ai@gwt.vn' },
+      { id: 2, qty: '1' },
+    ] } })
+    const r = await taoKho(q).nhatKy()
+    expect(r.dong[0]).toMatchObject({ qty: 2, sua_tay_luc: '2026-11-04T03:00:00Z', sua_tay_boi: 'ai@gwt.vn' })
+    expect(r.dong[1]).toMatchObject({ sua_tay_luc: null, sua_tay_boi: null })
+  })
+
+  it('lichSuSua: lọc nguồn / hành động, phân trang; dong_id số → chuỗi', async () => {
+    const { q, goi } = gia({ wh_app_lich_su_sua: { tong: 120, dong: [{ id: '7', dong_id: 42, hanh_dong: 'sua', nguon: 'app', truoc: { qty: 1 }, sau: { qty: 2 } }] } })
+    const r = await taoKho(q).lichSuSua({ nguon: 'app', hanhDong: '', trang: 2 })
+    expect(goi[0].sql).toBe('select public.wh_app_lich_su_sua($1::jsonb) r')
+    expect(JSON.parse(goi[0].ts[0] as string)).toEqual({ nguon: 'app', gioi_han: MOI_TRANG, bo_qua: MOI_TRANG })
+    expect(r.tong).toBe(120)
+    expect(r.dong[0]).toMatchObject({ id: 7, dong_id: '42', truoc: { qty: 1 }, sau: { qty: 2 } })
+  })
+
+  it('danhMuc: hàm KHÔNG tham số → không có placeholder; bỏ mục thiếu mã', async () => {
+    const { q, goi } = gia({ wh_app_danh_muc: [{ ma: 'A1', ten: 'Lõi A' }, { ma: null, ten: 'x' }, { ma: 'B2', ten: null }] })
+    expect(await taoKho(q).danhMuc()).toEqual([{ ma: 'A1', ten: 'Lõi A' }, { ma: 'B2', ten: null }])
+    expect(goi[0]).toEqual({ sql: 'select public.wh_app_danh_muc() r', ts: [] })
   })
 
   it('tham số đi qua placeholder ($1), không ghép chuỗi vào SQL', async () => {

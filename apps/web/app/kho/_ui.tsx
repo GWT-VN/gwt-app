@@ -24,7 +24,8 @@ export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe:
         </header>
         <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
           Sổ do bot <b>Bắp</b> ghi từ tin nhắn kênh Discord kho (anh kỹ thuật nhắn “<i>ngày kho xuất/nhập</i> + tên : số lượng”), cập nhật mỗi 5 phút.
-          Trang này chỉ để xem — duyệt mã / kiểm kê làm trên Google Sheet.
+          Người có quyền <b>Sửa sổ kho</b> sửa / huỷ dòng, duyệt mã, kiểm kê được ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào{' '}
+          <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự cập nhật trong ~5 phút.
         </p>
         {children}
       </div>
@@ -37,10 +38,11 @@ export function TrangThai({ ma }: { ma: string | null | undefined }) {
   return <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium ${mauTrangThai(ma)}`}>{nhanTrangThai(ma)}</span>
 }
 
-export function Bang({ dau, children, trong, phai = [] }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; phai?: number[] }) {
+/** `cuon={false}`: bảng có ô chọn gợi ý (danh sách thả xuống) — khung cuộn ngang sẽ cắt mất danh sách, nên để tràn tự nhiên. */
+export function Bang({ dau, children, trong, phai = [], cuon = true }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; phai?: number[]; cuon?: boolean }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
+    <div className={`rounded-xl border border-slate-200 bg-white shadow-sm ${cuon ? 'overflow-hidden' : ''}`}>
+      <div className={cuon ? 'overflow-x-auto' : ''}>
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>{dau.map((d, i) => <th key={i} className={`whitespace-nowrap px-3 py-2.5 font-medium ${phai.includes(i) ? 'text-right' : ''}`}>{d}</th>)}</tr>
@@ -74,6 +76,13 @@ export function LinkMa({ ma, kho = 'NX' }: { ma: string | null; kho?: string }) 
 export function LinkTin({ id }: { id: string | null }) {
   const u = linkTinDiscord(id)
   return u ? <a href={u} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 underline">tin ↗</a> : null
+}
+
+/** "sửa tay · <người> · <ngày>" — dòng đã sửa tay (app / Sheet), bot không ghi đè. */
+export function NhanSuaTay({ luc, boi }: { luc: string | null; boi: string | null }) {
+  if (!luc) return null
+  const ten = (boi ?? '').split('@')[0] || '?'
+  return <div className="mt-0.5 whitespace-nowrap text-[10px] text-slate-400" title={`Sửa tay bởi ${boi ?? '?'} lúc ${ngayVN(luc)} — bot không ghi đè dòng này`}>sửa tay · {ten} · {ngayVN(luc)}</div>
 }
 
 /** Số đẹp: 1.234; số âm có dấu. */

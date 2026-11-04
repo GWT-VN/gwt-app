@@ -26,6 +26,7 @@ const MUC_MENU = [
   ['he_thong.nhat_ky', 'ADMIN'],       // /audit
   ['he_thong.nhan_su.xem', 'ADMIN'],   // /nhan-vien
   ['kho.ton.xem', 'NHANVIEN'],           // /kho (khu Kho) — khớp chanKho() ở app/kho/_gac.ts
+  ['kho.so.sua', 'ADMIN'],               // /kho/kiem-ke — khớp coTheSuaKho() ở app/kho/_gac.ts
 ] as const
 
 export async function TopNav() {

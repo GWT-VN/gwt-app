@@ -4,11 +4,12 @@ import { HO_SO_QUYEN, MAC_DINH, QUYEN, laMaQuyenHopLe } from './quyen'
 import { maTranDangLamLuat } from './kiem-quyen'
 
 describe('kho quyền', () => {
-  it('có đủ 56 quyền, không trùng mã', () => {
+  it('có đủ 57 quyền, không trùng mã', () => {
     // 52 -> 55 ngày 22/08/2026: thêm sales.ctkm.xem / .soan / .duyet cho module
     // Khuyến mãi & Chiết khấu. 55 -> 56 ngày 03/11/2026: kho.ton.xem (khu Kho).
-    expect(QUYEN.length).toBe(56)
-    expect(new Set(QUYEN).size).toBe(56)
+    // 56 -> 57 ngày 04/11/2026: kho.so.sua (sửa sổ kho trên app, chỉ admin).
+    expect(QUYEN.length).toBe(57)
+    expect(new Set(QUYEN).size).toBe(57)
   })
 
   it('mã quyền theo khuôn khu.đối_tượng.hành_động', () => {
@@ -95,6 +96,14 @@ describe('giá trị khởi tạo — sinh từ hành vi HÔM NAY', () => {
       expect(MAC_DINH[v]).toContain('work.viec.xem_tao')
       expect(MAC_DINH[v], `${v} chưa được đụng dữ liệu khách`).not.toContain('cs.khach.xem')
       expect(MAC_DINH[v]).not.toContain('cs.khach.sua')
+    }
+  })
+
+  it('Sửa sổ kho (kho.so.sua): mặc định CHỈ admin — CEO chốt 04/11/2026', () => {
+    expect(HO_SO_QUYEN['kho.so.sua']).toMatchObject({ nhom: 'kho', mucMacDinh: 'A' })
+    for (const v of VAI_TRO) {
+      if (v === 'admin') expect(MAC_DINH[v]).toContain('kho.so.sua')
+      else expect(MAC_DINH[v], `${v} không được sửa sổ kho mặc định`).not.toContain('kho.so.sua')
     }
   })
 

@@ -125,6 +125,9 @@ export function TopNavClient({
       { nhan: 'Nhật ký nhập / xuất', href: '/kho/nhat-ky' },
       { nhan: 'Chờ duyệt mã', href: '/kho/cho-duyet' },
       { nhan: 'Báo cáo tháng', href: '/kho/bao-cao' },
+      // Đợt 3 (04/11/2026): sửa sổ ngay trên app. Kiểm kê ghi thẳng vào sổ → chỉ hiện cho người có kho.so.sua.
+      ...(co('kho.so.sua') ? [{ nhan: 'Kiểm kê', href: '/kho/kiem-ke' }] : []),
+      { nhan: 'Lịch sử sửa', href: '/kho/lich-su-sua' },
     ],
   }
 

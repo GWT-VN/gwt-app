@@ -131,7 +131,7 @@ describe('giao diện ẩn/hiện nút theo MA TRẬN, không theo vai trò', ()
     // Gõ sai mã ở đây thì nút biến mất vĩnh viễn mà không ai báo lỗi.
     for (const f of FILE_GIAO_DIEN) {
       const src = readFileSync(f, 'utf8')
-      for (const m of src.matchAll(/\[\s*'((?:cs|work|sales|he_thong)\.[a-z_.]+)',\s*'([A-Z]+)'\s*\]/g)) {
+      for (const m of src.matchAll(/\[\s*'((?:cs|work|sales|kho|he_thong)\.[a-z_.]+)',\s*'([A-Z]+)'\s*\]/g)) {
         expect(laMaQuyenHopLe(m[1]), `${f.replace(GOC, '')} dùng mã lạ: ${m[1]}`).toBe(true)
         expect(['ADMIN', 'QUANLY', 'NHANVIEN'], `${f.replace(GOC, '')}: gate lạ ${m[2]}`).toContain(m[2])
       }

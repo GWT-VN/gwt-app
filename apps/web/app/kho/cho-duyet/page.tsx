@@ -1,6 +1,7 @@
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
 import { mauLoai } from '@/lib/kho/nhan'
-import { chanKho } from '../_gac'
+import { chanKho, coTheSuaKho } from '../_gac'
+import { DuyetDong, KhuSuaKho } from '../_sua'
 import { Bang, KhungKho, LINK_SHEET_KHO, LinkTin, LoiKho, O, khoTu, ngayVN, sl, thu } from '../_ui'
 
 export const metadata = { title: 'Chờ duyệt mã · GWT Kho' }
@@ -10,18 +11,25 @@ export default async function KhoChoDuyetPage({ searchParams }: { searchParams: 
   await chanKho()
   const k = khoTu((await searchParams).kho)
   if (!daCauHinhKho()) return <KhungKho tieuDe="Chờ duyệt mã" kho={k}><LoiKho /></KhungKho>
-  const r = await thu(() => kho().choDuyet(k))
+  const sua = await coTheSuaKho()
+  const [r, dm] = await Promise.all([thu(() => kho().choDuyet(k)), sua ? thu(() => kho().danhMuc()) : null])
   if (!r.ok) return <KhungKho tieuDe="Chờ duyệt mã" kho={k}><LoiKho loi={r.loi} /></KhungKho>
   const ds = r.v
 
   return (
     <KhungKho tieuDe="Chờ duyệt mã" kho={k} moTa={`${ds.length} dòng có tên hàng bot chưa biết mã — CHƯA tính vào tồn`}>
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-        Duyệt trên Google Sheet, tab <b>“Chờ duyệt”</b>: chọn mã ở ô vàng <b>“Mã duyệt”</b> (hoặc gõ <b>BỎ QUA</b> nếu không phải hàng kho).
-        Trong ~5 phút bot ghi sổ, nhớ tên đó (lần sau tự nhận) và đổi biểu tượng tin Discord ⏳ → ✅.{' '}
+        {sua
+          ? <>Duyệt <b>ngay tại đây</b>: chọn mã (đã điền sẵn mã bot gợi ý nếu có) rồi bấm <b>Duyệt</b>; không phải hàng kho thì <b>Bỏ qua</b>.
+            Giữ tick <b>“Nhớ tên này”</b> để lần sau bot tự nhận tên đó.{' '}</>
+          : <>Người có quyền <b>Sửa sổ kho</b> duyệt được ngay trên trang này.{' '}</>}
+        Hoặc duyệt trên Google Sheet, tab <b>“Chờ duyệt”</b>: chọn mã ở ô vàng <b>“Mã duyệt”</b> (hoặc gõ <b>BỎ QUA</b>).
+        Trong ~5 phút bot ghi sổ, nhớ tên đó và đổi biểu tượng tin Discord ⏳ → ✅.{' '}
         <a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer" className="font-medium underline">Mở Sheet ↗</a>
       </div>
-      <Bang dau={['Ngày', 'Loại', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Bot gợi ý mã', 'Người nhắn', 'Bot ghi lúc', '']} trong={!ds.length} phai={[3]}>
+      {dm && !dm.ok && <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Chưa tải được danh mục mã ({dm.loi}) — ô chọn mã sẽ trống.</p>}
+      <KhuSuaKho danhMuc={dm?.ok ? dm.v : []}>
+      <Bang dau={['Ngày', 'Loại', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Bot gợi ý mã', 'Người nhắn', 'Bot ghi lúc', '', ...(sua ? ['Duyệt'] : [])]} trong={!ds.length} phai={[3]} cuon={!sua}>
         {ds.map((d) => (
           <tr key={d.id} className="hover:bg-slate-50">
             <O cls="whitespace-nowrap">{ngayVN(d.ngay)}</O>
@@ -33,9 +41,11 @@ export default async function KhoChoDuyetPage({ searchParams }: { searchParams: 
             <O cls="whitespace-nowrap">{d.keeper ?? ''}</O>
             <O cls="whitespace-nowrap text-xs text-slate-500">{ngayVN(d.ghi_luc)}</O>
             <O><LinkTin id={d.discord_msg_id} /></O>
+            {sua && <O><DuyetDong id={d.id} rawName={d.raw_name} goiY={d.suggest_code} /></O>}
           </tr>
         ))}
       </Bang>
+      </KhuSuaKho>
     </KhungKho>
   )
 }
