@@ -105,7 +105,7 @@ function HopSua({ dong, onDong }: { dong: DongSuaDuoc; onDong: () => void }) {
           <input className={O_NHAP} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="vd: anh kỹ thuật nhắn nhầm SL" />
         </Nhan>
       </div>
-      <p className="text-[11px] text-slate-500">Sửa xong dòng bị khoá: bot không ghi đè dù tin Discord gốc bị sửa. Sheet tự cập nhật trong ~5 phút.</p>
+      <p className="text-[11px] text-slate-500">Sửa xong dòng bị khoá: bot không ghi đè dù tin Discord gốc bị sửa. Sheet tự cập nhật trong ~20 giây.</p>
       {loi && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{loi}</p>}
       <div className="flex items-center justify-end gap-2">
         <span className="mr-auto text-xs text-slate-500">{soDoi ? `Đổi ${soDoi} trường` : 'Chưa đổi gì'}</span>

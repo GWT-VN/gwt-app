@@ -1,10 +1,10 @@
 # Khu Kho (`/kho`) — xem + sửa sổ kho
 
 **Xem** cho mọi nhân sự có `kho.ton.xem`; **sửa** (Đợt 3, 04/11/2026) cho người có `kho.so.sua` (mặc định chỉ admin). Dữ liệu là **sổ số lượng kho v2** (`wh_master`, DB **GWT-Masterdata** `qynpywysgltspmgnhhga`, KHÁC DB của app).
-Ai ghi sổ: bot **Bắp** đọc kênh Discord kho Nguyễn Xiển mỗi 5 phút (anh kỹ thuật nhắn "`<ngày> kho xuất/nhập` + `tên : SL lý do`",
+Ai ghi sổ: bot **Bắp** đọc kênh Discord kho Nguyễn Xiển liên tục (~20 giây/lượt, `nx-chay.mjs theo-doi`) (anh kỹ thuật nhắn "`<ngày> kho xuất/nhập` + `tên : SL lý do`",
 code ở `GWT-VN/gwt-discord-bot` `admin/kho/nx-chay.mjs`). Sửa / huỷ dòng, duyệt mã, kiểm kê làm được **trên app** hoặc trên
 Google Sheet "Kho máy GWT – theo dõi" (hoặc Portal "Duyệt kho") — **sửa hai chiều**: app và Sheet cùng ghi qua ĐÚNG các hàm DB
-`wh_*` bên dưới, DB vẫn là nguồn duy nhất, Sheet dựng lại từ DB mỗi ~5 phút. Mọi lần sửa ghi vào `wh_nhat_ky_sua` (hành động,
+`wh_*` bên dưới, DB vẫn là nguồn duy nhất, Sheet cập nhật từ DB ~20 giây/lượt (chỉ ghi tab có thay đổi); trang app tự làm mới mỗi 20 giây (`app/kho/_tu-lam-moi.tsx`). Mọi lần sửa ghi vào `wh_nhat_ky_sua` (hành động,
 nguồn app / sheet / portal / bot, người = email, trước → sau, lý do) → trang `/kho/lich-su-sua`.
 
 | Trang | Hàm DB (role `kho_app_doc`) | Nội dung |
