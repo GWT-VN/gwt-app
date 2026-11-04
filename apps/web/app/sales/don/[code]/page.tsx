@@ -35,7 +35,13 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
           <h1 className="font-mono text-xl font-semibold text-slate-900">{don.order_code}</h1>
           {don.is_app ? (
             <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-semibold text-teal-700">Đơn tạo từ app</span>
-          ) : (
+          ) : null}
+          {don.is_app && don.theo_sheet ? (
+            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700" title="Đơn đã ghi lên Google Sheet Sales. Ô Sheet có (tình trạng, thanh toán, sản phẩm…) hiện theo Sheet — nguồn chuẩn. Sửa ở đây: bot chỉ ghi lên Sheet các ô vừa đổi.">
+              Đang hiện bản Google Sheet
+            </span>
+          ) : null}
+          {don.is_app ? null : (
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">Từ Google Sheet</span>
           )}
           {don.created_by && <span className="text-xs text-slate-400">bởi {don.created_by}</span>}

@@ -3,6 +3,7 @@ import { dataClient } from '@/lib/nen-tang/db'
 import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode, oSheetBoSung } from './_calc'
 import type { CatalogPick, ChannelOpt, CustomerInput, NewOrderInput, OrderFormInitial } from './_types'
 import { maDaCap, type DongCoMa } from './_ma-khach'
+import { dauTheoSheet, dongTheoSheet } from './_sheet-uu-tien'
 
 // ───────────── Nguồn cho form ─────────────
 export async function listCatalogForPicker(): Promise<CatalogPick[]> {
@@ -224,17 +225,52 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
     .select('*')
     .eq('order_id', header.order_id as string)
     .order('line_no', { ascending: true })
+  // Đơn đã lên Google Sheet → form lấy theo bản Sheet cho những ô Sheet có (Sheet là nguồn chuẩn — _sheet-uu-tien.ts).
+  // Kênh giữ theo app (form chọn theo mã kênh, Sheet chỉ lưu chữ).
+  const { data: banSheet } = await db
+    .from('sales_order_lines')
+    .select('order_date, customer_name, province, channel, channel_detail, fulfillment_status, payment_status, partner_order_code, note, internal_code, product_name, category_l1, category_l2, quantity, unit_price_vat, vat_pct, vat_loai')
+    .eq('order_code', orderCode)
+    .order('id', { ascending: true })
+  const ms = (banSheet ?? []) as Array<Record<string, unknown>>
+  const sh = ms.length ? dauTheoSheet(ms[0]) : null
+  const itemsApp: OrderFormInitial['items'] = ((items ?? []) as Array<Record<string, unknown>>).map((it) => ({
+    internal_code: (it.internal_code as string) ?? '',
+    product_name: (it.product_name as string) ?? '',
+    category_l1: (it.category_l1 as string) ?? null,
+    category_l2: (it.category_l2 as string) ?? null,
+    quantity: Number(it.quantity) || 0,
+    unit_price_vat: Number(it.unit_price_vat) || 0,
+    is_gift: !!it.is_gift,
+    vat_pct: it.vat_pct == null ? null : Number(it.vat_pct),
+    vat_loai: (it.vat_loai as 'VAT' | 'KCT' | 'KAD' | null) ?? null,
+    note: (it.note as string) ?? null,
+  }))
+  const itemsForm = ms.length
+    ? dongTheoSheet(ms, itemsApp, (r, laQua) => ({
+        internal_code: (r.internal_code as string) ?? '',
+        product_name: (r.product_name as string) ?? '',
+        category_l1: (r.category_l1 as string) ?? null,
+        category_l2: (r.category_l2 as string) ?? null,
+        quantity: Number(r.quantity) || 0,
+        unit_price_vat: Number(r.unit_price_vat) || 0,
+        is_gift: laQua,
+        vat_pct: r.vat_pct == null ? null : Number(r.vat_pct),
+        vat_loai: (r.vat_loai as 'VAT' | 'KCT' | 'KAD' | null) ?? null,
+        note: null,
+      }))
+    : itemsApp
   return {
     customer_code: (header.customer_code as string) ?? null,
     phone: (header.phone as string) ?? null,
-    customer_name: (header.customer_name as string) ?? null,
+    customer_name: sh ? sh.customer_name : (header.customer_name as string) ?? null,
     address: (header.address as string) ?? null,
-    province: (header.province as string) ?? null,
-    order_date: ((header.order_date as string) ?? '').slice(0, 10),
+    province: sh ? sh.province : (header.province as string) ?? null,
+    order_date: ((sh?.order_date ?? (header.order_date as string)) ?? '').slice(0, 10),
     channel_id: (header.channel_id as number) ?? null,
-    partner_order_code: (header.partner_order_code as string) ?? null,
-    status: (header.status as string) ?? null,
-    payment_status: (header.payment_status as string) ?? null,
+    partner_order_code: sh ? sh.partner_order_code : (header.partner_order_code as string) ?? null,
+    status: sh ? sh.status : (header.status as string) ?? null,
+    payment_status: sh ? sh.payment_status : (header.payment_status as string) ?? null,
     payment_method: (header.payment_method as string) ?? null,
     shipping_code: (header.shipping_code as string) ?? null,
     install_date: ((header.install_date as string) ?? '')?.slice(0, 10) || null,
@@ -269,19 +305,8 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
     cong_ty_xuat_hd: (header.cong_ty_xuat_hd as string) ?? null,
     mst: (header.mst as string) ?? null,
     dia_chi_xuat_hd: (header.dia_chi_xuat_hd as string) ?? null,
-    note: (header.note as string) ?? null,
-    items: ((items ?? []) as Array<Record<string, unknown>>).map((it) => ({
-      internal_code: (it.internal_code as string) ?? '',
-      product_name: (it.product_name as string) ?? '',
-      category_l1: (it.category_l1 as string) ?? null,
-      category_l2: (it.category_l2 as string) ?? null,
-      quantity: Number(it.quantity) || 0,
-      unit_price_vat: Number(it.unit_price_vat) || 0,
-      is_gift: !!it.is_gift,
-      vat_pct: it.vat_pct == null ? null : Number(it.vat_pct),
-      vat_loai: (it.vat_loai as 'VAT' | 'KCT' | 'KAD' | null) ?? null,
-      note: (it.note as string) ?? null,
-    })),
+    note: sh ? sh.note : (header.note as string) ?? null,
+    items: itemsForm,
   }
 }
 

@@ -11,7 +11,7 @@ export function OrderActions({ orderCode }: { orderCode: string }) {
   const [err, setErr] = useState<string | null>(null)
 
   function onDelete() {
-    if (!confirm(`Xoá đơn ${orderCode}? Không hoàn tác được.`)) return
+    if (!confirm(`Xoá đơn ${orderCode} trên app? Không hoàn tác được.\nTrên Google Sheet Sales, đơn KHÔNG bị xoá dòng — bot đánh dấu Tình trạng hàng = Huỷ.`)) return
     setErr(null)
     start(async () => {
       const res = await xoaDon(orderCode)
