@@ -7,8 +7,9 @@ const thuTu = new Date(2026, 7, 19, 0, 30)
 describe('isoNgay', () => {
   it('lấy ngày theo giờ máy, KHÔNG lệch sang hôm trước như toISOString', () => {
     expect(isoNgay(thuTu)).toBe('2026-08-19')
-    // Chứng minh cái bẫy có thật: cùng thời điểm đó, UTC đã là ngày hôm trước.
-    expect(thuTu.toISOString().slice(0, 10)).toBe('2026-08-18')
+    // Chứng minh cái bẫy có thật: cùng thời điểm đó, UTC đã là ngày hôm trước — CHỈ đúng khi máy ở múi giờ dương
+    // (VN +7). Máy CI chạy UTC thì không có bẫy để chứng minh, bỏ qua vế này (isoNgay ở trên vẫn được kiểm).
+    if (thuTu.getTimezoneOffset() < 0) expect(thuTu.toISOString().slice(0, 10)).toBe('2026-08-18')
   })
   it('đệm 0 cho tháng/ngày một chữ số', () => {
     expect(isoNgay(new Date(2026, 0, 5))).toBe('2026-01-05')
