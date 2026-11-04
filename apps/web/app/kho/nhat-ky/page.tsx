@@ -2,8 +2,9 @@ import { Suspense } from 'react'
 import { BoLocChon, LocNgay, OTimKiem, PhanTrang } from '@/bang'
 import { daCauHinhKho, kho, MOI_TRANG } from '@/lib/kho/doc'
 import { KHO, LOAI, mauLoai } from '@/lib/kho/nhan'
-import { chanKho } from '../_gac'
-import { Bang, KhungKho, LinkMa, LinkTin, LoiKho, O, TrangThai, khoTu, ngayVN, sl, thu } from '../_ui'
+import { chanKho, coTheSuaKho } from '../_gac'
+import { KhuSuaKho, NutSuaDong } from '../_sua'
+import { Bang, KhungKho, LinkMa, LinkTin, LoiKho, NhanSuaTay, O, TrangThai, khoTu, ngayVN, sl, thu } from '../_ui'
 
 export const metadata = { title: 'Nhật ký kho · GWT Kho' }
 export const dynamic = 'force-dynamic'
@@ -16,9 +17,14 @@ export default async function KhoNhatKyPage({ searchParams }: { searchParams: Pr
   const k = khoTu(sp.kho)
   if (!daCauHinhKho()) return <KhungKho tieuDe="Nhật ký nhập / xuất" kho={k}><LoiKho /></KhungKho>
   const trang = Math.max(1, Number(sp.trang) || 1)
-  const r = await thu(() => kho().nhatKy({ kho: k, tuKhoa: sp.q, loai: sp.loai, trangThai: sp.tt, tuNgay: sp.ngtu, denNgay: sp.ngden, trang }))
+  const sua = await coTheSuaKho()
+  const [r, dm] = await Promise.all([
+    thu(() => kho().nhatKy({ kho: k, tuKhoa: sp.q, loai: sp.loai, trangThai: sp.tt, tuNgay: sp.ngtu, denNgay: sp.ngden, trang })),
+    sua ? thu(() => kho().danhMuc()) : null,
+  ])
   if (!r.ok) return <KhungKho tieuDe="Nhật ký nhập / xuất" kho={k}><LoiKho loi={r.loi} /></KhungKho>
   const { tong, dong } = r.v
+  const danhMuc = dm?.ok ? dm.v : []
 
   return (
     <KhungKho tieuDe="Nhật ký nhập / xuất" kho={k} moTa={`${tong} dòng sổ · mới nhất trước · "Điều chỉnh" = chênh lệch sau kiểm kê`}>
@@ -34,7 +40,9 @@ export default async function KhoNhatKyPage({ searchParams }: { searchParams: Pr
         </div>
       </Suspense>
 
-      <Bang dau={['Ngày', 'Loại', 'Mã', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Ghi chú', 'Người nhắn', 'Trạng thái', '']} trong={!dong.length} phai={[4]}>
+      {dm && !dm.ok && <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Chưa tải được danh mục mã ({dm.loi}) — ô chọn mã khi sửa sẽ trống.</p>}
+      <KhuSuaKho danhMuc={danhMuc}>
+      <Bang dau={['Ngày', 'Loại', 'Mã', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Ghi chú', 'Người nhắn', 'Trạng thái', '', ...(sua ? [''] : [])]} trong={!dong.length} phai={[4]}>
         {dong.map((d) => (
           <tr key={d.id} className="hover:bg-slate-50">
             <O cls="whitespace-nowrap">{ngayVN(d.ngay)}</O>
@@ -45,11 +53,14 @@ export default async function KhoNhatKyPage({ searchParams }: { searchParams: Pr
             <O cls="max-w-[220px] text-slate-600">{d.purpose ?? ''}</O>
             <O cls="max-w-[220px] text-xs text-slate-500">{d.note ?? ''}</O>
             <O cls="whitespace-nowrap">{d.keeper ?? ''}</O>
-            <O><TrangThai ma={d.trang_thai} /></O>
+            <O><TrangThai ma={d.trang_thai} /><NhanSuaTay luc={d.sua_tay_luc} boi={d.sua_tay_boi} /></O>
             <O><LinkTin id={d.discord_msg_id} /></O>
+            {sua && <O><NutSuaDong dong={{ id: d.id, ngay: d.ngay, loai: d.loai, internal_code: d.internal_code, raw_name: d.raw_name, qty: d.qty,
+              purpose: d.purpose, note: d.note, trang_thai: d.trang_thai }} /></O>}
           </tr>
         ))}
       </Bang>
+      </KhuSuaKho>
       <Suspense fallback={null}><PhanTrang trang={trang} soTrang={Math.max(1, Math.ceil(tong / MOI_TRANG))} /></Suspense>
     </KhungKho>
   )

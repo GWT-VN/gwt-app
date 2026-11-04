@@ -134,6 +134,9 @@ const BANG_QUYEN = {
   // Ghi kho vẫn qua bot Discord. Mức TCS = khớp luật cũ 'QUANLY' (admin + cs_manager) ở trang /kho.
   // 04/11/2026: mở khu Kho cho MỌI vai trò (kể cả kỹ thuật — ngoại lệ có chủ đích so với luật CEO 20/08). Prod đã cấp đủ 14 vai trò.
   'kho.ton.xem': { nhom: 'kho', nhan: 'Xem tồn kho, máy, phiếu kho (khu Kho)', mucMacDinh: 'NS', chiXem: true },
+  // Đợt 3 (04/11/2026): SỬA sổ kho ngay trên app — ghi qua hàm DB wh_sua_dong / wh_huy_dong / wh_duyet_dong / wh_bo_qua_dong / wh_kiem_ke
+  // (lịch sử ghi đủ người + nguồn). CEO chốt: chỉ admin (tài khoản ai@gwt.vn). Luật cũ tương ứng: 'ADMIN' (app/kho/actions.ts).
+  'kho.so.sua': { nhom: 'kho', nhan: 'Sửa sổ kho (sửa / huỷ dòng, duyệt mã, kiểm kê)', mucMacDinh: 'A' },
 
   'he_thong.nhan_su.xem': { nhom: 'he_thong', nhan: 'Xem danh sách nhân sự', mucMacDinh: 'A', chiXem: true },
   'he_thong.nhan_su.sua': { nhom: 'he_thong', nhan: 'Đổi vai trò, khoá, mời người', mucMacDinh: 'A' },
