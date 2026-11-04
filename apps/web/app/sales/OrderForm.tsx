@@ -266,6 +266,7 @@ export function OrderForm({
    * lượt sau không còn gì để đổi -> dừng, không lặp vô hạn.
    */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- cố ý (xem chú thích trên): điền lại giá theo gợi ý, so số rồi mới ghi nên không lặp
     setLines((ls) => {
       let doi = false
       const moi = ls.map((l) => {

@@ -132,7 +132,8 @@ const BANG_QUYEN = {
 
   // Khu Kho (03/11/2026): CHỈ XEM tồn / máy / phiếu kho do bot Bắp ghi (DB Masterdata, role chỉ đọc kho_app_doc).
   // Ghi kho vẫn qua bot Discord. Mức TCS = khớp luật cũ 'QUANLY' (admin + cs_manager) ở trang /kho.
-  'kho.ton.xem': { nhom: 'kho', nhan: 'Xem tồn kho, máy, phiếu kho (khu Kho)', mucMacDinh: 'TCS', chiXem: true },
+  // 04/11/2026: mở khu Kho cho MỌI vai trò (kể cả kỹ thuật — ngoại lệ có chủ đích so với luật CEO 20/08). Prod đã cấp đủ 14 vai trò.
+  'kho.ton.xem': { nhom: 'kho', nhan: 'Xem tồn kho, máy, phiếu kho (khu Kho)', mucMacDinh: 'NS', chiXem: true },
 
   'he_thong.nhan_su.xem': { nhom: 'he_thong', nhan: 'Xem danh sách nhân sự', mucMacDinh: 'A', chiXem: true },
   'he_thong.nhan_su.sua': { nhom: 'he_thong', nhan: 'Đổi vai trò, khoá, mời người', mucMacDinh: 'A' },

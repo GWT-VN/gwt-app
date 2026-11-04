@@ -2749,6 +2749,9 @@ export async function searchSerials(q: string, limit = 50): Promise<SerialRow[]>
  *  (không có sự kiện) thì để null. Không export -> không đụng luật 'use server'. */
 async function ganTrangThaiLuc(rows: SerialRow[]): Promise<SerialRow[]> {
   if (rows.length === 0) return rows
+  // Hàm gọi (truyVanSerial) đã gác; gác lại tại chỗ theo luật "mọi hàm chạm DB đều gác" (cache() → không tốn thêm lượt).
+  await requireStaff()
+  await doQuyen('cs.may.xem')
   const { data } = await dataClient()
     .from('serial_su_dung')
     .select('serial, luc, ghi_chu')

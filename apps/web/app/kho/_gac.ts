@@ -7,5 +7,5 @@ import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
  */
 export async function chanKho() {
   await requireNhanSu()
-  await chanNeuThieuQuyen('kho.ton.xem', 'QUANLY')
+  await chanNeuThieuQuyen('kho.ton.xem', 'NHANVIEN')
 }

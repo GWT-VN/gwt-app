@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { PROCESS_DOCS } from "@/lib/marketing/content";
+import { PROCESS_DOCS } from "../../lib/marketing/content";
 
 /** Tên file quy trình (không đuôi, đã bỏ khoảng trắng thừa) → slug route. */
 const PROCESS_BY_FILE = new Map(PROCESS_DOCS.map((d) => [d.file.trim(), d.slug]));
