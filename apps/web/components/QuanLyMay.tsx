@@ -12,6 +12,9 @@ import { MAU_TRANG_THAI } from '@/lib/danhSach'
 import { KhachPicker } from '@/components/KhachPicker'
 import { vnDateTime } from '@/components/TicketBadge'
 
+/** Sự kiện do bot kho (Bắp, kênh Discord kho) ghi — không đổi trạng thái máy, chỉ là lịch sử. */
+const SU_KIEN_BOT_KHO: Record<string, string> = { kho_nhap: 'Nhập kho (bot kho)', kho_xuat: 'Xuất kho (bot kho)', tinh_trang: 'Ghi tình trạng (bot kho)' }
+
 type KetQua = { ok: true; applied?: boolean; ma_moi?: string } | { ok: false; error: string }
 type Panel = '' | 'doi_may' | 'doi_serial' | 'doi_khach' | 'go' | 'lap' | 'doi_tt'
 
@@ -224,7 +227,7 @@ export function QuanLyMay({
                   <>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-base font-semibold text-slate-900">
-                        {nhan(s.den_trang_thai) !== '—' ? nhan(s.den_trang_thai) : s.su_kien}
+                        {nhan(s.den_trang_thai) !== '—' ? nhan(s.den_trang_thai) : SU_KIEN_BOT_KHO[s.su_kien] ?? s.su_kien}
                         {s.tu_trang_thai && s.den_trang_thai && (
                           <span className="text-xs font-normal text-slate-400"> ({nhan(s.tu_trang_thai)} → {nhan(s.den_trang_thai)})</span>
                         )}
