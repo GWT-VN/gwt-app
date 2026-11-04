@@ -24,7 +24,7 @@ export default async function KhoChoDuyetPage({ searchParams }: { searchParams: 
             Giữ tick <b>“Nhớ tên này”</b> để lần sau bot tự nhận tên đó.{' '}</>
           : <>Người có quyền <b>Sửa sổ kho</b> duyệt được ngay trên trang này.{' '}</>}
         Hoặc duyệt trên Google Sheet, tab <b>“Chờ duyệt”</b>: chọn mã ở ô vàng <b>“Mã duyệt”</b> (hoặc gõ <b>BỎ QUA</b>).
-        Trong ~5 phút bot ghi sổ, nhớ tên đó và đổi biểu tượng tin Discord ⏳ → ✅.{' '}
+        Trong ~20 giây bot ghi sổ, nhớ tên đó và đổi biểu tượng tin Discord ⏳ → ✅.{' '}
         <a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer" className="font-medium underline">Mở Sheet ↗</a>
       </div>
       {dm && !dm.ok && <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Chưa tải được danh mục mã ({dm.loi}) — ô chọn mã sẽ trống.</p>}

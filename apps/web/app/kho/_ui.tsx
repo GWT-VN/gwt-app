@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { linkTinDiscord, mauTrangThai, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
+import { TuLamMoi } from './_tu-lam-moi'
 
 /** Google Sheet theo dõi sổ kho NX (cùng dữ liệu) — đổi Sheet thì sửa ở gwt-discord-bot/admin/kho/nx-chay.mjs (SHEET_NX) VÀ ở đây. */
 export const LINK_SHEET_KHO = 'https://docs.google.com/spreadsheets/d/1etncdbnKDQg2jIsJjc556pvT1HI0HTrKnMbNDeRr4d0'
@@ -15,6 +16,7 @@ export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe:
             {moTa && <p className="text-sm text-slate-500">{moTa}</p>}
           </div>
           <div className="flex items-center gap-2">
+            <TuLamMoi />
             {phai}
             <a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer"
               className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
@@ -23,9 +25,9 @@ export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe:
           </div>
         </header>
         <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
-          Sổ do bot <b>Bắp</b> ghi từ tin nhắn kênh Discord kho (anh kỹ thuật nhắn “<i>ngày kho xuất/nhập</i> + tên : số lượng”), cập nhật mỗi 5 phút.
+          Sổ do bot <b>Bắp</b> ghi từ tin nhắn kênh Discord kho (anh kỹ thuật nhắn “<i>ngày kho xuất/nhập</i> + tên : số lượng”), cập nhật liên tục (~20 giây).
           Người có quyền <b>Sửa sổ kho</b> sửa / huỷ dòng, duyệt mã, kiểm kê được ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào{' '}
-          <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự cập nhật trong ~5 phút.
+          <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự cập nhật trong ~20 giây.
         </p>
         {children}
       </div>
