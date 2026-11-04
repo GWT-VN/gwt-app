@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { BoLocChon, OTimKiem } from '@/bang'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
-import { KHO, nhanCanhBao } from '@/lib/kho/nhan'
+import { KHO, nhanCanhBao, tenKho } from '@/lib/kho/nhan'
+import { DA_CHOT_DAU_KY, ngayLuiVN, tomTatKho } from '@/lib/kho/tom-tat'
 import { chanKho } from './_gac'
 import { Bang, KhungKho, LinkMa, LoiKho, O, TheSo, khoTu, ngayVN, sl, thu } from './_ui'
 
@@ -19,6 +20,14 @@ export default async function KhoTonPage({ searchParams }: { searchParams: Promi
   const r = await thu(() => kho().ton(k))
   if (!r.ok) return <KhungKho tieuDe="Tồn kho" kho={k}><LoiKho loi={r.loi} /></KhungKho>
   const { dong, tom, ghiGanNhat } = r.v
+  // Tóm tắt cho CEO: nhật ký 30 ngày (đã duyệt) — vài trang là đủ; lỗi thì bỏ khung tóm tắt, bảng tồn vẫn hiện.
+  const tuNgay = ngayLuiVN(30)
+  const nk = await thu(async () => {
+    const ra = []
+    for (let trang = 1; trang <= 10; trang++) { const p = await kho().nhatKy({ kho: k, trangThai: 'approved', tuNgay, trang }); ra.push(...p.dong); if (ra.length >= p.tong) break }
+    return ra
+  })
+  const tt = nk.ok ? tomTatKho({ ton: dong, nhatKy: nk.v, choDuyet: tom.choDuyet, daChot: DA_CHOT_DAU_KY[k] ?? false, tenKho: tenKho(k) }) : null
 
   const q = (sp.q ?? '').trim().toLowerCase()
   const loc = dong.filter((d) => (!q || d.internal_code.toLowerCase().includes(q) || (d.ten ?? '').toLowerCase().includes(q))
@@ -27,6 +36,19 @@ export default async function KhoTonPage({ searchParams }: { searchParams: Promi
 
   return (
     <KhungKho tieuDe="Tồn kho" kho={k} moTa={`Tính từ các dòng sổ đã duyệt mã · bot ghi gần nhất ${ngayVN(ghiGanNhat)}`}>
+      {tt && (
+        <section className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-emerald-900">Tóm tắt</h2>
+          {tt.canhBao && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-800">⚠️ {tt.canhBao}</p>}
+          <ul className="list-disc space-y-1 pl-5 text-[15px] text-slate-800">{tt.cau.map((c) => <li key={c}>{c}</li>)}</ul>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 pt-1 text-sm text-slate-600">
+            <span>Nhập 7 ngày: <b>{tt.nhap7.lan}</b> lần · {sl(tt.nhap7.sl)} đơn vị</span>
+            <span>Xuất 7 ngày: <b>{tt.xuat7.lan}</b> lần · {sl(tt.xuat7.sl)} đơn vị</span>
+            {tt.topXuat30.length > 0 && <span>Xuất nhiều nhất 30 ngày: {tt.topXuat30.map((x) => `${x.ten} (${sl(x.sl)})`).join(' · ')}</span>}
+          </div>
+        </section>
+      )}
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <TheSo nhan="Số mã có tồn / phát sinh" so={tom.soMa} />
         <TheSo nhan="Sắp hết (dưới tồn tối thiểu)" so={tom.sapHet} mau={tom.sapHet ? 'text-amber-700' : ''} />
