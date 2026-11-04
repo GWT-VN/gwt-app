@@ -32,6 +32,7 @@ export function ChonViecChan({
 
   // Gõ xong nghỉ tay 250ms mới gọi server — gõ 12 ký tự mà bắn 12 lượt là phí.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- xoá gợi ý khi ô tìm quá ngắn; giữ nguyên hành vi cũ
     if (q.trim().length < 2) { setGoiY([]); return }
     let huy = false
     setDangTim(true)

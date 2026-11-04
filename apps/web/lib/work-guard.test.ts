@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 /**
@@ -173,7 +173,6 @@ describe('Xoá hàng loạt — hai nhịp, có dấu vân', () => {
 //   · work.co_the_sua()        — quyền SỬA
 //   · work.visible_task_ids()  — quyền XEM (bình luận, chọn việc cha… dùng cái này)
 describe('RPC khu Việc — quyền luôn hỏi hàm chung, không chép tay', () => {
-  const { readdirSync } = require('node:fs') as typeof import('node:fs')
   const thuMuc = fileURLToPath(new URL('../../../db/work/migrations', import.meta.url))
   // Sắp theo tên file = theo thứ tự áp. Bản ĐỊNH NGHĨA SAU đè bản trước, nên chỉ
   // bản CUỐI của mỗi hàm mới là thứ đang chạy — file cũ đương nhiên còn bản cũ,
@@ -240,7 +239,6 @@ describe('ChiTietViec — việc con + phụ thuộc', () => {
 // việc với đúng vai `watcher`, nên gộp watcher vào quyền sửa nghĩa là NHẮC AI
 // LÀ CẤP QUYỀN CHO NGƯỜI ĐÓ — không ai coi việc nhắc tên là cấp quyền.
 describe('co_the_sua — watcher không được sửa', () => {
-  const { readdirSync } = require('node:fs') as typeof import('node:fs')
   const thuMuc = fileURLToPath(new URL('../../../db/work/migrations', import.meta.url))
   const files = readdirSync(thuMuc).filter((f: string) => f.endsWith('.sql')).sort()
 

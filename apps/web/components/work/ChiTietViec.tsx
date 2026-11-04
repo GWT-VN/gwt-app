@@ -560,6 +560,7 @@ export function ChiTietViec({
                               setDaNhac((cu) => ({ ...cu, [n.ten]: n.id }))
                               setGoiYNhac(null)
                               requestAnimationFrame(() => {
+                                // eslint-disable-next-line react-hooks/refs -- báo nhầm: chạy trong requestAnimationFrame của onClick, không phải lúc render
                                 oBinhLuan.current?.focus()
                                 oBinhLuan.current?.setSelectionRange(r.caret, r.caret)
                               })

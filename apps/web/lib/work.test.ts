@@ -251,7 +251,8 @@ describe('thuTuMoi — vị trí khi thả thẻ vào cột kanban', () => {
   it('chèn giữa liên tục vẫn ra số mới, không bao giờ cạn chỗ', () => {
     // sort_order là double precision nên trung điểm luôn còn chỗ — không phải
     // đánh số lại cả cột mỗi lần kéo. Chèn 30 lần vào cùng một khe.
-    let tren = 0, duoi = 1
+    const tren = 0
+    let duoi = 1
     for (let i = 0; i < 30; i++) {
       const moi = thuTuMoi(tren, duoi)
       expect(moi).toBeGreaterThan(tren)
