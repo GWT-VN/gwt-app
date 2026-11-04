@@ -2753,6 +2753,8 @@ async function ganTrangThaiLuc(rows: SerialRow[]): Promise<SerialRow[]> {
     .from('serial_su_dung')
     .select('serial, luc, ghi_chu')
     .in('serial', rows.map((r) => r.serial))
+    // Chỉ sự kiện ĐỔI TRẠNG THÁI. Sự kiện bot kho ghi (nhập/xuất kho, tình trạng — den_trang_thai null) không phải mốc trạng thái.
+    .not('den_trang_thai', 'is', null)
     .order('luc', { ascending: false })
   const moiNhat = new Map<string, { luc: string; ghi_chu: string | null }>()
   for (const r of (data ?? []) as { serial: string; luc: string; ghi_chu: string | null }[]) {
@@ -3224,7 +3226,8 @@ export async function lichSuSerial(serial: string): Promise<{ trang_thai: string
   const db = dataClient()
   const [{ data: sr }, { data: sk }] = await Promise.all([
     db.from('serial_registry').select('trang_thai').eq('serial', serial).maybeSingle(),
-    db.from('serial_su_dung').select('*').eq('serial', serial).order('luc', { ascending: false }),
+    // Bỏ sự kiện thử của bot kho (kênh Kho test, test_batch ≠ null) — dọn bằng kho_bot_don_test().
+    db.from('serial_su_dung').select('*').eq('serial', serial).is('test_batch', null).order('luc', { ascending: false }),
   ])
   return {
     trang_thai: (sr as { trang_thai: string } | null)?.trang_thai ?? null,
