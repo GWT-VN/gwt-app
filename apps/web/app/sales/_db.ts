@@ -3,7 +3,8 @@ import { dataClient } from '@/lib/nen-tang/db'
 import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode, oSheetBoSung } from './_calc'
 import type { CatalogPick, ChannelOpt, CustomerInput, NewOrderInput, OrderFormInitial } from './_types'
 import { maDaCap, type DongCoMa } from './_ma-khach'
-import { dauTheoSheet, dongTheoSheet } from './_sheet-uu-tien'
+import { dauTheoSheet, dongTheoSheet, phuBoSung, O_DAU_BO_SUNG } from './_sheet-uu-tien'
+import { DON_MAC_DINH } from './_types'
 
 // ───────────── Nguồn cho form ─────────────
 export async function listCatalogForPicker(): Promise<CatalogPick[]> {
@@ -234,6 +235,12 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
     .order('id', { ascending: true })
   const ms = (banSheet ?? []) as Array<Record<string, unknown>>
   const sh = ms.length ? dauTheoSheet(ms[0]) : null
+  // Ô bổ sung trên Sheet (SĐT, địa chỉ, cọc, ô POE…) — bảng sales_order_sheet_bo_sung; chưa có bảng / lỗi → giữ bản app.
+  let bs: Record<string, unknown> | null = null
+  if (ms.length) {
+    const { data: b, error: eB } = await db.from('sales_order_sheet_bo_sung').select('data').eq('order_code', orderCode).maybeSingle()
+    if (!eB && b) bs = (b as { data: Record<string, unknown> }).data ?? null
+  }
   const itemsApp: OrderFormInitial['items'] = ((items ?? []) as Array<Record<string, unknown>>).map((it) => ({
     internal_code: (it.internal_code as string) ?? '',
     product_name: (it.product_name as string) ?? '',
@@ -260,7 +267,7 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
         note: null,
       }))
     : itemsApp
-  return {
+  const banApp: OrderFormInitial = {
     customer_code: (header.customer_code as string) ?? null,
     phone: (header.phone as string) ?? null,
     customer_name: sh ? sh.customer_name : (header.customer_name as string) ?? null,
@@ -308,6 +315,7 @@ export async function getOrderForEdit(orderCode: string): Promise<OrderFormIniti
     note: sh ? sh.note : (header.note as string) ?? null,
     items: itemsForm,
   }
+  return phuBoSung(banApp, bs, [...O_DAU_BO_SUNG, ...Object.keys(DON_MAC_DINH)])
 }
 
 // ───────────── Khách app-owned (mã KA) ─────────────

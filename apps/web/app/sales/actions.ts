@@ -25,7 +25,7 @@ import {
 import { tinhKhuyenMai, tongDon } from './_calc'
 import { cacBienThe, gomDanhSachTinh } from '@/lib/tinhGom'
 import { DON_MAC_DINH } from './_types'
-import { dauTheoSheet, dongTheoSheet } from './_sheet-uu-tien'
+import { dauTheoSheet, dongTheoSheet, phuBoSung } from './_sheet-uu-tien'
 import type { NewOrderInput, CustomerInput } from './_types'
 
 /** Gác khu Sales: nền tảng (mọi nhân sự) + phải có vai trò Sales. */
@@ -457,6 +457,16 @@ export type DonChiTiet = {
   oSheet: Record<string, unknown> | null
 }
 
+/**
+ * Ô bổ sung của đơn trên Sheet (SĐT, địa chỉ, cọc, ô POE… — bảng `sales_order_sheet_bo_sung`, Apps Script
+ * DongBoBoSung.gs). Bảng chưa có / lỗi → null: trang vẫn chạy như trước, chỉ thiếu các ô này.
+ */
+async function boSungSheet(db: ReturnType<typeof dataClient>, orderCode: string): Promise<Record<string, unknown> | null> {
+  const { data, error } = await db.from('sales_order_sheet_bo_sung').select('data').eq('order_code', orderCode).maybeSingle()
+  if (error || !data) return null
+  return ((data as { data: Record<string, unknown> }).data) ?? null
+}
+
 /** Một dòng `sales_order_lines` (bản Google Sheet) → dòng hiển thị. */
 function dongMirror(r: Record<string, unknown>, i: number, laQua: boolean): DonLine {
   return {
@@ -619,6 +629,7 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
     const { data: banSheet } = await db.from('sales_order_lines').select(MIRROR_COLS).eq('order_code', orderCode).order('id', { ascending: true })
     const ms = (banSheet ?? []) as Array<Record<string, unknown>>
     const sh = ms.length ? dauTheoSheet(ms[0]) : null
+    const bs = ms.length ? await boSungSheet(db, orderCode) : null
     const lines: DonLine[] = ms.length ? dongTheoSheet(ms, linesApp, (r, laQua) => dongMirror(r, 0, laQua)) : linesApp
     const giaMap = await giaNiemYetTheoMa(db, lines.map((l) => l.internal_code ?? ''), (header.order_date as string) ?? null)
     for (const l of lines) {
@@ -642,15 +653,15 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
       customer_code: (header.customer_code as string) ?? null,
       customer_name: sh ? sh.customer_name : (header.customer_name as string) ?? null,
       province: sh ? sh.province : (header.province as string) ?? null,
-      address: (header.address as string) ?? null,
+      address: ((bs && 'address' in bs ? bs.address : header.address) as string) ?? null,
       channel: sh ? sh.channel : tenKenh,
       channel_detail: sh ? sh.channel_detail : (header.channel_detail as string) ?? null,
       fulfillment_status: sh ? sh.status : (header.status as string) ?? null,
       payment_status: sh ? sh.payment_status : (header.payment_status as string) ?? null,
-      payment_method: (header.payment_method as string) ?? null,
+      payment_method: ((bs && 'payment_method' in bs ? bs.payment_method : header.payment_method) as string) ?? null,
       partner_order_code: sh ? sh.partner_order_code : (header.partner_order_code as string) ?? null,
-      shipping_code: (header.shipping_code as string) ?? null,
-      install_date: (header.install_date as string) ?? null,
+      shipping_code: ((bs && 'shipping_code' in bs ? bs.shipping_code : header.shipping_code) as string) ?? null,
+      install_date: ((bs && 'install_date' in bs ? bs.install_date : header.install_date) as string) ?? null,
       total_vat: tong.sauVat, // lấy từ dòng đang hiện, không từ header — lệch thì phải thấy
       total_net: tong.net,
       total_vat_tien: tong.vat,
@@ -661,7 +672,7 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
       lines,
       // Lấy đúng các khoá của DON_MAC_DINH — thêm ô mới ở form là trang xem tự có, không
       // phải nhớ sửa hai chỗ. Ô rỗng vẫn đưa xuống, trang xem tự lọc.
-      oSheet: Object.fromEntries(Object.keys(DON_MAC_DINH).map((k) => [k, header[k] ?? null])),
+      oSheet: phuBoSung(Object.fromEntries(Object.keys(DON_MAC_DINH).map((k) => [k, header[k] ?? null])), bs, Object.keys(DON_MAC_DINH)),
     }
   }
 
@@ -684,6 +695,8 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
     l.khuyen_mai = tinhKhuyenMai(l.gia_niem_yet, l.quantity, l.amount_vat, l.is_gift)
   }
   const tong = tongDon(lines)
+  const bs = await boSungSheet(db, orderCode)
+  const o = (k: string) => ((bs?.[k] as string | null | undefined) ?? null)
   return {
     order_code: (f.order_code as string) || orderCode,
     order_date: (f.order_date as string) ?? null,
@@ -691,15 +704,15 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
     customer_code: null,
     customer_name: (f.customer_name as string) ?? null,
     province: (f.province as string) ?? null,
-    address: null,
+    address: o('address'),
     channel: (f.channel as string) ?? null,
     channel_detail: (f.channel_detail as string) ?? null,
     fulfillment_status: (f.fulfillment_status as string) ?? null,
     payment_status: (f.payment_status as string) ?? null,
-    payment_method: null,
+    payment_method: o('payment_method'),
     partner_order_code: (f.partner_order_code as string) ?? null,
-    shipping_code: null,
-    install_date: null,
+    shipping_code: o('shipping_code'),
+    install_date: o('install_date'),
     total_vat: tong.sauVat,
     total_net: tong.net,
     total_vat_tien: tong.vat,
@@ -708,7 +721,8 @@ export async function chiTietDon(orderCode: string): Promise<DonChiTiet | null> 
     is_app: false,
     theo_sheet: false,
     lines,
-    oSheet: null,
+    // Ô Sheet bổ sung (cọc, quà, ô POE…) — trước đây đơn từ Sheet không hiện được (sales_order_lines không có các cột này).
+    oSheet: bs ? phuBoSung(Object.fromEntries(Object.keys(DON_MAC_DINH).map((k) => [k, null])), bs, Object.keys(DON_MAC_DINH)) : null,
   }
 }
 

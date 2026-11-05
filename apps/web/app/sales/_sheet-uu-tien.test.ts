@@ -29,3 +29,13 @@ describe('đơn app đã lên Sheet: lấy theo Sheet', () => {
     expect(laMaSp('GPUN-4000XEN-G')).toBe(true)
   })
 })
+
+describe('phuBoSung — ô bổ sung từ Sheet', async () => {
+  const { phuBoSung } = await import('./_sheet-uu-tien')
+  it('chỉ đè khoá Sheet có cột; khoá vắng giữ bản app', () => {
+    const app = { phone: '0900000001', address: 'cũ', shipping_code: 'VD1', tien_coc: 1 }
+    const r = phuBoSung(app, { phone: '0900000009', tien_coc: null }, ['phone', 'address', 'shipping_code', 'tien_coc'])
+    expect(r).toEqual({ phone: '0900000009', address: 'cũ', shipping_code: 'VD1', tien_coc: null })
+    expect(phuBoSung(app, null, ['phone'])).toBe(app)
+  })
+})
