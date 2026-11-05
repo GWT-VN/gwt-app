@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { VAT_OPTS, maVat, nhanVat } from './_types'
+import { VAT_OPTS, maVat, nhanVat, vatMacDinh } from './_types'
 
 describe('nhanVat — nhãn hiển thị', () => {
   it('KCT và KAD hiện đúng nhãn, KHÔNG hiện 0%', () => {
@@ -34,5 +34,18 @@ describe('maVat — khoá dropdown', () => {
   })
   it('mọi mã dropdown đều dựng lại được từ (pct, loai) của nó', () => {
     for (const v of VAT_OPTS) expect(maVat(v.pct, v.loai)).toBe(v.ma)
+  })
+})
+
+describe('vatMacDinh — VAT trống → 8%, giữ VAT riêng', () => {
+  it('trống → 8%', () => {
+    expect(vatMacDinh(null, null)).toEqual({ vat_pct: 0.08, vat_loai: 'VAT' })
+    expect(vatMacDinh(undefined, undefined)).toEqual({ vat_pct: 0.08, vat_loai: 'VAT' })
+  })
+  it('giữ 0% / 10% / KCT / KAD', () => {
+    expect(vatMacDinh(0, 'VAT')).toEqual({ vat_pct: 0, vat_loai: 'VAT' })
+    expect(vatMacDinh(0.1, 'VAT')).toEqual({ vat_pct: 0.1, vat_loai: 'VAT' })
+    expect(vatMacDinh(0, 'KCT')).toEqual({ vat_pct: 0, vat_loai: 'KCT' })
+    expect(vatMacDinh(null, 'KAD')).toEqual({ vat_pct: 0, vat_loai: 'KAD' })
   })
 })

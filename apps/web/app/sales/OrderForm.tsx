@@ -17,6 +17,7 @@ import {
   PAYMENT_OPTS,
   PAYMETHOD_OPTS,
   VAT_OPTS,
+  vatMacDinh,
   maVat,
 } from './_types'
 import { giaGoiY, tomTatChinhSach, type BoiCanhGia, type GiaGoiY } from './_ctkm'
@@ -208,7 +209,7 @@ export function OrderForm({
   // tháng trước là app lặng lẽ viết đè giá khuyến mãi HÔM NAY lên — đơn đã chốt bị đổi số.
   const [lines, setLines] = useState<Line[]>(
     initial?.items?.length
-      ? initial.items.map((it, i) => ({ ...it, key: i + 1, giaTuGo: true }))
+      ? initial.items.map((it, i) => ({ ...it, ...vatMacDinh(it.vat_pct, it.vat_loai), key: i + 1, giaTuGo: true }))
       : [emptyLine(1)]
   )
   const [submitting, setSubmitting] = useState(false)
@@ -328,8 +329,7 @@ export function OrderForm({
         // Dòng quà tính 0 đ — `is_gift` đã lo phần tiền, đây chỉ để ô không hiện số lạ.
         unit_price_vat: 0,
         is_gift: true,
-        vat_pct: c?.vat_pct ?? null,
-        vat_loai: c?.vat_loai ?? null,
+        ...vatMacDinh(c?.vat_pct, c?.vat_loai),
         giaTuGo: true,
         ctkm_id: q.ctkmId || null,
       },
@@ -561,10 +561,9 @@ export function OrderForm({
                         product_name: c.name,
                         category_l1: c.category_l1,
                         category_l2: c.category_l2,
-                        // VAT tự điền theo mã nội bộ (CEO chốt 21/08). Mã chưa xếp loại
-                        // (mục chi phí kế toán) thì để trống chứ không đoán 8%.
-                        vat_pct: c.vat_pct,
-                        vat_loai: c.vat_loai,
+                        // VAT tự điền theo mã nội bộ (CEO chốt 21/08); mã chưa xếp loại VAT → 8% (đổi
+                        // 05/11/2026), người nhập vẫn chọn lại được ở ô VAT.
+                        ...vatMacDinh(c.vat_pct, c.vat_loai),
                         // Đổi MÃ là đổi cả bảng giá -> trả ô đơn giá về cho app điền lại.
                         // Số cũ là giá của mã CŨ, giữ lại chỉ để lẫn sang mã mới.
                         giaTuGo: false,
