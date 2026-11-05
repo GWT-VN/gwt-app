@@ -82,7 +82,8 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
           </dl>
         </section>
 
-        {don.is_app && (don.address || don.partner_order_code || don.shipping_code || don.install_date) && (
+        {/* Cả đơn từ Sheet (05/11/2026: ô bổ sung đồng bộ từ Sheet Sales) */}
+        {(don.address || don.partner_order_code || don.shipping_code || don.install_date) && (
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <Field label="Địa chỉ" value={don.address} />
