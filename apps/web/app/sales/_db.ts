@@ -2,6 +2,7 @@ import 'server-only'
 import { dataClient } from '@/lib/nen-tang/db'
 import { deriveSourceTab, TAB_LETTER, phoneChuan, lineAmount, isMaintenance, yymmdd, nextSeqCode, oSheetBoSung } from './_calc'
 import type { CatalogPick, ChannelOpt, CustomerInput, NewOrderInput, OrderFormInitial } from './_types'
+import { vatMacDinh } from './_types'
 import { maDaCap, type DongCoMa } from './_ma-khach'
 import { dauTheoSheet, dongTheoSheet } from './_sheet-uu-tien'
 
@@ -98,8 +99,7 @@ function buildItems(input: NewOrderInput, orderId?: string) {
       amount_vat: lineAmount(qty, price, !!it.is_gift),
       is_gift: !!it.is_gift,
       is_maintenance: isMaintenance(it.internal_code),
-      vat_pct: it.vat_pct == null ? null : Number(it.vat_pct),
-      vat_loai: it.vat_loai ?? null,
+      ...vatMacDinh(it.vat_pct, it.vat_loai), // chốt chặn cuối: dòng không VAT → 8%
       note: it.note || null,
       ctkm_id: it.ctkm_id || null,
     }

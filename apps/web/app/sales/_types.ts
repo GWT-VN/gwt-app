@@ -207,6 +207,17 @@ export function maVat(pct: number | null | undefined, loai: VatLoai | null | und
   return VAT_OPTS.find((v) => v.loai === 'VAT' && v.pct === p)?.ma ?? ''
 }
 
+/**
+ * VAT mặc định 8% khi dòng chưa có VAT (đổi 05/11/2026 theo yêu cầu: mã chưa xếp loại VAT trong danh mục —
+ * vd CTS10NB — trước để trống, người nhập quên chọn → cột "trước VAT" trên Sheet trống). Mã đã có VAT riêng
+ * (0%, 10%, KCT, KAD) giữ nguyên; người nhập vẫn đổi được ở ô VAT.
+ */
+export function vatMacDinh(pct: number | null | undefined, loai: VatLoai | null | undefined): { vat_pct: number; vat_loai: VatLoai } {
+  if (loai === 'KCT' || loai === 'KAD') return { vat_pct: 0, vat_loai: loai }
+  if (pct == null || (pct as unknown as string) === '') return { vat_pct: 0.08, vat_loai: 'VAT' }
+  return { vat_pct: Number(pct), vat_loai: 'VAT' }
+}
+
 /** Nhãn hiển thị cho một dòng đơn: 'KCT' · 'KAD' · '8%' · '—'. */
 export function nhanVat(pct: number | null | undefined, loai: VatLoai | null | undefined): string {
   if (loai === 'KCT' || loai === 'KAD') return loai
