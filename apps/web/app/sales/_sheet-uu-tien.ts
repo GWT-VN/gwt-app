@@ -52,3 +52,17 @@ export function dongTheoSheet<A extends CoMa>(
     ...app.filter((a) => a.is_gift && !laMaSp(a.internal_code)),
   ]
 }
+
+/** Ô đầu đơn mà bảng bổ sung (Sheet) mang theo ngoài các ô của `DON_MAC_DINH`. */
+export const O_DAU_BO_SUNG = ['phone', 'address', 'payment_method', 'shipping_code', 'install_date'] as const
+
+/**
+ * Ghép ô bổ sung từ Sheet (bảng `sales_order_sheet_bo_sung`, Apps Script DongBoBoSung.gs) lên một bản đơn: chỉ ô Sheet CÓ
+ * cột (khoá có mặt trong `data`) mới đè — tab không có cột đó (vd DON_TANG không có "Mã vận đơn") thì giữ bản app.
+ */
+export function phuBoSung<T extends Record<string, unknown>>(goc: T, data: Record<string, unknown> | null | undefined, khoa: readonly string[]): T {
+  if (!data) return goc
+  const out: Record<string, unknown> = { ...goc }
+  for (const k of khoa) if (Object.prototype.hasOwnProperty.call(data, k)) out[k] = data[k]
+  return out as T
+}
