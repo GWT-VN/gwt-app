@@ -21,8 +21,9 @@ import { xepGoiY, type GoiYKhach, type KhachUngVien } from '@/lib/khopPlanKhach'
 import { kiemTraGop, moTaGop, type KhachGon, type KhachDayDu } from '@/lib/gopKhach'
 import type { PChon } from '@/lib/gopKhachChon'
 import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
+import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import {
-  MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, COT_LOI, COT_KHACH, COT_BAO_TRI,
+  MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
   TINH_TRANG_BH, TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
   XUAT_MAY_COT, XUAT_BAOTRI_COT, XUAT_LOI_COT, MA_COMBO, docLocNgay, doChacHopLe, NHAN_LOAI_DIA_CHI,
   type TinhTrangBH, type DongNhapSerial, type DoChacNgayLap,
@@ -2448,6 +2449,10 @@ export type Ticket = {
   ky_thuat: string | null
   cs_ten: string | null
   ky_thuat_ten: string | null
+  /** Chỉ có ở kết quả searchTickets: mốc lớn nhất của created_at / updated_at / ghi chú mới nhất. */
+  hoat_dong_cuoi?: string | null
+  /** Chỉ có ở kết quả searchTickets: hoạt động trong 24 giờ qua -> badge "Mới". */
+  moi?: boolean
 }
 
 /** Tra ticket theo mã / serial / tên khách / SĐT / nội dung. Rỗng -> 50 ticket mới nhất.
@@ -2460,65 +2465,125 @@ export async function searchTickets(
   tuyChon: TuyChonDanhSach & { loaiTicket?: string; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<Ticket>> {
   await requireStaff()
-  const sx = sapXepHopLe(tuyChon.cot, tuyChon.chieu, COT_TICKET, {
-    cot: 'created_at', tang: false,
-  })
+  const sx = sapXepHopLe(tuyChon.cot, tuyChon.chieu, COT_TICKET, SAP_TICKET_MAC_DINH)
   const trang = Math.max(1, tuyChon.trang ?? 1)
   const moi = tuyChon.moiTrang ?? MOI_TRANG
   const tu = (trang - 1) * moi
 
-  let truyVan = dataClient().from('v_tickets').select('*', { count: 'exact' })
+  // Quyền xem tất cả hỏi MỘT lần, trước khi dựng câu truy vấn (dựng có thể chạy 2 lần
+  // khi sắp theo hoạt động: builder của supabase-js không dùng lại được sau khi await).
+  const xemTatCa = await coQuyen('cs.ticket.xem_tat_ca', 'QUANLY')
+  const meId = xemTatCa ? null : ((await layNhanVien())?.id ?? '00000000-0000-0000-0000-000000000000')
 
-  const term = q.trim()
-  if (term) {
-    // ticket_code/source_serial/mô tả/loại ticket vẫn còn dấu trong DB (không có cột
-    // bỏ dấu riêng) -> giữ nguyên có dấu, chỉ chặn ký tự phá .or(). Riêng tên khách
-    // đổi sang ten_kd (đã bỏ dấu sẵn, coalesce đúng khuôn customer_name — migration 06).
-    const safe = antoanChoOr(term)
-    const kw = antoanChoOr(chuanHoaTuKhoa(q))
-    // ten_kd khớp theo ĐẦU TỪ như trang Máy (mauDauTu). Các cột còn lại giữ ilike:
-    // mô tả là văn xuôi, người dùng gõ mẩu giữa câu là chuyện thường.
-    // Mô tả/loại ticket là VĂN XUÔI nên vẫn khớp chuỗi con; tên người khớp đầu từ.
-    // Cắt theo TỪ để gõ "an bình lỗi" khớp được ticket của "Nguyễn An" mô tả "máy lỗi".
-    for (const dk of dieuKienTungTu(
-      q,
-      ['ten_kd'],
-      ['ticket_code', 'source_serial', 'primary_phone', 'description', 'ticket_type']
-    )) {
-      truyVan = truyVan.or(dk)
+  const dungTruyVan = () => {
+    let truyVan = dataClient().from('v_tickets').select('*', { count: 'exact' })
+
+    const term = q.trim()
+    if (term) {
+      // ticket_code/source_serial/mô tả/loại ticket vẫn còn dấu trong DB (không có cột
+      // bỏ dấu riêng) -> giữ nguyên có dấu, chỉ chặn ký tự phá .or(). Riêng tên khách
+      // đổi sang ten_kd (đã bỏ dấu sẵn, coalesce đúng khuôn customer_name — migration 06).
+      // ten_kd khớp theo ĐẦU TỪ như trang Máy (mauDauTu). Các cột còn lại giữ ilike:
+      // mô tả là văn xuôi, người dùng gõ mẩu giữa câu là chuyện thường.
+      // Cắt theo TỪ để gõ "an bình lỗi" khớp được ticket của "Nguyễn An" mô tả "máy lỗi".
+      for (const dk of dieuKienTungTu(
+        q,
+        ['ten_kd'],
+        ['ticket_code', 'source_serial', 'primary_phone', 'description', 'ticket_type']
+      )) {
+        truyVan = truyVan.or(dk)
+      }
     }
+    if (state) truyVan = truyVan.eq('state', state)
+    if (onlyKhan) truyVan = truyVan.eq('khan', true)
+    if (mineStaffId) truyVan = truyVan.or(`cs_phu_trach.eq.${mineStaffId},ky_thuat.eq.${mineStaffId}`)
+    // Miền phụ trách: NV thường chỉ thấy ticket CỦA MÌNH + ticket CHƯA gán (để nhận
+    // việc). Quản lý/admin thấy hết. (mineStaffId ở trên là bộ lọc opt-in, độc lập.)
+    if (meId) truyVan = truyVan.or(`cs_phu_trach.is.null,cs_phu_trach.eq.${meId},ky_thuat.eq.${meId}`)
+    // Danh sách chọn ở giao diện sinh từ ticketTypes() (dữ liệu thật) nên giá trị luôn
+    // hợp lệ; vẫn .eq() thẳng (không whitelist tĩnh) vì loại ticket là dữ liệu mở, không
+    // cố định như cột sắp xếp.
+    if (tuyChon.loaiTicket) truyVan = truyVan.eq('ticket_type', tuyChon.loaiTicket)
+    // Lọc theo ngày tạo (created_at là timestamp → 'đến ngày' phải ôm hết trong ngày).
+    const { tu: tkTu, den: tkDen } = docLocNgay(tuyChon)
+    if (tkTu) truyVan = truyVan.gte('created_at', tkTu)
+    if (tkDen) truyVan = truyVan.lte('created_at', tkDen + 'T23:59:59.999')
+    return truyVan
   }
-  if (state) truyVan = truyVan.eq('state', state)
-  if (onlyKhan) truyVan = truyVan.eq('khan', true)
-  if (mineStaffId) truyVan = truyVan.or(`cs_phu_trach.eq.${mineStaffId},ky_thuat.eq.${mineStaffId}`)
-  // Miền phụ trách: NV thường chỉ thấy ticket CỦA MÌNH + ticket CHƯA gán (để nhận
-  // việc). Quản lý/admin thấy hết. (mineStaffId ở trên là bộ lọc opt-in, độc lập.)
-  if (!(await coQuyen('cs.ticket.xem_tat_ca', 'QUANLY'))) {
-    const me = await layNhanVien()
-    const id = me?.id ?? '00000000-0000-0000-0000-000000000000'
-    truyVan = truyVan.or(`cs_phu_trach.is.null,cs_phu_trach.eq.${id},ky_thuat.eq.${id}`)
+
+  /**
+   * Mã ticket -> mốc hoạt động gần nhất, cho MỌI ticket (bảng nhỏ: vài trăm dòng).
+   * Không cần migration: lấy tickets.created_at/updated_at + đúng 1 ghi chú mới nhất mỗi
+   * ticket (PostgREST giới hạn bảng con theo từng dòng cha, dùng index
+   * idx_ticket_note_code (ticket_code, created_at desc)). v_tickets không có updated_at và
+   * PostgREST không sắp được theo cột tổng hợp của bảng con, nên tính rồi sắp ở đây.
+   */
+  const bangHoatDongTicket = async (): Promise<Map<string, string | null>> => {
+    const ra = new Map<string, string | null>()
+    const lo = 1000
+    for (let i = 0; ; i += lo) {
+      const { data, error } = await dataClient()
+        .from('tickets')
+        .select('ticket_code, created_at, updated_at, ticket_note(created_at)')
+        .order('created_at', { referencedTable: 'ticket_note', ascending: false })
+        .limit(1, { referencedTable: 'ticket_note' })
+        .order('ticket_code', { ascending: true })
+        .range(i, i + lo - 1)
+      if (error) throw new Error(error.message)
+      const dong = (data ?? []) as { ticket_code: string; created_at: string; updated_at: string | null; ticket_note: { created_at: string }[] | null }[]
+      for (const r of dong) {
+        ra.set(r.ticket_code, hoatDongCuoi(r.created_at, r.updated_at, r.ticket_note?.[0]?.created_at))
+      }
+      if (dong.length < lo) break
+    }
+    return ra
   }
-  // Danh sách chọn ở giao diện sinh từ ticketTypes() (dữ liệu thật) nên giá trị luôn
-  // hợp lệ; vẫn .eq() thẳng (không whitelist tĩnh) vì loại ticket là dữ liệu mở, không
-  // cố định như cột sắp xếp.
-  if (tuyChon.loaiTicket) truyVan = truyVan.eq('ticket_type', tuyChon.loaiTicket)
-  // Lọc theo ngày tạo (created_at là timestamp → 'đến ngày' phải ôm hết trong ngày).
-  const { tu: tkTu, den: tkDen } = docLocNgay(tuyChon)
-  if (tkTu) truyVan = truyVan.gte('created_at', tkTu)
-  if (tkDen) truyVan = truyVan.lte('created_at', tkDen + 'T23:59:59.999')
 
-  // Khẩn lên đầu, rồi theo cột sắp xếp đã kiểm tra, rồi ticket_code (khoá chính,
-  // duy nhất) làm khoá phụ -> .range() không nhảy/lặp dòng giữa các trang.
-  const { data, error, count } = await truyVan
-    .order('khan', { ascending: false })
-    .order(sx.cot, { ascending: sx.tang, nullsFirst: false })
-    .order('ticket_code', { ascending: true })
-    .range(tu, tu + moi - 1)
-  if (error) throw new Error(error.message)
+  // Mốc hoạt động gắn cho MỌI cách sắp (badge "Mới" + tô dòng vừa đổi cần nó), chạy
+  // song song với truy vấn chính.
+  const hoatDong = bangHoatDongTicket()
+  const bayGio = Date.now()
+  const ganHoatDong = (map: Map<string, string | null>) => (r: Ticket): Ticket => {
+    const hd = map.get(r.ticket_code) ?? r.created_at
+    return { ...r, hoat_dong_cuoi: hd, moi: laMoi(hd, bayGio) }
+  }
 
-  const tong = count ?? 0
+  let rows: Ticket[]
+  let tong: number
+  if (sx.cot === 'hoat_dong') {
+    // Cột ảo: lấy HẾT dòng khớp bộ lọc (bảng vài trăm dòng), gắn mốc hoạt động, sắp,
+    // rồi mới cắt trang. Khẩn vẫn lên đầu, khoá phụ ticket_code -> trang không nhảy dòng.
+    const map = await hoatDong
+    const tatCa: Ticket[] = []
+    const lo = 1000
+    for (let i = 0; ; i += lo) {
+      const { data, error } = await dungTruyVan().order('ticket_code', { ascending: true }).range(i, i + lo - 1)
+      if (error) throw new Error(error.message)
+      const d = (data ?? []) as Ticket[]
+      tatCa.push(...d)
+      if (d.length < lo) break
+    }
+    const daGan = tatCa.map(ganHoatDong(map))
+    tong = daGan.length
+    rows = sapTheoHoatDong(daGan, sx.tang).slice(tu, tu + moi)
+  } else {
+    // Khẩn lên đầu, rồi theo cột sắp xếp đã kiểm tra, rồi ticket_code (khoá chính,
+    // duy nhất) làm khoá phụ -> .range() không nhảy/lặp dòng giữa các trang.
+    const [{ data, error, count }, map] = await Promise.all([
+      dungTruyVan()
+        .order('khan', { ascending: false })
+        .order(sx.cot, { ascending: sx.tang, nullsFirst: false })
+        .order('ticket_code', { ascending: true })
+        .range(tu, tu + moi - 1),
+      hoatDong,
+    ])
+    if (error) throw new Error(error.message)
+    tong = count ?? 0
+    rows = ((data ?? []) as Ticket[]).map(ganHoatDong(map))
+  }
+
   return {
-    rows: (data ?? []) as Ticket[],
+    rows,
     tong,
     trang,
     soTrang: Math.max(1, Math.ceil(tong / moi)),

@@ -10,6 +10,8 @@ export type CotDef<T> = {
   nhan: string
   batBuoc?: boolean
   sapXep?: string          // key trong whitelist sắp xếp (nếu cột này sắp được)
+  /** Chiều khi bấm sang cột này lần đầu. Cột ngày nên 'desc' (mới nhất trước) — mặc định 'asc'. */
+  chieuDau?: 'asc' | 'desc'
   phai?: boolean           // canh phải
   render: (r: T) => ReactNode
 }
@@ -21,7 +23,7 @@ export type CotDef<T> = {
  * Bọc trong <KhungChon> ở trang để có chọn-nhiều-dòng.
  */
 export function BangTuyChinh<T>({
-  rows, keyOf, moTaOf, nhan, bang, cot, macDinh, sapMacDinh, views, choViewChung, congCu,
+  rows, keyOf, moTaOf, nhan, bang, cot, macDinh, sapMacDinh, views, choViewChung, congCu, lopDong,
 }: {
   rows: T[]
   keyOf: (r: T) => string
@@ -42,6 +44,8 @@ export function BangTuyChinh<T>({
   choViewChung: boolean
   /** Nút/điều khiển thêm (Xuất Excel, Lọc ngày…) gom chung 1 hàng với View + Cột. */
   congCu?: ReactNode
+  /** Class thêm cho từng `<tr>` (vd tô sáng dòng vừa đổi). */
+  lopDong?: (r: T) => string
 }) {
   const router = useRouter()
   const BAT_BUOC = cot.filter((c) => c.batBuoc).map((c) => c.key)
@@ -155,13 +159,13 @@ export function BangTuyChinh<T>({
             <tr>
               <OChonTatCa nhan={nhan} />
               {cols.map((c) => c.sapXep
-                ? <TieuDeCotSapXep key={c.key} cot={c.sapXep} nhan={c.nhan} chieuMacDinh="asc" dangMacDinh={c.sapXep === sapMacDinh} />
+                ? <TieuDeCotSapXep key={c.key} cot={c.sapXep} nhan={c.nhan} chieuMacDinh={c.chieuDau ?? 'asc'} dangMacDinh={c.sapXep === sapMacDinh} />
                 : <th key={c.key} className={`px-4 py-3 font-medium ${c.phai ? 'text-right' : 'text-left'}`}>{c.nhan}</th>)}
             </tr>
           </thead>
           <tbody className="divide-y">
             {rows.map((r) => (
-              <tr key={keyOf(r)} className="hover:bg-slate-50 align-top">
+              <tr key={keyOf(r)} className={`hover:bg-slate-50 align-top ${lopDong?.(r) ?? ''}`}>
                 <OChonDong khoa={keyOf(r)} moTa={moTaOf(r)} />
                 {cols.map((c) => <td key={c.key} className={`px-4 py-3 text-slate-700 ${c.phai ? 'text-right' : ''}`}>{c.render(r)}</td>)}
               </tr>
