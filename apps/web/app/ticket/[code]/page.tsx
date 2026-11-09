@@ -11,16 +11,24 @@ import { TicketNotes } from '@/components/TicketNotes'
 import { TicketItems } from '@/components/TicketItems'
 import { NhanViecButton } from '@/components/NhanViecButton'
 import { vnDate } from '@/components/Badge'
+import { DongMayTicket } from '@/components/loi/DongMayTicket'
+import { dongMayCuaTicket, danhMucLoi } from '@/app/ticket/loi-actions'
+import { canhBaoTuQuery } from '@/lib/loi/canhBao'
+import { docAnToan, THIEU_DANH_MUC, THIEU_DONG_MAY } from '@/lib/loi/anToan'
 
-export default async function TicketPage({ params }: { params: Promise<{ code: string }> }) {
+export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
   const { code } = await params
+  const sp = await searchParams
+  const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, me, catalog, loaiList, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, me, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma), currentStaff(),
     listCatalogItems(), ticketTypes(),
+    docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
     hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
+      sua: ['cs.ticket.tao_sua', 'NHANVIEN'],
     }),
   ])
   if (!t) notFound()
@@ -36,6 +44,8 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
         <div className="flex items-center justify-between gap-4">
           <NutQuayLai macDinh="/ticket" />
         </div>
+
+        {canhBao && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {canhBao}</p>}
 
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-xl font-semibold text-slate-900 font-mono">{t.ticket_code}</h1>
@@ -111,6 +121,16 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
               </div>
             )}
           </dl>
+        </section>
+
+        <section className="bg-white rounded-xl border p-5">
+          <h2 className="font-medium text-slate-900 mb-3">Máy & lỗi</h2>
+          {thieuDongMay
+            ? <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {THIEU_DONG_MAY}</p>
+            : <>
+                {thieuDanhMuc && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mb-3">⚠️ {THIEU_DANH_MUC}</p>}
+                <DongMayTicket code={t.ticket_code} dong={dongMay} dsLoi={dsLoi} choSua={quyen.sua} />
+              </>}
         </section>
 
         {quyen.lichKT && t.customer_id && (

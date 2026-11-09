@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { danhMucLoi } from '@/app/ticket/loi-actions'
+import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
 import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, type Ticket } from '@/app/actions'
 import { currentStaff } from '@/lib/nen-tang/nhan-su'
 import type { KetQuaTrang } from '@/bang'
@@ -10,7 +12,7 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { OTimKiem } from '@/bang'
 import { ThanhDangLoc } from '@/bang'
 import { PhanTrang } from '@/bang'
-import { BoLocChon } from '@/bang'
+import { BoLocChon, BoLocGoiY } from '@/bang'
 import { LocNgay } from '@/bang'
 import { docLocNgay, moTaLocNgay, SAP_TICKET_MAC_DINH } from '@/lib/danhSach'
 import { TuLamMoi } from '@/components/TuLamMoi'
@@ -21,17 +23,17 @@ export default async function TicketsPage({
 }: {
   searchParams: Promise<{
     q?: string; state?: string; khan?: string; mine?: string; trang?: string
-    cot?: string; chieu?: string; loai?: string; ngtu?: string; ngden?: string
+    cot?: string; chieu?: string; loai?: string; loi?: string; ngtu?: string; ngden?: string
   }>
 }) {
-  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', ngtu, ngden } = await searchParams
+  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden } = await searchParams
   const onlyKhan = khan === '1'
   const isMine = mine === '1'
   const trang = Math.max(1, Number(trangRaw) || 1)
   const me = isMine ? await currentStaff() : null
   // Gõ nguyên hình dạng KetQuaTrang<Ticket> (kể cả `trang`) cho nhánh rỗng — thiếu field
   // không lộ lỗi build ngay bây giờ (chưa ai đọc `trang`) nhưng Task 4 destructure vào là vỡ.
-  const [ketQua, loaiList, quyen] = await Promise.all([
+  const [ketQua, loaiList, { data: dsLoi, loi: thieuDanhMuc }, quyen] = await Promise.all([
     (isMine && !me
       ? Promise.resolve<KetQuaTrang<Ticket>>({
           rows: [], tong: 0, trang: 1, soTrang: 1,
@@ -40,9 +42,10 @@ export default async function TicketsPage({
           sapXep: { ...SAP_TICKET_MAC_DINH, macDinh: true },
         })
       : searchTickets(q, onlyKhan ? undefined : state || undefined, onlyKhan, me?.id, {
-          trang, cot, chieu, loaiTicket: loai || undefined, ngtu, ngden,
+          trang, cot, chieu, loaiTicket: loai || undefined, loiCode: loi || undefined, ngtu, ngden,
         })),
     ticketTypes(),
+    docAnToan('danhMucLoi', () => danhMucLoi(), []),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       viewChung: ['he_thong.view_chung', 'QUANLY'],
@@ -62,13 +65,14 @@ export default async function TicketsPage({
   // Link bỏ RIÊNG một điều kiện, giữ nguyên điều kiện khác (kể cả cột/chiều đang sắp).
   // state/khan/mine là tab điều hướng riêng (không phải chip ở ThanhDangLoc) nên vẫn
   // giữ nguyên — bỏ "Từ khoá" hay "Loại lỗi" không có nghĩa là rời khỏi tab đang chọn.
-  function hrefBoDieuKien(bo: 'q' | 'loai' | 'ngay') {
+  function hrefBoDieuKien(bo: 'q' | 'loai' | 'loi' | 'ngay') {
     const params = new URLSearchParams()
     if (q && bo !== 'q') params.set('q', q)
     if (state) params.set('state', state)
     if (khan) params.set('khan', khan)
     if (mine) params.set('mine', mine)
     if (loai && bo !== 'loai') params.set('loai', loai)
+    if (loi && bo !== 'loi') params.set('loi', loi)
     if (ngtu && bo !== 'ngay') params.set('ngtu', ngtu)
     if (ngden && bo !== 'ngay') params.set('ngden', ngden)
     if (cot) params.set('cot', cot)
@@ -77,6 +81,7 @@ export default async function TicketsPage({
     return qs ? `/ticket?${qs}` : '/ticket'
   }
 
+  const tenLoi = dsLoi.find((d) => d.code === loi)?.ten ?? loi
   const { tu: ngTuOk, den: ngDenOk } = docLocNgay({ ngtu, ngden })
   const moTaNgay = moTaLocNgay(ngTuOk, ngDenOk, 'Ngày tạo')
 
@@ -91,6 +96,8 @@ export default async function TicketsPage({
             ＋ Tạo ticket
           </Link>
         </DauTrang>
+
+        {thieuDanhMuc && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {THIEU_DANH_MUC}</p>}
 
         <Suspense>
           <OTimKiem placeholder="Gõ mã ticket, serial, tên khách, SĐT hoặc nội dung lỗi…" />
@@ -128,7 +135,10 @@ export default async function TicketsPage({
             <Suspense>
               {/* Danh sách chọn sinh từ ticketTypes() — chỉ liệt kê loại ĐANG thực sự có
                   trong cột ticket_type, không hardcode. */}
-              <BoLocChon param="loai" nhan="Loại lỗi" tuyChon={loaiList.map((l) => ({ giaTri: l, nhan: l }))} />
+              <BoLocChon param="loai" nhan="Loại ticket" tuyChon={loaiList.map((l) => ({ giaTri: l, nhan: l }))} />
+            </Suspense>
+            <Suspense>
+              <BoLocGoiY param="loi" nhan="Loại lỗi" tuyChon={dsLoi.map((d) => ({ giaTri: d.code, nhan: d.ten }))} />
             </Suspense>
             <Suspense>
               <LocNgay nhan="Ngày tạo" />
@@ -139,7 +149,8 @@ export default async function TicketsPage({
         <ThanhDangLoc
           dieuKien={[
             ...(q ? [{ nhan: 'Từ khoá', giaTri: q, href: hrefBoDieuKien('q') }] : []),
-            ...(loai ? [{ nhan: 'Loại lỗi', giaTri: loai, href: hrefBoDieuKien('loai') }] : []),
+            ...(loai ? [{ nhan: 'Loại ticket', giaTri: loai, href: hrefBoDieuKien('loai') }] : []),
+            ...(loi ? [{ nhan: 'Loại lỗi', giaTri: tenLoi, href: hrefBoDieuKien('loi') }] : []),
             ...(moTaNgay ? [{ nhan: 'Ngày tạo', giaTri: moTaNgay.replace(/^Ngày tạo\s*[:=]?\s*/, ''), href: hrefBoDieuKien('ngay') }] : []),
           ]}
           hienThi={tickets.length}
@@ -156,7 +167,7 @@ export default async function TicketsPage({
           khoaTrang={tickets.map((t) => t.ticket_code)}
           tong={tong}
           bat={quyen.hangLoat}
-          thamSo={{ q, state, khan, mine, loai, cot, chieu, ngtu, ngden }}
+          thamSo={{ q, state, khan, mine, loai, loi, cot, chieu, ngtu, ngden }}
           layTatCaKhoa={khoaTatCaTicket}
         >
         {/* Tự làm mới ~20 giây/lần (router.refresh, giữ nguyên URL) — đặt trong KhungChon
@@ -164,8 +175,8 @@ export default async function TicketsPage({
         <TuLamMoi />
         <ThanhDaChon nhan="ticket" />
         <BangTicket rows={tickets} choViewChung={quyen.viewChung} views={views}
-          boLoc={JSON.stringify([q, state, khan, mine, loai, ngtu, ngden, trang, sapXep.cot, sapXep.tang])}
-          congCu={quyen.xuat && <ExportTicketButton q={q} state={onlyKhan || isMine ? undefined : state || undefined} khan={onlyKhan} mine={isMine} ngtu={ngtu} ngden={ngden} />} />
+          boLoc={JSON.stringify([q, state, khan, mine, loai, loi, ngtu, ngden, trang, sapXep.cot, sapXep.tang])}
+          congCu={quyen.xuat && <ExportTicketButton q={q} state={onlyKhan || isMine ? undefined : state || undefined} khan={onlyKhan} mine={isMine} ngtu={ngtu} ngden={ngden} loai={loai || undefined} loi={loi || undefined} />} />
         </KhungChon>
 
         <Suspense>

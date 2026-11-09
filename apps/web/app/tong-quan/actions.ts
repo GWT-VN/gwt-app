@@ -28,7 +28,8 @@ export async function soLieuTongQuan(): Promise<SoLieuTongQuan> {
   const [choDuyet, dem, ticket, canDon] = await Promise.all([
     duocDuyet ? listKhachChoDuyet() : Promise.resolve(null),
     maintenanceCounts(),
-    searchTickets('', 'Open', undefined, undefined, { trang: 1 }),
+    // Chỉ cần đếm: không đọc dòng máy (khỏi phụ thuộc ticket_may / quyền cs.ticket.xem).
+    searchTickets('', 'Open', undefined, undefined, { trang: 1, kemDongMay: false }),
     listToFix('', { trang: 1 }),
   ])
   return {
