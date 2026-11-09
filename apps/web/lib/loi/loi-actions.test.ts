@@ -13,7 +13,7 @@ function builder(bang: string) {
     const r = phan[k] ?? phan[bang] ?? {}
     return { data: r.data ?? null, count: r.count ?? 0, error: null }
   }
-  for (const m of ['select', 'order', 'limit', 'in', 'ilike', 'or', 'neq', 'is', 'not']) b[m] = (...a: unknown[]) => { if (m === 'in' || m === 'neq') st.loc[`${m}:${a[0]}`] = a[1]; return b }
+  for (const m of ['select', 'order', 'limit', 'range', 'in', 'ilike', 'or', 'neq', 'is', 'not']) b[m] = (...a: unknown[]) => { if (m === 'in' || m === 'neq') st.loc[`${m}:${a[0]}`] = a[1]; return b }
   b.eq = (c: string, v: unknown) => { st.loc[c] = v; return b }
   for (const m of ['insert', 'update', 'delete', 'upsert']) b[m] = (a?: unknown) => { st.op = m; st.arg = a; ghi.push({ op: m, bang, arg: a, loc: st.loc }); return b }
   b.maybeSingle = async () => tra()
@@ -256,5 +256,31 @@ describe('ganDongMayChoTicketMoi (module server-only, không phải action)', ()
     rpcTra = { cs_them_dong_may: { ok: true, id: 'n' } }
     expect((await ganDongMayChoTicketMoi('T1', [{ loi_code: 'L1' }, { loi_code: 'L1' }])).ok).toBe(true)
     expect(db.rpc.mock.calls.filter((c) => c[0] === 'cs_them_dong_may')).toHaveLength(2)
+  })
+})
+
+describe('duLieuTanSuat', () => {
+  beforeEach(async () => {
+    const { doQuyen } = await import('@/lib/nen-tang/kiem-quyen')
+    vi.mocked(doQuyen).mockImplementation(async () => { chuoi.push('doQuyen') })
+  })
+  it('gate cs.ticket.xem trước DB; đọc 3 view, map so_ban/so_nhap -> so', async () => {
+    phan = {
+      v_loi_ca: { data: [{ ticket_code: 'T1' }] },
+      v_loi_so_ban: { data: [{ internal_code: 'A', thang: '2026-10', so_ban: '5' }] },
+      v_loi_so_nhap: { data: [{ internal_code: 'A', thang: '2026-10', so_nhap: 7 }] },
+    }
+    const r = await A.duLieuTanSuat()
+    expect(chuoi.indexOf('doQuyen')).toBeLessThan(chuoi.findIndex((x) => x.startsWith('db:')))
+    expect(r.ca).toHaveLength(1)
+    expect(r.ban).toEqual([{ internal_code: 'A', thang: '2026-10', so: 5 }])
+    expect(r.nhap).toEqual([{ internal_code: 'A', thang: '2026-10', so: 7 }])
+    expect(chuoi.filter((x) => x.startsWith('db:')).sort()).toEqual(['db:v_loi_ca', 'db:v_loi_so_ban', 'db:v_loi_so_nhap'])
+  })
+  it('thiếu quyền: không chạm DB', async () => {
+    const { doQuyen } = await import('@/lib/nen-tang/kiem-quyen')
+    vi.mocked(doQuyen).mockImplementationOnce(async () => { chuoi.push('doQuyen'); throw new Error('NEXT_REDIRECT') })
+    await expect(A.duLieuTanSuat()).rejects.toThrow()
+    khongChamDb()
   })
 })

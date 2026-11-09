@@ -11,6 +11,7 @@ import { boDau } from '@/bang/timkiem'
 import { kiemDangSerial } from '@/lib/loi/serial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 import { docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
+import type { DongCa, MauSo } from '@/lib/loi/tanSuat'
 import type { DongMay, DongMayInput, KetQuaTraSerial, KhachVaMay, LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
 
 import { chuanBiDong, giaiSerial, KHONG_DUNG_DUOC, loiDungDuoc, themDongQuaRpc, type KQ } from '@/lib/loi/ganDongMayServer'
@@ -361,4 +362,40 @@ export async function traKhachVaMay(q: string): Promise<KhachVaMay[]> {
     theoKhach.set(customer_id, [...(theoKhach.get(customer_id) ?? []), x])
   }
   return khach.map((k) => ({ ...k, may: theoKhach.get(k.id) ?? [] }))
+}
+
+// ───────────────────────── Báo cáo tần suất ─────────────────────────
+
+const TRANG = 1000
+const TOI_DA_TRANG = 500 // 500k hàng/view; vượt thì báo lỗi chứ không cắt âm thầm
+
+/** Đọc HẾT một view bằng .range() (PostgREST max-rows mặc định 1000), khoá sắp xếp ổn định. */
+async function docHetView(db: ReturnType<typeof dataClient>, ten: string, khoa: string[]): Promise<Record<string, unknown>[]> {
+  const ra: Record<string, unknown>[] = []
+  for (let i = 0; i < TOI_DA_TRANG; i++) {
+    let q = db.from(ten).select('*')
+    for (const k of khoa) q = q.order(k)
+    const { data, error } = await q.range(i * TRANG, i * TRANG + TRANG - 1)
+    if (error) throw new Error(thongBaoLoiDb(error, `duLieuTanSuat:${ten}`))
+    const ds = (data ?? []) as Record<string, unknown>[]
+    ra.push(...ds)
+    if (ds.length < TRANG) return ra
+  }
+  throw new Error('Dữ liệu báo cáo quá lớn, không đọc hết được.')
+}
+
+export async function duLieuTanSuat(): Promise<{ ca: DongCa[]; ban: MauSo[]; nhap: MauSo[] }> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  const db = dataClient()
+  const [ca, ban, nhap] = await Promise.all([
+    docHetView(db, 'v_loi_ca', ['id']),
+    docHetView(db, 'v_loi_so_ban', ['internal_code', 'thang']),
+    docHetView(db, 'v_loi_so_nhap', ['internal_code', 'thang']),
+  ])
+  return {
+    ca: ca as unknown as DongCa[],
+    ban: ban.map((r) => ({ internal_code: String(r.internal_code), thang: String(r.thang), so: Number(r.so_ban) || 0 })),
+    nhap: nhap.map((r) => ({ internal_code: String(r.internal_code), thang: String(r.thang), so: Number(r.so_nhap) || 0 })),
+  }
 }
