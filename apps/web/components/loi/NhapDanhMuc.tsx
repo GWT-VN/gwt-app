@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { nhapDanhMuc, xemTruocNhapDanhMuc } from '@/app/ticket/loi-actions'
-import { chayNhap, chayXemTruoc, duocNhap, NHAN_TRANG_THAI, type TomTatXemTruoc } from '@/lib/loi/giaoDienDanhMuc'
+import { chayNhap, chayXemTruoc, duocNhap, nhanNutNhap, NHAN_TRANG_THAI, type TomTatXemTruoc } from '@/lib/loi/giaoDienDanhMuc'
 
 export function NhapDanhMuc() {
   const router = useRouter()
@@ -12,16 +12,23 @@ export function NhapDanhMuc() {
   const [loi, setLoi] = useState('')
   const [xong, setXong] = useState('')
   const [ban, chay] = useTransition()
+  const [coFile, setCoFile] = useState(false)
   const fdRef = useRef<FormData | null>(null)
 
-  const chonFile = (file: File | undefined) => {
-    setTomTat(null); setLoi(''); setXong(''); fdRef.current = null
-    if (!file) return
-    const fd = new FormData(); fd.set('file', file); fdRef.current = fd
+  const xemTruoc = (fd: FormData) => {
+    setTomTat(null); setLoi(''); setXong('')
     chay(async () => {
       const r = await chayXemTruoc(fd, xemTruocNhapDanhMuc)
       if ('loi' in r) setLoi(r.loi); else setTomTat(r.tomTat)
     })
+  }
+  const chonFile = (input: HTMLInputElement) => {
+    const file = input.files?.[0]
+    input.value = '' // chọn lại cùng file vẫn kích hoạt onChange
+    fdRef.current = null; setCoFile(false); setTomTat(null); setLoi(''); setXong('')
+    if (!file) return
+    const fd = new FormData(); fd.set('file', file); fdRef.current = fd; setCoFile(true)
+    xemTruoc(fd)
   }
   const nhap = () => fdRef.current && chay(async () => {
     const r = await chayNhap(fdRef.current!, tomTat, nhapDanhMuc)
@@ -36,7 +43,8 @@ export function NhapDanhMuc() {
         <h2 className="font-medium text-slate-900">Nhập danh mục từ Sheet đã duyệt</h2>
         <button type="button" onClick={() => setMo(false)} className="text-sm text-slate-500">Đóng</button>
       </div>
-      <input type="file" accept=".xlsx,.csv" onChange={(e) => chonFile(e.target.files?.[0])} />
+      <input type="file" accept=".xlsx,.csv" onChange={(e) => chonFile(e.target)} />
+      {coFile && <button type="button" disabled={ban} onClick={() => xemTruoc(fdRef.current!)} className="ml-2 rounded-lg border px-2 py-1 text-sm">Xem trước lại</button>}
       {ban && <p className="text-sm text-slate-500">Đang xử lý…</p>}
       {loi && <p className="text-sm text-red-600 whitespace-pre-line">{loi}</p>}
       {xong && <p className="text-sm text-emerald-700">{xong}</p>}
@@ -47,7 +55,10 @@ export function NhapDanhMuc() {
             <strong>{tomTat.soDongSeDoi} dòng máy sẽ đổi</strong>
           </p>
           {tomTat.coLoi && (
-            <ul className="text-sm text-red-600 list-disc pl-5">{tomTat.loi.map((l) => <li key={l}>{l}</li>)}</ul>
+            <ul className="text-sm text-red-600 list-disc pl-5">
+              {tomTat.loi.map((l) => <li key={l}>{l}</li>)}
+              {tomTat.soLoiKhac > 0 && <li>+{tomTat.soLoiKhac} lỗi khác</li>}
+            </ul>
           )}
           <table className="w-full text-xs">
             <thead className="text-left text-slate-500"><tr><th>Mã</th><th>Tên chuẩn</th><th>Nhóm</th><th>Trạng thái</th></tr></thead>
@@ -60,7 +71,7 @@ export function NhapDanhMuc() {
           {tomTat.soMa > tomTat.mau.length && <p className="text-xs text-slate-500">Chỉ hiện {tomTat.mau.length} mã đầu.</p>}
           <button type="button" disabled={ban || !duocNhap(tomTat)} onClick={nhap}
             className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-40">
-            Nhập {tomTat.soMa} mã + gán {tomTat.soGan} ticket
+            {nhanNutNhap(tomTat)}
           </button>
         </div>
       )}

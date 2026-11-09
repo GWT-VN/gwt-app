@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
+import { nhomLoiChon } from '@/app/actions'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { DauTrang } from '@/components/DauTrang'
 import { OTimKiem, BoLocChon, ThanhDangLoc, boDau } from '@/bang'
@@ -15,7 +16,7 @@ const TT = [
 
 export default async function DanhMucLoiPage({ searchParams }: { searchParams: Promise<{ q?: string; tt?: string }> }) {
   const { q = '', tt = '' } = await searchParams
-  const [tatCa, quyen] = await Promise.all([danhMucLoi(), hoiQuyen({ sua: ['cs.nhom_loi.cau_hinh', 'QUANLY'] })])
+  const [tatCa, quyen, nhom] = await Promise.all([danhMucLoi(), hoiQuyen({ sua: ['cs.nhom_loi.cau_hinh', 'QUANLY'] }), nhomLoiChon()])
   const k = boDau(q).toLowerCase()
   const rows = tatCa.filter((d) => (!tt || d.trang_thai === tt) &&
     (!k || boDau([d.code, d.ten, ...d.aliases, ...d.ma_may].join(' ')).toLowerCase().includes(k)))
@@ -31,7 +32,8 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
         <Suspense><OTimKiem placeholder="Gõ mã, tên lỗi, cách ghi, mã máy…" /></Suspense>
         <Suspense><BoLocChon param="tt" nhan="Trạng thái" tuyChon={TT} /></Suspense>
         <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={tatCa.length} nhan="mã lỗi" />
-        <DanhMucLoiBang rows={rows} choSua={quyen.sua} />
+        <DanhMucLoiBang rows={rows} choSua={quyen.sua}
+          nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))} />
       </div>
     </main>
   )

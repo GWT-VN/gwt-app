@@ -48,8 +48,9 @@ export type KetQuaNhap = { ok: true; so_loi: number; so_gan: number } | { ok: fa
 export type TomTatXemTruoc = {
   daDuyet: number; choDuyet: number; soGan: number; soDongSeDoi: number
   mau: { code: string; ten: string; nhom: string | null; trang_thai: TrangThaiLoi }[]
-  loi: string[]; coLoi: boolean; soMa: number
+  loi: string[]; soLoiKhac: number; coLoi: boolean; soMa: number
 }
+export const TOI_DA_LOI_HIEN = 50
 export function tomTatXemTruoc(r: Extract<XemTruoc, { ok: true }>): TomTatXemTruoc {
   const h = r.danhMuc.hopLe
   const loi = [...r.danhMuc.loi.map((l) => `Sheet "Danh mục lỗi", dòng ${l.dong}: ${l.loi}`),
@@ -58,9 +59,13 @@ export function tomTatXemTruoc(r: Extract<XemTruoc, { ok: true }>): TomTatXemTru
     daDuyet: h.filter((x) => x.trang_thai === 'da_duyet').length,
     choDuyet: h.filter((x) => x.trang_thai === 'cho_duyet').length,
     soGan: r.ganTicket.hopLe.length, soDongSeDoi: r.soDongSeDoi,
-    mau: h.slice(0, 20), loi, coLoi: loi.length > 0, soMa: h.length,
+    mau: h.slice(0, 20), loi: loi.slice(0, TOI_DA_LOI_HIEN), soLoiKhac: Math.max(0, loi.length - TOI_DA_LOI_HIEN),
+    coLoi: loi.length > 0, soMa: h.length,
   }
 }
+
+export const nhanNutNhap = (t: TomTatXemTruoc) =>
+  `Nhập ${t.soMa} mã + gán ${t.soGan} ticket · ghi đè ${t.soDongSeDoi} dòng máy`
 
 /** Chỉ cho nhập khi đã xem trước, không còn lỗi, và còn ít nhất một mã. */
 export const duocNhap = (t: TomTatXemTruoc | null): boolean => !!t && !t.coLoi && t.soMa > 0

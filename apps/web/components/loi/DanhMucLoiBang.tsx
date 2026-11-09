@@ -2,6 +2,7 @@
 
 import { Fragment, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { OChonGoiY, type MucChon } from '@/bang'
 import { luuLoi, datTrangThaiLoi } from '@/app/ticket/loi-actions'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 import type { LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
@@ -14,7 +15,7 @@ const MAU: Record<TrangThaiLoi, string> = {
 }
 const o = 'w-full rounded-lg border border-slate-300 px-2 py-1 text-sm'
 
-export function DanhMucLoiBang({ rows, choSua }: { rows: LoiDanhMuc[]; choSua: boolean }) {
+export function DanhMucLoiBang({ rows, choSua, nhomTuyChon = [] }: { rows: LoiDanhMuc[]; choSua: boolean; nhomTuyChon?: MucChon[] }) {
   const router = useRouter()
   const [dangSua, setDangSua] = useState<string | null>(null)
   const [form, setForm] = useState<FormLoi | null>(null)
@@ -79,7 +80,10 @@ export function DanhMucLoiBang({ rows, choSua }: { rows: LoiDanhMuc[]; choSua: b
                   <tr className="bg-slate-50"><td colSpan={8} className="p-3">
                     <div className="grid gap-2 sm:grid-cols-2">
                       <label className="text-xs">Tên chuẩn<input className={o} value={form.ten} onChange={f('ten')} /></label>
-                      <label className="text-xs">Nhóm lỗi (mã nhóm)<input className={o} value={form.nhom} onChange={f('nhom')} /></label>
+                      <div className="text-xs">Nhóm lỗi
+                        <OChonGoiY giaTri={form.nhom || null} tuyChon={nhomTuyChon} choTrong="Gõ để tìm nhóm lỗi…"
+                          onChon={(gt) => setForm((x) => x && { ...x, nhom: gt })} />
+                      </div>
                       <label className="text-xs">Các cách ghi (mỗi dòng một cách)<textarea className={o} rows={3} value={form.aliases} onChange={f('aliases')} /></label>
                       <label className="text-xs">Mã máy áp dụng (mỗi dòng một mã)<textarea className={o} rows={3} value={form.ma_may} onChange={f('ma_may')} /></label>
                       <label className="text-xs">Dấu hiệu<textarea className={o} rows={2} value={form.dau_hieu} onChange={f('dau_hieu')} /></label>

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   apDungPhanLoai, chayNhap, chayThuPhanLoai, chayXemTruoc, dongBaoCao, duocNhap, formTuLoi, loiTuForm,
-  tomTatDanhSach, tomTatXemTruoc, XAC_NHAN_PHAN_LOAI_LAI, type XemTruoc,
+  nhanNutNhap, tomTatDanhSach, tomTatXemTruoc, TOI_DA_LOI_HIEN, XAC_NHAN_PHAN_LOAI_LAI, type XemTruoc,
 } from './giaoDienDanhMuc'
 
 const xt = (loi: { dong: number; loi: string }[] = []): Extract<XemTruoc, { ok: true }> => ({
@@ -52,6 +52,20 @@ describe('nhập từ Sheet: xem trước -> xác nhận', () => {
     const nhap = vi.fn()
     expect(await chayNhap(new FormData(), null, nhap)).toHaveProperty('loi')
     expect(nhap).not.toHaveBeenCalled()
+  })
+})
+
+describe('hiển thị xem trước', () => {
+  it('giới hạn 50 lỗi, phần dư gom +n', () => {
+    const loi = Array.from({ length: 53 }, (_, i) => ({ dong: i + 2, loi: 'x' }))
+    const t = tomTatXemTruoc(xt(loi))
+    expect(TOI_DA_LOI_HIEN).toBe(50)
+    expect(t.loi).toHaveLength(50)
+    expect(t.soLoiKhac).toBe(3)
+    expect(t.coLoi).toBe(true)
+  })
+  it('nhãn nút nhập có số dòng máy bị ghi đè', () => {
+    expect(nhanNutNhap(tomTatXemTruoc(xt()))).toBe('Nhập 2 mã + gán 3 ticket · ghi đè 7 dòng máy')
   })
 })
 
