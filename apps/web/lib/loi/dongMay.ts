@@ -24,3 +24,10 @@ export function goiYHuongXuLy(
   if (dong.huong_xu_ly_nguon) return null
   return nd
 }
+
+/** Dòng máy rút gọn cho cột "Máy" ở bảng ticket (giữ thứ tự dòng). */
+export function tomTatMayTicket(
+  dong: Pick<DongMay, 'internal_code' | 'loi_code' | 'loi_ten' | 'serial' | 'source_serial'>[],
+): { nhan: string; serial: string | null }[] {
+  return dong.map((d) => ({ nhan: nhanDongMay(d), serial: d.serial ?? d.source_serial ?? null }))
+}

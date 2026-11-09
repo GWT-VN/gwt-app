@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nhanDongMay, goiYHuongXuLy, CHUA_PHAN_LOAI } from './dongMay'
+import { nhanDongMay, goiYHuongXuLy, tomTatMayTicket, CHUA_PHAN_LOAI } from './dongMay'
 
 describe('lib/loi/dongMay', () => {
   it('nhãn "MÃ MÁY · Tên lỗi"', () => {
@@ -19,5 +19,11 @@ describe('lib/loi/dongMay', () => {
   })
   it('không bao giờ gợi ý cho CHUA_PHAN_LOAI', () => {
     expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'x' }, CHUA_PHAN_LOAI)).toBeNull()
+  })
+  it('tóm tắt dòng máy cho bảng ticket, giữ thứ tự, serial ưu tiên serial đã gắn', () => {
+    expect(tomTatMayTicket([
+      { internal_code: 'CTS20NG', loi_code: 'A', loi_ten: 'Rò nước đáy', serial: null, source_serial: 'Z1' },
+      { internal_code: null, loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại', serial: 'Z2', source_serial: 'Z2' },
+    ])).toEqual([{ nhan: 'CTS20NG · Rò nước đáy', serial: 'Z1' }, { nhan: 'Chưa rõ máy · Chưa phân loại', serial: 'Z2' }])
   })
 })

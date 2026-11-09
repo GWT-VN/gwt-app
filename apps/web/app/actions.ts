@@ -22,6 +22,8 @@ import { kiemTraGop, moTaGop, type KhachGon, type KhachDayDu } from '@/lib/gopKh
 import type { PChon } from '@/lib/gopKhachChon'
 import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
+import { dongMayTheoTickets, ticketCodesTheoLoi } from '@/app/ticket/loi-actions'
+import { tomTatMayTicket } from '@/lib/loi/dongMay'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
   TINH_TRANG_BH, TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
@@ -2453,6 +2455,8 @@ export type Ticket = {
   hoat_dong_cuoi?: string | null
   /** Chỉ có ở kết quả searchTickets: hoạt động trong 24 giờ qua -> badge "Mới". */
   moi?: boolean
+  /** Chỉ có ở kết quả searchTickets: các dòng máy "MÃ · lỗi" (ticket_may). */
+  dong_may?: { nhan: string; serial: string | null }[]
 }
 
 /** Tra ticket theo mã / serial / tên khách / SĐT / nội dung. Rỗng -> 50 ticket mới nhất.
@@ -2462,7 +2466,7 @@ export async function searchTickets(
   state?: string,
   onlyKhan?: boolean,
   mineStaffId?: string,
-  tuyChon: TuyChonDanhSach & { loaiTicket?: string; ngtu?: string; ngden?: string } = {}
+  tuyChon: TuyChonDanhSach & { loaiTicket?: string; loiCode?: string; kemDongMay?: boolean; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<Ticket>> {
   await requireStaff()
   const sx = sapXepHopLe(tuyChon.cot, tuyChon.chieu, COT_TICKET, SAP_TICKET_MAC_DINH)
@@ -2474,6 +2478,9 @@ export async function searchTickets(
   // khi sắp theo hoạt động: builder của supabase-js không dùng lại được sau khi await).
   const xemTatCa = await coQuyen('cs.ticket.xem_tat_ca', 'QUANLY')
   const meId = xemTatCa ? null : ((await layNhanVien())?.id ?? '00000000-0000-0000-0000-000000000000')
+
+  // Lọc theo loại lỗi = ticket có ÍT NHẤT một dòng máy mang mã lỗi đó (sau kiểm quyền ở trên).
+  const maTheoLoi = tuyChon.loiCode ? await ticketCodesTheoLoi(tuyChon.loiCode) : null
 
   const dungTruyVan = () => {
     let truyVan = dataClient().from('v_tickets').select('*', { count: 'exact' })
@@ -2504,6 +2511,7 @@ export async function searchTickets(
     // hợp lệ; vẫn .eq() thẳng (không whitelist tĩnh) vì loại ticket là dữ liệu mở, không
     // cố định như cột sắp xếp.
     if (tuyChon.loaiTicket) truyVan = truyVan.eq('ticket_type', tuyChon.loaiTicket)
+    if (maTheoLoi) truyVan = truyVan.in('ticket_code', maTheoLoi.length ? maTheoLoi : ['__khong_co__'])
     // Lọc theo ngày tạo (created_at là timestamp → 'đến ngày' phải ôm hết trong ngày).
     const { tu: tkTu, den: tkDen } = docLocNgay(tuyChon)
     if (tkTu) truyVan = truyVan.gte('created_at', tkTu)
@@ -2580,6 +2588,13 @@ export async function searchTickets(
     if (error) throw new Error(error.message)
     tong = count ?? 0
     rows = ((data ?? []) as Ticket[]).map(ganHoatDong(map))
+  }
+
+  // MỘT lần đọc ticket_may cho cả trang (không N+1). Tra cứu tối đa 200 mã/lần nên
+  // đường gom hàng loạt (chọn tất cả / export, lô 1000) tắt bằng kemDongMay=false.
+  if (tuyChon.kemDongMay !== false && rows.length) {
+    const dongMay = await dongMayTheoTickets(rows.map((r) => r.ticket_code))
+    rows = rows.map((r) => ({ ...r, dong_may: tomTatMayTicket(dongMay[r.ticket_code] ?? []) }))
   }
 
   return {
@@ -4181,7 +4196,7 @@ export async function xuatTicket(
   await requireStaff()
   if (!(await coQuyen('cs.bao_cao.xuat', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
   const mineId = mine ? (await currentStaff())?.id : undefined
-  const rows = await gomTatCa((trang, moiTrang) => searchTickets(q, state, onlyKhan, mineId, { trang, moiTrang, ngtu, ngden }))
+  const rows = await gomTatCa((trang, moiTrang) => searchTickets(q, state, onlyKhan, mineId, { trang, moiTrang, ngtu, ngden, kemDongMay: false }))
   const cols = XUAT_TICKET_COT.filter((c) => cot.includes(c.key))
   const gt = (t: Record<string, unknown>, key: string): string => {
     if (key === 'created_at') return String(t.created_at ?? '').slice(0, 10)
@@ -4948,7 +4963,7 @@ export async function khoaTatCaTicket(t: ThamSoLoc): Promise<string[]> {
       onlyKhan ? undefined : t.state || undefined,
       onlyKhan,
       me?.id,
-      { trang, moiTrang, cot: t.cot, chieu: t.chieu, loaiTicket: t.loai || undefined, ngtu: t.ngtu, ngden: t.ngden }
+      { trang, moiTrang, cot: t.cot, chieu: t.chieu, loaiTicket: t.loai || undefined, loiCode: t.loi || undefined, kemDongMay: false, ngtu: t.ngtu, ngden: t.ngden }
     ),
     (r) => r.ticket_code,
     TOI_DA_CHON
