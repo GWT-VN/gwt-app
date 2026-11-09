@@ -38,5 +38,23 @@ begin
   -- 5) xoá ticket → cascade dòng máy (chỉ để chắc FK đúng; app không xoá ticket)
   delete from tickets where ticket_code = 'TK-9911-902';
   if exists (select 1 from ticket_may where ticket_code = 'TK-9911-902') then raise exception 'không cascade'; end if;
+  -- 6) CS đã sửa dòng (cs_sua=true) → đổi serial trên ticket KHÔNG ghi đè
+  update ticket_may set cs_sua = true, internal_code = 'TAY' where ticket_code = 'TK-9911-901';
+  update tickets set source_serial = 'W00000000AAA00000000' where ticket_code = 'TK-9911-901';
+  select * into r from ticket_may where ticket_code = 'TK-9911-901';
+  if r.source_serial <> 'Z12345678ABC12345678' or r.internal_code <> 'TAY' then raise exception 'trigger ghi đè dòng cs_sua: %', row_to_json(r); end if;
+
+  -- 7) mỗi ticket tối đa 1 dòng tự động
+  begin
+    insert into ticket_may (ticket_code, thu_tu, nguon) values ('TK-9911-901', 9, 'tu_dong');
+    raise exception 'cho phép dòng tự động thứ hai';
+  exception when unique_violation then null;
+  end;
+
+  -- 8) trigger lỗi nội bộ → ticket vẫn tạo, chỉ WARNING, không có dòng máy
+  alter table ticket_may add constraint tmp_fail check (false) not valid;
+  insert into tickets (ticket_code, ticket_type) values ('TK-9911-903', 'Khác');
+  if not exists (select 1 from tickets where ticket_code = 'TK-9911-903') then raise exception 'ticket mất khi trigger lỗi'; end if;
+  if exists (select 1 from ticket_may where ticket_code = 'TK-9911-903') then raise exception 'lẽ ra không có dòng máy'; end if;
 end $$;
 rollback;

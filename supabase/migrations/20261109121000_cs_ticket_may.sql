@@ -3,14 +3,19 @@
 -- tickets.serial / source_serial GIỮ NGUYÊN (bot Discord + đồng bộ Sheet CTS20 vẫn ghi vào đó).
 -- Trigger tự sinh 1 dòng cho MỌI ticket mới — bất kể ai ghi (app, bot_tao_ticket,
 -- bot_dong_bo_cts20_ghi) — nên không phải sửa hàm bot nào. Trigger KHÔNG BAO GIỜ làm hỏng
--- lệnh insert/update ticket: lỗi bên trong chỉ thành WARNING.
+-- lệnh insert/update ticket: lỗi bên trong chỉ thành WARNING (bắt `exception when others`, nên
+-- query_canceled / assert_failure KHÔNG bị nuốt — hủy truy vấn vẫn hủy được).
+-- Giới hạn: đổi ticket_type / description SAU khi tạo KHÔNG tự phân loại lại (sẽ có hành động
+-- "phân loại lại" ở bước sau); trigger update chỉ phản ứng khi đổi serial / source_serial.
+-- cs_sua: UI (Task 12) đặt true khi CS sửa dòng tự sinh → trigger không ghi đè dòng đó nữa.
+-- Mỗi ticket tối đa 1 dòng tự động (unique index một phần) — insert trùng bị bỏ qua.
 --
 -- ROLLBACK:
 --   drop trigger if exists trg_tickets_doi_serial_dong_may on public.tickets;
 --   drop trigger if exists trg_tickets_tao_dong_may on public.tickets;
 --   drop function if exists public.cs_ticket_may_theo_serial();
 --   drop function if exists public.cs_ticket_may_tu_tao();
---   drop table if exists public.ticket_may;
+--   drop table if exists public.ticket_may;   -- (kéo theo index ux_ticket_may_tu_dong)
 
 create table if not exists public.ticket_may (
   id                uuid primary key default gen_random_uuid(),
@@ -26,15 +31,18 @@ create table if not exists public.ticket_may (
   trang_thai        text not null default 'dang_xu_ly' check (trang_thai in ('dang_xu_ly', 'da_xu_ly', 'khong_loi')),
   nguon             text not null default 'app' check (nguon in ('app', 'tu_dong', 'backfill')),
   tao_boi           text,
+  cs_sua            boolean not null default false,
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
 
 comment on table public.ticket_may is 'Dòng máy của ticket: mỗi máy báo lỗi một dòng (serial nullable khi máy chưa có trong hệ thống).';
+comment on column public.ticket_may.cs_sua is 'true = CS đã sửa dòng tự sinh; trigger đổi serial không ghi đè nữa.';
 comment on column public.ticket_may.nguon is 'tu_dong = trigger sinh khi tạo ticket · backfill = sinh cho ticket cũ · app = CS thêm tay.';
 comment on column public.ticket_may.huong_xu_ly_nguon is 'danh_muc = CS bấm Xác nhận hướng đề xuất · cs = CS tự viết/sửa · null = chưa xác nhận.';
 
 create index if not exists ix_ticket_may_ticket on public.ticket_may (ticket_code, thu_tu);
+create unique index if not exists ux_ticket_may_tu_dong on public.ticket_may (ticket_code) where nguon in ('tu_dong', 'backfill');
 create index if not exists ix_ticket_may_loi on public.ticket_may (loi_code);
 create index if not exists ix_ticket_may_may on public.ticket_may ((coalesce(serial, source_serial)));
 
@@ -63,7 +71,8 @@ begin
     insert into ticket_may (ticket_code, thu_tu, serial, source_serial, internal_code, loi_code, mo_ta, nguon, tao_boi, created_at)
     values (new.ticket_code, 1, new.serial, v_src, v_ma,
             cs_loi_khop(concat_ws(' ', new.ticket_type, new.description), v_ma),
-            new.description, 'tu_dong', 'trigger', new.created_at);
+            new.description, 'tu_dong', 'trigger', new.created_at)
+    on conflict do nothing;
   exception when others then
     raise warning 'cs_ticket_may_tu_tao(%): % — ticket vẫn tạo, thiếu dòng máy (chạy cs_ticket_may_backfill để bù)', new.ticket_code, sqlerrm;
   end;
@@ -92,6 +101,7 @@ begin
                                 else m.loi_code end
      where m.ticket_code = new.ticket_code
        and m.nguon in ('tu_dong', 'backfill')
+       and not m.cs_sua
        and (select count(*) from ticket_may x where x.ticket_code = new.ticket_code) = 1;
   exception when others then
     raise warning 'cs_ticket_may_theo_serial(%): %', new.ticket_code, sqlerrm;
