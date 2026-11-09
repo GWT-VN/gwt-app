@@ -8,7 +8,7 @@ import type { Staff } from '@/lib/nen-tang/nhan-su-luat'
 import { KhachPicker } from '@/components/KhachPicker'
 import { KhachMayTraCuu } from '@/components/loi/KhachMayTraCuu'
 import { DongMayNhap } from '@/components/loi/DongMayNhap'
-import { dongDuDieuKien } from '@/lib/loi/traCuuForm'
+import { dongDuDieuKien, duongDanSauTao, dongLechKhach } from '@/lib/loi/traCuuForm'
 import { chuanHoaSerial } from '@/lib/loi/serial'
 import type { DongMayInput, KetQuaTraSerial, LoiDanhMuc } from '@/lib/loi/kieu'
 
@@ -51,17 +51,13 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
     await chonKhach(m.customer_id)
   }
 
-  const dongCoSerial = dong.filter((d) => chuanHoaSerial(d.serial ?? ''))
-  const dongChinh = dongCoSerial[0]
-  const kqChinh = dongChinh ? ketQua[chuanHoaSerial(dongChinh.serial ?? '')] : undefined
+  const lechKhach = dongLechKhach(dong, ketQua, khachId)
 
   async function luu() {
     setBusy(true); setErr(null)
     const r = await createTicket({
       customer_id: khachId || undefined,
-      // tickets.serial là FK tới installed_base: chỉ điền khi tra cứu cho thấy máy đã lắp.
-      serial: kqChinh?.loai === 'da_lap' ? kqChinh.serial : undefined,
-      source_serial: dongChinh ? chuanHoaSerial(dongChinh.serial ?? '') : undefined,
+      // Serial do server giải từ dòng máy (có trong installed_base mới ghi vào tickets.serial).
       dong_may: dong.filter((d) => chuanHoaSerial(d.serial ?? '') || d.mo_ta?.trim())
         .map((d) => ({ ...d, serial: chuanHoaSerial(d.serial ?? '') || undefined, mo_ta: d.mo_ta?.trim() || undefined })),
       ticket_type: loai.trim(),
@@ -72,10 +68,9 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
       cs_phu_trach: cs || null,
       ky_thuat: kt || null,
     })
-    setBusy(false)
-    if (!r.ok) { setErr(r.error); return }
-    if ('canhBao' in r && r.canhBao) { setErr(r.canhBao); return }   // ticket đã tạo: ở lại để CS thấy cảnh báo
-    router.push(`/ticket/${r.code}`)
+    if (!r.ok) { setBusy(false); setErr(r.error); return }
+    // Ticket đã tồn tại: luôn sang trang ticket (không để form gửi lại → trùng ticket); busy giữ nguyên.
+    router.push(duongDanSauTao(r.code, 'canhBao' in r ? r.canhBao : undefined))
   }
 
   return (
@@ -109,6 +104,11 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
             ))}
           </div>
         )}
+        {lechKhach.map((l) => (
+          <p key={l.serial} className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mt-1">
+            ⚠️ Serial <span className="font-mono">{l.serial}</span> đang gắn với khách <strong>{l.khach}</strong>, không phải khách đã chọn. Kiểm tra lại trước khi tạo.
+          </p>
+        ))}
         {dangTaiMay && <p className="text-xs text-slate-400 mt-1">Đang tải máy của khách…</p>}
         <div className="mt-2">
           <DongMayNhap dong={dong} onChange={setDong} dsLoi={dsLoi}

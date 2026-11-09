@@ -24,9 +24,7 @@ import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { tomTatMayTicket, locLoiHopLe } from '@/lib/loi/dongMay'
-import { ganDongMayChoTicketMoi } from '@/lib/loi/ganDongMayServer'
-import { chuanHoaSerial } from '@/lib/loi/serial'
-import { GIOI_HAN } from '@/lib/loi/kiemDauVao'
+import { ganDongMayChoTicketMoi, chuanBiCacDong, giaiSerial } from '@/lib/loi/ganDongMayServer'
 import type { DongMayInput } from '@/lib/loi/kieu'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
@@ -4290,11 +4288,11 @@ export async function createTicket(input: {
   await doQuyen('cs.ticket.tao_sua')
   const nguoiTao = await layNhanVien()
   if (!input.customer_id?.trim()) return { ok: false as const, error: 'Bắt buộc chọn khách.' }
+  if (input.dong_may != null && !Array.isArray(input.dong_may)) return { ok: false as const, error: 'Dòng máy không hợp lệ.' }
+  // Serial do SERVER giải: bỏ qua serial/source_serial client gửi khi đã có dòng máy.
   const serialDong = input.dong_may?.find((d) => typeof d?.serial === 'string' && d.serial.trim())?.serial
-  if (!input.serial?.trim() && !input.source_serial?.trim() && !serialDong?.trim()) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
-  if (input.dong_may != null && (!Array.isArray(input.dong_may) || input.dong_may.length > GIOI_HAN.soDongMay)) {
-    return { ok: false as const, error: `Tối đa ${GIOI_HAN.soDongMay} dòng máy mỗi ticket.` }
-  }
+  const serialTho = (serialDong ?? input.source_serial ?? input.serial ?? '').trim()
+  if (!serialTho) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
   if (!input.ticket_type?.trim()) return { ok: false as const, error: 'Chọn loại ticket.' }
   if (!input.description?.trim()) return { ok: false as const, error: 'Nhập mô tả sự cố.' }
   if (input.state && !['Open', 'Done', 'Cancel'].includes(input.state)) {
@@ -4302,6 +4300,11 @@ export async function createTicket(input: {
   }
 
   const db = dataClient()
+  // Kiểm MỌI dòng máy + giải serial TRƯỚC khi tạo ticket: lỗi thì không tạo gì cả.
+  const dongDaChuan = input.dong_may?.length ? await chuanBiCacDong(input.dong_may) : null
+  if (dongDaChuan && !dongDaChuan.ok) return { ok: false as const, error: dongDaChuan.error }
+  const sr = await giaiSerial(db, serialTho)
+  if (!sr.ok) return { ok: false as const, error: sr.error }
   // Mã MỚI: TK-YYMM-NNN (STT 3 số reset theo tháng). Mã cũ GWT-… giữ nguyên.
   // Dùng ngày tạo (ca backdate) để mã đúng tháng; parse chuỗi tránh lệch múi giờ.
   const isoNgay = input.created_at?.trim() ? input.created_at.trim().slice(0, 10) : new Date().toISOString().slice(0, 10)
@@ -4318,9 +4321,9 @@ export async function createTicket(input: {
 
   const row: Record<string, unknown> = {
     ticket_code: code,
-    serial: input.serial?.trim() || null,
-    // Không có serial lắp thì giữ serial gõ ở source_serial (dòng máy đầu) — KHÔNG ghi vào serial (FK).
-    source_serial: input.source_serial?.trim() || input.serial?.trim() || (serialDong ? chuanHoaSerial(serialDong) : null) || null,
+    // tickets.serial là FK tới installed_base: chỉ đặt khi máy đã lắp; còn lại giữ ở source_serial.
+    serial: sr.serial,
+    source_serial: sr.serial ?? sr.source_serial,
     customer_id: input.customer_id || null,
     ticket_type: input.ticket_type.trim(),
     description: input.description.trim(),
@@ -4338,7 +4341,7 @@ export async function createTicket(input: {
   revalidatePath('/ticket')
   if (input.dong_may?.length) {
     // Đã qua cổng cs.ticket.tao_sua ở đầu hàm (ganDongMayChoTicketMoi không tự kiểm quyền).
-    const g = await ganDongMayChoTicketMoi(code, input.dong_may)
+    const g = await ganDongMayChoTicketMoi(code, input.dong_may, dongDaChuan?.ok ? dongDaChuan.ds : undefined)
     if (!g.ok) return { ok: true as const, code, canhBao: `Đã tạo ticket nhưng chưa lưu đủ dòng máy: ${g.error}` }
   }
   return { ok: true as const, code }

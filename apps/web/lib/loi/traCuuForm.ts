@@ -41,3 +41,20 @@ export function dongDuDieuKien(dong: DongMayInput[], loaiTheoSerial: Record<stri
     return k.hopLe || loai === 'da_lap' || loai === 'chua_kich_hoat'
   })
 }
+
+/** Sau khi tạo ticket xong (ok:true) luôn sang trang ticket; cảnh báo đi kèm query. */
+export const duongDanSauTao = (code: string, canhBao?: string): string =>
+  `/ticket/${encodeURIComponent(code)}${canhBao ? `?canhBao=${encodeURIComponent(canhBao)}` : ''}`
+
+/** Serial đã lắp cho khách KHÁC khách đang chọn (để cảnh báo, không chặn). */
+export function dongLechKhach(
+  dong: DongMayInput[], ketQua: Record<string, KetQuaTraSerial>, khachId: string,
+): { serial: string; khach: string }[] {
+  if (!khachId) return []
+  const ra: { serial: string; khach: string }[] = []
+  for (const d of dong) {
+    const k = ketQua[chuanHoaSerial(d.serial ?? '')]
+    if (k?.loai === 'da_lap' && k.customer_id && k.customer_id !== khachId) ra.push({ serial: k.serial, khach: k.customer_name ?? 'khách khác' })
+  }
+  return ra
+}

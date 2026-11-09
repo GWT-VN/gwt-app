@@ -12,8 +12,10 @@ import { TicketItems } from '@/components/TicketItems'
 import { NhanViecButton } from '@/components/NhanViecButton'
 import { vnDate } from '@/components/Badge'
 
-export default async function TicketPage({ params }: { params: Promise<{ code: string }> }) {
+export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
   const { code } = await params
+  const sp = await searchParams
+  const canhBao = (Array.isArray(sp.canhBao) ? sp.canhBao[0] : sp.canhBao)?.slice(0, 300)
   const ma = decodeURIComponent(code)
   const [t, nhom, notes, staff, items, me, catalog, loaiList, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma), currentStaff(),
@@ -36,6 +38,8 @@ export default async function TicketPage({ params }: { params: Promise<{ code: s
         <div className="flex items-center justify-between gap-4">
           <NutQuayLai macDinh="/ticket" />
         </div>
+
+        {canhBao && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {canhBao}</p>}
 
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="text-xl font-semibold text-slate-900 font-mono">{t.ticket_code}</h1>

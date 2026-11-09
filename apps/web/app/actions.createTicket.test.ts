@@ -3,69 +3,84 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const chuoi: string[] = []
 let insertArg: Record<string, unknown> | null = null
 let quyenLoi = false
-let ganTra: { ok: boolean; error?: string } = { ok: true }
-const ganMock = vi.fn(async (...a: unknown[]) => { void a; chuoi.push('gan'); return ganTra })
+let bang: Record<string, unknown> = {}
+let updArg: Record<string, unknown> | null = null
 
-function builder() {
+function builder(t: string) {
+  let op = 'select'
   const b: Record<string, unknown> = {}
-  for (const m of ['select', 'like', 'order']) b[m] = () => b
+  for (const m of ['select', 'like', 'order', 'eq']) b[m] = () => b
   b.limit = async () => ({ data: [], error: null })
   b.insert = async (a: Record<string, unknown>) => { chuoi.push('insert'); insertArg = a; return { error: null } }
+  b.update = (a: Record<string, unknown>) => { op = 'update'; updArg = a; chuoi.push('update'); return b }
+  b.maybeSingle = async () => ({ data: bang[t] ?? null, error: null })
+  b.then = (res: (v: unknown) => unknown) => Promise.resolve({ data: op === 'update' ? [{ id: 'x' }] : null, error: null }).then(res)
   return b
 }
 vi.mock('server-only', () => ({}))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
-vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: () => builder() }) }))
+vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: builder, rpc: vi.fn(async () => ({ data: { ok: true, id: 'n' }, error: null })) }) }))
 vi.mock('@/lib/nen-tang/phien', () => ({ requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => ({ id: 'nv1', email: 'a@gwt.vn' })) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   coQuyen: vi.fn(async () => true),
   doQuyen: vi.fn(async (q: string) => { chuoi.push(`quyen:${q}`); if (quyenLoi) throw new Error('KHONG_DU_QUYEN') }),
 }))
-vi.mock('@/lib/loi/ganDongMayServer', () => ({ ganDongMayChoTicketMoi: (...a: unknown[]) => ganMock(...a) }))
 vi.mock('@/app/ticket/loi-actions', () => ({ dongMayTheoTickets: vi.fn() }))
 
 import { createTicket } from './actions'
 
 const base = { customer_id: 'k1', ticket_type: 'Lỗi máy', description: 'rò nước' }
 const S1 = 'A12345678ABC12345678'
-beforeEach(() => { chuoi.length = 0; insertArg = null; quyenLoi = false; ganTra = { ok: true }; ganMock.mockClear() })
+beforeEach(() => {
+  chuoi.length = 0; insertArg = null; updArg = null; quyenLoi = false
+  bang = { loi_danh_muc: { trang_thai: 'da_duyet' } }
+})
 
-describe('createTicket + dòng máy', () => {
-  it('cổng cs.ticket.tao_sua chạy trước, không đụng DB/gán khi bị từ chối', async () => {
+describe('createTicket + dòng máy (logic dòng máy chạy thật)', () => {
+  it('cổng cs.ticket.tao_sua chạy trước mọi thứ', async () => {
     quyenLoi = true
     await expect(createTicket({ ...base, dong_may: [{ serial: S1 }] })).rejects.toThrow()
     expect(chuoi).toEqual(['quyen:cs.ticket.tao_sua'])
   })
   it('không serial ở đâu cả thì từ chối', async () => {
-    const r = await createTicket({ ...base, dong_may: [{ serial: '  ' }] })
+    expect((await createTicket({ ...base, dong_may: [{ serial: '  ' }] })).ok).toBe(false)
+    expect(insertArg).toBeNull()
+  })
+  it('dòng máy sai (mã lỗi không tồn tại) -> không tạo ticket', async () => {
+    bang = {}
+    const r = await createTicket({ ...base, dong_may: [{ serial: S1, loi_code: 'KHONG_CO' }] })
     expect(r.ok).toBe(false)
     expect(insertArg).toBeNull()
   })
-  it('chỉ có dòng máy: source_serial lấy dòng đầu (chuẩn hoá), serial để trống (tránh vỡ FK)', async () => {
-    const r = await createTicket({ ...base, dong_may: [{ serial: ` ${S1.toLowerCase()} ` }] })
-    expect(r.ok).toBe(true)
-    expect(insertArg).toMatchObject({ serial: null, source_serial: S1 })
+  it('dòng thứ 2 sai serial -> không tạo ticket', async () => {
+    const r = await createTicket({ ...base, dong_may: [{ serial: S1 }, { serial: 'Z1' }] })
+    expect(r.ok).toBe(false)
+    expect(insertArg).toBeNull()
   })
-  it('serial đã lắp + source_serial riêng được giữ nguyên', async () => {
-    await createTicket({ ...base, serial: S1, source_serial: 'XYZ' })
-    expect(insertArg).toMatchObject({ serial: S1, source_serial: 'XYZ' })
-  })
-  it('gán dòng máy SAU khi insert ticket', async () => {
-    const dong = [{ serial: S1, loi_code: 'CHUA_PHAN_LOAI' }]
-    const r = await createTicket({ ...base, dong_may: dong })
-    expect(chuoi.indexOf('insert')).toBeLessThan(chuoi.indexOf('gan'))
-    expect(ganMock).toHaveBeenCalledWith(expect.stringMatching(/^TK-\d{4}-001$/), dong)
-    expect(r).toMatchObject({ ok: true })
-  })
-  it('gán lỗi thì ticket vẫn tạo, trả canhBao', async () => {
-    ganTra = { ok: false, error: 'Mã lỗi không dùng được' }
-    const r = await createTicket({ ...base, dong_may: [{ serial: S1 }] })
-    expect(r).toMatchObject({ ok: true })
-    expect((r as { canhBao?: string }).canhBao).toContain('Mã lỗi không dùng được')
-  })
-  it('quá 20 dòng bị chặn trước khi tạo ticket', async () => {
+  it('quá 20 dòng -> không tạo ticket', async () => {
     const r = await createTicket({ ...base, dong_may: Array.from({ length: 21 }, () => ({ serial: S1 })) })
     expect(r.ok).toBe(false)
     expect(insertArg).toBeNull()
+  })
+  it('serial chưa lắp: chỉ source_serial (chuẩn hoá), serial null; bỏ qua serial do client gửi', async () => {
+    const r = await createTicket({ ...base, serial: 'GIAMAO', dong_may: [{ serial: ` ${S1.toLowerCase()} ` }] })
+    expect(r.ok).toBe(true)
+    expect(insertArg).toMatchObject({ serial: null, source_serial: S1 })
+  })
+  it('serial đã lắp (installed_base): đặt tickets.serial', async () => {
+    bang = { ...bang, installed_base: { serial: S1, internal_code: 'M1' } }
+    await createTicket({ ...base, dong_may: [{ serial: S1 }] })
+    expect(insertArg).toMatchObject({ serial: S1 })
+  })
+  it('dòng đầu rỗng, dòng sau có serial: dùng dòng có serial đầu tiên', async () => {
+    await createTicket({ ...base, dong_may: [{ mo_ta: 'x' }, { serial: S1 }] })
+    expect(insertArg).toMatchObject({ source_serial: S1 })
+  })
+  it('gán dòng máy SAU insert, không ghi đè phân loại tự động khi CS không chọn', async () => {
+    const r = await createTicket({ ...base, dong_may: [{ serial: S1 }] })
+    expect(chuoi.indexOf('insert')).toBeLessThan(chuoi.indexOf('update'))
+    expect(updArg).not.toHaveProperty('loi_code')
+    expect(updArg).not.toHaveProperty('cs_sua')
+    expect(r).toMatchObject({ ok: true })
   })
 })

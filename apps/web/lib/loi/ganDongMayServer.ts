@@ -55,29 +55,60 @@ export async function themDongQuaRpc(db: Db, code: string, c: Extract<Awaited<Re
   return { ok: true, id: r.id }
 }
 
-/**
- * KHÔNG phải server action — chỉ createTicket (đã qua cổng quyền cs.ticket.tao_sua) được gọi.
- * Dòng tự sinh (nguon='tu_dong', thu_tu=1) nhận dong[0]; nếu trigger không sinh (0 dòng cập nhật)
- * thì thêm mới. Các dòng còn lại thêm qua RPC (thu_tu = max+1 dưới khoá, không đụng nhau).
- */
-export async function ganDongMayChoTicketMoi(code: string, dong: DongMayInput[]): Promise<KQ> {
-  if (!code || code.length > GIOI_HAN.maTicket) return { ok: false, error: 'Mã ticket không hợp lệ.' }
-  if (!dong.length) return { ok: true }
+export type DongDaChuan = Extract<Awaited<ReturnType<typeof chuanBiDong>>, { ok: true }>
+
+/** Kiểm TOÀN BỘ dòng (không ghi). Trả lỗi đầu tiên; gọi TRƯỚC khi tạo ticket. */
+export async function chuanBiCacDong(dong: DongMayInput[]): Promise<KQ<{ ds: DongDaChuan[] }>> {
+  if (!Array.isArray(dong)) return { ok: false, error: 'Dòng máy không hợp lệ.' }
   if (dong.length > GIOI_HAN.soDongMay) return { ok: false, error: `Tối đa ${GIOI_HAN.soDongMay} dòng máy mỗi ticket.` }
   const db = dataClient()
-  const nv = await layNhanVien()
-  const nguoi = nv?.email ?? null
-  const ds = []
+  const ds: DongDaChuan[] = []
   for (const d of dong) {
+    if (!d || typeof d !== 'object') return { ok: false, error: 'Dòng máy không hợp lệ.' }
     const c = await chuanBiDong(db, d)
     if (!c.ok) return c
     ds.push(c)
   }
-  const dau = ds[0]
-  const { data, error } = await db.from('ticket_may').update({
-    serial: dau.sr.serial, source_serial: dau.sr.source_serial, internal_code: dau.sr.internal_code,
-    loi_code: dau.loi, mo_ta: dau.mo_ta, trang_thai: dau.trang_thai, cs_sua: true,
-  }).eq('ticket_code', code).eq('nguon', 'tu_dong').eq('thu_tu', 1).select('id')
+  return { ok: true, ds }
+}
+
+/**
+ * Cập nhật dòng tự sinh từ dòng đầu: KHÔNG xoá phân loại tự động của trigger.
+ * Chỉ ghi loi_code khi CS chọn khác CHUA_PHAN_LOAI, chỉ ghi mo_ta khi có nhập;
+ * cs_sua chỉ bật khi CS thật sự đặt loi_code hoặc mo_ta.
+ */
+export function banCapNhatDongTuDong(c: DongDaChuan, d: DongMayInput): Record<string, unknown> {
+  const chonLoi = c.loi !== CHUA_PHAN_LOAI
+  const moTa = typeof d.mo_ta === 'string' ? d.mo_ta.trim() : ''
+  const u: Record<string, unknown> = {
+    serial: c.sr.serial, source_serial: c.sr.source_serial, internal_code: c.sr.internal_code, trang_thai: c.trang_thai,
+  }
+  if (chonLoi) u.loi_code = c.loi
+  if (moTa) u.mo_ta = c.mo_ta
+  if (chonLoi || moTa) u.cs_sua = true
+  return u
+}
+
+/**
+ * KHÔNG phải server action — chỉ createTicket (đã qua cổng quyền cs.ticket.tao_sua) được gọi.
+ * `daChuan` = kết quả chuanBiCacDong đã chạy trước khi tạo ticket (bỏ trống thì kiểm lại tại đây).
+ * Dòng tự sinh (nguon='tu_dong', thu_tu=1) nhận dong[0]; nếu trigger không sinh (0 dòng cập nhật)
+ * thì thêm mới. Các dòng còn lại thêm qua RPC (thu_tu = max+1 dưới khoá, không đụng nhau).
+ */
+export async function ganDongMayChoTicketMoi(code: string, dong: DongMayInput[], daChuan?: DongDaChuan[]): Promise<KQ> {
+  if (!code || code.length > GIOI_HAN.maTicket) return { ok: false, error: 'Mã ticket không hợp lệ.' }
+  if (!dong.length) return { ok: true }
+  let ds = daChuan
+  if (!ds) {
+    const k = await chuanBiCacDong(dong)
+    if (!k.ok) return k
+    ds = k.ds
+  }
+  const db = dataClient()
+  const nv = await layNhanVien()
+  const nguoi = nv?.email ?? null
+  const { data, error } = await db.from('ticket_may').update(banCapNhatDongTuDong(ds[0], dong[0]))
+    .eq('ticket_code', code).eq('nguon', 'tu_dong').eq('thu_tu', 1).select('id')
   if (error) return { ok: false, error: thongBaoLoiDb(error, 'ganDongMay.update') }
   const rest = (Array.isArray(data) ? data.length : data ? 1 : 0) > 0 ? ds.slice(1) : ds
   for (const c of rest) {

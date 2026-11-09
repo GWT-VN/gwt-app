@@ -47,3 +47,19 @@ describe('dongDuDieuKien', () => {
     expect(dongDuDieuKien([{ serial: S1 }, { serial: '' }], {})).toBe(true)
   })
 })
+
+import { duongDanSauTao, dongLechKhach } from './traCuuForm'
+describe('duongDanSauTao', () => {
+  it('luôn đi tới trang ticket, kèm cảnh báo (mã hoá) nếu có', () => {
+    expect(duongDanSauTao('TK-2611-001')).toBe('/ticket/TK-2611-001')
+    expect(duongDanSauTao('TK-2611-001', 'Đã tạo & thiếu')).toBe(`/ticket/TK-2611-001?canhBao=${encodeURIComponent('Đã tạo & thiếu')}`)
+  })
+})
+describe('dongLechKhach', () => {
+  const kq = { [S1]: { loai: 'da_lap' as const, serial: S1, internal_code: null, product_name: null, customer_id: 'kA', customer_name: 'A', install_date: null, warranty_activated: true } }
+  it('báo serial đã lắp cho khách khác', () => {
+    expect(dongLechKhach([{ serial: S1 }], kq, 'kB')).toEqual([{ serial: S1, khach: 'A' }])
+    expect(dongLechKhach([{ serial: S1 }], kq, 'kA')).toEqual([])
+    expect(dongLechKhach([{ serial: S1 }], kq, '')).toEqual([])
+  })
+})
