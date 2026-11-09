@@ -11,3 +11,9 @@ describe('canhBaoTuQuery', () => {
       expect(canhBaoTuQuery(v)).toBeNull()
   })
 })
+
+describe('I1: chức năng dòng máy chưa bật (thiếu bảng) khi tạo ticket', () => {
+  it('có mã cảnh báo riêng', () => {
+    expect(canhBaoTuQuery('dong_may_tam_tat')).toMatch(/dòng máy/)
+  })
+})

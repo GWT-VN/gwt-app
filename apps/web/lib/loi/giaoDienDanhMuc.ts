@@ -1,5 +1,6 @@
 /** Logic thuần cho trang Danh mục lỗi (bảng, nhập từ Sheet, phân loại lại) — tách khỏi component để test không cần DOM. */
 import type { LoiDanhMuc, TrangThaiLoi } from './kieu'
+import { boMauMaMay } from './kiemDauVao'
 
 export const NHAN_TRANG_THAI: Record<TrangThaiLoi, string> = {
   cho_duyet: 'Chờ duyệt', da_duyet: 'Đã duyệt', ngung: 'Ngừng dùng',
@@ -25,7 +26,7 @@ export type FormLoi = {
   dau_hieu: string; huong_xu_ly: string; nguon: string; trang_thai: TrangThaiLoi; thu_tu: string
 }
 export const formTuLoi = (d: LoiDanhMuc): FormLoi => ({
-  code: d.code, nhom: d.nhom ?? '', ten: d.ten, aliases: mangSangDong(d.aliases), ma_may: mangSangDong(d.ma_may),
+  code: d.code, nhom: d.nhom ?? '', ten: d.ten, aliases: mangSangDong(d.aliases), ma_may: mangSangDong(d.ma_may.map(boMauMaMay)),
   dau_hieu: d.dau_hieu ?? '', huong_xu_ly: d.huong_xu_ly ?? '', nguon: d.nguon ?? '', trang_thai: d.trang_thai, thu_tu: String(d.thu_tu),
 })
 export const loiTuForm = (f: FormLoi): Omit<LoiDanhMuc, 'duyet_boi' | 'duyet_luc'> => ({
@@ -41,12 +42,14 @@ export type XemTruoc =
   | { ok: true
       danhMuc: { hopLe: { code: string; ten: string; nhom: string | null; trang_thai: TrangThaiLoi }[]; loi: Loi[] }
       ganTicket: { hopLe: unknown[]; loi: Loi[] }
-      soDongSeDoi: number }
+      soDongSeDoi: number
+      /** Số mã đã có sẽ đổi trạng thái (thiếu = 0). */
+      soDoiTrangThai?: number }
   | { ok: false; error: string }
 export type KetQuaNhap = { ok: true; so_loi: number; so_gan: number } | { ok: false; error: string }
 
 export type TomTatXemTruoc = {
-  daDuyet: number; choDuyet: number; soGan: number; soDongSeDoi: number
+  daDuyet: number; choDuyet: number; soGan: number; soDongSeDoi: number; soDoiTrangThai: number
   mau: { code: string; ten: string; nhom: string | null; trang_thai: TrangThaiLoi }[]
   loi: string[]; soLoiKhac: number; coLoi: boolean; soMa: number
 }
@@ -58,11 +61,14 @@ export function tomTatXemTruoc(r: Extract<XemTruoc, { ok: true }>): TomTatXemTru
   return {
     daDuyet: h.filter((x) => x.trang_thai === 'da_duyet').length,
     choDuyet: h.filter((x) => x.trang_thai === 'cho_duyet').length,
-    soGan: r.ganTicket.hopLe.length, soDongSeDoi: r.soDongSeDoi,
+    soGan: r.ganTicket.hopLe.length, soDongSeDoi: r.soDongSeDoi, soDoiTrangThai: r.soDoiTrangThai ?? 0,
     mau: h.slice(0, 20), loi: loi.slice(0, TOI_DA_LOI_HIEN), soLoiKhac: Math.max(0, loi.length - TOI_DA_LOI_HIEN),
     coLoi: loi.length > 0, soMa: h.length,
   }
 }
+
+export const nhanDoiTrangThai = (t: TomTatXemTruoc): string =>
+  t.soDoiTrangThai > 0 ? `${t.soDoiTrangThai} mã sẽ đổi trạng thái` : ''
 
 export const nhanNutNhap = (t: TomTatXemTruoc) =>
   `Nhập ${t.soMa} mã + gán ${t.soGan} ticket · ghi đè ${t.soDongSeDoi} dòng máy`

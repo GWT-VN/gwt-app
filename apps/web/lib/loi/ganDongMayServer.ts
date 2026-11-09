@@ -2,7 +2,7 @@ import 'server-only'
 import { dataClient } from '@/lib/nen-tang/db'
 import { layNhanVien } from '@/lib/nen-tang/phien'
 import { kiemDangSerial } from './serial'
-import { CHUA_PHAN_LOAI } from './dongMay'
+import { CHUA_PHAN_LOAI, viTriDongCoSerial } from './dongMay'
 import { chuanMaLoi, GIOI_HAN, laTrangThaiDong, MA_LOI, thongBaoLoiDb } from './kiemDauVao'
 import type { DongMayInput } from './kieu'
 
@@ -17,7 +17,20 @@ export async function loiDungDuoc(db: Db, code: string): Promise<boolean> {
   return !!data && (data as { trang_thai: string }).trang_thai !== 'ngung'
 }
 
-/** Quy tắc giải serial của dòng máy: có trong installed_base → serial; ngược lại source_serial. */
+/**
+ * Chức năng dòng máy dùng được chưa (bảng ticket_may có — migration đã áp)? Lỗi → false + log server,
+ * để createTicket quay về cách cũ (chỉ serial trên ticket) thay vì hỏng.
+ */
+export async function coBangDongMay(db: Db): Promise<boolean> {
+  const { error } = await db.from('ticket_may').select('id').limit(1)
+  if (error) console.error('[ganDongMay] ticket_may chưa dùng được — tạo ticket không có dòng máy', error.code, error.message)
+  return !error
+}
+
+/**
+ * Quy tắc giải serial của dòng máy: có trong installed_base → serial (FK); source_serial LUÔN giữ serial
+ * đã chuẩn hoá (cả khi serial đã gắn) để dò lại được chuỗi gốc.
+ */
 export async function giaiSerial(db: Db, s: string): Promise<KQ<{ serial: string | null; source_serial: string | null; internal_code: string | null }>> {
   const k = kiemDangSerial(s)
   if (!k.chuan) return { ok: true, serial: null, source_serial: null, internal_code: null }
@@ -25,7 +38,7 @@ export async function giaiSerial(db: Db, s: string): Promise<KQ<{ serial: string
   const { data: ib } = await db.from('installed_base').select('serial, internal_code').eq('serial', k.chuan).maybeSingle()
   if (ib) {
     const r = ib as { serial: string; internal_code: string | null }
-    return { ok: true, serial: r.serial, source_serial: null, internal_code: r.internal_code ?? null }
+    return { ok: true, serial: r.serial, source_serial: k.chuan, internal_code: r.internal_code ?? null }
   }
   const { data: reg } = await db.from('serial_registry').select('serial, internal_code').eq('serial', k.chuan).maybeSingle()
   if (!reg && !k.hopLe) return { ok: false, error: k.loi ?? 'Serial không hợp lệ.' }
@@ -92,7 +105,7 @@ export function banCapNhatDongTuDong(c: DongDaChuan, d: DongMayInput): Record<st
 /**
  * KHÔNG phải server action — chỉ createTicket (đã qua cổng quyền cs.ticket.tao_sua) được gọi.
  * `daChuan` = kết quả chuanBiCacDong đã chạy trước khi tạo ticket (bỏ trống thì kiểm lại tại đây).
- * Dòng tự sinh (nguon='tu_dong', thu_tu=1) nhận dong[0]; nếu trigger không sinh (0 dòng cập nhật)
+ * Dòng tự sinh (nguon='tu_dong', thu_tu=1) nhận dòng đầu tiên có serial (không có thì dong[0]); nếu trigger không sinh (0 dòng cập nhật)
  * thì thêm mới. Các dòng còn lại thêm qua RPC (thu_tu = max+1 dưới khoá, không đụng nhau).
  */
 export async function ganDongMayChoTicketMoi(code: string, dong: DongMayInput[], daChuan?: DongDaChuan[]): Promise<KQ> {
@@ -107,10 +120,12 @@ export async function ganDongMayChoTicketMoi(code: string, dong: DongMayInput[],
   const db = dataClient()
   const nv = await layNhanVien()
   const nguoi = nv?.email ?? null
-  const { data, error } = await db.from('ticket_may').update(banCapNhatDongTuDong(ds[0], dong[0]))
+  // Dòng tự động = dòng ĐẦU TIÊN có serial (cùng định nghĩa serial của ticket); không có serial thì dòng 0.
+  const i = Math.max(0, viTriDongCoSerial(dong))
+  const { data, error } = await db.from('ticket_may').update(banCapNhatDongTuDong(ds[i], dong[i]))
     .eq('ticket_code', code).eq('nguon', 'tu_dong').eq('thu_tu', 1).select('id')
   if (error) return { ok: false, error: thongBaoLoiDb(error, 'ganDongMay.update') }
-  const rest = (Array.isArray(data) ? data.length : data ? 1 : 0) > 0 ? ds.slice(1) : ds
+  const rest = (Array.isArray(data) ? data.length : data ? 1 : 0) > 0 ? ds.filter((_, j) => j !== i) : ds
   for (const c of rest) {
     const r = await themDongQuaRpc(db, code, c, nguoi)
     if (!r.ok) return r

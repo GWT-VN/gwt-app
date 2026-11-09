@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { docDanhMuc, docGanTicket } from './danhMucNhap'
+import { demDoiTrangThai, docDanhMuc, docGanTicket, trangThaiSauNhap } from './danhMucNhap'
+import type { TrangThaiLoi } from './kieu'
 
 const NHOM = new Set(['ro_nuoc', 'loi_dien'])
 
@@ -59,5 +60,35 @@ describe('mã máy áp dụng — ký tự đặc biệt của LIKE', () => {
   it('"_" và "\\" được thoát (khớp đúng ký tự), "%" do người dùng gõ giữ làm ký tự đại diện', () => {
     const r = docDanhMuc([{ 'Mã': 'E6', 'Tên chuẩn': 'x', 'Mã máy áp dụng': 'AB_C%; AB_C' }], NHOM)
     expect(r.hopLe[0].ma_may).toEqual(['AB\\_C%'])
+  })
+})
+
+describe('I3: cách ghi phải từ 3 ký tự', () => {
+  it('Sheet: alias ngắn -> lỗi kèm số dòng, mã không vào', () => {
+    const r = docDanhMuc([
+      { 'Mã': 'A1', 'Tên chuẩn': 'Lỗi A', 'Các cách ghi': 'rò nước; E5' },
+      { 'Mã': 'B1', 'Tên chuẩn': 'Lỗi B', 'Các cách ghi': ' ab ;rò rỉ' },
+      { 'Mã': 'C1', 'Tên chuẩn': 'Lỗi C', 'Các cách ghi': 'abc' },
+    ], NHOM)
+    expect(r.loi.map((l) => l.dong)).toEqual([2, 3])
+    expect(r.loi[0].loi).toContain('E5')
+    expect(r.hopLe.map((d) => d.code)).toEqual(['C1'])
+  })
+})
+
+describe('I2: đếm mã sẽ đổi trạng thái khi nhập', () => {
+  it('chỉ đếm mã đã có mà trạng thái thật sự đổi; cho_duyet không hạ cấp mục đã có', () => {
+    const coSan = new Map<string, TrangThaiLoi>([['A1', 'da_duyet'], ['B1', 'cho_duyet'], ['C1', 'da_duyet'], ['D1', 'ngung']])
+    const moi = [
+      { code: 'A1', trang_thai: 'cho_duyet' as const },  // giữ da_duyet -> không đổi
+      { code: 'B1', trang_thai: 'da_duyet' as const },   // đổi
+      { code: 'C1', trang_thai: 'ngung' as const },      // đổi
+      { code: 'D1', trang_thai: 'cho_duyet' as const },  // giữ ngung
+      { code: 'E1', trang_thai: 'da_duyet' as const },   // mã mới, không tính
+    ]
+    expect(demDoiTrangThai(moi, coSan)).toBe(2)
+    expect(trangThaiSauNhap('da_duyet', 'cho_duyet')).toBe('da_duyet')
+    expect(trangThaiSauNhap(undefined, 'cho_duyet')).toBe('cho_duyet')
+    expect(trangThaiSauNhap('da_duyet', 'ngung')).toBe('ngung')
   })
 })

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   apDungPhanLoai, chayNhap, chayThuPhanLoai, chayXemTruoc, dongBaoCao, duocNhap, formTuLoi, loiTuForm,
-  nhanNutNhap, tomTatDanhSach, tomTatXemTruoc, TOI_DA_LOI_HIEN, XAC_NHAN_PHAN_LOAI_LAI, type XemTruoc,
+  nhanDoiTrangThai, nhanNutNhap, tomTatDanhSach, tomTatXemTruoc, TOI_DA_LOI_HIEN, XAC_NHAN_PHAN_LOAI_LAI, type XemTruoc,
 } from './giaoDienDanhMuc'
 
 const xt = (loi: { dong: number; loi: string }[] = []): Extract<XemTruoc, { ok: true }> => ({
@@ -85,5 +85,21 @@ describe('phân loại lại: chạy thử -> áp dụng', () => {
     expect(chay).toHaveBeenCalledTimes(1)
     expect(await apDungPhanLoai(true, () => true, chay)).toHaveProperty('thongBao')
     expect(chay).toHaveBeenLastCalledWith(false)
+  })
+})
+
+describe('I2: xem trước báo số mã sẽ đổi trạng thái', () => {
+  it('tóm tắt mang soDoiTrangThai và câu "N mã sẽ đổi trạng thái"', () => {
+    const t = tomTatXemTruoc({ ...xt(), soDoiTrangThai: 2 })
+    expect(t.soDoiTrangThai).toBe(2)
+    expect(nhanDoiTrangThai(t)).toBe('2 mã sẽ đổi trạng thái')
+    expect(nhanDoiTrangThai(tomTatXemTruoc({ ...xt(), soDoiTrangThai: 0 }))).toBe('')
+  })
+})
+
+describe('M1: Mã máy áp dụng — form hiện dạng người gõ, lưu lại không thoát hai lần', () => {
+  it('formTuLoi bỏ thoát \\_ và \\\\', () => {
+    const f = formTuLoi({ code: 'X1', nhom: null, ten: 'T', aliases: [], ma_may: ['T\\_X%', 'CTS20%'], dau_hieu: null, huong_xu_ly: null, nguon: null, trang_thai: 'cho_duyet', duyet_boi: null, duyet_luc: null, thu_tu: 1 })
+    expect(f.ma_may).toBe('T_X%\nCTS20%')
   })
 })

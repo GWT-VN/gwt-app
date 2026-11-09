@@ -10,7 +10,7 @@ import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { boDau } from '@/bang/timkiem'
 import { kiemDangSerial } from '@/lib/loi/serial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
-import { docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
+import { demDoiTrangThai, docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
 import type { DongCa, MauSo } from '@/lib/loi/tanSuat'
 import type { DongMay, DongMayInput, KetQuaTraSerial, KhachVaMay, LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
 
@@ -122,18 +122,19 @@ async function phanTichFile(db: ReturnType<typeof dataClient>, p: Phan) {
   const { data: nhom } = await db.from('issue_group').select('code')
   const nhomHopLe = new Set(((nhom ?? []) as { code: string }[]).map((x) => x.code))
   const danhMuc = docDanhMuc(p.rowsLoi, nhomHopLe)
-  const { data: coSan } = await db.from('loi_danh_muc').select('code')
-  const maHopLe = new Set<string>(((coSan ?? []) as { code: string }[]).map((x) => x.code))
+  const { data: coSan } = await db.from('loi_danh_muc').select('code, trang_thai')
+  const trangThaiCoSan = new Map(((coSan ?? []) as { code: string; trang_thai: TrangThaiLoi }[]).map((x) => [x.code, x.trang_thai]))
+  const maHopLe = new Set<string>(trangThaiCoSan.keys())
   for (const l of danhMuc.hopLe) maHopLe.add(l.code)
   const ganTicket = p.rowsGan ? docGanTicket(p.rowsGan, maHopLe) : { hopLe: [], loi: [] }
-  return { danhMuc, ganTicket }
+  return { danhMuc, ganTicket, soDoiTrangThai: demDoiTrangThai(danhMuc.hopLe, trangThaiCoSan) }
 }
 
 const gomLoi = (...ds: { dong: number; loi: string }[][]) =>
   ds.flat().slice(0, 10).map((l) => `Dòng ${l.dong}: ${l.loi}`).join('\n')
 
 export async function xemTruocNhapDanhMuc(fd: FormData): Promise<
-  | { ok: true; danhMuc: ReturnType<typeof docDanhMuc>; ganTicket: ReturnType<typeof docGanTicket>; soDongSeDoi: number }
+  | { ok: true; danhMuc: ReturnType<typeof docDanhMuc>; ganTicket: ReturnType<typeof docGanTicket>; soDongSeDoi: number; soDoiTrangThai: number }
   | { ok: false; error: string }
 > {
   await requireStaff()
@@ -141,7 +142,7 @@ export async function xemTruocNhapDanhMuc(fd: FormData): Promise<
   const f = await docFile(fd)
   if (!f.ok) return f
   const db = dataClient()
-  const { danhMuc, ganTicket } = await phanTichFile(db, f)
+  const { danhMuc, ganTicket, soDoiTrangThai } = await phanTichFile(db, f)
   // Dry-run: đếm dòng tự động/backfill CHƯA bị CS sửa sẽ bị ghi đè.
   let soDongSeDoi = 0
   const codes = [...new Set(ganTicket.hopLe.map((g) => g.ticket_code))]
@@ -150,7 +151,7 @@ export async function xemTruocNhapDanhMuc(fd: FormData): Promise<
       .in('ticket_code', codes.slice(i, i + 200)).in('nguon', NGUON_TU_DONG).eq('cs_sua', false)
     soDongSeDoi += count ?? 0
   }
-  return { ok: true, danhMuc, ganTicket, soDongSeDoi }
+  return { ok: true, danhMuc, ganTicket, soDongSeDoi, soDoiTrangThai }
 }
 
 export async function nhapDanhMuc(fd: FormData): Promise<KQ<{ so_loi: number; so_gan: number }>> {
@@ -164,7 +165,7 @@ export async function nhapDanhMuc(fd: FormData): Promise<KQ<{ so_loi: number; so
   const nv = await layNhanVien()
   // Một giao dịch: upsert danh mục + gán lỗi cho dòng tu_dong/backfill chưa cs_sua + audit old→new.
   const { data, error } = await db.rpc('cs_nhap_danh_muc_loi', {
-    p_loi: danhMuc.hopLe, p_gan: ganTicket.hopLe, p_nguoi: nv?.email ?? null,
+    p_loi: danhMuc.hopLe, p_gan: ganTicket.hopLe, p_nguoi: nv?.email ?? null, p_nguoi_id: nv?.id ?? null,
   })
   if (error) return { ok: false, error: thongBaoLoiDb(error, 'cs_nhap_danh_muc_loi') }
   const r = (data ?? {}) as { so_loi?: number; so_gan?: number }
@@ -278,7 +279,7 @@ export async function xoaDongMay(id: string): Promise<KQ> {
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   const nv = await layNhanVien()
   // RPC khoá hàng ticket, đếm dòng, xoá và ghi audit trong một giao dịch.
-  const { data, error } = await dataClient().rpc('cs_xoa_dong_may', { p_id: id, p_nguoi: nv?.email ?? null })
+  const { data, error } = await dataClient().rpc('cs_xoa_dong_may', { p_id: id, p_nguoi: nv?.email ?? null, p_nguoi_id: nv?.id ?? null })
   if (error) return { ok: false, error: thongBaoLoiDb(error, 'cs_xoa_dong_may') }
   const r = data as { ok?: boolean; loi?: string; ticket_code?: string } | null
   if (!r?.ok) return { ok: false, error: r?.loi === 'dong_cuoi' ? 'Ticket phải còn ít nhất một dòng máy.' : 'Không thấy dòng máy.' }

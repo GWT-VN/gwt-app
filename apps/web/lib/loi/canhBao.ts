@@ -1,6 +1,7 @@
 /** Cảnh báo sau khi tạo ticket đi qua URL bằng MÃ cố định; trang chỉ hiện câu tiếng Việt đã định sẵn. */
 export const CANH_BAO = {
   dong_may_chua_luu: 'Đã tạo ticket nhưng chưa lưu đủ dòng máy — kiểm tra mục "Máy & lỗi" bên dưới và thêm lại nếu thiếu.',
+  dong_may_tam_tat: 'Đã tạo ticket với serial chính; chức năng dòng máy / danh mục lỗi chưa bật nên các dòng máy chưa được lưu.',
 } as const
 export type MaCanhBao = keyof typeof CANH_BAO
 

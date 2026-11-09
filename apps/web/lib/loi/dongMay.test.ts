@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nhanDongMay, goiYHuongXuLy, tomTatMayTicket, locLoiHopLe, CHUA_PHAN_LOAI } from './dongMay'
+import { nhanDongMay, goiYHuongXuLy, tomTatMayTicket, locLoiHopLe, CHUA_PHAN_LOAI, viTriDongCoSerial } from './dongMay'
 
 describe('lib/loi/dongMay', () => {
   it('nhãn "MÃ MÁY · Tên lỗi"', () => {
@@ -32,5 +32,14 @@ describe('lib/loi/dongMay', () => {
     expect(locLoiHopLe(' cts20-ro-nuoc-day ')).toEqual({ loc: true, ma: 'CTS20-RO-NUOC-DAY' })
     expect(locLoiHopLe(CHUA_PHAN_LOAI)).toEqual({ loc: true, ma: 'CHUA_PHAN_LOAI' })
     expect(locLoiHopLe('a,b);drop')).toEqual({ loc: true, ma: null })
+  })
+})
+
+describe('M10: dòng tự động = dòng ĐẦU TIÊN có serial (cùng định nghĩa với tickets.serial)', () => {
+  it('viTriDongCoSerial', () => {
+    expect(viTriDongCoSerial([{}, { serial: '  ' }, { serial: 'S2' }, { serial: 'S3' }])).toBe(2)
+    expect(viTriDongCoSerial([{ serial: 'S1' }])).toBe(0)
+    expect(viTriDongCoSerial([{}, {}])).toBe(-1)
+    expect(viTriDongCoSerial([null as never, { serial: 5 as never }])).toBe(-1)
   })
 })

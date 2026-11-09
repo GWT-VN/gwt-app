@@ -1,5 +1,6 @@
 import type { LoiDanhMuc, TrangThaiLoi } from './kieu'
 import { boDau } from '../../bang/timkiem'
+import { aliasQuaNgan, ALIAS_TOI_THIEU, mauMaMay } from './kiemDauVao'
 
 export const COT_DANH_MUC = ['Mã', 'Nhóm', 'Tên chuẩn', 'Các cách ghi', 'Mã máy áp dụng', 'Dấu hiệu',
   'Phương án xử lý chuẩn', 'Nguồn', 'Ví dụ ticket', 'Duyệt', 'Ghi chú chị Hiền'] as const
@@ -12,11 +13,6 @@ const MA = /^[A-Z0-9][A-Z0-9_-]{1,39}$/
 const o = (r: Record<string, unknown>, k: string) => String(r[k] ?? '').trim()
 const tachDs = (s: string) => [...new Set(s.split(/[;\n]/).map((x) => x.trim()).filter(Boolean))]
 
-/** Mẫu ILIKE cho cs_loi_khop: thoát `\` và `_` (ký tự thật); `%` người dùng gõ giữ nguyên; thiếu `%` thì khớp tiền tố. */
-function mauMaMay(m: string): string {
-  const t = m.replace(/[\\_]/g, (c) => `\\${c}`)
-  return t.includes('%') ? t : `${t}%`
-}
 
 function trangThai(s: string): TrangThaiLoi {
   const k = boDau(s).toLowerCase().trim()
@@ -39,10 +35,13 @@ export function docDanhMuc(rows: Record<string, unknown>[], nhomHopLe: Set<strin
     if (code === 'CHUA_PHAN_LOAI') return void loi.push({ dong, loi: 'CHUA_PHAN_LOAI là mã hệ thống, không nhập từ Sheet.' })
     if (nhom && !nhomHopLe.has(nhom)) return void loi.push({ dong, loi: `Nhóm "${nhom}" không có trong Nhóm lỗi.` })
     if (daCo.has(code)) return void loi.push({ dong, loi: `Trùng mã ${code}.` })
+    const aliases = tachDs(o(r, 'Các cách ghi'))
+    const ngan = aliasQuaNgan(aliases)
+    if (ngan != null) return void loi.push({ dong, loi: `Cách ghi "${ngan}" quá ngắn (tối thiểu ${ALIAS_TOI_THIEU} ký tự).` })
     daCo.add(code)
     hopLe.push({
       code, nhom, ten,
-      aliases: tachDs(o(r, 'Các cách ghi')),
+      aliases,
       ma_may: [...new Set(tachDs(o(r, 'Mã máy áp dụng')).map(mauMaMay))],
       dau_hieu: o(r, 'Dấu hiệu') || null,
       huong_xu_ly: o(r, 'Phương án xử lý chuẩn') || null,
@@ -67,4 +66,20 @@ export function docGanTicket(rows: Record<string, unknown>[], maHopLe: Set<strin
     hopLe.push({ ticket_code, loi_code })
   })
   return { hopLe, loi }
+}
+
+/**
+ * Trạng thái sau khi nhập (khớp cs_nhap_danh_muc_loi): Duyệt trống (cho_duyet) KHÔNG đổi mục đã có;
+ * chỉ da_duyet / ngung ghi rõ mới đổi. Mã mới thì lấy đúng giá trị nhập.
+ */
+export function trangThaiSauNhap(cu: TrangThaiLoi | undefined, moi: TrangThaiLoi): TrangThaiLoi {
+  return cu && moi === 'cho_duyet' ? cu : moi
+}
+
+/** Số mã ĐÃ CÓ sẽ đổi trạng thái khi nhập (cho màn xem trước). */
+export function demDoiTrangThai(hopLe: readonly { code: string; trang_thai: TrangThaiLoi }[], coSan: ReadonlyMap<string, TrangThaiLoi>): number {
+  return hopLe.filter((l) => {
+    const cu = coSan.get(l.code)
+    return cu !== undefined && trangThaiSauNhap(cu, l.trang_thai) !== cu
+  }).length
 }

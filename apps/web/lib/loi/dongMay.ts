@@ -39,3 +39,11 @@ export function locLoiHopLe(loiCode: string | undefined | null): { loc: false } 
   const ma = chuanMaLoi(loiCode)
   return { loc: true, ma: MA_LOI.test(ma) ? ma : null }
 }
+
+/**
+ * Vị trí dòng ĐẦU TIÊN có serial (chuỗi khác rỗng) — -1 nếu không có. Một định nghĩa duy nhất cho:
+ * serial của ticket (tickets.serial/source_serial) VÀ dòng nào nhận vào dòng máy tự động (thu_tu 1).
+ */
+export function viTriDongCoSerial(dong: readonly ({ serial?: unknown } | null | undefined)[]): number {
+  return dong.findIndex((d) => typeof d?.serial === 'string' && d.serial.trim() !== '')
+}

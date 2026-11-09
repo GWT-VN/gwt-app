@@ -7,6 +7,20 @@ export const GIOI_HAN = {
 } as const
 
 export const MA_LOI = /^[A-Z0-9][A-Z0-9_-]{1,39}$/
+/** Cách ghi ngắn hơn thế này khớp lung tung (vd "E5" nằm trong mọi chuỗi có "e5") → chặn khi lưu/nhập. */
+export const ALIAS_TOI_THIEU = 3
+
+/** Mẫu ILIKE cho cs_loi_khop (ma_may): thoát `\` và `_` (ký tự thật); `%` người dùng gõ giữ nguyên; thiếu `%` thì khớp tiền tố. */
+export function mauMaMay(m: string): string {
+  const t = m.replace(/[\\_]/g, (c) => `\\${c}`)
+  return t.includes('%') ? t : `${t}%`
+}
+/** Ngược của mauMaMay để hiện lên form (lưu lại cho ra đúng mẫu cũ, không thoát hai lần). */
+export const boMauMaMay = (p: string): string => p.replace(/\\([\\_])/g, '$1')
+
+/** Cách ghi đầu tiên ngắn hơn ALIAS_TOI_THIEU (sau trim), hoặc null. */
+export const aliasQuaNgan = (ds: readonly string[]): string | null =>
+  ds.find((a) => a.trim().length < ALIAS_TOI_THIEU) ?? null
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export const TRANG_THAI_LOI: readonly TrangThaiLoi[] = ['cho_duyet', 'da_duyet', 'ngung']
 export const TRANG_THAI_DONG: readonly TrangThaiDong[] = ['dang_xu_ly', 'da_xu_ly', 'khong_loi']
@@ -35,14 +49,18 @@ export function lamSachLoi(i: Record<string, unknown>): { ok: true; row: DongLoi
     return { ok: false, error: 'Nội dung quá dài.' }
   if (!dsOk(i.aliases ?? []) || !dsOk(i.ma_may ?? []))
     return { ok: false, error: `Danh sách tối đa ${GIOI_HAN.soMucDs} mục, mỗi mục ${GIOI_HAN.mucDs} ký tự.` }
+  const aliases = [...new Set(((i.aliases as string[] | undefined) ?? []).map((a) => a.trim()).filter(Boolean))]
+  const ngan = aliasQuaNgan(aliases)
+  if (ngan != null) return { ok: false, error: `Cách ghi "${ngan}" quá ngắn (tối thiểu ${ALIAS_TOI_THIEU} ký tự).` }
+  const maMay = [...new Set(((i.ma_may as string[] | undefined) ?? []).map((m) => m.trim()).filter(Boolean).map(mauMaMay))]
   const tt = Number(i.thu_tu)
   return {
     ok: true,
     row: {
       code, ten, trang_thai: i.trang_thai,
       nhom: (i.nhom as string | null) || null,
-      aliases: (i.aliases as string[] | undefined) ?? [],
-      ma_may: (i.ma_may as string[] | undefined) ?? [],
+      aliases,
+      ma_may: maMay,
       dau_hieu: (i.dau_hieu as string | null) || null,
       huong_xu_ly: (i.huong_xu_ly as string | null) || null,
       nguon: (i.nguon as string | null) || null,

@@ -6,14 +6,18 @@ import { XUAT_TICKET_COT, XUAT_TICKET_MAC_DINH } from '@/lib/danhSach'
 
 /** Xuất ticket đang lọc — dùng NutXuat chung (dropdown chọn trường). Chỉ admin (server chặn). */
 export function ExportTicketButton(
-  { q, state, khan, mine, ngtu, ngden }: { q: string; state?: string; khan?: boolean; mine?: boolean; ngtu?: string; ngden?: string }
+  { q, state, khan, mine, ngtu, ngden, loai, loi }: {
+    q: string; state?: string; khan?: boolean; mine?: boolean; ngtu?: string; ngden?: string
+    /** Loại ticket (?loai=) và Loại lỗi (?loi=) — file xuất phải khớp đúng danh sách đang lọc. */
+    loai?: string; loi?: string
+  }
 ) {
   return (
     <NutXuat
       cot={XUAT_TICKET_COT}
       macDinh={XUAT_TICKET_MAC_DINH}
       tenFile="ticket"
-      onXuat={(cot) => xuatTicket(q, state, khan ?? false, mine ?? false, cot, ngtu, ngden)}
+      onXuat={(cot) => xuatTicket(q, state, khan ?? false, mine ?? false, cot, ngtu, ngden, loai, loi)}
     />
   )
 }

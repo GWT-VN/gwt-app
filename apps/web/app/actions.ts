@@ -11,7 +11,7 @@ import { KHONG_DU_QUYEN } from '@/lib/nen-tang/nhan-su-luat'
 import { currentStaff } from '@/lib/nen-tang/nhan-su'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { themSdtPhu, themDiaChiPhu, xoaDiaChiPhu, suaDiaChiPhu, suaSdtPhu, locVeTinh, maKhCuaKhachCS } from '@/lib/khach-lien-he'
-import { coQuyen, doQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { coQuyen, coQuyenHienNut, doQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { antoanChoOr, chuanHoaTuKhoa, mauDauTu, sapXepHopLe, gomKhoa, dieuKienTungTu } from '@/bang'
 import type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc } from '@/bang'
 import { goiYGomTu, type CumGoiY } from '@/lib/goiYNhom'
@@ -23,9 +23,10 @@ import type { PChon } from '@/lib/gopKhachChon'
 import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
-import { tomTatMayTicket, locLoiHopLe } from '@/lib/loi/dongMay'
+import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
+import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
-import { ganDongMayChoTicketMoi, chuanBiCacDong, giaiSerial } from '@/lib/loi/ganDongMayServer'
+import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
 import type { DongMayInput } from '@/lib/loi/kieu'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
@@ -2489,6 +2490,11 @@ export async function searchTickets(
     return { rows: [], tong: 0, trang, soTrang: 1, sapXep: sx }
   }
   const maLoi = locLoi.loc ? locLoi.ma : null
+  // View v_tickets_loi chưa có / lỗi (migration chưa áp) → không vỡ trang: log server, trả rỗng cho bộ lọc này.
+  const rongVi = (e: { message: string }) => {
+    console.error('[searchTickets] lọc theo loại lỗi (v_tickets_loi) lỗi — trả rỗng', e.message)
+    return { rows: [] as Ticket[], tong: 0, trang, soTrang: 1, sapXep: sx }
+  }
 
   const dungTruyVan = () => {
     let truyVan = dataClient().from(maLoi ? 'v_tickets_loi' : 'v_tickets').select('*', { count: 'exact' })
@@ -2574,6 +2580,7 @@ export async function searchTickets(
     const lo = 1000
     for (let i = 0; ; i += lo) {
       const { data, error } = await dungTruyVan().order('ticket_code', { ascending: true }).range(i, i + lo - 1)
+      if (error && maLoi) return rongVi(error)
       if (error) throw new Error(error.message)
       const d = (data ?? []) as Ticket[]
       tatCa.push(...d)
@@ -2593,6 +2600,7 @@ export async function searchTickets(
         .range(tu, tu + moi - 1),
       hoatDong,
     ])
+    if (error && maLoi) return rongVi(error)
     if (error) throw new Error(error.message)
     tong = count ?? 0
     rows = ((data ?? []) as Ticket[]).map(ganHoatDong(map))
@@ -2600,9 +2608,10 @@ export async function searchTickets(
 
   // MỘT lần đọc ticket_may cho cả trang (không N+1). Tra cứu tối đa 200 mã/lần nên
   // đường gom hàng loạt (chọn tất cả / export, lô 1000) tắt bằng kemDongMay=false.
-  if (tuyChon.kemDongMay !== false && rows.length) {
-    const dongMay = await dongMayTheoTickets(rows.map((r) => r.ticket_code))
-    rows = rows.map((r) => ({ ...r, dong_may: tomTatMayTicket(dongMay[r.ticket_code] ?? []) }))
+  // Xuống cấp êm: thiếu quyền xem ticket (hỏi kiểu không đá về trang chủ) hoặc ticket_may lỗi/chưa có
+  // → bỏ qua, bảng hiện cột Máy kiểu cũ. Không bao giờ làm hỏng /ticket, Tổng quan, ticketsCsv.
+  if (tuyChon.kemDongMay !== false && rows.length && (await coQuyenHienNut('cs.ticket.xem', 'NHANVIEN'))) {
+    rows = await kemDongMayAnToan(rows, dongMayTheoTickets)
   }
 
   return {
@@ -4199,12 +4208,16 @@ export async function ticketsCsv(
 
 /** Xuất ticket theo CÁC CỘT được chọn (CHỈ ADMIN). Trả CSV (không BOM — client UTF-16LE). */
 export async function xuatTicket(
-  q: string, state: string | undefined, onlyKhan: boolean, mine: boolean, cot: string[], ngtu?: string, ngden?: string
+  q: string, state: string | undefined, onlyKhan: boolean, mine: boolean, cot: string[], ngtu?: string, ngden?: string,
+  loai?: string, loi?: string
 ): Promise<{ ok: true; csv: string } | { ok: false; error: string }> {
   await requireStaff()
   if (!(await coQuyen('cs.bao_cao.xuat', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
   const mineId = mine ? (await currentStaff())?.id : undefined
-  const rows = await gomTatCa((trang, moiTrang) => searchTickets(q, state, onlyKhan, mineId, { trang, moiTrang, ngtu, ngden, kemDongMay: false }))
+  // Cùng bộ lọc với danh sách đang xem (Loại ticket + Loại lỗi). Cột "Máy" theo dòng máy chưa vào file xuất.
+  const rows = await gomTatCa((trang, moiTrang) => searchTickets(q, state, onlyKhan, mineId, {
+    trang, moiTrang, ngtu, ngden, loaiTicket: loai || undefined, loiCode: loi || undefined, kemDongMay: false,
+  }))
   const cols = XUAT_TICKET_COT.filter((c) => cot.includes(c.key))
   const gt = (t: Record<string, unknown>, key: string): string => {
     if (key === 'created_at') return String(t.created_at ?? '').slice(0, 10)
@@ -4215,7 +4228,7 @@ export async function xuatTicket(
   }
   const lines = [cols.map((c) => oCsv(c.nhan)).join(',')]
   for (const t of rows) lines.push(cols.map((c) => oCsv(gt(t as unknown as Record<string, unknown>, c.key))).join(','))
-  await ghiAudit('export_ticket', 'tickets', { q, cot: cols.map((c) => c.key), so_dong: rows.length })
+  await ghiAudit('export_ticket', 'tickets', { q, loai: loai || null, loi: loi || null, cot: cols.map((c) => c.key), so_dong: rows.length })
   return { ok: true, csv: lines.join('\r\n') }
 }
 
@@ -4291,7 +4304,9 @@ export async function createTicket(input: {
   if (!input.customer_id?.trim()) return { ok: false as const, error: 'Bắt buộc chọn khách.' }
   if (input.dong_may != null && !Array.isArray(input.dong_may)) return { ok: false as const, error: 'Dòng máy không hợp lệ.' }
   // Serial do SERVER giải: bỏ qua serial/source_serial client gửi khi đã có dòng máy.
-  const serialDong = input.dong_may?.find((d) => typeof d?.serial === 'string' && d.serial.trim())?.serial
+  // "Dòng đầu tiên có serial" — CÙNG định nghĩa với dòng nhận vào dòng máy tự động (ganDongMayChoTicketMoi).
+  const iSerial = input.dong_may ? viTriDongCoSerial(input.dong_may) : -1
+  const serialDong = iSerial >= 0 ? input.dong_may![iSerial].serial : undefined
   const serialTho = (serialDong ?? input.source_serial ?? input.serial ?? '').trim()
   if (!serialTho) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
   if (!input.ticket_type?.trim()) return { ok: false as const, error: 'Chọn loại ticket.' }
@@ -4301,8 +4316,10 @@ export async function createTicket(input: {
   }
 
   const db = dataClient()
+  // Bảng dòng máy chưa có (migration chưa áp) → tạo ticket kiểu cũ (chỉ serial), bỏ qua dòng máy + cảnh báo.
+  const dungDongMay = input.dong_may?.length ? await coBangDongMay(db) : false
   // Kiểm MỌI dòng máy + giải serial TRƯỚC khi tạo ticket: lỗi thì không tạo gì cả.
-  const dongDaChuan = input.dong_may?.length ? await chuanBiCacDong(input.dong_may) : null
+  const dongDaChuan = dungDongMay ? await chuanBiCacDong(input.dong_may!) : null
   if (dongDaChuan && !dongDaChuan.ok) return { ok: false as const, error: dongDaChuan.error }
   const sr = await giaiSerial(db, serialTho)
   if (!sr.ok) return { ok: false as const, error: sr.error }
@@ -4340,6 +4357,9 @@ export async function createTicket(input: {
   const { error } = await db.from('tickets').insert(row)
   if (error) return { ok: false as const, error: error.message }
   revalidatePath('/ticket')
+  if (input.dong_may?.length && !dungDongMay) {
+    return { ok: true as const, code, canhBao: 'dong_may_tam_tat' satisfies MaCanhBao }
+  }
   if (input.dong_may?.length) {
     // Đã qua cổng cs.ticket.tao_sua ở đầu hàm (ganDongMayChoTicketMoi không tự kiểm quyền).
     const g = await ganDongMayChoTicketMoi(code, input.dong_may, dongDaChuan?.ok ? dongDaChuan.ds : undefined)

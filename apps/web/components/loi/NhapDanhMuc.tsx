@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { nhapDanhMuc, xemTruocNhapDanhMuc } from '@/app/ticket/loi-actions'
-import { chayNhap, chayXemTruoc, duocNhap, nhanNutNhap, NHAN_TRANG_THAI, type TomTatXemTruoc } from '@/lib/loi/giaoDienDanhMuc'
+import { chayNhap, chayXemTruoc, duocNhap, nhanDoiTrangThai, nhanNutNhap, NHAN_TRANG_THAI, type TomTatXemTruoc } from '@/lib/loi/giaoDienDanhMuc'
 
 export function NhapDanhMuc() {
   const router = useRouter()
@@ -53,7 +53,9 @@ export function NhapDanhMuc() {
           <p className="text-sm">
             {tomTat.daDuyet} đã duyệt · {tomTat.choDuyet} chờ duyệt · {tomTat.soGan} ticket được gán lỗi ·{' '}
             <strong>{tomTat.soDongSeDoi} dòng máy sẽ đổi</strong>
+            {nhanDoiTrangThai(tomTat) && <> · <strong>{nhanDoiTrangThai(tomTat)}</strong></>}
           </p>
+          <p className="text-xs text-slate-500">Mã đã có mà cột Duyệt để trống thì giữ nguyên trạng thái; chỉ ghi Duyệt / Ngừng mới đổi.</p>
           {tomTat.coLoi && (
             <ul className="text-sm text-red-600 list-disc pl-5">
               {tomTat.loi.map((l) => <li key={l}>{l}</li>)}

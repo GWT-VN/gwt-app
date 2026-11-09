@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const NV_ID = vi.hoisted(() => '22222222-2222-4222-8222-222222222222')
 const ghi: { op: string; bang: string; arg?: unknown; loc: Record<string, unknown> }[] = []
 let phan: Record<string, { data?: unknown; count?: number }> = {}
 let coQuyenTra = true
@@ -30,7 +31,7 @@ vi.mock('server-only', () => ({}))
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => db }))
-vi.mock('@/lib/nen-tang/phien', () => ({ requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => ({ email: 'a@gwt.vn' })) }))
+vi.mock('@/lib/nen-tang/phien', () => ({ requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => ({ id: NV_ID, email: 'a@gwt.vn' })) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   coQuyen: vi.fn(async () => { chuoi.push('coQuyen'); return coQuyenTra }),
   doQuyen: vi.fn(async () => { chuoi.push('doQuyen') }),
@@ -81,7 +82,7 @@ describe('dòng máy', () => {
     rpcTra = { cs_xoa_dong_may: { ok: false, loi: 'dong_cuoi' } }
     const r = await A.xoaDongMay(UUID)
     expect(r.ok).toBe(false)
-    expect(db.rpc).toHaveBeenCalledWith('cs_xoa_dong_may', { p_id: UUID, p_nguoi: 'a@gwt.vn' })
+    expect(db.rpc).toHaveBeenCalledWith('cs_xoa_dong_may', { p_id: UUID, p_nguoi: 'a@gwt.vn', p_nguoi_id: NV_ID })
     expect(ghi.some((g) => g.op === 'delete')).toBe(false)
   })
   it('xoá thành công', async () => {
@@ -282,5 +283,39 @@ describe('duLieuTanSuat', () => {
     vi.mocked(doQuyen).mockImplementationOnce(async () => { chuoi.push('doQuyen'); throw new Error('NEXT_REDIRECT') })
     await expect(A.duLieuTanSuat()).rejects.toThrow()
     khongChamDb()
+  })
+})
+
+describe('M4: RPC ghi audit kèm actor_id', () => {
+  it('nhapDanhMuc truyền p_nguoi_id', async () => {
+    rpcTra = { cs_nhap_danh_muc_loi: { so_loi: 1, so_gan: 0 } }
+    const fd = new FormData()
+    fd.set('file', new File(['Mã,Tên chuẩn,Duyệt\nAB-1,Lỗi A,x'], 'a.csv'))
+    await A.nhapDanhMuc(fd)
+    expect(db.rpc).toHaveBeenCalledWith('cs_nhap_danh_muc_loi', expect.objectContaining({ p_nguoi: 'a@gwt.vn', p_nguoi_id: NV_ID }))
+  })
+})
+
+describe('I3 + M1: luuLoi kiểm cách ghi và dựng mẫu Mã máy như khi nhập Sheet', () => {
+  it('cách ghi dưới 3 ký tự (sau trim) bị từ chối, không chạm DB', async () => {
+    const r = await A.luuLoi({ ...nhapLoi, aliases: ['rò nước', ' E5 '] })
+    expect(r.ok).toBe(false)
+    expect(!r.ok && r.error).toContain('E5')
+    khongChamDb()
+  })
+  it('ma_may thiếu % -> thêm % cuối, _ thành ký tự thật; mẫu đã thoát giữ nguyên', async () => {
+    expect((await A.luuLoi({ ...nhapLoi, ma_may: ['GTUN-8600HP-G', 'T_X', 'CTS20%'] })).ok).toBe(true)
+    const w = ghi.find((g) => g.bang === 'loi_danh_muc')!.arg as Record<string, unknown>
+    expect(w.ma_may).toEqual(['GTUN-8600HP-G%', 'T\\_X%', 'CTS20%'])
+  })
+})
+
+describe('I2: xem trước đếm mã sẽ đổi trạng thái', () => {
+  it('so với trạng thái đang có trong DB', async () => {
+    phan = { 'select:loi_danh_muc': { data: [{ code: 'AB-1', trang_thai: 'cho_duyet' }, { code: 'AB-2', trang_thai: 'da_duyet' }] } }
+    const fd = new FormData()
+    fd.set('file', new File(['Mã,Tên chuẩn,Duyệt\nAB-1,Lỗi A,x\nAB-2,Lỗi B,\nAB-3,Lỗi C,x'], 'a.csv'))
+    const r = await A.xemTruocNhapDanhMuc(fd)
+    expect(r.ok && r.soDoiTrangThai).toBe(1)
   })
 })
