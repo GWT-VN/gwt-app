@@ -21,6 +21,19 @@ export function KhanBadge({ khan }: { khan: boolean | null | undefined }) {
   )
 }
 
+/** Ticket có hoạt động (tạo / sửa / ghi chú) trong 24 giờ qua — cờ `moi` do searchTickets tính. */
+export function MoiBadge({ moi, luc }: { moi: boolean | undefined; luc?: string | null }) {
+  if (!moi) return null
+  return (
+    <span
+      className="px-2 py-0.5 rounded-full text-xs bg-sky-100 text-sky-800 whitespace-nowrap font-medium"
+      title={luc ? `Hoạt động lúc ${vnDateTime(luc)}` : 'Có hoạt động trong 24 giờ qua'}
+    >
+      Mới
+    </span>
+  )
+}
+
 /** Ticket trỏ tới serial không có trong installed_base — lỗi dữ liệu Odoo, cần nêu rõ. */
 export function MayThieuBadge({ t }: { t: Ticket }) {
   if (!t.may_khong_trong_he_thong) return null

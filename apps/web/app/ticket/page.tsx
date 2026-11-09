@@ -12,7 +12,8 @@ import { ThanhDangLoc } from '@/bang'
 import { PhanTrang } from '@/bang'
 import { BoLocChon } from '@/bang'
 import { LocNgay } from '@/bang'
-import { docLocNgay, moTaLocNgay } from '@/lib/danhSach'
+import { docLocNgay, moTaLocNgay, SAP_TICKET_MAC_DINH } from '@/lib/danhSach'
+import { TuLamMoi } from '@/components/TuLamMoi'
 import { KhungChon, ThanhDaChon } from '@/bang'
 
 export default async function TicketsPage({
@@ -36,7 +37,7 @@ export default async function TicketsPage({
           rows: [], tong: 0, trang: 1, soTrang: 1,
           // Phải khớp mặc định của searchTickets, nếu không nhánh rỗng sẽ khoe
           // sai cột đang sắp ở ChipSapXep.
-          sapXep: { cot: 'created_at', tang: false, macDinh: true },
+          sapXep: { ...SAP_TICKET_MAC_DINH, macDinh: true },
         })
       : searchTickets(q, onlyKhan ? undefined : state || undefined, onlyKhan, me?.id, {
           trang, cot, chieu, loaiTicket: loai || undefined, ngtu, ngden,
@@ -158,8 +159,12 @@ export default async function TicketsPage({
           thamSo={{ q, state, khan, mine, loai, cot, chieu, ngtu, ngden }}
           layTatCaKhoa={khoaTatCaTicket}
         >
+        {/* Tự làm mới ~20 giây/lần (router.refresh, giữ nguyên URL) — đặt trong KhungChon
+            để tạm dừng khi đang chọn dòng. */}
+        <TuLamMoi />
         <ThanhDaChon nhan="ticket" />
         <BangTicket rows={tickets} choViewChung={quyen.viewChung} views={views}
+          boLoc={JSON.stringify([q, state, khan, mine, loai, ngtu, ngden, trang, sapXep.cot, sapXep.tang])}
           congCu={quyen.xuat && <ExportTicketButton q={q} state={onlyKhan || isMine ? undefined : state || undefined} khan={onlyKhan} mine={isMine} ngtu={ngtu} ngden={ngden} />} />
         </KhungChon>
 

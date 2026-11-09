@@ -32,7 +32,13 @@ export const TOI_DA_CHON = 2000
 
 /** Cột được phép sắp xếp — ngoài danh sách này bị bỏ qua (chống injection). */
 export const COT_MAY = ['install_date', 'serial', 'customer_name', 'product_name', 'warranty_full_end'] as const
-export const COT_TICKET = ['created_at', 'ticket_code', 'state', 'customer_name'] as const
+/** `hoat_dong` là cột ẢO (không có trong v_tickets): searchTickets tự tính + sắp ở máy chủ. */
+export const COT_TICKET = ['hoat_dong', 'created_at', 'ticket_code', 'state', 'customer_name'] as const
+/**
+ * Mặc định trang /ticket: hoạt động gần nhất trước (ticket bot vừa đăng / vừa có ghi chú
+ * lên đầu). Dùng chung cho searchTickets và nhánh rỗng ở page.tsx để chip không khoe sai.
+ */
+export const SAP_TICKET_MAC_DINH = { cot: 'hoat_dong', tang: false } as const
 export const COT_LOI = ['han_som', 'serial', 'customer_name'] as const
 export const COT_KHACH = ['full_name', 'province', 'ma_kh'] as const
 
@@ -150,6 +156,7 @@ export const TEN_COT: Record<string, string> = {
   product_name: 'Tên máy',
   warranty_full_end: 'Hạn bảo hành',
   created_at: 'Ngày tạo',
+  hoat_dong: 'Hoạt động gần nhất',
   ticket_code: 'Mã ticket',
   state: 'Trạng thái',
   han_som: 'Hạn thay lõi',
@@ -281,6 +288,7 @@ export const NGHIA_SAP_XEP: Record<string, { asc: string; desc: string }> = {
   // Ngày tháng — nói rõ đầu nào lên trước, đây là chỗ mũi tên gây hiểu lầm nhất
   install_date: { asc: 'lắp lâu nhất trước', desc: 'lắp gần đây nhất trước' },
   created_at: { asc: 'cũ nhất trước', desc: 'mới nhất trước' },
+  hoat_dong: { asc: 'lâu chưa động tới nhất trước', desc: 'mới nhất trước' },
   // Hạn — "tăng dần" nghĩa là gấp nhất lên đầu, phải nói bằng lời
   han_som: { asc: 'quá hạn lâu nhất trước', desc: 'còn nhiều thời gian nhất trước' },
   due_date: { asc: 'đến hạn sớm nhất trước', desc: 'đến hạn muộn nhất trước' },
