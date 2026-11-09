@@ -47,3 +47,16 @@ describe('actions.ts — mọi hàm chạm DB đều gác requireStaff()', () =>
     expect(soHamGate).toBeGreaterThan(20)
   })
 })
+
+const srcLoi = readFileSync(fileURLToPath(new URL('../app/ticket/loi-actions.ts', import.meta.url)), 'utf8')
+describe('app/ticket/loi-actions.ts — mọi hàm chạm DB đều gác requireStaff()', () => {
+  const doan = srcLoi.split(/(?=async function )/)
+  const viPham = doan.flatMap((p) => {
+    const m = p.match(/\basync function (\w+)/)
+    return m && p.includes('dataClient(') && !/\b(requireStaff|layNhanVien)\b/.test(p) ? [m[1]] : []
+  })
+  it('không hàm nào thiếu requireStaff()', () => expect(viPham).toEqual([]))
+  it('quét được thân file', () => {
+    expect(doan.filter((p) => p.includes('dataClient(') && /\brequireStaff\b/.test(p)).length).toBeGreaterThan(10)
+  })
+})
