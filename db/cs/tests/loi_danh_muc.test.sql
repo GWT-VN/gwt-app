@@ -26,6 +26,15 @@ begin
   -- null an toàn
   if cs_loi_khop(null, null) <> 'CHUA_PHAN_LOAI' then raise exception 'null không ra CHUA_PHAN_LOAI'; end if;
 
+  -- I3: alias khớp CHỨA theo nghĩa đen — % và _ trong alias không phải ký tự đại diện
+  insert into loi_danh_muc (code, ten, aliases, trang_thai) values
+    ('T-WILD-PCT', 'Lỗi phần trăm zzq', '{"zz%q"}', 'da_duyet'),
+    ('T-WILD-US', 'Lỗi gạch dưới zzw', '{"zz_w"}', 'da_duyet');
+  if cs_loi_khop('máy báo zzABCq', null) <> 'CHUA_PHAN_LOAI' then raise exception '%% trong alias thành ký tự đại diện'; end if;
+  if cs_loi_khop('máy báo zzxw', null) <> 'CHUA_PHAN_LOAI' then raise exception '_ trong alias thành ký tự đại diện'; end if;
+  if cs_loi_khop('máy báo zz%q thật', null) <> 'T-WILD-PCT' then raise exception 'alias có %% không khớp nghĩa đen'; end if;
+  if cs_loi_khop('máy báo ZZ_W thật', null) <> 'T-WILD-US' then raise exception 'alias có _ không khớp nghĩa đen'; end if;
+
   -- ràng buộc mã
   begin
     insert into loi_danh_muc (code, ten) values ('sai mã', 'x');

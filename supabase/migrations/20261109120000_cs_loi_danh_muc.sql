@@ -27,7 +27,7 @@ create table if not exists public.loi_danh_muc (
 );
 
 comment on table public.loi_danh_muc is 'Danh mục lỗi chuẩn CSKH. Chỉ dòng trang_thai=da_duyet được dùng để tự phân loại / gợi ý xử lý.';
-comment on column public.loi_danh_muc.aliases is 'Các cách ghi (khớp chứa, không dấu, không phân biệt hoa thường).';
+comment on column public.loi_danh_muc.aliases is 'Các cách ghi (khớp chứa nghĩa đen, không dấu, không phân biệt hoa thường). App chặn cách ghi dưới 3 ký tự.';
 comment on column public.loi_danh_muc.ma_may is 'Mẫu ILIKE trên internal_code (vd CTS20%). Rỗng = mọi model.';
 comment on column public.loi_danh_muc.huong_xu_ly is 'Phương án xử lý chuẩn — app chỉ GỢI Ý, CS bấm Xác nhận/sửa; không tự đổi trạng thái ticket.';
 
@@ -55,7 +55,8 @@ returns text language sql stable set search_path = public as $$
      where d.trang_thai = 'da_duyet'
        and d.code <> 'CHUA_PHAN_LOAI'
        and btrim(a.alias) <> ''
-       and khong_dau(coalesce(p_van_ban, '')) like '%' || khong_dau(btrim(a.alias)) || '%'
+       -- strpos (khớp chứa NGHĨA ĐEN): % và _ trong alias không thành ký tự đại diện như LIKE.
+       and strpos(khong_dau(coalesce(p_van_ban, '')), khong_dau(btrim(a.alias))) > 0
        and (cardinality(d.ma_may) = 0 or coalesce(p_internal_code, '') ilike any (d.ma_may))
      order by (cardinality(d.ma_may) > 0) desc, length(a.alias) desc, d.thu_tu, d.code
      limit 1

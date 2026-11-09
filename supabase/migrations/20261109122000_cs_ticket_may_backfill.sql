@@ -45,7 +45,9 @@ begin
       from tickets t
       left join installed_base ib on ib.serial = coalesce(t.serial, nullif(upper(btrim(t.source_serial)), ''))
       left join serial_registry sr on sr.serial = coalesce(t.serial, nullif(upper(btrim(t.source_serial)), ''))
-     where not exists (select 1 from ticket_may m where m.ticket_code = t.ticket_code);
+     where not exists (select 1 from ticket_may m where m.ticket_code = t.ticket_code)
+    -- trigger có thể vừa sinh dòng tự động cho ticket mới giữa chừng → bỏ qua (ux_ticket_may_tu_dong)
+    on conflict do nothing;
 
     update ticket_may m
        set loi_code = l.loi_moi

@@ -42,6 +42,10 @@ begin
   if (select count(*) from ticket_may where ticket_code = 'TK-9911-953') <> 2 then raise exception 'backfill thêm dòng cho ticket đã có dòng'; end if;
   if (select loi_code from ticket_may where ticket_code = 'TK-9911-953' and nguon = 'app') <> 'CHUA_PHAN_LOAI' then raise exception 'đụng dòng nhập tay'; end if;
 
+  -- M2: insert backfill có on conflict do nothing (chạy song song với trigger không vỡ unique dòng tự động)
+  if pg_get_functiondef('cs_ticket_may_backfill(boolean)'::regprocedure) !~* 'on conflict do nothing' then
+    raise exception 'insert backfill thiếu on conflict do nothing'; end if;
+
   -- bot_tao_ticket với serial KHÔNG có trong installed_base → ticket tạo được, dòng máy serial null
   kq := bot_tao_ticket(jsonb_build_object('discord_msg_id', 'test-bf-9911', 'serial', 'KHONGCOTRONGHE999', 'ticket_type', 'Bảo hành',
           'description', 'hỏi giá máy lạ', 'ngay_tao', '2026-11-09', 'tac_gia', 'test', 'ghi_chu', '[]'::jsonb));
