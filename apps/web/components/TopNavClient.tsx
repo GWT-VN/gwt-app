@@ -86,7 +86,7 @@ export function TopNavClient({
           { nhan: 'Soát kênh khách', href: '/khach/kenh' },
           { nhan: 'Kênh / đối tác', href: '/kenh' },
         ] },
-        { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Nhóm lỗi', href: '/nhom-loi' }] },
+        { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Nhóm lỗi', href: '/nhom-loi' }, { nhan: 'Danh mục lỗi', href: '/danh-muc-loi' }, { nhan: 'Báo cáo lỗi', href: '/bao-cao-loi' }] },
         { nhan: 'Bảo hành', trang: [{ nhan: 'Đăng ký BH', href: '/dang-ky-bh' }, { nhan: 'Chờ kích hoạt BH', href: '/bh-cho-kich-hoat' }] },
         { nhan: 'Bảo trì', trang: [
           { nhan: 'Lịch bảo trì', href: '/bao-tri' }, { nhan: 'Lịch thay lõi', href: '/loi' },
