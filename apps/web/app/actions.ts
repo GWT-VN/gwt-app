@@ -24,6 +24,10 @@ import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { tomTatMayTicket, locLoiHopLe } from '@/lib/loi/dongMay'
+import { ganDongMayChoTicketMoi } from '@/lib/loi/ganDongMayServer'
+import { chuanHoaSerial } from '@/lib/loi/serial'
+import { GIOI_HAN } from '@/lib/loi/kiemDauVao'
+import type { DongMayInput } from '@/lib/loi/kieu'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
   TINH_TRANG_BH, TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
@@ -4269,7 +4273,9 @@ export async function xuatLoi(tt: string | undefined, q: string, cot: string[], 
 
 /** Tạo ticket mới. Mã tự sinh GWT-YYnnnn theo năm hiện tại. */
 export async function createTicket(input: {
-  serial?: string
+  serial?: string              // CHỈ điền khi serial có trong installed_base (FK tickets.serial)
+  source_serial?: string       // serial gốc người gõ (không FK)
+  dong_may?: DongMayInput[]    // các dòng máy báo lỗi (tối đa 20)
   customer_id?: string
   ticket_type: string
   description: string
@@ -4284,7 +4290,11 @@ export async function createTicket(input: {
   await doQuyen('cs.ticket.tao_sua')
   const nguoiTao = await layNhanVien()
   if (!input.customer_id?.trim()) return { ok: false as const, error: 'Bắt buộc chọn khách.' }
-  if (!input.serial?.trim()) return { ok: false as const, error: 'Bắt buộc chọn serial máy báo lỗi (máy của khách).' }
+  const serialDong = input.dong_may?.find((d) => typeof d?.serial === 'string' && d.serial.trim())?.serial
+  if (!input.serial?.trim() && !input.source_serial?.trim() && !serialDong?.trim()) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
+  if (input.dong_may != null && (!Array.isArray(input.dong_may) || input.dong_may.length > GIOI_HAN.soDongMay)) {
+    return { ok: false as const, error: `Tối đa ${GIOI_HAN.soDongMay} dòng máy mỗi ticket.` }
+  }
   if (!input.ticket_type?.trim()) return { ok: false as const, error: 'Chọn loại ticket.' }
   if (!input.description?.trim()) return { ok: false as const, error: 'Nhập mô tả sự cố.' }
   if (input.state && !['Open', 'Done', 'Cancel'].includes(input.state)) {
@@ -4308,8 +4318,9 @@ export async function createTicket(input: {
 
   const row: Record<string, unknown> = {
     ticket_code: code,
-    serial: input.serial || null,
-    source_serial: input.serial || null,
+    serial: input.serial?.trim() || null,
+    // Không có serial lắp thì giữ serial gõ ở source_serial (dòng máy đầu) — KHÔNG ghi vào serial (FK).
+    source_serial: input.source_serial?.trim() || input.serial?.trim() || (serialDong ? chuanHoaSerial(serialDong) : null) || null,
     customer_id: input.customer_id || null,
     ticket_type: input.ticket_type.trim(),
     description: input.description.trim(),
@@ -4325,6 +4336,11 @@ export async function createTicket(input: {
   const { error } = await db.from('tickets').insert(row)
   if (error) return { ok: false as const, error: error.message }
   revalidatePath('/ticket')
+  if (input.dong_may?.length) {
+    // Đã qua cổng cs.ticket.tao_sua ở đầu hàm (ganDongMayChoTicketMoi không tự kiểm quyền).
+    const g = await ganDongMayChoTicketMoi(code, input.dong_may)
+    if (!g.ok) return { ok: true as const, code, canhBao: `Đã tạo ticket nhưng chưa lưu đủ dòng máy: ${g.error}` }
+  }
   return { ok: true as const, code }
 }
 
