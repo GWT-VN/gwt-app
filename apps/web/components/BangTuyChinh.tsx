@@ -165,7 +165,7 @@ export function BangTuyChinh<T>({
           </thead>
           <tbody className="divide-y">
             {rows.map((r) => (
-              <tr key={keyOf(r)} className={`hover:bg-slate-50 align-top ${lopDong?.(r) ?? ''}`}>
+              <tr key={keyOf(r)} className={`hover:bg-slate-50 align-middle ${lopDong?.(r) ?? ''}`}>
                 <OChonDong khoa={keyOf(r)} moTa={moTaOf(r)} />
                 {cols.map((c) => <td key={c.key} className={`px-4 py-3 text-slate-700 ${c.phai ? 'text-right' : ''}`}>{c.render(r)}</td>)}
               </tr>
