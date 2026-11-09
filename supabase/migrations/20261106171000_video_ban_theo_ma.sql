@@ -27,7 +27,7 @@ language sql stable security definer set search_path = '' as $$
     from public.sales_orders o join public.sales_order_items i on i.order_id = o.order_id
     where o.order_date between p_tu and p_den
       and nullif(btrim(i.internal_code), '') is not null and i.internal_code not like '%⚠%' and coalesce(i.quantity, 0) > 0
-      and o.source_tab <> 'DON_TANG' and not coalesce(i.is_gift, false) and not coalesce(i.is_maintenance, false) and coalesce(i.amount_vat, 0) > 0
+      and coalesce(o.source_tab, '') <> 'DON_TANG' and not coalesce(i.is_gift, false) and not coalesce(i.is_maintenance, false) and coalesce(i.amount_vat, 0) > 0
       and normalize(btrim(coalesce(o.status, '')), nfc) <> all (array[normalize('Huỷ', nfc), normalize('Hủy', nfc), normalize('Hoàn hàng', nfc)])
       and not exists (select 1 from public.sales_order_lines l2 where l2.order_code = o.order_code)
   )
