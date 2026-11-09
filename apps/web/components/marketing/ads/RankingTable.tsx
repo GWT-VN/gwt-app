@@ -1,4 +1,4 @@
-import { costPerOrder, costPerSdt } from "@/lib/marketing/ads-analysis";
+import { costPerNewMessage, costPerOrder, costPerSdt } from "@/lib/marketing/ads-analysis";
 import type { Judged } from "./DecisionPanel";
 import { campLabel, CprPill, DecisionBadge, dec1, Delta, money, pct } from "./shared";
 
@@ -32,6 +32,7 @@ export default function RankingTable({
               <th>So chuẩn</th>
               <th>Kỳ trước</th>
               <th>Result/ngày</th>
+              <th>New mess</th>
               <th>SĐT</th>
               <th>Cost/SĐT</th>
               <th>Khách mua</th>
@@ -65,6 +66,16 @@ export default function RankingTable({
                     )}
                   </td>
                   <td className="num-cell">{dec1(v.latest!.results / v.days!)}</td>
+                  <td className="num-cell">
+                    {v.latest!.newMessages ? (
+                      <>
+                        {v.latest!.newMessages}
+                        <small className="ads-sub-num">{money(costPerNewMessage(v.latest)!)}/mess</small>
+                      </>
+                    ) : (
+                      <span className="ads-muted">—</span>
+                    )}
+                  </td>
                   <td className="num-cell">{v.latest!.sdt ?? <span className="ads-muted">—</span>}</td>
                   <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
                   <td className="num-cell">

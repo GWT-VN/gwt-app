@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   campKey,
+  costPerNewMessage,
   costPerResult,
   costPerSdt,
   creativeKey,
@@ -14,7 +15,8 @@ import { CprPill, dec1, money, pct } from "./shared";
 
 const isRunning = (a: AdResult) => a.status === "active" || a.status === "new";
 const statOf = (a: AdResult): PeriodStat | null =>
-  a.cost != null && a.results != null ? { cost: a.cost, results: a.results, sdt: a.sdt, orders: a.orders ?? null } : null;
+  a.cost != null && a.results != null ? { cost: a.cost, results: a.results, sdt: a.sdt, orders: a.orders ?? null, newMessages: a.newMessages ?? null }
+    : null;
 
 function VsBenchmark({ p, benchmark, small }: { p: PeriodStat | null; benchmark: number; small?: boolean }) {
   const cpr = costPerResult(p);
@@ -94,6 +96,16 @@ export default function PeriodDetail({
             <span className="ads-muted">—</span>
           )}
         </td>
+        <td className="num-cell">
+          {p?.newMessages ? (
+            <>
+              {p.newMessages}
+              <small className="ads-sub-num">{money(costPerNewMessage(p)!)}/mess</small>
+            </>
+          ) : (
+            <span className="ads-muted">—</span>
+          )}
+        </td>
         <td className="num-cell">{p?.sdt ?? <span className="ads-muted">—</span>}</td>
         <td className="num-cell"><CprPill cpr={costPerResult(p)} benchmark={benchmark} /></td>
         <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
@@ -163,6 +175,7 @@ export default function PeriodDetail({
                 <th>Creative / camp</th>
                 <th>Chi</th>
                 <th>Result</th>
+                <th>New mess</th>
                 <th>SĐT</th>
                 <th>Cost/result</th>
                 <th>Cost/SĐT</th>

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { OChonGoiY, type MucChon } from "@/bang";
 import {
+  costPerNewMessage,
   costPerOrder,
   costPerResult,
   costPerSdt,
@@ -112,6 +113,12 @@ export default function CampDetail({
             <div className="lab">Result</div>
           </div>
           <div className="ads-stat">
+            <div className="num">{total.newMessages ?? "—"}</div>
+            <div className="lab">
+              New message{costPerNewMessage(total) != null && ` · ${money(costPerNewMessage(total)!)}/mess`}
+            </div>
+          </div>
+          <div className="ads-stat">
             <div className="num">{total.sdt ?? "—"}</div>
             <div className="lab">SĐT</div>
           </div>
@@ -139,6 +146,7 @@ export default function CampDetail({
               <th>Kỳ</th>
               <th>Chi</th>
               <th>Result</th>
+              <th>New mess</th>
               <th>SĐT</th>
               <th>Cost/result</th>
               <th>Cost/SĐT</th>
@@ -168,6 +176,16 @@ export default function CampDetail({
                       {dec1(p.results / days)}/ngày
                       <Delta cur={p.results / days} prev={prev && prev.p.results / prev.days} goodWhenUp />
                     </small>
+                  </td>
+                  <td className="num-cell">
+                    {p.newMessages ? (
+                      <>
+                        {p.newMessages}
+                        <small className="ads-sub-num">{money(costPerNewMessage(p)!)}/mess</small>
+                      </>
+                    ) : (
+                      <span className="ads-muted">—</span>
+                    )}
                   </td>
                   <td className="num-cell">
                     {p.sdt ?? <span className="ads-muted">—</span>}

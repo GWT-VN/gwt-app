@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { AdResult, AdsWeek } from "./data/ads-results";
 import {
   buildCreatives,
+  costPerNewMessage,
   judgeCamp,
   periodDays,
   productGroupOf,
@@ -52,7 +53,9 @@ function camp(
     status: opts.status ?? "active",
     note: "",
     budgetDaily: "100k",
-    periods: periods.map((p) => (p ? { cost: p[0], results: p[1], sdt: p[2], orders: p[3] ?? null } : null)),
+    periods: periods.map((p) =>
+      p ? { cost: p[0], results: p[1], sdt: p[2], orders: p[3] ?? null, newMessages: null } : null,
+    ),
   };
 }
 
@@ -81,7 +84,7 @@ describe("periodDays", () => {
 describe("buildCreatives", () => {
   const weeks = [
     wk("2026-09-21", "2026-09-27", [
-      { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "29/8", cost: 700, results: 14, sdt: 1, orders: 1, status: "off" },
+      { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "29/8", cost: 700, results: 14, sdt: 1, orders: 1, newMessages: 10, status: "off" },
     ]),
     wk("2026-09-28", "2026-10-04", [
       { creative: "CTS20 Dino", name: "CTS20 Dino", startDate: "5/10", cost: 300, results: 10, sdt: null, status: "new" },
@@ -95,8 +98,8 @@ describe("buildCreatives", () => {
     expect(dino.camps.map((c) => c.startDate)).toEqual(["29/8", "5/10"]);
   });
   it("số liệu creative mỗi kỳ = cộng mọi camp có số kỳ đó", () => {
-    expect(dino.periods[0]).toEqual({ cost: 700, results: 14, sdt: 1, orders: 1 });
-    expect(dino.periods[1]).toEqual({ cost: 300, results: 10, sdt: null, orders: null });
+    expect(dino.periods[0]).toEqual({ cost: 700, results: 14, sdt: 1, orders: 1, newMessages: 10 });
+    expect(dino.periods[1]).toEqual({ cost: 300, results: 10, sdt: null, orders: null, newMessages: null });
   });
   it("creative còn chạy khi có ít nhất 1 camp đang chạy", () => {
     expect(dino.running).toBe(true);
@@ -108,6 +111,15 @@ describe("buildCreatives", () => {
       wk("2026-09-28", "2026-10-04", [{ creative: "A", name: "A", cost: 100, results: 5, note: "" }]),
     ]);
     expect(g[0].camps[0].note).toBe("");
+  });
+});
+
+describe("costPerNewMessage", () => {
+  it("chi phí ÷ số new message (đồng)", () => {
+    expect(costPerNewMessage({ cost: 6625, results: 269, sdt: 13, orders: null, newMessages: 195 })).toBe(33974);
+  });
+  it("kỳ chưa ghi new message → không tính", () => {
+    expect(costPerNewMessage({ cost: 700, results: 30, sdt: 1, orders: null, newMessages: null })).toBeNull();
   });
 });
 

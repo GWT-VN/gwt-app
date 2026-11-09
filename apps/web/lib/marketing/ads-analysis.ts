@@ -49,6 +49,8 @@ export interface PeriodStat {
   sdt: number | null;
   /** Khách mua từ ads; null = chưa ghi. */
   orders: number | null;
+  /** New message Facebook báo; null = chưa ghi (các kỳ trước 18/10). */
+  newMessages: number | null;
 }
 
 /** Một camp = creative + ngày lên + tên ads. Tắt rồi lên lại là camp mới. */
@@ -139,6 +141,7 @@ function sumPeriods(stats: (PeriodStat | null)[]): PeriodStat | null {
     results: have.reduce((t, s) => t + s.results, 0),
     sdt: sumOrNull(have.map((s) => s.sdt)),
     orders: sumOrNull(have.map((s) => s.orders)),
+    newMessages: sumOrNull(have.map((s) => s.newMessages)),
   };
 }
 
@@ -146,6 +149,12 @@ function sumPeriods(stats: (PeriodStat | null)[]): PeriodStat | null {
 export function costPerOrder(p: PeriodStat | null | undefined): number | null {
   if (!p || !p.orders) return null;
   return Math.round((p.cost * 1000) / p.orders);
+}
+
+/** Cost/new message (đồng). */
+export function costPerNewMessage(p: PeriodStat | null | undefined): number | null {
+  if (!p || !p.newMessages) return null;
+  return Math.round((p.cost * 1000) / p.newMessages);
 }
 
 /** Tổng nhiều kỳ của một camp/creative. */
@@ -203,7 +212,13 @@ export function buildCreatives(weeks: AdsWeek[]): CreativeGroup[] {
       c.budgetDaily = ad.budgetDaily;
       c.note = ad.note;
       if (ad.cost != null && ad.results != null) {
-        c.periods[wi] = { cost: ad.cost, results: ad.results, sdt: ad.sdt, orders: ad.orders ?? null };
+        c.periods[wi] = {
+          cost: ad.cost,
+          results: ad.results,
+          sdt: ad.sdt,
+          orders: ad.orders ?? null,
+          newMessages: ad.newMessages ?? null,
+        };
       }
     }
   });
