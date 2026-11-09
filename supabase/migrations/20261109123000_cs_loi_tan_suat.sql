@@ -23,7 +23,7 @@ create or replace view public.v_loi_so_ban with (security_invoker = true) as
 select internal_code, to_char(order_date, 'YYYY-MM') as thang, sum(coalesce(quantity, 0))::numeric as so_ban
   from public.sales_order_lines
  where internal_code is not null and order_date is not null
-   and coalesce(fulfillment_status, '') !~* '(huỷ|hủy|cancel|hoàn)'
+   and btrim(normalize(coalesce(fulfillment_status, ''), NFC)) <> all (array['Huỷ', 'Hủy', 'Hoàn hàng'])
  group by 1, 2;
 
 -- Máy NHẬP (serial nạp theo PO) theo mã × tháng nạp.

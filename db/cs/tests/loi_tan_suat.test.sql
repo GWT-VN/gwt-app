@@ -12,10 +12,12 @@ begin
 
   insert into sales_order_lines (source_tab, order_code, order_date, internal_code, quantity, fulfillment_status)
   values ('t', 'T1', '2026-10-05', 'ZZ-TEST-LTS', 3, 'Đã giao'),
-         ('t', 'T2', '2026-10-06', 'ZZ-TEST-LTS', 5, 'Đã huỷ'),
-         ('t', 'T3', '2026-10-07', 'ZZ-TEST-LTS', 7, 'Hoàn hàng');
-  if (select so_ban from v_loi_so_ban where internal_code = 'ZZ-TEST-LTS' and thang = '2026-10') <> 3 then
-    raise exception 'so_ban phải bỏ đơn huỷ/hoàn';
+         ('t', 'T2', '2026-10-06', 'ZZ-TEST-LTS', 5, 'Huỷ'),
+         ('t', 'T3', '2026-10-07', 'ZZ-TEST-LTS', 7, 'Hoàn hàng'),
+         ('t', 'T4', '2026-10-08', 'ZZ-TEST-LTS', 2, 'Hoàn thành (Không lắp)'),
+         ('t', 'T5', '2026-10-09', 'ZZ-TEST-LTS', 4, 'Hủy ');
+  if (select so_ban from v_loi_so_ban where internal_code = 'ZZ-TEST-LTS' and thang = '2026-10') <> 5 then
+    raise exception 'so_ban phải = 5: bỏ Huỷ/Hủy/Hoàn hàng, giữ Hoàn thành (Không lắp)';
   end if;
 
   insert into serial_registry (serial, code, internal_code, imported_at)
