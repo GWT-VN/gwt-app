@@ -52,7 +52,7 @@ import { duongDanSauTao, dongLechKhach } from './traCuuForm'
 describe('duongDanSauTao', () => {
   it('luôn đi tới trang ticket, kèm cảnh báo (mã hoá) nếu có', () => {
     expect(duongDanSauTao('TK-2611-001')).toBe('/ticket/TK-2611-001')
-    expect(duongDanSauTao('TK-2611-001', 'Đã tạo & thiếu')).toBe(`/ticket/TK-2611-001?canhBao=${encodeURIComponent('Đã tạo & thiếu')}`)
+    expect(duongDanSauTao('TK-2611-001', 'dong_may_chua_luu')).toBe('/ticket/TK-2611-001?canhBao=dong_may_chua_luu')
   })
 })
 describe('dongLechKhach', () => {

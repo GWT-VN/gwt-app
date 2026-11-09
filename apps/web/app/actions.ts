@@ -24,6 +24,7 @@ import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { tomTatMayTicket, locLoiHopLe } from '@/lib/loi/dongMay'
+import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, giaiSerial } from '@/lib/loi/ganDongMayServer'
 import type { DongMayInput } from '@/lib/loi/kieu'
 import {
@@ -4342,7 +4343,10 @@ export async function createTicket(input: {
   if (input.dong_may?.length) {
     // Đã qua cổng cs.ticket.tao_sua ở đầu hàm (ganDongMayChoTicketMoi không tự kiểm quyền).
     const g = await ganDongMayChoTicketMoi(code, input.dong_may, dongDaChuan?.ok ? dongDaChuan.ds : undefined)
-    if (!g.ok) return { ok: true as const, code, canhBao: `Đã tạo ticket nhưng chưa lưu đủ dòng máy: ${g.error}` }
+    if (!g.ok) {
+      console.error('[createTicket] gán dòng máy lỗi', g.error)
+      return { ok: true as const, code, canhBao: 'dong_may_chua_luu' satisfies MaCanhBao }
+    }
   }
   return { ok: true as const, code }
 }

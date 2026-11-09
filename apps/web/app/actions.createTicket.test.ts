@@ -5,6 +5,7 @@ let insertArg: Record<string, unknown> | null = null
 let quyenLoi = false
 let bang: Record<string, unknown> = {}
 let updArg: Record<string, unknown> | null = null
+let rpcKq: { data: unknown; error: unknown } = { data: { ok: true, id: 'n' }, error: null }
 
 function builder(t: string) {
   let op = 'select'
@@ -19,7 +20,7 @@ function builder(t: string) {
 }
 vi.mock('server-only', () => ({}))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
-vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: builder, rpc: vi.fn(async () => ({ data: { ok: true, id: 'n' }, error: null })) }) }))
+vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: builder, rpc: vi.fn(async () => rpcKq) }) }))
 vi.mock('@/lib/nen-tang/phien', () => ({ requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => ({ id: 'nv1', email: 'a@gwt.vn' })) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   coQuyen: vi.fn(async () => true),
@@ -32,7 +33,7 @@ import { createTicket } from './actions'
 const base = { customer_id: 'k1', ticket_type: 'Lỗi máy', description: 'rò nước' }
 const S1 = 'A12345678ABC12345678'
 beforeEach(() => {
-  chuoi.length = 0; insertArg = null; updArg = null; quyenLoi = false
+  rpcKq = { data: { ok: true, id: 'n' }, error: null }; chuoi.length = 0; insertArg = null; updArg = null; quyenLoi = false
   bang = { loi_danh_muc: { trang_thai: 'da_duyet' } }
 })
 
@@ -82,5 +83,10 @@ describe('createTicket + dòng máy (logic dòng máy chạy thật)', () => {
     expect(updArg).not.toHaveProperty('loi_code')
     expect(updArg).not.toHaveProperty('cs_sua')
     expect(r).toMatchObject({ ok: true })
+  })
+  it('ghi dòng máy lỗi sau khi tạo ticket: trả MÃ cảnh báo cố định, không lộ văn bản lỗi', async () => {
+    rpcKq = { data: null, error: { code: 'XX', message: 'chi tiết nội bộ' } }
+    const r = await createTicket({ ...base, dong_may: [{ serial: S1 }, { serial: S1 }] })
+    expect(r).toMatchObject({ ok: true, canhBao: 'dong_may_chua_luu' })
   })
 })

@@ -11,18 +11,22 @@ import { TicketNotes } from '@/components/TicketNotes'
 import { TicketItems } from '@/components/TicketItems'
 import { NhanViecButton } from '@/components/NhanViecButton'
 import { vnDate } from '@/components/Badge'
+import { DongMayTicket } from '@/components/loi/DongMayTicket'
+import { dongMayCuaTicket, danhMucLoi } from '@/app/ticket/loi-actions'
+import { canhBaoTuQuery } from '@/lib/loi/canhBao'
 
 export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
   const { code } = await params
   const sp = await searchParams
-  const canhBao = (Array.isArray(sp.canhBao) ? sp.canhBao[0] : sp.canhBao)?.slice(0, 300)
+  const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, me, catalog, loaiList, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, me, catalog, loaiList, dongMay, dsLoi, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma), currentStaff(),
-    listCatalogItems(), ticketTypes(),
+    listCatalogItems(), ticketTypes(), dongMayCuaTicket(ma), danhMucLoi(),
     hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
+      sua: ['cs.ticket.tao_sua', 'NHANVIEN'],
     }),
   ])
   if (!t) notFound()
@@ -115,6 +119,11 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
               </div>
             )}
           </dl>
+        </section>
+
+        <section className="bg-white rounded-xl border p-5">
+          <h2 className="font-medium text-slate-900 mb-3">Máy & lỗi</h2>
+          <DongMayTicket code={t.ticket_code} dong={dongMay} dsLoi={dsLoi} choSua={quyen.sua} />
         </section>
 
         {quyen.lichKT && t.customer_id && (
