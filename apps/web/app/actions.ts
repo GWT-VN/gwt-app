@@ -22,8 +22,8 @@ import { kiemTraGop, moTaGop, type KhachGon, type KhachDayDu } from '@/lib/gopKh
 import type { PChon } from '@/lib/gopKhachChon'
 import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
-import { dongMayTheoTickets, ticketCodesTheoLoi } from '@/app/ticket/loi-actions'
-import { tomTatMayTicket } from '@/lib/loi/dongMay'
+import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
+import { tomTatMayTicket, locLoiHopLe } from '@/lib/loi/dongMay'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
   TINH_TRANG_BH, TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
@@ -2456,7 +2456,7 @@ export type Ticket = {
   /** Chỉ có ở kết quả searchTickets: hoạt động trong 24 giờ qua -> badge "Mới". */
   moi?: boolean
   /** Chỉ có ở kết quả searchTickets: các dòng máy "MÃ · lỗi" (ticket_may). */
-  dong_may?: { nhan: string; serial: string | null }[]
+  dong_may?: { nhan: string; serial: string | null; chuaPhanLoai: boolean }[]
 }
 
 /** Tra ticket theo mã / serial / tên khách / SĐT / nội dung. Rỗng -> 50 ticket mới nhất.
@@ -2479,11 +2479,17 @@ export async function searchTickets(
   const xemTatCa = await coQuyen('cs.ticket.xem_tat_ca', 'QUANLY')
   const meId = xemTatCa ? null : ((await layNhanVien())?.id ?? '00000000-0000-0000-0000-000000000000')
 
-  // Lọc theo loại lỗi = ticket có ÍT NHẤT một dòng máy mang mã lỗi đó (sau kiểm quyền ở trên).
-  const maTheoLoi = tuyChon.loiCode ? await ticketCodesTheoLoi(tuyChon.loiCode) : null
+  // Lọc theo loại lỗi = ticket có ÍT NHẤT một dòng máy mang mã đó. Lọc ngay trong DB qua view
+  // v_tickets_loi (cột loi_codes) — không gửi danh sách mã lên URL, không dính max-rows.
+  const locLoi = locLoiHopLe(tuyChon.loiCode)
+  if (locLoi.loc && !locLoi.ma) {
+    return { rows: [], tong: 0, trang, soTrang: 1, sapXep: sx }
+  }
+  const maLoi = locLoi.loc ? locLoi.ma : null
 
   const dungTruyVan = () => {
-    let truyVan = dataClient().from('v_tickets').select('*', { count: 'exact' })
+    let truyVan = dataClient().from(maLoi ? 'v_tickets_loi' : 'v_tickets').select('*', { count: 'exact' })
+    if (maLoi) truyVan = truyVan.contains('loi_codes', [maLoi])
 
     const term = q.trim()
     if (term) {
@@ -2511,7 +2517,6 @@ export async function searchTickets(
     // hợp lệ; vẫn .eq() thẳng (không whitelist tĩnh) vì loại ticket là dữ liệu mở, không
     // cố định như cột sắp xếp.
     if (tuyChon.loaiTicket) truyVan = truyVan.eq('ticket_type', tuyChon.loaiTicket)
-    if (maTheoLoi) truyVan = truyVan.in('ticket_code', maTheoLoi.length ? maTheoLoi : ['__khong_co__'])
     // Lọc theo ngày tạo (created_at là timestamp → 'đến ngày' phải ôm hết trong ngày).
     const { tu: tkTu, den: tkDen } = docLocNgay(tuyChon)
     if (tkTu) truyVan = truyVan.gte('created_at', tkTu)

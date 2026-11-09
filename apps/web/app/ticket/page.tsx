@@ -44,7 +44,7 @@ export default async function TicketsPage({
           trang, cot, chieu, loaiTicket: loai || undefined, loiCode: loi || undefined, ngtu, ngden,
         })),
     ticketTypes(),
-    danhMucLoi(true),
+    danhMucLoi(),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       viewChung: ['he_thong.view_chung', 'QUANLY'],

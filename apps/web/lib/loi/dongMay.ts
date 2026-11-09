@@ -1,4 +1,5 @@
 import type { DongMay, LoiDanhMuc } from './kieu'
+import { chuanMaLoi, MA_LOI } from './kiemDauVao'
 
 export const CHUA_PHAN_LOAI = 'CHUA_PHAN_LOAI'
 
@@ -28,6 +29,13 @@ export function goiYHuongXuLy(
 /** Dòng máy rút gọn cho cột "Máy" ở bảng ticket (giữ thứ tự dòng). */
 export function tomTatMayTicket(
   dong: Pick<DongMay, 'internal_code' | 'loi_code' | 'loi_ten' | 'serial' | 'source_serial'>[],
-): { nhan: string; serial: string | null }[] {
-  return dong.map((d) => ({ nhan: nhanDongMay(d), serial: d.serial ?? d.source_serial ?? null }))
+): { nhan: string; serial: string | null; chuaPhanLoai: boolean }[] {
+  return dong.map((d) => ({ nhan: nhanDongMay(d), serial: d.serial ?? d.source_serial ?? null, chuaPhanLoai: d.loi_code === CHUA_PHAN_LOAI }))
+}
+
+/** Chuẩn hoá tham số `?loi=`: loc=false -> không lọc; ma=null -> mã sai dạng (kết quả rỗng). */
+export function locLoiHopLe(loiCode: string | undefined | null): { loc: false } | { loc: true; ma: string | null } {
+  if (!loiCode || !loiCode.trim()) return { loc: false }
+  const ma = chuanMaLoi(loiCode)
+  return { loc: true, ma: MA_LOI.test(ma) ? ma : null }
 }

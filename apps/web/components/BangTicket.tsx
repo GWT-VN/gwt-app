@@ -33,8 +33,8 @@ const COT: CotDef<Ticket>[] = [
       ? <div className="space-y-0.5">{t.dong_may.map((d, i) => (
           <div key={i} className="text-xs whitespace-nowrap">
             {d.serial
-              ? <Link href={`/may/${encodeURIComponent(d.serial)}`} prefetch={false} className={d.nhan.includes('Chưa phân loại') ? 'text-slate-500 underline' : 'text-slate-900 underline'}>{d.nhan}</Link>
-              : <span className={d.nhan.includes('Chưa phân loại') ? 'text-slate-400' : 'text-slate-700'}>{d.nhan}</span>}
+              ? <Link href={`/may/${encodeURIComponent(d.serial)}`} prefetch={false} className={d.chuaPhanLoai ? 'text-slate-500 underline' : 'text-slate-900 underline'}>{d.nhan}</Link>
+              : <span className={d.chuaPhanLoai ? 'text-slate-400' : 'text-slate-700'}>{d.nhan}</span>}
           </div>))}</div>
       : t.serial
         ? <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="text-slate-900 underline">{t.product_name}</Link>

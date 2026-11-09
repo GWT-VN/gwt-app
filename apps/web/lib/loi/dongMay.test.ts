@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nhanDongMay, goiYHuongXuLy, tomTatMayTicket, CHUA_PHAN_LOAI } from './dongMay'
+import { nhanDongMay, goiYHuongXuLy, tomTatMayTicket, locLoiHopLe, CHUA_PHAN_LOAI } from './dongMay'
 
 describe('lib/loi/dongMay', () => {
   it('nhãn "MÃ MÁY · Tên lỗi"', () => {
@@ -24,6 +24,13 @@ describe('lib/loi/dongMay', () => {
     expect(tomTatMayTicket([
       { internal_code: 'CTS20NG', loi_code: 'A', loi_ten: 'Rò nước đáy', serial: null, source_serial: 'Z1' },
       { internal_code: null, loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại', serial: 'Z2', source_serial: 'Z2' },
-    ])).toEqual([{ nhan: 'CTS20NG · Rò nước đáy', serial: 'Z1' }, { nhan: 'Chưa rõ máy · Chưa phân loại', serial: 'Z2' }])
+    ])).toEqual([{ nhan: 'CTS20NG · Rò nước đáy', serial: 'Z1', chuaPhanLoai: false }, { nhan: 'Chưa rõ máy · Chưa phân loại', serial: 'Z2', chuaPhanLoai: true }])
+  })
+  it('locLoiHopLe: mã hợp lệ giữ nguyên (chuẩn hoá), rỗng = không lọc, sai dạng = chặn', () => {
+    expect(locLoiHopLe('')).toEqual({ loc: false })
+    expect(locLoiHopLe(undefined)).toEqual({ loc: false })
+    expect(locLoiHopLe(' cts20-ro-nuoc-day ')).toEqual({ loc: true, ma: 'CTS20-RO-NUOC-DAY' })
+    expect(locLoiHopLe(CHUA_PHAN_LOAI)).toEqual({ loc: true, ma: 'CHUA_PHAN_LOAI' })
+    expect(locLoiHopLe('a,b);drop')).toEqual({ loc: true, ma: null })
   })
 })
