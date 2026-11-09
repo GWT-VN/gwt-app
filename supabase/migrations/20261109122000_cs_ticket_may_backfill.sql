@@ -24,7 +24,7 @@ begin
   ), lai as (
     select m.id, cs_loi_khop(concat_ws(' ', t.ticket_type, t.description), m.internal_code) as loi_moi
       from ticket_may m join tickets t on t.ticket_code = m.ticket_code
-     where m.nguon in ('tu_dong', 'backfill') and m.loi_code = 'CHUA_PHAN_LOAI'
+     where m.nguon in ('tu_dong', 'backfill') and m.loi_code = 'CHUA_PHAN_LOAI' and not m.cs_sua
   )
   select jsonb_build_object(
     'chay_thu', p_chay_thu,
@@ -51,7 +51,7 @@ begin
        set loi_code = l.loi_moi
       from (select m2.id, cs_loi_khop(concat_ws(' ', t.ticket_type, t.description), m2.internal_code) as loi_moi
               from ticket_may m2 join tickets t on t.ticket_code = m2.ticket_code
-             where m2.nguon in ('tu_dong', 'backfill') and m2.loi_code = 'CHUA_PHAN_LOAI') l
+             where m2.nguon in ('tu_dong', 'backfill') and m2.loi_code = 'CHUA_PHAN_LOAI' and not m2.cs_sua) l
      where m.id = l.id and l.loi_moi <> 'CHUA_PHAN_LOAI';
   end if;
   return v_bao_cao;
