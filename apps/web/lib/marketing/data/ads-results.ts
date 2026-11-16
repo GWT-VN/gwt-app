@@ -166,6 +166,23 @@ export const ADS_WEEKS: AdsWeek[] = [
       { name: "WH Dino Hom 2", creative: "WH Dino Hom 2", startDate: "5/10", budgetDaily: "—", cost: 2162, results: 40, costPerResult: 54050, sdt: 3, newMessages: 19, note: "", status: "active" },
     ],
   },
+  {
+    id: "2026-11-09--11-15",
+    label: "9/11 – 15/11",
+    range: "9/11 – 15/11/2026",
+    from: "2026-11-09",
+    to: "2026-11-15",
+    ads: [
+      { name: "CTS20 chuyên gia", creative: "CTS20 chuyên gia", startDate: "14/9", budgetDaily: "150k", cost: 1044, results: 55, costPerResult: 18981, sdt: null, newMessages: 44, note: "", status: "active" },
+      { name: "CTS20 người dùng", creative: "CTS20 người dùng", startDate: "28/8", budgetDaily: "300k", cost: 2084, results: 85, costPerResult: 24514, sdt: null, newMessages: 73, note: "", status: "active" },
+      { name: "CTD50 CG mới", creative: "CTD50 chuyên gia", startDate: "21/9", budgetDaily: "100k", cost: 706, results: 17, costPerResult: 41520, sdt: null, newMessages: 12, note: "", status: "active" },
+      { name: "CTS20 Dino", creative: "CTS20 Dino", startDate: "5/10", budgetDaily: "100k", cost: 720, results: 16, costPerResult: 45021, sdt: null, newMessages: 10, note: "", status: "active" },
+      { name: "CTD50 người dùng", creative: "CTD50 người dùng", startDate: "28/8", budgetDaily: "200k", cost: 1434, results: 25, costPerResult: 57368, sdt: null, newMessages: 19, note: "", status: "active" },
+      { name: "WH lắp đặt", creative: "WH lắp đặt", startDate: "02/4", budgetDaily: "900k", cost: 6288, results: 97, costPerResult: 64822, sdt: null, newMessages: 90, note: "", status: "active" },
+      { name: "WH Dino Hom 2", creative: "WH Dino Hom 2", startDate: "5/10", budgetDaily: "100k", cost: 695, results: 10, costPerResult: 69542, sdt: null, newMessages: 9, note: "", status: "active" },
+      { name: "CTD50 Dino", creative: "CTD50 Dino", startDate: "29/8", budgetDaily: "150k", cost: 1068, results: 12, costPerResult: 88976, sdt: null, newMessages: 7, note: "", status: "active" },
+    ],
+  },
 ];
 
 export function getLatestWeek(): AdsWeek {
