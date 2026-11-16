@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateTicket } from '@/app/actions'
 import type { Staff } from '@/lib/nen-tang/nhan-su-luat'
+import { KhungCap, O2Cot } from '@/components/loi/CapLoiXuLy'
 
 const STATES = [
   { key: 'Open', label: 'Đang mở' },
@@ -30,6 +31,8 @@ export function TicketEditor({
   ktId,
   defaultCsId = null,
   defaultKtId = null,
+  ngayTao = null,
+  children,
 }: {
   code: string
   state: string
@@ -45,6 +48,10 @@ export function TicketEditor({
   // Người đang đăng nhập — tự điền vào ô còn trống (đổi/chọn lại được).
   defaultCsId?: string | null
   defaultKtId?: string | null
+  // Ngày tạo ticket — hiện ở đầu cặp Lần 1.
+  ngayTao?: string | null
+  // Các lần lỗi sau (Lần 2+), hiện ngay dưới cặp Lần 1 ở chế độ xem.
+  children?: ReactNode
 }) {
   const [edit, setEdit] = useState(false)
   const [st, setSt] = useState(state)
@@ -119,13 +126,9 @@ export function TicketEditor({
           )}
         </div>
 
-        <div>
-          <span className="text-xs text-slate-500">Mô tả khách báo</span>
-          <p className="text-slate-900 whitespace-pre-wrap">{moTa || '—'}</p>
-        </div>
-        <div>
-          <span className="text-xs text-slate-500">Tóm tắt xử lý (hiện tại)</span>
-          <p className="text-slate-900 whitespace-pre-wrap">{note || '—'}</p>
+        <div className="space-y-3">
+          <KhungCap lan={1} ngay={ngayTao} moTa={moTa} xuLy={note} />
+          {children}
         </div>
 
         {msg && <p className="text-sm text-emerald-700">{msg}</p>}
@@ -152,11 +155,10 @@ export function TicketEditor({
           </select>
         </label>
       </div>
-      <label className="block">
-        <span className="text-sm text-slate-700">Mô tả khách báo *</span>
-        <textarea value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={3}
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
-      </label>
+      <div>
+        <p className="text-xs font-medium text-slate-700 mb-1">Lần 1 — nội dung gốc của ticket</p>
+        <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={note} setXuLy={setNote} />
+      </div>
 
       <div>
         <span className="text-sm text-slate-700">Trạng thái</span>
@@ -206,15 +208,6 @@ export function TicketEditor({
           </select>
         </label>
       </div>
-
-      <label className="block">
-        <span className="text-sm text-slate-700">Tóm tắt xử lý (hiện tại)</span>
-        <textarea
-          value={note} onChange={(e) => setNote(e.target.value)} rows={5}
-          placeholder="Kỹ thuật đã làm gì, nguyên nhân, kết quả…"
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-slate-900"
-        />
-      </label>
 
       <div className="flex items-center gap-3">
         <button
