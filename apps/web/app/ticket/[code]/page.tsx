@@ -18,17 +18,19 @@ import { docAnToan, THIEU_DANH_MUC, THIEU_DONG_MAY } from '@/lib/loi/anToan'
 import { listLanLoi } from '@/app/ticket/lan-loi-actions'
 import { LanLoiTiepTheo } from '@/components/loi/CapLoiXuLy'
 import { lanTiepTheo } from '@/lib/loi/lanLoi'
+import { listTepNhatKy } from '@/app/ticket/tep-actions'
 
 export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
   const { code } = await params
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, me, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, me, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma), currentStaff(),
     listCatalogItems(), ticketTypes(),
     docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
     docAnToan('listLanLoi', () => listLanLoi(ma), []),
+    docAnToan('listTepNhatKy', () => listTepNhatKy(ma), []),
     hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
@@ -165,7 +167,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
 
         <section className="bg-white rounded-xl border p-5">
           <h2 className="font-medium text-slate-900 mb-3">Nhật ký trao đổi</h2>
-          <TicketNotes code={t.ticket_code} notes={notes} />
+          <TicketNotes code={t.ticket_code} notes={notes} teps={tepNK} choTep={!thieuTep && quyen.sua} />
         </section>
 
         <section className="bg-white rounded-xl border p-5">
