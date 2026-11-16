@@ -15,16 +15,20 @@ import { DongMayTicket } from '@/components/loi/DongMayTicket'
 import { dongMayCuaTicket, danhMucLoi } from '@/app/ticket/loi-actions'
 import { canhBaoTuQuery } from '@/lib/loi/canhBao'
 import { docAnToan, THIEU_DANH_MUC, THIEU_DONG_MAY } from '@/lib/loi/anToan'
+import { listLanLoi } from '@/app/ticket/lan-loi-actions'
+import { LanLoiTiepTheo } from '@/components/loi/CapLoiXuLy'
+import { lanTiepTheo } from '@/lib/loi/lanLoi'
 
 export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
   const { code } = await params
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, me, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, me, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma), currentStaff(),
     listCatalogItems(), ticketTypes(),
     docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
+    docAnToan('listLanLoi', () => listLanLoi(ma), []),
     hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
@@ -71,16 +75,6 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
             (tức đang ở nhà khách). Cần gán khách cho serial này trong Odoo rồi export lại.
           </p>
         )}
-
-        {/* Nội dung + xử lý gộp một khối: mặc định XEM, bấm "Sửa" để sửa tại chỗ. */}
-        <section className="bg-white rounded-xl border p-5">
-          <TicketEditor
-            code={t.ticket_code} state={t.state} khan={t.khan} lastNote={t.last_note}
-            ticketType={t.ticket_type} description={t.description} province={t.province}
-            loaiList={loaiList} staff={staff} csId={t.cs_phu_trach} ktId={t.ky_thuat}
-            defaultCsId={defaultCsId} defaultKtId={defaultKtId}
-          />
-        </section>
 
         <section className="bg-white rounded-xl border p-5">
           <h2 className="font-medium text-slate-900 mb-3">Khách & máy</h2>
@@ -131,6 +125,20 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
                 {thieuDanhMuc && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mb-3">⚠️ {THIEU_DANH_MUC}</p>}
                 <DongMayTicket code={t.ticket_code} dong={dongMay} dsLoi={dsLoi} choSua={quyen.sua} />
               </>}
+        </section>
+
+        {/* Nội dung + xử lý: từng cặp Khách báo ↔ Xử lý (Lần 1 ở ticket, Lần 2+ ở ticket_lan_loi). Mặc định XEM, bấm "Sửa" để sửa tại chỗ. */}
+        <section className="bg-white rounded-xl border p-5">
+          <TicketEditor
+            code={t.ticket_code} state={t.state} khan={t.khan} lastNote={t.last_note}
+            ticketType={t.ticket_type} description={t.description} province={t.province}
+            loaiList={loaiList} staff={staff} csId={t.cs_phu_trach} ktId={t.ky_thuat}
+            defaultCsId={defaultCsId} defaultKtId={defaultKtId} ngayTao={t.created_at}
+          >
+            {thieuLanLoi
+              ? <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ Chưa tải được các lần lỗi sau — báo kỹ thuật nếu kéo dài.</p>
+              : <LanLoiTiepTheo code={t.ticket_code} ds={lanLoi} choSua={quyen.sua} lanKe={lanTiepTheo(lanLoi)} />}
+          </TicketEditor>
         </section>
 
         {quyen.lichKT && t.customer_id && (
