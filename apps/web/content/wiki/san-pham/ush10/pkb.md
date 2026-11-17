@@ -4,12 +4,13 @@
 
 | | |
 |---|---|
-| **Phiên bản** | `v1.2` |
-| **Ngày phát hành** | 19/08/2026 · **cập nhật 28/08/2026** |
+| **Phiên bản** | `v1.3` |
+| **Ngày phát hành** | 19/08/2026 · cập nhật 28/08/2026 · **cập nhật 17/11/2026** |
+| **Cập nhật** | 17/11/2026 — chính sách bảo hành CEO chốt: **5 năm bơm + bo mạch điều khiển là chính sách chính thức GWT**, sale được nói (O-10 đã đóng) |
 | **Chủ sở hữu** | GWT — Công ty TNHH Công nghệ Nước General |
 | **Mã nội bộ** | `GTUN-8600HP-G` · Model NSX: `GTUN-8600HP` |
 | **Nguồn ưu tiên số 1** | HDSD chính hãng bản quốc tế **Ver.26.08.14** |
-| **Số tài liệu nguồn đã hợp nhất** | 16 |
+| **Số tài liệu nguồn đã hợp nhất** | 17 |
 | **Trạng thái** | Dùng được ngay cho tư vấn, đào tạo, CSKH. Phần marketing phải đọc **Phần 2** trước |
 
 ---
@@ -41,7 +42,7 @@
 |---|---|---|
 | `F-A01` … `F-M11` | Dữ kiện sản phẩm | **Phần 1** |
 | `SF-01` … `SF-47` | Yêu cầu an toàn | **Phần 4** |
-| `O-01` … `O-19` | Mâu thuẫn chưa đóng, cần GWT chốt *(O-03, O-04 đã đóng 28/08)* | **Phần 8** |
+| `O-01` … `O-19` | Mâu thuẫn chưa đóng, cần GWT chốt *(O-03, O-04 đã đóng 28/08 · O-10 đã đóng 17/11)* | **Phần 8** |
 | `S1` … `S12`, `DM`, `BR`, `MD` | Mã tài liệu nguồn | **Phần 0 · mục 0.3** |
 | `E1`…`E9`, `C1`, `C2`, `SA`, `EL`, `SC` | Mã hiển thị trên vòi | **Phần 5 · mục 5.1** |
 | `Q1` … `Q40` | Câu hỏi khách | **Phần 6** |
@@ -275,6 +276,7 @@ Mọi dữ kiện trong **Phần 1** đều **bắt buộc** có mã nguồn. Kh
 | **S11** | `NEW -GE 厨下净热一体售后维修培训课件-下篇.pptx` | Đào tạo sửa chữa | ❌ **Không dùng được** — OCR hỏng hoàn toàn |
 | **S12** | `USH10 Spec Sheet.pdf` | Spec sheet | ❌ **Không dùng được** — file chỉ có ảnh, không có chữ |
 | **S13** 🆕 | **Sơ đồ cấu tạo & sơ đồ 4 lớp lọc của NSX** (hình cắt máy + sơ đồ `第1层…第4层`, tiếng Trung) — bổ sung 20/08/2026 | Sơ đồ kỹ thuật NSX | **B** — ⚠️ sơ đồ này **không có mô-đun UVC**, thêm một dấu hiệu đây là tài liệu thị trường Trung Quốc (`O-01`) |
+| **S16** 🆕 | **Chính sách bảo hành GWT — CEO chốt 17/11/2026** (bản duy nhất đúng: POU 1 năm toàn bộ thiết bị + 5 năm linh kiện cốt lõi gồm bơm và bo mạch điều khiển; loại trừ vật tư tiêu hao, linh phụ kiện máy móc, sản phẩm khác) | Chính sách nội bộ GWT | **A** — nguồn duy nhất cho thời hạn bảo hành |
 
 **Thêm 2 nguồn viết tắt dùng trong ma trận đối chiếu ở Phần 8:**
 
@@ -378,6 +380,7 @@ Mỗi dữ kiện có 2 nhãn: **Hạng tin cậy** và **Quyền công bố**.
 | `v1.0` | 19/08/2026 | Phát hành lần đầu. Hợp nhất 14 tài liệu nguồn (HDSD quốc tế Ver.26.08.14, HDSD bản TQ qua hồ sơ, 2 deck NSX, tài liệu TÜV, quy cách điều khiển V1.8, thông báo kỹ thuật 23-3, hồ sơ nội bộ GWT 18–19/08). 13 phát hiện mới (N1–N13) | — |
 | `v1.1` | 20/08/2026 | **Bổ sung nguồn `S13`** — sơ đồ cấu tạo & sơ đồ 4 lớp lọc của NSX. **Sửa `F-C03`, `F-C05`; thêm `F-C28`–`F-C31`.** Nội dung sửa: **thứ tự 4 lớp lọc** — thanh carbon nằm **SAU** màng nano, không phải trước (v1.0 ghi sai); phát hiện **nước đi qua lõi dưới 2 lần**. Ghi nhận sơ đồ NSX **không có mô-đun UVC** → thêm bằng chứng cho `O-01` | — |
 | `v1.2` | **28/08/2026** | **Đóng 2 mâu thuẫn, mở 2 mã mới.** ① `O-03` **ĐÓNG** — GWT xác nhận **12.240 L = nước đầu vào, 8.600 L = nước tinh khiết đầu ra** của lõi màng, không mâu thuẫn (70,3 %). Sửa `F-B06`, `F-C17`; gỡ luật *"cấm đặt 3 con số cạnh nhau"*, thay bằng luật hẹp hơn *"không trộn số lõi màng với số lõi thô"*. ② `O-04` **ĐÓNG** — tra Certipedia: `1111279087` = **General Water Technology (Shanghai)** (đúng), `1111297087` = **HP Inc.** (lỗi chép số). Sửa `F-I01`. ③ **Mở `O-18`** — chứng chỉ TÜV **không hiện trên Certipedia**, rủi ro cao hơn O-04 cũ; thêm `F-I16`. ④ **Mở `O-19`** — tỷ lệ thu hồi nước, tách khỏi `O-03` cũ. ⑤ **Mục L: GWT rà và xác nhận toàn bộ 7 suy luận đều đúng**; `F-L01`, `F-L03` tốt nghiệp lên Phần 1. ⑥ Thêm nguồn `S14` (xác nhận GWT), `S15` (Certipedia). Phát hiện mới `N14`–`N16` | — |
+| `v1.3` | **17/11/2026** | **Đóng `O-10` — chính sách bảo hành.** CEO chốt chính sách bảo hành chính thức GWT: máy để bàn & âm tủ bếp (POU) **1 năm toàn bộ thiết bị + 5 năm linh kiện cốt lõi bên trong thiết bị (bơm, bo mạch điều khiển)**; không bảo hành vật tư tiêu hao, linh phụ kiện máy móc, sản phẩm khác. Sửa `F-G02` (hạng D → **A**, được nói chắc); thêm `F-G08` (câu chính sách nguyên văn) và nguồn `S16`. Sửa bảng phát ngôn + bảng nguyên liệu (**Phần 2**), Q27 + bảng tra nhanh + việc chờ GWT chốt (**Phần 6**), khối landing page (**Phần 7**), `O-10` (**Phần 8**). Cùng nội dung với bản sửa PKB bên GWT Marketing Kit (commit `d2568f0`); bên đó nguồn này mang mã `S14`, ở đây `S14` đã dùng cho xác nhận 28/08 nên đổi thành `S16` | — |
 
 
 <a id="p0-8"></a>
@@ -391,7 +394,7 @@ Tài liệu `H. Thông số kỹ thuật điều khiển điện … V1.8` (**S6
 
 # PHẦN 1 — BẢNG SỰ THẬT NGUYÊN TỬ (FACT TABLE)
 
-> **PKB v1.2 · 28/08/2026** · Đọc kèm **Phần 0**
+> **PKB v1.3 · 17/11/2026** · Đọc kèm **Phần 0**
 > **Đây là nguồn chân lý duy nhất.** Mọi câu trả lời khách, mọi dòng marketing, mọi slide đào tạo phải truy được về một mã `F-xxx` trong file này.
 >
 > **Cột "Công bố":** 🟢 được nói với khách · 🟡 nói được nhưng phải theo cách diễn đạt ở **Phần 2** · 🔵 nội bộ, không đưa lên tài liệu xuất bản · 🔴 cấm
@@ -587,12 +590,13 @@ Tài liệu `H. Thông số kỹ thuật điều khiển điện … V1.8` (**S6
 | Mã | Dữ kiện | Giá trị | Nguồn | Hạng | Công bố |
 |---|---|---|---|---|---|
 | `F-G01` | Bảo hành toàn máy | **12 tháng**, tính từ ngày hoá đơn / ngày lắp đặt / chứng từ hợp pháp | S1 | A | 🟢 |
-| `F-G02` | Bảo hành bơm + bo mạch | **5 năm** — chính sách riêng GWT | S9 | D | 🟡 ⚠️ **không có trong HDSD hãng** — O-10. ⛔ Không hứa miệng, chuyển phòng KD nếu khách đòi văn bản |
+| `F-G02` | Bảo hành linh kiện cốt lõi (bên trong thiết bị): **bơm + bo mạch điều khiển** | **5 năm** — chính sách bảo hành chính thức của GWT cho máy để bàn & âm tủ bếp (CEO chốt 17/11/2026) | S16 | A | 🟢 ✅ **Được nói chắc** (O-10 đã đóng 17/11/2026). Lưu ý: đây là chính sách của GWT, không có trong HDSD hãng |
 | `F-G03` | ⛔ Bộ phận KHÔNG bảo hành | ① **Vật liệu lọc** · ② **Đèn diệt khuẩn tia cực tím** · ③ Chi tiết hao mòn (vòng đệm kín) · ④ Vỏ trang trí & lớp phủ bề mặt · ⑤ **Bộ chuyển nguồn (adapter)** | S1 | A | 🟢 **BẮT BUỘC nói trước khi bán** |
 | `F-G04` | ⛔ Nguyên nhân KHÔNG bảo hành | ① Lắp/dùng/bảo quản sai HDSD · ② Tự tháo dỡ hoặc sửa đổi · ③ **Dùng phụ kiện hoặc lõi không chính hãng** · ④ Ngoại lực & áp suất vượt giới hạn · ⑤ Bất khả kháng (chiến tranh, thiên tai) · ⑥ Hư hỏng khác do người dùng | S1 | A | 🟢 |
 | `F-G05` | Hồ sơ cần giữ | **Phiếu bảo hành + hoá đơn gốc** | S1 | A | 🟢 |
 | `F-G06` | Giới hạn trách nhiệm | Công ty không đưa ra bảo đảm nào khác và không chịu trách nhiệm về thiệt hại phát sinh do thiết bị bị lỗi | S1 | A | 🔵 |
 | `F-G07` | Áp dụng chung | Cùng chính sách cho `GTUN-8600VNHP` và `GCUN-02VNT01` | S9 | A | 🔵 |
+| `F-G08` | Câu chính sách nguyên văn (POU) | *"Máy lọc nước để bàn và âm tủ bếp: Bảo hành 1 năm với toàn bộ thiết bị; Bảo hành 5 năm với linh kiện cốt lõi (bên trong thiết bị) bao gồm bơm và bo mạch điều khiển. Không áp dụng bảo hành với vật tư tiêu hao, linh phụ kiện máy móc, và các sản phẩm khác."* | S16 | A | 🟢 |
 
 ---
 
@@ -716,7 +720,7 @@ Tài liệu `H. Thông số kỹ thuật điều khiển điện … V1.8` (**S6
 
 # PHẦN 2 — QUY TẮC CLAIM — CẤM NÓI / THẬN TRỌNG / ĐƯỢC NÓI
 
-> **PKB v1.2 · 28/08/2026** · Áp dụng cho **mọi kênh**: AI/chatbot, sale nói miệng, inbox, livestream, video, landing page, ấn phẩm in, caption social.
+> **PKB v1.3 · 17/11/2026** · Áp dụng cho **mọi kênh**: AI/chatbot, sale nói miệng, inbox, livestream, video, landing page, ấn phẩm in, caption social.
 > **Đây là file phải đọc trước khi viết bất kỳ dòng nội dung nào.**
 
 ---
@@ -776,7 +780,7 @@ Tài liệu `H. Thông số kỹ thuật điều khiển điện … V1.8` (**S6
 | **Nano vs RO** | "Nano tốt hơn RO" | *"Hai công nghệ nhắm hai mục tiêu khác nhau"* + nêu điểm khác biệt (**Phần 6** Q24) |
 | **Hiệu suất nước mức 1** | "Đạt hiệu suất nước cao nhất" | *"Đạt mức 1 theo tiêu chuẩn hiệu suất nước GB 34914-2021 của Trung Quốc."* — phải nêu rõ là tiêu chuẩn TQ |
 | **Chi phí 5 năm** | "Chi phí sử dụng là 32 nghìn/ngày" | *"Ước tính sơ bộ cho hộ 4 người, khoảng 32–35 nghìn một ngày tính cả tiền máy lẫn tiền lõi."* — **phải có chữ "ước tính"** |
-| **Bảo hành 5 năm bơm + bo** | Hứa chắc miệng | *"Theo chính sách của bên em, bơm và bo mạch điều khiển được bảo hành 5 năm."* — nếu khách đòi văn bản thì **chuyển phòng kinh doanh**, không tự cam kết |
+| **Bảo hành 5 năm bơm + bo** | Nói gọn "máy bảo hành 5 năm" (khách hiểu thành cả máy 5 năm) | *"Máy được bảo hành 1 năm với toàn bộ thiết bị, và 5 năm với linh kiện cốt lõi bên trong máy gồm bơm và bo mạch điều khiển. Lõi lọc là vật tư tiêu hao nên không thuộc bảo hành."* — chính sách chính thức GWT (CEO chốt 17/11/2026, O-10 đã đóng) → **được nói chắc** (`F-G08`) |
 | **Giá** | Tự hạ giá / tự báo mức chiết khấu | Giá niêm yết là 44.950.000 đ. **Mọi mức khác phải xin duyệt** (O-08) |
 | **Có sẵn lõi thay không** | "Có sẵn, bên em thay ngay" | *"Lõi này nhập theo máy nên em cần kiểm tra tồn kho rồi báo lại anh/chị lịch cụ thể trong hôm nay."* (kho hiện **0 lõi** — `F-K08`) |
 | **Nhà sản xuất** | Nói chắc một tên | Hai bản HDSD ghi 2 NSX khác nhau (O-01). Nếu khách hỏi: *"GE là nhãn hiệu của General Electric, sản phẩm được sản xuất theo giấy phép."* (`F-A09`) |
@@ -848,7 +852,7 @@ nước kiềm tốt hơn · uống vào khỏi bệnh · bác sĩ khuyên dùng
 | **App G+ Life** — theo dõi tuổi thọ lõi, cảnh báo rò rỉ | `F-F02`, `F-F07` | HDSD + deck NSX |
 | **Patent màng nano US 7138058** — khách tra được trên Google Patents | `F-C11` | Công khai |
 | **TÜV kiểm máy đã dùng lâu, không phải máy mới** | `F-I07` | Tài liệu TÜV |
-| **Bảo hành 12 tháng toàn máy** + danh sách loại trừ | `F-G01`, `F-G03` | HDSD |
+| **Bảo hành 12 tháng toàn máy + 5 năm bơm & bo mạch điều khiển** + danh sách loại trừ | `F-G01`, `F-G02`, `F-G03` | HDSD + chính sách bảo hành GWT 17/11/2026 |
 | **Chỉ dùng nước máy đô thị**, 5–38 °C | `F-B14`, `F-B15` | HDSD |
 | **Chỉ dùng cho gia đình**, không lắp nơi tiêu thụ nước cao | `F-C21` | HDSD |
 | **0 ticket sự cố trên 11 máy trong ~2 năm** | `F-K03` | Dữ liệu nội bộ GWT |
@@ -893,7 +897,7 @@ Trước khi bấm đăng / bấm quay / gửi khách, chạy 8 câu hỏi:
 
 # PHẦN 3 — HƯỚNG DẪN KHÁCH HÀNG — SỬ DỤNG · VỆ SINH · THAY LÕI
 
-> **PKB v1.2 · 28/08/2026** · Nguồn: **HDSD chính hãng Ver.26.08.14** (S1) + thông báo kỹ thuật NSX (S7)
+> **PKB v1.3 · 17/11/2026** · Nguồn: **HDSD chính hãng Ver.26.08.14** (S1) + thông báo kỹ thuật NSX (S7)
 > **Dùng cho:** phát cho khách khi bàn giao · CSKH đọc qua điện thoại · nội dung mục "Hướng dẫn sử dụng" trên website
 > ⚠️ File này **không thay thế HDSD chính hãng đi kèm máy**. Đây là bản rút gọn cho tình huống thực tế.
 
@@ -1157,7 +1161,7 @@ KHI VỀ:
 
 # PHẦN 4 — SAFETY DATABASE
 
-> **PKB v1.2 · 28/08/2026** · Nguồn chính: **S1 — HDSD chính hãng Ver.26.08.14**, mục *Các lưu ý an toàn* + *Vận hành, chăm sóc và bảo dưỡng*
+> **PKB v1.3 · 17/11/2026** · Nguồn chính: **S1 — HDSD chính hãng Ver.26.08.14**, mục *Các lưu ý an toàn* + *Vận hành, chăm sóc và bảo dưỡng*
 > **Dùng cho:** kỹ thuật lắp đặt · CSKH · sale (phần điều kiện lắp đặt) · biên soạn tài liệu bàn giao khách
 > **Nguyên tắc:** file này **chỉ chép lại yêu cầu của hãng**, không thêm khuyến nghị tự nghĩ. Mọi dòng đều truy được về HDSD.
 
@@ -1378,7 +1382,7 @@ KHI VỀ:        mở van, cắm điện, MỞ VÒI XẢ NƯỚC MỘT LÚC trư
 
 # PHẦN 5 — LỖI THƯỜNG GẶP & CÁCH XỬ LÝ
 
-> **PKB v1.2 · 28/08/2026** · Nguồn chuẩn để tra mã lỗi: **S1 — HDSD chính hãng Ver.26.08.14**
+> **PKB v1.3 · 17/11/2026** · Nguồn chuẩn để tra mã lỗi: **S1 — HDSD chính hãng Ver.26.08.14**
 > **Dùng cho:** CSKH tổng đài · kỹ thuật hiện trường · chatbot
 > ⚠️ **Quy tắc:** khi tài liệu kỹ thuật nội bộ (S6) và HDSD (S1) ghi khác nhau về ý nghĩa mã lỗi → **luôn dùng S1**. Xem bảng đối chiếu ở **Phần 8 · Bảng 4**.
 
@@ -1572,7 +1576,7 @@ Cần lõi:           [không / lõi thô / lõi màng]  ← nếu cần thì KI
 
 # PHẦN 6 — BỘ HỎI–ĐÁP ĐÃ KIỂM CHỨNG
 
-> **PKB v1.2 · 28/08/2026** · Dùng cho: **Sale · CSKH · Chatbot · Livestream · Inbox**
+> **PKB v1.3 · 17/11/2026** · Dùng cho: **Sale · CSKH · Chatbot · Livestream · Inbox**
 > **Cách dùng:** mỗi câu có **① Ngắn** (chat/điện thoại) và **② Đầy đủ** (gặp trực tiếp/livestream).
 > Ô 🔒 là **lưu ý nội bộ — không đọc cho khách**. Mã `F-xxx` truy về **Phần 1**.
 > ⚠️ **Đọc **Phần 2** trước khi dùng file này.**
@@ -2025,21 +2029,21 @@ Khi đi vắng dài ngày: **khoá van cấp nước và rút điện**. Lúc v�
 <a id="q27"></a>
 ### Q27. Bảo hành bao lâu?
 
-**① Ngắn:** **12 tháng toàn máy**, riêng **bơm và bo mạch điều khiển 5 năm** theo chính sách bên em. `F-G01` `F-G02`
+**① Ngắn:** **1 năm (12 tháng) với toàn bộ thiết bị**, và **5 năm với linh kiện cốt lõi bên trong máy — bơm và bo mạch điều khiển** — theo chính sách bảo hành của GWT. `F-G01` `F-G02`
 
 **② Đầy đủ:**
 
 | Hạng mục | Thời gian |
 |---|---|
 | Toàn máy | **12 tháng** (từ ngày hoá đơn / ngày lắp đặt) |
-| Bơm + bo mạch điều khiển | **5 năm** (chính sách GWT) |
+| Linh kiện cốt lõi: bơm + bo mạch điều khiển | **5 năm** (chính sách bảo hành GWT, chốt 17/11/2026) |
 
-**Không thuộc phạm vi bảo hành:** lõi lọc và vật liệu lọc · **mô-đun/đèn tiệt trùng** · gioăng và chi tiết hao mòn · vỏ trang trí và lớp phủ · **bộ chuyển nguồn (adapter)**. `F-G03`
+**Không thuộc phạm vi bảo hành:** vật tư tiêu hao, linh phụ kiện máy móc và các sản phẩm khác (chính sách GWT — `F-G08`); cụ thể theo HDSD: lõi lọc và vật liệu lọc · **mô-đun/đèn tiệt trùng** · gioăng và chi tiết hao mòn · vỏ trang trí và lớp phủ · **bộ chuyển nguồn (adapter)**. `F-G03`
 
 Anh/chị **giữ lại phiếu bảo hành và hoá đơn gốc** — đây là giấy tờ cần có khi yêu cầu bảo hành. `F-G05`
 
 > 🔒 **QUAN TRỌNG:**
-> - ⚠️ Cam kết **5 năm bơm + bo mạch** là **chính sách riêng của GWT, KHÔNG có trong HDSD hãng** (O-10) → đang xin văn bản nội bộ. Khách đòi bằng chứng → **đừng hứa miệng**, chuyển phòng kinh doanh.
+> - ✅ **5 năm bơm + bo mạch điều khiển** là **chính sách bảo hành chính thức của GWT** (CEO chốt 17/11/2026 — O-10 đã đóng) → **được nói chắc**. Khách hỏi vì sao HDSD hãng chỉ ghi 12 tháng: đây là chính sách của GWT (đơn vị phân phối), áp dụng thêm cho linh kiện cốt lõi. Luôn nói kèm "1 năm toàn bộ thiết bị" để khách không hiểu thành "cả máy 5 năm".
 > - ⚠️ **Phải nói rõ lõi lọc là vật tư tiêu hao, không bảo hành.** Nói mập mờ chỗ này là nguồn khiếu nại phổ biến nhất.
 > - HDSD còn loại trừ: lắp/dùng sai hướng dẫn · tự tháo sửa · **dùng lõi không chính hãng** · **áp suất vượt giới hạn** · thiên tai. (`F-G04`)
 
@@ -2281,7 +2285,7 @@ Anh/chị **giữ lại phiếu bảo hành và hoá đơn gốc** — đây là
 | Lỗ khoan vòi | **Ø30 mm** |
 | Màu vòi | Đen / Bạc |
 | Tuổi thọ máy | **5–10 năm** (điều kiện vận hành/bảo dưỡng đúng) |
-| Bảo hành | 12 tháng toàn máy · 5 năm bơm + bo mạch (chính sách GWT) |
+| Bảo hành | 12 tháng toàn máy · 5 năm linh kiện cốt lõi: bơm + bo mạch điều khiển (chính sách GWT 17/11/2026) |
 | Không bảo hành | Lõi · mô-đun tiệt trùng · gioăng · vỏ & lớp phủ · adapter |
 | Giá niêm yết | **44.950.000 đ** ⚠️ *(chưa chốt đã gồm VAT chưa — xác nhận trước khi báo giá)* |
 
@@ -2298,7 +2302,7 @@ Anh/chị **giữ lại phiếu bảo hành và hoá đơn gốc** — đây là
 | 3 | Giá 44,95tr đã gồm VAT chưa? + bảng chiết khấu (O-07, O-08) | **Q20, Q31**, bảng tra nhanh |
 | 4 | ~~Số hiệu TÜV đúng là số nào (O-04)~~ ✅ **ĐÃ CHỐT 28/08: `1111279087`** — thay bằng việc mới: **hồ sơ TÜV không hiện trên Certipedia** (O-18) | **Q28** |
 | 5 | File PDF: TÜV · QCVN 6-1:2010 · SGS · VIETCERT | **Q13, Q28** |
-| 6 | Văn bản chính sách bảo hành 5 năm bơm + bo (O-10) | **Q27** |
+| 6 | ~~Văn bản chính sách bảo hành 5 năm bơm + bo (O-10)~~ ✅ **Đã chốt 17/11/2026** — là chính sách bảo hành chính thức GWT (`F-G02`, `F-G08`) | **Q27** (đã sửa) |
 | 7 | Chế độ tiết kiệm điện 2 giờ hay 3 giờ (O-05) | **Q10** |
 
 ---
@@ -2307,7 +2311,7 @@ Anh/chị **giữ lại phiếu bảo hành và hoá đơn gốc** — đây là
 
 # PHẦN 7 — NGUYÊN LIỆU MARKETING ĐÃ DUYỆT NGUỒN
 
-> **PKB v1.2 · 28/08/2026** · Dùng cho: kịch bản video · landing page · caption social · quảng cáo · brief cho KOL
+> **PKB v1.3 · 17/11/2026** · Dùng cho: kịch bản video · landing page · caption social · quảng cáo · brief cho KOL
 > ⚠️ **Bắt buộc đọc **Phần 2** trước.** File này chỉ chứa nguyên liệu **đã qua cổng claim** — nhưng người viết vẫn phải chạy checklist mục 6 của **Phần 2** trước khi xuất bản.
 
 ---
@@ -2438,7 +2442,7 @@ Xếp theo **độ an toàn pháp lý** (cao xuống thấp):
 | **Khối 8 — Kiểm định** | Khối 3.8 + patent **US 7138058** (link Google Patents cho khách tự tra) | `F-I07` `F-C11` |
 | **Thông số** | Bảng tra nhanh (**Phần 6** Phần 10) — ⛔ bỏ dòng giá nếu chưa chốt VAT | — |
 | **Điều kiện lắp** | Nước máy đô thị · áp lực 0,1–0,4 MPa · lỗ Ø30 mm · **chỉ dùng gia đình** | `F-B14` `F-B08` `F-C21` |
-| **Bảo hành** | 12 tháng toàn máy + danh sách loại trừ (**ghi rõ lõi không bảo hành**) | `F-G01` `F-G03` |
+| **Bảo hành** | 12 tháng toàn máy + 5 năm linh kiện cốt lõi (bơm, bo mạch điều khiển) + danh sách loại trừ (**ghi rõ lõi không bảo hành**) | `F-G01` `F-G02` `F-G03` |
 | **CTA** | Đăng ký khảo sát gầm tủ miễn phí | — |
 
 > 🔴 **Điều kiện lắp và danh sách loại trừ bảo hành PHẢI có trên landing page.** Giấu hai khối này là nguồn khiếu nại lớn nhất và làm hỏng cả phần còn lại.
@@ -2540,7 +2544,7 @@ Xếp theo **độ an toàn pháp lý** (cao xuống thấp):
 
 # PHẦN 8 — MA TRẬN ĐỐI CHIẾU NGUỒN & SỔ MÂU THUẪN
 
-> **PKB v1.2 · 28/08/2026** · Đọc kèm **Phần 0**
+> **PKB v1.3 · 17/11/2026** · Đọc kèm **Phần 0**
 > **Cách đọc:** cột = nguồn tài liệu · dòng = dữ kiện bị đá nhau · ô = giá trị nguồn đó ghi.
 > `—` = nguồn đó **không đề cập**. ✅ = giá trị được chốt dùng. ⚠️ = lệch. ⛔ = đã xác định sai.
 
@@ -2564,6 +2568,7 @@ Xếp theo **độ an toàn pháp lý** (cao xuống thấp):
 | **MD** | Master Data GWT / nội dung chatbot | D |
 | **S14** | **Xác nhận trực tiếp từ GWT (chủ sở hữu sản phẩm) — 28/08/2026.** Chốt cách đọc ngưỡng lõi màng và số hiệu TÜV | **A** *(quyết định của chủ sở hữu)* |
 | **S15** | **Certipedia — cơ sở dữ liệu chứng chỉ công khai của TÜV Rheinland**, tra ngày 28/08/2026: `certipedia.com/quality_marks/{ID}` | **A** *(nguồn gốc, tra lại được bất cứ lúc nào)* |
+| **S16** | **Chính sách bảo hành GWT — CEO chốt 17/11/2026.** POU: 1 năm toàn bộ thiết bị + 5 năm linh kiện cốt lõi (bơm, bo mạch điều khiển) | **A** *(nguồn duy nhất cho thời hạn bảo hành)* |
 
 ---
 
@@ -2717,7 +2722,7 @@ Hai nguồn đang nói **hai đại lượng khác nhau**:
 | **O-07** | **Giá 44,95tr đã gồm VAT chưa? 8% hay 10%?** | 🔴 **CAO** | Ảnh hưởng trực tiếp mọi báo giá bằng văn bản | Phòng Kinh doanh | **Phần 1**, **Phần 6** |
 | **O-08** | **Không có bảng chiết khấu chính thức** dù 12/12 đơn đã bán ở mức 60–85% giá niêm yết, các mốc đều chẵn | 🔴 **CAO** | Sale không có căn cứ ra giá; giá thực ~30–34tr đụng thẳng CTS20 (32,1tr) | Ban Giám đốc | **Phần 6**, **Phần 7** |
 | **O-09** | **Chưa có phiếu xét nghiệm nước đầu ra của chính máy USH10 tại VN** | 🟠 **TB** | Mọi claim chất lượng nước hiện không có bằng chứng nội địa. Mineral Map là kết quả của **hệ lọc tổng (POE)**, ⛔ không dùng cho USH10 | GWT Kỹ thuật | **Phần 2**, **Phần 6** |
-| **O-10** | **Bảo hành 5 năm bơm + bo mạch không có trong HDSD hãng** (cả 2 bản) — là chính sách riêng GWT | 🟠 **TB** | Sale đang hứa miệng, không có văn bản dẫn chứng | Phòng Kinh doanh | **Phần 1**, **Phần 6** |
+| **O-10** | ~~**Bảo hành 5 năm bơm + bo mạch không có trong HDSD hãng** (cả 2 bản) — là chính sách riêng GWT~~ | ✅ **ĐÃ GIẢI QUYẾT 17/11/2026** | ~~Sale đang hứa miệng, không có văn bản dẫn chứng~~ → CEO chốt chính sách bảo hành chính thức: máy để bàn & âm tủ bếp bảo hành 1 năm toàn bộ thiết bị + 5 năm linh kiện cốt lõi (bơm, bo mạch điều khiển). Sale được nói | Phòng Kinh doanh (CEO chốt) | Đã sửa **Phần 1** (`F-G02`, `F-G08`, S16), **Phần 2**, **Phần 6** (Q27) |
 | **O-11** | **3 claim marketing chưa truy được nguồn:** cảm biến nhiệt **Seiko** · hộp đun **1,8 L inox 316 chân không 2 lớp** | 🟠 **TB** | Đang bị chặn dùng. Nếu có nguồn thì đây là 2 điểm bán mạnh cho phân khúc cao cấp | GWT + NSX | **Phần 1**, **Phần 2**, **Phần 7** |
 | **O-12** | **Trọng lượng: 14 kg / 14,18 kg / 14,36 kg** | 🟡 Thấp | Ảnh hưởng vận chuyển, không ảnh hưởng bán hàng | GWT Kho vận | **Phần 1** |
 | **O-13** | **Nhiệt độ môi trường: 4–40°C (HDSD) hay 4–30°C (deck 极沁Max)** | 🟡 Thấp | Có thể deck ghi spec của tổ hợp có máy nước ga. Cần xác nhận nếu bán combo | GWT | **Phần 1** |
@@ -2750,7 +2755,7 @@ Hai nguồn đang nói **hai đại lượng khác nhau**:
 
 # PHẦN 9 — ĐÀO TẠO & KIỂM TRA
 
-> **PKB v1.2 · 28/08/2026** · Dùng cho: đào tạo sale mới · tái đào tạo CSKH · onboarding kỹ thuật
+> **PKB v1.3 · 17/11/2026** · Dùng cho: đào tạo sale mới · tái đào tạo CSKH · onboarding kỹ thuật
 > **Điều kiện đạt:** ≥ 22/25 câu trắc nghiệm **và** không sai câu nào thuộc nhóm 🔴 (câu 1, 5, 9, 14, 18, 22, 25)
 
 ---
