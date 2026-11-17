@@ -1,5 +1,6 @@
 'use server'
 
+import { kiemTaoTicket } from '@/lib/loi/ticketKhongSerial'
 import { randomBytes } from 'node:crypto'
 import { boDau } from '@/bang/timkiem'
 import type { DoNuoc } from '@/lib/nuoc'
@@ -4301,19 +4302,15 @@ export async function createTicket(input: {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
   const nguoiTao = await layNhanVien()
-  if (!input.customer_id?.trim()) return { ok: false as const, error: 'Bắt buộc chọn khách.' }
+  const loiVao = kiemTaoTicket(input)
+  if (loiVao) return { ok: false as const, error: loiVao }
   if (input.dong_may != null && !Array.isArray(input.dong_may)) return { ok: false as const, error: 'Dòng máy không hợp lệ.' }
   // Serial do SERVER giải: bỏ qua serial/source_serial client gửi khi đã có dòng máy.
   // "Dòng đầu tiên có serial" — CÙNG định nghĩa với dòng nhận vào dòng máy tự động (ganDongMayChoTicketMoi).
   const iSerial = input.dong_may ? viTriDongCoSerial(input.dong_may) : -1
   const serialDong = iSerial >= 0 ? input.dong_may![iSerial].serial : undefined
+  // Serial KHÔNG bắt buộc (17/11): khách báo lỗi trước, thợ kiểm tra mới có serial → bổ sung ở "Sửa dòng".
   const serialTho = (serialDong ?? input.source_serial ?? input.serial ?? '').trim()
-  if (!serialTho) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
-  if (!input.ticket_type?.trim()) return { ok: false as const, error: 'Chọn loại ticket.' }
-  if (!input.description?.trim()) return { ok: false as const, error: 'Nhập mô tả sự cố.' }
-  if (input.state && !['Open', 'Done', 'Cancel'].includes(input.state)) {
-    return { ok: false as const, error: 'Trạng thái không hợp lệ.' }
-  }
 
   const db = dataClient()
   // Bảng dòng máy chưa có (migration chưa áp) → tạo ticket kiểu cũ (chỉ serial), bỏ qua dòng máy + cảnh báo.

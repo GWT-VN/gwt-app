@@ -20,6 +20,7 @@ import { lanTiepTheo } from '@/lib/loi/lanLoi'
 import { listTepNhatKy } from '@/app/ticket/tep-actions'
 import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
 import { DauTicket } from '@/components/ticket/DauTicket'
+import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
 import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
 
 export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
@@ -100,6 +101,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
             </div>
           )}
         </dl>
+        <ChuaCoSerial coSerial={Boolean(t.serial || t.source_serial)} />
         {thieuDongMay
           ? <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {THIEU_DONG_MAY}</p>
           : <>

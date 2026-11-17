@@ -43,8 +43,13 @@ describe('createTicket + dòng máy (logic dòng máy chạy thật)', () => {
     await expect(createTicket({ ...base, dong_may: [{ serial: S1 }] })).rejects.toThrow()
     expect(chuoi).toEqual(['quyen:cs.ticket.tao_sua'])
   })
-  it('không serial ở đâu cả thì từ chối', async () => {
-    expect((await createTicket({ ...base, dong_may: [{ serial: '  ' }] })).ok).toBe(false)
+  it('chưa có serial (khách báo trước, thợ kiểm tra sau) → vẫn tạo, serial/source_serial để trống', async () => {
+    const r = await createTicket({ ...base, dong_may: [{ serial: '  ' }] })
+    expect(r.ok).toBe(true)
+    expect(insertArg).toMatchObject({ serial: null, source_serial: null, customer_id: 'k1' })
+  })
+  it('vẫn bắt buộc khách', async () => {
+    expect((await createTicket({ ...base, customer_id: '' })).ok).toBe(false)
     expect(insertArg).toBeNull()
   })
   it('dòng máy sai (mã lỗi không tồn tại) -> không tạo ticket', async () => {

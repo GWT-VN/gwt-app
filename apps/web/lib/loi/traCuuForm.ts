@@ -27,13 +27,13 @@ export function mucTuKetQuaKhach(ds: KhachVaMay[]): MucChon[] {
 }
 
 /**
- * Cho phép lưu khi có ≥1 dòng có serial và không dòng nào có serial sai dạng
+ * Cho phép lưu khi không dòng nào có serial sai dạng (serial không bắt buộc từ 17/11 — bổ sung sau)
  * (serial lạ sai khuôn chỉ chấp nhận khi tra cứu cho thấy nó đã có trong hệ thống).
  * `loaiTheoSerial` khoá theo serial đã chuẩn hoá.
  */
 export function dongDuDieuKien(dong: DongMayInput[], loaiTheoSerial: Record<string, KetQuaTraSerial['loai']>): boolean {
+  // Serial không bắt buộc (17/11): chưa có dòng nào có serial vẫn tạo được ticket, bổ sung sau.
   const coSerial = dong.filter((d) => chuanHoaSerial(d.serial ?? ''))
-  if (!coSerial.length) return false
   return coSerial.every((d) => {
     const k = kiemDangSerial(d.serial ?? '')
     const loai = loaiTheoSerial[k.chuan]
