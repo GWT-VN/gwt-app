@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { updateTicket } from '@/app/actions'
 import { datNgayBao } from '@/app/ticket/dau-ticket-actions'
 import { KhungCap, O2Cot, ONgay } from '@/components/loi/CapLoiXuLy'
+import { ChonLoaiTicket } from '@/components/ticket/ChonLoaiTicket'
 import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
 
 /**
@@ -72,16 +73,11 @@ export function TicketEditor({
     <div className="space-y-3">
       <h2 className="font-medium text-slate-900">Sửa loại &amp; lần 1</h2>
       <div className="flex items-end gap-4 flex-wrap">
-        <label className="block min-w-56">
+        <div className="block min-w-56">
           <span className="text-sm text-slate-700">Phân loại *</span>
-          {/* <select> thật để chọn được mọi loại; giữ giá trị lạ (loại cũ ngoài danh sách) để không mất dữ liệu. */}
-          <select value={loai} onChange={(e) => setLoai(e.target.value)}
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900 bg-white">
-            <option value="">— Chọn loại —</option>
-            {loai && !loaiList.includes(loai) && <option value={loai}>{loai}</option>}
-            {loaiList.map((l) => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </label>
+          {/* Giữ giá trị lạ (loại cũ ngoài danh sách) để không mất dữ liệu; có "+ Thêm loại mới…". */}
+          <ChonLoaiTicket value={loai} onChange={setLoai} loaiList={loaiList} className="mt-1" />
+        </div>
         {coNgayBao && <ONgay ngay={ngay} setNgay={setNgay} homNay={ngayVNHomNay()} />}
       </div>
       <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={note} setXuLy={setNote} />
