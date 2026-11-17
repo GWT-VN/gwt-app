@@ -11,6 +11,8 @@ export type LanLoi = {
   xu_ly: string | null
   tao_boi: string | null
   created_at: string
+  /** Ngày khách báo lần này ('YYYY-MM-DD'); trống/chưa có cột → dùng created_at. */
+  ngay?: string | null
 }
 
 export type LanLoiSach = { mo_ta: string; xu_ly: string | null }
