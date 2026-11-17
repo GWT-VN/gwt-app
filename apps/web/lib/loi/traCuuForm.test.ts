@@ -37,9 +37,10 @@ describe('mucTuKetQuaKhach', () => {
   })
 })
 describe('dongDuDieuKien', () => {
-  it('cần ≥1 dòng có serial hợp lệ hoặc tra cứu ≠ sai_dang; không dòng nào sai dạng', () => {
+  it('serial không bắt buộc (17/11); có serial thì phải hợp lệ hoặc tra cứu ≠ sai_dang', () => {
     expect(dongDuDieuKien([{ serial: S1 }], {})).toBe(true)
-    expect(dongDuDieuKien([{ serial: '' }], {})).toBe(false)
+    expect(dongDuDieuKien([{ serial: '' }], {})).toBe(true)   // chưa có serial → vẫn tạo được
+    expect(dongDuDieuKien([], {})).toBe(true)
     expect(dongDuDieuKien([{ serial: 'Z1234' }], {})).toBe(false)
     expect(dongDuDieuKien([{ serial: 'Z1234' }], { Z1234: 'da_lap' })).toBe(true)
     expect(dongDuDieuKien([{ serial: 'Z1234' }], { Z1234: 'sai_dang' })).toBe(false)

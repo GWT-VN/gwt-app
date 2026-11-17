@@ -87,7 +87,8 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
       </div>
 
       <div>
-        <label className="text-sm font-medium text-slate-700">2. Máy báo lỗi (serial) *</label>
+        <label className="text-sm font-medium text-slate-700">2. Máy báo lỗi (serial)</label>
+        <p className="text-xs text-slate-500">Chưa có serial thì bỏ trống — thợ kiểm tra xong, vào ticket bấm <strong>Sửa dòng</strong> ở Máy &amp; lỗi để bổ sung.</p>
         {may !== null && may.length === 0 && (
           <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mt-1">
             ⚠️ Khách này <strong>chưa có máy nào được kích hoạt</strong>. Vẫn lưu được với serial chưa đăng ký; hoặc{' '}
