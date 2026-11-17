@@ -1,5 +1,6 @@
 'use client'
 
+import { ChonLoaiTicket } from '@/components/ticket/ChonLoaiTicket'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -118,15 +119,10 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
-        <label className="block">
+        <div className="block">
           <span className="text-sm font-medium text-slate-700">Loại ticket *</span>
-          <select value={loai} onChange={(e) => setLoai(e.target.value)}
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900 bg-white">
-            <option value="">— Chọn loại —</option>
-            {loai && !loaiList.includes(loai) && <option value={loai}>{loai}</option>}
-            {loaiList.map((l) => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </label>
+          <ChonLoaiTicket value={loai} onChange={setLoai} loaiList={loaiList} className="mt-1" />
+        </div>
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Ngày tạo</span>
           <input type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)}
