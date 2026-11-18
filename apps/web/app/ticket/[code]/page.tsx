@@ -19,6 +19,7 @@ import { LanLoiTiepTheo } from '@/components/loi/CapLoiXuLy'
 import { lanTiepTheo } from '@/lib/loi/lanLoi'
 import { listTepNhatKy } from '@/app/ticket/tep-actions'
 import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
+import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
 import { DauTicket } from '@/components/ticket/DauTicket'
 import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
 import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
@@ -28,7 +29,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, { data: nguoi, loi: thieuNguoi }, quyen] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma),
     listCatalogItems(), ticketTypes(),
     docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
@@ -36,6 +37,8 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
     docAnToan('listTepNhatKy', () => listTepNhatKy(ma), []),
     // Cột ngay_bao / cs_theo_doi (17/11) — chưa áp migration thì ẩn phần mới, trang chạy như cũ.
     docAnToan('docThemTicket', () => docThemTicket(ma), { ngay_bao: null, cs_theo_doi: null }),
+    // Danh sách CS theo dõi / kỹ thuật sửa được (18/11) — chưa áp migration thì giữ ô chọn kiểu 17/11.
+    docAnToan('docNguoiTicket', () => docNguoiTicket(ma), null),
     hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
@@ -122,6 +125,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
           state={t.state} khan={t.khan} csTheoDoi={them.cs_theo_doi} ktId={t.ky_thuat} staff={staff}
           ngayDau={ngayDau} soLan={1 + lanLoi.length} ngayCuoi={ngayCuoi} homNay={homNay}
           choSua={quyen.sua} choCs={quyen.sua && !thieuCotMoi} coCotMoi={!thieuCotMoi}
+          dsCs={thieuNguoi ? null : nguoi?.cs ?? null} dsKt={thieuNguoi ? null : nguoi?.kt ?? null} ktHoSo={nguoi?.kt_ho_so ?? null}
         />
 
         {canhBao && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {canhBao}</p>}
