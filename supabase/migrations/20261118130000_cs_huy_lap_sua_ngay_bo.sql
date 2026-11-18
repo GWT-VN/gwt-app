@@ -78,3 +78,10 @@ end
 $$;
 revoke all on function public.sua_ngay_bh_bo(text, date) from public, anon, authenticated;
 grant execute on function public.sua_ngay_bh_bo(text, date) to service_role;
+
+-- Sửa dữ liệu một lần: máy ĐANG Ở KHÁCH mà kho vẫn ghi "tồn kho" (lắp bộ combo trước 18/11 không cập nhật kho;
+-- đo 18/11: 9 máy, 7 do lắp bộ trên app). Từ PR này app tự cập nhật khi lắp bộ.
+-- Lùi: không cần (chỉ đồng bộ trạng thái kho theo installed_base; trạng thái cũ sai).
+update public.serial_registry sr set trang_thai = 'da_lap'
+  from public.installed_base ib
+ where ib.serial = sr.serial and ib.customer_id is not null and ib.status = 'active' and sr.trang_thai = 'ton_kho';
