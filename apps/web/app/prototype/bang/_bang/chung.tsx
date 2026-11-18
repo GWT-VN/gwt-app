@@ -1,6 +1,7 @@
 'use client'
 // PROTOTYPE — phần dùng chung của các phương án bảng: state, bộ lọc, ô hiển thị, menu chọn, toast hoàn tác.
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import {
   ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, FunnelSimple, MagnifyingGlass, Question,
   WarningCircle, X,
@@ -133,17 +134,40 @@ export function Khach({ t }: { t: Ticket }) {
 }
 
 // ---------- menu chọn nổi (dùng cho sửa tại chỗ + lọc) ----------
+// 18/11: menu nổi vẽ qua portal ra lớp trên cùng (position: fixed) — không bị vùng cuộn ngang của bảng cắt, không bị
+// tiêu đề cột dính đè. Định vị theo ô đã bấm (phần tử cha của <span> neo); thiếu chỗ bên dưới thì lật lên trên.
 export function Noi({ mo, dong, children, className }: { mo: boolean; dong: () => void; children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
+  const neo = useRef<HTMLSpanElement>(null)
+  useLayoutEffect(() => {
+    const a = neo.current?.parentElement, m = ref.current
+    if (!mo || !a || !m) return
+    const r = a.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight
+    const x = className?.includes('b-noi-phai') ? Math.max(8, r.right - w) : Math.max(8, Math.min(r.left, innerWidth - w - 8))
+    const duoi = r.bottom + 4 + h <= innerHeight - 8 || r.top - 4 - h < 8
+    m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${duoi ? r.bottom + 4 : r.top - 4 - h}px`)
+    m.style.visibility = 'visible'
+  }, [mo, className])
   useEffect(() => {
     if (!mo) return
-    const h = (e: MouseEvent) => { if (ref.current && !ref.current.parentElement?.contains(e.target as Node)) dong() }
+    const trong = (n: EventTarget | null) => !!ref.current?.contains(n as Node) || !!neo.current?.parentElement?.contains(n as Node)
+    const h = (e: MouseEvent) => { if (!trong(e.target)) dong() }
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') dong() }
+    const cuon = (e: Event) => { if (!ref.current?.contains(e.target as Node)) dong() } // cuộn bảng → menu sẽ lệch ô, đóng luôn
     document.addEventListener('mousedown', h); document.addEventListener('keydown', k)
-    return () => { document.removeEventListener('mousedown', h); document.removeEventListener('keydown', k) }
+    document.addEventListener('scroll', cuon, true); window.addEventListener('resize', dong)
+    return () => {
+      document.removeEventListener('mousedown', h); document.removeEventListener('keydown', k)
+      document.removeEventListener('scroll', cuon, true); window.removeEventListener('resize', dong)
+    }
   }, [mo, dong])
   if (!mo) return null
-  return <div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role="menu">{children}</div>
+  return (
+    <>
+      <span ref={neo} hidden />
+      {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role="menu" style={{ visibility: 'hidden' }}>{children}</div>, document.querySelector('.proto') ?? document.body)}
+    </>
+  )
 }
 
 export function MenuChon<T extends string>({ ds, gt, chon, tim, nhan }: { ds: readonly T[]; gt: T; chon: (v: T) => void; tim?: boolean; nhan?: (v: T) => ReactNode }) {

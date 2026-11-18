@@ -45,11 +45,12 @@
 .b-ngan { width: 1px; height: 18px; margin: 0 8px; background: var(--gray-100); }
 
 /* ---------- menu nổi ---------- */
-.b-noi { position: absolute; top: calc(100% + 4px); left: 0; z-index: 70; min-width: 200px; max-height: 320px; overflow-y: auto; }
-.b-noi-phai { left: auto; right: 0; }
-.b-noi-tren { top: auto; bottom: calc(100% + 6px); }
+.b-noi { position: fixed; left: var(--noi-x, 0); top: var(--noi-y, 0); z-index: 90; min-width: 200px; max-height: min(420px, calc(100vh - 16px)); overflow-y: auto; } /* toạ độ do Noi tính */
 .b-noi-rong { min-width: 240px; }
 .b-noi .ui-menu-item { gap: 8px; }
+/* hover rõ hơn (18/11): DS đang alpha-08 — prototype thử alpha-10 + mục đang chọn giữ nền nhạt. Chốt thì đổi token DS */
+.b-noi .ui-menu-item:hover { background: var(--alpha-10); }
+.b-noi .ui-menu-item[aria-checked="true"]:not(:hover), .b-noi .ui-menu-item[aria-selected="true"]:not(:hover) { background: var(--alpha-04); }
 .b-tick { width: 14px; height: 14px; margin-left: auto; color: var(--foreground); }
 .b-tim-menu { display: flex; align-items: center; gap: 6px; }
 .b-tim-menu svg { width: 14px; height: 14px; color: var(--muted-foreground); }
@@ -160,10 +161,10 @@
 .b-cot-viec { max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
 .b-th-sap { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; height: 28px; margin: 0 -6px; padding: 0 6px; border: 0; border-radius: var(--radius-sm); background: none; color: inherit; font: inherit; cursor: pointer; }
 /* kéo đổi chỗ cột: hover tiêu đề có nền + tay cầm; lúc kéo cả cột nguồn mờ nền, vạch thả chạy suốt chiều cao bảng */
-.b-th-keo { position: relative; padding-left: 18px !important; cursor: grab; transition: background-color 120ms ease; }
+.b-th-keo { position: relative; cursor: grab; transition: background-color 120ms ease; }
 .b-th-keo:hover { background: linear-gradient(var(--alpha-04), var(--alpha-04)), var(--background); color: var(--foreground); }
 .b-th-keo:active { cursor: grabbing; }
-.b-th-tay { position: absolute; left: 2px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); color: var(--muted-foreground); opacity: 0; transition: opacity 120ms ease; }
+.b-th-tay { position: absolute; left: -3px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); color: var(--muted-foreground); opacity: 0; transition: opacity 120ms ease; }
 .b-th-keo:hover .b-th-tay, .b-th-keo[data-keo] .b-th-tay { opacity: 1; }
 .b-bang-c [data-keo] { background: linear-gradient(var(--alpha-05), var(--alpha-05)), var(--background); }
 .b-bang-c td[data-keo] > *, .b-th-keo[data-keo] > :not(.b-th-tay) { opacity: 0.4; }
@@ -302,7 +303,7 @@
 }
 
 /* ---------- bảng chọn khách (sửa tại chỗ ô Khách) ---------- */
-.b-noi-kh { width: 400px; max-width: calc(100vw - 32px); padding-bottom: 6px; }
+.b-noi-kh { width: 400px; max-width: calc(100vw - 32px); max-height: none; overflow: visible; padding-bottom: 6px; } /* danh sách bên trong tự cuộn, nút "Tạo khách mới" luôn thấy */
 .b-kh-dem { padding-top: 2px; font-weight: 500; }
 .b-kh-ds { max-height: 340px; overflow-y: auto; margin: 0 -6px; padding: 0 6px; }
 .b-kh-muc { display: flex; flex-direction: column; align-items: stretch; gap: 1px; height: auto; padding-block: 7px; }
