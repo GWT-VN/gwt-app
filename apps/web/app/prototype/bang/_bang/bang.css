@@ -148,6 +148,7 @@
 /* ---------- C. sửa tại chỗ ---------- */
 .b-bang-c td, .b-bang-c th { max-width: none; padding-inline: 6px; }
 .b-bang-c { table-layout: fixed; }
+.b-bang .b-cot-dem { padding: 0 !important; } /* cột đệm cuối: ăn chỗ thừa, khung hẹp thì về 0 */
 .b-bang-c .c-chon { width: 36px; } .b-bang-c .c-ticket { width: 430px; } .b-bang-c .c-tt { width: 140px; }
 .b-bang-c .c-lam { width: 60px; } .b-bang-c .c-han { width: 90px; } .b-bang-c .c-chu { width: 44px; }
 /* màn hẹp: cột Người làm chỉ còn avatar (tên ở tooltip); rộng ≥1180 thì hiện cả tên */

@@ -364,8 +364,10 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
   }
   return (
     <div className="b-bang-khung">
-      <table className="b-bang b-bang-c" style={{ width: tong, minWidth: '100%' }}>
-        <colgroup><col style={{ width: 36 }} />{hien.map((c) => <col key={c.id} style={{ width: rong[c.id] }} />)}</colgroup>
+      {/* Cột giữ đúng độ rộng đã kéo; chỗ thừa của khung dồn vào cột đệm cuối (chuẩn Notion/Linear) — trước đây bảng bị
+          ép 100% nên phần dư chia lại cho mọi cột, kéo 1 cột là cột kề giãn theo */}
+      <table className="b-bang b-bang-c" style={{ width: '100%', minWidth: tong }}>
+        <colgroup><col style={{ width: 36 }} />{hien.map((c) => <col key={c.id} style={{ width: rong[c.id] }} />)}<col /></colgroup>
         <thead>
           <tr>
             <th className="b-cot-chon"><OChonTatCa b={b} /></th>
@@ -381,15 +383,17 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
                   onDoubleClick={() => setRong({ ...rong, [c.id]: COT.find((x) => x.id === c.id)!.w })} />
               </th>
             ))}
+            <th className="b-cot-dem" aria-hidden />
           </tr>
         </thead>
         <tbody>
           {gom(b.hien, nhomTheo).map((g) => [
-            g.nhan ? <tr key={'g' + g.key} className="b-nhom-tr"><td colSpan={hien.length + 1}><span className="b-nhom-dau">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></td></tr> : null,
+            g.nhan ? <tr key={'g' + g.key} className="b-nhom-tr"><td colSpan={hien.length + 2}><span className="b-nhom-dau">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></td></tr> : null,
             ...g.rows.map((t) => (
               <tr key={t.ma} data-ma={t.ma} data-chon={b.chon.has(t.ma) || undefined} data-xem={dangXem === t.ma || undefined}>
                 <td className="b-cot-chon"><OChon b={b} ma={t.ma} /></td>
                 {hien.map((c) => <td key={c.id} className={c.id === 'han' || c.id === 'mo' ? 'b-phai' : undefined} data-tren={vach(c.id)} data-keo={keo === c.id || undefined}>{o(t, c.id)}</td>)}
+                <td className="b-cot-dem" aria-hidden />
               </tr>
             )),
           ])}
