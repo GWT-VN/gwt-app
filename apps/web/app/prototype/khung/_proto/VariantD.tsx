@@ -4,7 +4,7 @@
 // E: cùng khung, Bắp mở thành panel riêng bên phải, menu giữ nguyên.
 import { useEffect, useState } from 'react'
 import {
-  BarChart3, Bell, BookOpen, CalendarCheck, CalendarDays, Check, ChevronLeft, Clock, Filter, Headset, Inbox, LayoutGrid,
+  BarChart3, Bell, BookOpen, CalendarCheck, CalendarDays, Check, ChevronLeft, Clock, Filter, Headphones, Inbox, LayoutGrid,
   ListChecks, Menu, Package, Plus, Repeat, Search, Settings, ShieldCheck, ShoppingCart, Sparkles, Ticket, Users, Wrench, X,
   BadgeCheck, UserRound, ReceiptText, Cpu, type LucideIcon,
 } from 'lucide-react'
@@ -15,7 +15,7 @@ import { KhungChat } from './Agent'
 export const TEN_D = 'Icon + panel menu · Bắp trong panel'
 export const TEN_E = 'Icon + panel menu · Bắp bên phải'
 
-const ICON_KHU: Record<string, LucideIcon> = { viec: ListChecks, cskh: Headset, sales: ShoppingCart, kho: Package, wiki: BookOpen }
+const ICON_KHU: Record<string, LucideIcon> = { viec: ListChecks, cskh: Headphones, sales: ShoppingCart, kho: Package, wiki: BookOpen }
 const ICON_MUC: Record<string, LucideIcon> = {
   check: Check, users: Users, badge: BadgeCheck, chart: BarChart3, repeat: Repeat, today: CalendarCheck, ticket: Ticket,
   shield: ShieldCheck, calendar: CalendarDays, wrench: Wrench, book: BookOpen, cart: ShoppingCart, inbox: Inbox, package: Package,
