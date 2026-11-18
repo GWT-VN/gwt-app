@@ -2,13 +2,15 @@
 // PROTOTYPE — phần dùng chung của các phương án bảng: state, bộ lọc, ô hiển thị, menu chọn, toast hoàn tác.
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
-  ArrowCounterClockwise, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, MagnifyingGlass, Question, WarningCircle, X,
+  ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, FunnelSimple, MagnifyingGlass, Question,
+  WarningCircle, X,
   type Icon,
 } from '@phosphor-icons/react'
 import { HOM_NAY, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 
 // ---------- định dạng ----------
 const bo = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase()
+export const TEN_TT: Partial<Record<TrangThai, string>> = { 'Chờ khách xác nhận': 'Chờ KH xác nhận' }
 export const TONE_TT: Record<TrangThai, string | undefined> = {
   'Mới': 'discovery', 'Đang xử lý': 'info', 'Chờ': 'warning', 'Chờ khách xác nhận': undefined, 'Đóng': 'success', 'Huỷ': undefined,
 }
@@ -27,7 +29,8 @@ export function hanChu(t: Ticket): { chu: string; tre: boolean; homNay: boolean 
 }
 
 // ---------- state bảng ----------
-export type Cot = 'ma' | 'khach' | 'tt' | 'uu' | 'han' | 'chu' | 'moNgay'
+// sắp xếp chỉ cho cột có thứ tự hoặc số lượng; cột nhãn (loại lỗi, chủ, khách, trạng thái) chỉ lọc
+export type Cot = 'ma' | 'uu' | 'han' | 'moNgay'
 export const NHOM_TAB = [
   { id: 'mo', ten: 'Đang mở', loc: MO },
   { id: 'cua-toi', ten: 'Của tôi', loc: (t: Ticket) => MO(t) && t.chu === 'Hiệp' },
@@ -44,6 +47,7 @@ export function useBang() {
   const [q, setQ] = useState('')
   const [locUu, setLocUu] = useState<UuTien[]>([])
   const [locChu, setLocChu] = useState<string[]>([])
+  const [locNhom, setLocNhom] = useState<NhomLoi[]>([])
   const [sap, setSap] = useState<{ cot: Cot; chieu: 'tang' | 'giam' }>({ cot: 'uu', chieu: 'tang' })
   const [chon, setChon] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<{ chu: string; hoan?: () => void } | null>(null)
@@ -54,14 +58,15 @@ export function useBang() {
     const r = rows.filter((t) => loc(t)
       && (!k || bo(`${t.ma} ${t.khach} ${t.viecTiep} ${t.serial ?? ''} ${t.may}`).includes(k))
       && (!locUu.length || locUu.includes(t.uu))
-      && (!locChu.length || locChu.includes(t.chu)))
+      && (!locChu.length || locChu.includes(t.chu))
+      && (!locNhom.length || locNhom.includes(t.nhom)))
     const dau = sap.chieu === 'tang' ? 1 : -1
     const gt = (t: Ticket): string | number => sap.cot === 'uu' ? THU_TU_UU[t.uu] * 1e13 + new Date(t.han.replace(' ', 'T')).getTime()
       : sap.cot === 'han' ? new Date(t.han.replace(' ', 'T')).getTime()
-      : sap.cot === 'moNgay' ? t.moNgay : sap.cot === 'tt' ? TT_LIST.indexOf(t.tt) : t[sap.cot]
+      : sap.cot === 'moNgay' ? t.moNgay : t.ma
     // khoá phụ duy nhất = mã ticket (spec 8.3)
     return [...r].sort((a, b) => { const x = gt(a), y = gt(b); return (x < y ? -1 : x > y ? 1 : a.ma.localeCompare(b.ma)) * dau })
-  }, [rows, tab, q, locUu, locChu, sap])
+  }, [rows, tab, q, locUu, locChu, locNhom, sap])
 
   const demTab = (id: string) => rows.filter(NHOM_TAB.find((x) => x.id === id)!.loc).length
 
@@ -81,7 +86,7 @@ export function useBang() {
   const boChon = <T,>(f: (v: T) => void) => (v: T) => { f(v); setChon(new Set()) }
 
   return {
-    rows, thay, tab, setTab: boChon(setTab), q, setQ: boChon(setQ), locUu, setLocUu: boChon(setLocUu), locChu, setLocChu: boChon(setLocChu),
+    rows, thay, tab, setTab: boChon(setTab), q, setQ: boChon(setQ), locUu, setLocUu: boChon(setLocUu), locChu, setLocChu: boChon(setLocChu), locNhom, setLocNhom: boChon(setLocNhom),
     sap, setSap, chon, setChon, toast, setToast, sua, suaNhieu, demTab,
   }
 }
@@ -91,7 +96,7 @@ export type Bang = ReturnType<typeof useBang>
 export function ChipTT({ t, nho }: { t: Ticket; nho?: boolean }) {
   return (
     <span className="ui-badge b-chip" data-color={TONE_TT[t.tt]} data-nho={nho || undefined}>
-      {t.tt}{t.tt === 'Chờ' && t.lyDoCho ? <span className="b-chip-phu">· {t.lyDoCho}</span> : null}
+      {TEN_TT[t.tt] ?? t.tt}{t.tt === 'Chờ' && t.lyDoCho ? <span className="b-chip-phu">· {t.lyDoCho}</span> : null}
     </span>
   )
 }
@@ -104,15 +109,15 @@ export function Avatar({ ten, nho }: { ten: string; nho?: boolean }) {
   return <span className="b-av" data-nho={nho || undefined} aria-hidden>{chu}</span>
 }
 export function Nguoi({ ten }: { ten: string }) {
-  return <span className="b-nguoi"><Avatar ten={ten} /><span className="b-cat">{ten}</span></span>
+  return <span className="b-nguoi" title={ten}><Avatar ten={ten} /><span className="b-cat">{ten}</span></span>
 }
 export function Han({ t }: { t: Ticket }) {
   const h = hanChu(t)
   return <span className="b-han" data-tre={h.tre || undefined} data-homnay={h.homNay || undefined}>{h.chu}</span>
 }
-export function OIcon({ t }: { t: Ticket }) {
-  const I = ICON_NHOM[t.nhom]
-  return <span className="b-oicon" data-nhom={t.nhom} title={t.nhom}><I aria-hidden /></span>
+/** Nhãn loại lỗi (4 nhóm danh mục lỗi 18/11 + Chưa phân loại): icon màu + chữ, viền mảnh. */
+export function NhanLoi({ n }: { n: NhomLoi }) {
+  return <span className="b-nhan-loi" data-nhom={n} title={`Loại lỗi: ${n}`}><span className="b-nhan-cham" aria-hidden /><span className="b-cat">{n}</span></span>
 }
 export function NguonTag({ t }: { t: Ticket }) {
   return t.nguon === 'Discord' ? <a href="#" className="b-link" onClick={(e) => e.preventDefault()}>Discord <ArrowUpRight aria-hidden /></a> : <span className="b-mo">{t.nguon}</span>
@@ -164,10 +169,145 @@ export function MenuChon<T extends string>({ ds, gt, chon, tim, nhan }: { ds: re
 }
 
 // ---------- thanh công cụ chung ----------
+// 18/11: lọc + sắp xếp chuyển vào tiêu đề cột (menu ở nhãn cột) → hàng tab sạch, chỉ còn tab + tóm tắt "đang lọc".
+const TEN_UU = { P1: 'An toàn', P2: 'Nghiêm trọng', P3: 'Thường', P4: 'Nhẹ / không lỗi' } as const
+const bat = <T,>(ds: T[], v: T) => (ds.includes(v) ? ds.filter((x) => x !== v) : [...ds, v])
+export type Loc = 'uu' | 'chu' | 'nhom'
+export const NHOM_LIST: NhomLoi[] = ['Main', 'Rò rỉ nước', 'Chất lượng nước', 'App', 'Chưa phân loại']
+
+/** Danh sách tick để lọc một trường — dùng trong menu tiêu đề cột và nút lọc gọn. */
+export function DsLoc({ b, loc }: { b: Bang; loc: Loc }) {
+  if (loc === 'uu') return (
+    <>
+      {UU_LIST.map((u) => (
+        <button key={u} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locUu.includes(u)} onClick={() => b.setLocUu(bat(b.locUu, u))}>
+          <UuTag u={u} /> {TEN_UU[u]}{b.locUu.includes(u) && <Check className="b-tick" aria-hidden />}
+        </button>
+      ))}
+    </>
+  )
+  if (loc === 'nhom') return (
+    <>
+      {NHOM_LIST.map((n) => (
+        <button key={n} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locNhom.includes(n)} onClick={() => b.setLocNhom(bat(b.locNhom, n))}>
+          <NhanLoi n={n} />{b.locNhom.includes(n) && <Check className="b-tick" aria-hidden />}
+        </button>
+      ))}
+    </>
+  )
+  return (
+    <>
+      {NHAN_VIEN.slice(0, 4).map((n) => (
+        <button key={n} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locChu.includes(n)} onClick={() => b.setLocChu(bat(b.locChu, n))}>
+          <Avatar ten={n} nho /> {n}{b.locChu.includes(n) && <Check className="b-tick" aria-hidden />}
+        </button>
+      ))}
+    </>
+  )
+}
+const dangLocCot = (b: Bang, loc?: Loc) => (loc === 'uu' ? b.locUu.length : loc === 'chu' ? b.locChu.length : loc === 'nhom' ? b.locNhom.length : 0)
+
+/** Nhãn cột bấm được: menu Sắp xếp + Lọc theo cột. Một cột có thể sắp theo nhiều khoá (vd Ticket: ưu tiên · loại lỗi · mã)
+ *  và lọc nhiều trường (ưu tiên + loại lỗi). Không có cot/loc thì là nhãn thường. */
+type KhoaSap = { cot: Cot; ten: string }
+const TEN_LOC: Record<Loc, string> = { uu: 'Ưu tiên', nhom: 'Loại lỗi', chu: 'Chủ ticket' }
+export function DauCot({ b, ten, cot, loc, phai, menuPhai, la = 'th' }: {
+  b: Bang; ten: string; cot?: Cot | KhoaSap[]; loc?: Loc | Loc[]; phai?: boolean; menuPhai?: boolean; la?: 'th' | 'span'
+}) {
+  const [mo, setMo] = useState(false)
+  const khoa: KhoaSap[] = !cot ? [] : Array.isArray(cot) ? cot : [{ cot, ten: '' }]
+  const locs: Loc[] = !loc ? [] : Array.isArray(loc) ? loc : [loc]
+  const dangSap = khoa.find((k) => k.cot === b.sap.cot)
+  const soLoc = locs.reduce((n, l) => n + dangLocCot(b, l), 0)
+  const Tag = la
+  const role = la === 'span' ? 'columnheader' : undefined
+  if (!khoa.length && !locs.length) return <Tag className={phai ? 'b-phai' : undefined} role={role}>{ten}</Tag>
+  const ariaSort = dangSap && khoa.length === 1 ? (b.sap.chieu === 'tang' ? 'ascending' : 'descending') : khoa.length ? 'none' : undefined
+  const chon = (c: Cot, chieu: 'tang' | 'giam') => { b.setSap({ cot: c, chieu }); setMo(false) }
+  return (
+    <Tag aria-sort={ariaSort} className={phai ? 'b-phai' : undefined} role={role}>
+      <span className="b-loc-o">
+        <button className="b-th-sap" aria-haspopup="menu" aria-expanded={mo} data-on={!!dangSap || soLoc > 0 || undefined} onClick={() => setMo(!mo)}>
+          {ten}
+          {dangSap && khoa.length > 1 && <span className="b-th-theo">· {dangSap.ten.toLowerCase()}</span>}
+          {dangSap && (b.sap.chieu === 'tang' ? <ArrowUp aria-label="tăng dần" /> : <ArrowDown aria-label="giảm dần" />)}
+          {soLoc > 0 && <span className="b-th-loc" aria-label={`đang lọc ${soLoc}`}><Funnel weight="fill" aria-hidden />{soLoc}</span>}
+          <CaretDown className="b-th-an" aria-hidden />
+        </button>
+        <Noi mo={mo} dong={() => setMo(false)} className={phai || menuPhai ? 'b-noi-phai' : undefined}>
+          {khoa.length === 1 && (
+            <>
+              <div className="ui-menu-label">Sắp xếp</div>
+              {(['tang', 'giam'] as const).map((ch) => {
+                const on = !!dangSap && b.sap.chieu === ch
+                return (
+                  <button key={ch} className="ui-menu-item" role="menuitemradio" aria-checked={on} onClick={() => chon(khoa[0].cot, ch)}>
+                    {ch === 'tang' ? <ArrowUp aria-hidden /> : <ArrowDown aria-hidden />} {ch === 'tang' ? 'Tăng dần' : 'Giảm dần'}{on && <Check className="b-tick" aria-hidden />}
+                  </button>
+                )
+              })}
+            </>
+          )}
+          {khoa.length > 1 && (
+            <>
+              <div className="ui-menu-label">Sắp xếp theo</div>
+              {khoa.map((k) => {
+                const on = b.sap.cot === k.cot
+                return (
+                  <button key={k.cot} className="ui-menu-item" role="menuitemradio" aria-checked={on}
+                    onClick={() => chon(k.cot, on && b.sap.chieu === 'tang' ? 'giam' : 'tang')}>
+                    {k.ten}{on && (b.sap.chieu === 'tang' ? <ArrowUp className="b-tick" aria-label="tăng dần" /> : <ArrowDown className="b-tick" aria-label="giảm dần" />)}
+                  </button>
+                )
+              })}
+            </>
+          )}
+          {locs.map((l, i) => (
+            <span key={l} style={{ display: 'contents' }}>
+              {(khoa.length > 0 || i > 0) && <div className="ui-menu-sep" />}
+              <div className="ui-menu-label">Lọc{locs.length > 1 || khoa.length > 1 ? ` · ${TEN_LOC[l].toLowerCase()}` : ''}</div>
+              <DsLoc b={b} loc={l} />
+            </span>
+          ))}
+          {soLoc > 0 && (
+            <button className="ui-menu-item b-menu-xoa" onClick={() => locs.forEach((l) => (l === 'uu' ? b.setLocUu([]) : l === 'nhom' ? b.setLocNhom([]) : b.setLocChu([])))}>
+              Bỏ lọc cột này
+            </button>
+          )}
+        </Noi>
+      </span>
+    </Tag>
+  )
+}
+export const SAP_TICKET: KhoaSap[] = [{ cot: 'uu', ten: 'Ưu tiên' }, { cot: 'ma', ten: 'Thứ tự tạo' }]
+
+/** Nhãn đầu ticket: Ưu tiên → Loại lỗi (theo yêu cầu 18/11). */
+export function NhanDau({ t }: { t: Ticket }) {
+  return <span className="b-nhan-dau"><UuTag u={t.uu} /><NhanLoi n={t.nhom} /></span>
+}
+
+/** Cho phương án không có tiêu đề cột (danh sách 2 dòng, Kanban): một nút lọc gọn gom cả hai trường. */
+export function NutLoc({ b }: { b: Bang }) {
+  const [mo, setMo] = useState(false)
+  const so = b.locUu.length + b.locChu.length + b.locNhom.length
+  return (
+    <span className="b-loc-o">
+      <button className="b-nut-icon" aria-label={so ? `Bộ lọc (${so})` : 'Bộ lọc'} data-tip="Lọc" aria-expanded={mo} data-on={so > 0 || undefined} onClick={() => setMo(!mo)}>
+        <FunnelSimple aria-hidden />
+      </button>
+      <Noi mo={mo} dong={() => setMo(false)} className="b-noi-phai">
+        <div className="ui-menu-label">Ưu tiên</div><DsLoc b={b} loc="uu" />
+        <div className="ui-menu-sep" />
+        <div className="ui-menu-label">Loại lỗi</div><DsLoc b={b} loc="nhom" />
+        <div className="ui-menu-sep" />
+        <div className="ui-menu-label">Chủ ticket</div><DsLoc b={b} loc="chu" />
+      </Noi>
+    </span>
+  )
+}
+
 export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: string; phai?: ReactNode }) {
-  const [mo, setMo] = useState<'' | 'uu' | 'chu'>('')
-  const dangLoc = b.locUu.length + b.locChu.length > 0 || b.q
-  const bat = <T,>(ds: T[], v: T) => (ds.includes(v) ? ds.filter((x) => x !== v) : [...ds, v])
+  const tom = [...b.locUu, ...b.locNhom, ...b.locChu]
   return (
     <div className="b-dau-wrap">
       <header className="b-dau">
@@ -189,34 +329,13 @@ export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: str
             </button>
           ))}
         </div>
-        <div className="b-loc">
-          <div className="b-loc-o">
-            <button className="b-chip-loc" aria-expanded={mo === 'uu'} data-on={b.locUu.length > 0 || undefined} onClick={() => setMo(mo === 'uu' ? '' : 'uu')}>
-              Ưu tiên{b.locUu.length ? `: ${b.locUu.join(', ')}` : ''} <CaretDown aria-hidden />
-            </button>
-            <Noi mo={mo === 'uu'} dong={() => setMo('')}>
-              {UU_LIST.map((u) => (
-                <button key={u} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locUu.includes(u)} onClick={() => b.setLocUu(bat(b.locUu, u))}>
-                  <UuTag u={u} /> {({ P1: 'An toàn', P2: 'Nghiêm trọng', P3: 'Thường', P4: 'Nhẹ / không lỗi' } as const)[u]}
-                  {b.locUu.includes(u) && <Check className="b-tick" aria-hidden />}
-                </button>
-              ))}
-            </Noi>
-          </div>
-          <div className="b-loc-o">
-            <button className="b-chip-loc" aria-expanded={mo === 'chu'} data-on={b.locChu.length > 0 || undefined} onClick={() => setMo(mo === 'chu' ? '' : 'chu')}>
-              Chủ ticket{b.locChu.length ? `: ${b.locChu.join(', ')}` : ''} <CaretDown aria-hidden />
-            </button>
-            <Noi mo={mo === 'chu'} dong={() => setMo('')}>
-              {NHAN_VIEN.slice(0, 4).map((n) => (
-                <button key={n} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locChu.includes(n)} onClick={() => b.setLocChu(bat(b.locChu, n))}>
-                  <Avatar ten={n} nho /> {n}{b.locChu.includes(n) && <Check className="b-tick" aria-hidden />}
-                </button>
-              ))}
-            </Noi>
-          </div>
-          {dangLoc && <button className="b-xoaloc" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setQ('') }}>Xoá lọc</button>}
-          <span style={{ flex: 1 }} />
+        <div className="b-thanh-phai">
+          {tom.length > 0 && (
+            <span className="b-dangloc">
+              Lọc: {tom.join(', ')}
+              <button className="b-xoaloc" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]) }}>Xoá lọc</button>
+            </span>
+          )}
           {phai}
         </div>
       </div>
@@ -229,7 +348,7 @@ export function Rong({ b }: { b: Bang }) {
     <div className="b-rong">
       <div className="b-rong-tieude">Không có ticket nào khớp bộ lọc</div>
       <div className="b-rong-mo">Thử bỏ bớt điều kiện{b.q ? ` hoặc từ khoá “${b.q}”` : ''} — tìm không cần gõ dấu.</div>
-      <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setQ(''); b.setTab('tat-ca') }}>Xoá lọc</button>
+      <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]); b.setQ(''); b.setTab('tat-ca') }}>Xoá lọc</button>
     </div>
   )
 }

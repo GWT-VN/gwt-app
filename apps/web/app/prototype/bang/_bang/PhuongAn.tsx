@@ -3,13 +3,13 @@
 import { useEffect, useState, type DragEvent, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  CaretDown, CaretLeft, CaretRight, CaretUp, Columns, DotsThree, PencilSimple, Rows, SlidersHorizontal, X,
+  CaretDown, CaretLeft, CaretRight, Columns, DotsThree, Export, PencilSimple, X,
 } from '@phosphor-icons/react'
 import { Khung } from '../../khung/_proto/VariantD'
 import { LY_DO_CHO, NHAN_VIEN, TT_LIST, UU_LIST, type Ticket, type TrangThai, type UuTien } from './data'
 import {
-  Avatar, ChipTT, Han, Khach, MenuChon, NguonTag, Nguoi, Noi, OChon, OChonTatCa, OIcon, Rong, ThanhHangLoat, ThanhLoc,
-  Toast, UuTag, useBang, MO, type Bang, type Cot,
+  Avatar, ChipTT, DauCot, Han, NhanDau, SAP_TICKET, Khach, MenuChon, NguonTag, Nguoi, NhanLoi, Noi, NutLoc, OChon, OChonTatCa, Rong, ThanhHangLoat, ThanhLoc,
+  Toast, UuTag, useBang, MO, NHOM_LIST, type Bang, type Cot, type Loc,
 } from './chung'
 
 // ======================= A. Danh sách nhẹ =======================
@@ -20,18 +20,18 @@ function A() {
       <ThanhLoc b={b} />
       <div className="b-ds" role="table" aria-label="Ticket">
         <div className="b-ds-hang b-ds-dau" role="row">
-          <span /><span role="columnheader">Ticket</span><span role="columnheader">Việc tiếp theo</span>
-          <span role="columnheader">Trạng thái</span><span role="columnheader" className="b-phai">Hạn</span><span role="columnheader">Chủ ticket</span>
+          <DauCot la="span" b={b} ten="Ticket" cot={SAP_TICKET} loc={['uu', 'nhom']} /><DauCot la="span" b={b} ten="Việc tiếp theo" />
+          <DauCot la="span" b={b} ten="Trạng thái" /><DauCot la="span" b={b} ten="Hạn" cot="han" phai />
+          <DauCot la="span" b={b} ten="Chủ" loc="chu" menuPhai />
         </div>
         {b.thay.length === 0 && <Rong b={b} />}
         {b.thay.map((t) => (
           <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0}>
-            <OIcon t={t} />
-            <span className="b-ds-ten"><UuTag u={t.uu} /><span className="b-ma">{t.ma}</span><Khach t={t} /></span>
+            <span className="b-ticket"><NhanDau t={t} /><span className="b-ticket-chu"><span className="b-ma">{t.ma}</span><Khach t={t} /></span></span>
             <span className="b-cat b-viec">{t.viecTiep}</span>
             <span><ChipTT t={t} nho /></span>
             <span className="b-phai"><Han t={t} /></span>
-            <span className="b-ds-chu"><Nguoi ten={t.chu} /></span>
+            <span className="b-ds-chu" title={`Chủ ticket: ${t.chu}`}><Avatar ten={t.chu} /></span>
             <span className="b-ds-hd"><button className="ui-btn" data-variant="ghost" data-size="icon-sm" aria-label={`Thao tác ${t.ma}`}><DotsThree aria-hidden /></button></span>
           </div>
         ))}
@@ -43,32 +43,21 @@ function A() {
 
 // ======================= B. Bảng dữ liệu đầy đủ =======================
 const COT_B = [
-  { id: 'ma', ten: 'Mã', sap: 'ma' }, { id: 'khach', ten: 'Khách', sap: 'khach' }, { id: 'may', ten: 'Máy · serial' },
-  { id: 'nhom', ten: 'Nhóm lỗi' }, { id: 'uu', ten: 'Ưu tiên', sap: 'uu' }, { id: 'tt', ten: 'Trạng thái', sap: 'tt' },
+  { id: 'uu', ten: 'Ưu tiên', sap: 'uu', loc: 'uu' }, { id: 'nhom', ten: 'Loại lỗi', loc: 'nhom' },
+  { id: 'ma', ten: 'Mã', sap: 'ma' }, { id: 'khach', ten: 'Khách' }, { id: 'may', ten: 'Máy · serial' },
+  { id: 'tt', ten: 'Trạng thái' },
   { id: 'viec', ten: 'Việc tiếp theo' }, { id: 'lam', ten: 'Người đang làm' }, { id: 'han', ten: 'Hạn', sap: 'han' },
-  { id: 'chu', ten: 'Chủ', sap: 'chu' }, { id: 'mo', ten: 'Mở', sap: 'moNgay' }, { id: 'nguon', ten: 'Nguồn' },
+  { id: 'chu', ten: 'Chủ', loc: 'chu' }, { id: 'mo', ten: 'Mở', sap: 'moNgay' }, { id: 'nguon', ten: 'Nguồn' },
 ] as const
 type CotB = (typeof COT_B)[number]['id']
 
-function TieuDeSap({ b, cot, ten, phai }: { b: Bang; cot?: Cot; ten: string; phai?: boolean }) {
-  if (!cot) return <th className={phai ? 'b-phai' : undefined}>{ten}</th>
-  const dang = b.sap.cot === cot
-  return (
-    <th aria-sort={dang ? (b.sap.chieu === 'tang' ? 'ascending' : 'descending') : 'none'} className={phai ? 'b-phai' : undefined}>
-      <button className="b-th-sap" onClick={() => b.setSap({ cot, chieu: dang && b.sap.chieu === 'tang' ? 'giam' : 'tang' })}>
-        {ten}{dang ? (b.sap.chieu === 'tang' ? <CaretUp aria-hidden /> : <CaretDown aria-hidden />) : <CaretDown aria-hidden className="b-th-an" />}
-      </button>
-    </th>
-  )
-}
 
 function B() {
   const b = useBang()
   const [an, setAn] = useState<CotB[]>(['lam', 'nguon', 'mo'])
   const [moCot, setMoCot] = useState(false)
-  const [day, setDay] = useState<'gon' | 'thoang'>('gon')
   const [trang, setTrang] = useState(0)
-  const CO = 10
+  const CO = 50 // 18/11: trang 50 dòng — 10 dòng là quá ít, phải bấm trang liên tục
   const hien = COT_B.filter((c) => !an.includes(c.id))
   const soTrang = Math.max(1, Math.ceil(b.thay.length / CO))
   const tr = Math.min(trang, soTrang - 1) // bộ lọc làm ít trang đi → lùi về trang cuối còn có
@@ -76,7 +65,7 @@ function B() {
   const o = (t: Ticket, id: CotB) => ({
     ma: <span className="b-ma">{t.ma}</span>, khach: <Khach t={t} />,
     may: <span className="b-may">{t.may}{t.serial && <span className="b-mo"> · {t.serial}</span>}</span>,
-    nhom: <span className="b-nhom"><OIcon t={t} />{t.nhom}</span>, uu: <UuTag u={t.uu} />, tt: <ChipTT t={t} nho />,
+    nhom: <NhanLoi n={t.nhom} />, uu: <UuTag u={t.uu} />, tt: <ChipTT t={t} nho />,
     viec: <span className="b-cat">{t.viecTiep}</span>, lam: <Nguoi ten={t.nguoiLam} />, han: <Han t={t} />, chu: <Nguoi ten={t.chu} />,
     mo: <span className="b-so">{MO(t) ? `${t.moNgay} ngày` : '—'}</span>, nguon: <NguonTag t={t} />,
   })[id]
@@ -84,9 +73,8 @@ function B() {
     <div className="b-trang b-trang-rong">
       <ThanhLoc b={b} phai={(
         <div className="b-cong-cu">
-          <button className="ui-btn" data-variant="ghost" data-size="icon-sm" aria-label={day === 'gon' ? 'Dòng thoáng' : 'Dòng gọn'} title="Mật độ dòng" onClick={() => setDay(day === 'gon' ? 'thoang' : 'gon')}><Rows aria-hidden /></button>
           <div className="b-loc-o">
-            <button className="ui-btn" data-variant="ghost" data-size="sm" aria-expanded={moCot} onClick={() => setMoCot(!moCot)}><Columns aria-hidden /> Cột</button>
+            <button className="b-nut-icon" aria-label="Chọn cột hiển thị" data-tip="Chọn cột" aria-expanded={moCot} onClick={() => setMoCot(!moCot)}><Columns aria-hidden /></button>
             <Noi mo={moCot} dong={() => setMoCot(false)} className="b-noi-phai">
               <div className="ui-menu-label">Hiện cột · lưu vào view của tôi</div>
               {COT_B.map((c) => (
@@ -97,15 +85,16 @@ function B() {
               ))}
             </Noi>
           </div>
-          <button className="ui-btn" data-variant="outline" data-size="sm">Xuất</button>
+          <span className="b-ngan" aria-hidden />
+          <button className="b-nut-icon" aria-label="Xuất Excel theo bộ lọc" data-tip="Xuất Excel"><Export aria-hidden /></button>
         </div>
       )} />
       <div className="b-bang-khung">
-        <table className="b-bang" data-day={day}>
+        <table className="b-bang">
           <thead>
             <tr>
               <th className="b-cot-chon"><OChonTatCa b={b} /></th>
-              {hien.map((c) => <TieuDeSap key={c.id} b={b} cot={'sap' in c ? (c.sap as Cot) : undefined} ten={c.ten} phai={c.id === 'han' || c.id === 'mo'} />)}
+              {hien.map((c) => <DauCot key={c.id} b={b} cot={'sap' in c ? (c.sap as Cot) : undefined} loc={'loc' in c ? (c.loc as Loc) : undefined} ten={c.ten} phai={c.id === 'han' || c.id === 'mo'} />)}
               <th aria-label="Thao tác" />
             </tr>
           </thead>
@@ -177,14 +166,16 @@ function C() {
   const b = useBang()
   return (
     <div className="b-trang b-trang-rong">
-      <ThanhLoc b={b} phai={<span className="b-goiy"><PencilSimple aria-hidden /> Bấm vào ô để sửa — lưu ngay, có Hoàn tác</span>} />
+      <ThanhLoc b={b} />
       <div className="b-bang-khung">
         <table className="b-bang b-bang-c">
+          {/* độ rộng cột cố định: bảng không tự bóp ô thành "H.." — cột Việc tiếp theo nhận phần còn lại */}
+          <colgroup><col className="c-chon" /><col className="c-ticket" /><col className="c-tt" /><col /><col className="c-lam" /><col className="c-han" /><col className="c-chu" /></colgroup>
           <thead>
             <tr>
               <th className="b-cot-chon"><OChonTatCa b={b} /></th>
-              <TieuDeSap b={b} cot="uu" ten="Ticket" /><TieuDeSap b={b} cot="tt" ten="Trạng thái" />
-              <th>Việc tiếp theo</th><th>Người đang làm</th><TieuDeSap b={b} cot="han" ten="Hạn" /><TieuDeSap b={b} cot="chu" ten="Chủ" />
+              <DauCot b={b} ten="Ticket" cot={SAP_TICKET} loc={['uu', 'nhom']} /><DauCot b={b} ten="Trạng thái" />
+              <th>Việc tiếp theo</th><th title="Người đang phải làm">Làm</th><DauCot b={b} ten="Hạn" cot="han" /><DauCot b={b} ten="Chủ" loc="chu" menuPhai />
             </tr>
           </thead>
           <tbody>
@@ -192,11 +183,16 @@ function C() {
               <tr key={t.ma} data-chon={b.chon.has(t.ma) || undefined}>
                 <td className="b-cot-chon"><OChon b={b} ma={t.ma} /></td>
                 <td>
-                  <span className="b-ds-ten">
-                    <OSua nhan={`ưu tiên ${t.ma}`} menu={(dong) => <MenuChon<UuTien> ds={UU_LIST} gt={t.uu} nhan={(v) => <UuTag u={v} />} chon={(v) => { b.sua(t.ma, { uu: v }, `${t.ma}: ưu tiên ${v}`); dong() }} />}>
-                      <UuTag u={t.uu} />
-                    </OSua>
-                    <span className="b-ma">{t.ma}</span><Khach t={t} />
+                  <span className="b-ticket">
+                    <span className="b-nhan-dau">
+                      <OSua nhan={`ưu tiên ${t.ma}`} menu={(dong) => <MenuChon<UuTien> ds={UU_LIST} gt={t.uu} nhan={(v) => <UuTag u={v} />} chon={(v) => { b.sua(t.ma, { uu: v }, `${t.ma}: ưu tiên ${v}`); dong() }} />}>
+                        <UuTag u={t.uu} />
+                      </OSua>
+                      <OSua nhan={`loại lỗi ${t.ma}`} rong menu={(dong) => <MenuChon ds={NHOM_LIST} gt={t.nhom} nhan={(v) => <NhanLoi n={v} />} chon={(v) => { b.sua(t.ma, { nhom: v }, `${t.ma}: loại lỗi ${v}`); dong() }} />}>
+                        <NhanLoi n={t.nhom} />
+                      </OSua>
+                    </span>
+                    <span className="b-ticket-chu"><span className="b-ma">{t.ma}</span><Khach t={t} /></span>
                   </span>
                 </td>
                 <td>
@@ -256,17 +252,16 @@ function D() {
     <div className="b-tach" data-mo={t ? '' : undefined}>
       <div className="b-tach-trai">
         <div className="b-trang b-trang-tach">
-          <ThanhLoc b={b} phai={<span className="b-goiy">↑ ↓ để chuyển ticket</span>} />
+          <ThanhLoc b={b} phai={<NutLoc b={b} />} />
           <div className="b-dsd" role="listbox" aria-label="Ticket">
             {b.thay.length === 0 && <Rong b={b} />}
             {b.thay.map((x) => (
               <button key={x.ma} className="b-dsd-hang" role="option" aria-selected={x.ma === ma} onClick={() => setMa(x.ma)}>
-                <OIcon t={x} />
                 <span className="b-dsd-giua">
-                  <span className="b-dsd-dong1"><span className="b-ma">{x.ma}</span><Khach t={x} /></span>
-                  <span className="b-dsd-dong2 b-cat">{x.viecTiep}</span>
+                  <span className="b-dsd-dong1"><UuTag u={x.uu} /><NhanLoi n={x.nhom} /><Khach t={x} /></span>
+                  <span className="b-dsd-dong2 b-cat"><span className="b-ma">{x.ma}</span> · {x.viecTiep}</span>
                 </span>
-                <span className="b-dsd-phai"><Han t={x} /><span className="b-dsd-chip"><UuTag u={x.uu} /><Avatar ten={x.chu} nho /></span></span>
+                <span className="b-dsd-phai"><Han t={x} /><Avatar ten={x.chu} nho /></span>
               </button>
             ))}
           </div>
@@ -332,7 +327,7 @@ function E() {
   }
   return (
     <div className="b-trang b-trang-rong b-trang-k">
-      <ThanhLoc b={b} phai={<span className="b-goiy"><SlidersHorizontal aria-hidden /> Kéo thẻ sang cột để đổi trạng thái</span>} />
+      <ThanhLoc b={b} phai={<NutLoc b={b} />} />
       <div className="b-kanban">
         {COT_K.map((tt) => {
           const the = b.thay.filter((t) => t.tt === tt)
@@ -344,7 +339,7 @@ function E() {
                 {the.map((t) => (
                   <article key={t.ma} className="b-the" draggable data-keo={keo === t.ma || undefined}
                     onDragStart={() => setKeo(t.ma)} onDragEnd={() => { setKeo(null); setTren(null) }}>
-                    <div className="b-the-dau"><span className="b-ma">{t.ma}</span><UuTag u={t.uu} /><span style={{ flex: 1 }} />
+                    <div className="b-the-dau"><UuTag u={t.uu} /><NhanLoi n={t.nhom} /><span style={{ flex: 1 }} />
                       <span className="b-loc-o">
                         <button className="ui-btn" data-variant="ghost" data-size="icon-sm" aria-label={`Chuyển ${t.ma}`} onClick={() => setMenu(menu === t.ma ? null : t.ma)}><DotsThree aria-hidden /></button>
                         <Noi mo={menu === t.ma} dong={() => setMenu(null)} className="b-noi-phai">
@@ -355,7 +350,7 @@ function E() {
                     </div>
                     <div className="b-the-khach"><Khach t={t} /></div>
                     <div className="b-the-viec">{t.viecTiep}</div>
-                    <div className="b-the-chan"><OIcon t={t} /><Han t={t} />{t.tt === 'Chờ' && t.lyDoCho && <span className="b-mo">chờ {t.lyDoCho}</span>}<span style={{ flex: 1 }} /><Avatar ten={t.chu} nho /></div>
+                    <div className="b-the-chan"><span className="b-ma">{t.ma}</span><Han t={t} /><span style={{ flex: 1 }} /><Avatar ten={t.chu} nho /></div>
                   </article>
                 ))}
                 {!the.length && <div className="b-k-rong">Kéo thẻ vào đây</div>}

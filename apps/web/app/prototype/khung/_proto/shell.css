@@ -9,6 +9,8 @@
   -webkit-font-smoothing: antialiased;
 }
 .proto *, .proto *::before, .proto *::after { box-sizing: border-box; }
+/* thanh cuộn mảnh, mờ (18/11) — không dùng thanh cuộn dày mặc định của Windows */
+.proto, .proto * { scrollbar-width: thin; scrollbar-color: var(--alpha-15) transparent; }
 .proto button { font: inherit; }
 
 /* ---------- dùng chung ---------- */
