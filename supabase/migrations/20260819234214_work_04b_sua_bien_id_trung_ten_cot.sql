@@ -1,6 +1,6 @@
 -- HỢP THỨC HOÁ 2026-11-18: chép nguyên văn db/work/migrations/work_04b_sua_bien_id_trung_ten_cot.sql (đã áp live trước đây, nằm sai thư mục).
 -- Cách lùi: xoá file này + entry ledger tương ứng; không drop object.
--- (Nội dung bên dưới không đổi.)
+-- (Nội dung bên dưới không đổi; version = ledger live.)
 -- ============================================================================
 -- work_04b_sua_bien_id_trung_ten_cot.sql — bản work_hang_loat ĐANG CHẠY (2026-08-19)
 --

@@ -1,6 +1,6 @@
 -- HỢP THỨC HOÁ 2026-11-18: chép nguyên văn db/work/migrations/work_02_rpc_gd0_day_du.sql (đã áp live trước đây, nằm sai thư mục).
 -- Cách lùi: xoá file này + entry ledger tương ứng; không drop object.
--- (Nội dung bên dưới không đổi.)
+-- (Nội dung bên dưới không đổi; version = ledger live.)
 -- ============================================================================
 -- work_02_rpc_gd0_day_du.sql — RPC còn lại để đóng GĐ0
 -- Ngày: 2026-08-19

@@ -1,6 +1,6 @@
 -- HỢP THỨC HOÁ 2026-11-18: chép nguyên văn db/work/migrations/work_03b_nguoi_nhan_va_cron.sql (đã áp live trước đây, nằm sai thư mục).
 -- Cách lùi: xoá file này + entry ledger tương ứng; không drop object.
--- (Nội dung bên dưới không đổi.)
+-- (Nội dung bên dưới không đổi; version = ledger live.)
 -- ============================================================================
 -- work_03b_nguoi_nhan_va_cron.sql — hai chỗ work_03 còn thiếu (2026-08-19)
 --
