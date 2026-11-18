@@ -122,10 +122,43 @@ GWT-Agent-Team/
 ### 5.4 Discord
 
 - **Mỗi agent một ứng dụng bot** (tên, avatar riêng): Bắp, Bắp Việc, Bắp CSKH, Bắp Kho, Bắp Sales, Bắp Admin (token Admin hiện có), Bắp Trợ lý (không cần Discord).
-- **Người chỉ gọi @Bắp** (boss điều phối — anh Dũng chốt 18/11); Bắp chia việc cho agent con. Agent con tự nghe kênh nghiệp vụ của mình như hiện nay.
+- **Bắp là boss điều phối** (anh Dũng chốt 18/11): không biết hỏi ai thì gọi @Bắp, Bắp chia việc cho agent con. **Người vẫn gọi thẳng được một agent cụ thể** (@Nho Trợ lý, @Bơ Marketing…; anh Dũng chốt 18/11 chiều): agent đó nhận việc trong vai của nó, việc ngoài vai thì trả lời "việc này của @<agent khác>" hoặc chuyển Bắp, không tự làm. Agent con vẫn tự nghe kênh nghiệp vụ của mình như hiện nay.
+- **Đội 4 agent, tên trái cây** (anh Dũng chốt 18/11; thay các tên "Bắp Việc/CSKH/Kho/Sales/Admin/Trợ lý" ở mục 6 và các mục khác):
+
+  | Tên | Vai | Gánh các vai cũ | Chạy bằng | Bot Discord |
+  | --- | --- | --- | --- | --- |
+  | **Bắp** | điều phối (boss) + bán hàng + kho + **đăng bản tổng hợp việc 8h/17h vào từng nhóm** (lấy từ app, không đọc tin của Nho) | Bắp, Bắp Sales (Shopee, đơn, doanh số), Bắp Kho (sổ kho, serial) | Claude | token Bắp hiện có |
+  | **Dâu Designer** | thiết kế: ảnh, banner, ấn phẩm, mockup (mới) | — | **API ChatGPT (OpenAI)**: runner riêng gọi API OpenAI (không phải phiên Claude Code); khoá OpenAI anh Dũng tự đặt trên máy | **tạo mới** |
+  | **Bơ Marketing** | nội dung, chiến dịch, lịch đăng, khuyến mại (mới) | — | Claude | **tạo mới** |
+  | **Nho Trợ lý** | quản lý việc + **tổng hợp việc từ nhóm chat → lên thẳng app** (đọc 23 kênh nhóm công việc + kênh riêng; tách ai · việc · hạn · xong/vướng; tạo/cập nhật việc Work kèm ghi chú + link tin gốc = luồng D1/D2 mục 7.14 file mô tả app) + trả lời nội bộ + chăm sóc khách hàng + hành chính | Bắp Việc (giao, nhắc, báo cáo, tóm tắt 8h/17h), Bắp Trợ lý (GWT-ERP), Bắp CSKH (ticket, CTS20), Bắp Admin (sổ quỹ, chấm công) | Claude | **tạo mới** (server GWT chỉ còn bot Bắp — anh Dũng 18/11); bot Admin đang chạy sổ quỹ/chấm công giữ nguyên tới khi Nho nhận lại việc đó |
+- **Kênh đội agent**: #bắp-mkt sẽ đổi tên thành kênh chung của cả đội (anh Dũng 18/11) — đủ 4 bot của 4 agent trong kênh; đây là kênh `#agent-team` dưới đây.
 - **Kênh đội agent** `#agent-team`: mọi lượt giao việc giữa agent được đăng ở đây (ai giao · cho ai · việc · kết quả).
 - Agent **không đọc tin của bot khác để hành động**; phối hợp chỉ qua hàng đợi (5.6). Ngoại lệ có kiểm soát: tin của chính bot kho/ticket cũ trong giai đoạn chuyển.
 - Giữ các rào hiện có: hook chặn công cụ Discord, kiểm quyền kênh mỗi giờ, nghe tin bị sửa (`MESSAGE_UPDATE`) → cập nhật, tin bị xoá → huỷ bản nháp.
+
+### 5.4b Sổ kênh — context lâu dài của từng kênh (anh Dũng chốt 18/11)
+
+**Hiện trạng:** chỉ 4 kênh riêng có nhớ, là file trên Mac mini (`~/Bots/bap-kenh/<id>/nho.md`, `tasklist.md`); Bắp chung và 23 kênh nhóm công việc không có nhớ theo kênh. File ngoài git/DB: máy hỏng là mất, app không thấy, agent chạy API (Dâu) không đọc được.
+
+**Ba lớp:**
+1. **Tin gốc** để nguyên trên Discord, cần thì đọc lại (`fetch_messages`) — không chép.
+2. **Sổ kênh** trong app: bảng mới ở schema GWT-App trên Masterdata (chỉ thêm), đọc/ghi qua API gwt-app. Mỗi dòng: kênh · loại (`muc_dich` mục đích kênh và người phụ trách · `quyet_dinh` đã chốt · `luat` riêng của kênh · `nho` điều được nhờ nhớ) · nội dung · người ghi + link tin gốc · ngày ghi · **hiệu lực đến** (bỏ trống = không hạn) · trạng thái `dang_dung | het_han | thay_the | da_bo` · thay bằng dòng nào. Cả 4 agent đọc chung; xem/sửa trên app.
+3. **Việc và kiến thức không nằm trong sổ:** việc → Work (Nho, D1/D2); kiến thức sản phẩm/quy trình → đề xuất Wiki (D9). Sổ chỉ giữ thứ giúp agent hiểu kênh.
+
+**Ghi thêm:** người nhắn "nhớ giúp…" → ghi ngay (như `ghi_nho` hiện nay). Cuối ngày Nho đọc lại kênh, thêm quyết định/luật mới có link tin gốc.
+
+**Dọn sổ — xoá cái đã xong, hết hạn, không cần:**
+- **Đã xong:** việc không bao giờ vào sổ (ở Work), nên việc xong tự biến mất khỏi ngữ cảnh. Dòng `nho` gắn với một việc (vd "nhớ gửi báo giá khách X") → việc Work xong thì dòng đó `da_bo`.
+- **Hết hạn:** dòng có "hiệu lực đến" (CTKM tới 30/11, quy định tạm tuần này…) tự chuyển `het_han` qua ngày — không cần ai dọn.
+- **Bị thay:** quyết định/luật mới trái với dòng cũ → dòng cũ `thay_the` (trỏ sang dòng mới); agent chỉ nạp dòng `dang_dung`.
+- **Không cần nữa:** người trong kênh nhắn "bỏ / quên điều …" → `da_bo`, ghi ai bỏ. Dòng `nho` 60 ngày không ai nhắc tới → Nho đưa vào danh sách **đề xuất bỏ**.
+- **Dọn hằng tuần:** Nho gửi người phụ trách kênh một tin "đề xuất dọn sổ" (dòng cũ, trùng, trái nhau, quá dài cần gộp); người đó trả lời số dòng hoặc "ok hết" → Nho mới đổi trạng thái. Không tự bỏ dòng `quyet_dinh`/`luat` khi chưa có người duyệt.
+- **Không xoá hẳn:** bỏ = đổi trạng thái, giữ lịch sử (ai bỏ, khi nào) để khôi phục được; xem trên app.
+- **Trần độ dài:** phần `dang_dung` của một kênh giữ dưới ~1.500 chữ; vượt thì đợt dọn tuần ưu tiên gộp các dòng cùng chủ đề.
+
+**Agent nạp gì khi được gọi trong một kênh:** sổ kênh (chỉ `dang_dung`) + việc Work đang mở của kênh + vài chục tin gần nhất.
+
+**Tạm thời (trước bước 2 — API gwt-app):** giữ file như hiện nay, thêm sao lưu thư mục `bap-kenh/` mỗi đêm; khi có API thì chuyển `nho.md` vào sổ kênh.
 
 ### 5.5 Hai đường chạy
 
