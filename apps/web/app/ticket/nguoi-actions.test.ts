@@ -2,18 +2,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // DB giả: mỗi bảng một danh sách dòng; ghi lại mọi update / insert để kiểm.
 let rows: Record<string, Record<string, unknown>[]> = {}
-let ghi: { bang: string; op: 'update' | 'insert'; arg: Record<string, unknown> }[] = []
+let ghi: { bang: string; op: 'update' | 'insert' | 'delete'; arg: Record<string, unknown> }[] = []
 let quyenLoi = false
 
 function builder(t: string) {
-  let op: 'select' | 'update' | 'insert' = 'select'
+  let op: 'select' | 'update' | 'insert' | 'delete' = 'select'
   const loc: [string, unknown][] = []
   const b: Record<string, unknown> = {}
   const khop = () => (rows[t] ?? []).filter((r) => loc.every(([k, v]) => r[k] === v))
-  for (const m of ['select', 'order']) b[m] = () => b
+  for (const m of ['select', 'order', 'limit']) b[m] = () => b
   b.eq = (k: string, v: unknown) => { loc.push([k, v]); return b }
   b.update = (a: Record<string, unknown>) => { op = 'update'; ghi.push({ bang: t, op, arg: a }); return b }
   b.insert = (a: Record<string, unknown>) => { op = 'insert'; ghi.push({ bang: t, op, arg: a }); return b }
+  b.delete = () => { op = 'delete'; ghi.push({ bang: t, op, arg: {} }); return b }
   b.single = async () => ({ data: { id: 'moi' }, error: null })
   b.maybeSingle = async () => ({ data: khop()[0] ?? null, error: null })
   b.then = (res: (v: unknown) => unknown) => Promise.resolve({ data: khop(), error: null }).then(res)
@@ -28,7 +29,7 @@ vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   doQuyen: vi.fn(async () => { if (quyenLoi) throw new Error('KHONG_DU_QUYEN') }),
 }))
 
-import { datHienNguoi, doiTenNguoi, ganCsTheoDoi, ganKyThuat, themNguoi } from './nguoi-actions'
+import { docNguoiTicket, doiTenNguoi, ganCsTheoDoi, ganKyThuat, themNguoi, xoaNguoi } from './nguoi-actions'
 
 const MA = 'GWT-260053'
 beforeEach(() => {
@@ -44,6 +45,7 @@ beforeEach(() => {
     ],
     staff: [{ id: 's-binh', email: 'Binh@GWT.vn', hoat_dong: true }],
     tickets: [{ ticket_code: MA, cs_theo_doi: null, kt_ho_so: null }],
+    lich_ky_thuat: [{ id: 'l1', ky_thuat_id: 't1' }],
   }
 })
 
@@ -84,9 +86,9 @@ describe('ganCsTheoDoi', () => {
     await ganCsTheoDoi(MA, 'c1')
     expect(ghi[0]).toEqual({ bang: 'tickets', op: 'update', arg: { cs_theo_doi: 'Hiệp' } })
   })
-  it('người đã ẩn → không gán', async () => {
-    expect((await ganCsTheoDoi(MA, 'c2')).ok).toBe(false)
-    expect(ghi).toEqual([])
+  it('không còn "ẩn": người cũ bị ẩn trước đây vẫn chọn / gán được (18/11: chỉ Thêm + Xoá)', async () => {
+    expect((await docNguoiTicket(MA)).cs.every((x) => x.hoat_dong)).toBe(true)
+    expect(await ganCsTheoDoi(MA, 'c2')).toEqual({ ok: true })
   })
 })
 
@@ -100,10 +102,10 @@ describe('themNguoi / doiTenNguoi / datHienNguoi', () => {
     await themNguoi('kt', 'Nguyễn Văn Đại', true)
     expect(ghi[0].arg).toEqual({ ten: 'Nguyễn Văn Đại', la_ctv: true, hoat_dong: true })
   })
-  it('gõ trùng người đang ẩn → hiện lại, không tạo bản trùng', async () => {
+  it('gõ trùng người đã có → dùng lại, không tạo bản trùng', async () => {
     const r = await themNguoi('cs', 'tuyet trang')
     expect(r).toEqual({ ok: true, id: 'c2', ten: 'Tuyết Trang' })
-    expect(ghi).toEqual([{ bang: 'cs_theo_doi_ds', op: 'update', arg: { hoat_dong: true } }])
+    expect(ghi.filter((g) => g.op === 'insert')).toEqual([])
   })
   it('đổi tên trùng người khác → chặn', async () => {
     expect((await doiTenNguoi('kt', 't2', 'do ngoc binh')).ok).toBe(false)
@@ -113,9 +115,21 @@ describe('themNguoi / doiTenNguoi / datHienNguoi', () => {
     expect(await doiTenNguoi('kt', 't2', 'Trần Văn Sơn (HCM)')).toEqual({ ok: true })
     expect(ghi[0]).toEqual({ bang: 'ky_thuat', op: 'update', arg: { ten: 'Trần Văn Sơn (HCM)' } })
   })
-  it('ẩn = hoat_dong false (không xoá dòng)', async () => {
-    expect(await datHienNguoi('cs', 'c1', false)).toEqual({ ok: true })
-    expect(ghi[0]).toEqual({ bang: 'cs_theo_doi_ds', op: 'update', arg: { hoat_dong: false } })
+  it('xoá CS → xoá dòng trong danh sách (ticket đang gán về chưa gán nhờ FK on delete set null)', async () => {
+    expect(await xoaNguoi('cs', 'c1')).toEqual({ ok: true })
+    expect(ghi).toEqual([{ bang: 'cs_theo_doi_ds', op: 'delete', arg: {} }])
+  })
+  it('xoá thợ chưa có lịch kỹ thuật → xoá', async () => {
+    expect(await xoaNguoi('kt', 't2')).toEqual({ ok: true })
+    expect(ghi).toEqual([{ bang: 'ky_thuat', op: 'delete', arg: {} }])
+  })
+  it('xoá thợ ĐÃ có lịch kỹ thuật → chặn (giữ lịch sử lịch + ngày nghỉ)', async () => {
+    const r = await xoaNguoi('kt', 't1')
+    expect(r.ok).toBe(false)
+    expect(ghi).toEqual([])
+  })
+  it('xoá người không có → báo không thấy', async () => {
+    expect((await xoaNguoi('cs', 'zz')).ok).toBe(false)
   })
   it('loại danh sách lạ → chặn', async () => {
     // @ts-expect-error cố tình truyền sai từ client

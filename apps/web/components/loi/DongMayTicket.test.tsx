@@ -8,9 +8,9 @@ vi.mock('@/app/ticket/loi-actions', () => ({
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 import { DongMayTicket } from './DongMayTicket'
 
-const loi = (code: string, huong: string | null, tt: LoiDanhMuc['trang_thai'] = 'da_duyet'): LoiDanhMuc => ({
+const loi = (code: string, huong: string | null, tt: LoiDanhMuc['trang_thai'] = 'da_duyet', huongDuyet = true): LoiDanhMuc => ({
   code, nhom: null, ten: `Lỗi ${code}`, aliases: [], ma_may: [], dau_hieu: null, huong_xu_ly: huong, nguon: null,
-  trang_thai: tt, duyet_boi: null, duyet_luc: null, thu_tu: 1,
+  trang_thai: tt, duyet_boi: null, duyet_luc: null, thu_tu: 1, huong_duyet: huongDuyet,
 })
 const dong = (p: Partial<DongMay> = {}): DongMay => ({
   id: '11111111-1111-4111-8111-111111111111', ticket_code: 'TK-2611-001', thu_tu: 1,
@@ -22,7 +22,7 @@ const ds = [loi('L1', 'Thay van nước'), loi('CHUA_PHAN_LOAI', 'Không nên hi
 describe('DongMayTicket', () => {
   it('hiện gợi ý + Xác nhận khi dòng chưa có hướng xử lý', () => {
     const h = renderToStaticMarkup(<DongMayTicket code="TK-2611-001" dong={[dong()]} dsLoi={ds} choSua />)
-    expect(h).toContain('Hướng xử lý đề xuất (theo danh mục lỗi)')
+    expect(h).toContain('Hướng xử lý đề xuất (chuyên gia đã duyệt)')
     expect(h).toContain('Thay van nước')
     expect(h).toContain('Xác nhận')
     expect(h).toContain('/may/A12345678ABC12345678')
@@ -33,6 +33,11 @@ describe('DongMayTicket', () => {
     expect(h).not.toContain('Hướng xử lý đề xuất')
     expect(h).toContain('theo danh mục')
     expect(h).toContain('Sửa')
+  })
+  it('phương án chưa được chuyên gia duyệt → không có khối đề xuất (chị Trang 18/11)', () => {
+    const h = renderToStaticMarkup(<DongMayTicket code="c" dong={[dong()]} dsLoi={[loi('L1', 'Thay van nước', 'da_duyet', false)]} choSua />)
+    expect(h).not.toContain('Hướng xử lý đề xuất')
+    expect(h).not.toContain('Thay van nước')
   })
   it('CHUA_PHAN_LOAI không có gợi ý', () => {
     const h = renderToStaticMarkup(<DongMayTicket code="c" dong={[dong({ loi_code: 'CHUA_PHAN_LOAI' })]} dsLoi={ds} choSua />)

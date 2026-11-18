@@ -10,16 +10,17 @@ export function nhanDongMay(d: { internal_code: string | null; loi_code: string;
 }
 
 /**
- * Nội dung "Hướng xử lý đề xuất (theo danh mục lỗi)" — null = không hiện khối gợi ý.
+ * Nội dung "Hướng xử lý đề xuất" — null = không hiện khối gợi ý. Chỉ hiện phương án CHUYÊN GIA ĐÃ DUYỆT
+ * (huong_duyet, chị Trang 18/11) — mã lỗi đã duyệt thôi là chưa đủ.
  * Không bao giờ đổi trạng thái ticket. `loiCode` (tuỳ chọn): CHUA_PHAN_LOAI không bao giờ có gợi ý.
  */
 export function goiYHuongXuLy(
   dong: Pick<DongMay, 'huong_xu_ly_nguon'>,
-  loi: Pick<LoiDanhMuc, 'trang_thai' | 'huong_xu_ly'> | null,
+  loi: Pick<LoiDanhMuc, 'trang_thai' | 'huong_xu_ly' | 'huong_duyet'> | null,
   loiCode?: string,
 ): string | null {
   if (loiCode === CHUA_PHAN_LOAI) return null
-  if (!loi || loi.trang_thai !== 'da_duyet') return null
+  if (!loi || loi.trang_thai !== 'da_duyet' || loi.huong_duyet !== true) return null
   const nd = loi.huong_xu_ly?.trim()
   if (!nd) return null
   if (dong.huong_xu_ly_nguon) return null

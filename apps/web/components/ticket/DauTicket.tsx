@@ -22,7 +22,7 @@ type KQ = { ok: true } | { ok: false; error: string }
 /**
  * Thanh đầu trang ticket: mã · loại · model · tỉnh; 4 ô sửa nhanh (chọn là lưu ngay)
  * Trạng thái · Khẩn · CS theo dõi · Kỹ thuật; tóm tắt "Mở N ngày · K lần lỗi · lần cuối".
- * Có `dsCs` / `dsKt` (DB đã áp migration 18/11) → chọn từ danh sách sửa được (thêm / đổi tên / ẩn);
+ * Có `dsCs` / `dsKt` (DB đã áp migration 18/11) → chọn từ danh sách sửa được (thêm / đổi tên / xoá);
  * không có → như 17/11 (4 tên cố định, kỹ thuật theo tài khoản nhân viên).
  */
 export function DauTicket({

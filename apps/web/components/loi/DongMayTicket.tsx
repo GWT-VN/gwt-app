@@ -120,7 +120,7 @@ function DongCard({ d, dsLoi, choSua, soDong, dangChay, chay }: {
 
       {goiY && (
         <div className="rounded-lg bg-sky-50 border border-sky-200 p-3 text-sm space-y-2">
-          <div className="text-xs font-medium text-sky-900">Hướng xử lý đề xuất (theo danh mục lỗi)</div>
+          <div className="text-xs font-medium text-sky-900">Hướng xử lý đề xuất (chuyên gia đã duyệt)</div>
           {choSua ? (
             <>
               <textarea value={nd} onChange={(e) => setNd(e.target.value)} rows={3} maxLength={GIOI_HAN.text}
