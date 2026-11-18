@@ -106,8 +106,8 @@ function MenuKhach({ gt, chon }: { gt: string; chon: (k: KhachMau) => void }) {
   const loc = DS_KHACH.filter((k) => !q || bo([k.ten, k.ma, k.sdt, k.khu, ...k.may].join(' ')).includes(bo(q)))
   return (
     <div className="b-kh">
-      <div className="ui-menu-search b-tim-menu">
-        <MagnifyingGlass aria-hidden />
+      <div className="ui-menu-search">
+        <MagnifyingGlass className="ui-icon" aria-hidden />
         <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tên, mã KH, 4 số cuối SĐT, serial…" aria-label="Tìm khách"
           onKeyDown={(e) => { if (e.key === 'Enter' && loc[0]) chon(loc[0]) }} />
       </div>
@@ -217,17 +217,17 @@ function CaiDat({ b, boCuc, setBoCuc, an, setAn, thuTu, nhomTheo, setNhomTheo }:
   const soLoc = b.locUu.length + b.locNhom.length + b.locChu.length
   const dong = () => { setMo(false); setTrang('') }
   const dau = (ten: string) => (
-    <div className="b-cd-dau"><button className="b-nut-icon b-nut-nho" aria-label="Quay lại" onClick={() => setTrang('')}><ArrowLeft aria-hidden /></button>{ten}</div>
+    <div className="b-cd-dau"><button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Quay lại" onClick={() => setTrang('')}><ArrowLeft aria-hidden /></button>{ten}</div>
   )
   return (
     <span className="b-loc-o">
-      <button className="b-nut-icon" aria-label="Cài đặt hiển thị" data-tip="Cài đặt hiển thị" aria-expanded={mo} data-on={soLoc > 0 || nhomTheo ? '' : undefined} onClick={() => (mo ? dong() : setMo(true))}>
+      <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon" aria-label="Cài đặt hiển thị" data-tip="Cài đặt hiển thị" aria-expanded={mo} data-on={soLoc > 0 || nhomTheo ? '' : undefined} onClick={() => (mo ? dong() : setMo(true))}>
         <GearSix aria-hidden />
       </button>
       <Noi mo={mo} dong={dong} className="b-noi-phai b-caidat">
         {trang === '' && (
           <>
-            <div className="b-cd-tieude">Cài đặt hiển thị<button className="b-nut-icon b-nut-nho" aria-label="Đóng" onClick={dong}><X aria-hidden /></button></div>
+            <div className="b-cd-tieude">Cài đặt hiển thị<button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Đóng" onClick={dong}><X aria-hidden /></button></div>
             <DongCd I={Table} ten="Bố cục" gt={BO_CUC.find((x) => x.id === boCuc)!.ten} mui onClick={() => setTrang('bocuc')} />
             {boCuc === 'bang' && <DongCd I={Eye} ten="Cột hiển thị" gt={COT.length - an.length} mui onClick={() => setTrang('cot')} />}
             <DongCd I={Funnel} ten="Lọc" gt={soLoc || undefined} mui onClick={() => setTrang('loc')} />
@@ -280,12 +280,12 @@ function ThanhCongCu(p: PropsCaiDat & { xemBat: boolean; setXemBat: (v: boolean)
       <span className="b-ngan" aria-hidden />
       <div className="b-bocuc" role="radiogroup" aria-label="Dạng xem">
         {BO_CUC.map(({ id, ten, I }) => (
-          <button key={id} className="b-nut-icon" role="radio" aria-checked={p.boCuc === id} aria-label={ten} data-tip={ten} onClick={() => p.setBoCuc(id)}><I aria-hidden /></button>
+          <button key={id} className="ui-btn ui-tip" data-variant="ghost" data-size="icon" role="radio" aria-checked={p.boCuc === id} aria-label={ten} data-tip={ten} onClick={() => p.setBoCuc(id)}><I aria-hidden /></button>
         ))}
       </div>
       <span className="b-ngan" aria-hidden />
       {/* như "Toggle pinned summary" của ChatGPT: ẩn hẳn thẻ xem nhanh, bấm ticket sẽ mở trang ticket */}
-      <button className="b-nut-icon" aria-pressed={p.xemBat} aria-label="Thẻ xem nhanh bên phải" data-tip={p.xemBat ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'} onClick={() => p.setXemBat(!p.xemBat)}>
+      <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon" aria-pressed={p.xemBat} aria-label="Thẻ xem nhanh bên phải" data-tip={p.xemBat ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'} onClick={() => p.setXemBat(!p.xemBat)}>
         <SidebarSimple mirrored aria-hidden />
       </button>
     </div>
@@ -425,7 +425,7 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
             <header className="b-k-dau"><ChipTT t={{ tt } as Ticket} nho /><span className="b-mo">{the.length}</span></header>
             <div className="b-k-ds">
               {the.map((t) => (
-                <article key={t.ma} className="b-the" draggable data-ma={t.ma} data-keo={keo === t.ma || undefined} data-xem={dangXem === t.ma || undefined} tabIndex={0}
+                <article key={t.ma} className="ui-card b-the" draggable data-ma={t.ma} data-keo={keo === t.ma || undefined} data-xem={dangXem === t.ma || undefined} tabIndex={0}
                   onDragStart={() => setKeo(t.ma)} onDragEnd={() => { setKeo(null); setTren(null) }} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && xem(t.ma)}>
                   <div className="b-the-dau"><NhanDau t={t} /></div>
                   <div className="b-the-khach"><Khach t={t} /></div>
@@ -459,13 +459,13 @@ function XemNhanh({ b, ma, setMa, laTrang, moTrang }: { b: Bang; ma: string; set
   return (
     <aside className={laTrang ? 'b-chitiet b-chitiet-trang' : 'b-chitiet'} aria-label={laTrang ? `Ticket ${t.ma}` : `Xem nhanh ${t.ma}`}>
       <div className="b-ct-dau">
-        {laTrang && <><button className="b-nut-icon b-nut-nho" aria-label="Về danh sách ticket (Esc)" data-tip="Về danh sách" onClick={() => setMa(null)}><ArrowLeft aria-hidden /></button><button className="b-ct-ve" onClick={() => setMa(null)}>Ticket</button><span className="b-mo">/</span></>}
+        {laTrang && <><button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Về danh sách ticket (Esc)" data-tip="Về danh sách" onClick={() => setMa(null)}><ArrowLeft aria-hidden /></button><button className="b-ct-ve" onClick={() => setMa(null)}>Ticket</button><span className="b-mo">/</span></>}
         <span className="b-ma">{t.ma}</span><span className="b-mo b-cat">· {t.moNgay ? `mở ${t.moNgay} ngày · ` : ''}cập nhật {t.capNhat}</span>
         <span style={{ flex: 1 }} />
-        <button className="b-nut-icon b-nut-nho" aria-label="Ticket trước (↑)" disabled={i <= 0} onClick={() => setMa(b.thay[i - 1].ma)}><CaretLeft aria-hidden /></button>
-        <button className="b-nut-icon b-nut-nho" aria-label="Ticket sau (↓)" disabled={i < 0 || i >= b.thay.length - 1} onClick={() => setMa(b.thay[i + 1].ma)}><CaretRight aria-hidden /></button>
-        {!laTrang && <button className="b-nut-icon b-nut-nho" aria-label="Mở trang ticket" onClick={() => moTrang?.(t.ma)}><ArrowSquareOut aria-hidden /></button>}
-        {!laTrang && <button className="b-nut-icon b-nut-nho" aria-label="Đóng xem nhanh (Esc)" onClick={() => setMa(null)}><X aria-hidden /></button>}
+        <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Ticket trước (↑)" disabled={i <= 0} onClick={() => setMa(b.thay[i - 1].ma)}><CaretLeft aria-hidden /></button>
+        <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Ticket sau (↓)" disabled={i < 0 || i >= b.thay.length - 1} onClick={() => setMa(b.thay[i + 1].ma)}><CaretRight aria-hidden /></button>
+        {!laTrang && <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Mở trang ticket" onClick={() => moTrang?.(t.ma)}><ArrowSquareOut aria-hidden /></button>}
+        {!laTrang && <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Đóng xem nhanh (Esc)" onClick={() => setMa(null)}><X aria-hidden /></button>}
       </div>
       <div className="b-ct-cuon">
         <div className="b-ct-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></div>

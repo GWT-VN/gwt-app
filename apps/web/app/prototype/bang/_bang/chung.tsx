@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, FunnelSimple, MagnifyingGlass, Question,
+  ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, MagnifyingGlass, Question,
   WarningCircle, X,
   type Icon,
 } from '@phosphor-icons/react'
@@ -98,17 +98,19 @@ export function ChipTT({ t, nho, mui }: { t: Ticket; nho?: boolean; mui?: boolea
   return (
     <span className="ui-badge b-chip" data-color={TONE_TT[t.tt]} data-nho={nho || undefined}>
       {TEN_TT[t.tt] ?? t.tt}{t.tt === 'Chờ' && t.lyDoCho ? <span className="b-chip-phu">· {t.lyDoCho}</span> : null}
-      {mui && <CaretDown className="b-chip-mui" weight="bold" aria-hidden />}
+      {mui && <CaretDown className="ui-caret" weight="bold" aria-hidden />}
     </span>
   )
 }
 export function UuTag({ u }: { u: UuTien }) {
-  return <span className="b-uu" data-u={u}>{u}</span>
+  // DS Badge: P1 solid đỏ · P2 cam nhạt · P3 xám (mặc định) · P4 viền
+  const v = u === 'P1' ? { 'data-variant': 'solid', 'data-color': 'danger' } : u === 'P2' ? { 'data-color': 'warning' } : u === 'P4' ? { 'data-variant': 'outline' } : {}
+  return <span className="ui-badge" {...v}>{u}</span>
 }
 export function Avatar({ ten, nho }: { ten: string; nho?: boolean }) {
   if (ten === '—') return <span className="b-mo">—</span>
   const chu = ten.replace(/^anh /, '').split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase()
-  return <span className="b-av" data-nho={nho || undefined} aria-hidden>{chu}</span>
+  return <span className="ui-avatar" data-size={nho ? 'sm' : undefined} aria-hidden>{chu}</span>
 }
 export function Nguoi({ ten }: { ten: string }) {
   return <span className="b-nguoi" title={ten}><Avatar ten={ten} /><span className="b-cat">{ten}</span></span>
@@ -118,8 +120,10 @@ export function Han({ t }: { t: Ticket }) {
   return <span className="b-han" data-tre={h.tre || undefined} data-homnay={h.homNay || undefined}>{h.chu}</span>
 }
 /** Nhãn loại lỗi (4 nhóm danh mục lỗi 18/11 + Chưa phân loại): icon màu + chữ, viền mảnh. */
+const MAU_LOI: Partial<Record<NhomLoi, string>> = { Main: 'discovery', 'Rò rỉ nước': 'info', 'Chất lượng nước': 'success', App: 'warning' }
 export function NhanLoi({ n }: { n: NhomLoi }) {
-  return <span className="b-nhan-loi" data-nhom={n} title={`Loại lỗi: ${n}`}><span className="b-nhan-cham" aria-hidden /><span className="b-cat">{n}</span></span>
+  // DS Badge viền + chấm màu theo nhóm lỗi
+  return <span className="ui-badge" data-variant="outline" title={`Loại lỗi: ${n}`}><span className="ui-dot" data-color={MAU_LOI[n]} aria-hidden />{n}</span>
 }
 export function NguonTag({ t }: { t: Ticket }) {
   return t.nguon === 'Discord' ? <a href="#" className="b-link" onClick={(e) => e.preventDefault()}>Discord <ArrowUpRight aria-hidden /></a> : <span className="b-mo">{t.nguon}</span>
@@ -177,8 +181,8 @@ export function MenuChon<T extends string>({ ds, gt, chon, tim, nhan }: { ds: re
   return (
     <>
       {tim && (
-        <div className="ui-menu-search b-tim-menu">
-          <MagnifyingGlass aria-hidden />
+        <div className="ui-menu-search">
+          <MagnifyingGlass className="ui-icon" aria-hidden />
           <input autoFocus value={k} onChange={(e) => setK(e.target.value)} placeholder="Gõ để tìm…" aria-label="Tìm" />
         </div>
       )}
@@ -252,7 +256,7 @@ export function DauCot({ b, ten, cot, loc, phai, menuPhai, la = 'th' }: {
   return (
     <Tag aria-sort={ariaSort} className={phai ? 'b-phai' : undefined} role={role}>
       <span className="b-loc-o">
-        <button className="b-th-sap" aria-haspopup="menu" aria-expanded={mo} data-on={!!dangSap || soLoc > 0 || undefined} onClick={() => setMo(!mo)}>
+        <button className="ui-th-sort" aria-haspopup="menu" aria-expanded={mo} data-on={!!dangSap || soLoc > 0 || undefined} onClick={() => setMo(!mo)}>
           {ten}
           {dangSap && khoa.length > 1 && <span className="b-th-theo">· {dangSap.ten.toLowerCase()}</span>}
           {dangSap && (b.sap.chieu === 'tang' ? <ArrowUp aria-label="tăng dần" /> : <ArrowDown aria-label="giảm dần" />)}
@@ -311,54 +315,35 @@ export function NhanDau({ t }: { t: Ticket }) {
   return <span className="b-nhan-dau"><UuTag u={t.uu} /><NhanLoi n={t.nhom} /></span>
 }
 
-/** Cho phương án không có tiêu đề cột (danh sách 2 dòng, Kanban): một nút lọc gọn gom cả hai trường. */
-export function NutLoc({ b }: { b: Bang }) {
-  const [mo, setMo] = useState(false)
-  const so = b.locUu.length + b.locChu.length + b.locNhom.length
-  return (
-    <span className="b-loc-o">
-      <button className="b-nut-icon" aria-label={so ? `Bộ lọc (${so})` : 'Bộ lọc'} data-tip="Lọc" aria-expanded={mo} data-on={so > 0 || undefined} onClick={() => setMo(!mo)}>
-        <FunnelSimple aria-hidden />
-      </button>
-      <Noi mo={mo} dong={() => setMo(false)} className="b-noi-phai">
-        <div className="ui-menu-label">Ưu tiên</div><DsLoc b={b} loc="uu" />
-        <div className="ui-menu-sep" />
-        <div className="ui-menu-label">Loại lỗi</div><DsLoc b={b} loc="nhom" />
-        <div className="ui-menu-sep" />
-        <div className="ui-menu-label">Chủ ticket</div><DsLoc b={b} loc="chu" />
-      </Noi>
-    </span>
-  )
-}
-
 export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: string; phai?: ReactNode }) {
   const tom = [...b.locUu, ...b.locNhom, ...b.locChu]
   return (
     <div className="b-dau-wrap">
       <header className="b-dau">
         <h1 className="b-h1">{tieuDe}</h1>
-        <span className="b-dem">đang thấy {b.thay.length} / {b.rows.length}</span>
+        <span className="ui-caption">đang thấy {b.thay.length} / {b.rows.length}</span>
         <span style={{ flex: 1 }} />
-        <label className="b-tim">
-          <MagnifyingGlass aria-hidden />
-          <input value={b.q} onChange={(e) => b.setQ(e.target.value)} placeholder="Tìm mã, khách, serial…" aria-label="Tìm ticket" />
-          {b.q && <button className="b-xoa" onClick={() => b.setQ('')} aria-label="Xoá tìm"><X aria-hidden /></button>}
-        </label>
+        <div className="ui-input-wrap b-tim">
+          <MagnifyingGlass className="ui-icon" aria-hidden />
+          <input className="ui-input" type="search" value={b.q} onChange={(e) => b.setQ(e.target.value)} placeholder="Tìm mã, khách, serial…" aria-label="Tìm ticket" />
+        </div>
         <button className="ui-btn">Tạo ticket</button>
       </header>
       <div className="b-thanh">
-        <div className="b-tabs" role="tablist" aria-label="Nhóm ticket">
-          {NHOM_TAB.map((x) => (
-            <button key={x.id} role="tab" className="b-tab" aria-selected={b.tab === x.id} onClick={() => b.setTab(x.id)}>
-              {x.ten} <span className="b-tab-so" data-gap={x.id === 'qua-han' ? '' : undefined}>{b.demTab(x.id)}</span>
-            </button>
-          ))}
+        <div className="b-tabs-cuon">
+          <div className="ui-tabs-list" role="tablist" aria-label="Nhóm ticket">
+            {NHOM_TAB.map((x) => (
+              <button key={x.id} role="tab" className="ui-tabs-trigger" aria-selected={b.tab === x.id} onClick={() => b.setTab(x.id)}>
+                {x.ten} <span className="ui-tabs-count" data-color={x.id === 'qua-han' ? 'danger' : undefined}>{b.demTab(x.id)}</span>
+              </button>
+            ))}
+          </div>
         </div>
         <div className="b-thanh-phai">
           {tom.length > 0 && (
-            <span className="b-dangloc">
+            <span className="b-dangloc ui-caption">
               Lọc: {tom.join(', ')}
-              <button className="b-xoaloc" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]) }}>Xoá lọc</button>
+              <button className="ui-btn" data-variant="link" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]) }}>Xoá lọc</button>
             </span>
           )}
           {phai}
@@ -370,9 +355,9 @@ export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: str
 
 export function Rong({ b }: { b: Bang }) {
   return (
-    <div className="b-rong">
-      <div className="b-rong-tieude">Không có ticket nào khớp bộ lọc</div>
-      <div className="b-rong-mo">Thử bỏ bớt điều kiện{b.q ? ` hoặc từ khoá “${b.q}”` : ''} — tìm không cần gõ dấu.</div>
+    <div className="ui-empty">
+      <div className="ui-empty-title">Không có ticket nào khớp bộ lọc</div>
+      <div className="ui-empty-desc">Thử bỏ bớt điều kiện{b.q ? ` hoặc từ khoá “${b.q}”` : ''} — tìm không cần gõ dấu.</div>
       <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]); b.setQ(''); b.setTab('tat-ca') }}>Xoá lọc</button>
     </div>
   )
@@ -382,7 +367,7 @@ export function Toast({ b }: { b: Bang }) {
   useEffect(() => { if (!b.toast) return; const id = setTimeout(() => b.setToast(null), 5000); return () => clearTimeout(id) }, [b.toast, b])
   if (!b.toast) return null
   return (
-    <div className="b-toast" role="status" aria-live="polite">
+    <div className="ui-toast" role="status" aria-live="polite">
       <Check aria-hidden /> {b.toast.chu}
       {b.toast.hoan && <button onClick={() => { b.toast?.hoan?.(); b.setToast(null) }}>Hoàn tác</button>}
     </div>
