@@ -3,10 +3,13 @@ import { danhMucLoi } from '@/app/ticket/loi-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
 import { listStaff, currentStaff } from '@/lib/nen-tang/nhan-su'
 import { TaoTicketForm } from '@/components/TaoTicketForm'
+import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
 
 export default async function TaoTicketPage() {
-  const [loaiList, staff, me, { data: dsLoi, loi: thieuDanhMuc }] = await Promise.all([
+  const [loaiList, staff, me, { data: dsLoi, loi: thieuDanhMuc }, { data: nguoi, loi: thieuNguoi }] = await Promise.all([
     ticketTypes(), listStaff(), currentStaff(), docAnToan('danhMucLoi', () => danhMucLoi(true), []),
+    // Kỹ thuật theo hồ sơ thợ (18/11); chưa áp migration → chọn theo tài khoản nhân viên như cũ.
+    docAnToan('docNguoiTicket', () => docNguoiTicket(''), null),
   ])
   return (
     <main className="min-h-screen bg-slate-50">
@@ -15,7 +18,7 @@ export default async function TaoTicketPage() {
           <h1 className="text-xl font-semibold text-slate-900">Tạo ticket</h1>
         </header>
         {thieuDanhMuc && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {THIEU_DANH_MUC}</p>}
-        <TaoTicketForm loaiList={loaiList} staff={staff} meId={me?.id} dsLoi={dsLoi} />
+        <TaoTicketForm loaiList={loaiList} staff={staff} meId={me?.id} dsLoi={dsLoi} dsKt={thieuNguoi ? null : nguoi?.kt ?? null} />
       </div>
     </main>
   )

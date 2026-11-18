@@ -3,6 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/app/actions', () => ({ updateTicket: vi.fn() }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ datCsTheoDoi: vi.fn() }))
+vi.mock('@/app/ticket/nguoi-actions', () => ({
+  ganCsTheoDoi: vi.fn(), ganKyThuat: vi.fn(), themNguoi: vi.fn(), doiTenNguoi: vi.fn(), datHienNguoi: vi.fn(),
+}))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 import { DauTicket } from './DauTicket'
 
@@ -34,5 +37,40 @@ describe('DauTicket', () => {
   it('chưa áp cột CS theo dõi → ẩn ô CS theo dõi', () => {
     const h = renderToStaticMarkup(<DauTicket {...co} choCs={false} coCotMoi={false} />)
     expect(h).not.toContain('CS theo dõi')
+  })
+
+  describe('danh sách người từ DB (18/11)', () => {
+    const dsCs = [
+      { id: 'c1', ten: 'Hiệp', hoat_dong: true }, { id: 'c2', ten: 'Thanh Hiền', hoat_dong: true },
+      { id: 'c3', ten: 'Tuyết Trang', hoat_dong: false },
+    ]
+    const dsKt = [
+      { id: 't1', ten: 'Đỗ Ngọc Bình', hoat_dong: true, la_ctv: false },
+      { id: 't2', ten: 'Trần Văn Sơn', hoat_dong: true, la_ctv: true },
+      { id: 't3', ten: 'Thợ cũ', hoat_dong: false, la_ctv: true },
+    ]
+    const moi = { ...co, dsCs, dsKt, ktHoSo: null }
+
+    it('CS theo dõi lấy từ danh sách: có tên mới, không có người đã ẩn, có Thêm / Sửa danh sách', () => {
+      const h = renderToStaticMarkup(<DauTicket {...moi} />)
+      for (const t of ['>Thanh Hiền<', '+ Thêm tên…', '✎ Sửa danh sách…']) expect(h).toContain(t)
+      expect(h).not.toContain('Tuyết Trang')
+    })
+    it('người đã ẩn nhưng đang gán vẫn hiện, đánh dấu đã ẩn', () => {
+      const h = renderToStaticMarkup(<DauTicket {...moi} csTheoDoi="Tuyết Trang" />)
+      expect(h).toContain('Tuyết Trang (đã ẩn)')
+    })
+    it('Kỹ thuật lấy từ hồ sơ thợ (có CTV), không còn liệt kê tài khoản nhân viên', () => {
+      const h = renderToStaticMarkup(<DauTicket {...moi} />)
+      expect(h).toContain('Trần Văn Sơn (CTV)')
+      expect(h).toContain('>Đỗ Ngọc Bình<')
+      expect(h).not.toContain('>nhu<')
+      expect(h).not.toContain('Thợ cũ')
+    })
+    it('chỉ xem: hiện tên thợ theo hồ sơ', () => {
+      const h = renderToStaticMarkup(<DauTicket {...moi} choSua={false} choCs={false} ktHoSo="t2" />)
+      expect(h).not.toContain('<select')
+      expect(h).toContain('Trần Văn Sơn')
+    })
   })
 })

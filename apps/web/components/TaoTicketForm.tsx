@@ -5,6 +5,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createTicket, machinesOfCustomer, type Machine } from '@/app/actions'
+import { ganKyThuat } from '@/app/ticket/nguoi-actions'
+import type { NguoiDs } from '@/lib/loi/nguoiTicket'
 import type { Staff } from '@/lib/nen-tang/nhan-su-luat'
 import { KhachPicker } from '@/components/KhachPicker'
 import { KhachMayTraCuu } from '@/components/loi/KhachMayTraCuu'
@@ -17,7 +19,11 @@ const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 const STATES = [{ k: 'Open', l: 'Đang mở' }, { k: 'Done', l: 'Đã xong' }, { k: 'Cancel', l: 'Đã huỷ' }]
 
 /** Form tạo ticket đầy đủ: khách -> máy của khách + ngày/trạng thái/khẩn/ghi chú/người xử lý. */
-export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: string[]; staff: Staff[]; meId?: string; dsLoi: LoiDanhMuc[] }) {
+export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
+  loaiList: string[]; staff: Staff[]; meId?: string; dsLoi: LoiDanhMuc[]
+  // Hồ sơ thợ (18/11): có → Kỹ thuật chọn theo thợ (gồm CTV); null → theo tài khoản nhân viên như cũ.
+  dsKt?: NguoiDs[] | null
+}) {
   const [khachId, setKhachId] = useState('')
   const [may, setMay] = useState<Machine[] | null>(null)   // null = chưa chọn khách
   const [dangTaiMay, setDangTaiMay] = useState(false)
@@ -67,9 +73,12 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
       state, khan,
       last_note: note.trim() || undefined,
       cs_phu_trach: cs || null,
-      ky_thuat: kt || null,
+      ky_thuat: dsKt ? null : kt || null,
     })
     if (!r.ok) { setBusy(false); setErr(r.error); return }
+    // Kỹ thuật theo hồ sơ thợ: gán sau khi tạo (ghi kt_ho_so + tài khoản của thợ nếu có). Lỗi thì vẫn sang trang
+    // ticket — ô Kỹ thuật ở đó hiện "chưa gán", chọn lại được; không để form gửi lại sinh ticket trùng.
+    if (dsKt && kt) await ganKyThuat(r.code, kt)
     // Ticket đã tồn tại: luôn sang trang ticket (không để form gửi lại → trùng ticket); busy giữ nguyên.
     router.push(duongDanSauTao(r.code, 'canhBao' in r ? r.canhBao : undefined))
   }
@@ -168,8 +177,11 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi }: { loaiList: stri
           <select value={kt} onChange={(e) => setKt(e.target.value)}
             className="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white text-slate-900">
             <option value="">— Chưa gán —</option>
-            {staff.map((s) => <option key={s.id} value={s.id}>{s.ten}</option>)}
+            {dsKt
+              ? dsKt.filter((x) => x.hoat_dong).map((x) => <option key={x.id} value={x.id}>{x.ten}{x.la_ctv ? ' (CTV)' : ''}</option>)
+              : staff.map((s) => <option key={s.id} value={s.id}>{s.ten}</option>)}
           </select>
+          {dsKt && <span className="mt-1 block text-xs text-slate-500">Thiếu thợ? Thêm ở ô Kỹ thuật trên trang ticket sau khi tạo.</span>}
         </label>
       </div>
 

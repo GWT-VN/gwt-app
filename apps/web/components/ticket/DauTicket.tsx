@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { updateTicket } from '@/app/actions'
 import { datCsTheoDoi } from '@/app/ticket/dau-ticket-actions'
 import type { Staff } from '@/lib/nen-tang/nhan-su-luat'
+import { ganCsTheoDoi, ganKyThuat } from '@/app/ticket/nguoi-actions'
 import { CS_THEO_DOI, ngayVNHienThi, soNgayMo } from '@/lib/loi/ngayTicket'
+import type { NguoiDs } from '@/lib/loi/nguoiTicket'
+import { ChonNguoi } from '@/components/ticket/ChonNguoi'
 
 const TRANG_THAI = [
   { key: 'Open', label: 'Đang mở' },
@@ -18,11 +21,13 @@ type KQ = { ok: true } | { ok: false; error: string }
 
 /**
  * Thanh đầu trang ticket: mã · loại · model · tỉnh; 4 ô sửa nhanh (chọn là lưu ngay)
- * Trạng thái · Khẩn · CS theo dõi (4 tên) · Kỹ thuật; tóm tắt "Mở N ngày · K lần lỗi · lần cuối".
+ * Trạng thái · Khẩn · CS theo dõi · Kỹ thuật; tóm tắt "Mở N ngày · K lần lỗi · lần cuối".
+ * Có `dsCs` / `dsKt` (DB đã áp migration 18/11) → chọn từ danh sách sửa được (thêm / đổi tên / ẩn);
+ * không có → như 17/11 (4 tên cố định, kỹ thuật theo tài khoản nhân viên).
  */
 export function DauTicket({
   code, loai, model, tinh, state, khan, csTheoDoi, ktId, staff,
-  ngayDau, soLan, ngayCuoi, homNay, choSua, choCs, coCotMoi = true,
+  ngayDau, soLan, ngayCuoi, homNay, choSua, choCs, coCotMoi = true, dsCs = null, dsKt = null, ktHoSo = null,
 }: {
   code: string; loai: string | null; model: string | null; tinh: string | null
   state: string; khan: boolean; csTheoDoi: string | null; ktId: string | null; staff: Staff[]
@@ -33,6 +38,10 @@ export function DauTicket({
   choCs: boolean
   // false = DB chưa có cột cs_theo_doi → ẩn ô CS theo dõi.
   coCotMoi?: boolean
+  // Danh sách người (18/11); null = chưa áp migration → giao diện cũ.
+  dsCs?: NguoiDs[] | null; dsKt?: NguoiDs[] | null
+  // Kỹ thuật theo hồ sơ thợ (tickets.kt_ho_so).
+  ktHoSo?: string | null
 }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -46,7 +55,10 @@ export function DauTicket({
   }
 
   const dangMo = state === 'Open'
-  const tenKt = ktId ? staff.find((s) => s.id === ktId)?.ten ?? '—' : null
+  const tenKt = dsKt
+    ? (ktHoSo ? dsKt.find((x) => x.id === ktHoSo)?.ten ?? '—' : null)
+    : (ktId ? staff.find((s) => s.id === ktId)?.ten ?? '—' : null)
+  const csId = dsCs && csTheoDoi ? dsCs.find((x) => x.ten === csTheoDoi)?.id ?? null : null
   const o = 'rounded-lg border px-2 py-1 text-sm bg-white text-slate-900 disabled:opacity-50'
 
   return (
@@ -58,7 +70,7 @@ export function DauTicket({
         ))}
       </div>
 
-      <div className="flex items-center gap-x-5 gap-y-2 flex-wrap text-sm">
+      <div className="flex items-start gap-x-5 gap-y-2 flex-wrap text-sm">
         <label className="flex items-center gap-1.5 text-slate-500">
           Trạng thái
           {choSua ? (
@@ -77,28 +89,34 @@ export function DauTicket({
         ) : khan && <span className="font-medium text-red-600">🔴 Khẩn</span>}
 
         {coCotMoi && (
-          <label className="flex items-center gap-1.5 text-slate-500">
-            CS theo dõi
-            {choCs ? (
-              <select className={o} value={csTheoDoi ?? ''} disabled={busy}
+          <div className="flex items-start gap-1.5 text-slate-500">
+            <span className="py-1">CS theo dõi</span>
+            {choCs && dsCs ? (
+              <ChonNguoi loai="cs" ds={dsCs} dangGan={csId} disabled={busy}
+                onChon={(id) => ganCsTheoDoi(code, id)} />
+            ) : choCs ? (
+              <select aria-label="Chọn CS theo dõi" className={o} value={csTheoDoi ?? ''} disabled={busy}
                 onChange={(e) => luu(() => datCsTheoDoi(code, e.target.value || null))}>
                 <option value="">— Chưa gán —</option>
                 {CS_THEO_DOI.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
-            ) : <span className={csTheoDoi ? 'text-slate-900' : 'text-amber-600'}>{csTheoDoi ?? 'chưa gán'}</span>}
-          </label>
+            ) : <span className={`py-1 ${csTheoDoi ? 'text-slate-900' : 'text-amber-600'}`}>{csTheoDoi ?? 'chưa gán'}</span>}
+          </div>
         )}
 
-        <label className="flex items-center gap-1.5 text-slate-500">
-          Kỹ thuật
-          {choSua ? (
-            <select className={o} value={ktId ?? ''} disabled={busy}
+        <div className="flex items-start gap-1.5 text-slate-500">
+          <span className="py-1">Kỹ thuật</span>
+          {choSua && dsKt ? (
+            <ChonNguoi loai="kt" ds={dsKt} dangGan={ktHoSo} disabled={busy}
+              onChon={(id) => ganKyThuat(code, id)} />
+          ) : choSua ? (
+            <select aria-label="Chọn kỹ thuật" className={o} value={ktId ?? ''} disabled={busy}
               onChange={(e) => luu(() => updateTicket(code, { ky_thuat: e.target.value || null }))}>
               <option value="">— Chưa gán —</option>
               {staff.map((s) => <option key={s.id} value={s.id}>{s.ten}</option>)}
             </select>
-          ) : <span className={tenKt ? 'text-slate-900' : 'text-slate-400'}>{tenKt ?? 'chưa gán'}</span>}
-        </label>
+          ) : <span className={`py-1 ${tenKt ? 'text-slate-900' : 'text-slate-400'}`}>{tenKt ?? 'chưa gán'}</span>}
+        </div>
       </div>
 
       <p className="text-sm text-slate-500">
