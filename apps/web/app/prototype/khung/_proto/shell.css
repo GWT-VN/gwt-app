@@ -161,31 +161,33 @@
 .pD-rail { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 52px; padding: 8px 0 12px; }
 .pD-logo { margin-bottom: 4px; width: 28px; height: 28px; font-size: 10px; }
 .pD svg { stroke-width: 1.5; }
-.pD-icon { position: relative; display: grid; place-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-md); background: none; color: var(--muted-foreground); cursor: pointer; }
+.pD-icon { position: relative; display: grid; place-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-md); background: none; color: var(--color-text-tertiary); cursor: pointer; }
 .pD-icon svg { width: 18px; height: 18px; }
-.pD-icon:hover { background: var(--accent); color: var(--foreground); }
+.pD-icon:hover { background: var(--alpha-04); color: var(--foreground); }
 .pD-icon[aria-current] { background: var(--alpha-05); color: var(--foreground); }
 /* tooltip đen bên phải icon (như thanh icon ChatGPT) */
 .pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/16px var(--font-sans); white-space: nowrap; pointer-events: none; }
-.pD-icon[aria-current][style] svg { color: var(--khu); }
+/* sắc độ theo ChatGPT (đo 18/11): icon đang chọn đen, màu khu chỉ còn ở chấm trước tên khu trên panel */
 .pD-icon:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
 .pD-cham { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--color-background-danger-solid); box-shadow: 0 0 0 2px var(--muted); }
 .pD-ngan { width: 20px; height: 1px; margin: 6px 0; background: var(--border); }
 .pD-launcher { position: absolute; left: calc(100% + 8px); top: 0; z-index: 30; min-width: 220px; }
 .pD-avatar { width: 28px; height: 28px; margin-top: 6px; }
 /* panel + vùng chính ghép thành MỘT tấm, bo góc trên-trái 12px, nằm trên nền xám của thanh icon (đo ChatGPT 18/11) */
-.pD-panel { display: flex; flex-direction: column; width: 288px; min-height: 0; margin-top: 8px; background: var(--sidebar); border: 1px solid var(--alpha-08); border-width: 1px 1px 0 1px; border-top-left-radius: var(--radius-xl); }
+.pD-panel { display: flex; flex-direction: column; width: 288px; min-height: 0; margin-top: 8px; background: linear-gradient(var(--alpha-02), var(--alpha-02)), var(--background); border-style: solid; border-color: var(--alpha-06) var(--alpha-08) transparent var(--alpha-06); border-width: 1px 1px 0 1px; border-top-left-radius: var(--radius-xl); }
 .pD-dau { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 8px 0 16px; flex-shrink: 0; }
-.pD-tieude { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.01em; }
+.pD-tieude { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.01em; color: var(--gray-600); }
 .pD-cuon { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
 .pD-nhom { margin-top: 4px; }
 .pD-nhom + .pD-nhom { margin-top: 14px; }
 .pD-cuon .ui-sidebar-item { height: 30px; margin-bottom: 1px; padding: 0 10px; color: var(--gray-600); }
-.pD-cuon .ui-sidebar-item .ui-icon { color: var(--color-text-tertiary); }
+.pD-cuon .ui-sidebar-item .ui-icon { color: inherit; }
 .pD-cuon .ui-sidebar-item:hover { background: var(--alpha-04); color: var(--foreground); }
 .pD-cuon .ui-sidebar-item[aria-current="page"] { background: var(--alpha-05); color: var(--foreground); font-weight: 400; }
+.pD-dau .ui-btn { color: var(--color-text-tertiary); }
+.pD-dau .ui-btn:hover { color: var(--foreground); }
 .pD-nhan { display: flex; align-items: center; height: 30px; padding: 0 10px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--color-text-tertiary); }
-.pD-so { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.pD-so { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 .pD-gan { color: var(--muted-foreground); }
 .pD-gan:hover { color: var(--foreground); }
 .pD-cat { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
