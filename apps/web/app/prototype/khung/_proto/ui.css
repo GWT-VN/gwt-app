@@ -761,3 +761,70 @@ dialog.ui-dialog[open] { animation: ui-dialog-len 160ms cubic-bezier(0.19, 1, 0.
 .ui-toast .ui-toast-x svg, [data-theme] .ui-toast[data-color] .ui-toast-x svg { color: currentColor; } /* ✕ không mang màu trạng thái (thắng cả luật theme tối) */
 .ui-toast .ui-progress { width: 72px; margin: 0; background: color-mix(in srgb, currentColor 20%, transparent); } /* hợp cả 2 theme (toast đảo màu) */
 .ui-toast .ui-progress > span { background: currentColor; }
+
+/* ===== BỔ SUNG DS TOÀN APP 18/11/2026 — Kbd · CommandPalette (TimToanCuc, ⌘K) · StatCard (màn Tổng quan)
+   Đưa lên components/bundle.css của artifact khi người dùng chốt. ===== */
+
+/* ---------- Kbd: phím tắt ---------- */
+.ui-kbd { display: inline-grid; place-content: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: var(--radius-xs);
+  background: var(--background); box-shadow: inset 0 0 0 1px var(--alpha-12); color: var(--muted-foreground); font: 500 12px/1 var(--font-sans); }
+
+/* ---------- CommandPalette: <dialog class="ui-command"> qua HopGoc; mẫu APG combobox + listbox ---------- */
+dialog.ui-command { position: fixed; inset: 12vh 0 auto; margin: 0 auto; width: min(640px, calc(100% - 32px)); max-width: none;
+  max-height: min(520px, 76dvh); padding: 0; border: 0; border-radius: var(--radius-2xl); overflow: hidden; flex-direction: column;
+  background: var(--popover); color: var(--popover-foreground); box-shadow: var(--shadow), var(--shadow-hairline); }
+dialog.ui-command[open] { display: flex; animation: ui-dialog-len 160ms cubic-bezier(0.19, 1, 0.22, 1); }
+dialog.ui-command::backdrop { background: rgba(0, 0, 0, 0.3); }
+[data-theme="dark"] dialog.ui-command::backdrop { background: rgba(0, 0, 0, 0.5); }
+@media (prefers-reduced-motion: reduce) { dialog.ui-command[open] { animation: none; } }
+.ui-command-input { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding: 0 12px 0 16px; border-bottom: 1px solid var(--border); }
+.ui-command-input > .ui-icon { flex-shrink: 0; width: var(--control-icon-size-sm); height: var(--control-icon-size-sm); color: var(--muted-foreground); }
+.ui-command-input input { flex: 1; min-width: 0; height: 52px; border: 0; background: transparent; color: var(--foreground); outline: none;
+  font: 400 16px/24px var(--font-sans); } /* 16px: Safari iOS không tự phóng to khi focus */
+.ui-command-input input::placeholder { color: var(--color-text-tertiary); }
+.ui-command-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 6px; }
+.ui-command-list .ui-menu-label { display: flex; align-items: center; gap: 6px; }
+.ui-command-list .ui-menu-label svg { width: 12px; height: 12px; }
+.ui-command-dem { font-weight: 400; color: var(--color-text-tertiary); }
+.ui-command-item { display: flex; align-items: center; gap: 10px; min-height: var(--control-size-xl); padding: 6px 8px; border-radius: var(--radius-sm);
+  font-size: 14px; line-height: 20px; cursor: pointer; }
+.ui-command-item[aria-selected="true"] { background: var(--alpha-08); }
+[data-theme="dark"] .ui-command-item[aria-selected="true"] { background: var(--alpha-10); }
+.ui-command-item > .ui-icon { flex-shrink: 0; width: var(--control-icon-size-sm); height: var(--control-icon-size-sm); color: var(--muted-foreground); }
+.ui-command-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.ui-command-ten, .ui-command-phu { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-command-ten { font-variant-numeric: tabular-nums; }
+.ui-command-phu { font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-command mark { background: none; color: inherit; font-weight: 600; } /* đoạn khớp: đậm, không tô vàng (Linear/ChatGPT) */
+.ui-command-foot { display: flex; align-items: center; gap: 16px; flex-shrink: 0; padding: 8px 16px; border-top: 1px solid var(--border);
+  font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-command-foot > span { display: inline-flex; align-items: center; gap: 4px; }
+.ui-command-foot-phai { margin-left: auto; }
+@media (max-width: 640px) {
+  dialog.ui-command { inset: 8px 0 auto; width: calc(100% - 16px); max-height: calc(100dvh - 16px); }
+  .ui-command-foot, .ui-command-esc { display: none; } /* điện thoại không có bàn phím cứng */
+}
+
+/* ---------- StatCard: số liệu chính của khu. Màu tăng/giảm theo NGHĨA (tốt/xấu), không theo chiều mũi tên ---------- */
+.ui-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.ui-stat { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 16px; border: 0; border-radius: var(--radius-xl);
+  background: var(--card); box-shadow: inset 0 0 0 1px var(--border); color: var(--foreground); font: inherit; text-align: left; text-decoration: none; }
+a.ui-stat, button.ui-stat { cursor: pointer; transition: box-shadow 150ms ease; }
+a.ui-stat:hover, button.ui-stat:hover { box-shadow: inset 0 0 0 1px var(--alpha-25); }
+a.ui-stat:focus-visible, button.ui-stat:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.ui-stat .ui-kpi-value { display: flex; align-items: baseline; gap: 4px; }
+.ui-stat-unit { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--muted-foreground); }
+.ui-stat-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-stat-delta svg { width: 12px; height: 12px; flex-shrink: 0; }
+.ui-stat-delta b { display: inline-flex; align-items: center; gap: 2px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ui-stat-delta[data-nghia="tot"] b { color: var(--color-text-success); }
+.ui-stat-delta[data-nghia="xau"] b { color: var(--color-text-danger); }
+.ui-stat-foot { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-stat-foot svg { width: 12px; height: 12px; transition: transform 150ms ease; }
+a.ui-stat:hover .ui-stat-foot, button.ui-stat:hover .ui-stat-foot { color: var(--foreground); }
+a.ui-stat:hover .ui-stat-foot svg, button.ui-stat:hover .ui-stat-foot svg { transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce) { .ui-stat-foot svg { transition: none; } }
+
+/* Chữ chỉ dành cho trình đọc màn hình (mẫu chuẩn — Tailwind sr-only / WCAG technique C7) */
+.ui-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.ui-command-rong { padding: 16px 16px 4px; }

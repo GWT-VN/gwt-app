@@ -1,11 +1,12 @@
 'use client'
 // PROTOTYPE — nhóm Phản hồi của DS (ConfirmDialog · EmptyState · Skeleton · Banner · Toast · nút đang tải), class ở khối
 // "BỔ SUNG DS PHẢN HỒI" (khung/_proto/ui.css). Dữ liệu giả, không lưu.
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowClockwise, Check, CloudSlash, Flask, GitMerge, Info, LockSimple, MagnifyingGlass, Moon, Sun, Trash, Tray, WarningCircle, X,
 } from '@phosphor-icons/react'
 import { Khoi } from '../../form/_form/FormDemo'
+import { HopGoc } from '../../khung/_proto/HopGoc'
 
 const ngu = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -43,28 +44,12 @@ function useConSong() {
   return song
 }
 function HopXacNhan({ mo, dong, children }: { mo: boolean; dong: () => void; children: (h: Hop) => ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null)
   const [ban, setBan] = useState(false) // đang chạy việc → Esc / bấm nền không đóng
-  const nhanNen = useRef(false)
   const id = useId(), idTen = id + 't', idMoTa = id + 'd'
-  useLayoutEffect(() => { // layout: đóng trước khi vẽ → không chớp khung rỗng
-    const d = ref.current; if (!d) return
-    if (mo && !d.open) { d.showModal(); d.querySelector<HTMLElement>('[data-autofocus]')?.focus() } // autoFocus của React chạy lúc hộp còn đóng → không ăn
-    if (!mo && d.open) d.close()
-  }, [mo])
-  // bấm nền = điểm bấm NẰM NGOÀI khung hộp, cả lúc nhấn lẫn lúc thả (kéo chọn chữ rồi thả ra ngoài không tính)
-  const ngoai = (e: { clientX: number; clientY: number; target: EventTarget; currentTarget: HTMLDialogElement }) => {
-    if (e.target !== e.currentTarget) return false
-    const r = e.currentTarget.getBoundingClientRect()
-    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
-  }
   return (
-    <dialog ref={ref} className="ui-dialog" role="alertdialog" aria-labelledby={idTen} aria-describedby={idMoTa} onClose={() => { setBan(false); dong() }}
-      onCancel={(e) => { if (ban) e.preventDefault() }}
-      onPointerDown={(e) => { nhanNen.current = ngoai(e) }}
-      onClick={(e) => { if (nhanNen.current && ngoai(e) && !ban) dong(); nhanNen.current = false }}>
-      {mo && children({ dong, setBan, idTen, idMoTa })}
-    </dialog>
+    <HopGoc mo={mo} dong={() => { setBan(false); dong() }} ban={ban} className="ui-dialog" role="alertdialog" labelledby={idTen} describedby={idMoTa}>
+      {children({ dong, setBan, idTen, idMoTa })}
+    </HopGoc>
   )
 }
 

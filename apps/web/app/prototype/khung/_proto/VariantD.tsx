@@ -3,7 +3,8 @@
 // D: Bắp là một icon trên thanh — bấm thì panel menu đổi thành khung chat.
 // E: cùng khung, Bắp mở thành panel riêng bên phải, menu giữ nguyên.
 import { useEffect, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { TimToanCuc, usePhimTim, type KetQua } from './TimToanCuc'
 // Icon: Phosphor (chốt 18/11) — bản thường "regular", mục đang chọn trên thanh icon dùng bản "fill" như ChatGPT
 import {
   ChartBar as BarChart3, Bell, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
@@ -34,6 +35,19 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
   const [menuMo, setMenuMo] = useState(false)
   const [xemThem, setXemThem] = useState(false)
   const [launcher, setLauncher] = useState(false)
+  const [tim, setTim] = useState(false)
+  const [bao, setBao] = useState('')
+  const router = useRouter()
+  usePhimTim(() => setTim(true))
+  useEffect(() => { if (!bao) return; const id = setTimeout(() => setBao(''), 4000); return () => clearTimeout(id) }, [bao])
+  // chọn kết quả ô tìm → mở đúng màn đã có trong prototype; màn chưa dựng thì nói thẳng
+  const moKetQua = (kq: KetQua) => {
+    const ma = /TK-\d{4}-\d{3}/.exec(kq.id)?.[0]
+    if (kq.loai === 'ticket' && ma) return router.push(`/prototype/chitiet?ma=${ma}#trang`)
+    if (kq.id === 'trang:Danh sách ticket') return router.push('/prototype/bang?variant=A')
+    if (kq.id === 'trang:Việc hôm nay') return router.push('/prototype/khung?variant=F')
+    setBao(`Prototype: màn “${kq.ten}” chưa dựng`)
+  }
   const k = KHU.find((x) => x.id === khu)!
   const p = PANEL_THEO_KHU[khu]
 
@@ -104,13 +118,13 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
                 <span className="pD-tieude"><span className="p-cham" style={{ background: k.mau }} aria-hidden />{k.ten}</span>
                 <span style={{ flex: 1 }} />
                 <button className="ui-btn" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Thông báo"><Bell aria-hidden /></button>
-                <button className="ui-btn" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Tìm (⌘K)"><Search aria-hidden /></button>
+                <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Tìm toàn cục (Ctrl K)" data-tip="Tìm · Ctrl K" aria-haspopup="dialog" onClick={() => setTim(true)}><Search aria-hidden /></button>
                 <button className="ui-btn pD-chi-mobile" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Đóng menu" onClick={() => setMenuMo(false)}><X aria-hidden /></button>
               </div>
               <div className="pD-cuon">
                 {p.tao && <button className="ui-sidebar-item"><Plus className="ui-icon" aria-hidden />{p.tao}</button>}
                 <div className="pD-nhom">
-                  {p.muc.map((m, i) => {
+                  {p.muc.map((m) => {
                     const I = ICON_MUC[m.icon] ?? BookOpen
                     return (
                       <button key={m.ten} className="ui-sidebar-item" aria-current={khu === 'cskh' && m.ten === mucChon ? 'page' : undefined}>
@@ -185,6 +199,8 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
           <KhungChat boiCanh={khu === 'cskh' ? 'CSKH · Việc hôm nay — 1 ca khẩn, 2 việc quá hạn' : `Khu ${k.ten}`} />
         </aside>
       )}
+      <TimToanCuc mo={tim} dong={() => setTim(false)} chon={moKetQua} />
+      <div role="status" aria-live="polite">{bao && <div className="ui-toast">{bao}</div>}</div>
     </div>
   )
 }

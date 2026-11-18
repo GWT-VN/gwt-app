@@ -11,7 +11,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 import { Khung } from '../../khung/_proto/VariantD'
-import { NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
+import { DS_KHACH, type KhachMau, NHAN_VIEN, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 import {
   Avatar, ChipTT, DauCot, DsLoc, Han, Khach, MenuChon, NguonTag, Nguoi, NhanDau, NhanLoi, Noi, OChon, OChonTatCa, Rong,
   SAP_TICKET, ThanhHangLoat, ThanhLoc, ChanTrang, MenuTrangThai, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
@@ -89,21 +89,6 @@ function SuaHan({ t, b }: { t: Ticket; b: Bang }) {
   )
 }
 /** Ô sửa được cho từng trường — dùng chung ở Danh sách, Bảng và panel xem nhanh. */
-// danh sách khách GIẢ (prototype, không PII): gom từ ticket mẫu; mã KH, khu vực, đuôi SĐT là số bịa.
-// Bản thật đọc bảng khách hàng — mỗi dòng phải đủ để phân biệt hai khách trùng/na ná tên.
-type KhachMau = { ten: string; ma: string; loai: 'Cá nhân' | 'Doanh nghiệp'; khu: string; sdt: string; may: string[]; mo: number; luuY: boolean }
-const KHU = ['Q.7', 'Thủ Đức', 'Bình Thạnh', 'Q.1', 'Cầu Giấy', 'Hà Đông', 'Biên Hoà']
-const DS_KHACH: KhachMau[] = [...new Set(TICKETS.map((t) => t.khach))].sort((a, b) => a.localeCompare(b, 'vi')).map((ten, i) => {
-  const ts = TICKETS.filter((t) => t.khach === ten)
-  return {
-    ten, ma: `KH-${String(1001 + i * 7).padStart(5, '0')}`,
-    loai: /^(Công ty|Khách sạn|Trường|Nhà hàng)/.test(ten) ? 'Doanh nghiệp' : 'Cá nhân',
-    khu: KHU[i % KHU.length], sdt: String(1000 + ((i * 2731) % 9000)),
-    may: [...new Set(ts.map((t) => (t.serial ? `${t.may} · ${t.serial}` : t.may)))],
-    mo: ts.filter(MO).length, luuY: ts.some((t) => !!t.luuY),
-  }
-})
-
 function MenuKhach({ gt, chon }: { gt: string; chon: (k: KhachMau) => void }) {
   const [q, setQ] = useState('')
   const loc = DS_KHACH.filter((k) => !q || bo([k.ten, k.ma, k.sdt, k.khu, ...k.may].join(' ')).includes(bo(q)))
@@ -459,6 +444,7 @@ function XemNhanh({ b, ma, setMa, laTrang, moTrang }: { b: Bang; ma: string; set
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.target as Element).closest?.('input, textarea, [role=menu]')) return
+      if (e.ctrlKey || e.metaKey || e.altKey) return // Ctrl+K (ô tìm), Ctrl+J (Bắp) không được lật ticket
       if (e.key === 'Escape') setMa(null)
       if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); const n = b.thay[i + 1]; if (n) setMa(n.ma) }
       if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); const n = b.thay[i - 1]; if (n) setMa(n.ma) }

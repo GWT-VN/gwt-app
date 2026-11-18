@@ -187,13 +187,13 @@ function ThuocTinh({ t, b }: { t: Ticket; b: Bang }) {
   )
 }
 
-export function ChiTietDemo({ toi }: { toi?: boolean }) {
+export function ChiTietDemo({ toi, maDau }: { toi?: boolean; maDau?: string }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(toi ? 'dark' : 'light') // ?theme=dark đọc ở server
   const b = useBang()
-  const [ma, setMa] = useState('TK-2611-045')
+  const [ma, setMa] = useState(() => (maDau && b.rows.some((x) => x.ma === maDau) ? maDau : 'TK-2611-045')) // ?ma= từ ô tìm toàn cục
   const t = b.rows.find((x) => x.ma === ma)!
   // ‹ › đi trên danh sách CHỤP lúc mở trang (như Linear) — ticket đổi sang Đóng/Huỷ rơi khỏi tab vẫn giữ vị trí
-  const [dsMa] = useState(() => b.thay.map((x) => x.ma))
+  const [dsMa] = useState(() => { const d = b.thay.map((x) => x.ma); return d.includes(ma) ? d : [ma, ...d] }) // mở từ ô tìm một ticket ngoài tab → vẫn có vị trí
   const i = dsMa.indexOf(ma)
   const [su, setSu] = useState<Record<string, Su[]>>({ 'TK-2611-045': SEED })
   const ds = su[ma] ?? seedChung(t)

@@ -56,3 +56,18 @@ export const TICKETS: Ticket[] = [
   t({ ma: 'TK-2611-041', khach: 'Nhà hàng Bếp Quê', may: 'CTD50', nhom: 'Chất lượng nước', uu: 'P2', tt: 'Mới', chu: 'Hiệp', viecTiep: 'Hẹn lấy mẫu nước kiểm TDS', nguoiLam: 'anh Tuấn', han: '2026-11-19 09:30', moNgay: 1, nguon: 'Zalo' }),
   t({ ma: 'TK-2611-034', khach: 'Tạ Quang Vinh', may: 'CTS10', serial: 'C10-2301-0904', nhom: 'Rò rỉ nước', uu: 'P3', tt: 'Chờ', lyDoCho: 'vật tư', chu: 'Hiền', viecTiep: 'Chờ ống nối 6 ly về kho', nguoiLam: 'Hiền', han: '2026-11-20 10:00', moNgay: 6, nguon: 'App' }),
 ]
+
+// danh sách khách GIẢ (prototype, không PII): gom từ ticket mẫu; mã KH, khu vực, đuôi SĐT là số bịa.
+// Bản thật đọc bảng khách hàng — mỗi dòng phải đủ để phân biệt hai khách trùng/na ná tên.
+export type KhachMau = { ten: string; ma: string; loai: 'Cá nhân' | 'Doanh nghiệp'; khu: string; sdt: string; may: string[]; mo: number; luuY: boolean }
+const KHU_VUC = ['Q.7', 'Thủ Đức', 'Bình Thạnh', 'Q.1', 'Cầu Giấy', 'Hà Đông', 'Biên Hoà']
+export const DS_KHACH: KhachMau[] = [...new Set(TICKETS.map((t) => t.khach))].sort((a, b) => a.localeCompare(b, 'vi')).map((ten, i) => {
+  const ts = TICKETS.filter((t) => t.khach === ten)
+  return {
+    ten, ma: `KH-${String(1001 + i * 7).padStart(5, '0')}`,
+    loai: /^(Công ty|Khách sạn|Trường|Nhà hàng)/.test(ten) ? 'Doanh nghiệp' : 'Cá nhân',
+    khu: KHU_VUC[i % KHU_VUC.length], sdt: String(1000 + ((i * 2731) % 9000)),
+    may: [...new Set(ts.map((t) => (t.serial ? `${t.may} · ${t.serial}` : t.may)))],
+    mo: ts.filter((t) => t.tt !== 'Đóng' && t.tt !== 'Huỷ').length, luuY: ts.some((t) => !!t.luuY),
+  }
+})

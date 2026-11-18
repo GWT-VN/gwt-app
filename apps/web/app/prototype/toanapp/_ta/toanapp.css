@@ -1,0 +1,4 @@
+/* PROTOTYPE — chỉ bố cục trang demo; component nằm ở khung/_proto/ui.css (khối BỔ SUNG DS TOÀN APP) */
+.ta-tim { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ta-tim .ui-btn .ui-kbd { margin-left: 4px; }
+.ta-chon { margin: 12px 0 0; }

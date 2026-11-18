@@ -20,6 +20,12 @@ const NHOM: { ten: string; tt: 'chot' | 'duyet'; muc: Muc[] }[] = [
     { ten: 'FileUpload', href: '/prototype/form#fileupload', ghi: 'Kéo tệp vào vùng thả' },
     { ten: 'Cả nhóm Form — theme tối', href: '/prototype/form?theme=dark' },
   ] },
+  { ten: 'Toàn app (tìm toàn cục · tổng quan)', tt: 'duyet', muc: [
+    { ten: 'Tìm toàn cục — Ctrl K', href: '/prototype/toanapp#tim', ghi: 'Bấm "Tìm…" rồi gõ: sen vang · TK-2611-04 · HO-1123 · đuôi SĐT. ↑↓ chọn, Enter mở' },
+    { ten: 'Tìm toàn cục trong khung F', href: '/prototype/khung?variant=F', ghi: 'Bấm 🔍 hoặc Ctrl K → gõ TK-2611-020 → Enter: mở đúng trang ticket' },
+    { ten: 'StatCard — màn Tổng quan', href: '/prototype/toanapp#stat', ghi: 'Màu theo nghĩa: quá hạn giảm = xanh, khách hỏi lại tăng = đỏ' },
+    { ten: 'Cả nhóm — theme tối', href: '/prototype/toanapp?theme=dark' },
+  ] },
   { ten: 'Phản hồi (xác nhận · trống · tải · thông báo)', tt: 'duyet', muc: [
     { ten: 'Luật chọn kiểu phản hồi', href: '/prototype/phanhoi#chon' },
     { ten: 'ConfirmDialog', href: '/prototype/phanhoi#confirm', ghi: 'Bấm "Xoá phiếu chi…" → bấm Xoá khi trống để xem lỗi. "Gộp khách…": gõ mã mới bấm được' },

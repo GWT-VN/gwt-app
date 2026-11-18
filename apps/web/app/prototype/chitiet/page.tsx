@@ -14,8 +14,8 @@ const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter'
 
 export const metadata = { title: 'Prototype · Trang chi tiết DS' }
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ theme?: string; ma?: string }> }) {
   if (process.env.NODE_ENV === 'production') notFound()
-  const { theme } = await searchParams
-  return <div className={inter.variable}><ChiTietDemo toi={theme === 'dark'} /></div>
+  const { theme, ma } = await searchParams
+  return <div className={inter.variable}><ChiTietDemo toi={theme === 'dark'} maDau={ma} /></div>
 }

@@ -1,0 +1,21 @@
+// PROTOTYPE — nhóm Toàn app của DS (TimToanCuc ⌘K · StatCard). ?theme=dark
+// Nhánh bỏ đi prototype/v2-khung — KHÔNG merge. Dữ liệu giả, không đọc DB.
+import { notFound } from 'next/navigation'
+import { Inter } from 'next/font/google'
+import '../khung/_proto/tokens.css'
+import '../form/_form/tokens-dark.css'
+import '../khung/_proto/ui.css'
+import '../bang/_bang/bang.css'
+import '../form/_form/form.css'
+import './_ta/toanapp.css'
+import { ToanAppDemo } from './_ta/ToanAppDemo'
+
+const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter', display: 'swap' })
+
+export const metadata = { title: 'Prototype · Toàn app DS' }
+
+export default async function Page({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
+  if (process.env.NODE_ENV === 'production') notFound()
+  const { theme } = await searchParams
+  return <div className={inter.variable}><ToanAppDemo toi={theme === 'dark'} /></div>
+}
