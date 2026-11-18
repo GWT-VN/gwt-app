@@ -11,6 +11,8 @@ import { SerialPicker } from '@/components/SerialPicker'
 import { KhachPicker } from '@/components/KhachPicker'
 import { ChonCatalog } from '@/components/ChonCatalog'
 import { ChonTinh } from '@/components/ChonTinh'
+import Link from 'next/link'
+import { dsMayCatalog, kichHoatChuaSerial } from '@/app/may/chua-serial-actions'
 
 const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 
@@ -23,6 +25,7 @@ function vn(d: string | null) {
  *  · Chọn MÁY trước -> serial lọc theo máy (còn chưa kích hoạt), hoặc
  *  · Gõ SERIAL trước -> tự soi máy + trạng thái (đã kích hoạt cho ai chưa).
  *  · Địa chỉ khách + địa chỉ lắp (tick dùng chung). Ngày bắt đầu bảo hành.
+ *  · "Chưa có serial" (18/11): chọn máy → kích hoạt luôn, app cấp mã tạm TAM…, bổ sung serial sau ở trang máy.
  */
 export function DangKyBHForm() {
   const [dsMay, setDsMay] = useState<MayKho[]>([])
@@ -32,6 +35,9 @@ export function DangKyBHForm() {
   const [serialQ, setSerialQ] = useState('')        // ô gõ tìm serial (khi đã chọn máy)
   const [serialOpen, setSerialOpen] = useState(false)
   const [info, setInfo] = useState<SerialKho | null>(null)
+  const [chuaSerial, setChuaSerial] = useState(false)
+  const [dsMayDu, setDsMayDu] = useState<CatalogChon[] | null>(null)   // mọi máy (kể cả hết serial kho) — tải khi cần
+  const [maTam, setMaTam] = useState<string | null>(null)
 
   const [khachId, setKhachId] = useState('')
   const [khachAddr, setKhachAddr] = useState<string | null>(null)
@@ -108,14 +114,33 @@ export function DangKyBHForm() {
     : [dcLap.trim(), tinhLap.trim()].filter(Boolean).join(', ')
   // dsMayCoSerial (v_may_kho) đã LỌC chỉ máy (bỏ lõi/vỏ) -> danh sách typeahead chỉ có máy.
   const catalogMay: CatalogChon[] = useMemo(
-    () => dsMay.map((m) => ({
+    () => chuaSerial && dsMayDu ? dsMayDu : dsMay.map((m) => ({
       internal_code: m.internal_code,
       ten: `${m.ten_noi_bo ?? m.internal_code} (còn ${m.con_lai})`,
       danh_muc: null,
-    })), [dsMay])
+    })), [dsMay, chuaSerial, dsMayDu])
+
+  function datChuaSerial(v: boolean) {
+    setChuaSerial(v); setErr(null); setMsg(null); setMaTam(null)
+    setSerial(''); setSerialQ(''); setSerialOpen(false); setInfo(null)
+    if (v && !dsMayDu) dsMayCatalog().then(setDsMayDu).catch(() => setDsMayDu([]))
+  }
 
   async function luu() {
-    setBusy(true); setErr(null); setMsg(null)
+    setBusy(true); setErr(null); setMsg(null); setMaTam(null)
+    if (chuaSerial) {
+      const t = await kichHoatChuaSerial({
+        internal_code: mayCode, customer_id: khachId, install_date: ngay,
+        install_address: dcLapCuoi.trim() || undefined, ngay_lap_do_chac: doChac, ghi_chu: ghiChu.trim() || undefined,
+      })
+      setBusy(false)
+      if (!t.ok) { setErr(t.error); return }
+      setMsg(`Đã kích hoạt bảo hành — chờ bổ sung serial (mã tạm ${t.serial}).`); setMaTam(t.serial)
+      setMayCode(''); setKhachId(''); setKhachAddr(null); setDcLap(''); setTinhLap(''); setDungDcKhach(true); setNgay(HOM_NAY())
+      setDoChac('chinh_xac'); setGhiChu('')
+      router.refresh()
+      return
+    }
     const r = await dangKyBaoHanh({
       serial, customer_id: khachId, install_date: ngay,
       install_address: dcLapCuoi.trim() || undefined,
@@ -145,7 +170,16 @@ export function DangKyBHForm() {
       {/* 2. Serial */}
       <div>
         <label className="text-sm font-medium text-slate-700">2. Serial máy</label>
-        {mayCode ? (
+        <label className="mt-1 flex items-center gap-2 text-sm text-slate-700">
+          <input type="checkbox" checked={chuaSerial} onChange={(e) => datChuaSerial(e.target.checked)} />
+          Chưa có serial — kích hoạt bảo hành trước, bổ sung serial sau
+        </label>
+        {chuaSerial ? (
+          <p className="mt-1 text-xs rounded-lg bg-amber-50 text-amber-800 px-3 py-2">
+            Chọn <strong>máy</strong> ở bước 1 (để tính hạn bảo hành). App cấp mã tạm <span className="font-mono">TAM…</span> và đánh dấu
+            máy <strong>chờ bổ sung serial</strong>; có serial thì vào trang máy bấm &quot;Bổ sung serial&quot; — bảo hành, ticket giữ nguyên.
+          </p>
+        ) : mayCode ? (
           serialList.length ? (
             <div className="relative mt-1">
               <input value={serialQ} onChange={(e) => goSerial(e.target.value)}
@@ -271,12 +305,13 @@ export function DangKyBHForm() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button onClick={luu} disabled={busy || !serial.trim() || !khachId || daKichHoat}
+        <button onClick={luu}
+          disabled={busy || !khachId || (chuaSerial ? !mayCode : (!serial.trim() || daKichHoat))}
           className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-medium disabled:opacity-50">
-          {busy ? 'Đang đăng ký…' : 'Đăng ký + kích hoạt bảo hành'}
+          {busy ? 'Đang đăng ký…' : chuaSerial ? 'Kích hoạt bảo hành (chưa có serial)' : 'Đăng ký + kích hoạt bảo hành'}
         </button>
-        {daKichHoat && <span className="text-sm text-red-600">Serial đã kích hoạt — chọn serial khác.</span>}
-        {msg && <span className="text-sm text-emerald-700">{msg}</span>}
+        {!chuaSerial && daKichHoat && <span className="text-sm text-red-600">Serial đã kích hoạt — chọn serial khác.</span>}
+        {msg && <span className="text-sm text-emerald-700">{msg}{maTam && <> · <Link className="underline" href={`/may/${encodeURIComponent(maTam)}`}>mở máy</Link></>}</span>}
         {err && <span className="text-sm text-red-600">{err}</span>}
       </div>
     </div>

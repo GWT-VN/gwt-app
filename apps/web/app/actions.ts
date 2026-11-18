@@ -1,5 +1,6 @@
 'use server'
 
+import { chuanBiThietBiCombo } from '@/lib/bh/chuaSerial'
 import { kiemTaoTicket } from '@/lib/loi/ticketKhongSerial'
 import { randomBytes } from 'node:crypto'
 import { boDau } from '@/bang/timkiem'
@@ -3213,34 +3214,35 @@ export async function lapBoCombo(input: {
   customer_id: string
   install_date: string
   install_address?: string
-  serials: { internal_code: string; serial: string }[]
-}): Promise<{ ok: true; ma_bo: string } | { ok: false; error: string }> {
+  // chua_serial (18/11): thiết bị chưa có serial → DB cấp mã tạm, vẫn kích hoạt cả bộ, bổ sung serial sau.
+  serials: { internal_code: string; serial: string; chua_serial?: boolean }[]
+}): Promise<{ ok: true; ma_bo: string; so_chua_serial: number } | { ok: false; error: string }> {
   await requireStaff()
   await doQuyen('cs.may.kich_hoat_bh')
   if (!(MA_COMBO as readonly string[]).includes(input.combo))
     return { ok: false, error: 'Combo không hợp lệ.' }
   if (!input.customer_id) return { ok: false, error: 'Chọn khách.' }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.install_date)) return { ok: false, error: 'Ngày không hợp lệ.' }
-  const dv = (input.serials ?? []).filter((s) => s.serial?.trim())
-  if (!dv.length) return { ok: false, error: 'Chọn serial cho các thiết bị.' }
-  const set = new Set(dv.map((s) => s.serial.trim()))
-  if (set.size !== dv.length) return { ok: false, error: 'Serial thiết bị bị trùng nhau.' }
+  const tb = chuanBiThietBiCombo(input.serials ?? [], (input.serials ?? []).map((s) => !!s.chua_serial))
+  if (!tb.ok) return tb
+  const dv = tb.ds
 
   const { data, error } = await dataClient().rpc('lap_bo_combo', {
     p_combo: input.combo,
     p_customer: input.customer_id,
     p_install_date: input.install_date,
     p_install_address: input.install_address?.trim() || null,
-    p_serials: dv.map((s) => ({ internal_code: s.internal_code, serial: s.serial.trim() })),
+    p_serials: dv.map((s) => ({ internal_code: s.internal_code, serial: s.serial })),
   })
   if (error) return { ok: false, error: error.message }
   const maBo = data as string
   await ghiAudit('lap_bo_combo', `bo:${maBo}`, {
-    combo: input.combo, customer_id: input.customer_id, so_thiet_bi: dv.length,
+    combo: input.combo, customer_id: input.customer_id, so_thiet_bi: dv.length, so_chua_serial: tb.soChuaSerial,
   })
   revalidatePath('/')
+  revalidatePath('/bh-cho-kich-hoat')
   revalidatePath(`/khach/${input.customer_id}`)
-  return { ok: true, ma_bo: maBo }
+  return { ok: true, ma_bo: maBo, so_chua_serial: tb.soChuaSerial }
 }
 
 // ── Kênh/đối tác (đại lý/KTS/KOL) — dùng dim_channel của Sales, CS chỉ ĐỌC + GÁN (D2) ──
