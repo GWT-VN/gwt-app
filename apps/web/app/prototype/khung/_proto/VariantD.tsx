@@ -22,7 +22,8 @@ const ICON_MUC: Record<string, LucideIcon> = {
 }
 const ICON_GAN_DAY: Record<string, LucideIcon> = { ticket: Ticket, khach: UserRound, don: ReceiptText, may: Cpu }
 
-function Khung({ bapTrongPanel }: { bapTrongPanel: boolean }) {
+function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
+  const bapTrongPanel = che === 'panel'
   const [khu, setKhu] = useState('cskh')
   const [bap, setBap] = useState(false)
   const [menuMo, setMenuMo] = useState(false)
@@ -31,6 +32,8 @@ function Khung({ bapTrongPanel }: { bapTrongPanel: boolean }) {
   const k = KHU.find((x) => x.id === khu)!
   const p = PANEL_THEO_KHU[khu]
 
+  // ?bap=mo → mở sẵn Bắp (gửi link xem trạng thái đang mở)
+  useEffect(() => { if (new URLSearchParams(location.search).get('bap') === 'mo') setBap(true) }, [])
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') { e.preventDefault(); setBap((v) => !v) }
@@ -59,9 +62,11 @@ function Khung({ bapTrongPanel }: { bapTrongPanel: boolean }) {
             )
           })}
           <div className="pD-ngan" />
-          <button className="pD-icon" aria-label="Bắp (⌘J)" title="Bắp (⌘J)" aria-pressed={bap} aria-current={panelLaBap ? 'true' : undefined} onClick={() => { setBap((v) => !v); setMenuMo(bapTrongPanel ? menuMo : false) }}>
-            <Sparkles aria-hidden />
-          </button>
+          {che !== 'dock' && (
+            <button className="pD-icon" aria-label="Bắp (⌘J)" title="Bắp (⌘J)" aria-pressed={bap} aria-current={panelLaBap ? 'true' : undefined} onClick={() => { setBap((v) => !v); setMenuMo(bapTrongPanel ? menuMo : false) }}>
+              <Sparkles aria-hidden />
+            </button>
+          )}
           <div style={{ position: 'relative' }}>
             <button className="pD-icon" aria-label="Tất cả khu" title="Tất cả khu" aria-expanded={launcher} onClick={() => setLauncher((v) => !v)}><LayoutGrid aria-hidden /></button>
             {launcher && (
@@ -137,13 +142,36 @@ function Khung({ bapTrongPanel }: { bapTrongPanel: boolean }) {
           <button className="ui-btn" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Mở menu" onClick={() => setMenuMo(true)}><Menu aria-hidden /></button>
           <b>{k.ten}</b>
           <span style={{ flex: 1 }} />
-          <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => setBap(true)}><Sparkles aria-hidden /> Bắp</button>
+          {che !== 'dock' && <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => setBap(true)}><Sparkles aria-hidden /> Bắp</button>}
         </header>
         <main className="pD-noidung"><NoiDung /></main>
       </div>
 
       {/* D: panel Bắp bên phải chỉ dùng trên điện thoại (toàn màn); desktop Bắp nằm trong panel menu */}
-      {bap && (
+      {/* F: Bắp là nút dock góc dưới phải; bấm mở khung chat nổi phía trên nút. Số trên nút = gợi ý Bắp chủ động đưa ra. */}
+      {che === 'dock' && (
+        <>
+          {bap && (
+            <div className="pF-pop" role="dialog" aria-label="Bắp">
+              <div className="pA-bap-dau">
+                <Sparkles className="ui-icon" aria-hidden /><b>Bắp</b><span className="ui-caption">trợ lý trong app · ⌘J</span>
+                <span style={{ flex: 1 }} />
+                <button className="ui-btn" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Đóng Bắp" onClick={() => setBap(false)}><X aria-hidden /></button>
+              </div>
+              <KhungChat
+                boiCanh={khu === 'cskh' ? 'CSKH · Việc hôm nay — 1 ca khẩn, 2 việc quá hạn' : `Khu ${k.ten}`}
+                tinDau={khu === 'cskh' ? [{ ai: 'bap', noiDung: '2 việc nên để ý: TK-2611-043 quá hạn 1 ngày (Kiều Trang chưa cập nhật) · đã hứa gọi lại anh An trước 16:00. Mình nhắc giúp nhé?' }] : []}
+              />
+            </div>
+          )}
+          <button className="pF-dock" aria-label={bap ? 'Đóng Bắp' : 'Mở Bắp (⌘J) — 2 gợi ý'} title="Bắp (⌘J)" aria-expanded={bap} onClick={() => setBap((v) => !v)}>
+            {bap ? <X aria-hidden /> : <Sparkles aria-hidden />}
+            {!bap && khu === 'cskh' && <span className="pF-dock-so" aria-hidden>2</span>}
+          </button>
+        </>
+      )}
+
+      {bap && che !== 'dock' && (
         <aside className={'pD-bap' + (bapTrongPanel ? ' chi-mobile' : '')} aria-label="Bắp">
           <div className="pA-bap-dau">
             <Sparkles className="ui-icon" aria-hidden /><b>Bắp</b><span className="ui-caption">trợ lý trong app</span>
@@ -157,5 +185,7 @@ function Khung({ bapTrongPanel }: { bapTrongPanel: boolean }) {
   )
 }
 
-export function VariantD() { return <Khung bapTrongPanel /> }
-export function VariantE() { return <Khung bapTrongPanel={false} /> }
+export const TEN_F = 'Icon + panel menu · Bắp dock góc phải · bảng nhẹ'
+export function VariantD() { return <Khung che="panel" /> }
+export function VariantE() { return <Khung che="phai" /> }
+export function VariantF() { return <Khung che="dock" /> }

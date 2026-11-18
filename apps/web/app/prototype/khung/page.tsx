@@ -10,6 +10,6 @@ export const metadata = { title: 'Prototype · Khung + Bắp' }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ variant?: string }> }) {
   if (process.env.NODE_ENV === 'production') notFound()
-  const { variant = 'D' } = await searchParams
+  const { variant = 'F' } = await searchParams
   return <KhungPrototype variant={variant.toUpperCase()} />
 }
