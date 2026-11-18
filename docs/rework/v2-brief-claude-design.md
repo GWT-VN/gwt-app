@@ -62,7 +62,7 @@ Mọi giá trị lấy từ `tokens.json` của DS (tên token nguồn OpenAI + 
 | Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` — **(đề xuất) mở rộng GWT `--khu`**, chỉ làm dấu nhận diện khu (vạch/chấm ở thanh điều hướng, biểu tượng khu trong launcher). **Không** dùng cho nút, focus, trạng thái |
 | Màu trạng thái | Cặp nền/chữ của OpenAI theo vai: `success` · `warning` · `danger` · `info` · `discovery` · `secondary` (nền `color-background-<vai>-soft-alpha` + chữ `color-text-<vai>-soft`) |
 | Tone trạng thái | 6 tone giữ tên cũ, map sang vai OpenAI — bảng 4.3 |
-| Chữ | Font hệ thống theo OpenAI (`ui-sans-serif, -apple-system, system-ui, "Segoe UI", …` — Windows ra Segoe UI). Số, mã, serial, SĐT, tiền: `font-mono` + `tabular-nums`. Thang: 12 (meta, nhãn cột) · **14 mặc định** (control, bảng, menu) · 16 (đoạn văn, tiêu đề nhỏ) · 18/20 (tiêu đề khối, hộp thoại) · 24 (tiêu đề trang). Weight 400/500/600 |
+| Chữ | **Inter** (chốt 18/11) — tự host, có dấu tiếng Việt; dự phòng `ui-sans-serif, system-ui`. Số, mã, serial, SĐT, tiền: Inter + `tabular-nums`, **không mono**. Icon lucide nét 1.5. Thang: 12 (meta, nhãn cột) · **14 mặc định** (control, bảng, menu) · 16 (đoạn văn, tiêu đề nhỏ) · 18/20 (tiêu đề khối, hộp thoại) · 24 (tiêu đề trang). Weight 400/500/600 |
 | Kích thước control | Mặc định **32px** (`control-size-md`): nút, ô nhập, select, tab, mục điều hướng; 28px cho toolbar dày; 36px nút nổi bật; điện thoại tối thiểu 44px |
 | Bo góc | Nút **pill** (mặc định OpenAI); nút trong ô bảng/toolbar dày bo 6–8px · ô nhập, select 8px · thẻ, khung bảng, menu, Alert 12px · hộp thoại 16px · chip trạng thái **4px** (Badge OpenAI, không bo tròn) |
 | Viền / bóng | Viền 1px `border`; ô nhập viền `input`. Lớp nổi: `shadow` + `shadow-hairline`. Thẻ phẳng, không bóng |
@@ -89,14 +89,14 @@ Mọi giá trị lấy từ `tokens.json` của DS (tên token nguồn OpenAI + 
 | `TrangThaiRong` | trạng thái rỗng của Table | — |
 | `ThongBao` (toast) | — | **thêm** (shadcn Sonner) |
 | `ONgay`, `LocNgay` | — | **thêm** (shadcn Calendar/Date Picker; OpenAI có DatePicker để lấy diện mạo) |
-| `KhungApp` | Button, DropdownMenu, Combobox | thanh 2 tầng (mục 5) — DS có Sidebar nhưng v2 dùng thanh trên theo mục 5 |
+| `KhungApp` | Sidebar, Tooltip, DropdownMenu, Button | thanh icon + panel menu + nút dock Bắp (mục 5) |
 | Còn lại (`Kanban`, `LichThang`, `BangDieuPhoiTuan`, `BieuDo`, `NhatKy`, `OTaiTep`…) | token DS | vẽ mới bằng token, rồi đưa vào DS |
 
-**Khung:** `KhungApp` (thanh 2 tầng, launcher, ô tìm toàn cục, tài khoản) · `DauTrang` (tiêu đề, phụ đề, nút quay lại, khu nút hành động) · `TheNoiDung` (thẻ khối) · `Tabs` (ghi vào URL).
+**Khung:** `KhungApp` (thanh icon, panel menu khu, launcher, ô tìm toàn cục ⌘K, tài khoản, nút dock Bắp) · `DauTrang` (tiêu đề, phụ đề, nút quay lại, khu nút hành động) · `TheNoiDung` (thẻ khối) · `Tabs` (ghi vào URL).
 
 **Danh sách** (mẫu chuẩn mọi khu): `ThanhLoc` (ô tìm không dấu + chip lọc + lọc ngày + sắp xếp + dòng "Đang lọc: … · Xoá lọc", luôn ghi "đang thấy X / có Y") · `BoLocGoiY` (>10 lựa chọn thì **gõ để tìm**, không dùng select trần) · `LocNgay` (Hôm nay · Tuần này · Tháng này · 30 ngày · Tuỳ chọn) · `BangDuLieu` (ẩn/hiện/đổi thứ tự cột, lưu view cá nhân/chung, sắp xếp, phân trang, cột số căn phải; trên điện thoại thu thành thẻ) · `ChonNhieuDong` + `ThanhHangLoat` (thanh nổi khi chọn: "Đã chọn 12 · Đổi trạng thái · Gán người · Hỏi người làm · Xuất · Xoá") · `NutXuat` · `TheSo` (ô số liệu bấm được = áp bộ lọc) · `TrangThaiRong` (phân biệt "chưa có dữ liệu" với "bộ lọc không ra gì").
 
-**Đối tượng:** `DauDoiTuong` (đầu trang chi tiết: mã mono · thuộc tính chính · ô sửa nhanh chọn là lưu · dòng tóm tắt) · `ChipTrangThai` (một component cho mọi trạng thái) · `NhanNguon` (App · Sheet · Discord ↗ · Bot) · `NhatKy` (dòng theo ngày: ai · lúc · nội dung · tệp · nguồn; thêm ngay trong khối; ngày lùi được) · `KhoiThongTin` (cặp nhãn–giá trị) · `Kanban` · `LichThang` · `BangDieuPhoiTuan` (hàng = kỹ thuật viên, cột = ngày) · `BieuDo` (cột, đường, Pareto, luôn kèm bảng số).
+**Đối tượng:** `DauDoiTuong` (đầu trang chi tiết: mã (`tabular-nums`) · thuộc tính chính · ô sửa nhanh chọn là lưu · dòng tóm tắt) · `ChipTrangThai` (một component cho mọi trạng thái) · `NhanNguon` (App · Sheet · Discord ↗ · Bot) · `NhatKy` (dòng theo ngày: ai · lúc · nội dung · tệp · nguồn; thêm ngay trong khối; ngày lùi được) · `KhoiThongTin` (cặp nhãn–giá trị) · `Kanban` · `LichThang` · `BangDieuPhoiTuan` (hàng = kỹ thuật viên, cột = ngày) · `BieuDo` (cột, đường, Pareto, luôn kèm bảng số).
 
 **Nhập liệu:** `OChonGoiY` (danh sách nạp sẵn, gõ lọc) · `OChonTimXa` (tìm trên server) · `ChonKhach` (tên · SĐT · tỉnh · địa chỉ; tạo mới có tra trùng SĐT) · `ChonSerial` (serial · model · khách · bảo hành; cho để trống) · `ChonKenh` (2 cấp) · `ONgay` · `OTien` (phân cách nghìn) · `OTaiTep` (kéo thả, xem trước ảnh, ≤50MB) · `OSuaTaiCho` (bấm sửa, Enter lưu, Esc huỷ) · `OSoanBinhLuan` (@nhắc tên, đính kèm) · `NhapCoXemTruoc` (dán Excel → bảng xem trước đánh dấu trùng/sai/mới → xác nhận) · `KhungForm`.
 
@@ -136,7 +136,14 @@ Tone → vai màu trong DS (Badge `soft`, luôn kèm chữ, không chỉ màu):
 
 ## 5. Khung app
 
-**Desktop — thanh điều hướng 2 tầng:**
+**Đã chốt 18/11 — thanh icon + panel menu, Bắp dock góc phải** (prototype F, nhánh `prototype/v2-khung`). Đoạn "thanh 2 tầng" dưới đây là phương án cũ, giữ để đối chiếu; khi vẽ theo khung mới:
+- Thanh icon trái 52px nền `muted`: logo · icon khu (đang mở = ô 36px nền `alpha-05`, icon màu khu, chấm đỏ = việc gấp, rê chuột hiện nhãn) · lưới "Tất cả khu" · ⚙️ · avatar ở đáy.
+- Panel menu 288px nền `sidebar`, cùng vùng nội dung thành một tấm bo góc trên-trái 12px: tên khu 18px/600 + 🔔 + 🔍 (⌘K) · nút tạo · trang của khu (mục 30px) · Bộ lọc đã lưu · Gần đây. Nhãn nhóm 14px thường màu nhạt.
+- Bảng nhẹ: dòng 50px, kẻ dòng `alpha-05` thụt 12px, rê = nền `alpha-05` bo 12px; tab viên thuốc 36px; ô tìm 240×32; nút công cụ tròn 32px.
+- Bắp: nút tròn 48px góc dưới phải, số đỏ = gợi ý chủ động; bấm/⌘J mở khung chat nổi 400px.
+- Điện thoại: ☰ mở ngăn kéo (thanh icon + panel), Bắp toàn màn.
+
+**(Cũ) Desktop — thanh điều hướng 2 tầng:**
 - Tầng 1 (52px, nền `#0c2a2e` — **(đề xuất) mở rộng GWT `--nav`**, DS không có màu nền tối cho thanh điều hướng; phương án khác: nền `sidebar` sáng của DS, chờ chốt mục 10): logo GWT · các khu (Việc · CSKH · Sales · Kho · Wiki), khu đang mở đánh dấu bằng màu khu (`--khu`) · **ô tìm toàn cục** (gõ SĐT, tên khách, serial, mã đơn `261118-E004`, mã ticket `TK-2611-042` → gợi ý theo loại → Enter mở) · nút launcher (lưới các khu, khu chưa có — Nhân sự, Kế toán — hiện xám "sắp có") · ⚙️ Quản trị · avatar (đổi mật khẩu, đăng xuất).
 - Tầng 2 (46px, nền `background`, mục 32px kiểu ghost — hover/đang mở dùng `accent`): các trang của khu đang mở; trang nhiều thì gom nhóm thả xuống. Ví dụ CSKH: **Việc hôm nay** · Ticket & lỗi ▾ · Khách hàng ▾ · Bảo hành ▾ · Bảo trì ▾ · Kỹ thuật ▾.
 
@@ -359,7 +366,7 @@ Trang chủ 9 khu (Sản phẩm · Marketing video · Kho video · Kiến thức
 - Trang ticket: danh sách trường đặt trên cùng sẽ chốt sau khi hỏi Hiền — vẽ theo mục 6.1.3.
 - Tối đa 3 lưu ý đỏ / khách; lưu ý KTV ghi thì hiện ngay (chưa có bước duyệt).
 - Mockup 9 màn CSKH riêng của CEO (có số thật) — nếu CEO đưa thì ưu tiên theo đó.
-- **Theo DS mới (đề xuất, chờ chốt):** nền thanh điều hướng tầng 1 giữ `#0c2a2e` hay chuyển nền sáng · màu khu chỉ làm dấu nhận diện (không tô nút/focus) · `dang-lam` = `info`, `thong-tin` = `discovery` · font hệ thống thay Geist · nút pill.
+- **Theo DS mới (đề xuất, chờ chốt):** nền thanh điều hướng tầng 1 giữ `#0c2a2e` hay chuyển nền sáng · màu khu chỉ làm dấu nhận diện (không tô nút/focus) · `dang-lam` = `info`, `thong-tin` = `discovery` · ~~font hệ thống thay Geist~~ → **Inter (chốt 18/11)** · nút pill.
 - **Độ tương phản chưa đạt ngay trong nguồn OpenAI** (vẽ theo nguồn, ghi chú lại): viền ô nhập 1,42:1 và viền Checkbox 1,6:1 (dưới 3:1); chữ Badge success 4,05:1; chữ lỗi ở nền tối 3,52:1. DS đã có phương án sửa kèm số đo ở mục "Quyết định còn mở".
 
 ## 11. Đầu ra mong muốn

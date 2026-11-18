@@ -36,12 +36,17 @@ Một người có thể mang nhiều vai. Vai trò hiện có: `ceo, admin, qua
 
 ## 3. Khung giao diện chung
 
-- **Thanh điều hướng 2 tầng:** tầng 1 = module (mỗi module một màu nhận diện), tầng 2 = các trang của module. Có **app-launcher** dạng lưới và menu ⚙️ quản trị.
+- **Khung điều hướng (chốt 18/11/2026 theo prototype F — nhánh `prototype/v2-khung`, `/prototype/khung?variant=F` chạy local; số đo lấy theo app ChatGPT):**
+  - **Thanh icon** bên trái 52px, nền `muted`: logo GWT · một icon cho mỗi khu (khu đang mở = ô 36px nền `alpha-05`, icon tô màu khu; chấm đỏ = khu có việc gấp; rê chuột hiện nhãn đen bên phải) · lưới "Tất cả khu" = **app-launcher** (Nhân sự, Kế toán hiện xám "sắp có") · ⚙️ Quản trị và avatar ở đáy.
+  - **Panel menu của khu** 288px, nền `sidebar`, ghép với vùng nội dung thành **một tấm bo góc trên-trái 12px**: đầu panel = tên khu (18px/600) + 🔔 thông báo + 🔍 tìm toàn cục (⌘K) · nút tạo của khu (vd "Tạo ticket") · các trang của khu (mục 30px, đang mở = nền `alpha-05`) · nhóm "Bộ lọc đã lưu" · nhóm "Gần đây" (5 mục + Xem thêm). Nhãn nhóm 14px chữ thường màu nhạt, không in hoa, không đậm.
+  - **Agent Bắp = nút dock** tròn 48px góc dưới phải; số đỏ trên nút = gợi ý Bắp chủ động đưa ra. Bấm (hoặc ⌘J) mở khung chat nổi 400px phía trên nút; Bắp biết khu/màn đang mở.
+  - **Điện thoại:** thanh trên gọn (☰ · tên khu); thanh icon + panel thành ngăn kéo trượt từ trái; Bắp mở toàn màn.
+  - Thay cho thanh trên 2 tầng của bản đề xuất trước 18/11.
 - Màu module hiện tại: Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` (chưa có) · Kế toán `#3f8a6a` (chưa có).
 - **Hệ thiết kế v2 (chốt hướng 18/11/2026): component shadcn/ui + diện mạo OpenAI Apps SDK UI 0.2.2** — DS "GWT — OpenAI + shadcn" https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr (token, bảng ánh xạ shadcn ↔ OpenAI, 13 component mẫu). Nguồn token gốc + checksum: `docs/design-system/` nhánh `docs/nen-tang-openai-ds`. Chi tiết mục 8.1.
-- Font: bản cũ nạp Geist nhưng thân trang hiện ra Arial, khu Work dùng font hệ thống — v2 chọn **một** font: theo DS là font hệ thống của OpenAI (mục 8.1, câu hỏi ở mục 10). Mã đơn, serial, SĐT, tiền dùng font mono, số thẳng cột.
+- Font: bản cũ nạp Geist nhưng thân trang hiện ra Arial, khu Work dùng font hệ thống — v2 dùng **một** font: **Inter** (anh Dũng chọn 18/11/2026; tự host qua `next/font`, có bộ dấu tiếng Việt). Mã đơn, serial, SĐT, tiền dùng Inter với `tabular-nums` (số thẳng cột) — **không dùng mono** (prototype 18/11: mono nặng mắt trong bảng).
 - **Mẫu danh sách chuẩn** (dùng ở mọi khu): ô tìm kiếm không dấu · chip lọc · sắp xếp theo cột · phân trang · chọn nhiều dòng + thanh thao tác hàng loạt · nút xuất CSV/Excel.
-- **Ô tìm toàn cục** trên thanh điều hướng (thay trang `/tim` cũ): gõ SĐT, tên khách, serial, mã đơn, mã ticket → nhảy thẳng tới đối tượng.
+- **Ô tìm toàn cục** mở từ 🔍 đầu panel menu hoặc ⌘K (thay trang `/tim` cũ): gõ SĐT, tên khách, serial, mã đơn, mã ticket → nhảy thẳng tới đối tượng.
 - **Luật CEO 22/08:** danh sách chọn quá 10 mục phải **gõ để tìm**, không dùng `<select>` trần.
 - Kỹ thuật viên đăng nhập chỉ thấy màn rút gọn (lịch của tôi), tối ưu điện thoại.
 - Mockup CEO đã duyệt là "đẹp, dễ nhìn": https://claude.ai/artifact/Che3fXmSbZoeFVb8yA3N56#hom-nay — dùng làm chuẩn **bố cục và mật độ**; màu, chữ lấy theo DS mới. GWT Design System v4 (https://claude.ai/artifact/HPTEQYrb9ELXVVJof993zH) **không còn là chuẩn cho v2**.
@@ -532,7 +537,7 @@ Mục tiêu: mọi màn v2 ghép từ **một bộ component chung**. Bản cũ 
 | Màu | `background` #ffffff · `muted` #f3f3f3 · `foreground` #0d0d0d · `muted-foreground` #5d5d5d · `border` đen 10% · `input` đen 16% · `popover` (lớp nổi). **`primary` = đen**, không phải màu thương hiệu. **`accent` = nền hover/đang chọn** (đen 8%), không phải màu nhấn. Không rải hex trong component. |
 | Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` · nền thanh nav `#0c2a2e`. **(đề xuất) Mở rộng GWT** `--khu` (đặt qua `[data-khu="…"]`) và `--nav`: chỉ làm dấu nhận diện khu trên thanh điều hướng/launcher; **không** đổi `primary`, `ring` hay màu trạng thái. |
 | Màu trạng thái | Bảng tone dùng chung, mỗi tone = một vai màu OpenAI (cặp nền `…-soft-alpha` + chữ `…-soft`): `trung-tinh` → secondary · `dang-lam` → info · `cho` → warning · `xong` → success · `loi/khan` → danger · `thong-tin` → discovery. Mỗi trạng thái nghiệp vụ map vào một tone (bảng ở 8.4). |
-| Chữ | Font hệ thống OpenAI (`ui-sans-serif, -apple-system, system-ui, "Segoe UI", …`), không tải webfont. Số, mã, serial, SĐT, tiền: `font-mono` + `tabular-nums`. Thang OpenAI: 12/18 · **14/20 mặc định** · 16/24 · 18/26 · 20/26 · 24/28 (tiêu đề trang). Weight 400 · 500 · 600. |
+| Chữ | **Inter** (chốt 18/11, thay font hệ thống của DS OpenAI) qua `next/font/google` subset `latin` + `vietnamese`, dự phòng `ui-sans-serif, system-ui`. Số, mã, serial, SĐT, tiền: Inter + `tabular-nums` (không mono). Icon lucide nét 1.5. Thang OpenAI: 12/18 · **14/20 mặc định** · 16/24 · 18/26 · 20/26 · 24/28 (tiêu đề trang). Weight 400 · 500 · 600. |
 | Kích thước control | `control-size-md` **32px** mặc định (nút, ô nhập, select, tab, mục nav) · sm 28px · lg 36px · chạm điện thoại ≥ 44px. Padding ngang 12px (pill ×1,33). |
 | Bo góc | Nút pill (OpenAI mặc định), nút trong bảng/toolbar dày 6–8px · ô nhập/select 8px · thẻ, khung bảng, menu, Alert 12px · hộp thoại 16px (mở rộng GWT) · chip trạng thái 4px. |
 | Viền / bóng | Viền control bằng `box-shadow inset 1px`. Lớp nổi: `shadow` + `shadow-hairline`. Thẻ phẳng. |
@@ -571,14 +576,14 @@ Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng
 | `BannerLoi` | Alert danger |
 | `ThongBao` | Sonner — **chưa có trong DS, cần thêm** |
 | `ONgay` · `LocNgay` | Calendar / Date Picker — **chưa có trong DS, cần thêm** |
-| `KhungApp` | thanh 2 tầng tự dựng từ Button/DropdownMenu/Combobox (DS có Sidebar nhưng v2 giữ thanh trên) |
+| `KhungApp` | thanh icon + panel menu (mục 3) dựng từ Sidebar + Tooltip + DropdownMenu của DS |
 | còn lại | dựng bằng token DS, xong thì đưa vào DS |
 
 #### Khung trang
 
 | Component | Dùng ở | Hành vi + nghiệm thu |
 | --- | --- | --- |
-| `KhungApp` | mọi trang | Thanh 2 tầng (khu 52px + trang 46px), app-launcher lưới, menu ⚙️ quản trị, tài khoản/đăng xuất. Mục menu ẩn khi thiếu quyền (không hiện rồi báo lỗi). Kỹ thuật viên thuần chỉ thấy "Lịch của tôi". Điện thoại: tầng 2 cuộn ngang. |
+| `KhungApp` | mọi trang | Thanh icon 52px (khu, launcher, ⚙️, avatar) + panel menu 288px của khu + nút dock Bắp (mục 3). Mục menu ẩn khi thiếu quyền (không hiện rồi báo lỗi). Kỹ thuật viên thuần chỉ thấy "Lịch của tôi". Điện thoại: ngăn kéo trượt từ trái, Bắp toàn màn. |
 | `DauTrang` | mọi trang | Tiêu đề · phụ đề · nút quay lại (lùi lịch sử, không có thì về trang mặc định) · khu nút hành động bên phải. |
 | `TheNoiDung` | mọi khối | Thẻ trắng, viền, bo 12px, tiêu đề khối tuỳ chọn. Một kiểu duy nhất thay `p-4`/`p-5` lẫn lộn. |
 | `Tabs` | khách 360, kho serial, ads, chi tiết đơn | Tab ghi vào URL `?tab=` (F5/gửi link giữ tab); chỉ tải nội dung tab đang mở. |
@@ -590,7 +595,7 @@ Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng
 | `ThanhLoc` | Ô tìm không dấu (`q`) + chip lọc + `LocNgay` + chip sắp xếp + dòng "Đang lọc: … · Xoá lọc". Mọi bộ lọc nằm trên URL theo tên chuẩn (`q ngtu ngden trang cot chieu sp kenh tinh tt tp bh loai`). Đổi lọc → về trang 1. Luôn nói "đang thấy X / có Y". |
 | `BoLocChon` / `BoLocGoiY` | ≤10 lựa chọn: chip/select; >10: **gõ để tìm**. Cắt bớt thì ghi "Đang hiện 30 / 328". |
 | `LocNgay` | 4 preset Hôm nay · Tuần này (bắt đầu Thứ 2) · Tháng này · 30 ngày + khoảng tuỳ chọn. |
-| `BangDuLieu` | Cột định nghĩa một lần; người dùng ẩn/hiện/đổi thứ tự cột, lưu **view cá nhân** hoặc **view chung** (quyền quản lý; bản cũ đã có ở 4 bảng CSKH). Sắp xếp theo cột (khoá phụ duy nhất). Phân trang. Dòng bấm được → trang chi tiết. Cột tiền/số căn phải, mono. Điện thoại: thu thành thẻ. |
+| `BangDuLieu` | Cột định nghĩa một lần; người dùng ẩn/hiện/đổi thứ tự cột, lưu **view cá nhân** hoặc **view chung** (quyền quản lý; bản cũ đã có ở 4 bảng CSKH). Sắp xếp theo cột (khoá phụ duy nhất). Phân trang. Dòng bấm được → trang chi tiết. Cột tiền/số căn phải, `tabular-nums`. Điện thoại: thu thành thẻ. |
 | `ChonNhieuDong` + `ThanhHangLoat` | Ô chọn từng dòng + "chọn tất cả theo bộ lọc" (gọi lại đúng truy vấn, không giới hạn 1.000 dòng); thanh hàng loạt hiện số đã chọn + thao tác (đổi trường, gán người, đóng, xoá, xuất). Đổi bộ lọc → bỏ chọn. |
 | `NutXuat` | Chọn cột → tải CSV/Excel đúng bộ lọc hiện tại; xuất dữ liệu nhạy cảm đi qua duyệt. |
 | `TheSo` | Ô số liệu (nhãn · số · ghi chú). Bấm = áp bộ lọc tương ứng (vd "Mở quá 7 ngày: 12" → lọc). |
@@ -600,7 +605,7 @@ Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng
 
 | Component | Hành vi + nghiệm thu |
 | --- | --- |
-| `DauDoiTuong` | Đầu trang chi tiết ticket / đơn / khách / máy / việc: mã (mono) · thuộc tính chính · **ô sửa nhanh** (chọn là lưu ngay, có lỗi thì trả về giá trị cũ) · dòng tóm tắt ("Mở 5 ngày · 2 lần lỗi · lần cuối 16/11"). |
+| `DauDoiTuong` | Đầu trang chi tiết ticket / đơn / khách / máy / việc: mã (`tabular-nums`) · thuộc tính chính · **ô sửa nhanh** (chọn là lưu ngay, có lỗi thì trả về giá trị cũ) · dòng tóm tắt ("Mở 5 ngày · 2 lần lỗi · lần cuối 16/11"). |
 | `ChipTrangThai` | Một component cho mọi trạng thái (ticket, đơn, thanh toán, bảo hành, việc, kho, CTKM, ưu tiên, khẩn, mức độ lỗi). Nhận `loai` + `giaTri`, tự tra tone ở bảng 8.4. Thay ≥8 badge cũ. |
 | `NhanNguon` | "App" · "Sheet" · "Discord ↗" (link tin gốc) · "Bot". Hiện trên đơn, task, dòng kho, mục nhật ký. |
 | `NhatKy` (timeline) | Dòng theo ngày: ai · lúc · nội dung · tệp đính kèm · nguồn. Thêm mục mới ngay trong khối; chọn ngày lùi được (không tương lai); sửa/xoá mục của mình. Dùng cho: các lần lỗi ticket, trao đổi ticket, bình luận việc, lịch sử thay lõi, lịch sử sửa kho, nhật ký thao tác. |
@@ -716,7 +721,7 @@ Tóm tắt từ `docs/rework/2026-11-18-review-don-gian-hoa.md`: các màn trùn
 | 3 | Lịch & Dự án (Work), Báo giá · Hợp đồng · Doanh số Sales | 4.1, 4.3 | ngoài v2.0 |
 | 4 | Kế hoạch chuyển data SalesTracking → Masterdata (thứ tự schema, đổi đích bot cùng lúc) | 6 | việc riêng, làm trước khi code v2 |
 | 5 | Ai được tạo mã khách trong v2, khi luật Masterdata gốc chỉ cho chị Trang thêm `customers` | 6, 7.1, 7.2 | khách tạo ở schema module, chị Trang duyệt lên bảng gốc |
-| 6 | Font chung của app (Geist hay font hệ thống) | 3, 8.1 | font hệ thống theo DS OpenAI (trước 18/11 đề xuất Geist) |
+| 6 | Font chung của app | 3, 8.1 | **đã chốt 18/11: Inter**, số/mã dùng `tabular-nums`, không mono |
 | 7 | Màu khu dùng tới đâu: chỉ dấu nhận diện ở thanh điều hướng, hay cả nút chính/focus như bản cũ | 8.1 | chỉ dấu nhận diện; nút chính đen, focus xanh theo DS |
 | 8 | Nền thanh điều hướng tầng 1: giữ `#0c2a2e` (mở rộng GWT) hay nền sáng của DS | 3, 8.1 | giữ `#0c2a2e` |
 | 9 | `dang-lam` = info (xanh dương) và `thong-tin` = discovery (tím) thay accent khu / chàm | 8.1, 8.4 | đồng ý |
