@@ -46,4 +46,15 @@ trong "ticket của tôi".
   của danh mục (`cs_loi_khop`); lệch → dòng đề xuất. Mô tả lặp nhiều mà không khớp mã nào → đề xuất nhóm con mới.
 - Trang "Rà soát lỗi tháng" trong Ticket & lỗi: duyệt / bỏ qua từng dòng hoặc hàng loạt; duyệt = đổi `ticket_may.loi_code`.
 - Tin tóm tắt Discord (#ai-team): số ticket tháng, số đề xuất, link trang duyệt.
-- Câu hỏi còn mở trước khi code B: chạy bằng cron Vercel hay launchd Mac mini (bot Bắp); kênh Discord nhận tin.
+- Chốt 18/11: chạy trên **Mac mini, bot Bắp** (launchd, cạnh các lịch có sẵn); tin tóm tắt vào **#ai-team**.
+
+Đo thử `cs_loi_khop` trên 114 ticket (18/11, mô tả ticket + mô tả dòng máy + các lần lỗi):
+
+| Kết quả | Số ticket | Rà soát nên làm gì |
+|---|---|---|
+| Khớp mã đang gắn | 76 | Không báo |
+| Bộ từ khoá không đoán được | 35 | Đề xuất **bổ sung từ khoá** (alias) cho mã đang gắn — danh mục còn thiếu chữ người dùng hay gõ |
+| Lệch mã | 9 | Chỉ báo khi **lệch nhóm cha** (Main / Rò rỉ / CLN / App / Không phải lỗi); lệch nhóm con cùng nhóm là nhiễu |
+
+→ Duyệt một đề xuất "bổ sung từ khoá" = thêm alias vào `loi_danh_muc` (lần sau tự khớp); duyệt "lệch nhóm" = đổi
+`ticket_may.loi_code`. Cụm từ lặp ≥ 3 ticket trong tháng mà không khớp mã nào → đề xuất nhóm con mới.
