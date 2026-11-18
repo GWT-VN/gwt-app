@@ -3236,6 +3236,20 @@ export async function lapBoCombo(input: {
   })
   if (error) return { ok: false, error: error.message }
   const maBo = data as string
+  // Serial thật của bộ → kho "đã lắp" + lịch sử (như lắp máy lẻ). Trước 18/11 thiếu bước này → máy ở khách vẫn hiện
+  // "Tồn kho". Lỗi nhật ký không chặn nghiệp vụ chính.
+  const thatSerial = dv.map((s) => s.serial).filter(Boolean)
+  if (thatSerial.length) {
+    try {
+      const db = dataClient()
+      const nv = await layNhanVien()
+      await db.from('serial_registry').update({ trang_thai: 'da_lap' }).in('serial', thatSerial)
+      await db.from('serial_su_dung').insert(thatSerial.map((serial) => ({
+        serial, su_kien: 'lap_dat', tu_trang_thai: 'ton_kho', den_trang_thai: 'da_lap', customer_id: input.customer_id,
+        ghi_chu: `Lắp bộ ${maBo}`, boi: nv?.email ?? null,
+      })))
+    } catch { /* bỏ qua */ }
+  }
   await ghiAudit('lap_bo_combo', `bo:${maBo}`, {
     combo: input.combo, customer_id: input.customer_id, so_thiet_bi: dv.length, so_chua_serial: tb.soChuaSerial,
   })
