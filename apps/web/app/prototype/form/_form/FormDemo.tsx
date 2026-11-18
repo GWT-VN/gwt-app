@@ -264,9 +264,9 @@ function ChonLoai({ gt, doi, loi }: { gt: string; doi: (s: string) => void; loi?
 }
 
 // ---------------- trang demo ----------------
-function Khoi({ ten, mo, children }: { ten: string; mo?: string; children: ReactNode }) {
+function Khoi({ id, ten, mo, children }: { id: string; ten: string; mo?: string; children: ReactNode }) {
   return (
-    <section className="ui-card ui-card-pad fm-khoi" aria-labelledby={'k-' + ten}>
+    <section id={id} className="ui-card ui-card-pad fm-khoi" aria-labelledby={'k-' + ten}>
       <h2 className="ui-form-title" id={'k-' + ten} style={mo ? undefined : { marginBottom: 16 }}>{ten}</h2>
       {mo && <p className="ui-caption" style={{ margin: '0 0 16px' }}>{mo}</p>}
       {children}
@@ -309,7 +309,7 @@ export function FormDemo() {
           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? <Moon /> : <Sun />}</button>
       </header>
 
-      <Khoi ten="Form mẫu" mo="Ghép từ component có sẵn + mới. Bấm Lưu khi để trống để xem trạng thái lỗi.">
+      <Khoi id="form" ten="Form mẫu" mo="Ghép từ component có sẵn + mới. Bấm Lưu khi để trống để xem trạng thái lỗi.">
         <form className="ui-form" noValidate onSubmit={(e) => { e.preventDefault(); setDaGui(true); const f = e.currentTarget; setTimeout(() => f.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()) }}>
           <div className="ui-form-section">
             <h3 className="ui-form-title">Thông tin chung</h3>
@@ -374,7 +374,7 @@ export function FormDemo() {
       </Khoi>
 
       <div className="fm-luoi">
-        <Khoi ten="DatePicker" mo="Trigger = Select · bảng nổi = Menu · phím mũi tên / PageUp / PageDown / Home / End">
+        <Khoi id="datepicker" ten="DatePicker" mo="Trigger = Select · bảng nổi = Menu · phím mũi tên / PageUp / PageDown / Home / End">
           <div className="ui-stack" style={{ gap: 16 }}>
             <div className="ui-field"><label className="ui-label" htmlFor="d1">Trống</label><DatePicker id="d1" gt={ngay2} doi={setNgay2} homNay={homNay} /></div>
             <div className="ui-field"><label className="ui-label" htmlFor="d2">Đã chọn</label><DatePicker id="d2" gt={congNgay(homNay, 3)} doi={() => {}} homNay={homNay} /></div>
@@ -382,11 +382,11 @@ export function FormDemo() {
             <div className="ui-field"><label className="ui-label" htmlFor="d4">Tắt</label><DatePicker id="d4" gt={homNay} doi={() => {}} homNay={homNay} disabled /></div>
           </div>
         </Khoi>
-        <Khoi ten="DateRange" mo="Mốc nhanh lấy từ PRESETS (bang/ngay.ts) · 2 tháng · Áp dụng mới đổi giá trị">
+        <Khoi id="daterange" ten="DateRange" mo="Mốc nhanh lấy từ PRESETS (bang/ngay.ts) · 2 tháng · Áp dụng mới đổi giá trị">
           <div className="ui-field"><label className="ui-label" htmlFor="r1">Khoảng ngày</label><DateRangePicker id="r1" gt={khoang} doi={setKhoang} homNay={homNay} /></div>
           <p className="ui-caption" style={{ margin: '12px 0 0' }}>Giá trị: {khoang.tu} → {khoang.den}</p>
         </Khoi>
-        <Khoi ten="Ô tiền · đơn vị" mo="InputAffix — căn phải, số thẳng cột, đơn vị mờ trong ô">
+        <Khoi id="o-tien" ten="Ô tiền · đơn vị" mo="InputAffix — căn phải, số thẳng cột, đơn vị mờ trong ô">
           <div className="ui-stack" style={{ gap: 16 }}>
             <div className="ui-field"><label className="ui-label" htmlFor="m1">Đơn giá</label><MoneyInput id="m1" gt={tien2} doi={setTien2} /></div>
             <div className="ui-field"><label className="ui-label" htmlFor="m2">Chiết khấu</label>
@@ -395,7 +395,7 @@ export function FormDemo() {
             <div className="ui-field"><label className="ui-label" htmlFor="m4">Đã thu</label><MoneyInput id="m4" gt={3500000} doi={() => {}} disabled /></div>
           </div>
         </Khoi>
-        <Khoi ten="Radio · Checkbox · Switch">
+        <Khoi id="radio-switch" ten="Radio · Checkbox · Switch">
           <div className="ui-stack" style={{ gap: 20 }}>
             <fieldset className="ui-choices">
               <legend className="ui-label">Hình thức thanh toán</legend>
@@ -410,7 +410,7 @@ export function FormDemo() {
             </div>
           </div>
         </Khoi>
-        <Khoi ten="FileUpload" mo="Đang tải · xong · lỗi quá dung lượng · kéo tệp vào vùng để thấy trạng thái thả">
+        <Khoi id="fileupload" ten="FileUpload" mo="Đang tải · xong · lỗi quá dung lượng · kéo tệp vào vùng để thấy trạng thái thả">
           <FileUpload id="u1" tep={tep2} setTep={setTep2} />
           <div style={{ marginTop: 16 }}><FileUpload id="u2" tep={[]} setTep={() => {}} disabled /></div>
         </Khoi>
