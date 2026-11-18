@@ -24,6 +24,55 @@ export const TRANG_CSKH: Trang[] = [
   { ten: 'Kỹ thuật', con: ['Điều phối tuần', 'Hồ sơ KTV'] },
 ]
 
+// Phương án D/E: panel menu phẳng theo khu (kiểu ảnh mẫu người dùng gửi 18/11).
+export type MucPanel = { ten: string; icon: string; dem?: number }
+export const PANEL_THEO_KHU: Record<string, { tao?: string; muc: MucPanel[]; daLuu: string[] }> = {
+  viec: {
+    tao: 'Tạo việc',
+    muc: [
+      { ten: 'Việc của tôi', icon: 'check', dem: 4 }, { ten: 'Bảng team', icon: 'users' },
+      { ten: 'Nghiệm thu Task AI', icon: 'badge' }, { ten: 'Tổng kết tháng', icon: 'chart' }, { ten: 'Việc tự sinh', icon: 'repeat' },
+    ],
+    daLuu: ['Gấp', 'Lâu không đụng'],
+  },
+  cskh: {
+    tao: 'Tạo ticket',
+    muc: [
+      { ten: 'Việc hôm nay', icon: 'today', dem: 11 }, { ten: 'Ticket', icon: 'ticket' }, { ten: 'Khách hàng', icon: 'users' },
+      { ten: 'Máy & bảo hành', icon: 'shield' }, { ten: 'Bảo trì & thay lõi', icon: 'calendar' }, { ten: 'Kỹ thuật', icon: 'wrench' },
+      { ten: 'Báo cáo lỗi', icon: 'chart' }, { ten: 'Danh mục lỗi', icon: 'book' },
+    ],
+    daLuu: ['Ticket mở quá 7 ngày', 'Thiếu serial', 'Ticket của tôi'],
+  },
+  sales: {
+    tao: 'Tạo đơn',
+    muc: [
+      { ten: 'Đơn hàng', icon: 'cart' }, { ten: 'Khách hàng', icon: 'users' }, { ten: 'Khuyến mãi', icon: 'badge' },
+      { ten: 'Bảng giá & đại lý', icon: 'chart' }, { ten: 'Đơn Hannah Olala', icon: 'inbox' },
+    ],
+    daLuu: ['Đơn chờ cọc', 'Đơn POE tháng này'],
+  },
+  kho: {
+    tao: 'Ghi nhập / xuất',
+    muc: [
+      { ten: 'Tồn kho', icon: 'package', dem: 2 }, { ten: 'Nhật ký nhập/xuất', icon: 'repeat' }, { ten: 'Chờ duyệt mã', icon: 'inbox' },
+      { ten: 'Kiểm kê', icon: 'check' }, { ten: 'Báo cáo tháng', icon: 'chart' },
+    ],
+    daLuu: ['Sắp hết hàng'],
+  },
+  wiki: {
+    muc: ['Sản phẩm', 'Marketing video', 'Kho video', 'Kiến thức nền', 'Công việc chung', 'Sales', 'CSKH', 'Vận hành', 'Tài chính'].map((t) => ({ ten: t, icon: 'book' })),
+    daLuu: [],
+  },
+}
+export const GAN_DAY = [
+  { loai: 'ticket', ten: 'TK-2611-042 · Nguyễn Văn An' },
+  { loai: 'khach', ten: 'Công ty TNHH Minh Phát' },
+  { loai: 'ticket', ten: 'TK-2611-043 · Trần Thị Bình' },
+  { loai: 'don', ten: 'Đơn 261118-E004' },
+  { loai: 'may', ten: 'Serial V9L2304A1123' },
+]
+
 export type Dong = {
   ma: string
   khach: string

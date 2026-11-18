@@ -6,8 +6,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { VariantA, TEN_A } from './VariantA'
 import { VariantB, TEN_B } from './VariantB'
 import { VariantC, TEN_C } from './VariantC'
+import { VariantD, VariantE, TEN_D, TEN_E } from './VariantD'
 
 const DS = [
+  { k: 'D', ten: TEN_D, C: VariantD },
+  { k: 'E', ten: TEN_E, C: VariantE },
   { k: 'A', ten: TEN_A, C: VariantA },
   { k: 'B', ten: TEN_B, C: VariantB },
   { k: 'C', ten: TEN_C, C: VariantC },
