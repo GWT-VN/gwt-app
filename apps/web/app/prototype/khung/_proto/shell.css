@@ -21,7 +21,7 @@
 /* ---------- dùng chung ---------- */
 .p-kbd { font: 500 11px/16px var(--font-mono); padding: 0 5px; border: 1px solid var(--border); border-radius: var(--radius-xs); color: var(--muted-foreground); background: var(--background); }
 .p-kbd.tren-toi, .pC-mo-bap .p-kbd { border-color: rgba(255, 255, 255, 0.24); color: rgba(255, 255, 255, 0.78); background: transparent; }
-.p-avatar { display: inline-grid; place-content: center; width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--secondary); color: var(--secondary-foreground); font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.p-avatar { display: inline-grid; place-content: center; width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--secondary); color: var(--secondary-foreground); font-size: 10px; line-height: 14px; font-weight: 600; flex-shrink: 0; }
 .p-avatar.tren-toi { width: 28px; height: 28px; background: rgba(255, 255, 255, 0.16); color: #fff; }
 .p-cham { width: 8px; height: 8px; border-radius: var(--radius-full); flex-shrink: 0; }
 .p-vet { display: flex; align-items: center; gap: 6px; color: var(--muted-foreground); }

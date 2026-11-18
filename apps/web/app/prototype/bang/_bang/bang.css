@@ -8,7 +8,7 @@
 .b-dem { font-size: 12px; line-height: 18px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 
 .b-thanh { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; }
-.b-tabs-cuon { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.b-tabs-cuon { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); } /* tràn: mờ dần mép phải, vẫn cuộn được — không cắt cụt giữa chữ */
 .b-tim { width: 240px; }
 .b-thanh-phai { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .b-dangloc { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 18px; color: var(--foreground); }
