@@ -1,8 +1,10 @@
 /* PROTOTYPE — bố cục 3 phương án khung + nội dung "Việc hôm nay". Mọi giá trị qua token DS (tokens.css). */
 
 .proto {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   position: fixed; inset: 0; z-index: 10; overflow: hidden;
   font-family: var(--font-sans); font-size: 14px; line-height: 20px;
+  font-feature-settings: "cv11", "ss03";
   color: var(--foreground); background: var(--background);
   -webkit-font-smoothing: antialiased;
 }
@@ -157,7 +159,8 @@
 .pD { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; background: var(--muted); }
 .pD-trai { display: flex; height: 100%; min-height: 0; }
 .pD-rail { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 52px; padding: 8px 0 12px; }
-.pD-logo { margin-bottom: 8px; width: 32px; height: 32px; font-size: 11px; }
+.pD-logo { margin-bottom: 4px; width: 28px; height: 28px; font-size: 10px; }
+.pD svg { stroke-width: 1.5; }
 .pD-icon { position: relative; display: grid; place-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-md); background: none; color: var(--muted-foreground); cursor: pointer; }
 .pD-icon svg { width: 18px; height: 18px; }
 .pD-icon:hover { background: var(--accent); color: var(--foreground); }
@@ -173,14 +176,14 @@
 /* panel + vùng chính ghép thành MỘT tấm, bo góc trên-trái 12px, nằm trên nền xám của thanh icon (đo ChatGPT 18/11) */
 .pD-panel { display: flex; flex-direction: column; width: 288px; min-height: 0; margin-top: 8px; background: var(--sidebar); border: 1px solid var(--alpha-08); border-width: 1px 1px 0 1px; border-top-left-radius: var(--radius-xl); }
 .pD-dau { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 8px 0 16px; flex-shrink: 0; }
-.pD-tieude { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; }
+.pD-tieude { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.01em; }
 .pD-cuon { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
 .pD-nhom { margin-top: 4px; }
 .pD-nhom + .pD-nhom { margin-top: 14px; }
 .pD-cuon .ui-sidebar-item { height: 30px; margin-bottom: 1px; padding: 0 10px; color: var(--gray-600); }
 .pD-cuon .ui-sidebar-item .ui-icon { color: var(--color-text-tertiary); }
 .pD-cuon .ui-sidebar-item:hover { background: var(--alpha-04); color: var(--foreground); }
-.pD-cuon .ui-sidebar-item[aria-current="page"] { background: var(--alpha-05); color: var(--foreground); }
+.pD-cuon .ui-sidebar-item[aria-current="page"] { background: var(--alpha-05); color: var(--foreground); font-weight: 400; }
 .pD-nhan { display: flex; align-items: center; height: 30px; padding: 0 10px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--color-text-tertiary); }
 .pD-so { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
 .pD-gan { color: var(--muted-foreground); }
@@ -218,7 +221,7 @@
 .n-trang { container-type: inline-size; max-width: 1584px; margin: 0 auto; padding: 36px clamp(24px, 6vw, 112px) 112px; }
 .n-dau { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .n-dau-chu { display: flex; align-items: baseline; gap: 12px; flex: 1; min-width: 200px; }
-.n-h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; }
+.n-h1 { margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; }
 .n-phu { font-size: 13px; color: var(--muted-foreground); }
 .n-tim { display: flex; align-items: center; gap: 8px; width: 240px; height: var(--control-size-md); padding: 0 12px; border-radius: var(--radius-full); box-shadow: inset 0 0 0 1px var(--border); color: var(--muted-foreground); cursor: text; transition: box-shadow 150ms ease; }
 .n-tim:hover { box-shadow: inset 0 0 0 1px var(--input); }
@@ -266,7 +269,7 @@
 .n-o-icon[data-tone="danger"] { color: var(--color-text-danger); }
 .n-o-icon[data-tone="warning"] { color: var(--color-text-warning); }
 .n-o-icon[data-tone="info"] { color: var(--color-text-info); }
-.n-ma { font: 13px/20px var(--font-mono); color: var(--muted-foreground); }
+.n-ma { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--color-text-tertiary); }
 .n-khach { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .n-cat { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .n-luuy { flex-shrink: 0; display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 500; color: var(--color-text-danger); }
