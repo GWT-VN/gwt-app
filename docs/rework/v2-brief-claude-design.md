@@ -137,7 +137,7 @@ Tone → vai màu trong DS (Badge `soft`, luôn kèm chữ, không chỉ màu):
 ## 5. Khung app
 
 **Đã chốt 18/11 — thanh icon + panel menu, Bắp dock góc phải** (prototype F, nhánh `prototype/v2-khung`). Đoạn "thanh 2 tầng" dưới đây là phương án cũ, giữ để đối chiếu; khi vẽ theo khung mới:
-- Thanh icon trái 52px nền `muted`: logo · icon khu (đang mở = ô 36px nền `alpha-05`, icon màu khu, chấm đỏ = việc gấp, rê chuột hiện nhãn) · lưới "Tất cả khu" · ⚙️ · avatar ở đáy.
+- Thanh icon trái 52px nền `muted`: logo · icon khu (đang mở = ô 36px nền `alpha-05`, icon đen; icon thường xám tertiary; màu khu chỉ ở chấm trước tên khu; chấm đỏ = việc gấp, rê chuột hiện nhãn) · lưới "Tất cả khu" · ⚙️ · avatar ở đáy.
 - Panel menu 288px nền `sidebar`, cùng vùng nội dung thành một tấm bo góc trên-trái 12px: tên khu 18px/600 + 🔔 + 🔍 (⌘K) · nút tạo · trang của khu (mục 30px) · Bộ lọc đã lưu · Gần đây. Nhãn nhóm 14px thường màu nhạt.
 - Bảng nhẹ: dòng 50px, kẻ dòng `alpha-05` thụt 12px, rê = nền `alpha-05` bo 12px; tab viên thuốc 36px; ô tìm 240×32; nút công cụ tròn 32px.
 - Bắp: nút tròn 48px góc dưới phải, số đỏ = gợi ý chủ động; bấm/⌘J mở khung chat nổi 400px.

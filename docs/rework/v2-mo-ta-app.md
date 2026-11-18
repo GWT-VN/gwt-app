@@ -37,7 +37,7 @@ Một người có thể mang nhiều vai. Vai trò hiện có: `ceo, admin, qua
 ## 3. Khung giao diện chung
 
 - **Khung điều hướng (chốt 18/11/2026 theo prototype F — nhánh `prototype/v2-khung`, `/prototype/khung?variant=F` chạy local; số đo lấy theo app ChatGPT):**
-  - **Thanh icon** bên trái 52px, nền `muted`: logo GWT · một icon cho mỗi khu (khu đang mở = ô 36px nền `alpha-05`, icon tô màu khu; chấm đỏ = khu có việc gấp; rê chuột hiện nhãn đen bên phải) · lưới "Tất cả khu" = **app-launcher** (Nhân sự, Kế toán hiện xám "sắp có") · ⚙️ Quản trị và avatar ở đáy.
+  - **Thanh icon** bên trái 52px, nền `muted`: logo GWT · một icon cho mỗi khu (khu đang mở = ô 36px nền `alpha-05`, icon đen `foreground`; icon thường xám `color-text-tertiary`; màu khu chỉ còn ở chấm trước tên khu trên panel; chấm đỏ = khu có việc gấp; rê chuột hiện nhãn đen bên phải) · lưới "Tất cả khu" = **app-launcher** (Nhân sự, Kế toán hiện xám "sắp có") · ⚙️ Quản trị và avatar ở đáy.
   - **Panel menu của khu** 288px, nền `sidebar`, ghép với vùng nội dung thành **một tấm bo góc trên-trái 12px**: đầu panel = tên khu (18px/600) + 🔔 thông báo + 🔍 tìm toàn cục (⌘K) · nút tạo của khu (vd "Tạo ticket") · các trang của khu (mục 30px, đang mở = nền `alpha-05`) · nhóm "Bộ lọc đã lưu" · nhóm "Gần đây" (5 mục + Xem thêm). Nhãn nhóm 14px chữ thường màu nhạt, không in hoa, không đậm.
   - **Agent Bắp = nút dock** tròn 48px góc dưới phải; số đỏ trên nút = gợi ý Bắp chủ động đưa ra. Bấm (hoặc ⌘J) mở khung chat nổi 400px phía trên nút; Bắp biết khu/màn đang mở.
   - **Điện thoại:** thanh trên gọn (☰ · tên khu); thanh icon + panel thành ngăn kéo trượt từ trái; Bắp mở toàn màn.
