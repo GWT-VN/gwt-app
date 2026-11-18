@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent as PE, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy, DotsSixVertical,
+  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy, DotsSix,
   Export, Eye, FloppyDisk, MagnifyingGlass, Plus, WarningCircle, Funnel, GearSix, Kanban, LinkSimple, ListBullets, PencilSimple, Rows, SidebarSimple, SortAscending, Table, X,
   type Icon,
 } from '@phosphor-icons/react'
@@ -379,7 +379,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
                 data-tren={vach(c.id)} data-keo={keo === c.id || undefined}
                 onDragStart={(e) => batDauKeo(e, c)} onDragEnd={() => { setKeo(null); setTren(null) }}
                 onDragOver={(e) => veQua(e, c.id)} onDrop={(e) => tha(e, c.id)}>
-                <DotsSixVertical className="b-th-tay" aria-hidden />
+                <DotsSix className="b-th-tay" aria-hidden />
                 <DauCot la="o" b={b} ten={c.ten} cot={c.sap} loc={c.loc} menuPhai={c.id === 'chu'} />
                 <span className="b-co" role="separator" aria-label={`Đổi độ rộng cột ${c.ten}`} aria-orientation="vertical"
                   onPointerDown={(e) => batDauCo(e, c.id)} onPointerMove={keoCo} onPointerUp={() => { co.current = null }}
