@@ -3,6 +3,7 @@
 // D: Bắp là một icon trên thanh — bấm thì panel menu đổi thành khung chat.
 // E: cùng khung, Bắp mở thành panel riêng bên phải, menu giữ nguyên.
 import { useEffect, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'next/navigation'
 // Icon: Phosphor (chốt 18/11) — bản thường "regular", mục đang chọn trên thanh icon dùng bản "fill" như ChatGPT
 import {
   ChartBar as BarChart3, Bell, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
@@ -28,15 +29,14 @@ const ICON_GAN_DAY: Record<string, LucideIcon> = { ticket: Ticket, khach: UserRo
 export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'panel' | 'phai' | 'dock'; children?: ReactNode; mucChon?: string }) {
   const bapTrongPanel = che === 'panel'
   const [khu, setKhu] = useState('cskh')
-  const [bap, setBap] = useState(false)
+  const thamSo = useSearchParams()
+  const [bap, setBap] = useState(() => thamSo.get('bap') === 'mo') // ?bap=mo → mở sẵn Bắp (gửi link xem trạng thái đang mở); đọc lúc dựng, SSR cũng thấy
   const [menuMo, setMenuMo] = useState(false)
   const [xemThem, setXemThem] = useState(false)
   const [launcher, setLauncher] = useState(false)
   const k = KHU.find((x) => x.id === khu)!
   const p = PANEL_THEO_KHU[khu]
 
-  // ?bap=mo → mở sẵn Bắp (gửi link xem trạng thái đang mở)
-  useEffect(() => { if (new URLSearchParams(location.search).get('bap') === 'mo') setBap(true) }, [])
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j') { e.preventDefault(); setBap((v) => !v) }

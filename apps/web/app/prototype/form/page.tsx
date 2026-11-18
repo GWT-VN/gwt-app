@@ -13,7 +13,8 @@ const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter'
 
 export const metadata = { title: 'Prototype · Form DS' }
 
-export default function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
   if (process.env.NODE_ENV === 'production') notFound()
-  return <div className={inter.variable}><FormDemo /></div>
+  const { theme } = await searchParams
+  return <div className={inter.variable}><FormDemo toi={theme === 'dark'} /></div>
 }

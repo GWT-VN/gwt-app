@@ -1,6 +1,6 @@
 'use client'
 // PROTOTYPE — phần dùng chung của các phương án bảng: state, bộ lọc, ô hiển thị, menu chọn, toast hoàn tác.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import {
   ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, MagnifyingGlass, Question,
@@ -94,9 +94,11 @@ export function useBang() {
   // đổi bộ lọc → bỏ chọn (spec 8.3)
   const boChon = <T,>(f: (v: T) => void) => (v: T) => { f(v); setChon(new Set()); setTrang(1) }
 
+  // dòng đang chọn mà rơi khỏi bộ lọc (vd đổi sang Đóng ngay tại ô) → không còn tính là đang chọn
+  const chonThat = useMemo(() => { const co = new Set(thay.map((t) => t.ma)); const s2 = new Set([...chon].filter((m) => co.has(m))); return s2.size === chon.size ? chon : s2 }, [chon, thay])
   return {
     rows, thay, tab, setTab: boChon(setTab), q, setQ: boChon(setQ), locUu, setLocUu: boChon(setLocUu), locChu, setLocChu: boChon(setLocChu), locNhom, setLocNhom: boChon(setLocNhom),
-    sap, setSap: (v: typeof sap) => { setSap(v); setTrang(1) }, chon, setChon, toast, setToast, sua, suaNhieu, demTab,
+    sap, setSap: (v: typeof sap) => { setSap(v); setTrang(1) }, chon: chonThat, setChon, toast, setToast, sua, suaNhieu, demTab,
     hien, trang: trangThat, setTrang, soTrang,
   }
 }
@@ -168,9 +170,32 @@ export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNe
     m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${Math.max(8, Math.min(duoi ? r.bottom + 4 : r.top - 4 - h, innerHeight - h - 8))}px`) // không đủ chỗ cả 2 phía → ép vào trong màn
     m.style.visibility = 'visible'
     // autoFocus không ăn khi nội dung gắn lúc còn hidden → đưa focus vào ô nhập / mục đang chọn / mục đầu (APG menu)
-    const f = requestAnimationFrame(() => { if (!m.contains(document.activeElement)) (m.querySelector<HTMLElement>('input, [aria-checked="true"], .ui-menu-item'))?.focus() })
+    const f = requestAnimationFrame(() => {
+      if (m.contains(document.activeElement)) return
+      // theo THỨ TỰ ưu tiên (querySelector với nhiều selector lấy theo thứ tự DOM): ô tìm → mục đang chọn → mục đầu
+      ;(m.querySelector<HTMLElement>('input') ?? m.querySelector<HTMLElement>('[aria-checked="true"]') ?? m.querySelector<HTMLElement>('.ui-menu-item'))?.focus()
+    })
     return () => cancelAnimationFrame(f)
   }, [mo, className, theoNeo])
+  // đóng menu → trả focus về nút đã mở nó (nếu focus đang rơi về body), như DatePicker/APG
+  useLayoutEffect(() => {
+    if (!mo) return
+    const truoc = document.activeElement as HTMLElement | null
+    return () => { requestAnimationFrame(() => { const a = document.activeElement; if ((!a || a === document.body) && truoc?.isConnected) truoc.focus() }) }
+  }, [mo])
+  const phim = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') return // để listener Esc ở document đóng menu
+    e.stopPropagation() // portal vẫn nổi bọt theo cây React → Enter/Space không lan lên thẻ/hàng phía sau
+    if (role !== 'menu') return
+    if (e.key === 'Tab') { e.preventDefault(); dong(); return }
+    const ds = [...(ref.current?.querySelectorAll<HTMLElement>('.ui-menu-item:not([disabled])') ?? [])]
+    if (!ds.length || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return
+    if ((e.key === 'Home' || e.key === 'End') && (e.target as Element).tagName === 'INPUT') return // Home/End trong ô tìm = dời con trỏ chữ
+    e.preventDefault()
+    const i = ds.indexOf(document.activeElement as HTMLElement)
+    const toi = e.key === 'Home' ? 0 : e.key === 'End' ? ds.length - 1 : e.key === 'ArrowDown' ? (i + 1) % ds.length : (i <= 0 ? ds.length - 1 : i - 1)
+    ds[toi].focus()
+  }
   useEffect(() => {
     if (!mo) return
     const trong = (n: EventTarget | null) => !!ref.current?.contains(n as Node) || !!neo.current?.parentElement?.contains(n as Node)
@@ -189,7 +214,7 @@ export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNe
     <>
       <span ref={neo} hidden />
       {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role={role} aria-label={nhan} style={{ visibility: 'hidden' }}
-        onClick={(e) => e.stopPropagation()}>{/* portal vẫn nổi bọt theo cây React → không để click lan lên thẻ/hàng chứa nó */}{children}</div>, document.querySelector('.proto') ?? document.body)}
+        onClick={(e) => e.stopPropagation()} onKeyDown={phim}>{/* portal vẫn nổi bọt theo cây React → không để click/phím lan lên thẻ/hàng chứa nó */}{children}</div>, document.querySelector('.proto') ?? document.body)}
     </>
   )
 }
@@ -384,7 +409,14 @@ export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: str
         <div className="b-tabs-cuon">
           <div className="ui-tabs-list" data-variant="pill" role="tablist" aria-label="Nhóm ticket">
             {NHOM_TAB.map((x) => (
-              <button key={x.id} role="tab" className="ui-tabs-trigger" aria-selected={b.tab === x.id} onClick={() => b.setTab(x.id)}>
+              <button key={x.id} role="tab" className="ui-tabs-trigger" aria-selected={b.tab === x.id} tabIndex={b.tab === x.id ? 0 : -1} onClick={() => b.setTab(x.id)}
+                onKeyDown={(e) => { // APG tabs: ←/→/Home/End chuyển tab, chỉ tab đang chọn nằm trong thứ tự Tab
+                  const i = NHOM_TAB.findIndex((n) => n.id === x.id)
+                  const j = e.key === 'ArrowRight' ? (i + 1) % NHOM_TAB.length : e.key === 'ArrowLeft' ? (i - 1 + NHOM_TAB.length) % NHOM_TAB.length : e.key === 'Home' ? 0 : e.key === 'End' ? NHOM_TAB.length - 1 : -1
+                  if (j < 0) return
+                  e.preventDefault(); b.setTab(NHOM_TAB[j].id)
+                  const ds = e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]'); ds?.[j]?.focus()
+                }}>
                 {x.ten} <span className="ui-tabs-count" data-color={x.id === 'qua-han' ? 'danger' : undefined}>{b.demTab(x.id)}</span>
               </button>
             ))}
@@ -505,7 +537,8 @@ export function Rong({ b }: { b: Bang }) {
 }
 
 export function Toast({ b }: { b: Bang }) {
-  useEffect(() => { if (!b.toast) return; const id = setTimeout(() => b.setToast(null), 5000); return () => clearTimeout(id) }, [b.toast, b])
+  const { toast, setToast } = b
+  useEffect(() => { if (!toast) return; const id = setTimeout(() => setToast(null), 5000); return () => clearTimeout(id) }, [toast, setToast]) // b là object mới mỗi lần render → không cho vào deps (hẹn giờ bị đặt lại mãi)
   if (!b.toast) return null
   return (
     <div className="ui-toast" role="status" aria-live="polite">
@@ -517,6 +550,16 @@ export function Toast({ b }: { b: Bang }) {
 
 export function ThanhHangLoat({ b }: { b: Bang }) {
   const [mo, setMo] = useState<'' | 'tt' | 'chu'>('')
+  const { chon, setChon } = b
+  useEffect(() => {
+    if (!chon.size) return
+    const k = (e: KeyboardEvent) => {
+      // Esc = bỏ chọn, trừ khi Esc đang dành cho menu/hộp thoại/ô nhập khác
+      if (e.key !== 'Escape' || mo || document.querySelector('.b-noi, dialog[open]') || (e.target as Element).closest?.('input:not([type=checkbox]):not([type=radio]), textarea, select')) return
+      setChon(new Set())
+    }
+    document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k)
+  }, [chon, setChon, mo])
   if (!b.chon.size) return null
   const mas = [...b.chon]
   // như bang/ThanhDaChon: lựa chọn vượt trang đang xem PHẢI nói ra; chọn hết trang mà còn trang khác → mời chọn toàn bộ
@@ -557,9 +600,10 @@ export function OChon({ b, ma }: { b: Bang; ma: string }) {
 export function OChonTatCa({ b }: { b: Bang }) {
   const tat = b.hien.length > 0 && b.hien.every((t) => b.chon.has(t.ma))
   const mot = !tat && b.hien.some((t) => b.chon.has(t.ma))
+  // chỉ đụng trang đang xem — lựa chọn ở trang khác giữ nguyên
   return (
     <input type="checkbox" className="ui-checkbox" aria-label="Chọn tất cả ticket trên trang này" checked={tat}
       ref={(el) => { if (el) el.indeterminate = mot }}
-      onChange={() => b.setChon(tat ? new Set() : new Set(b.hien.map((t) => t.ma)))} />
+      onChange={() => { const s2 = new Set(b.chon); for (const t of b.hien) { if (tat) s2.delete(t.ma); else s2.add(t.ma) } b.setChon(s2) }} />
   )
 }

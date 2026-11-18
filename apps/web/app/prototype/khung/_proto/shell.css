@@ -335,7 +335,9 @@
 
 /* ---------- thanh chuyển phương án (không thuộc thiết kế) ---------- */
 .p-switcher { position: fixed; left: 50%; bottom: 12px; z-index: 100; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 4px; border-radius: 9999px; background: #111; color: #fff; font: 13px/18px system-ui, sans-serif; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); outline: 2px dashed #ffc300; outline-offset: 2px; white-space: nowrap; }
-.p-switcher button { display: grid; place-content: center; width: 28px; height: 28px; border: 0; border-radius: 9999px; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; }
+.p-switcher { max-width: calc(100vw - 24px); } /* khổ hẹp: chữ cắt …, 2 nút ‹ › luôn trong màn */
+.p-switcher > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.p-switcher button { flex-shrink: 0; display: grid; place-content: center; width: 28px; height: 28px; border: 0; border-radius: 9999px; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; }
 .p-switcher button:hover { background: rgba(255, 255, 255, 0.26); }
 
 /* ---------- màn vừa (≤1180): panel Bắp A nổi đè ---------- */

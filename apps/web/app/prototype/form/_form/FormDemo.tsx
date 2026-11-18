@@ -2,7 +2,7 @@
 // PROTOTYPE — nhóm Form của DS: Radio · Switch · InputAffix (ô tiền) · DatePicker · DateRange · FileUpload · FormLayout.
 // Dùng lại: Field/Label/Help/Error/Textarea/Select/Checkbox/Button/Menu của DS; `Noi` (popover) của bảng;
 // `isoNgay`/`PRESETS`/`khoangPreset` của apps/web/bang/ngay.ts; `fmtVnd`/`fmtDate` của app/sales/_ui.tsx.
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { CalendarBlank, CaretDown, CaretLeft, CaretRight, FileText, Image as ImageIcon, Moon, Sun, UploadSimple, X } from '@phosphor-icons/react'
 import { MenuChon, Noi } from '../../bang/_bang/chung'
 import { isoNgay, khoangPreset, PRESETS } from '../../../../bang/ngay'
@@ -30,7 +30,13 @@ function Lich({ thang, chon, khoang, xemTruoc, homNay, toiThieu, onChon, onRe, f
   an?: { truoc?: boolean; sau?: boolean; doi: (n: number) => void }
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => { ref.current?.querySelector<HTMLButtonElement>(`[data-iso="${focus}"]`)?.focus({ preventScroll: true }) }, [focus])
+  const lanDau = useRef(true), doPhim = useRef(false)
+  // đưa focus DOM vào ngày chỉ khi vừa mở lịch hoặc người dùng đang đi bằng phím trong lưới —
+  // bấm ‹ › đổi tháng thì focus ở lại nút (trước đây bị kéo vào ngày 1, Enter tiếp là chọn nhầm)
+  useEffect(() => {
+    if (lanDau.current || doPhim.current) ref.current?.querySelector<HTMLButtonElement>(`[data-iso="${focus}"]`)?.focus({ preventScroll: true })
+    lanDau.current = false; doPhim.current = false
+  }, [focus])
   const phim = (e: KeyboardEvent) => {
     const m: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }
     let toi: string | null = null
@@ -39,7 +45,11 @@ function Lich({ thang, chon, khoang, xemTruoc, homNay, toiThieu, onChon, onRe, f
     else if (e.key === 'PageDown') toi = congThang(focus, 1)
     else if (e.key === 'Home') toi = congNgay(focus, -((tuIso(focus).getDay() + 6) % 7))
     else if (e.key === 'End') toi = congNgay(focus, 6 - ((tuIso(focus).getDay() + 6) % 7))
-    if (toi) { e.preventDefault(); setFocus(toi) }
+    if (toi && toiThieu && toi < toiThieu) toi = toiThieu // không đi vào ngày bị chặn (nút disabled không nhận focus → mất đường Tab vào lưới)
+    if (!toi) return
+    e.preventDefault()
+    if (toi === focus) return // đứng yên (vd đã ở ngày tối thiểu) → không để cờ treo kéo focus lần sau
+    doPhim.current = true; setFocus(toi)
   }
   const t = tuIso(thang)
   const tu = khoang?.tu
@@ -82,26 +92,27 @@ function Lich({ thang, chon, khoang, xemTruoc, homNay, toiThieu, onChon, onRe, f
 }
 
 /** DatePicker — trigger dùng ui-select-trigger; bảng nổi dùng Noi (role=dialog) */
-export function DatePicker({ id, gt, doi, homNay, toiThieu, loi, placeholder = 'Chọn ngày', disabled }: {
-  id: string; gt: string; doi: (s: string) => void; homNay: string; toiThieu?: string; loi?: boolean; placeholder?: string; disabled?: boolean
+export function DatePicker({ id, gt, doi, homNay, toiThieu, loi, moTa, placeholder = 'Chọn ngày', disabled }: {
+  id: string; gt: string; doi: (s: string) => void; homNay: string; toiThieu?: string; loi?: boolean; moTa?: string; placeholder?: string; disabled?: boolean
 }) {
+  const kep = (s: string) => (toiThieu && s < toiThieu ? toiThieu : s)
   const [mo, setMo] = useState(false)
   const [thang, setThang] = useState(dauThang(gt || homNay))
   const [focus, setFocus] = useState(gt || homNay)
   const btn = useRef<HTMLButtonElement>(null)
   const dong = () => { setMo(false); btn.current?.focus() }
-  const mo1 = () => { setThang(dauThang(gt || homNay)); setFocus(gt || homNay); setMo(true) }
+  const mo1 = () => { setThang(dauThang(gt || homNay)); setFocus(kep(gt || homNay)); setMo(true) }
   const setF = (s: string) => { setFocus(s); if (s.slice(0, 7) !== thang.slice(0, 7)) setThang(dauThang(s)) }
   return (
     <span style={{ position: 'relative', display: 'block' }}>
       <button ref={btn} id={id} type="button" className="ui-select-trigger" aria-haspopup="dialog" aria-expanded={mo}
-        aria-invalid={loi || undefined} data-placeholder={gt ? undefined : ''} disabled={disabled} onClick={() => (mo ? setMo(false) : mo1())}>
+        aria-invalid={loi || undefined} aria-describedby={moTa} data-placeholder={gt ? undefined : ''} disabled={disabled} onClick={() => (mo ? setMo(false) : mo1())}>
         <CalendarBlank className="ui-icon" aria-hidden />
         <span className="ui-select-value">{gt ? fmtDate(gt) : placeholder}</span>
       </button>
       <Noi mo={mo} dong={dong} role="dialog" nhan="Chọn ngày" className="ui-cal-pop">
         <Lich thang={thang} chon={gt} homNay={homNay} toiThieu={toiThieu} focus={focus} setFocus={setF}
-          an={{ doi: (n) => { const t = congThang(thang, n); setThang(t); setFocus(t) } }}
+          an={{ doi: (n) => { const t = congThang(thang, n); setThang(t); setFocus(kep(t)) } }}
           onChon={(s) => { doi(s); dong() }} />
         <div className="ui-cal-foot" style={{ marginTop: 12 }}>
           {gt ? <button type="button" className="ui-btn" data-variant="ghost" data-size="sm" onClick={() => { doi(''); dong() }}>Xoá ngày</button> : <span />}
@@ -134,7 +145,7 @@ export function DateRangePicker({ id, gt, doi, homNay }: { id: string; gt: Khoan
   const xemTruoc = nhap.tu && !nhap.den && re && re > nhap.tu ? re : undefined
   const lich = (th: string, a: { truoc?: boolean; sau?: boolean }) => (
     <Lich thang={th} khoang={nhap} xemTruoc={xemTruoc} homNay={homNay} focus={focus} setFocus={setF} onChon={chon} onRe={setRe}
-      an={{ ...a, doi: (n) => setThang(congThang(thang, n)) }} />
+      an={{ ...a, doi: (n) => { setThang(congThang(thang, n)); setFocus(congThang(focus, n)) } }} />
   )
   return (
     <span style={{ position: 'relative', display: 'block' }}>
@@ -184,11 +195,30 @@ export function DateRangePicker({ id, gt, doi, homNay }: { id: string; gt: Khoan
 /** Ô tiền VND — gõ số, tự chèn dấu chấm nghìn (Intl vi-VN như fmtVnd), lưu giá trị số */
 const vnd = new Intl.NumberFormat('vi-VN')
 export function MoneyInput({ id, gt, doi, loi, moTa, ...r }: { id: string; gt: number | null; doi: (n: number | null) => void; loi?: boolean; moTa?: string; disabled?: boolean; placeholder?: string }) {
+  const o = useRef<HTMLInputElement>(null)
+  const soTruoc = useRef<number | null>(null) // số chữ số đứng trước con trỏ — định dạng lại xong đặt con trỏ sau đúng chừng ấy chữ số
+  useLayoutEffect(() => {
+    const el = o.current, n = soTruoc.current; soTruoc.current = null
+    if (!el || n == null || document.activeElement !== el) return
+    let i = 0, dem = 0
+    while (i < el.value.length && dem < n) { if (/\d/.test(el.value[i])) dem++; i++ }
+    el.setSelectionRange(i, i)
+  }, [gt])
   return (
     <div className="ui-input-affix">
-      <input id={id} className="ui-input" inputMode="numeric" data-align="end" autoComplete="off"
+      <input ref={o} id={id} className="ui-input" inputMode="numeric" data-align="end" autoComplete="off"
         value={gt == null ? '' : vnd.format(gt)} aria-invalid={loi || undefined} aria-describedby={moTa}
-        onChange={(e) => { const so = e.target.value.replace(/\D/g, ''); doi(so ? Math.min(Number(so), 999_999_999_999) : null) }} {...r} />
+        onKeyDown={(e) => { // con trỏ đứng sát dấu chấm nghìn: nhảy qua dấu để phím xoá ăn vào chữ số
+          const el = e.currentTarget, c = el.selectionStart ?? 0
+          if (el.selectionStart !== el.selectionEnd) return
+          if (e.key === 'Backspace' && el.value[c - 1] === '.') el.setSelectionRange(c - 1, c - 1)
+          if (e.key === 'Delete' && el.value[c] === '.') el.setSelectionRange(c + 1, c + 1)
+        }}
+        onChange={(e) => {
+          const el = e.target
+          soTruoc.current = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, '').length
+          const so = el.value.replace(/\D/g, ''); doi(so ? Math.min(Number(so), 999_999_999_999) : null)
+        }} {...r} />
       <span className="ui-affix" aria-hidden>₫</span>
     </div>
   )
@@ -202,6 +232,9 @@ export function FileUpload({ id, tep, setTep, toiDaMB = 10, accept = 'image/*,.p
 }) {
   const [qua, setQua] = useState(false)
   const inp = useRef<HTMLInputElement>(null)
+  const dsTep = useRef(tep)
+  useEffect(() => { dsTep.current = tep })
+  useEffect(() => () => dsTep.current.forEach((t) => t.anh && URL.revokeObjectURL(t.anh)), []) // rời trang → trả bộ nhớ ảnh xem trước
   const them = (ds: FileList | null) => {
     if (!ds) return
     const moi = [...ds].map((f, i): Tep => ({
@@ -238,7 +271,7 @@ export function FileUpload({ id, tep, setTep, toiDaMB = 10, accept = 'image/*,.p
                 {!t.loi && t.tienDo < 100 && <span className="ui-progress" role="progressbar" aria-label={`Đang tải ${t.ten}`} aria-valuenow={t.tienDo} aria-valuemin={0} aria-valuemax={100}><span style={{ ['--p' as string]: `${t.tienDo}%` }} /></span>}
               </span>
               <button type="button" className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label={`Bỏ ${t.ten}`} data-tip="Bỏ tệp"
-                onClick={() => setTep((ts) => ts.filter((x) => x.id !== t.id))}><X /></button>
+                onClick={() => { if (t.anh) URL.revokeObjectURL(t.anh); setTep((ts) => ts.filter((x) => x.id !== t.id)) }}><X /></button>
             </li>
           ))}
         </ul>
@@ -248,11 +281,11 @@ export function FileUpload({ id, tep, setTep, toiDaMB = 10, accept = 'image/*,.p
 }
 
 /** Select DS (≤ 10 mục): trigger ui-select-trigger + Noi + MenuChon của bảng — không dùng <select> trần */
-function ChonLoai({ gt, doi, loi }: { gt: string; doi: (s: string) => void; loi?: boolean }) {
+function ChonLoai({ gt, doi, loi, moTa }: { gt: string; doi: (s: string) => void; loi?: boolean; moTa?: string }) {
   const [mo, setMo] = useState(false)
   return (
     <span style={{ position: 'relative', display: 'block' }}>
-      <button id="f-loai" type="button" className="ui-select-trigger" aria-haspopup="listbox" aria-expanded={mo} aria-invalid={loi || undefined}
+      <button id="f-loai" type="button" className="ui-select-trigger" aria-haspopup="menu" aria-expanded={mo} aria-invalid={loi || undefined} aria-describedby={moTa}
         data-placeholder={gt ? undefined : ''} onClick={() => setMo(!mo)}>
         <span className="ui-select-value">{gt || 'Chọn loại'}</span><CaretDown className="ui-icon" aria-hidden />
       </button>
@@ -266,18 +299,17 @@ function ChonLoai({ gt, doi, loi }: { gt: string; doi: (s: string) => void; loi?
 // ---------------- trang demo ----------------
 export function Khoi({ id, ten, mo, children }: { id: string; ten: string; mo?: string; children: ReactNode }) {
   return (
-    <section id={id} className="ui-card ui-card-pad fm-khoi" aria-labelledby={'k-' + ten}>
-      <h2 className="ui-form-title" id={'k-' + ten} style={mo ? undefined : { marginBottom: 16 }}>{ten}</h2>
+    <section id={id} className="ui-card ui-card-pad fm-khoi" aria-labelledby={'k-' + id}>
+      <h2 className="ui-form-title" id={'k-' + id} style={mo ? undefined : { marginBottom: 16 }}>{ten}</h2>
       {mo && <p className="ui-caption" style={{ margin: '0 0 16px' }}>{mo}</p>}
       {children}
     </section>
   )
 }
 
-export function FormDemo() {
+export function FormDemo({ toi }: { toi?: boolean }) {
   const homNay = useMemo(() => isoNgay(new Date()), [])
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  useEffect(() => { const t = new URLSearchParams(location.search).get('theme'); if (t === 'dark') setTheme('dark') }, [])
+  const [theme, setTheme] = useState<'light' | 'dark'>(toi ? 'dark' : 'light') // ?theme=dark đọc ở server → không nháy sáng rồi mới tối
   const [ten, setTen] = useState('')
   const [loai, setLoai] = useState('')
   const [ngay, setNgay] = useState('')
@@ -322,13 +354,13 @@ export function FormDemo() {
               </div>
               <div className="ui-field">
                 <label className="ui-label" htmlFor="f-loai">Loại <span className="req" aria-hidden>*</span></label>
-                <ChonLoai gt={loai} doi={setLoai} loi={loiLoai} />
-                {loiLoai && <span className="ui-error">Chọn một loại.</span>}
+                <ChonLoai gt={loai} doi={setLoai} loi={loiLoai} moTa={loiLoai ? 'f-loai-e' : undefined} />
+                {loiLoai && <span className="ui-error" id="f-loai-e">Chọn một loại.</span>}
               </div>
               <div className="ui-field">
                 <label className="ui-label" htmlFor="f-ngay">Ngày hẹn <span className="req" aria-hidden>*</span></label>
-                <DatePicker id="f-ngay" gt={ngay} doi={setNgay} homNay={homNay} toiThieu={homNay} loi={loiNgay} />
-                {loiNgay ? <span className="ui-error">Chọn ngày hẹn từ hôm nay trở đi.</span> : <span className="ui-help">Không chọn được ngày đã qua.</span>}
+                <DatePicker id="f-ngay" gt={ngay} doi={setNgay} homNay={homNay} toiThieu={homNay} loi={loiNgay} moTa="f-ngay-m" />
+                {loiNgay ? <span className="ui-error" id="f-ngay-m">Chọn ngày hẹn từ hôm nay trở đi.</span> : <span className="ui-help" id="f-ngay-m">Không chọn được ngày đã qua.</span>}
               </div>
               <div className="ui-field">
                 <label className="ui-label" htmlFor="f-tien">Chi phí dự kiến</label>

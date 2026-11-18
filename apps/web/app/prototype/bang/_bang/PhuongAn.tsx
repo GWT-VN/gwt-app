@@ -6,12 +6,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent as PE, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy,
+  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, ChatCircleText, Check, Copy,
   Export, Eye, FloppyDisk, MagnifyingGlass, Plus, WarningCircle, Funnel, GearSix, Kanban, LinkSimple, ListBullets, PencilSimple, Rows, SidebarSimple, SortAscending, Table, X,
   type Icon,
 } from '@phosphor-icons/react'
 import { Khung } from '../../khung/_proto/VariantD'
-import { LY_DO_CHO, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
+import { NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 import {
   Avatar, ChipTT, DauCot, DsLoc, Han, Khach, MenuChon, NguonTag, Nguoi, NhanDau, NhanLoi, Noi, OChon, OChonTatCa, Rong,
   SAP_TICKET, ThanhHangLoat, ThanhLoc, ChanTrang, MenuTrangThai, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
@@ -30,7 +30,7 @@ type CotId = 'uu' | 'nhom' | 'ma' | 'khach' | 'may' | 'tt' | 'viec' | 'lam' | 'h
 type DinhNghiaCot = { id: CotId; ten: string; w: number; sap?: Cot; loc?: Loc }
 const COT: DinhNghiaCot[] = [
   { id: 'uu', ten: 'Ưu tiên', w: 76, sap: 'uu', loc: 'uu' }, { id: 'nhom', ten: 'Loại lỗi', w: 148, loc: 'nhom' },
-  { id: 'ma', ten: 'Mã', w: 104, sap: 'ma' }, { id: 'khach', ten: 'Khách', w: 128 }, { id: 'may', ten: 'Máy · serial', w: 200 },
+  { id: 'ma', ten: 'Mã', w: 104, sap: 'ma' }, { id: 'khach', ten: 'Khách', w: 168 }, { id: 'may', ten: 'Máy · serial', w: 200 },
   { id: 'tt', ten: 'Trạng thái', w: 124 }, { id: 'viec', ten: 'Việc tiếp theo', w: 124 }, { id: 'lam', ten: 'Người làm', w: 132 },
   { id: 'han', ten: 'Hạn', w: 100, sap: 'han' }, { id: 'chu', ten: 'Chủ', w: 60, loc: 'chu' }, { id: 'mo', ten: 'Mở', w: 80, sap: 'moNgay' },
   { id: 'nguon', ten: 'Nguồn', w: 100 },
@@ -80,8 +80,11 @@ function SuaHan({ t, b }: { t: Ticket; b: Bang }) {
   return (
     <span className="b-osua b-osua-han" onClick={(e) => e.stopPropagation()}>
       <Han t={t} />
-      <input type="date" className="b-han-input" value={ngay} aria-label={`Đổi hạn ${t.ma}`}
-        onChange={(e) => e.target.value && b.sua(t.ma, { han: `${e.target.value} ${gio}` }, `${t.ma}: đã dời hạn`)} />
+      <input key={t.han} type="date" className="b-han-input" defaultValue={ngay} aria-label={`Đổi hạn ${t.ma}`}
+        onChange={(e) => { // gõ năm từng chữ số sinh 0002 → 0020 → 0202 → chỉ lưu khi năm đủ 4 số hợp lệ (chọn lịch thì lưu ngay)
+          const v = e.target.value, nam = +v.slice(0, 4)
+          if (v && v !== ngay && nam >= 2000 && nam <= 2100) b.sua(t.ma, { han: `${v} ${gio}` }, `${t.ma}: đã dời hạn`)
+        }} />
     </span>
   )
 }
@@ -187,8 +190,8 @@ function MenuChuotPhai({ cp, b, moTrang, xemNhanh, dong }: { cp: ChuotPhai; b: B
       <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.setToast({ chu: `Đã sao chép ${t.ma}` }))}><Copy aria-hidden /> Sao chép mã</button>
       <div className="ui-menu-sep" />
       {MO(t)
-        ? <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đóng' }, `${t.ma} → Đóng`))}><Check aria-hidden /> Đóng ticket</button>
-        : <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đang xử lý' }, `${t.ma}: mở lại`))}>Mở lại ticket</button>}
+        ? <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đóng', lyDoCho: undefined }, `${t.ma} → Đóng`))}><Check aria-hidden /> Đóng ticket</button>
+        : <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đang xử lý', lyDoCho: undefined }, `${t.ma}: mở lại`))}>Mở lại ticket</button>}
     </div>
   )
 }
@@ -300,18 +303,18 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
       {b.thay.length === 0 && <Rong b={b} />}
       {gom(b.hien, nhomTheo).map((g) => (
         <div key={g.key} role="rowgroup">
-          {g.nhan && <div className="b-nhom-dau b-nhom-ds" role="row">{g.nhan}<span className="b-mo">{g.rows.length}</span></div>}
+          {g.nhan && <div className="b-nhom-dau b-nhom-ds" role="row"><span role="cell">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></div>}
           {g.rows.map((t) => (
             <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0} data-ma={t.ma} data-xem={dangXem === t.ma || undefined} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
-              <span className="b-ticket" onClick={chan}>
+              <span className="b-ticket" role="cell" onClick={chan}>
                 <span className="b-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></span>
                 <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Mở ${t.ma}`}><span className="b-ma">{t.ma}</span></button>
                 <OTruong id="khach" t={t} b={b} />
               </span>
-              <span className="b-viec-o" onClick={chan}><OTruong id="viec" t={t} b={b} /></span>
-              <span className="b-ds-tt" onClick={chan}><OTruong id="tt" t={t} b={b} /></span>
-              <span className="b-phai" onClick={chan}><OTruong id="han" t={t} b={b} /></span>
-              <span className="b-ds-chu" onClick={chan}><OTruong id="chu" t={t} b={b} gon /></span>
+              <span className="b-viec-o" role="cell" onClick={chan}><OTruong id="viec" t={t} b={b} /></span>
+              <span className="b-ds-tt" role="cell" onClick={chan}><OTruong id="tt" t={t} b={b} /></span>
+              <span className="b-phai" role="cell" onClick={chan}><OTruong id="han" t={t} b={b} /></span>
+              <span className="b-ds-chu" role="cell" onClick={chan}><OTruong id="chu" t={t} b={b} gon /></span>
             </div>
           ))}
         </div>
@@ -373,6 +376,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
             <th className="b-cot-chon"><OChonTatCa b={b} /></th>
             {hien.map((c, i) => (
               <th key={c.id} className={'b-th-keo' + (c.id === 'han' || c.id === 'mo' ? ' b-phai' : '')} draggable
+                aria-sort={c.sap ? (b.sap.cot === c.sap ? (b.sap.chieu === 'tang' ? 'ascending' : 'descending') : 'none') : undefined}
                 style={{ zIndex: 2 + hien.length - i }} /* th sticky = lớp riêng: cột trước nằm trên cột sau, nửa phải vùng kéo .b-co không bị cột kế đè */
                 data-tren={vach(c.id)} data-keo={keo === c.id || undefined}
                 onDragStart={(e) => batDauKeo(e, c)} onDragEnd={() => { setKeo(null); setTren(null) }}
@@ -405,7 +409,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
 }
 
 // ======================= bố cục: Kanban =======================
-const COT_K: TrangThai[] = ['Mới', 'Đang xử lý', 'Chờ', 'Chờ khách xác nhận', 'Đóng']
+const COT_K: TrangThai[] = ['Mới', 'Đang xử lý', 'Chờ', 'Chờ khách xác nhận', 'Đóng', 'Huỷ'] // đủ mọi trạng thái — số đếm đầu trang khớp số thẻ
 function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dangXem: string | null }) {
   const [keo, setKeo] = useState<string | null>(null)
   const [tren, setTren] = useState<TrangThai | null>(null)
@@ -428,7 +432,8 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
             <div className="b-k-ds">
               {the.map((t) => (
                 <article key={t.ma} className="ui-card b-the" draggable data-ma={t.ma} data-keo={keo === t.ma || undefined} data-xem={dangXem === t.ma || undefined} tabIndex={0}
-                  onDragStart={() => setKeo(t.ma)} onDragEnd={() => { setKeo(null); setTren(null) }} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && xem(t.ma)}>
+                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', t.ma); setKeo(t.ma) }} onDragEnd={() => { setKeo(null); setTren(null) }} onClick={() => xem(t.ma)}
+                  onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
                   <div className="b-the-dau"><NhanDau t={t} /></div>
                   <div className="b-the-khach"><Khach t={t} /></div>
                   <div className="b-the-viec">{t.viecTiep}</div>
@@ -476,19 +481,37 @@ function XemNhanh({ b, ma, setMa, laTrang, moTrang }: { b: Bang; ma: string; set
         <div className="b-ct-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></div>
         <h2 className="b-ct-ten">{t.khach}</h2>
         <div className="b-ct-phu">{t.may}{t.serial ? ` · ${t.serial}` : ' · chưa có serial'} · <NguonTag t={t} /></div>
-        {t.luuY && <div className="b-ct-luuy" role="note"><b>Lưu ý khách — phải đọc</b><span>Khách khó tính, đã từng phàn nàn chậm phản hồi. Gọi trước khi KT tới.</span></div>}
-        <div className="b-ct-luoi">
-          <span className="b-ct-nhan">Trạng thái</span><OTruong id="tt" t={t} b={b} />
-          <span className="b-ct-nhan">Chủ ticket</span><OTruong id="chu" t={t} b={b} />
-          <span className="b-ct-nhan">Việc tiếp theo</span><OTruong id="viec" t={t} b={b} />
-          <span className="b-ct-nhan">Người đang làm</span><OTruong id="lam" t={t} b={b} />
-          <span className="b-ct-nhan">Hạn</span><OTruong id="han" t={t} b={b} />
-        </div>
-        <div className="b-ct-muc">Nhật ký theo lần báo</div>
-        <ol className="b-nk">
-          <li><b>Khách báo · 15/11</b><span>{t.nhom === 'Rò rỉ nước' ? 'Rò nước dưới đáy máy, đọng vũng nhỏ.' : 'Máy báo lỗi trên màn hình, khách gửi ảnh qua Zalo.'}</span></li>
-          <li className="b-nk-xl"><b>Xử lý · 16/11 · {t.chu}</b><span>Gọi hướng dẫn khách tắt van cấp, chụp đáy máy.</span></li>
-          <li className="b-nk-xl"><b>Xử lý · 17/11 · {t.nguoiLam}</b><span>{t.viecTiep}.</span></li>
+        {/* 18/11: dựng từ DS (Alert · PropertyList · Timeline) thay CSS tự vẽ b-ct-luuy/b-ct-luoi/b-nk — nội dung giữ nguyên */}
+        {t.luuY && (
+          <div className="ui-alert b-ct-khoi" data-color="danger" role="note">
+            <WarningCircle className="ui-icon" weight="fill" aria-hidden />
+            <div><div className="ui-alert-title">Lưu ý khách — phải đọc</div><div className="ui-alert-desc">Khách khó tính, đã từng phàn nàn chậm phản hồi. Gọi trước khi KT tới.</div></div>
+          </div>
+        )}
+        <dl className="ui-props b-ct-khoi">
+          <dt>Trạng thái</dt><dd><OTruong id="tt" t={t} b={b} /></dd>
+          <dt>Chủ ticket</dt><dd><OTruong id="chu" t={t} b={b} /></dd>
+          <dt>Việc tiếp theo</dt><dd><OTruong id="viec" t={t} b={b} /></dd>
+          <dt>Người đang làm</dt><dd><OTruong id="lam" t={t} b={b} /></dd>
+          <dt>Hạn</dt><dd><OTruong id="han" t={t} b={b} /></dd>
+        </dl>
+        <h3 className="ui-props-title b-ct-khoi">Nhật ký theo lần báo</h3>
+        <ol className="ui-timeline" aria-label="Nhật ký theo lần báo">
+          <li className="ui-timeline-item">
+            <span className="ui-timeline-mark" aria-hidden><ChatCircleText /></span>
+            <div className="ui-timeline-head"><b>Khách</b><span>báo</span><time>15/11</time></div>
+            <div className="ui-timeline-body">{t.nhom === 'Rò rỉ nước' ? 'Rò nước dưới đáy máy, đọng vũng nhỏ.' : 'Máy báo lỗi trên màn hình, khách gửi ảnh qua Zalo.'}</div>
+          </li>
+          <li className="ui-timeline-item">
+            <Avatar ten={t.chu} lop="ui-timeline-mark" />
+            <div className="ui-timeline-head"><b>{t.chu}</b><span>xử lý</span><time>16/11</time></div>
+            <div className="ui-timeline-body">Gọi hướng dẫn khách tắt van cấp, chụp đáy máy.</div>
+          </li>
+          <li className="ui-timeline-item">
+            <Avatar ten={t.nguoiLam} lop="ui-timeline-mark" />
+            <div className="ui-timeline-head"><b>{t.nguoiLam}</b><span>xử lý</span><time>17/11</time></div>
+            <div className="ui-timeline-body">{t.viecTiep}.</div>
+          </li>
         </ol>
       </div>
     </aside>
@@ -562,7 +585,7 @@ export function BangPrototype({ variant }: { variant: string }) {
   const toi = (n: number) => router.replace(`?variant=${DS[(i + n + DS.length) % DS.length].k}`, { scroll: false })
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest('input, textarea, [contenteditable], [role=menu]')) return
+      if (e.defaultPrevented || (e.target as HTMLElement).closest('input, textarea, [contenteditable], [role=menu], [role=tab], [role=tablist], [role=grid], [role=dialog], dialog')) return // ← → đang dùng cho tab / menu / lịch / hộp thoại
       if (document.querySelector('.b-chitiet')) return // đang xem nhanh: ← → không đổi phương án
       if (e.key === 'ArrowLeft') toi(-1)
       if (e.key === 'ArrowRight') toi(1)

@@ -42,16 +42,18 @@ const bayGio = () => `${HOM_NAY} ${new Date().toTimeString().slice(0, 5)}`
 // ---------- Timeline ----------
 function DongThoiGian({ ds, hien = 99 }: { ds: Su[]; hien?: number }) {
   const [moHet, setMoHet] = useState(false)
+  const ol = useRef<HTMLOListElement>(null)
   const an = moHet ? 0 : Math.max(0, ds.length - hien)
-  let ngay = ''
+  const xem = ds.slice(an)
   return (
-    <ol className="ui-timeline" aria-label="Hoạt động">
-      {an > 0 && <li className="ui-timeline-more"><button type="button" className="ui-btn" data-variant="ghost" data-size="sm" onClick={() => setMoHet(true)}>Hiện {an} hoạt động cũ hơn</button></li>}
-      {ds.slice(an).flatMap((s) => {
+    <ol ref={ol} className="ui-timeline" aria-label="Hoạt động">
+      {an > 0 && <li className="ui-timeline-more"><button type="button" className="ui-btn" data-variant="ghost" data-size="sm"
+        onClick={() => { setMoHet(true); requestAnimationFrame(() => ol.current?.querySelector<HTMLElement>('.ui-timeline-item')?.focus()) }}>Hiện {an} hoạt động cũ hơn</button></li>}{/* nút biến mất → đưa focus vào mục cũ nhất vừa hiện, không rơi về body */}
+      {xem.flatMap((s, k) => {
         const d = s.luc.slice(0, 10), out: ReactNode[] = []
-        if (d !== ngay) { ngay = d; out.push(<li key={'d' + d} className="ui-timeline-day">{tenNgay(d)}</li>) }
+        if (d !== xem[k - 1]?.luc.slice(0, 10)) out.push(<li key={'d' + d} className="ui-timeline-day">{tenNgay(d)}</li>)
         out.push(
-          <li key={s.id} className="ui-timeline-item">
+          <li key={s.id} className="ui-timeline-item" tabIndex={-1}>
             {s.icon ? <span className="ui-timeline-mark" data-color={s.mau} aria-hidden><s.icon /></span> : <Avatar ten={s.ai} lop="ui-timeline-mark" />}
             <div className="ui-timeline-head"><b>{s.ai}</b><span>{s.viec}</span><time dateTime={s.luc.replace(' ', 'T')} title={`${tenNgay(d)} · ${s.luc.slice(11)}`}>{s.luc.slice(11)}</time></div>
             {s.noi && <div className="ui-timeline-body">{s.noi}</div>}
@@ -65,32 +67,41 @@ function DongThoiGian({ ds, hien = 99 }: { ds: Su[]; hien?: number }) {
 }
 
 // ---------- Composer ----------
+type Tep = { id: number; ten: string }
+let soTep = 0
+/** field-sizing: content chỉ có ở Chrome/Edge 123+, Safari mới → trình duyệt khác tự đặt chiều cao theo nội dung (max-height CSS vẫn chặn) */
+const tuCao = (el: HTMLTextAreaElement | null) => {
+  if (!el || CSS.supports('field-sizing', 'content')) return
+  el.style.height = 'auto'; el.style.height = `${el.scrollHeight}px`
+}
 function Composer({ gui, trangThai }: { gui?: (noi: string, tep: string[]) => void; trangThai?: 'loi' | 'khoa' }) {
   const loi = trangThai === 'loi', khoa = trangThai === 'khoa'
   const [noi, setNoi] = useState(loi ? 'Đã hẹn KT tới 14:00, khách đồng ý.' : '')
-  const [tep, setTep] = useState<string[]>(loi ? ['bien-ban-hen.pdf'] : [])
+  const [tep, setTep] = useState<Tep[]>(loi ? [{ id: ++soTep, ten: 'bien-ban-hen.pdf' }] : [])
   const file = useRef<HTMLInputElement>(null)
+  const o = useRef<HTMLTextAreaElement>(null)
   const idLoi = useId()
   const rong = !noi.trim() && !tep.length
-  const guiDi = () => { if (rong || khoa) return; gui?.(noi.trim(), tep); if (!loi) { setNoi(''); setTep([]) } }
+  useEffect(() => tuCao(o.current), [noi])
+  const guiDi = () => { if (rong || khoa) return; gui?.(noi.trim(), tep.map((f) => f.ten)); if (!loi) { setNoi(''); setTep([]) } }
   return (
     <div className="ui-field">
       <div className="ui-composer" aria-invalid={loi || undefined} aria-disabled={khoa || undefined}>
-        <textarea className="ui-composer-input" rows={1} aria-label="Viết ghi chú" disabled={khoa} value={noi}
+        <textarea ref={o} className="ui-composer-input" rows={1} aria-label="Viết ghi chú" disabled={khoa} value={noi}
           placeholder={khoa ? 'Ticket đã đóng — mở lại để ghi tiếp' : 'Ghi lại việc vừa làm, khách nói gì…'}
           aria-describedby={loi ? idLoi : undefined} onChange={(e) => setNoi(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); guiDi() } }} />
         {tep.length > 0 && (
           <div className="ui-composer-files">
             {tep.map((f) => (
-              <span key={f} className="ui-chip"><Paperclip className="ui-icon" aria-hidden /><span>{f}</span>
-                <button type="button" className="ui-chip-x" aria-label={`Bỏ tệp ${f}`} onClick={() => setTep(tep.filter((x) => x !== f))}><X aria-hidden /></button></span>
+              <span key={f.id} className="ui-chip"><Paperclip className="ui-icon" aria-hidden /><span>{f.ten}</span>
+                <button type="button" className="ui-chip-x" aria-label={`Bỏ tệp ${f.ten}`} onClick={() => setTep(tep.filter((x) => x.id !== f.id))}><X aria-hidden /></button></span>
             ))}
           </div>
         )}
         <div className="ui-composer-bar">
           <button type="button" className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Đính kèm tệp" data-tip="Đính kèm" disabled={khoa} onClick={() => file.current?.click()}><Paperclip aria-hidden /></button>
-          <input ref={file} type="file" multiple hidden onChange={(e) => { setTep([...tep, ...Array.from(e.target.files ?? []).map((f) => f.name)]); e.target.value = '' }} />
+          <input ref={file} type="file" multiple hidden onChange={(e) => { setTep([...tep, ...Array.from(e.target.files ?? []).map((f) => ({ id: ++soTep, ten: f.name }))]); e.target.value = '' }} />
           <span className="ui-caption">Ctrl + Enter để gửi</span>
           <button type="button" className="ui-btn ui-tip" data-size="icon-sm" aria-label={loi ? 'Gửi lại' : 'Gửi'} data-tip={loi ? 'Gửi lại' : 'Gửi (Ctrl + Enter)'} disabled={rong || khoa} onClick={guiDi}><ArrowUp weight="bold" aria-hidden /></button>
         </div>
@@ -176,30 +187,44 @@ function ThuocTinh({ t, b }: { t: Ticket; b: Bang }) {
   )
 }
 
-export function ChiTietDemo() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  useEffect(() => { if (new URLSearchParams(location.search).get('theme') === 'dark') setTheme('dark') }, [])
+export function ChiTietDemo({ toi }: { toi?: boolean }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>(toi ? 'dark' : 'light') // ?theme=dark đọc ở server
   const b = useBang()
   const [ma, setMa] = useState('TK-2611-045')
   const t = b.rows.find((x) => x.ma === ma)!
-  const i = b.thay.findIndex((x) => x.ma === ma)
+  // ‹ › đi trên danh sách CHỤP lúc mở trang (như Linear) — ticket đổi sang Đóng/Huỷ rơi khỏi tab vẫn giữ vị trí
+  const [dsMa] = useState(() => b.thay.map((x) => x.ma))
+  const i = dsMa.indexOf(ma)
   const [su, setSu] = useState<Record<string, Su[]>>({ 'TK-2611-045': SEED })
   const ds = su[ma] ?? seedChung(t)
-  const them = (s: Omit<Su, 'id' | 'ai' | 'luc'>) => setSu((cu) => ({ ...cu, [ma]: [...(cu[ma] ?? seedChung(t)), { id: String(Date.now() + Math.random()), ai: TOI, luc: bayGio(), ...s }] }))
+  // id = mã ticket + thứ tự trong nhật ký của ticket đó (tính trong hàm cập nhật → không trùng, không cần ref)
+  const noiVao = (cu: Record<string, Su[]>, t2: Ticket, ds2: Omit<Su, 'id' | 'ai' | 'luc'>[]) => {
+    const goc = cu[t2.ma] ?? seedChung(t2)
+    return { ...cu, [t2.ma]: [...goc, ...ds2.map((x, k) => ({ id: `${t2.ma}-${goc.length + k}`, ai: TOI, luc: bayGio(), ...x }))] }
+  }
+  const them = (x: Omit<Su, 'id' | 'ai' | 'luc'>) => setSu((cu) => noiVao(cu, t, [x]))
 
-  // sửa thuộc tính (header, PropertyList) → ghi vào Timeline như Linear/GitHub
-  const truoc = useRef(t)
-  useEffect(() => {
-    const a = truoc.current; truoc.current = t
-    if (a.ma !== t.ma) return
-    if (a.tt !== t.tt || a.lyDoCho !== t.lyDoCho) them({ icon: ArrowRight, viec: <>đổi trạng thái <ChipTT t={a} nho /> → <ChipTT t={t} nho /></> })
-    if (a.uu !== t.uu) them({ icon: WarningCircle, mau: t.uu === 'P1' ? 'danger' : undefined, viec: <>đổi ưu tiên <UuTag u={a.uu} /> → <UuTag u={t.uu} /></> })
-    if (a.chu !== t.chu) them({ icon: UserSwitch, viec: `đổi chủ ticket ${a.chu} → ${t.chu}` })
-    if (a.nguoiLam !== t.nguoiLam) them({ icon: UserSwitch, viec: `giao cho ${t.nguoiLam}` })
-    if (a.han !== t.han) them({ icon: CalendarBlank, viec: `đổi hạn → ${t.han.slice(8, 10)}/${t.han.slice(5, 7)} ${t.han.slice(11)}` })
-    if (a.viecTiep !== t.viecTiep) them({ icon: ArrowRight, viec: `đổi việc tiếp theo: “${t.viecTiep}”` })
-    if (a.nhom !== t.nhom) them({ icon: ArrowRight, viec: `đổi loại lỗi ${a.nhom} → ${t.nhom}` })
-  }, [t]) // eslint-disable-line react-hooks/exhaustive-deps
+  // mọi thay đổi dữ liệu (đầu trang, PropertyList của BẤT KỲ ticket, Hoàn tác trên toast) → ghi Timeline của đúng ticket đó.
+  // Mẫu React "điều chỉnh state khi dữ liệu đổi": so b.rows với bản trước NGAY trong render, không dùng effect.
+  const [rowsTruoc, setRowsTruoc] = useState(b.rows)
+  if (rowsTruoc !== b.rows) {
+    const cu = new Map(rowsTruoc.map((x) => [x.ma, x]))
+    setRowsTruoc(b.rows)
+    const moi: [Ticket, Omit<Su, 'id' | 'ai' | 'luc'>[]][] = []
+    for (const t2 of b.rows) {
+      const a = cu.get(t2.ma); if (!a || a === t2) continue
+      const d: Omit<Su, 'id' | 'ai' | 'luc'>[] = []
+      if (a.tt !== t2.tt || a.lyDoCho !== t2.lyDoCho) d.push({ icon: ArrowRight, viec: <>đổi trạng thái <ChipTT t={a} nho /> → <ChipTT t={t2} nho /></> })
+      if (a.uu !== t2.uu) d.push({ icon: WarningCircle, mau: t2.uu === 'P1' ? 'danger' : undefined, viec: <>đổi ưu tiên <UuTag u={a.uu} /> → <UuTag u={t2.uu} /></> })
+      if (a.chu !== t2.chu) d.push({ icon: UserSwitch, viec: `đổi chủ ticket ${a.chu} → ${t2.chu}` })
+      if (a.nguoiLam !== t2.nguoiLam) d.push({ icon: UserSwitch, viec: `giao cho ${t2.nguoiLam}` })
+      if (a.han !== t2.han) d.push({ icon: CalendarBlank, viec: `đổi hạn → ${t2.han.slice(8, 10)}/${t2.han.slice(5, 7)} ${t2.han.slice(11)}` })
+      if (a.viecTiep !== t2.viecTiep) d.push({ icon: ArrowRight, viec: `đổi việc tiếp theo: “${t2.viecTiep}”` })
+      if (a.nhom !== t2.nhom) d.push({ icon: ArrowRight, viec: `đổi loại lỗi ${a.nhom} → ${t2.nhom}` })
+      if (d.length) moi.push([t2, d])
+    }
+    if (moi.length) setSu((cu0) => moi.reduce((cu, [t2, d]) => noiVao(cu, t2, d), cu0))
+  }
 
   const tDai: Ticket = { ...t, khach: 'Công ty TNHH Thương mại Dịch vụ Kỹ thuật Môi trường Nước Sạch Minh Phát — chi nhánh Bình Dương, xưởng số 3', serial: undefined }
   return (
@@ -215,7 +240,7 @@ export function ChiTietDemo() {
 
       <Khoi id="trang" ten="Trang mẫu (ghép đủ)" mo="Đổi trạng thái / ưu tiên / người làm ở đầu trang hoặc cột phải → dòng hoạt động tự ghi. Viết ghi chú rồi Ctrl + Enter. ‹ › chuyển ticket.">
         <div className="ct-trang">
-          <DauTrang t={t} b={b} i={i} n={b.thay.length} chuyen={(d) => { const n = b.thay[i + d]; if (n) setMa(n.ma) }} />
+          <DauTrang t={t} b={b} i={i} n={dsMa.length} chuyen={(d) => { const n = dsMa[i + d]; if (n) setMa(n) }} />
           {/* cảnh báo phải đọc nằm trên lưới — điện thoại không bị cột thuộc tính đẩy xuống */}
           {t.luuY && (
             <div className="ui-alert" data-color="danger" role="note">
@@ -227,8 +252,8 @@ export function ChiTietDemo() {
             <div className="ui-detail-main">
               <section aria-labelledby="ct-hd">
                 <h2 className="ui-detail-heading" id="ct-hd" style={{ marginBottom: 12 }}>Hoạt động</h2>
-                <DongThoiGian key={ma} ds={ds} hien={6} />
-                <Composer gui={(noi, tep) => them({ viec: 'ghi chú', noi, tep: tep.length ? tep : undefined })} />
+                <DongThoiGian key={'tl-' + ma} ds={ds} hien={6} />
+                <Composer key={'nhap-' + ma} gui={(noi, tep) => them({ viec: 'ghi chú', noi, tep: tep.length ? tep : undefined })} />{/* key: bản nháp không đi theo sang ticket khác */}
               </section>
             </div>
             <aside className="ui-detail-aside" aria-label="Thuộc tính ticket"><ThuocTinh t={t} b={b} /></aside>

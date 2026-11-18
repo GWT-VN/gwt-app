@@ -108,7 +108,9 @@
 .b-ds-chu { display: flex; align-items: center; gap: 6px; }
 
 /* ---------- B/C. bảng ---------- */
-.b-bang-khung { overflow-x: auto; margin-inline: -8px; }
+.b-bang-khung { overflow: auto; margin-inline: -8px; } /* tự cuộn 2 chiều → tiêu đề cột sticky dính trong khung (khung chỉ cuộn ngang thì sticky chết) */
+.b-trang:has(> .b-bang-khung) { display: flex; flex-direction: column; height: 100%; } /* như Kanban: bảng lấp phần còn lại, phân trang luôn thấy */
+.b-trang:has(> .b-bang-khung) > .b-bang-khung { flex: 1; min-height: 0; }
 .b-bang { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
 .b-bang th { position: sticky; top: 0; z-index: 2; height: var(--control-size-lg); padding: 0 10px; background: var(--background); border-bottom: 1px solid var(--alpha-08); color: var(--muted-foreground); font-size: 12px; line-height: 18px; font-weight: 400; text-align: left; white-space: nowrap; }
 .b-bang td { height: var(--control-size-2xl); padding: 0 10px; border-bottom: 1px solid var(--alpha-05); white-space: nowrap; max-width: 280px; }
@@ -179,16 +181,8 @@
 .b-ct-cuon { flex: 1; overflow-y: auto; padding: 20px 24px 120px; }
 .b-ct-ten { margin: 0; font-size: 20px; line-height: 26px; font-weight: 600; letter-spacing: 0; }
 .b-ct-phu { margin-top: 4px; font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
-.b-ct-luuy { display: flex; flex-direction: column; gap: 2px; margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-xl); background: var(--color-background-danger-soft-alpha); color: var(--color-text-danger-soft); font-size: 12px; line-height: 18px; }
-.b-ct-luuy span { color: var(--foreground); }
-.b-ct-luoi { display: grid; grid-template-columns: 128px minmax(0, 1fr); align-items: center; gap: 6px 12px; margin-top: 20px; }
-.b-ct-luoi > .b-osua-wrap, .b-ct-luoi > .b-osua { justify-self: start; margin: 0; }
-.b-ct-nhan { font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
-.b-ct-muc { margin: 28px 0 8px; font-size: 12px; line-height: 18px; font-weight: 600; }
-.b-nk { margin: 0; padding: 0; list-style: none; }
-.b-nk li { display: flex; flex-direction: column; gap: 2px; padding: 8px 0 8px 14px; border-left: 2px solid var(--alpha-10); }
-.b-nk li b { font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
-.b-nk-xl { margin-left: 14px; border-left-color: var(--alpha-05) !important; }
+.b-ct-khoi { margin-top: 20px; } /* khoảng cách giữa các khối DS trong thẻ xem nhanh */
+.b-ct-khoi + .ui-timeline { margin-top: 8px; }
 
 /* ---------- E. kanban ---------- */
 .b-trang-k { display: flex; flex-direction: column; height: 100%; padding-bottom: 24px; }
@@ -244,6 +238,7 @@
   .b-kanban { grid-auto-columns: 82%; scroll-snap-type: x mandatory; }
   .b-k-cot { scroll-snap-align: start; }
   .b-hangloat { bottom: 132px; }
+  .b-hangloat ~ .ui-toast { bottom: 236px; } /* thanh hàng loạt điện thoại cao tới ~96px (2–3 dòng) → toast lên trên nó */
 }
 
 /* ---------- bảng chọn khách (sửa tại chỗ ô Khách) ---------- */

@@ -1,7 +1,7 @@
 'use client'
 // PROTOTYPE — nhóm Phản hồi của DS (ConfirmDialog · EmptyState · Skeleton · Banner · Toast · nút đang tải), class ở khối
 // "BỔ SUNG DS PHẢN HỒI" (khung/_proto/ui.css). Dữ liệu giả, không lưu.
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowClockwise, Check, CloudSlash, Flask, GitMerge, Info, LockSimple, MagnifyingGlass, Moon, Sun, Trash, Tray, WarningCircle, X,
 } from '@phosphor-icons/react'
@@ -12,48 +12,74 @@ const ngu = (ms: number) => new Promise((r) => setTimeout(r, ms))
 // ---------- Toast (vùng aria-live luôn có mặt → trình đọc màn hình đọc được khi nội dung đổi) ----------
 type ToastT = { loai: 'ok' | 'loi' | 'chay'; chu: string; nut?: { ten: string; lam: () => void }; p?: number }
 function VungToast({ t, dong }: { t: ToastT | null; dong: () => void }) {
-  useEffect(() => { if (t?.loai !== 'ok') return; const id = setTimeout(dong, 5000); return () => clearTimeout(id) }, [t, dong]) // lỗi + đang chạy: không tự tắt
-  return (
-    <div aria-live={t?.loai === 'loi' ? 'assertive' : 'polite'} role={t?.loai === 'loi' ? 'alert' : 'status'}>
-      {t && (
-        <div className="ui-toast" data-color={t.loai === 'loi' ? 'danger' : undefined}>
+  const [dungCho, setDungCho] = useState<ToastT | null>(null) // rê chuột / focus vào toast → dừng hẹn giờ (WCAG 2.2.1: kịp bấm Hoàn tác)
+  const dung = !!t && dungCho === t // gắn với đúng toast đó — toast sau không thừa hưởng
+  useEffect(() => { if (t?.loai !== 'ok' || dung) return; const id = setTimeout(dong, 5000); return () => clearTimeout(id) }, [t, dong, dung]) // lỗi + đang chạy: không tự tắt
+  const the = t && (
+        <div className="ui-toast" data-color={t.loai === 'loi' ? 'danger' : undefined}
+          onMouseEnter={() => setDungCho(t)} onMouseLeave={() => setDungCho(null)} onFocus={() => setDungCho(t)} onBlur={() => setDungCho(null)}>
           {t.loai === 'chay' ? <span className="ui-spinner" aria-hidden /> : t.loai === 'loi' ? <WarningCircle weight="fill" aria-hidden /> : <Check aria-hidden />}
           {t.chu}
           {t.p != null && <span className="ui-progress" role="progressbar" aria-valuenow={t.p} aria-valuemin={0} aria-valuemax={100} aria-label="Tiến độ"><span style={{ ['--p' as string]: `${t.p}%` }} /></span>}
           {t.nut && <button type="button" onClick={t.nut.lam}>{t.nut.ten}</button>}
           {t.loai !== 'ok' && t.loai !== 'chay' && <button type="button" className="ui-toast-x" aria-label="Đóng thông báo" onClick={dong}><X aria-hidden /></button>}
         </div>
-      )}
-    </div>
+  )
+  // 2 vùng live LUÔN có mặt, không đổi role theo nội dung (đổi role cùng lúc với nội dung → NVDA/JAWS hay bỏ qua)
+  return (
+    <>
+      <div role="status" aria-live="polite">{t?.loai !== 'loi' && the}</div>
+      <div role="alert" aria-live="assertive">{t?.loai === 'loi' && the}</div>
+    </>
   )
 }
 
 // ---------- ConfirmDialog trên thẻ <dialog> gốc ----------
-function HopXacNhan({ mo, dong, children, nhan }: { mo: boolean; dong: () => void; children: ReactNode; nhan: string }) {
+type Hop = { dong: () => void; setBan: (v: boolean) => void; idTen: string; idMoTa: string }
+/** nội dung hộp bị gỡ khi hộp đóng (Esc / bấm nền) → việc đang chạy xong thì kiểm cờ này, không báo "đã xong" cho việc người dùng đã bỏ */
+function useConSong() {
+  const song = useRef(true)
+  useEffect(() => { song.current = true; return () => { song.current = false } }, [])
+  return song
+}
+function HopXacNhan({ mo, dong, children }: { mo: boolean; dong: () => void; children: (h: Hop) => ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
+  const [ban, setBan] = useState(false) // đang chạy việc → Esc / bấm nền không đóng
+  const nhanNen = useRef(false)
+  const id = useId(), idTen = id + 't', idMoTa = id + 'd'
+  useLayoutEffect(() => { // layout: đóng trước khi vẽ → không chớp khung rỗng
     const d = ref.current; if (!d) return
     if (mo && !d.open) { d.showModal(); d.querySelector<HTMLElement>('[data-autofocus]')?.focus() } // autoFocus của React chạy lúc hộp còn đóng → không ăn
     if (!mo && d.open) d.close()
   }, [mo])
+  // bấm nền = điểm bấm NẰM NGOÀI khung hộp, cả lúc nhấn lẫn lúc thả (kéo chọn chữ rồi thả ra ngoài không tính)
+  const ngoai = (e: { clientX: number; clientY: number; target: EventTarget; currentTarget: HTMLDialogElement }) => {
+    if (e.target !== e.currentTarget) return false
+    const r = e.currentTarget.getBoundingClientRect()
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+  }
   return (
-    <dialog ref={ref} className="ui-dialog" role="alertdialog" aria-label={nhan} onClose={dong}
-      onClick={(e) => { if (e.target === e.currentTarget) dong() }}>{/* bấm ra nền = đóng (vùng ngoài khung chính là thẻ dialog) */}
-      {mo && children}
+    <dialog ref={ref} className="ui-dialog" role="alertdialog" aria-labelledby={idTen} aria-describedby={idMoTa} onClose={() => { setBan(false); dong() }}
+      onCancel={(e) => { if (ban) e.preventDefault() }}
+      onPointerDown={(e) => { nhanNen.current = ngoai(e) }}
+      onClick={(e) => { if (nhanNen.current && ngoai(e) && !ban) dong(); nhanNen.current = false }}>
+      {mo && children({ dong, setBan, idTen, idMoTa })}
     </dialog>
   )
 }
 
-function DongTicket({ dong, xong }: { dong: () => void; xong: (t: ToastT) => void }) {
+function DongTicket({ h, xong }: { h: Hop; xong: (t: ToastT) => void }) {
   const [dang, setDang] = useState(false)
+  const { dong } = h
+  const song = useConSong()
   return (
     <>
-      <h2 className="ui-dialog-title">Đóng ticket TK-2611-045?</h2>
-      <p className="ui-dialog-desc">Ticket chuyển sang “Đóng”. Khách báo lại trong 7 ngày thì ticket tự mở lại.</p>
+      <h2 className="ui-dialog-title" id={h.idTen}>Đóng ticket TK-2611-045?</h2>
+      <p className="ui-dialog-desc" id={h.idMoTa}>Ticket chuyển sang “Đóng”. Khách báo lại trong 7 ngày thì ticket tự mở lại.</p>
       <div className="ui-dialog-footer">
         <button type="button" className="ui-btn" data-variant="outline" onClick={dong} disabled={dang}>Huỷ</button>
         <button type="button" className="ui-btn" data-loading={dang || undefined} aria-busy={dang} data-autofocus
-          onClick={async () => { setDang(true); await ngu(900); dong(); xong({ loai: 'ok', chu: 'Đã đóng TK-2611-045', nut: { ten: 'Hoàn tác', lam: () => xong({ loai: 'ok', chu: 'Đã mở lại TK-2611-045' }) } }) }}>
+          onClick={async () => { if (dang) return; setDang(true); h.setBan(true); await ngu(900); if (!song.current) return; dong(); xong({ loai: 'ok', chu: 'Đã đóng TK-2611-045', nut: { ten: 'Hoàn tác', lam: () => xong({ loai: 'ok', chu: 'Đã mở lại TK-2611-045' }) } }) }}>
           <span>Đóng ticket</span>{dang && <span className="ui-spinner" aria-hidden />}
         </button>
       </div>
@@ -61,26 +87,33 @@ function DongTicket({ dong, xong }: { dong: () => void; xong: (t: ToastT) => voi
   )
 }
 
-function XoaPhieu({ dong, xong }: { dong: () => void; xong: (t: ToastT) => void }) {
+function XoaPhieu({ h, xong }: { h: Hop; xong: (t: ToastT) => void }) {
+  const { dong } = h
+  const song = useConSong()
+  const o = useRef<HTMLTextAreaElement>(null)
   const [lyDo, setLyDo] = useState('')
   const [thu, setThu] = useState(false)
   const [dang, setDang] = useState(false)
   const id = useId()
   const loi = thu && !lyDo.trim()
   return (
-    <form method="dialog" onSubmit={async (e) => { e.preventDefault(); setThu(true); if (!lyDo.trim()) return; setDang(true); await ngu(900); dong(); xong({ loai: 'ok', chu: 'Đã xoá phiếu chi PC-2611-018' }) }} noValidate>
+    <form onSubmit={async (e) => {
+      e.preventDefault(); if (dang) return; setThu(true)
+      if (!lyDo.trim()) { o.current?.focus(); return } // lỗi → đưa focus vào ô để trình đọc màn hình đọc lỗi
+      setDang(true); h.setBan(true); await ngu(900); if (!song.current) return; dong(); xong({ loai: 'ok', chu: 'Đã xoá phiếu chi PC-2611-018' })
+    }} noValidate>
       <div className="ui-dialog-icon" data-color="danger" aria-hidden><Trash /></div>
-      <h2 className="ui-dialog-title">Xoá phiếu chi PC-2611-018?</h2>
+      <h2 className="ui-dialog-title" id={h.idTen}>Xoá phiếu chi PC-2611-018?</h2>
       <p className="ui-dialog-desc">Không hoàn tác được. Sẽ xảy ra:</p>
       <div className="ui-dialog-body">
-        <ul className="ui-dialog-list">
+        <ul className="ui-dialog-list" id={h.idMoTa}>
           <li>Phiếu biến mất khỏi Báo cáo thu chi tháng 11.</li>
           <li>Số dư quỹ tiền mặt tăng lại 1.250.000 ₫.</li>
           <li>Lịch sử phiếu vẫn giữ trong nhật ký kiểm toán.</li>
         </ul>
         <div className="ui-field ph-lydo">
           <label className="ui-label" htmlFor={id}>Lý do xoá <span className="req" aria-hidden>*</span></label>
-          <textarea id={id} className="ui-textarea" rows={2} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="VD: nhập trùng với PC-2611-017"
+          <textarea ref={o} id={id} className="ui-textarea" rows={2} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="VD: nhập trùng với PC-2611-017"
             aria-invalid={loi || undefined} aria-describedby={loi ? id + 'e' : undefined} />
           {loi && <span className="ui-error" id={id + 'e'}>Ghi lý do để người đối soát hiểu vì sao phiếu mất.</span>}
         </div>
@@ -93,7 +126,8 @@ function XoaPhieu({ dong, xong }: { dong: () => void; xong: (t: ToastT) => void 
   )
 }
 
-function GopKhach({ dong, xong }: { dong: () => void; xong: (t: ToastT) => void }) {
+function GopKhach({ h, xong }: { h: Hop; xong: (t: ToastT) => void }) {
+  const { dong } = h
   const MA = 'KH-00231'
   const [go, setGo] = useState('')
   const id = useId()
@@ -101,8 +135,8 @@ function GopKhach({ dong, xong }: { dong: () => void; xong: (t: ToastT) => void 
   return (
     <>
       <div className="ui-dialog-icon" data-color="danger" aria-hidden><GitMerge /></div>
-      <h2 className="ui-dialog-title">Gộp “Nguyễn Văn An” vào khách KH-00198?</h2>
-      <p className="ui-dialog-desc">Ticket, máy, lịch bảo trì của KH-00231 chuyển sang KH-00198, rồi KH-00231 bị xoá. Không tách lại được.</p>
+      <h2 className="ui-dialog-title" id={h.idTen}>Gộp “Nguyễn Văn An” vào khách KH-00198?</h2>
+      <p className="ui-dialog-desc" id={h.idMoTa}>Ticket, máy, lịch bảo trì của KH-00231 chuyển sang KH-00198, rồi KH-00231 bị xoá. Không tách lại được.</p>
       <div className="ui-dialog-body">
         <div className="ui-field">
           <label className="ui-label" htmlFor={id}>Gõ <b>{MA}</b> để xác nhận</label>
@@ -138,20 +172,22 @@ function DsTai() {
   )
 }
 
-export function PhanHoiDemo() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  useEffect(() => { if (new URLSearchParams(location.search).get('theme') === 'dark') setTheme('dark') }, [])
+export function PhanHoiDemo({ toi }: { toi?: boolean }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>(toi ? 'dark' : 'light') // ?theme=dark đọc ở server
   const [hop, setHop] = useState<'' | 'dong' | 'xoa' | 'gop'>('')
   const [toast, setToast] = useState<ToastT | null>(null)
   const [dangLuu, setDangLuu] = useState(false)
   const [thuLai, setThuLai] = useState(false)
   const [banner, setBanner] = useState(true)
   const dongHop = () => setHop('')
-  const tatToast = useCallback(() => setToast(null), []) // ổn định → hẹn giờ tự tắt không bị đặt lại mỗi lần render
+  const phien = useRef(0) // toast mới → việc xuất đang chạy dừng lại, không đè lên sau
+  const bao = useCallback((t: ToastT | null) => { phien.current++; setToast(t) }, [])
   const chay = async () => {
-    for (let p = 0; p <= 100; p += 20) { setToast({ loai: 'chay', chu: 'Đang xuất Báo cáo thu chi 11.2026.xlsx', p }); await ngu(400) }
-    setToast({ loai: 'ok', chu: 'Đã xuất 11.2026.xlsx', nut: { ten: 'Mở', lam: () => setToast(null) } })
+    const toi = ++phien.current
+    for (let p = 0; p <= 100; p += 20) { if (phien.current !== toi) return; setToast({ loai: 'chay', chu: 'Đang xuất Báo cáo thu chi 11.2026.xlsx', p }); await ngu(400) }
+    if (phien.current === toi) bao({ loai: 'ok', chu: 'Đã xuất 11.2026.xlsx', nut: { ten: 'Mở', lam: () => bao(null) } })
   }
+  const tatToast = useCallback(() => bao(null), [bao]) // ổn định → hẹn giờ tự tắt không bị đặt lại mỗi lần render
 
   return (
     <div className="proto fm" data-theme={theme}>
@@ -207,7 +243,7 @@ export function PhanHoiDemo() {
             <div className="ui-empty-desc">Mạng chập chờn hoặc máy chủ đang bận. Dữ liệu không bị mất.</div>
             <div className="ui-empty-actions">
               <button type="button" className="ui-btn" data-variant="outline" data-size="sm" data-loading={thuLai || undefined} aria-busy={thuLai}
-                onClick={async () => { setThuLai(true); await ngu(1200); setThuLai(false); setToast({ loai: 'loi', chu: 'Vẫn chưa tải được', nut: { ten: 'Thử lại', lam: () => setToast(null) } }) }}>
+                onClick={async () => { if (thuLai) return; setThuLai(true); await ngu(1200); setThuLai(false); bao({ loai: 'loi', chu: 'Vẫn chưa tải được', nut: { ten: 'Thử lại', lam: () => bao(null) } }) }}>
                 <ArrowClockwise aria-hidden /><span>Thử lại</span>{thuLai && <span className="ui-spinner" aria-hidden />}
               </button>
             </div>
@@ -226,7 +262,7 @@ export function PhanHoiDemo() {
         </Khoi>
         <Khoi id="loading" ten="Nút đang chạy" mo="Giữ nguyên bề rộng, chữ ẩn, vòng xoay ở giữa; chặn bấm 2 lần.">
           <div className="ph-nut">
-            <button type="button" className="ui-btn" data-loading={dangLuu || undefined} aria-busy={dangLuu} onClick={async () => { if (dangLuu) return; setDangLuu(true); await ngu(1400); setDangLuu(false); setToast({ loai: 'ok', chu: 'Đã lưu' }) }}>
+            <button type="button" className="ui-btn" data-loading={dangLuu || undefined} aria-busy={dangLuu} onClick={async () => { if (dangLuu) return; setDangLuu(true); await ngu(1400); setDangLuu(false); bao({ loai: 'ok', chu: 'Đã lưu' }) }}>
               <span>Lưu thay đổi</span>{dangLuu && <span className="ui-spinner" aria-hidden />}
             </button>
             <button type="button" className="ui-btn" data-variant="outline" data-loading aria-busy><span>Đang gửi</span><span className="ui-spinner" aria-hidden /></button>
@@ -245,15 +281,15 @@ export function PhanHoiDemo() {
 
       <Khoi id="toast" ten="Toast" mo="Thành công tự tắt sau 5 giây. Lỗi và đang chạy KHÔNG tự tắt.">
         <div className="ph-nut">
-          <button type="button" className="ui-btn" data-variant="outline" onClick={() => setToast({ loai: 'ok', chu: 'TK-2611-045 → Đang xử lý', nut: { ten: 'Hoàn tác', lam: () => setToast(null) } })}>Thành công + Hoàn tác</button>
-          <button type="button" className="ui-btn" data-variant="outline" onClick={() => setToast({ loai: 'loi', chu: 'Không lưu được — mất kết nối', nut: { ten: 'Thử lại', lam: () => setToast(null) } })}>Lỗi + Thử lại</button>
+          <button type="button" className="ui-btn" data-variant="outline" onClick={() => bao({ loai: 'ok', chu: 'TK-2611-045 → Đang xử lý', nut: { ten: 'Hoàn tác', lam: () => bao(null) } })}>Thành công + Hoàn tác</button>
+          <button type="button" className="ui-btn" data-variant="outline" onClick={() => bao({ loai: 'loi', chu: 'Không lưu được — mất kết nối', nut: { ten: 'Thử lại', lam: () => bao(null) } })}>Lỗi + Thử lại</button>
           <button type="button" className="ui-btn" data-variant="outline" onClick={chay}>Đang chạy (xuất Excel)</button>
         </div>
       </Khoi>
 
-      <HopXacNhan mo={hop === 'dong'} dong={dongHop} nhan="Đóng ticket"><DongTicket dong={dongHop} xong={setToast} /></HopXacNhan>
-      <HopXacNhan mo={hop === 'xoa'} dong={dongHop} nhan="Xoá phiếu chi"><XoaPhieu dong={dongHop} xong={setToast} /></HopXacNhan>
-      <HopXacNhan mo={hop === 'gop'} dong={dongHop} nhan="Gộp khách hàng"><GopKhach dong={dongHop} xong={setToast} /></HopXacNhan>
+      <HopXacNhan mo={hop === 'dong'} dong={dongHop}>{(h) => <DongTicket h={h} xong={bao} />}</HopXacNhan>
+      <HopXacNhan mo={hop === 'xoa'} dong={dongHop}>{(h) => <XoaPhieu h={h} xong={bao} />}</HopXacNhan>
+      <HopXacNhan mo={hop === 'gop'} dong={dongHop}>{(h) => <GopKhach h={h} xong={bao} />}</HopXacNhan>
       <VungToast t={toast} dong={tatToast} />
     </div>
   )

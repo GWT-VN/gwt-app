@@ -25,7 +25,7 @@ export function KhungPrototype({ variant }: { variant: string }) {
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement
-      if (t.closest('input, textarea, [contenteditable]')) return
+      if (e.defaultPrevented || t.closest('input, textarea, [contenteditable], [role=menu], [role=tab], [role=tablist], [role=grid], [role=dialog], dialog')) return // ← → đang dùng cho tab / menu / lịch / hộp thoại
       if (e.key === 'ArrowLeft') toi(-1)
       if (e.key === 'ArrowRight') toi(1)
     }
