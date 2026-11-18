@@ -146,7 +146,8 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
           <span style={{ flex: 1 }} />
           {che !== 'dock' && <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => setBap(true)}><Sparkles aria-hidden /> Bắp</button>}
         </header>
-        <main className="pD-noidung"><NoiDung /></main>
+        {/* F: vùng nội dung để trắng (18/11) — chốt nav trước, nội dung làm sau */}
+        <main className="pD-noidung">{che !== 'dock' && <NoiDung />}</main>
       </div>
 
       {/* D: panel Bắp bên phải chỉ dùng trên điện thoại (toàn màn); desktop Bắp nằm trong panel menu */}
