@@ -1,0 +1,3 @@
+reference/openai-apps-sdk-ui/styles/*.css -text
+reference/openai-apps-sdk-ui/LICENSE -text
+archives/*.zip binary

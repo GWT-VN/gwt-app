@@ -1,0 +1,40 @@
+{
+  "repository": "https://github.com/openai/apps-sdk-ui",
+  "version": "0.2.2",
+  "commit": "0f00143c7a639906f1621fe58e1b6be7b5bea46d",
+  "retrievedDate": "2026-11-18",
+  "license": "MIT",
+  "purpose": "Reference snapshot; not imported by the GWT application",
+  "files": [
+    {
+      "local": "styles/variables-primitive.css",
+      "upstream": "src/styles/variables-primitive.css",
+      "sha256": "ac4a75b0d60e9ad0ca4cc16f75c51be5cfbb2da46a86a7561f2f07c4e480d6e3"
+    },
+    {
+      "local": "styles/variables-semantic.css",
+      "upstream": "src/styles/variables-semantic.css",
+      "sha256": "9e95370e4296aadad483365de2eeb65e8bffbda6fe5e9bace07d85e47e7b3d13"
+    },
+    {
+      "local": "styles/variables-components.css",
+      "upstream": "src/styles/variables-components.css",
+      "sha256": "68fd3d51e21cf977603905db1ea3912acc397b5107d28c403aca1107ccf3f89c"
+    },
+    {
+      "local": "styles/tailwind-utilities.css",
+      "upstream": "src/styles/tailwind-utilities.css",
+      "sha256": "a890e95e7996fbde5ab6172f4737edcd5a3204f7ab87570d428dd74b4cfe44e3"
+    },
+    {
+      "local": "LICENSE",
+      "upstream": "LICENSE",
+      "sha256": "f26a46776c890b0d7b45d042cb8a78fdca9c4742a5c7fd97f0f53767411b1cc6"
+    }
+  ],
+  "archive": {
+    "path": "../../archives/openai-apps-sdk-ui-0.2.2.zip",
+    "sha256": "0760876c6c79c6da9b91df688d4ce0745b35d73866d3645d54db23e76a66a47f",
+    "trackedFileCount": 1059
+  }
+}
