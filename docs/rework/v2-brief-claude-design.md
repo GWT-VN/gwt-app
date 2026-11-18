@@ -62,12 +62,12 @@ Mọi giá trị lấy từ `tokens.json` của DS (tên token nguồn OpenAI + 
 | Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` — **(đề xuất) mở rộng GWT `--khu`**, chỉ làm dấu nhận diện khu (vạch/chấm ở thanh điều hướng, biểu tượng khu trong launcher). **Không** dùng cho nút, focus, trạng thái |
 | Màu trạng thái | Cặp nền/chữ của OpenAI theo vai: `success` · `warning` · `danger` · `info` · `discovery` · `secondary` (nền `color-background-<vai>-soft-alpha` + chữ `color-text-<vai>-soft`) |
 | Tone trạng thái | 6 tone giữ tên cũ, map sang vai OpenAI — bảng 4.3 |
-| Chữ | **Inter** (chốt 18/11) — tự host, có dấu tiếng Việt; dự phòng `ui-sans-serif, system-ui`. Số, mã, serial, SĐT, tiền: Inter + `tabular-nums`, **không mono**. Icon lucide nét 1.5. Thang: 12 (meta, nhãn cột) · **14 mặc định** (control, bảng, menu) · 16 (đoạn văn, tiêu đề nhỏ) · 18/20 (tiêu đề khối, hộp thoại) · 24 (tiêu đề trang). Weight 400/500/600 |
+| Chữ | **Inter** (chốt 18/11) — tự host, có dấu tiếng Việt; dự phòng `ui-sans-serif, system-ui`. Số, mã, serial, SĐT, tiền: Inter + `tabular-nums`, **không mono**. Thang: 12 (meta, nhãn cột) · **14 mặc định** (control, bảng, menu) · 16 (đoạn văn, tiêu đề nhỏ) · 18/20 (tiêu đề khối, hộp thoại) · 24 (tiêu đề trang). Weight 400/500/600 |
 | Kích thước control | Mặc định **32px** (`control-size-md`): nút, ô nhập, select, tab, mục điều hướng; 28px cho toolbar dày; 36px nút nổi bật; điện thoại tối thiểu 44px |
 | Bo góc | Nút **pill** (mặc định OpenAI); nút trong ô bảng/toolbar dày bo 6–8px · ô nhập, select 8px · thẻ, khung bảng, menu, Alert 12px · hộp thoại 16px · chip trạng thái **4px** (Badge OpenAI, không bo tròn) |
 | Viền / bóng | Viền 1px `border`; ô nhập viền `input`. Lớp nổi: `shadow` + `shadow-hairline`. Thẻ phẳng, không bóng |
 | Focus | Viền ngoài 2px `ring` (xanh #0169cc), cách 2px, trên mọi thứ bấm được; ô nhập focus = viền đậm lên (alpha 50%) |
-| Icon | **lucide** (bộ shadcn dùng sẵn), nét 2px, 16px trong ô nhập/menu, 18px trong nút; **không dùng emoji làm icon** (riêng Thẻ lưu ý khách được dùng emoji loại như mục 6.1.6) |
+| Icon | Icon **Phosphor** (`@phosphor-icons/react` 2.1.7, MIT; chốt 18/11): bản `regular` cho mọi chỗ, bản `fill` cho mục đang chọn trên thanh icon (như ChatGPT); 16px trong ô nhập/menu/mục panel, 18px trên thanh icon và trong nút; **không dùng emoji làm icon** (riêng Thẻ lưu ý khách được dùng emoji loại như mục 6.1.6) |
 | Định dạng | ngày `18/11/2026`, giờ `14:30`, tiền `1.250.000 đ`, SĐT `0912 345 678`, tuần bắt đầu Thứ 2 |
 | Sáng / tối | DS có cả hai theme; **v2.0 vẽ nền sáng**. Bản tối chỉ khi màn được yêu cầu riêng |
 
