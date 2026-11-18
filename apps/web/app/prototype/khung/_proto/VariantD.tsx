@@ -55,7 +55,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
             const I = ICON_KHU[x.id]
             const dangChon = x.id === khu && !panelLaBap
             return (
-              <button key={x.id} className="pD-icon" aria-label={x.ten} title={x.ten} aria-current={dangChon ? 'true' : undefined} style={{ ['--khu' as string]: x.mau }} onClick={() => chonKhu(x.id)}>
+              <button key={x.id} className="pD-icon" aria-label={x.ten} data-tip={x.ten} aria-current={dangChon ? 'true' : undefined} style={{ ['--khu' as string]: x.mau }} onClick={() => chonKhu(x.id)}>
                 <I aria-hidden />
                 {x.soGap ? <span className="pD-cham" aria-label={`${x.soGap} việc gấp`} /> : null}
               </button>
@@ -63,12 +63,12 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
           })}
           <div className="pD-ngan" />
           {che !== 'dock' && (
-            <button className="pD-icon" aria-label="Bắp (⌘J)" title="Bắp (⌘J)" aria-pressed={bap} aria-current={panelLaBap ? 'true' : undefined} onClick={() => { setBap((v) => !v); setMenuMo(bapTrongPanel ? menuMo : false) }}>
+            <button className="pD-icon" aria-label="Bắp (⌘J)" data-tip="Bắp (⌘J)" aria-pressed={bap} aria-current={panelLaBap ? 'true' : undefined} onClick={() => { setBap((v) => !v); setMenuMo(bapTrongPanel ? menuMo : false) }}>
               <Sparkles aria-hidden />
             </button>
           )}
           <div style={{ position: 'relative' }}>
-            <button className="pD-icon" aria-label="Tất cả khu" title="Tất cả khu" aria-expanded={launcher} onClick={() => setLauncher((v) => !v)}><LayoutGrid aria-hidden /></button>
+            <button className="pD-icon" aria-label="Tất cả khu" data-tip="Tất cả khu" aria-expanded={launcher} onClick={() => setLauncher((v) => !v)}><LayoutGrid aria-hidden /></button>
             {launcher && (
               <div className="ui-menu pD-launcher">
                 <div className="ui-menu-label">Tất cả khu</div>
@@ -82,7 +82,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
             )}
           </div>
           <span style={{ flex: 1 }} />
-          <button className="pD-icon" aria-label="Quản trị" title="Quản trị"><Settings aria-hidden /></button>
+          <button className="pD-icon" aria-label="Quản trị" data-tip="Quản trị"><Settings aria-hidden /></button>
           <span className="p-avatar pD-avatar" title="Kiều Trang (demo)">KT</span>
         </nav>
 
