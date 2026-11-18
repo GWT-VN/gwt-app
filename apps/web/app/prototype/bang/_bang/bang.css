@@ -147,9 +147,6 @@
 .b-ds-dau .b-phai { justify-self: end; }
 .b-viec { color: var(--foreground); }
 .b-ds-chu { display: flex; align-items: center; gap: 6px; }
-.b-ds-hd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: 0; }
-.b-ds-hang:is(:hover, :focus-within) .b-ds-hd { opacity: 1; }
-.b-ds-hd .ui-btn { background: var(--background); }
 
 /* ---------- B/C. bảng ---------- */
 .b-bang-khung { overflow-x: auto; margin-inline: -8px; }
@@ -160,9 +157,6 @@
 .b-bang tbody tr[data-chon] td { background: var(--color-background-info-soft-alpha, var(--alpha-05)); }
 .b-bang td > * { vertical-align: middle; }
 .b-cot-chon { width: 36px; padding-left: 16px !important; }
-.b-cot-hd { width: 40px; text-align: right; }
-.b-cot-hd .ui-btn { opacity: 0; }
-.b-bang tr:hover .b-cot-hd .ui-btn, .b-cot-hd .ui-btn:focus-visible { opacity: 1; }
 .b-cot-viec { max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
 .b-th-sap { white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; height: 28px; margin: 0 -6px; padding: 0 6px; border: 0; border-radius: var(--radius-sm); background: none; color: inherit; font: inherit; cursor: pointer; }
 /* kéo đổi chỗ cột: hover tiêu đề có nền + tay cầm; lúc kéo cả cột nguồn mờ nền, vạch thả chạy suốt chiều cao bảng */
@@ -178,7 +172,6 @@
 .b-keo-bong { position: fixed; top: -200px; left: 0; display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: var(--radius-md); background: var(--background); box-shadow: var(--shadow-hairline), var(--shadow-300); color: var(--foreground); font: 500 13px/20px var(--font-sans); white-space: nowrap; }
 .b-co { position: absolute; top: 0; right: -4px; bottom: 0; z-index: 3; width: 8px; cursor: col-resize; touch-action: none; }
 .b-co::after { content: ""; position: absolute; top: 8px; bottom: 8px; left: 3px; width: 2px; border-radius: 1px; background: transparent; transition: background-color 120ms ease; }
-.b-th-keo:hover .b-co::after { background: var(--alpha-15); }
 .b-co:hover::after, .b-co:active::after { background: var(--ring) !important; }
 .b-th-sap:hover, .b-th-sap[aria-expanded="true"] { background: var(--alpha-05); color: var(--foreground); }
 .b-th-sap[data-on] { color: var(--foreground); font-weight: 500; }
@@ -321,3 +314,21 @@
 .b-kh-dong1 .b-tick { margin-left: 0; flex-shrink: 0; }
 .b-kh-dong2 { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
 .b-kh-rong { padding: 16px 8px; font-size: 13px; color: var(--color-text-tertiary); }
+
+/* tiêu đề cột kéo được = MỘT lớp hover (18/11): nút menu phủ kín ô, không nền riêng; kéo hay bấm đều trên cùng ô */
+.b-th-keo .b-loc-o { display: flex; width: 100%; }
+.b-th-keo .b-th-sap { flex: 1; min-width: 0; height: 36px; margin: 0; padding: 0; border-radius: 0; cursor: inherit; }
+.b-th-keo .b-th-sap:hover, .b-th-keo .b-th-sap[aria-expanded="true"] { background: none; }
+.b-th-keo:has(.b-th-sap[aria-expanded="true"]) { background: linear-gradient(var(--alpha-04), var(--alpha-04)), var(--background); color: var(--foreground); }
+.b-th-keo:hover .b-th-an { opacity: 0.5; }
+
+/* bỏ thanh cuộn ở vùng bảng + thẻ xem nhanh (18/11) — vẫn cuộn bằng chuột/bàn phím như thường */
+.pD-noidung, .b-ct-cuon { scrollbar-width: none; }
+.pD-noidung::-webkit-scrollbar, .b-ct-cuon::-webkit-scrollbar { display: none; }
+
+/* menu chuột phải (thay nút ⋯ cuối dòng) */
+.b-chuotphai { position: fixed; z-index: 90; width: 220px; animation: b-hien 120ms ease-out; }
+@keyframes b-hien { from { opacity: 0; transform: scale(0.98); } }
+@media (prefers-reduced-motion: reduce) { .b-chuotphai { animation: none; } }
+.b-ds-hang[data-cp], .b-bang tbody tr[data-cp] td { background: var(--alpha-05); }
+.b-the[data-cp] { box-shadow: 0 0 0 2px var(--alpha-15), var(--shadow-100); }

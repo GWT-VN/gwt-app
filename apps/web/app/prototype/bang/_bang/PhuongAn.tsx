@@ -3,10 +3,10 @@
 // Dùng chung: đầu trang, tab, lọc/sắp xếp ở tiêu đề cột, thanh công cụ (⚙ cài đặt hiển thị | Danh sách · Bảng · Kanban),
 // menu ⋯ của dòng, sửa tại chỗ khi bấm vào nội dung ô, panel xem nhanh nổi bên phải khi bấm ticket.
 // ?variant=A–E chỉ là 5 trạng thái mở sẵn của cùng một màn.
-import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent as PE, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent, type PointerEvent as PE, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy, DotsSixVertical, DotsThree,
+  ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy, DotsSixVertical,
   Export, Eye, FloppyDisk, MagnifyingGlass, Plus, WarningCircle, Funnel, GearSix, Kanban, LinkSimple, ListBullets, PencilSimple, Rows, SidebarSimple, SortAscending, Table, X,
   type Icon,
 } from '@phosphor-icons/react'
@@ -167,22 +167,34 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
 }
 
 // ======================= menu ⋯ của dòng (chung mọi bố cục) =======================
-function MenuDong({ t, b, xem }: { t: Ticket; b: Bang; xem: (ma: string) => void }) {
-  const [mo, setMo] = useState(false)
-  const lam = (f: () => void) => () => { f(); setMo(false) }
+// chuột phải vào dòng/thẻ (18/11, thay nút ⋯). Phím Menu / Shift+F10 trên dòng đang focus cũng mở (trình duyệt tự bắn contextmenu).
+// Vẽ position:fixed NGOÀI .b-trang (container-type = khung chứa của fixed) nên không bị hàng dưới đè lên.
+type ChuotPhai = { ma: string; x: number; y: number; banPhim: boolean }
+function MenuChuotPhai({ cp, b, xem, dong }: { cp: ChuotPhai; b: Bang; xem: (ma: string) => void; dong: () => void }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const t = b.rows.find((x) => x.ma === cp.ma)
+  useEffect(() => {
+    const ngoai = (e: Event) => { if (!ref.current?.contains(e.target as Node)) dong() }
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') dong() }
+    document.addEventListener('mousedown', ngoai); document.addEventListener('keydown', esc); document.addEventListener('scroll', dong, true)
+    if (cp.banPhim) ref.current?.querySelector('button')?.focus() // mở bằng phím Menu/Shift+F10 → đưa focus vào menu
+    const dongDang = document.querySelector(`[data-ma="${cp.ma}"]`); dongDang?.setAttribute('data-cp', '') // tô sáng dòng đang mở menu
+    return () => { dongDang?.removeAttribute('data-cp'); document.removeEventListener('mousedown', ngoai); document.removeEventListener('keydown', esc); document.removeEventListener('scroll', dong, true) }
+  }, [dong, cp.ma, cp.banPhim])
+  if (!t) return null
+  const lam = (f: () => void) => () => { f(); dong() }
+  const x = Math.min(cp.x, window.innerWidth - 232), y = Math.min(cp.y, window.innerHeight - 196)
   return (
-    <span className="b-loc-o" onClick={(e) => e.stopPropagation()}>
-      <button className="b-nut-icon b-nut-nho" aria-label={`Thao tác ${t.ma}`} aria-expanded={mo} onClick={() => setMo(!mo)}><DotsThree weight="bold" aria-hidden /></button>
-      <Noi mo={mo} dong={() => setMo(false)} className="b-noi-phai">
-        <button className="ui-menu-item" onClick={lam(() => xem(t.ma))}><Eye aria-hidden /> Xem nhanh</button>
-        <button className="ui-menu-item"><ArrowSquareOut aria-hidden /> Mở trang ticket</button>
-        <button className="ui-menu-item" onClick={lam(() => b.setToast({ chu: `Đã sao chép ${t.ma}` }))}><Copy aria-hidden /> Sao chép mã</button>
-        <div className="ui-menu-sep" />
-        {MO(t)
-          ? <button className="ui-menu-item" onClick={lam(() => b.sua(t.ma, { tt: 'Đóng' }, `${t.ma} → Đóng`))}><Check aria-hidden /> Đóng ticket</button>
-          : <button className="ui-menu-item" onClick={lam(() => b.sua(t.ma, { tt: 'Đang xử lý' }, `${t.ma}: mở lại`))}>Mở lại ticket</button>}
-      </Noi>
-    </span>
+    <div ref={ref} className="ui-menu b-chuotphai" role="menu" aria-label={`Thao tác ${t.ma}`} style={{ left: x, top: y }}>
+      <div className="ui-menu-label">{t.ma}</div>
+      <button className="ui-menu-item" role="menuitem" onClick={lam(() => xem(t.ma))}><Eye aria-hidden /> Xem nhanh</button>
+      <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.setToast({ chu: `Mở trang ${t.ma}` }))}><ArrowSquareOut aria-hidden /> Mở trang ticket</button>
+      <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.setToast({ chu: `Đã sao chép ${t.ma}` }))}><Copy aria-hidden /> Sao chép mã</button>
+      <div className="ui-menu-sep" />
+      {MO(t)
+        ? <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đóng' }, `${t.ma} → Đóng`))}><Check aria-hidden /> Đóng ticket</button>
+        : <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.sua(t.ma, { tt: 'Đang xử lý' }, `${t.ma}: mở lại`))}>Mở lại ticket</button>}
+    </div>
   )
 }
 
@@ -295,7 +307,7 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
         <div key={g.key} role="rowgroup">
           {g.nhan && <div className="b-nhom-dau b-nhom-ds" role="row">{g.nhan}<span className="b-mo">{g.rows.length}</span></div>}
           {g.rows.map((t) => (
-            <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0} data-xem={dangXem === t.ma || undefined} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
+            <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0} data-ma={t.ma} data-xem={dangXem === t.ma || undefined} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
               <span className="b-ticket" onClick={chan}>
                 <span className="b-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></span>
                 <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span></button>
@@ -305,7 +317,6 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
               <span className="b-ds-tt" onClick={chan}><OTruong id="tt" t={t} b={b} /></span>
               <span className="b-phai" onClick={chan}><OTruong id="han" t={t} b={b} /></span>
               <span className="b-ds-chu" onClick={chan}><OTruong id="chu" t={t} b={b} gon /></span>
-              <span className="b-ds-hd"><MenuDong t={t} b={b} xem={xem} /></span>
             </div>
           ))}
         </div>
@@ -323,7 +334,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
   const [keo, setKeo] = useState<CotId | null>(null)
   const [tren, setTren] = useState<{ id: CotId; sau: boolean } | null>(null) // cột đang rê qua + thả bên phải hay trái
   const co = useRef<{ id: CotId; x: number; w: number } | null>(null)
-  const tong = 36 + 44 + hien.reduce((s, c) => s + rong[c.id], 0)
+  const tong = 36 + hien.reduce((s, c) => s + rong[c.id], 0)
 
   const tha = (e: DragEvent, dich: CotId) => {
     e.preventDefault(); const sau = tren?.sau; setTren(null)
@@ -359,7 +370,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
   return (
     <div className="b-bang-khung">
       <table className="b-bang b-bang-c" style={{ width: tong, minWidth: '100%' }}>
-        <colgroup><col style={{ width: 36 }} />{hien.map((c) => <col key={c.id} style={{ width: rong[c.id] }} />)}<col style={{ width: 44 }} /></colgroup>
+        <colgroup><col style={{ width: 36 }} />{hien.map((c) => <col key={c.id} style={{ width: rong[c.id] }} />)}</colgroup>
         <thead>
           <tr>
             <th className="b-cot-chon"><OChonTatCa b={b} /></th>
@@ -375,17 +386,15 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
                   onDoubleClick={() => setRong({ ...rong, [c.id]: COT.find((x) => x.id === c.id)!.w })} />
               </th>
             ))}
-            <th aria-label="Thao tác" />
           </tr>
         </thead>
         <tbody>
           {gom(b.thay, nhomTheo).map((g) => [
-            g.nhan ? <tr key={'g' + g.key} className="b-nhom-tr"><td colSpan={hien.length + 2}><span className="b-nhom-dau">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></td></tr> : null,
+            g.nhan ? <tr key={'g' + g.key} className="b-nhom-tr"><td colSpan={hien.length + 1}><span className="b-nhom-dau">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></td></tr> : null,
             ...g.rows.map((t) => (
-              <tr key={t.ma} data-chon={b.chon.has(t.ma) || undefined} data-xem={dangXem === t.ma || undefined}>
+              <tr key={t.ma} data-ma={t.ma} data-chon={b.chon.has(t.ma) || undefined} data-xem={dangXem === t.ma || undefined}>
                 <td className="b-cot-chon"><OChon b={b} ma={t.ma} /></td>
                 {hien.map((c) => <td key={c.id} className={c.id === 'han' || c.id === 'mo' ? 'b-phai' : undefined} data-tren={vach(c.id)} data-keo={keo === c.id || undefined}>{o(t, c.id)}</td>)}
-                <td className="b-cot-hd"><MenuDong t={t} b={b} xem={xem} /></td>
               </tr>
             )),
           ])}
@@ -416,9 +425,9 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
             <header className="b-k-dau"><ChipTT t={{ tt } as Ticket} nho /><span className="b-mo">{the.length}</span></header>
             <div className="b-k-ds">
               {the.map((t) => (
-                <article key={t.ma} className="b-the" draggable data-keo={keo === t.ma || undefined} data-xem={dangXem === t.ma || undefined} tabIndex={0}
+                <article key={t.ma} className="b-the" draggable data-ma={t.ma} data-keo={keo === t.ma || undefined} data-xem={dangXem === t.ma || undefined} tabIndex={0}
                   onDragStart={() => setKeo(t.ma)} onDragEnd={() => { setKeo(null); setTren(null) }} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && xem(t.ma)}>
-                  <div className="b-the-dau"><NhanDau t={t} /><span style={{ flex: 1 }} /><MenuDong t={t} b={b} xem={xem} /></div>
+                  <div className="b-the-dau"><NhanDau t={t} /></div>
                   <div className="b-the-khach"><Khach t={t} /></div>
                   <div className="b-the-viec">{t.viecTiep}</div>
                   <div className="b-the-chan"><span className="b-ma">{t.ma}</span><Han t={t} /><span style={{ flex: 1 }} /><Avatar ten={t.chu} nho /></div>
@@ -495,10 +504,20 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
   const setXem = (ma: string | null) => (xemBat || !ma ? setXemMa(ma) : b.setToast({ chu: `Mở trang ${ma}` }))
   const setXemBat = (v: boolean) => { setXemBatRaw(v); if (v && !xem) setXemMa(b.thay[0]?.ma ?? null) }
   const dangXem = xemBat ? xem : null
+  const [cp, setCp] = useState<ChuotPhai | null>(null)
+  const dongCp = useCallback(() => setCp(null), [])
+  const moCp = (e: MouseEvent) => {
+    const dong = (e.target as Element).closest<HTMLElement>('[data-ma]')
+    if (!dong || (e.target as Element).closest('input, textarea, [role=menu]')) return
+    e.preventDefault()
+    const r = dong.getBoundingClientRect() // phím Menu bắn contextmenu không có toạ độ chuột → neo dưới dòng
+    const banPhim = !e.clientX && !e.clientY
+    setCp({ ma: dong.dataset.ma!, x: banPhim ? r.left + 16 : e.clientX, y: banPhim ? r.bottom : e.clientY, banPhim })
+  }
   const congCu = useMemo(() => ({ b, boCuc, setBoCuc, an, setAn, thuTu, nhomTheo, setNhomTheo }), [b, boCuc, an, thuTu, nhomTheo])
   return (
     <>
-    <div className={'b-trang' + (boCuc === 'kanban' ? ' b-trang-k' : '')} data-xem={dangXem ? '' : undefined}>
+    <div className={'b-trang' + (boCuc === 'kanban' ? ' b-trang-k' : '')} data-xem={dangXem ? '' : undefined} onContextMenu={moCp}>
       <ThanhLoc b={b} phai={<ThanhCongCu {...congCu} xemBat={xemBat} setXemBat={setXemBat} />} />
       {boCuc === 'ds' && <DanhSach b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} />}
       {boCuc === 'bang' && <BangCot b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} an={an} thuTu={thuTu} setThuTu={setThuTu} rong={rong} setRong={setRong} />}
@@ -508,6 +527,7 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
     </div>
     {/* ngoài .b-trang: .b-trang có container-type (layout containment) sẽ thành khung chứa của position:fixed */}
     {dangXem && <XemNhanh b={b} ma={dangXem} setMa={setXemMa} />}
+    {cp && <MenuChuotPhai cp={cp} b={b} xem={setXem} dong={dongCp} />}
     </>
   )
 }
