@@ -24,21 +24,31 @@ nguon: "Video ads đã quay 05/09/2026 · GĐ Kỹ thuật"
 > Ba video trước là nội dung nội bộ / showcase. Video này **chạy quảng cáo ra công chúng**,
 > nên mọi câu sai đều là **rủi ro pháp lý đang sống**, không phải chuyện tài liệu.
 
-## 🔴 Cam kết bảo hành 10 năm — chưa có văn bản
+## ✅ Bảo hành 10 năm linh kiện cốt lõi — đã có chính sách (CEO chốt 17/11/2026)
 
 > *"GE cam kết bảo hành tới **mười năm** cho linh kiện cốt lõi."*
 
-PKB đang ghi (`F-G02`, hạng **D**): bảo hành bơm + bo mạch **5 năm**, là **chính sách riêng
-GWT, KHÔNG có trong HDSD hãng** — và `O-10` vẫn **chưa đóng** vì *"sale đang hứa miệng,
-không có văn bản dẫn chứng"*.
+**Câu này đúng chính sách.** Ngày 17/11/2026 CEO chốt chính sách bảo hành chính thức của GWT.
+Phần áp cho **giải pháp lọc tổng đầu nguồn (POE)**, nguyên văn:
 
-> ⚠️ Giờ con số đó **thành 10 năm và đã phát ra công chúng trong một video quảng cáo**.
-> `F-G02` là của dòng POU (USH10) — POE có thể có chính sách khác — nhưng **chưa có văn bản
-> nào cho POE cả**. Cam kết bảo hành trong quảng cáo mà không có chính sách bằng văn bản
-> đứng sau là chỗ dễ tranh chấp nhất.
+> Bảo hành **1 năm** với toàn bộ thiết bị; Bảo hành **10 năm** với linh kiện cốt lõi (bên
+> trong thiết bị) bao gồm vỏ thiết bị sợi thủy tinh, đường ống, bộ phận phân phối nước trên
+> và dưới đi kèm thiết bị và van tank chứa muối hoàn nguyên. Không áp dụng bảo hành với vật
+> tư tiêu hao, linh phụ kiện máy móc, và các sản phẩm khác.
+
+Trước ngày chốt, mục này để 🔴 và đối chiếu với `F-G02` / `O-10` trong PKB USH10. Hai con số
+**không đá nhau**: `F-G02` là **5 năm bơm + bo mạch điều khiển** của dòng **POU** (máy lọc
+nước uống) — `O-10` cũng đã đóng cùng ngày; **10 năm** là của **POE**. Khác dòng sản phẩm,
+khác bộ linh kiện cốt lõi.
+
+> ⚠️ **Còn một chỗ hở — bản cắt ngắn chạy ads.** Câu *"GE tự tin rằng là sản phẩm của mình
+> có thể bảo hành trong vòng mười năm"* **không có chữ "linh kiện cốt lõi"** → người xem dễ
+> hiểu thành **cả hệ thống bảo hành 10 năm**, trong khi toàn bộ thiết bị chỉ **1 năm**. Bản
+> phỏng vấn đầy đủ nói đúng (*"mười năm cho linh kiện cốt lõi"*).
 >
-> 👉 **Việc cần làm gấp:** xin **văn bản chính sách bảo hành POE** trước khi video này chạy
-> tiếp. Nếu chính sách thật là 10 năm thì càng phải có giấy.
+> 👉 **Phụ đề / caption của bản ads** ghi rõ: *"Bảo hành 1 năm toàn bộ thiết bị, 10 năm linh
+> kiện cốt lõi (vỏ bình sợi thủy tinh, đường ống, bộ phân phối nước, van tank muối)."* Lần
+> quay sau đừng nói gọn "bảo hành 10 năm".
 
 ## 🔴 Số mới, mâu thuẫn với chính video của mình
 
@@ -308,7 +318,7 @@ thực tế** — mạnh hơn nhiều. Hai thứ khác nhau, nhưng người xem
 | Độ cứng đầu ra | *"thậm chí 1–3 mg/L"* ⚠️ khác con số **< 17 mg/L** ở video trước |
 | IoT | Kiểm soát chất lượng nước · cài chế độ sục rửa/tái sinh · **tự switch chế độ kỳ nghỉ** khi dùng ít · lưu lịch sử lên database hãng để kỹ thuật chẩn đoán từ xa |
 | Quy trình | Khảo sát từ đầu (tư vấn bể ngầm xi măng/inox) → phối hợp KTS → lắp đặt → bàn giao + hướng dẫn → **báo cáo bảo trì mỗi 3 tháng** |
-| Bảo hành | *"10 năm cho linh kiện cốt lõi"* 🔴 **chưa có văn bản** |
+| Bảo hành | *"10 năm cho linh kiện cốt lõi"* ✅ **đúng chính sách POE** (CEO chốt 17/11/2026) — đi kèm **1 năm toàn bộ thiết bị**; danh sách linh kiện cốt lõi ở mục bảo hành đầu trang |
 
 > 🔒 Bảng này là **nguyên liệu**, chưa phải dữ kiện đã truy nguồn. Chưa có mã `F-xxx` thì
 > **chưa được nói với khách**.

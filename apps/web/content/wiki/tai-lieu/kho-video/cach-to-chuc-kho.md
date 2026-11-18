@@ -87,7 +87,7 @@ miệng**, nên sửa từng video không giải quyết được.
 | Tuổi thọ vs thị trường | *gấp **4–5 lần*** | — | *gấp **3–4 lần*** | *than thường **1,5–2 năm*** |
 | **Độ cứng đầu ra** | *< **17 mg/L*** | — | *< **17 mg/L*** | 🔴 ***1–3 mg/L*** |
 | Lõi PP đối thủ | *thay **3 tháng***/lần | — | — | *thay **1 tháng***/lần |
-| **Bảo hành** | — | — | — | 🔴 ***10 năm*** linh kiện cốt lõi |
+| **Bảo hành** | — | — | — | ✅ ***10 năm*** linh kiện cốt lõi — **đúng** chính sách POE (chốt 17/11/2026) |
 | Giải thiết kế | *Red Dot **của Đức*** | — | — | 🔴 *iF **của Mỹ*** (sai — iF là **của Đức**) |
 | % diệt khuẩn | — | ***99,9%*** | — | — |
 | Claim sức khoẻ | **ung thư bàng quang, gan** · *cam kết da mịn tóc khoẻ* | *tốt cho tiêu hoá* | *gây hại da tóc* | *chì **rất nguy hiểm*** |
@@ -97,15 +97,23 @@ miệng**, nên sửa từng video không giải quyết được.
 1. **Độ cứng đầu ra: `< 17 mg/L` hay `1–3 mg/L`?** Hai thứ khác nhau — một là **cam kết**
    (ngưỡng nước mềm quốc tế, in được vào hợp đồng), một là **kết quả đo điển hình**. Người
    xem không phân biệt được. Phải tách bạch và ghi rõ điều kiện.
-2. **Bảo hành: 5 năm hay 10 năm?** PKB ghi 5 năm bơm + bo (hạng D, `O-10` **chưa đóng** vì
-   *"không có văn bản dẫn chứng"*). Video ads đã phát ra công chúng con số **10 năm**.
-   👉 Xin **văn bản chính sách bảo hành POE** trước khi video chạy tiếp.
+2. ~~**Bảo hành: 5 năm hay 10 năm?**~~ ✅ **Đã chốt 17/11/2026** — không phải mâu thuẫn mà
+   là hai dòng sản phẩm. **POU** (máy lọc nước uống để bàn, âm tủ bếp): 1 năm toàn bộ thiết
+   bị + **5 năm** bơm và bo mạch điều khiển (PKB `F-G02`, `O-10` đã đóng). **POE** (lọc tổng):
+   1 năm toàn bộ thiết bị + **10 năm** linh kiện cốt lõi — vỏ thiết bị sợi thủy tinh, đường
+   ống, bộ phận phân phối nước trên và dưới, van tank chứa muối hoàn nguyên. Câu *"10 năm cho
+   linh kiện cốt lõi"* trong video ads là **đúng**.
+   ⚠️ Còn sót: bản cắt ngắn nói gọn *"bảo hành trong vòng mười năm"* → phụ đề phải ghi đủ
+   *"1 năm toàn bộ thiết bị, 10 năm linh kiện cốt lõi"*. Không nói gọn "bảo hành 10 năm".
 3. **Bỏ hẳn nhóm câu "cao nhất / top 20 / gấp N lần"** cho tới khi có nguồn. Nêu số của
    mình, để khách tự so.
 
 > ⛔ **Không câu nào trong bảng này được dùng lại** cho tới khi GWT chốt một bộ số chính
 > thức trong PKB. Cần con số thì tra [khu Sản phẩm](/wiki/san-pham) — không có mã `F-xxx`
 > thì không nói.
+>
+> Ngoại lệ duy nhất: dòng **Bảo hành** đã chốt 17/11/2026 → dùng được cho lọc tổng, nhưng
+> luôn nói **đủ hai vế** (1 năm toàn bộ thiết bị + 10 năm linh kiện cốt lõi).
 
 ## Hai luật bắt buộc
 

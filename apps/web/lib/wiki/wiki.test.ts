@@ -70,6 +70,19 @@ describe("dữ liệu PKB bóc từ pkb.md", () => {
     expect(i01?.giaTri).toContain("1111279087");
     expect(i01?.hang).toBe("A");
   });
+
+  it("bảo hành 5 năm bơm + bo mạch là chính sách chính thức (CEO chốt 17/11/2026, O-10 đã đóng)", () => {
+    const lay = (ma: string) => ush10.facts.find((f) => f.ma === ma);
+    const g02 = lay("F-G02");
+    expect(g02?.giaTri).toContain("5 năm");
+    expect(g02?.hang).toBe("A");
+    expect(g02?.congBo).toBe("🟢");
+    // Câu chính sách nguyên văn phải có đủ 2 vế + câu loại trừ.
+    const g08 = lay("F-G08");
+    expect(g08?.giaTri).toContain("Bảo hành 1 năm với toàn bộ thiết bị");
+    expect(g08?.giaTri).toContain("bơm và bo mạch điều khiển");
+    expect(g08?.giaTri).toContain("Không áp dụng bảo hành với vật tư tiêu hao");
+  });
 });
 
 describe("chia nhóm thông tin theo người đọc", () => {
@@ -530,14 +543,20 @@ describe("video ads Lọc tổng 09/2026", () => {
     expect(md).toMatch(/VIDEO \*\*ADS\*\* — RỦI RO CAO NHẤT/);
   });
 
-  it("cam kết bảo hành 10 năm phải đối chiếu với F-G02 và O-10 của PKB", () => {
-    // PKB ghi 5 năm bơm+bo, hạng D, O-10 chưa đóng vì "không có văn bản dẫn chứng".
-    // Video ads đã phát ra công chúng con số 10 năm.
+  it("bảo hành 10 năm khớp chính sách POE 17/11/2026, tách khỏi 5 năm POU, vẫn bắt câu nói thiếu", () => {
+    // CEO chốt 17/11/2026: POE 1 năm toàn bộ thiết bị + 10 năm linh kiện cốt lõi; POU 5 năm
+    // bơm + bo (F-G02, O-10 đã đóng). Trang này từng để đỏ "chưa có văn bản" — không được quay lại.
     const md = ads().noiDung;
+    const p = phang(md);
     expect(md).toMatch(/bảo hành tới \*\*mười năm\*\*/);
+    expect(md).toMatch(/CEO chốt 17\/11\/2026/);
+    expect(p).toMatch(/Bảo hành \*\*1 năm\*\* với toàn bộ thiết bị/);
+    expect(p).toMatch(/van tank chứa muối hoàn nguyên/);
     expect(md).toMatch(/F-G02/);
     expect(md).toMatch(/O-10/);
-    expect(md).toMatch(/chưa có văn bản/i);
+    expect(md).not.toMatch(/chưa có văn bản/i);
+    // Bản cắt ngắn nói "bảo hành trong vòng mười năm", thiếu "linh kiện cốt lõi" → phải cảnh báo.
+    expect(p).toMatch(/không có chữ "linh kiện cốt lõi"/);
   });
 
   it("chỉ rõ mâu thuẫn độ cứng đầu ra 1–3 mg/L vs < 17 mg/L", () => {
@@ -563,11 +582,17 @@ describe("video ads Lọc tổng 09/2026", () => {
     expect(ads().noiDung.length).toBeGreaterThan(14000);
   });
 
-  it("bảng claim trôi đã mở rộng lên 4 video và nêu 3 việc phải chốt", () => {
+  it("bảng claim trôi đã mở rộng lên 4 video, nêu 3 việc phải chốt — việc bảo hành đã chốt 17/11/2026", () => {
     const md = kho().bai.find((x) => x.slug === "cach-to-chuc-kho")!.noiDung;
     expect(md).toMatch(/Rà \*\*4 video\*\*/);
     expect(md).toMatch(/Ba việc phải chốt, không phải ba video phải sửa/);
-    expect(md).toMatch(/Bảo hành: 5 năm hay 10 năm/);
+    // Việc 2 gạch đi + đánh dấu đã chốt, không còn là việc mở.
+    expect(md).toMatch(/~~\*\*Bảo hành: 5 năm hay 10 năm\?\*\*~~ ✅ \*\*Đã chốt 17\/11\/2026\*\*/);
+    expect(md).not.toMatch(/`O-10` \*\*chưa đóng\*\*/);
+    // Hai con số là của hai dòng sản phẩm: POU 5 năm, POE 10 năm.
+    const p = phang(md);
+    expect(p).toMatch(/\*\*POU\*\*.*\*\*5 năm\*\* bơm và bo mạch điều khiển/);
+    expect(p).toMatch(/\*\*POE\*\*.*\*\*10 năm\*\* linh kiện cốt lõi/);
   });
 });
 
