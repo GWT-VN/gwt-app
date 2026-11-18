@@ -152,7 +152,7 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
         {t.tt === 'Chờ' && (<><div className="ui-menu-sep" /><div className="ui-menu-label">Lý do chờ</div>
           <MenuChon ds={LY_DO_CHO} gt={t.lyDoCho ?? 'khách'} chon={(v) => { b.sua(t.ma, { lyDoCho: v }, `${t.ma}: chờ ${v}`); d() }} /></>)}
       </>
-    )}><ChipTT t={t} nho /></OSua>
+    )}><ChipTT t={t} nho mui /></OSua>
   )
   if (id === 'viec') return <SuaChu t={t} b={b} />
   if (id === 'han') return <SuaHan t={t} b={b} />

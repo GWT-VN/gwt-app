@@ -94,10 +94,11 @@ export function useBang() {
 export type Bang = ReturnType<typeof useBang>
 
 // ---------- ô hiển thị ----------
-export function ChipTT({ t, nho }: { t: Ticket; nho?: boolean }) {
+export function ChipTT({ t, nho, mui }: { t: Ticket; nho?: boolean; mui?: boolean }) {
   return (
     <span className="ui-badge b-chip" data-color={TONE_TT[t.tt]} data-nho={nho || undefined}>
       {TEN_TT[t.tt] ?? t.tt}{t.tt === 'Chờ' && t.lyDoCho ? <span className="b-chip-phu">· {t.lyDoCho}</span> : null}
+      {mui && <CaretDown className="b-chip-mui" weight="bold" aria-hidden />}
     </span>
   )
 }

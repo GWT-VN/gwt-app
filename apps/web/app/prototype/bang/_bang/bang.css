@@ -80,6 +80,9 @@
 .b-chip { gap: 4px; white-space: nowrap; }
 .b-chip:not([data-color]) { background: var(--alpha-05); color: var(--muted-foreground); }
 .b-chip-phu { font-weight: 400; opacity: 0.8; }
+/* mũi tên trong tag trạng thái (18/11): báo tag bấm được để đổi; cùng màu chữ tag */
+.b-chip-mui { width: 10px; height: 10px; margin-left: 1px; margin-right: -2px; opacity: 0.6; flex-shrink: 0; }
+.b-osua:is(:hover, [aria-expanded="true"]) .b-chip-mui { opacity: 1; }
 .b-uu { display: inline-grid; place-content: center; min-width: 24px; height: 18px; padding: 0 4px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .b-uu[data-u="P1"] { background: var(--color-background-danger-solid); color: #fff; }
 .b-uu[data-u="P2"] { background: var(--color-background-warning-soft-alpha); color: var(--color-text-warning-soft); }
