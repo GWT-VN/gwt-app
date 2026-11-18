@@ -7,3 +7,4 @@ Chỉ chứa **chữ ít đổi**: luật, quy trình, chính sách của bộ p
 |---|---|
 | `chinh-sach-bao-hanh.md` | Chính sách bảo hành — nguồn chính, CEO chốt 17/11/2026 |
 | `danh-sach-loi-theo-model.md` | Lỗi thực tế theo model — tham khảo khi code nhóm lỗi / phân loại lỗi. **Chưa duyệt hiển thị** |
+| `dac-ta-luu-y-khach-va-loi.md` | Đặc tả cho người code: thẻ lưu ý khách, việc tiếp theo, báo cáo tự sinh, đóng vòng lỗi (Đợt 1 → 3) |
