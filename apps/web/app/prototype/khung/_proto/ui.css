@@ -390,8 +390,14 @@
 /* Badge bấm được (đổi giá trị): mũi tên nhỏ bên trong, cùng màu chữ */
 .ui-badge .ui-caret { width: 10px; height: 10px; margin-right: -2px; flex-shrink: 0; opacity: 0.6; }
 :is(button, [role="button"]):is(:hover, [aria-expanded="true"]) .ui-badge .ui-caret { opacity: 1; }
+/* Tabs biến thể "pill" (kiểu ChatGPT, Dũng chọn 18/11 thay segmented cho hàng tab của màn dữ liệu):
+   không nền khung, tab đang chọn nền alpha-05 */
+.ui-tabs-list[data-variant="pill"] { height: auto; padding: 0; gap: 4px; background: none; }
+.ui-tabs-list[data-variant="pill"] .ui-tabs-trigger { height: var(--control-size-lg); padding: 0 16px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.ui-tabs-list[data-variant="pill"] .ui-tabs-trigger[aria-selected="true"] { background: var(--alpha-05); box-shadow: none; font-weight: 600; }
+.ui-tabs-list[data-variant="pill"] .ui-tabs-count { font-size: 12px; font-weight: 400; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 /* Tabs: số đếm cảnh báo */
-.ui-tabs-count[data-color="danger"] { color: var(--color-text-danger); }
+.ui-tabs-count[data-color="danger"], .ui-tabs-list[data-variant="pill"] .ui-tabs-count[data-color="danger"] { color: var(--color-text-danger); font-weight: 500; }
 /* Button ghost ở trạng thái bật/đang chọn/đang mở (toggle, radio, menu) */
 .ui-btn[data-variant="ghost"]:is([aria-pressed="true"], [aria-checked="true"], [aria-expanded="true"]) { background: var(--accent); }
 /* Tooltip: thêm class ui-tip + data-tip="…" (hiện khi hover hoặc focus phím) */

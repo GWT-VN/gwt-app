@@ -331,7 +331,7 @@ export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: str
       </header>
       <div className="b-thanh">
         <div className="b-tabs-cuon">
-          <div className="ui-tabs-list" role="tablist" aria-label="Nhóm ticket">
+          <div className="ui-tabs-list" data-variant="pill" role="tablist" aria-label="Nhóm ticket">
             {NHOM_TAB.map((x) => (
               <button key={x.id} role="tab" className="ui-tabs-trigger" aria-selected={b.tab === x.id} onClick={() => b.setTab(x.id)}>
                 {x.ten} <span className="ui-tabs-count" data-color={x.id === 'qua-han' ? 'danger' : undefined}>{b.demTab(x.id)}</span>
