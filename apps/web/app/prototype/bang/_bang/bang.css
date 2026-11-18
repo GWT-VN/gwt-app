@@ -227,6 +227,7 @@
   .b-ds-hang { grid-template-columns: minmax(0, 1fr) 140px 88px 40px; }
   .b-ds-hang > :nth-child(2), .b-ds-hang > :nth-child(5) { display: none; }
   .b-ticket > .b-mo-ticket { display: none; } /* bấm dòng vẫn mở xem nhanh */
+  .b-ticket > .b-nhan-dau { width: auto; } .b-ticket .ui-badge[data-variant="outline"] { display: none; } /* hẹp: nhường chỗ cho tên khách, loại lỗi xem trong thẻ */
 }
 /* điện thoại: 2 dòng */
 @container (max-width: 480px) {
@@ -289,3 +290,4 @@
 .b-chitiet-trang .b-ct-cuon { overflow: visible; padding: 28px 0 120px; }
 .b-ct-ve { border: 0; background: none; padding: 0; font: inherit; color: var(--muted-foreground); cursor: pointer; }
 .b-ct-ve:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 0.2em; }
+.b-av-o { display: inline-flex; border-radius: var(--radius-full); }
