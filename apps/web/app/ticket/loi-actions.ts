@@ -411,3 +411,16 @@ export async function duLieuTanSuat(): Promise<{ ca: DongCa[]; ban: MauSo[]; nha
     nhap: nhap.map((r) => ({ internal_code: String(r.internal_code), thang: String(r.thang), so: Number(r.so_nhap) || 0 })),
   }
 }
+
+/** Số máy đang chạy theo mã máy (installed_base) — mẫu số "% máy từng lỗi" ở Báo cáo lỗi › Theo máy. */
+export async function soMayDangChay(): Promise<Record<string, number>> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  const ds = await docHetView(dataClient(), 'installed_base', ['serial'])
+  const ra: Record<string, number> = {}
+  for (const r of ds) {
+    const k = r.internal_code as string | null
+    if (k) ra[k] = (ra[k] ?? 0) + 1
+  }
+  return ra
+}
