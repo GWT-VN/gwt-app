@@ -555,3 +555,51 @@
 @media (max-width: 640px) { .ui-form-grid { grid-template-columns: minmax(0, 1fr); } }
 .ui-form-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 16px; box-shadow: inset 0 1px 0 var(--alpha-08); }
 .ui-form-footer > .ui-caption { margin-right: auto; }
+
+/* ===== BỔ SUNG DS XEM DỮ LIỆU 18/11/2026 — FilterBar (chip điều kiện) · Pagination · BulkActionBar · SavedView
+   Đúng cấu trúc thẻ của gói apps/web/bang/ (ThanhDangLoc · ChipSapXep · PhanTrang · ThanhDaChon) — khi code thật
+   chỉ truyền bộ class này vào giaoDien của <CauHinhBang>, KHÔNG viết lại logic. Dựng trên Button/Menu/Input/Checkbox. */
+
+/* --- FilterBar: chip điều kiện đang lọc + số dòng + Xoá lọc / Lưu bộ lọc --- */
+.ui-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: var(--control-size-sm); }
+.ui-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-full); background: var(--alpha-05); color: var(--foreground); font: 400 12px/18px var(--font-sans); white-space: nowrap; }
+.ui-chip > span { overflow: hidden; text-overflow: ellipsis; }
+.ui-chip strong { font-weight: 600; }
+.ui-chip > .ui-icon { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); color: var(--muted-foreground); }
+.ui-chip:has(> .ui-chip-x) { padding-right: 4px; }
+.ui-chip-x { display: grid; place-content: center; flex-shrink: 0; width: 20px; height: 20px; margin-left: 2px; padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--muted-foreground); cursor: pointer; }
+.ui-chip-x svg { width: 12px; height: 12px; }
+.ui-chip-x:hover { background: var(--alpha-10); color: var(--foreground); }
+.ui-chip-x:focus { outline: none; }
+.ui-chip-x:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
+.ui-filterbar-count { font-size: 12px; line-height: 18px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.ui-filterbar-end { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+
+/* --- Pagination: "1–15 trên 19 ticket" · ‹ Trang 1 / 2 › — đặt trong ui-table-foot --- */
+.ui-pagination { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 18px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.ui-pagination-page { min-width: 88px; text-align: center; color: var(--foreground); }
+.ui-table-foot > .ui-caption, .ui-table-foot > span:first-child { font-variant-numeric: tabular-nums; }
+
+/* --- BulkActionBar: thanh nổi đáy màn khi chọn ≥ 1 dòng (mặt primary-solid) --- */
+.ui-bulkbar { position: fixed; left: 50%; bottom: 24px; z-index: 55; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; max-width: calc(100vw - 32px); padding: 4px 4px 4px 16px; border-radius: var(--radius-full); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 400 14px/20px var(--font-sans); box-shadow: var(--shadow-400); animation: ui-bulk-len 180ms cubic-bezier(0.19, 1, 0.22, 1); }
+.ui-bulkbar-count { margin-right: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ui-bulkbar-count strong { font-weight: 600; }
+.ui-bulkbar-sub { opacity: 0.7; }
+.ui-bulkbar-warn { color: var(--yellow-300); font-size: 12px; line-height: 18px; }
+.ui-bulkbar-sep { width: 1px; height: 20px; margin: 0 6px; background: currentColor; opacity: 0.2; flex-shrink: 0; }
+.ui-bulkbar .ui-btn[data-variant="ghost"] { color: inherit; }
+.ui-bulkbar .ui-btn[data-variant="ghost"]:hover, .ui-bulkbar .ui-btn[data-variant="ghost"][aria-expanded="true"] { background: var(--color-background-primary-solid-hover); }
+.ui-bulkbar .ui-btn[data-variant="ghost"]:active { background: var(--color-background-primary-solid-active); }
+.ui-bulkbar .ui-btn[data-variant="ghost"][data-size="icon-sm"] { opacity: 0.7; }
+.ui-bulkbar .ui-btn[data-variant="ghost"][data-size="icon-sm"]:hover { opacity: 1; }
+.ui-bulkbar .ui-btn[data-variant="link"] { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 0.2em; }
+.ui-bulkbar .ui-menu { color: var(--popover-foreground); }
+@keyframes ui-bulk-len { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (prefers-reduced-motion: reduce) { .ui-bulkbar { animation: none; } }
+@media (max-width: 640px) { /* điện thoại: xuống 2 dòng — không cuộn ngang giấu nút */ .ui-bulkbar { left: 16px; right: 16px; transform: none; flex-wrap: wrap; row-gap: 2px; padding: 8px 6px 6px 16px; border-radius: var(--radius-2xl); } .ui-bulkbar-count { flex: 1 0 calc(100% - 40px); } .ui-bulkbar-close { order: 0; } .ui-bulkbar-sep { display: none; } .ui-bulkbar > *:not(.ui-bulkbar-count):not(.ui-bulkbar-close) { order: 2; } .ui-bulkbar > .ui-btn[data-variant="link"] { order: 3; width: 100%; justify-content: flex-start; padding: 0 0 4px; } @keyframes ui-bulk-len { from { opacity: 0; } } }
+
+/* --- SavedView: popover "Lưu bộ lọc" (ui-menu + ui-field) --- */
+.ui-saveview { width: 320px; max-width: calc(100vw - 16px); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.ui-saveview-title { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.ui-saveview-sum { display: flex; flex-wrap: wrap; gap: 4px; }
+.ui-saveview-foot { display: flex; justify-content: flex-end; gap: 8px; }

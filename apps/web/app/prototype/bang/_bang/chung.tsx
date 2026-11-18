@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { createPortal } from 'react-dom'
 import {
   ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, MagnifyingGlass, Question,
-  WarningCircle, X,
+  WarningCircle, X, CaretLeft, CaretRight, BookmarkSimple,
   type Icon,
 } from '@phosphor-icons/react'
 import { HOM_NAY, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
@@ -41,6 +41,7 @@ export const NHOM_TAB = [
   { id: 'tat-ca', ten: 'Tất cả', loc: () => true },
 ]
 const THU_TU_UU: Record<UuTien, number> = { P1: 0, P2: 1, P3: 2, P4: 3 }
+export const MOI_TRANG = 15
 
 export function useBang() {
   const [rows, setRows] = useState<Ticket[]>(TICKETS)
@@ -52,6 +53,7 @@ export function useBang() {
   const [sap, setSap] = useState<{ cot: Cot; chieu: 'tang' | 'giam' }>({ cot: 'uu', chieu: 'tang' })
   const [chon, setChon] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<{ chu: string; hoan?: () => void } | null>(null)
+  const [trang, setTrang] = useState(1)
 
   const thay = useMemo(() => {
     const k = bo(q.trim())
@@ -69,6 +71,11 @@ export function useBang() {
     return [...r].sort((a, b) => { const x = gt(a), y = gt(b); return (x < y ? -1 : x > y ? 1 : a.ma.localeCompare(b.ma)) * dau })
   }, [rows, tab, q, locUu, locChu, locNhom, sap])
 
+  // phân trang như bang/PhanTrang: MOI_TRANG dòng/trang, đổi lọc/sắp → về trang 1
+  const soTrang = Math.max(1, Math.ceil(thay.length / MOI_TRANG))
+  const trangThat = Math.min(trang, soTrang)
+  const hien = thay.slice((trangThat - 1) * MOI_TRANG, trangThat * MOI_TRANG)
+
   const demTab = (id: string) => rows.filter(NHOM_TAB.find((x) => x.id === id)!.loc).length
 
   const sua = (ma: string, patch: Partial<Ticket>, chu: string) => {
@@ -84,11 +91,12 @@ export function useBang() {
     setToast({ chu, hoan: () => setRows((rs) => rs.map((t) => truoc.get(t.ma) ?? t)) })
   }
   // đổi bộ lọc → bỏ chọn (spec 8.3)
-  const boChon = <T,>(f: (v: T) => void) => (v: T) => { f(v); setChon(new Set()) }
+  const boChon = <T,>(f: (v: T) => void) => (v: T) => { f(v); setChon(new Set()); setTrang(1) }
 
   return {
     rows, thay, tab, setTab: boChon(setTab), q, setQ: boChon(setQ), locUu, setLocUu: boChon(setLocUu), locChu, setLocChu: boChon(setLocChu), locNhom, setLocNhom: boChon(setLocNhom),
-    sap, setSap, chon, setChon, toast, setToast, sua, suaNhieu, demTab,
+    sap, setSap: (v: typeof sap) => { setSap(v); setTrang(1) }, chon, setChon, toast, setToast, sua, suaNhieu, demTab,
+    hien, trang: trangThat, setTrang, soTrang,
   }
 }
 export type Bang = ReturnType<typeof useBang>
@@ -318,7 +326,6 @@ export function NhanDau({ t }: { t: Ticket }) {
 }
 
 export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: string; phai?: ReactNode }) {
-  const tom = [...b.locUu, ...b.locNhom, ...b.locChu]
   return (
     <div className="b-dau-wrap">
       <header className="b-dau">
@@ -342,16 +349,106 @@ export function ThanhLoc({ b, tieuDe = 'Ticket', phai }: { b: Bang; tieuDe?: str
           </div>
         </div>
         <div className="b-thanh-phai">
-          {tom.length > 0 && (
-            <span className="b-dangloc ui-caption">
-              Lọc: {tom.join(', ')}
-              <button className="ui-btn" data-variant="link" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]) }}>Xoá lọc</button>
-            </span>
-          )}
           {phai}
         </div>
       </div>
+      <ThanhDangLoc b={b} />
     </div>
+  )
+}
+
+// ---------- FilterBar (DS) — cấu trúc như bang/ThanhDangLoc + ChipSapXep ----------
+const NGHIA_SAP: Record<Cot, [string, string]> = { uu: ['khẩn trước', 'thấp trước'], han: ['sớm nhất trước', 'muộn nhất trước'], moNgay: ['mở lâu nhất trước', 'mới mở trước'], ma: ['cũ nhất trước', 'mới nhất trước'] }
+const TEN_COT_SAP: Record<Cot, string> = { uu: 'Ưu tiên', han: 'Hạn', moNgay: 'Số ngày mở', ma: 'Thứ tự tạo' }
+const SAP_MAC_DINH = { cot: 'uu' as Cot, chieu: 'tang' as const }
+function Chip({ nhan, gt, bo }: { nhan: string; gt: string; bo?: () => void }) {
+  return (
+    <span className="ui-chip">
+      <span>{nhan}: <strong>{gt}</strong></span>
+      {bo && <button type="button" className="ui-chip-x" aria-label={`Bỏ lọc ${nhan}`} onClick={bo}><X weight="bold" aria-hidden /></button>}
+    </span>
+  )
+}
+export function ThanhDangLoc({ b }: { b: Bang }) {
+  const [luu, setLuu] = useState(false)
+  const macDinh = b.sap.cot === SAP_MAC_DINH.cot && b.sap.chieu === SAP_MAC_DINH.chieu
+  const coLoc = b.locUu.length + b.locNhom.length + b.locChu.length > 0 || !!b.q.trim()
+  if (!coLoc && macDinh) return null
+  const dieuKien = [
+    b.q.trim() && { nhan: 'Tìm', gt: `“${b.q.trim()}”`, bo: () => b.setQ('') },
+    b.locUu.length && { nhan: 'Ưu tiên', gt: b.locUu.join(', '), bo: () => b.setLocUu([]) },
+    b.locNhom.length && { nhan: 'Loại lỗi', gt: b.locNhom.join(', '), bo: () => b.setLocNhom([]) },
+    b.locChu.length && { nhan: 'Chủ', gt: b.locChu.join(', '), bo: () => b.setLocChu([]) },
+  ].filter(Boolean) as { nhan: string; gt: string; bo: () => void }[]
+  const dem = b.hien.length < b.thay.length ? `Hiện ${b.hien.length} trên ${b.thay.length} ticket` : `${b.thay.length} ticket`
+  return (
+    <div className="ui-filterbar b-filterbar" role="region" aria-label="Điều kiện đang áp dụng">
+      {dieuKien.map((d) => <Chip key={d.nhan} {...d} />)}
+      {!macDinh && (
+        <span className="ui-chip">
+          {b.sap.chieu === 'tang' ? <ArrowUp className="ui-icon" aria-hidden /> : <ArrowDown className="ui-icon" aria-hidden />}
+          <span>Sắp xếp: <strong>{TEN_COT_SAP[b.sap.cot]}</strong> · {NGHIA_SAP[b.sap.cot][b.sap.chieu === 'tang' ? 0 : 1]}</span>
+          <button type="button" className="ui-chip-x" aria-label="Bỏ sắp xếp, về thứ tự mặc định" onClick={() => b.setSap(SAP_MAC_DINH)}><X weight="bold" aria-hidden /></button>
+        </span>
+      )}
+      <span className="ui-filterbar-count" aria-live="polite">{dem}</span>
+      <span className="ui-filterbar-end">
+        {coLoc && (
+          <span className="b-loc-o">
+            <button type="button" className="ui-btn" data-variant="ghost" data-size="sm" aria-haspopup="dialog" aria-expanded={luu} onClick={() => setLuu(!luu)}>
+              <BookmarkSimple aria-hidden /> Lưu bộ lọc
+            </button>
+            <Noi mo={luu} dong={() => setLuu(false)} role="dialog" nhan="Lưu bộ lọc" className="ui-saveview b-noi-phai">
+              <LuuLoc dieuKien={dieuKien} dong={() => setLuu(false)} luu={(ten) => b.setToast({ chu: `Đã lưu “${ten}” vào Bộ lọc đã lưu` })} />
+            </Noi>
+          </span>
+        )}
+        {coLoc && <button type="button" className="ui-btn" data-variant="ghost" data-size="sm" onClick={() => { b.setLocUu([]); b.setLocChu([]); b.setLocNhom([]); b.setQ('') }}>Xoá lọc</button>}
+      </span>
+    </div>
+  )
+}
+
+/** SavedView — đặt tên + phạm vi chia sẻ; lưu xong hiện ở mục "Bộ lọc đã lưu" của sidebar */
+function LuuLoc({ dieuKien, dong, luu }: { dieuKien: { nhan: string; gt: string }[]; dong: () => void; luu: (ten: string) => void }) {
+  const [ten, setTen] = useState('')
+  const [chung, setChung] = useState(false)
+  const [loi, setLoi] = useState(false)
+  const o = useRef<HTMLInputElement>(null)
+  // Noi gắn nội dung lúc còn visibility:hidden (đo vị trí xong mới hiện) → autoFocus không ăn; focus sau 1 khung hình
+  useEffect(() => { const id = requestAnimationFrame(() => o.current?.focus()); return () => cancelAnimationFrame(id) }, [])
+  return (
+    <form onSubmit={(e) => { e.preventDefault(); if (!ten.trim()) { setLoi(true); return } luu(ten.trim()); dong() }} style={{ display: 'contents' }}>
+      <h2 className="ui-saveview-title">Lưu bộ lọc</h2>
+      <div className="ui-saveview-sum">{dieuKien.map((d) => <span key={d.nhan} className="ui-chip">{d.nhan}: <strong>{d.gt}</strong></span>)}</div>
+      <div className="ui-field">
+        <label className="ui-label" htmlFor="luu-ten">Tên bộ lọc</label>
+        <input ref={o} id="luu-ten" className="ui-input" placeholder="VD: P1 rò rỉ chưa xử lý" value={ten} maxLength={40}
+          onChange={(e) => { setTen(e.target.value); setLoi(false) }} aria-invalid={loi || undefined} aria-describedby={loi ? 'luu-ten-e' : undefined} />
+        {loi && <span className="ui-error" id="luu-ten-e">Đặt tên để tìm lại trong sidebar.</span>}
+      </div>
+      <label className="ui-checkbox-label"><input type="checkbox" className="ui-checkbox" checked={chung} onChange={(e) => setChung(e.target.checked)} /><span>Chia sẻ cho cả khu CSKH<span className="ui-choice-desc">Tắt thì chỉ mình bạn thấy.</span></span></label>
+      <div className="ui-saveview-foot">
+        <button type="button" className="ui-btn" data-variant="outline" data-size="sm" onClick={dong}>Huỷ</button>
+        <button type="submit" className="ui-btn" data-size="sm">Lưu</button>
+      </div>
+    </form>
+  )
+}
+
+// ---------- Pagination (DS) — như bang/PhanTrang: ẩn khi chỉ 1 trang ----------
+export function ChanTrang({ b }: { b: Bang }) {
+  if (b.soTrang <= 1) return null
+  const dau = (b.trang - 1) * MOI_TRANG + 1, cuoi = dau + b.hien.length - 1
+  return (
+    <nav className="ui-table-foot b-chantrang" aria-label="Phân trang">
+      <span>{dau}–{cuoi} trên {b.thay.length} ticket</span>
+      <span className="ui-pagination">
+        <button type="button" className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Trang trước" data-tip="Trang trước" disabled={b.trang <= 1} onClick={() => b.setTrang(b.trang - 1)}><CaretLeft aria-hidden /></button>
+        <span className="ui-pagination-page" aria-current="page">Trang {b.trang} / {b.soTrang}</span>
+        <button type="button" className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Trang sau" data-tip="Trang sau" disabled={b.trang >= b.soTrang} onClick={() => b.setTrang(b.trang + 1)}><CaretRight aria-hidden /></button>
+      </span>
+    </nav>
   )
 }
 
@@ -380,23 +477,30 @@ export function ThanhHangLoat({ b }: { b: Bang }) {
   const [mo, setMo] = useState<'' | 'tt' | 'chu'>('')
   if (!b.chon.size) return null
   const mas = [...b.chon]
+  // như bang/ThanhDaChon: lựa chọn vượt trang đang xem PHẢI nói ra; chọn hết trang mà còn trang khác → mời chọn toàn bộ
+  const trenTrang = b.hien.filter((t) => b.chon.has(t.ma)).length
+  const vuotTrang = b.chon.size > trenTrang
+  const moiToanBo = trenTrang === b.hien.length && b.thay.length > b.hien.length && b.chon.size < b.thay.length
   return (
-    <div className="b-hangloat" role="toolbar" aria-label="Thao tác hàng loạt">
-      <span><b>{b.chon.size}</b> đã chọn</span>
+    <div className="ui-bulkbar b-hangloat" role="toolbar" aria-label="Thao tác hàng loạt">
+      <span className="ui-bulkbar-count">Đã chọn <strong>{b.chon.size}</strong> ticket{vuotTrang && <span className="ui-bulkbar-sub"> (gồm cả trang khác)</span>}</span>
+      {moiToanBo && <button type="button" className="ui-btn" data-variant="link" data-size="sm" onClick={() => b.setChon(new Set(b.thay.map((t) => t.ma)))}>Chọn tất cả {b.thay.length} ticket khớp bộ lọc</button>}
+      <span className="ui-bulkbar-sep" aria-hidden />
       <div className="b-loc-o">
-        <button className="b-hl-nut" onClick={() => setMo(mo === 'tt' ? '' : 'tt')}>Đổi trạng thái</button>
+        <button className="ui-btn" data-variant="ghost" data-size="sm" aria-haspopup="menu" aria-expanded={mo === 'tt'} onClick={() => setMo(mo === 'tt' ? '' : 'tt')}>Đổi trạng thái</button>
         <Noi mo={mo === 'tt'} dong={() => setMo('')} className="b-noi-tren">
           <MenuChon ds={TT_LIST} gt={'' as TrangThai} chon={(v) => { b.suaNhieu(mas, { tt: v }, `Đã đổi ${mas.length} ticket sang “${v}”`); setMo('') }} />
         </Noi>
       </div>
       <div className="b-loc-o">
-        <button className="b-hl-nut" onClick={() => setMo(mo === 'chu' ? '' : 'chu')}>Gán chủ</button>
+        <button className="ui-btn" data-variant="ghost" data-size="sm" aria-haspopup="menu" aria-expanded={mo === 'chu'} onClick={() => setMo(mo === 'chu' ? '' : 'chu')}>Gán chủ</button>
         <Noi mo={mo === 'chu'} dong={() => setMo('')} className="b-noi-tren">
           <MenuChon ds={NHAN_VIEN.slice(0, 4)} gt={''} tim chon={(v) => { b.suaNhieu(mas, { chu: v }, `Đã gán ${mas.length} ticket cho ${v}`); setMo('') }} />
         </Noi>
       </div>
-      <button className="b-hl-nut">Xuất Excel</button>
-      <button className="b-hl-x" onClick={() => b.setChon(new Set())} aria-label="Bỏ chọn"><X aria-hidden /></button>
+      <button className="ui-btn" data-variant="ghost" data-size="sm" onClick={() => b.setToast({ chu: `Đang xuất ${mas.length} ticket…` })}>Xuất Excel</button>
+      <span className="ui-bulkbar-sep" aria-hidden />
+      <button className="ui-btn ui-tip ui-bulkbar-close" data-variant="ghost" data-size="icon-sm" onClick={() => b.setChon(new Set())} aria-label="Bỏ chọn" data-tip="Bỏ chọn (Esc)"><X aria-hidden /></button>
     </div>
   )
 }
@@ -409,11 +513,11 @@ export function OChon({ b, ma }: { b: Bang; ma: string }) {
   )
 }
 export function OChonTatCa({ b }: { b: Bang }) {
-  const tat = b.thay.length > 0 && b.thay.every((t) => b.chon.has(t.ma))
-  const mot = !tat && b.thay.some((t) => b.chon.has(t.ma))
+  const tat = b.hien.length > 0 && b.hien.every((t) => b.chon.has(t.ma))
+  const mot = !tat && b.hien.some((t) => b.chon.has(t.ma))
   return (
-    <input type="checkbox" className="ui-checkbox" aria-label="Chọn tất cả theo bộ lọc" checked={tat}
+    <input type="checkbox" className="ui-checkbox" aria-label="Chọn tất cả ticket trên trang này" checked={tat}
       ref={(el) => { if (el) el.indeterminate = mot }}
-      onChange={() => b.setChon(tat ? new Set() : new Set(b.thay.map((t) => t.ma)))} />
+      onChange={() => b.setChon(tat ? new Set() : new Set(b.hien.map((t) => t.ma)))} />
   )
 }

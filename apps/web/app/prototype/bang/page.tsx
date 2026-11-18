@@ -3,6 +3,7 @@
 import { notFound } from 'next/navigation'
 import { Inter } from 'next/font/google'
 import '../khung/_proto/tokens.css'
+import '../form/_form/tokens-dark.css'
 import '../khung/_proto/ui.css'
 import '../khung/_proto/shell.css'
 import './_bang/bang.css'

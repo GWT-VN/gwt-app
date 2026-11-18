@@ -14,7 +14,7 @@ import { Khung } from '../../khung/_proto/VariantD'
 import { LY_DO_CHO, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 import {
   Avatar, ChipTT, DauCot, DsLoc, Han, Khach, MenuChon, NguonTag, Nguoi, NhanDau, NhanLoi, Noi, OChon, OChonTatCa, Rong,
-  SAP_TICKET, ThanhHangLoat, ThanhLoc, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
+  SAP_TICKET, ThanhHangLoat, ThanhLoc, ChanTrang, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
 } from './chung'
 
 type BoCuc = 'ds' | 'bang' | 'kanban'
@@ -303,7 +303,7 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
         <DauCot la="span" b={b} ten="Chủ" loc="chu" menuPhai />
       </div>
       {b.thay.length === 0 && <Rong b={b} />}
-      {gom(b.thay, nhomTheo).map((g) => (
+      {gom(b.hien, nhomTheo).map((g) => (
         <div key={g.key} role="rowgroup">
           {g.nhan && <div className="b-nhom-dau b-nhom-ds" role="row">{g.nhan}<span className="b-mo">{g.rows.length}</span></div>}
           {g.rows.map((t) => (
@@ -388,7 +388,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
           </tr>
         </thead>
         <tbody>
-          {gom(b.thay, nhomTheo).map((g) => [
+          {gom(b.hien, nhomTheo).map((g) => [
             g.nhan ? <tr key={'g' + g.key} className="b-nhom-tr"><td colSpan={hien.length + 1}><span className="b-nhom-dau">{g.nhan}<span className="b-mo">{g.rows.length}</span></span></td></tr> : null,
             ...g.rows.map((t) => (
               <tr key={t.ma} data-ma={t.ma} data-chon={b.chon.has(t.ma) || undefined} data-xem={dangXem === t.ma || undefined}>
@@ -529,6 +529,7 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
       <ThanhLoc b={b} phai={<ThanhCongCu {...congCu} xemBat={xemBat} setXemBat={setXemBat} />} />
       {boCuc === 'ds' && <DanhSach b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} />}
       {boCuc === 'bang' && <BangCot b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} an={an} thuTu={thuTu} setThuTu={setThuTu} rong={rong} setRong={setRong} />}
+      {boCuc !== 'kanban' && <ChanTrang b={b} />}
       {boCuc === 'kanban' && <KanbanTT b={b} xem={setXem} dangXem={dangXem} />}
       {boCuc === 'bang' && <ThanhHangLoat b={b} />}
       <Toast b={b} />
