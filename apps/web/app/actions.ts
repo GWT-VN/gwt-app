@@ -4782,8 +4782,13 @@ export async function nhomLoiChiTiet(code: string): Promise<NhomLoiChiTiet | nul
 export async function nhomLoiChon(): Promise<NhomChon[]> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
-  const { data, error } = await dataClient()
-    .from('issue_group').select('code, ten, muc_do').order('thu_tu')
+  // Chỉ nhóm đang dùng (4 nhóm + "Không phải lỗi" từ 18/11); chưa có cột dang_dung (chưa áp migration) → như cũ.
+  const doc = (chiDangDung: boolean) => {
+    const q = dataClient().from('issue_group').select('code, ten, muc_do').order('thu_tu')
+    return chiDangDung ? q.eq('dang_dung', true) : q
+  }
+  let { data, error } = await doc(true)
+  if (error?.code === '42703') ({ data, error } = await doc(false))
   if (error) throw new Error(error.message)
   return (data ?? []) as NhomChon[]
 }
