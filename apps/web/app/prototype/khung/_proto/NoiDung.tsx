@@ -4,9 +4,10 @@
 // bộ lọc là tab chữ, ô tìm dạng viên thuốc, icon công cụ mờ.
 import { useMemo, useState, type ComponentType } from 'react'
 import {
-  AlertTriangle, ArrowRightLeft, ArrowUpRight, Clock, Columns3, Handshake, Hourglass, LayoutList, ListFilter,
-  MoreHorizontal, Search, Siren, Sparkles, Wrench,
-} from 'lucide-react'
+  Warning as AlertTriangle, ArrowsLeftRight as ArrowRightLeft, ArrowUpRight, Clock, Kanban as Columns3, Handshake, Hourglass,
+  ListBullets as LayoutList, FunnelSimple as ListFilter, DotsThree as MoreHorizontal, MagnifyingGlass as Search, Siren,
+  Sparkle as Sparkles, Wrench,
+} from '@phosphor-icons/react'
 import { VIEC_HOM_NAY, type Dong } from './data'
 
 const ICON_KHOI: Record<string, ComponentType<{ 'aria-hidden'?: boolean }>> = {

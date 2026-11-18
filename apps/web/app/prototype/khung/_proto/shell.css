@@ -160,14 +160,12 @@
 .pD-trai { display: flex; height: 100%; min-height: 0; }
 .pD-rail { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 52px; padding: 8px 0 12px; }
 .pD-logo { margin-bottom: 4px; width: 28px; height: 28px; font-size: 10px; }
-.pD svg { stroke-width: 1.5; }
 .pD-icon { position: relative; display: grid; place-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--radius-lg); background: none; color: var(--color-text-tertiary); cursor: pointer; }
 .pD-icon svg { width: 18px; height: 18px; }
 .pD-icon:hover { background: var(--alpha-04); color: var(--foreground); }
 /* active đo ChatGPT 18/11: ô 36px bo 10px nền #e7e8e8 (= alpha-05 trên nền rail), không viền/bóng, icon #1a1c1f.
-   ChatGPT dùng icon ĐẶC; lucide không có bản đặc → tạm làm nét đậm 2.25. ponytail: đổi sang bộ icon có bản Fill (Phosphor) nếu chốt. */
+   Icon Phosphor: thường "regular", đang chọn "fill" (đặt bằng prop weight trong VariantD). */
 .pD-icon[aria-current] { background: var(--alpha-05); color: var(--foreground); }
-.pD-rail .pD-icon[aria-current] svg { stroke-width: 2.25; }
 /* tooltip đen bên phải icon (như thanh icon ChatGPT) */
 .pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/16px var(--font-sans); white-space: nowrap; pointer-events: none; }
 /* sắc độ theo ChatGPT (đo 18/11): icon đang chọn đen, màu khu chỉ còn ở chấm trước tên khu trên panel */

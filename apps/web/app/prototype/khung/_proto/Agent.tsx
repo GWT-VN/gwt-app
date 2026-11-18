@@ -1,7 +1,7 @@
 'use client'
 // PROTOTYPE — ruột hội thoại với agent "Bắp" (kịch bản cứng). Mỗi phương án đặt nó ở một chỗ khác.
 import { useState } from 'react'
-import { Bell, Clock, Send, UserRound, Check, FileText } from 'lucide-react'
+import { Bell, Clock, PaperPlaneRight as Send, User as UserRound, Check, FileText } from '@phosphor-icons/react'
 import { GOI_Y_BAP, traLoiMau, type Tin } from './data'
 
 export function TheTraLoi({ tin }: { tin: Tin }) {

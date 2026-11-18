@@ -3,11 +3,13 @@
 // D: Bắp là một icon trên thanh — bấm thì panel menu đổi thành khung chat.
 // E: cùng khung, Bắp mở thành panel riêng bên phải, menu giữ nguyên.
 import { useEffect, useState } from 'react'
+// Icon: Phosphor (chốt 18/11) — bản thường "regular", mục đang chọn trên thanh icon dùng bản "fill" như ChatGPT
 import {
-  BarChart3, Bell, BookOpen, CalendarCheck, CalendarDays, Check, ChevronLeft, Clock, Filter, Headphones, Inbox, LayoutGrid,
-  ListChecks, Menu, Package, Plus, Repeat, Search, Settings, ShieldCheck, ShoppingCart, Sparkles, Ticket, Users, Wrench, X,
-  BadgeCheck, UserRound, ReceiptText, Cpu, type LucideIcon,
-} from 'lucide-react'
+  ChartBar as BarChart3, Bell, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
+  Clock, Funnel as Filter, Headset as Headphones, Tray as Inbox, SquaresFour as LayoutGrid, ListChecks, List as Menu, Package, Plus,
+  Repeat, MagnifyingGlass as Search, GearSix as Settings, ShieldCheck, ShoppingCart, Sparkle as Sparkles, Ticket, Users, Wrench, X,
+  SealCheck as BadgeCheck, User as UserRound, Receipt as ReceiptText, Cpu, type Icon as LucideIcon,
+} from '@phosphor-icons/react'
 import { KHU, KHU_SAP_CO, PANEL_THEO_KHU, GAN_DAY } from './data'
 import { NoiDung } from './NoiDung'
 import { KhungChat } from './Agent'
@@ -56,7 +58,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
             const dangChon = x.id === khu && !panelLaBap
             return (
               <button key={x.id} className="pD-icon" aria-label={x.ten} data-tip={x.ten} aria-current={dangChon ? 'true' : undefined} style={{ ['--khu' as string]: x.mau }} onClick={() => chonKhu(x.id)}>
-                <I aria-hidden />
+                <I aria-hidden weight={dangChon ? 'fill' : 'regular'} />
                 {x.soGap ? <span className="pD-cham" aria-label={`${x.soGap} việc gấp`} /> : null}
               </button>
             )
@@ -64,7 +66,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
           <div className="pD-ngan" />
           {che !== 'dock' && (
             <button className="pD-icon" aria-label="Bắp (⌘J)" data-tip="Bắp (⌘J)" aria-pressed={bap} aria-current={panelLaBap ? 'true' : undefined} onClick={() => { setBap((v) => !v); setMenuMo(bapTrongPanel ? menuMo : false) }}>
-              <Sparkles aria-hidden />
+              <Sparkles aria-hidden weight={panelLaBap ? 'fill' : 'regular'} />
             </button>
           )}
           <div style={{ position: 'relative' }}>
