@@ -4,10 +4,11 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import { createPortal } from 'react-dom'
 import {
   ArrowCounterClockwise, ArrowDown, ArrowUp, ArrowUpRight, CaretDown, Check, Drop, Cpu, DeviceMobile, Flask, Funnel, MagnifyingGlass, Question,
-  WarningCircle, X, CaretLeft, CaretRight, BookmarkSimple,
+  WarningCircle, X, CaretLeft, CaretRight, BookmarkSimple, ArrowLeft,
   type Icon,
 } from '@phosphor-icons/react'
-import { HOM_NAY, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
+import { HOM_NAY, LY_DO_CHO, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
+type LyDoCho = (typeof LY_DO_CHO)[number]
 
 // ---------- định dạng ----------
 export const bo = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase()
@@ -113,8 +114,12 @@ export function ChipTT({ t, nho, mui }: { t: Ticket; nho?: boolean; mui?: boolea
 export function UuTag({ u }: { u: UuTien }) {
   // DS Badge: P1 solid đỏ · P2 cam nhạt · P3 xám (mặc định) · P4 viền
   const v = u === 'P1' ? { 'data-variant': 'solid', 'data-color': 'danger' } : u === 'P2' ? { 'data-color': 'warning' } : u === 'P4' ? { 'data-variant': 'outline' } : {}
-  return <span className="ui-badge" {...v}>{u}</span>
+  return <span className="ui-badge" {...v} title={`${u} · ${NHOM_UU[u]}`}>{TEN_UU_NGAN[u]}</span>
 }
+/** Nhãn ưu tiên theo độ gấp (chuẩn Linear: Urgent/High/Medium/Low). Spec v2-mo-ta-app: mức đặt theo nhóm lỗi
+ *  (an toàn → P1 …), mục 743 chốt "việc gấp = P1". Mã P + nhóm lỗi ở tooltip/menu. */
+export const TEN_UU_NGAN = { P1: 'Gấp', P2: 'Cao', P3: 'Thường', P4: 'Thấp' } as const
+export const NHOM_UU = { P1: 'lỗi an toàn', P2: 'lỗi nghiêm trọng', P3: 'lỗi thường', P4: 'nhẹ / không lỗi' } as const
 export function Avatar({ ten, nho }: { ten: string; nho?: boolean }) {
   if (ten === '—') return <span className="b-mo">—</span>
   const chu = ten.replace(/^anh /, '').split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase()
@@ -162,6 +167,9 @@ export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNe
     const duoi = r.bottom + 4 + h <= innerHeight - 8 || r.top - 4 - h < 8
     m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${Math.max(8, Math.min(duoi ? r.bottom + 4 : r.top - 4 - h, innerHeight - h - 8))}px`) // không đủ chỗ cả 2 phía → ép vào trong màn
     m.style.visibility = 'visible'
+    // autoFocus không ăn khi nội dung gắn lúc còn hidden → đưa focus vào ô nhập / mục đang chọn / mục đầu (APG menu)
+    const f = requestAnimationFrame(() => { if (!m.contains(document.activeElement)) (m.querySelector<HTMLElement>('input, [aria-checked="true"], .ui-menu-item'))?.focus() })
+    return () => cancelAnimationFrame(f)
   }, [mo, className, theoNeo])
   useEffect(() => {
     if (!mo) return
@@ -180,7 +188,42 @@ export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNe
   return (
     <>
       <span ref={neo} hidden />
-      {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role={role} aria-label={nhan} style={{ visibility: 'hidden' }}>{children}</div>, document.querySelector('.proto') ?? document.body)}
+      {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role={role} aria-label={nhan} style={{ visibility: 'hidden' }}
+        onClick={(e) => e.stopPropagation()}>{/* portal vẫn nổi bọt theo cây React → không để click lan lên thẻ/hàng chứa nó */}{children}</div>, document.querySelector('.proto') ?? document.body)}
+    </>
+  )
+}
+
+/** Menu trạng thái dùng chung (ô bảng, Kanban, thanh hàng loạt): chọn "Chờ" PHẢI chọn lý do — bước 2 "Chờ vì…"
+ *  (cùng kiểu trang con của menu ⚙). Chỉ lưu khi đã đủ trạng thái + lý do. */
+export function MenuTrangThai({ gt, lyDo, chon, chiLyDo }: {
+  gt?: TrangThai; lyDo?: LyDoCho; chon: (tt: TrangThai, lyDo?: LyDoCho) => void; chiLyDo?: boolean
+}) {
+  const [buoc2, setBuoc2] = useState(!!chiLyDo)
+  if (buoc2) return (
+    <>
+      {chiLyDo ? <div className="ui-menu-label">Chờ vì…</div> : (
+        <div className="b-cd-dau">
+          <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Quay lại" onClick={() => setBuoc2(false)}><ArrowLeft aria-hidden /></button>
+          Chờ vì…
+        </div>
+      )}
+      {LY_DO_CHO.map((l) => (
+        <button key={l} className="ui-menu-item" role="menuitemradio" aria-checked={gt === 'Chờ' && l === lyDo} autoFocus={l === (lyDo ?? LY_DO_CHO[0])} onClick={() => chon('Chờ', l)}>
+          Chờ {l}{gt === 'Chờ' && l === lyDo && <Check className="b-tick" aria-hidden />}
+        </button>
+      ))}
+    </>
+  )
+  return (
+    <>
+      {TT_LIST.map((v) => (
+        <button key={v} className="ui-menu-item" role="menuitemradio" aria-checked={v === gt} aria-haspopup={v === 'Chờ' || undefined}
+          onClick={() => (v === 'Chờ' ? setBuoc2(true) : chon(v))}>
+          <ChipTT t={{ tt: v, lyDoCho: v === 'Chờ' && gt === 'Chờ' ? lyDo : undefined } as Ticket} nho />
+          {v === 'Chờ' ? <CaretRight className="b-tick" aria-hidden /> : v === gt && <Check className="b-tick" aria-hidden />}
+        </button>
+      ))}
     </>
   )
 }
@@ -209,7 +252,6 @@ export function MenuChon<T extends string>({ ds, gt, chon, tim, nhan }: { ds: re
 
 // ---------- thanh công cụ chung ----------
 // 18/11: lọc + sắp xếp chuyển vào tiêu đề cột (menu ở nhãn cột) → hàng tab sạch, chỉ còn tab + tóm tắt "đang lọc".
-const TEN_UU = { P1: 'An toàn', P2: 'Nghiêm trọng', P3: 'Thường', P4: 'Nhẹ / không lỗi' } as const
 const bat = <T,>(ds: T[], v: T) => (ds.includes(v) ? ds.filter((x) => x !== v) : [...ds, v])
 export type Loc = 'uu' | 'chu' | 'nhom'
 export const NHOM_LIST: NhomLoi[] = ['Main', 'Rò rỉ nước', 'Chất lượng nước', 'App', 'Chưa phân loại']
@@ -220,7 +262,7 @@ export function DsLoc({ b, loc }: { b: Bang; loc: Loc }) {
     <>
       {UU_LIST.map((u) => (
         <button key={u} className="ui-menu-item" role="menuitemcheckbox" aria-checked={b.locUu.includes(u)} onClick={() => b.setLocUu(bat(b.locUu, u))}>
-          <UuTag u={u} /> {TEN_UU[u]}{b.locUu.includes(u) && <Check className="b-tick" aria-hidden />}
+          <UuTag u={u} /> <span className="b-mo">{u} · {NHOM_UU[u]}</span>{b.locUu.includes(u) && <Check className="b-tick" aria-hidden />}
         </button>
       ))}
     </>
@@ -489,7 +531,7 @@ export function ThanhHangLoat({ b }: { b: Bang }) {
       <div className="b-loc-o">
         <button className="ui-btn" data-variant="ghost" data-size="sm" aria-haspopup="menu" aria-expanded={mo === 'tt'} onClick={() => setMo(mo === 'tt' ? '' : 'tt')}>Đổi trạng thái</button>
         <Noi mo={mo === 'tt'} dong={() => setMo('')} className="b-noi-tren">
-          <MenuChon ds={TT_LIST} gt={'' as TrangThai} chon={(v) => { b.suaNhieu(mas, { tt: v }, `Đã đổi ${mas.length} ticket sang “${v}”`); setMo('') }} />
+          <MenuTrangThai chon={(v, l) => { b.suaNhieu(mas, { tt: v, lyDoCho: l }, `Đã đổi ${mas.length} ticket sang “${v}${l ? ' ' + l : ''}”`); setMo('') }} />
         </Noi>
       </div>
       <div className="b-loc-o">

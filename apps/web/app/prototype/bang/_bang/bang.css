@@ -89,7 +89,7 @@
 .b-ticket { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .b-nhan-dau { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
 /* khung nhãn đầu rộng cố định (nhãn co theo chữ) → mã + tên khách thẳng cột */
-.b-ticket > .b-nhan-dau { width: 162px; }
+.b-ticket > .b-nhan-dau { width: 190px; } /* = tag ưu tiên 60 + 6 + nhóm lỗi dài nhất "Chất lượng nước" 123 → mã ticket thẳng cột */
 .b-ticket-chu { display: flex; align-items: center; gap: 10px; min-width: 0; } /* 1 dòng: mã · khách (18/11) */
 .b-ticket-chu .b-ma { flex-shrink: 0; }
 /* ô sửa dạng nhãn (ưu tiên, loại lỗi, trạng thái): không khung xám, không mũi tên — hover làm đậm chính nhãn */
@@ -127,8 +127,8 @@
 .b-bang-c [data-tren="trai"] { box-shadow: inset 2px 0 0 var(--ring); }
 .b-bang-c [data-tren="phai"] { box-shadow: inset -2px 0 0 var(--ring); }
 .b-keo-bong { position: fixed; top: -200px; left: 0; display: inline-flex; align-items: center; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-md); background: var(--background); box-shadow: var(--shadow-hairline), var(--shadow-300); color: var(--foreground); font: 500 12px/18px var(--font-sans); white-space: nowrap; }
-.b-co { position: absolute; top: 0; right: -4px; bottom: 0; z-index: 3; width: 8px; cursor: col-resize; touch-action: none; }
-.b-co::after { content: ""; position: absolute; top: 8px; bottom: 8px; left: 3px; width: 2px; border-radius: 1px; background: transparent; transition: background-color 120ms ease; }
+.b-co { position: absolute; top: 0; right: -8px; bottom: 0; z-index: 3; width: 16px; cursor: col-resize; touch-action: none; } /* vùng bấm 16px vắt qua mép cột (Dũng: dễ chọn hơn) */
+.b-co::after { content: ""; position: absolute; top: 6px; bottom: 6px; left: 7px; width: 2px; border-radius: 1px; background: transparent; transition: background-color 120ms ease; }
 .b-co:hover::after, .b-co:active::after { background: var(--ring) !important; }
 .ui-th-sort[aria-expanded="true"] { color: var(--foreground); }
 .ui-th-sort[data-on] { color: var(--foreground); font-weight: 500; }
@@ -289,7 +289,6 @@
    nhãn ưu tiên cùng bề rộng; nhãn loại lỗi lấp phần còn lại của khung nhãn → mọi dòng thẳng hàng */
 .b-ds-hang .ui-badge, .b-bang-c tbody .ui-badge, .b-the .ui-badge { height: var(--control-size-3xs); }
 .b-nhan-dau { align-items: stretch; }
-.b-nhan-dau > :first-child .ui-badge, .b-nhan-dau > .ui-badge:first-child { min-width: 30px; justify-content: center; }
-.b-ticket > .b-nhan-dau > .b-osua-wrap:last-child { flex: 1; min-width: 0; }
-.b-ticket > .b-nhan-dau > .b-osua-wrap:last-child > .b-osua { width: 100%; }
-.b-ticket > .b-nhan-dau > .b-osua-wrap:last-child .ui-badge { width: 100%; }
+.b-nhan-dau > :first-child .ui-badge, .b-nhan-dau > .ui-badge:first-child { min-width: 60px; justify-content: center; } /* Gấp/Cao/Thường/Thấp cùng bề rộng ("Thường" 59px) */
+.b-ticket > .b-nhan-dau > .b-osua-wrap:last-child { flex: 0 1 auto; min-width: 0; } /* ôm chữ, không lấp khung (Dũng 18/11) */
+.b-ticket > .b-nhan-dau > .b-osua-wrap:last-child .ui-badge { max-width: 100%; overflow: hidden; text-overflow: ellipsis; } /* tên nhóm lỗi dài hơn dự kiến → cắt …, không đè mã */

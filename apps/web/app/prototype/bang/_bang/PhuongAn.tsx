@@ -14,7 +14,7 @@ import { Khung } from '../../khung/_proto/VariantD'
 import { LY_DO_CHO, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 import {
   Avatar, ChipTT, DauCot, DsLoc, Han, Khach, MenuChon, NguonTag, Nguoi, NhanDau, NhanLoi, Noi, OChon, OChonTatCa, Rong,
-  SAP_TICKET, ThanhHangLoat, ThanhLoc, ChanTrang, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
+  SAP_TICKET, ThanhHangLoat, ThanhLoc, ChanTrang, MenuTrangThai, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
 } from './chung'
 
 type BoCuc = 'ds' | 'bang' | 'kanban'
@@ -146,12 +146,7 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
   )
   if (id === 'tt') return (
     <OSua an nhan={`trạng thái ${t.ma}`} menu={(d) => (
-      <>
-        <MenuChon<TrangThai> ds={TT_LIST} gt={t.tt} nhan={(v) => <ChipTT t={{ ...t, tt: v, lyDoCho: undefined }} nho />}
-          chon={(v) => { b.sua(t.ma, { tt: v, lyDoCho: v === 'Chờ' ? t.lyDoCho ?? 'khách' : undefined }, `${t.ma} → ${v}`); d() }} />
-        {t.tt === 'Chờ' && (<><div className="ui-menu-sep" /><div className="ui-menu-label">Lý do chờ</div>
-          <MenuChon ds={LY_DO_CHO} gt={t.lyDoCho ?? 'khách'} chon={(v) => { b.sua(t.ma, { lyDoCho: v }, `${t.ma}: chờ ${v}`); d() }} /></>)}
-      </>
+      <MenuTrangThai gt={t.tt} lyDo={t.lyDoCho} chon={(v, l) => { b.sua(t.ma, { tt: v, lyDoCho: l }, `${t.ma} → ${v}${l ? ' ' + l : ''}`); d() }} />
     )}><ChipTT t={t} nho mui /></OSua>
   )
   if (id === 'viec') return <SuaChu t={t} b={b} />
@@ -374,8 +369,9 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
         <thead>
           <tr>
             <th className="b-cot-chon"><OChonTatCa b={b} /></th>
-            {hien.map((c) => (
+            {hien.map((c, i) => (
               <th key={c.id} className={'b-th-keo' + (c.id === 'han' || c.id === 'mo' ? ' b-phai' : '')} draggable
+                style={{ zIndex: 2 + hien.length - i }} /* th sticky = lớp riêng: cột trước nằm trên cột sau, nửa phải vùng kéo .b-co không bị cột kế đè */
                 data-tren={vach(c.id)} data-keo={keo === c.id || undefined}
                 onDragStart={(e) => batDauKeo(e, c)} onDragEnd={() => { setKeo(null); setTren(null) }}
                 onDragOver={(e) => veQua(e, c.id)} onDrop={(e) => tha(e, c.id)}>
@@ -412,8 +408,11 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
   const tha = (e: DragEvent, tt: TrangThai) => {
     e.preventDefault(); setTren(null)
     const t = b.rows.find((x) => x.ma === keo); setKeo(null)
-    if (t && t.tt !== tt) b.sua(t.ma, { tt, lyDoCho: tt === 'Chờ' ? 'khách' : undefined }, `${t.ma} → ${tt}`)
+    if (!t || t.tt === tt) return
+    if (tt === 'Chờ') setHoi(t.ma) // chưa đổi — chờ chọn lý do
+    else b.sua(t.ma, { tt, lyDoCho: undefined }, `${t.ma} → ${tt}`)
   }
+  const [hoi, setHoi] = useState<string | null>(null)
   return (
     <div className="b-kanban">
       {COT_K.map((tt) => {
@@ -430,6 +429,9 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
                   <div className="b-the-khach"><Khach t={t} /></div>
                   <div className="b-the-viec">{t.viecTiep}</div>
                   <div className="b-the-chan"><span className="b-ma">{t.ma}</span><Han t={t} /><span style={{ flex: 1 }} /><Avatar ten={t.chu} nho /></div>
+                  <Noi mo={hoi === t.ma} dong={() => setHoi(null)} nhan="Chờ vì…">
+                    <MenuTrangThai chiLyDo gt={t.tt} chon={(v, l) => { b.sua(t.ma, { tt: v, lyDoCho: l }, `${t.ma} → Chờ ${l}`); setHoi(null) }} />
+                  </Noi>
                 </article>
               ))}
               {!the.length && <div className="b-k-rong">Kéo thẻ vào đây</div>}

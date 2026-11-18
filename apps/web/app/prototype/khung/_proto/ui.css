@@ -394,7 +394,7 @@
    không nền khung, tab đang chọn nền alpha-05 */
 .ui-tabs-list[data-variant="pill"] { height: auto; padding: 0; gap: 4px; background: none; }
 .ui-tabs-list[data-variant="pill"] .ui-tabs-trigger { height: var(--control-size-lg); padding: 0 16px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
-.ui-tabs-list[data-variant="pill"] .ui-tabs-trigger[aria-selected="true"] { background: var(--alpha-05); box-shadow: none; font-weight: 600; }
+.ui-tabs-list[data-variant="pill"] .ui-tabs-trigger[aria-selected="true"] { background: var(--alpha-05); box-shadow: none; font-weight: 500; /* medium — thanh mảnh (Dũng 18/11) */ }
 .ui-tabs-list[data-variant="pill"] .ui-tabs-count { font-size: 12px; font-weight: 400; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 /* Tabs: số đếm cảnh báo */
 .ui-tabs-count[data-color="danger"], .ui-tabs-list[data-variant="pill"] .ui-tabs-count[data-color="danger"] { color: var(--color-text-danger); font-weight: 500; }
@@ -455,12 +455,18 @@
 /* hàng cài đặt: nhãn + mô tả bên trái, công tắc bên phải */
 .ui-switch-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 
-/* --- InputAffix: chữ/đơn vị cố định trong ô (₫, %, kg) — ô tiền căn phải, số thẳng cột --- */
-.ui-input-affix { position: relative; display: flex; align-items: center; }
-.ui-input-affix > .ui-affix { position: absolute; right: var(--control-gutter-md); font-size: 14px; line-height: 20px; color: var(--color-text-tertiary); pointer-events: none; }
-.ui-input-affix > .ui-affix[data-side="start"] { right: auto; left: var(--control-gutter-md); }
-.ui-input-affix > .ui-input { padding-right: calc(var(--control-gutter-md) + var(--affix-w, 16px) + 6px); }
-.ui-input-affix:has(> .ui-affix[data-side="start"]) > .ui-input { padding-right: var(--control-gutter-md); padding-left: calc(var(--control-gutter-md) + var(--affix-w, 16px) + 6px); }
+/* --- InputAffix (input group): khung viền bọc cả số + đơn vị (₫, %, kg) — đơn vị đứng SÁT số, cách 4px cho mọi đơn vị.
+   Viền/hover/focus/lỗi/tắt chép đúng của Input, chuyển từ ô lên khung (:focus-within / :has). --- */
+.ui-input-affix { display: flex; align-items: center; gap: 4px; height: var(--control-size-md); padding: 0 var(--control-gutter-md); border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--input); cursor: text; transition: box-shadow 150ms ease, background-color 150ms ease; }
+.ui-input-affix:hover { box-shadow: inset 0 0 0 1px var(--alpha-25); }
+[data-theme="dark"] .ui-input-affix:hover { box-shadow: inset 0 0 0 1px var(--alpha-30); }
+.ui-input-affix:focus-within { box-shadow: inset 0 0 0 1px var(--alpha-50); }
+.ui-input-affix:has(> .ui-input[aria-invalid="true"]) { box-shadow: inset 0 0 0 1px var(--red-500); }
+[data-theme="dark"] .ui-input-affix:has(> .ui-input[aria-invalid="true"]) { box-shadow: inset 0 0 0 1px var(--red-600); }
+.ui-input-affix:has(> .ui-input:disabled) { background: var(--color-background-disabled); box-shadow: inset 0 0 0 1px var(--color-border-disabled); cursor: not-allowed; }
+.ui-input-affix > .ui-input, .ui-input-affix > .ui-input:hover, .ui-input-affix > .ui-input:focus, .ui-input-affix > .ui-input:disabled { flex: 1; min-width: 0; height: 100%; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.ui-input-affix > .ui-affix { flex-shrink: 0; font-size: 14px; line-height: 20px; color: var(--color-text-tertiary); pointer-events: none; }
+.ui-input-affix > .ui-affix[data-side="start"] { order: -1; }
 .ui-input[data-align="end"] { text-align: right; }
 .ui-input[inputmode="numeric"], .ui-input[inputmode="decimal"] { font-variant-numeric: tabular-nums; }
 .ui-field-meta { display: flex; justify-content: space-between; gap: 12px; }
