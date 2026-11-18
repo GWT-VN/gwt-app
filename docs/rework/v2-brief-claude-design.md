@@ -1,12 +1,12 @@
 # Brief thiết kế UI — GWT App v2.0.0
 
-> Dán nguyên file này cho Claude Design. Muốn hiểu sâu nghiệp vụ, đính kèm thêm `docs/rework/v2-mo-ta-app.md` (mô tả đầy đủ 16 luồng, ~730 dòng). Brief này tự đủ để bắt đầu thiết kế.
+> Dán nguyên file này cho Claude Design và **chọn design system "GWT — OpenAI + shadcn"** (https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr — artifact riêng tư, người dùng tài khoản khác cần được Share). Muốn hiểu sâu nghiệp vụ, đính kèm thêm `docs/rework/v2-mo-ta-app.md` (mô tả đầy đủ 16 luồng, ~730 dòng). Nguồn token OpenAI gốc + checksum: `docs/design-system/` trên nhánh `docs/nen-tang-openai-ds`. Brief này tự đủ để bắt đầu thiết kế.
 
 ## 0. Việc cần làm
 
 Thiết kế giao diện cho **GWT App v2** — webapp nội bộ dùng hằng ngày của một công ty ~20 người. Làm theo thứ tự:
 
-1. **Hệ thiết kế** (token + bộ component dùng chung) — mục 4.
+1. **Hệ thiết kế** — **đã có, không dựng lại**: chọn DS **"GWT — OpenAI + shadcn"** (https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr). Component và cấu trúc tương tác theo **shadcn/ui**, diện mạo (màu, chữ, khoảng cách, chiều cao control, viền, bo, bóng, focus) theo **OpenAI Apps SDK UI 0.2.2**. Việc ở bước này: ghép component nghiệp vụ mục 4.2 từ component nền của DS, chỗ DS còn thiếu thì bổ sung vào DS — mục 4.
 2. **Khung app** (thanh điều hướng desktop + khung điện thoại) — mục 5.
 3. **Các màn theo thứ tự ưu tiên P1 → P2** — mục 6.
 4. **Mẫu tin bot Discord** — mục 7.
@@ -44,27 +44,53 @@ Một người có thể mang nhiều vai. **Nút/menu nào người dùng khôn
 
 - Phản hồi của CEO về bản cũ: *"design web xấu, khó nhìn"*, trang ticket *"khó theo dõi, khó edit"*. → **Thông tin chính lên trên, sửa ngay tại chỗ (không mở form riêng), ít bấm, ít chữ thừa.**
 - CEO lo *"nhiều task quá sẽ loạn, rối màn hình, không biết xem cái gì trước"* → mỗi màn phải trả lời ngay **"việc gì cần làm trước"**: gấp/quá hạn nổi lên trên, phần còn lại thu gọn.
-- Chuẩn thẩm mỹ CEO đã khen: mockup "Việc hôm nay" (`https://claude.ai/artifact/Che3fXmSbZoeFVb8yA3N56#hom-nay`). Hệ thiết kế cũ tham khảo: `https://claude.ai/artifact/HPTEQYrb9ELXVVJof993zH`.
-- Phong cách: công cụ làm việc gọn, sáng, mật độ vừa (như Linear / Notion / Height), không kiểu landing page. Nền sáng, chữ đậm rõ, bảng dễ quét.
+- Chuẩn thẩm mỹ CEO đã khen: mockup "Việc hôm nay" (`https://claude.ai/artifact/Che3fXmSbZoeFVb8yA3N56#hom-nay`) — lấy **bố cục, thứ tự thông tin, mật độ**; màu và chữ lấy từ DS mới, không lấy từ mockup. Hệ thiết kế cũ (`https://claude.ai/artifact/HPTEQYrb9ELXVVJof993zH`) **thay bằng** DS "GWT — OpenAI + shadcn" — không dùng token của bản cũ.
+- Phong cách: công cụ làm việc gọn, sáng, mật độ vừa (như Linear / Notion / Height), không kiểu landing page. Nền sáng, chữ đậm rõ, bảng dễ quét. Đúng tinh thần OpenAI Apps SDK UI: trung tính đen–trắng–xám, màu chỉ dùng cho trạng thái và điểm nhận diện khu.
 - Phần giải thích dài luôn **thu gọn được** (CEO muốn đọc ngắn, cần thì mở ra).
 
 ## 4. Hệ thiết kế
 
-### 4.1 Token
+### 4.1 Token — dùng nguyên DS "GWT — OpenAI + shadcn"
+
+Mọi giá trị lấy từ `tokens.json` của DS (tên token nguồn OpenAI + giá trị thật). Không đặt hex/px lẻ trong màn. Bảng dưới là tóm tắt để vẽ; chi tiết và lý do ánh xạ ở brand book của DS.
 
 | Nhóm | Quy định |
 | --- | --- |
-| Màu nền / chữ | `--bg #eef2f2` · `--surface #ffffff` · `--border #dde5e6` · `--ink #0e1c1f` · `--muted #6a7a7d` (đề xuất từ bộ màu khu Việc hiện có; được tinh chỉnh) |
-| Màu nhấn theo khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a`. Nền thanh điều hướng `#0c2a2e`. Màu khu đổi `--accent`, không rải hex trong component |
-| Màu ngữ nghĩa | đỏ `#d7443e` · cam `#c67a12` · xanh lá `#2f8f5b` · chàm `#5560c9` · tím `#8a52b8`, mỗi màu có bản nền nhạt (`-wash`) |
-| Tone trạng thái | 6 tone: `trung-tinh` (xám) · `dang-lam` (accent) · `cho` (cam) · `xong` (xanh lá) · `loi/khan` (đỏ) · `thong-tin` (chàm) — bảng map ở 4.3 |
-| Chữ | Một font sans (Geist đề xuất). Số, mã, serial, SĐT, tiền: mono + số thẳng cột. Thang 11 · 12 · 14 (mặc định) · 16 · 22 (tiêu đề trang) |
-| Bo góc | 8px ô nhập/nút · 12px thẻ · tròn cho chip |
-| Focus | viền 2px accent trên mọi thứ bấm được |
-| Icon | một bộ icon nét SVG; **không dùng emoji làm icon** (riêng Thẻ lưu ý khách được dùng emoji loại như mục 6.1.6) |
+| Nền / chữ | Nền trang `background` (#ffffff) · khối `card` = nền trang, tách bằng viền `border` · lớp nổi (menu, hộp thoại, panel) `popover` · vùng lùi `muted` (#f3f3f3) · chữ chính `foreground` (#0d0d0d) · chữ phụ `muted-foreground` (#5d5d5d) · placeholder `color-text-tertiary` |
+| Nút chính | `primary` = **đen** (#181818), chữ trắng — OpenAI không dùng màu thương hiệu cho nút chính. Nút phụ `secondary` (xám nhạt), `outline`, `ghost`; nút xoá `destructive` (#e02e2a) |
+| Hover / đang chọn | `accent` = nền trong suốt 8% (không phải màu nhấn) — item menu, dòng đang chọn, mục điều hướng |
+| Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` — **(đề xuất) mở rộng GWT `--khu`**, chỉ làm dấu nhận diện khu (vạch/chấm ở thanh điều hướng, biểu tượng khu trong launcher). **Không** dùng cho nút, focus, trạng thái |
+| Màu trạng thái | Cặp nền/chữ của OpenAI theo vai: `success` · `warning` · `danger` · `info` · `discovery` · `secondary` (nền `color-background-<vai>-soft-alpha` + chữ `color-text-<vai>-soft`) |
+| Tone trạng thái | 6 tone giữ tên cũ, map sang vai OpenAI — bảng 4.3 |
+| Chữ | Font hệ thống theo OpenAI (`ui-sans-serif, -apple-system, system-ui, "Segoe UI", …` — Windows ra Segoe UI). Số, mã, serial, SĐT, tiền: `font-mono` + `tabular-nums`. Thang: 12 (meta, nhãn cột) · **14 mặc định** (control, bảng, menu) · 16 (đoạn văn, tiêu đề nhỏ) · 18/20 (tiêu đề khối, hộp thoại) · 24 (tiêu đề trang). Weight 400/500/600 |
+| Kích thước control | Mặc định **32px** (`control-size-md`): nút, ô nhập, select, tab, mục điều hướng; 28px cho toolbar dày; 36px nút nổi bật; điện thoại tối thiểu 44px |
+| Bo góc | Nút **pill** (mặc định OpenAI); nút trong ô bảng/toolbar dày bo 6–8px · ô nhập, select 8px · thẻ, khung bảng, menu, Alert 12px · hộp thoại 16px · chip trạng thái **4px** (Badge OpenAI, không bo tròn) |
+| Viền / bóng | Viền 1px `border`; ô nhập viền `input`. Lớp nổi: `shadow` + `shadow-hairline`. Thẻ phẳng, không bóng |
+| Focus | Viền ngoài 2px `ring` (xanh #0169cc), cách 2px, trên mọi thứ bấm được; ô nhập focus = viền đậm lên (alpha 50%) |
+| Icon | **lucide** (bộ shadcn dùng sẵn), nét 2px, 16px trong ô nhập/menu, 18px trong nút; **không dùng emoji làm icon** (riêng Thẻ lưu ý khách được dùng emoji loại như mục 6.1.6) |
 | Định dạng | ngày `18/11/2026`, giờ `14:30`, tiền `1.250.000 đ`, SĐT `0912 345 678`, tuần bắt đầu Thứ 2 |
+| Sáng / tối | DS có cả hai theme; **v2.0 vẽ nền sáng**. Bản tối chỉ khi màn được yêu cầu riêng |
 
 ### 4.2 Component cần vẽ (mỗi cái đủ 4 trạng thái: đang tải · rỗng · lỗi · bị khoá)
+
+**Ghép từ component nền của DS trước, chỉ vẽ mới phần nghiệp vụ.** DS đã có (shadcn mặc diện mạo OpenAI, đủ trạng thái): Button · Input/Label/Textarea · Select · Combobox · Checkbox · Tabs · DropdownMenu · Dialog/AlertDialog · Sheet · Table (data table) · Sidebar · Badge · Alert.
+
+| Component GWT | Dựng trên (DS) | Còn phải thêm vào DS |
+| --- | --- | --- |
+| `Tabs` | Tabs (kiểu SegmentedControl OpenAI) | — |
+| `BoLocChon` | Select (≤10 mục) | — |
+| `BoLocGoiY`, `OChonGoiY`, `OChonTimXa`, `ChonKhach`, `ChonSerial`, `TimToanCuc` | Combobox | ô tìm toàn cục ở thanh điều hướng |
+| `BangDuLieu`, `ChonNhieuDong` | Table + Checkbox | ẩn/hiện/đổi thứ tự cột, lưu view, bản thẻ trên điện thoại |
+| `ThanhHangLoat` | Button + Badge | thanh nổi khi chọn dòng |
+| `ChipTrangThai`, `NhanNguon` | Badge | — |
+| `HopThoai`, `XacNhan` | Dialog, AlertDialog | — |
+| `PanelBen` | Sheet | — |
+| `BannerLoi` | Alert (danger) + nút Thử lại | — |
+| `TrangThaiRong` | trạng thái rỗng của Table | — |
+| `ThongBao` (toast) | — | **thêm** (shadcn Sonner) |
+| `ONgay`, `LocNgay` | — | **thêm** (shadcn Calendar/Date Picker; OpenAI có DatePicker để lấy diện mạo) |
+| `KhungApp` | Button, DropdownMenu, Combobox | thanh 2 tầng (mục 5) — DS có Sidebar nhưng v2 dùng thanh trên theo mục 5 |
+| Còn lại (`Kanban`, `LichThang`, `BangDieuPhoiTuan`, `BieuDo`, `NhatKy`, `OTaiTep`…) | token DS | vẽ mới bằng token, rồi đưa vào DS |
 
 **Khung:** `KhungApp` (thanh 2 tầng, launcher, ô tìm toàn cục, tài khoản) · `DauTrang` (tiêu đề, phụ đề, nút quay lại, khu nút hành động) · `TheNoiDung` (thẻ khối) · `Tabs` (ghi vào URL).
 
@@ -81,6 +107,17 @@ Một người có thể mang nhiều vai. **Nút/menu nào người dùng khôn
 **Điện thoại (KTV):** `TheViecHienTruong` · `DongPhieuKTV` · `OQuetSerial` (camera quét mã vạch/QR hoặc gõ tay).
 
 ### 4.3 Bảng tone trạng thái
+
+Tone → vai màu trong DS (Badge `soft`, luôn kèm chữ, không chỉ màu):
+
+| Tone | Vai DS | Ghi chú |
+| --- | --- | --- |
+| `trung-tinh` | `secondary` (xám) | |
+| `dang-lam` | `info` (xanh dương) | (đề xuất) bản cũ dùng màu khu; đổi sang `info` để một trạng thái chỉ có một màu ở mọi khu |
+| `cho` | `warning` (cam) | |
+| `xong` | `success` (xanh lá) | |
+| `loi/khan` | `danger` (đỏ) | Khẩn: Badge `solid` (nền đỏ đặc, chữ trắng) |
+| `thong-tin` | `discovery` (tím) | (đề xuất) thay chàm; OpenAI không có chàm |
 
 | Loại | Giá trị → tone |
 | --- | --- |
@@ -100,8 +137,8 @@ Một người có thể mang nhiều vai. **Nút/menu nào người dùng khôn
 ## 5. Khung app
 
 **Desktop — thanh điều hướng 2 tầng:**
-- Tầng 1 (52px, nền `#0c2a2e`): logo GWT · các khu (Việc · CSKH · Sales · Kho · Wiki), khu đang mở tô màu khu · **ô tìm toàn cục** (gõ SĐT, tên khách, serial, mã đơn `261118-E004`, mã ticket `TK-2611-042` → gợi ý theo loại → Enter mở) · nút launcher (lưới các khu, khu chưa có — Nhân sự, Kế toán — hiện xám "sắp có") · ⚙️ Quản trị · avatar (đổi mật khẩu, đăng xuất).
-- Tầng 2 (46px, nền trắng): các trang của khu đang mở; trang nhiều thì gom nhóm thả xuống. Ví dụ CSKH: **Việc hôm nay** · Ticket & lỗi ▾ · Khách hàng ▾ · Bảo hành ▾ · Bảo trì ▾ · Kỹ thuật ▾.
+- Tầng 1 (52px, nền `#0c2a2e` — **(đề xuất) mở rộng GWT `--nav`**, DS không có màu nền tối cho thanh điều hướng; phương án khác: nền `sidebar` sáng của DS, chờ chốt mục 10): logo GWT · các khu (Việc · CSKH · Sales · Kho · Wiki), khu đang mở đánh dấu bằng màu khu (`--khu`) · **ô tìm toàn cục** (gõ SĐT, tên khách, serial, mã đơn `261118-E004`, mã ticket `TK-2611-042` → gợi ý theo loại → Enter mở) · nút launcher (lưới các khu, khu chưa có — Nhân sự, Kế toán — hiện xám "sắp có") · ⚙️ Quản trị · avatar (đổi mật khẩu, đăng xuất).
+- Tầng 2 (46px, nền `background`, mục 32px kiểu ghost — hover/đang mở dùng `accent`): các trang của khu đang mở; trang nhiều thì gom nhóm thả xuống. Ví dụ CSKH: **Việc hôm nay** · Ticket & lỗi ▾ · Khách hàng ▾ · Bảo hành ▾ · Bảo trì ▾ · Kỹ thuật ▾.
 
 **Điện thoại:** thanh trên gọn (logo · tìm · avatar), tầng 2 cuộn ngang. **Kỹ thuật viên thuần** đăng nhập chỉ thấy một màn: Lịch của tôi (6.3.1), có thanh dưới: Hôm nay · Tuần · Tài khoản.
 
@@ -322,10 +359,12 @@ Trang chủ 9 khu (Sản phẩm · Marketing video · Kho video · Kiến thức
 - Trang ticket: danh sách trường đặt trên cùng sẽ chốt sau khi hỏi Hiền — vẽ theo mục 6.1.3.
 - Tối đa 3 lưu ý đỏ / khách; lưu ý KTV ghi thì hiện ngay (chưa có bước duyệt).
 - Mockup 9 màn CSKH riêng của CEO (có số thật) — nếu CEO đưa thì ưu tiên theo đó.
+- **Theo DS mới (đề xuất, chờ chốt):** nền thanh điều hướng tầng 1 giữ `#0c2a2e` hay chuyển nền sáng · màu khu chỉ làm dấu nhận diện (không tô nút/focus) · `dang-lam` = `info`, `thong-tin` = `discovery` · font hệ thống thay Geist · nút pill.
+- **Độ tương phản chưa đạt ngay trong nguồn OpenAI** (vẽ theo nguồn, ghi chú lại): viền ô nhập 1,42:1 và viền Checkbox 1,6:1 (dưới 3:1); chữ Badge success 4,05:1; chữ lỗi ở nền tối 3,52:1. DS đã có phương án sửa kèm số đo ở mục "Quyết định còn mở".
 
 ## 11. Đầu ra mong muốn
 
-1. Trang **hệ thiết kế**: token màu/chữ/khoảng cách/bo góc, bảng tone trạng thái, toàn bộ component mục 4.2 với các trạng thái.
+1. **Bổ sung vào DS "GWT — OpenAI + shadcn"** (không tạo DS mới): bảng tone trạng thái 4.3, các component mục 4.2 cột "Còn phải thêm" và component nghiệp vụ, đủ trạng thái.
 2. **Khung app** desktop + điện thoại.
 3. Màn **P1** đầy đủ trạng thái, rồi màn **P2**.
 4. Mẫu tin bot Discord.

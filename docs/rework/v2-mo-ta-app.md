@@ -38,12 +38,13 @@ Một người có thể mang nhiều vai. Vai trò hiện có: `ceo, admin, qua
 
 - **Thanh điều hướng 2 tầng:** tầng 1 = module (mỗi module một màu nhận diện), tầng 2 = các trang của module. Có **app-launcher** dạng lưới và menu ⚙️ quản trị.
 - Màu module hiện tại: Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` (chưa có) · Kế toán `#3f8a6a` (chưa có).
-- Font: bản cũ nạp Geist nhưng thân trang hiện ra Arial, khu Work dùng font hệ thống — v2 chọn **một** font (mục 8.1, câu hỏi ở mục 10). Mã đơn, serial, SĐT, tiền dùng font mono, số thẳng cột.
+- **Hệ thiết kế v2 (chốt hướng 18/11/2026): component shadcn/ui + diện mạo OpenAI Apps SDK UI 0.2.2** — DS "GWT — OpenAI + shadcn" https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr (token, bảng ánh xạ shadcn ↔ OpenAI, 13 component mẫu). Nguồn token gốc + checksum: `docs/design-system/` nhánh `docs/nen-tang-openai-ds`. Chi tiết mục 8.1.
+- Font: bản cũ nạp Geist nhưng thân trang hiện ra Arial, khu Work dùng font hệ thống — v2 chọn **một** font: theo DS là font hệ thống của OpenAI (mục 8.1, câu hỏi ở mục 10). Mã đơn, serial, SĐT, tiền dùng font mono, số thẳng cột.
 - **Mẫu danh sách chuẩn** (dùng ở mọi khu): ô tìm kiếm không dấu · chip lọc · sắp xếp theo cột · phân trang · chọn nhiều dòng + thanh thao tác hàng loạt · nút xuất CSV/Excel.
 - **Ô tìm toàn cục** trên thanh điều hướng (thay trang `/tim` cũ): gõ SĐT, tên khách, serial, mã đơn, mã ticket → nhảy thẳng tới đối tượng.
 - **Luật CEO 22/08:** danh sách chọn quá 10 mục phải **gõ để tìm**, không dùng `<select>` trần.
 - Kỹ thuật viên đăng nhập chỉ thấy màn rút gọn (lịch của tôi), tối ưu điện thoại.
-- Mockup CEO đã duyệt là "đẹp, dễ nhìn": https://claude.ai/artifact/Che3fXmSbZoeFVb8yA3N56#hom-nay — dùng làm chuẩn thẩm mỹ. Hệ thiết kế tham khảo: GWT Design System v4 https://claude.ai/artifact/HPTEQYrb9ELXVVJof993zH.
+- Mockup CEO đã duyệt là "đẹp, dễ nhìn": https://claude.ai/artifact/Che3fXmSbZoeFVb8yA3N56#hom-nay — dùng làm chuẩn **bố cục và mật độ**; màu, chữ lấy theo DS mới. GWT Design System v4 (https://claude.ai/artifact/HPTEQYrb9ELXVVJof993zH) **không còn là chuẩn cho v2**.
 - Phản hồi CEO về bản cũ: "design web xấu, khó nhìn", trang ticket "khó theo dõi, khó edit" → v2 ưu tiên: **thông tin chính lên trên, sửa ngay tại chỗ, ít form riêng**.
 
 ## 4. Module và màn hình
@@ -524,15 +525,22 @@ Mục tiêu: mọi màn v2 ghép từ **một bộ component chung**. Bản cũ 
 
 ### 8.1 Nền (token)
 
+**Nguồn duy nhất:** DS "GWT — OpenAI + shadcn" (https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr). Biến semantic của shadcn (`background foreground card popover primary secondary muted accent destructive border input ring sidebar-*`) trỏ vào token semantic OpenAI; trạng thái và hover/active/disabled dùng thẳng token OpenAI (`--color-background-<vai>-…`, `--control-*`). Thay bộ biến khu Work (`--bg --surface --ink --muted --accent`, `-wash`) — bộ đó bỏ.
+
 | Token | Quy định v2 |
 | --- | --- |
-| Màu | **Một** bộ biến CSS (`--bg --surface --border --ink --muted --accent` + `red amber green indigo violet`, mỗi màu có bản `-wash`) — lấy bộ của khu Work làm gốc. Màu khu đặt qua `[data-khu="…"]` đổi `--accent`, không rải hex trong component. |
-| Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` · nền thanh nav `#0c2a2e` |
-| Màu trạng thái | Một bảng tone dùng chung: `trung-tinh` slate · `dang-lam` accent · `cho` amber · `xong` green · `loi/khan` red · `thong-tin` indigo. Mỗi trạng thái nghiệp vụ map vào một tone (bảng ở 8.4). |
-| Chữ | Một font (chọn Geist hoặc system — bản cũ nạp Geist nhưng `body` lại ra Arial). Số, mã, serial, SĐT, tiền: font mono + `tabular-nums`. Thang: 11 · 12 · 14 (mặc định) · 16 · 22 (tiêu đề trang). |
-| Bo góc | 8px ô nhập/nút · 12px thẻ · full cho chip. |
-| Focus | Viền 2px `--accent` cho mọi phần tử bấm được (bản cũ chỉ khu Work có). |
-| Icon | Một bộ SVG chung (không emoji 🔴 ⚠️ làm icon). |
+| Màu | `background` #ffffff · `muted` #f3f3f3 · `foreground` #0d0d0d · `muted-foreground` #5d5d5d · `border` đen 10% · `input` đen 16% · `popover` (lớp nổi). **`primary` = đen**, không phải màu thương hiệu. **`accent` = nền hover/đang chọn** (đen 8%), không phải màu nhấn. Không rải hex trong component. |
+| Màu khu | Việc `#0e8c9a` · CSKH `#b5642a` · Sales `#2f7d8a` · Kho `#5560c9` · Wiki `#8a52b8` · Nhân sự `#b0518f` · Kế toán `#3f8a6a` · nền thanh nav `#0c2a2e`. **(đề xuất) Mở rộng GWT** `--khu` (đặt qua `[data-khu="…"]`) và `--nav`: chỉ làm dấu nhận diện khu trên thanh điều hướng/launcher; **không** đổi `primary`, `ring` hay màu trạng thái. |
+| Màu trạng thái | Bảng tone dùng chung, mỗi tone = một vai màu OpenAI (cặp nền `…-soft-alpha` + chữ `…-soft`): `trung-tinh` → secondary · `dang-lam` → info · `cho` → warning · `xong` → success · `loi/khan` → danger · `thong-tin` → discovery. Mỗi trạng thái nghiệp vụ map vào một tone (bảng ở 8.4). |
+| Chữ | Font hệ thống OpenAI (`ui-sans-serif, -apple-system, system-ui, "Segoe UI", …`), không tải webfont. Số, mã, serial, SĐT, tiền: `font-mono` + `tabular-nums`. Thang OpenAI: 12/18 · **14/20 mặc định** · 16/24 · 18/26 · 20/26 · 24/28 (tiêu đề trang). Weight 400 · 500 · 600. |
+| Kích thước control | `control-size-md` **32px** mặc định (nút, ô nhập, select, tab, mục nav) · sm 28px · lg 36px · chạm điện thoại ≥ 44px. Padding ngang 12px (pill ×1,33). |
+| Bo góc | Nút pill (OpenAI mặc định), nút trong bảng/toolbar dày 6–8px · ô nhập/select 8px · thẻ, khung bảng, menu, Alert 12px · hộp thoại 16px (mở rộng GWT) · chip trạng thái 4px. |
+| Viền / bóng | Viền control bằng `box-shadow inset 1px`. Lớp nổi: `shadow` + `shadow-hairline`. Thẻ phẳng. |
+| Focus | Outline 2px `ring` (#0169cc), offset 2px, cho mọi phần tử bấm được; ô nhập: viền đậm lên đen 50%. |
+| Icon | `lucide-react` (bộ shadcn dùng sẵn), nét 2px; không emoji 🔴 ⚠️ làm icon. |
+| Sáng/tối | DS có Light + Dark; v2.0 làm Light, Dark chỉ khi màn được yêu cầu. |
+
+**Tích hợp vào code (từ DS, mục "Tích hợp vào gwt-app"):** một lớp reset (Preflight của Tailwind, **không** import `index.css`/`base.css` của kit OpenAI); hàm `alpha()`/`spacing()` của kit là PostCSS riêng → dùng giá trị đã giải trong `tokens.json` hoặc `color-mix()`; `light-dark()` cần `color-scheme`; `--color-border`/`--color-ring` trùng tên giữa shadcn và OpenAI → gán `--border`/`--ring` bằng giá trị OpenAI, không trỏ ngược `var(--color-border)`.
 
 ### 8.2 Hàm dùng chung (không phải UI nhưng mọi UI cần)
 
@@ -548,6 +556,23 @@ Mục tiêu: mọi màn v2 ghép từ **một bộ component chung**. Bản cũ 
 ### 8.3 Component
 
 Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng thái phải có** (đang tải · rỗng · lỗi · bị khoá), **nghiệm thu**.
+
+**Nền shadcn:** mọi component dưới đây dựng trên component shadcn đã áp diện mạo OpenAI trong DS — Button · Input/Label/Textarea · Select · Combobox · Checkbox · Tabs · DropdownMenu · Dialog/AlertDialog · Sheet · Table · Sidebar · Badge · Alert. Không thay bằng component React của OpenAI. Logic lọc/tìm/phân trang giữ ở `apps/web/bang/`, chỉ đổi lớp áo.
+
+| Component GWT | Nền shadcn trong DS |
+| --- | --- |
+| `Tabs` | Tabs (kiểu SegmentedControl) |
+| `BoLocChon` | Select (≤10 mục) |
+| `BoLocGoiY` · `OChonGoiY` · `OChonTimXa` · `ChonKhach` · `ChonSerial` · `TimToanCuc` | Combobox (Popover + Command) |
+| `BangDuLieu` · `ChonNhieuDong` | Table (TanStack data table) + Checkbox |
+| `ChipTrangThai` · `NhanNguon` | Badge |
+| `HopThoai` · `XacNhan` | Dialog · AlertDialog |
+| `PanelBen` | Sheet |
+| `BannerLoi` | Alert danger |
+| `ThongBao` | Sonner — **chưa có trong DS, cần thêm** |
+| `ONgay` · `LocNgay` | Calendar / Date Picker — **chưa có trong DS, cần thêm** |
+| `KhungApp` | thanh 2 tầng tự dựng từ Button/DropdownMenu/Combobox (DS có Sidebar nhưng v2 giữ thanh trên) |
+| còn lại | dựng bằng token DS, xong thì đưa vào DS |
 
 #### Khung trang
 
@@ -643,6 +668,8 @@ Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng
 
 ### 8.4 Bảng tone trạng thái
 
+Tone → vai màu DS: `trung-tinh` secondary · `dang-lam` info · `cho` warning · `xong` success · `loi/khan` danger (Khẩn: Badge solid) · `thong-tin` discovery. Hiển thị qua `ChipTrangThai` = Badge `soft` cỡ sm (20px, chữ 12px semibold), luôn có chữ.
+
 | Loại | Giá trị → tone |
 | --- | --- |
 | Ticket (v2, đặc tả 17/11) | Mới → `thong-tin` · Đang xử lý → `dang-lam` · Chờ, Chờ khách xác nhận → `cho` · Đóng → `xong` · Huỷ, Trùng → `trung-tinh` · Khẩn → `loi/khan` |
@@ -689,7 +716,11 @@ Tóm tắt từ `docs/rework/2026-11-18-review-don-gian-hoa.md`: các màn trùn
 | 3 | Lịch & Dự án (Work), Báo giá · Hợp đồng · Doanh số Sales | 4.1, 4.3 | ngoài v2.0 |
 | 4 | Kế hoạch chuyển data SalesTracking → Masterdata (thứ tự schema, đổi đích bot cùng lúc) | 6 | việc riêng, làm trước khi code v2 |
 | 5 | Ai được tạo mã khách trong v2, khi luật Masterdata gốc chỉ cho chị Trang thêm `customers` | 6, 7.1, 7.2 | khách tạo ở schema module, chị Trang duyệt lên bảng gốc |
-| 6 | Font chung của app (Geist hay font hệ thống) | 3, 8.1 | Geist |
+| 6 | Font chung của app (Geist hay font hệ thống) | 3, 8.1 | font hệ thống theo DS OpenAI (trước 18/11 đề xuất Geist) |
+| 7 | Màu khu dùng tới đâu: chỉ dấu nhận diện ở thanh điều hướng, hay cả nút chính/focus như bản cũ | 8.1 | chỉ dấu nhận diện; nút chính đen, focus xanh theo DS |
+| 8 | Nền thanh điều hướng tầng 1: giữ `#0c2a2e` (mở rộng GWT) hay nền sáng của DS | 3, 8.1 | giữ `#0c2a2e` |
+| 9 | `dang-lam` = info (xanh dương) và `thong-tin` = discovery (tím) thay accent khu / chàm | 8.1, 8.4 | đồng ý |
+| 10 | Cặp màu nguồn OpenAI chưa đạt WCAG (viền ô nhập 1,42:1, viền Checkbox 1,6:1, chữ Badge success 4,05:1, chữ lỗi nền tối 3,52:1): giữ nguồn hay mở rộng GWT | 8.1 | sửa theo phương án có số đo trong DS |
 
 ### 10.2 Đặc tả CSKH 17/11 — câu còn mở trong đặc tả (Q1–Q6)
 
