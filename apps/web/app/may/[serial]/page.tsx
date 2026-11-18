@@ -10,6 +10,9 @@ import { LoiCuaMay } from '@/components/LoiCuaMay'
 import { QuanLyMay } from '@/components/QuanLyMay'
 import { GanDaiLy } from '@/components/GanDaiLy'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { docChoSerial } from '@/app/may/chua-serial-actions'
+import { BoSungSerial } from '@/components/bh/BoSungSerial'
+import { docAnToan } from '@/lib/loi/anToan'
 
 export default async function MachinePage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params
@@ -18,13 +21,16 @@ export default async function MachinePage({ params }: { params: Promise<{ serial
   // Máy CHƯA lắp khách không có trong v_installed_base -> vẫn cho xem trang máy KHO
   // (thông tin gọn + nhật ký vòng đời trạng thái), thay vì 404.
   if (!m) return <MayKhoView serial={serialGoc} />
-  const [tickets, vongDoi, quyen, dsTT, daiLy, donDaiLy, doiTacDs] = await Promise.all([
+  const [tickets, vongDoi, quyen, dsTT, daiLy, donDaiLy, doiTacDs, { data: cho }] = await Promise.all([
     ticketsOfSerial(m.serial), lichSuSerial(m.serial), hoiQuyen({
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       lapThuDoi: ['cs.may.lap_thu_doi', 'QUANLY'],
       suaKhach: ['cs.khach.xin_xoa', 'NHANVIEN'],
       khoSerial: ['cs.serial.kho', 'QUANLY'],
+      kichHoat: ['cs.may.kich_hoat_bh', 'NHANVIEN'],
     }), dsTrangThai(), daiLyCuaMay(m.serial), donDaiLyChon(), doiTacChon(),
+    // Cờ chờ bổ sung serial (18/11) — chưa áp migration thì coi như không chờ.
+    docAnToan('docChoSerial', () => docChoSerial(m.serial), { cho_serial: false, internal_code: null }),
   ])
   // Máy này có phải máy THAY THẾ (đổi máy cho khách) không -> hiện tính chuyển tiếp.
   const suKienThayThe = vongDoi.su_kien.find((s) => s.su_kien === 'doi_may_lap_moi')
@@ -68,6 +74,8 @@ export default async function MachinePage({ params }: { params: Promise<{ serial
           <h1 className="text-xl font-semibold text-slate-900">{m.product_name}</h1>
           <WarrantyBadge m={m} />
         </div>
+
+        {cho.cho_serial && <BoSungSerial maTam={m.serial} internalCode={cho.internal_code ?? m.internal_code} choSua={quyen.kichHoat} />}
 
         <section className="bg-white rounded-xl border p-5">
           <h2 className="font-medium text-slate-900 mb-3">Khách hàng</h2>
