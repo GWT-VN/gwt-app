@@ -1,0 +1,55 @@
+MÔ TẢ GIAO CHO CLAUDE DESIGN — GWT APP
+
+Mục tiêu
+Rework giao diện GWT App theo mô hình đã chọn: component và block mẫu dùng shadcn/ui; hệ thiết kế thị giác theo OpenAI Apps SDK UI.
+
+Bối cảnh đã xác nhận
+- Repository: https://github.com/GWT-VN/gwt-app/tree/rework/v2.0.0
+- GWT App là webapp nội bộ nhiều module. Các màn hình cần làm lại cụ thể sẽ được xác định cùng người dùng; không mặc định tất cả module phải đổi cùng lúc.
+- Stack tại bản đã kiểm tra: Next.js 16.2.10, React 19.2.4, Tailwind CSS 4, TypeScript.
+- Repo có UI và bộ bảng dùng chung ở apps/web/bang/. Cần đọc cấu trúc hiện tại trước khi đề xuất thay thế.
+
+Vai trò của hai bộ
+1. shadcn/ui cung cấp component, cấu trúc tương tác và block tham khảo: Button, Input, Select/Combobox, Checkbox, Dialog, Sheet, Tabs, Menu, Table, Sidebar và các mẫu dashboard phù hợp.
+2. OpenAI Apps SDK UI là nguồn tham chiếu cho màu, surface, chữ, spacing, kích thước control, border, radius, shadow và các trạng thái tương tác.
+3. Dùng mẫu shadcn làm nền rồi áp hệ thiết kế OpenAI nhất quán lên đó. Giao diện vẫn phục vụ tác vụ nội bộ GWT; bố cục phải xuất phát từ nghiệp vụ từng màn hình.
+
+Nguồn tài liệu
+- OpenAI UI demo: https://openai.github.io/apps-sdk-ui/
+- OpenAI UI source: https://github.com/openai/apps-sdk-ui
+- Figma được tài liệu OpenAI dẫn tới: https://www.figma.com/community/file/1625636989296445101
+- shadcn components: https://ui.shadcn.com/docs/components
+- shadcn blocks: https://ui.shadcn.com/blocks
+- shadcn theming: https://ui.shadcn.com/docs/theming
+- shadcn data table: https://ui.shadcn.com/docs/components/data-table
+
+Tài liệu lưu trong repo (đường dẫn tương đối từ docs/design-system/)
+archives/openai-apps-sdk-ui-0.2.2.zip là toàn bộ file được Git quản lý tại commit 0f00143c7a639906f1621fe58e1b6be7b5bea46d, tải ngày 18/11/2026.
+Đây là mã nguồn, tài liệu, icon và ví dụ của thư viện; không kèm node_modules, bản build hoặc file Figma .fig. Giữ nguyên LICENSE khi sử dụng nguồn.
+
+Cách áp dụng hệ thiết kế
+- Đọc các file trong reference/openai-apps-sdk-ui/styles/; giải nén archive vào thư mục tạm để đọc src/components/ và các ví dụ gốc.
+- Lấy giá trị từ nguồn thật; không tự gán số rồi mô tả là token chính thức của OpenAI.
+- Lập bảng ánh xạ giữa semantic token shadcn và token OpenAI: background/foreground, card, popover, primary, secondary, muted, accent, destructive, border, input, ring; bổ sung sidebar/chart nếu màn hình cần.
+- Kiểm tra riêng từng vai trò: accent trong shadcn có thể là nền hover/selection, không tự đồng nhất với màu thương hiệu.
+- Giữ cặp màu nền/chữ tương ứng và ý nghĩa success/warning/error. Khi thiếu token tương ứng, ghi rõ token mở rộng riêng của GWT và lý do.
+- Chỉnh cả typography, padding, chiều cao control, border, radius, shadow và focus; chỉ đổi màu sẽ chưa đủ để theo hệ thiết kế OpenAI.
+- Chỉ dùng một lớp reset và một hệ theme thống nhất. Kiểm tra các global style hiện có trước khi nhập CSS của OpenAI, vì index.css của kit có import base/reset và global styles.
+- Không cần thay các component shadcn bằng component React của OpenAI chỉ để lấy diện mạo. Ưu tiên ánh xạ token và điều chỉnh style của component shadcn.
+
+Yêu cầu khi thiết kế màn hình
+- Giữ nguyên nhãn nghiệp vụ, dữ liệu, trạng thái, hành động và phân quyền đã có, trừ thay đổi được người dùng yêu cầu riêng.
+- Tiếng Việt rõ ràng; dữ liệu minh họa phải được nhận diện là demo và không dùng thông tin khách hàng thật.
+- Thể hiện default, hover, focus, disabled, loading, error và empty khi có liên quan.
+- Bảng phải dễ quét, số liệu dễ so sánh; cho phép cuộn ngang ở vùng bảng khi cần, không làm tràn toàn trang.
+- Tuân thủ quy ước bộ lọc hiện có: danh sách chọn quá 10 mục phải tìm kiếm được. Đọc docs/CHUAN-FILTER.md trước khi thiết kế thay đổi bộ lọc, tìm kiếm, sắp xếp hoặc phân trang.
+- Phạm vi light/dark mode và breakpoint cần bám yêu cầu của màn hình; không tự mở rộng phạm vi chỉ vì UI kit hỗ trợ.
+
+Trình tự làm việc
+Đầu tiên đọc nguồn, tóm tắt cách hiểu và chỉ ra phần chưa rõ. Đề xuất bảng token mapping và một trang mẫu component để kiểm tra tính nhất quán. Xác định màn hình đầu tiên với người dùng trước khi thiết kế trang nghiệp vụ. Các thay đổi bố cục và hành vi trong giai đoạn khám phá là đề xuất, chưa phải yêu cầu đã được duyệt.
+
+Đầu ra cần có
+- Bảng token mapping có tên token nguồn và giá trị thực tế.
+- Mẫu component shadcn đã áp diện mạo OpenAI.
+- Thiết kế màn hình trong phạm vi được xác nhận, gồm các trạng thái liên quan.
+- Ghi chú những phần tái sử dụng và những phần cần mở rộng riêng cho GWT.
