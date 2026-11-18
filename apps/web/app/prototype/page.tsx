@@ -20,6 +20,15 @@ const NHOM: { ten: string; tt: 'chot' | 'duyet'; muc: Muc[] }[] = [
     { ten: 'FileUpload', href: '/prototype/form#fileupload', ghi: 'Kéo tệp vào vùng thả' },
     { ten: 'Cả nhóm Form — theme tối', href: '/prototype/form?theme=dark' },
   ] },
+  { ten: 'Phản hồi (xác nhận · trống · tải · thông báo)', tt: 'duyet', muc: [
+    { ten: 'Luật chọn kiểu phản hồi', href: '/prototype/phanhoi#chon' },
+    { ten: 'ConfirmDialog', href: '/prototype/phanhoi#confirm', ghi: 'Bấm "Xoá phiếu chi…" → bấm Xoá khi trống để xem lỗi. "Gộp khách…": gõ mã mới bấm được' },
+    { ten: 'EmptyState — 4 lý do', href: '/prototype/phanhoi#empty', ghi: 'Bấm "Thử lại" ở ô lỗi' },
+    { ten: 'Skeleton · nút đang chạy', href: '/prototype/phanhoi#skeleton', ghi: 'Bấm "Tải lại" / "Lưu thay đổi"' },
+    { ten: 'Banner', href: '/prototype/phanhoi#banner' },
+    { ten: 'Toast (thành công · lỗi · đang chạy)', href: '/prototype/phanhoi#toast', ghi: 'Bấm 3 nút; lỗi không tự tắt' },
+    { ten: 'Cả nhóm — theme tối', href: '/prototype/phanhoi?theme=dark' },
+  ] },
   { ten: 'Trang chi tiết (khung chung)', tt: 'duyet', muc: [
     { ten: 'Trang mẫu ghép đủ', href: '/prototype/chitiet#trang', ghi: 'Bấm "Đổi trạng thái" → dòng Hoạt động tự ghi. Gõ ghi chú → Ctrl + Enter' },
     { ten: 'PageHeader (breadcrumb · ‹ › · hành động)', href: '/prototype/chitiet#page-header', ghi: 'Tiêu đề dài: tối đa 2 dòng rồi cắt' },

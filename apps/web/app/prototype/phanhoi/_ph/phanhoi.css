@@ -1,0 +1,16 @@
+/* PROTOTYPE — chỉ bố cục trang demo; component nằm ở khung/_proto/ui.css (khối BỔ SUNG DS PHẢN HỒI) */
+.ph-nut { display: flex; flex-wrap: wrap; gap: 8px; }
+.ph-ghi { margin: 12px 0 0; }
+.ph-lydo { margin-top: 16px; }
+.ph-ds { margin-top: 12px; }
+.ph-u { min-width: 60px; justify-content: center; } /* "Thường" 59px — cùng bề rộng tag ưu tiên ở bảng */
+.ph-k { width: 33%; }
+.ph-v { flex: 1; }
+.ph-luoi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ph-luoi > .ui-empty { border-radius: var(--radius-xl); box-shadow: inset 0 0 0 1px var(--alpha-08); }
+.ph-banner { display: flex; flex-direction: column; gap: 12px; }
+.ph-banner > .ui-banner { border-radius: var(--radius-lg); } /* trong demo bo góc cho dễ tách; thật là dải sát mép trên */
+.ph-2cot > :last-child { grid-column: auto; }
+.ph-luat td, .ph-luat th { vertical-align: top; padding-block: 8px; white-space: normal; }
+@media (max-width: 640px) { .ph-luoi { grid-template-columns: minmax(0, 1fr); } .ph-luat { display: block; overflow-x: auto; } }
+.ph-luat th { position: static; } /* bảng luật ngắn — không cần tiêu đề dính */
