@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { datHienNguoi, doiTenNguoi, themNguoi, type LoaiNguoi } from '@/app/ticket/nguoi-actions'
+import { doiTenNguoi, themNguoi, xoaNguoi, type LoaiNguoi } from '@/app/ticket/nguoi-actions'
 import { chuanTenNguoi, DAI_TOI_DA_TEN, dsChoChon, type NguoiDs } from '@/lib/loi/nguoiTicket'
 
 const THEM = '__them__'
@@ -12,8 +12,9 @@ type KQ = { ok: true } | { ok: false; error: string }
 const nhan = (x: NguoiDs) => `${x.ten}${x.la_ctv ? ' (CTV)' : ''}`
 
 /**
- * Ô chọn người trên ticket (CS theo dõi / Kỹ thuật) + "+ Thêm tên…" + "Sửa danh sách…" (đổi tên · ẩn · hiện lại).
- * Ẩn = "xoá" với người dùng: không còn để chọn, ticket đang gán vẫn giữ tên. `onChon` gán vào ticket.
+ * Ô chọn người trên ticket (CS theo dõi / Kỹ thuật) + "+ Thêm tên…" + "Sửa danh sách…" (đổi tên · xoá).
+ * Chị Trang 18/11: chỉ Thêm + Xoá, không "ẩn". Xoá hỏi lại ngay trong khung (không dùng confirm() của trình duyệt).
+ * `onChon` gán vào ticket.
  */
 export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' }: {
   loai: LoaiNguoi; ds: NguoiDs[]; dangGan: string | null
@@ -26,6 +27,7 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' 
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [dangDoi, setDangDoi] = useState<{ id: string; ten: string } | null>(null)
+  const [dangXoa, setDangXoa] = useState<string | null>(null)
 
   const chon = dsChoChon(ds, dangGan)
   const kiem = che === 'them' && chu ? chuanTenNguoi(chu, ds) : null
@@ -60,12 +62,12 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' 
           const v = e.target.value
           setErr(null)
           if (v === THEM) { setChe('them'); setChu(''); return }
-          if (v === SUA) { setChe('sua'); setDangDoi(null); return }
+          if (v === SUA) { setChe('sua'); setDangDoi(null); setDangXoa(null); return }
           setChe('chon')
           chay(() => onChon(v || null))
         }}>
         <option value="">— Chưa gán —</option>
-        {chon.map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã ẩn)' : ''}</option>)}
+        {chon.map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (nghỉ)' : ''}</option>)}
         <option value={THEM}>+ Thêm tên…</option>
         <option value={SUA}>✎ Sửa danh sách…</option>
       </select>
@@ -85,7 +87,7 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' 
           {kiem && !kiem.ok && <span className="text-xs text-red-600">{kiem.error}</span>}
           {kiem?.ok && kiem.trung && (
             <span className="text-xs text-slate-500">
-              Đã có <strong>{kiem.trung.ten}</strong>{kiem.trung.hoat_dong ? '' : ' (đang ẩn — sẽ hiện lại)'} — dùng người này.
+              Đã có <strong>{kiem.trung.ten}</strong> — dùng người này.
             </span>
           )}
           <span className="flex gap-1.5">
@@ -97,7 +99,7 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' 
 
       {che === 'sua' && (
         <span className="flex flex-col gap-1 rounded-lg border bg-slate-50 p-2 min-w-64">
-          <span className="text-xs font-medium text-slate-600">Danh sách {tenDs} — ẩn thì không còn để chọn, ticket cũ vẫn giữ tên</span>
+          <span className="text-xs font-medium text-slate-600">Danh sách {tenDs}</span>
           {ds.length === 0 && <span className="text-xs text-slate-500">Chưa có ai.</span>}
           {ds.map((x) => (
             <span key={x.id} className="flex items-center gap-1.5 text-sm">
@@ -110,13 +112,18 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, className = '' 
                     onClick={() => chay(() => doiTenNguoi(loai, x.id, dangDoi.ten), () => setDangDoi(null))}>Lưu</button>
                   <button type="button" className={nut} disabled={busy} onClick={() => setDangDoi(null)}>Huỷ</button>
                 </>
+              ) : dangXoa === x.id ? (
+                <>
+                  <span className="flex-1 text-xs text-red-700">Xoá <strong>{x.ten}</strong>? Ticket đang gán sẽ về &quot;chưa gán&quot;.</span>
+                  <button type="button" className={`${nut} bg-red-600 border-red-600 text-white`} disabled={busy}
+                    onClick={() => chay(() => xoaNguoi(loai, x.id), () => setDangXoa(null))}>Xoá</button>
+                  <button type="button" className={nut} disabled={busy} onClick={() => setDangXoa(null)}>Huỷ</button>
+                </>
               ) : (
                 <>
-                  <span className={`flex-1 ${x.hoat_dong ? 'text-slate-900' : 'text-slate-400 line-through'}`}>{nhan(x)}</span>
-                  <button type="button" className={nut} disabled={busy} onClick={() => setDangDoi({ id: x.id, ten: x.ten })}>Đổi tên</button>
-                  {x.hoat_dong
-                    ? <button type="button" className={`${nut} text-red-600`} disabled={busy} onClick={() => chay(() => datHienNguoi(loai, x.id, false))}>Ẩn</button>
-                    : <button type="button" className={nut} disabled={busy} onClick={() => chay(() => datHienNguoi(loai, x.id, true))}>Hiện lại</button>}
+                  <span className={`flex-1 ${x.hoat_dong ? 'text-slate-900' : 'text-slate-400'}`}>{nhan(x)}{x.hoat_dong ? '' : ' (nghỉ)'}</span>
+                  <button type="button" className={nut} disabled={busy} onClick={() => { setDangXoa(null); setDangDoi({ id: x.id, ten: x.ten }) }}>Đổi tên</button>
+                  <button type="button" className={`${nut} text-red-600`} disabled={busy} onClick={() => { setDangDoi(null); setDangXoa(x.id) }}>Xoá</button>
                 </>
               )}
             </span>

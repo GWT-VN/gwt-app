@@ -8,17 +8,21 @@ describe('lib/loi/dongMay', () => {
   it('chưa rõ máy / chưa phân loại', () => {
     expect(nhanDongMay({ internal_code: null, loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại' })).toBe('Chưa rõ máy · Chưa phân loại')
   })
-  it('gợi ý khi mục đã duyệt có hướng xử lý và dòng chưa xác nhận', () => {
-    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'Thay gioăng' })).toBe('Thay gioăng')
+  it('gợi ý khi mã đã duyệt, PHƯƠNG ÁN đã được chuyên gia duyệt, dòng chưa xác nhận', () => {
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'Thay gioăng', huong_duyet: true })).toBe('Thay gioăng')
+  })
+  it('phương án chưa được chuyên gia duyệt (hoặc DB chưa có cột) → KHÔNG hiện, dù mã lỗi đã duyệt (chị Trang 18/11)', () => {
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'Thay gioăng', huong_duyet: false })).toBeNull()
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'Thay gioăng' })).toBeNull()
   })
   it('không gợi ý: mục chưa duyệt, rỗng, hoặc CS đã xác nhận/sửa', () => {
-    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'cho_duyet', huong_xu_ly: 'x' })).toBeNull()
-    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: '  ' })).toBeNull()
-    expect(goiYHuongXuLy({ huong_xu_ly_nguon: 'cs' }, { trang_thai: 'da_duyet', huong_xu_ly: 'x' })).toBeNull()
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'cho_duyet', huong_xu_ly: 'x', huong_duyet: true })).toBeNull()
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: '  ', huong_duyet: true })).toBeNull()
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: 'cs' }, { trang_thai: 'da_duyet', huong_xu_ly: 'x', huong_duyet: true })).toBeNull()
     expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, null)).toBeNull()
   })
   it('không bao giờ gợi ý cho CHUA_PHAN_LOAI', () => {
-    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'x' }, CHUA_PHAN_LOAI)).toBeNull()
+    expect(goiYHuongXuLy({ huong_xu_ly_nguon: null }, { trang_thai: 'da_duyet', huong_xu_ly: 'x', huong_duyet: true }, CHUA_PHAN_LOAI)).toBeNull()
   })
   it('tóm tắt dòng máy cho bảng ticket, giữ thứ tự, serial ưu tiên serial đã gắn', () => {
     expect(tomTatMayTicket([

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@/app/actions', () => ({ updateTicket: vi.fn() }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ datCsTheoDoi: vi.fn() }))
 vi.mock('@/app/ticket/nguoi-actions', () => ({
-  ganCsTheoDoi: vi.fn(), ganKyThuat: vi.fn(), themNguoi: vi.fn(), doiTenNguoi: vi.fn(), datHienNguoi: vi.fn(),
+  ganCsTheoDoi: vi.fn(), ganKyThuat: vi.fn(), themNguoi: vi.fn(), doiTenNguoi: vi.fn(), xoaNguoi: vi.fn(),
 }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 import { DauTicket } from './DauTicket'
@@ -58,7 +58,7 @@ describe('DauTicket', () => {
     })
     it('người đã ẩn nhưng đang gán vẫn hiện, đánh dấu đã ẩn', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} csTheoDoi="Tuyết Trang" />)
-      expect(h).toContain('Tuyết Trang (đã ẩn)')
+      expect(h).toContain('Tuyết Trang (nghỉ)')
     })
     it('Kỹ thuật lấy từ hồ sơ thợ (có CTV), không còn liệt kê tài khoản nhân viên', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} />)
