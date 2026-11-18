@@ -212,17 +212,17 @@ const dangLocCot = (b: Bang, loc?: Loc) => (loc === 'uu' ? b.locUu.length : loc 
 type KhoaSap = { cot: Cot; ten: string }
 const TEN_LOC: Record<Loc, string> = { uu: 'Ưu tiên', nhom: 'Loại lỗi', chu: 'Chủ ticket' }
 export function DauCot({ b, ten, cot, loc, phai, menuPhai, la = 'th' }: {
-  b: Bang; ten: string; cot?: Cot | KhoaSap[]; loc?: Loc | Loc[]; phai?: boolean; menuPhai?: boolean; la?: 'th' | 'span'
+  b: Bang; ten: string; cot?: Cot | KhoaSap[]; loc?: Loc | Loc[]; phai?: boolean; menuPhai?: boolean; la?: 'th' | 'span' | 'o'
 }) {
   const [mo, setMo] = useState(false)
   const khoa: KhoaSap[] = !cot ? [] : Array.isArray(cot) ? cot : [{ cot, ten: '' }]
   const locs: Loc[] = !loc ? [] : Array.isArray(loc) ? loc : [loc]
   const dangSap = khoa.find((k) => k.cot === b.sap.cot)
   const soLoc = locs.reduce((n, l) => n + dangLocCot(b, l), 0)
-  const Tag = la
+  const Tag = la === 'o' ? 'span' : la // 'o' = nằm trong <th> có sẵn (bảng kéo được cột)
   const role = la === 'span' ? 'columnheader' : undefined
   if (!khoa.length && !locs.length) return <Tag className={phai ? 'b-phai' : undefined} role={role}>{ten}</Tag>
-  const ariaSort = dangSap && khoa.length === 1 ? (b.sap.chieu === 'tang' ? 'ascending' : 'descending') : khoa.length ? 'none' : undefined
+  const ariaSort = la === 'o' ? undefined : dangSap && khoa.length === 1 ? (b.sap.chieu === 'tang' ? 'ascending' : 'descending') : khoa.length ? 'none' : undefined
   const chon = (c: Cot, chieu: 'tang' | 'giam') => { b.setSap({ cot: c, chieu }); setMo(false) }
   return (
     <Tag aria-sort={ariaSort} className={phai ? 'b-phai' : undefined} role={role}>
