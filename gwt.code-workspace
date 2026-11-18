@@ -1,0 +1,7 @@
+{
+  "folders": [
+    { "name": "gwt-app (code app)", "path": "." },
+    { "name": "GWT-Masterdata (DB v2: migration, luật DB)", "path": "../GWT-Masterdata" },
+    { "name": "GWT-Agent-Team (Bắp + agent)", "path": "../GWT-Agent-Team" }
+  ]
+}

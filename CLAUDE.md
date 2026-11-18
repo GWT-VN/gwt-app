@@ -81,6 +81,14 @@ một bản chạy thử riêng (~0,8–1,5 GB lúc biên dịch).
 - Worktree đã merge → `bash tools/wt.sh xong <nhánh>` và xoá `.next` + `node_modules`
   (~1 GB mỗi worktree).
 
+## ⚠️ Nhánh `rework/v2.0.0` — DB của v2 ở GWT-Masterdata (chốt 18/11/2026)
+
+- **Chỉ v2 dùng GWT-Masterdata**; v1 (`main`) vẫn ở GWT-SalesTracking tới khi v2 thay.
+- 🛡️ **Masterdata CHỈ BỔ SUNG**: không sửa/xoá dữ liệu hay object đang có; chỉ được sửa phần đã chuyển từ GWT-App ngày 30/10
+  (lô `gwt_app_cskh_20261030`). Luật đầy đủ: `../GWT-Masterdata/rules/supabase-mcp.md` mục "BẢO VỆ GWT-MASTERDATA".
+- Repo liên kết, đặt cạnh nhau, mở chung bằng `gwt.code-workspace`: `../GWT-Masterdata` (migration DB v2), `../GWT-Agent-Team` (Bắp + agent).
+- Tài liệu v2: `docs/rework/` (mô tả app, brief thiết kế, đối chiếu DB, thiết kế GWT-Agent-Team).
+
 ## Wiki nội bộ — cập nhật nội dung
 
 CEO thả file gốc vào `data/wiki-nhap/<khu>/` (gitignore chặn — file có PII để đó là an toàn)

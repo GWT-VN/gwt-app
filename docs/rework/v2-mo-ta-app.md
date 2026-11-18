@@ -65,6 +65,7 @@ Ký hiệu: ✅ có ở bản cũ, mang sang (có thể thiết kế lại) · �
 | 🆕 3 tab trên Bảng team | **Mọi người** (thêm cột Cập nhật cuối) · **Gấp** (quá hạn + hạn hôm nay + việc gấp) · **Lâu không đụng** — mỗi tab một bộ lọc đặt sẵn, gom việc cũ để xử lý hàng loạt |
 | ✅ Việc tự sinh | luật sinh việc định kỳ (chỉ quản lý) |
 | 🆕 Nhắc việc theo giờ | lời nhắc gắn vào task, có giờ, người được nhắc, có nhắc cả người giao |
+| 🆕 Giao việc cho agent | Bắp và agent con hiện như người nhận trong ô chọn người; giao việc cho agent giống giao cho người (hạn, lời dặn, nghiệm thu); việc định kỳ của agent = việc lặp; xem agent đang làm gì, đã làm gì |
 | 🆕 Task AI + màn nghiệm thu | việc giao cho đội AI: nhãn AI + app liên quan, link tin gốc; **màn nghiệm thu**: danh sách yêu cầu của CEO → trạng thái từng yêu cầu → link xem kết quả → CEO **comment thẳng** vào từng mục (sửa tiếp / hiểu sai) — chi tiết 7.14 D4 |
 | 🆕 Ý tưởng cho App | việc làm tay hằng ngày của Sales/CSKH được Claude tổng hợp cuối ngày và đề xuất tính năng; tách riêng khỏi "yêu cầu" (7.14 D8) |
 | 🆕 Tổng kết tháng | theo người: số việc xong, thời gian hoàn thành TB, số trễ; ô nhận xét kết quả từng việc |
@@ -116,6 +117,8 @@ Ký hiệu: ✅ có ở bản cũ, mang sang (có thể thiết kế lại) · �
 
 ✅ 9 khu: Sản phẩm · Marketing video · Kho video · Kiến thức nền · Công việc chung · Sales · CSKH · Vận hành · Tài chính. Marketing có thêm: các trang dữ liệu (phân tích video, phân tích chuyên sâu, ý tưởng video, kho hook/CTA, kết quả ads), các khung lý thuyết (5A, PAAST, SECI, quy trình, luật sửa), kho case, luật QC, phân tích kênh; Sản phẩm có trang tra cứu theo mã. **Wiki chỉ đọc**: nội dung cập nhật qua repo (CEO thả file → Claude đưa lên, `docs/wiki-cap-nhat.md`), **không có trình soạn thảo trong app**. v2: một kiểu trang tài liệu duy nhất cho mọi bài + tìm kiếm.
 
+**Đề xuất nội dung Wiki (anh Dũng chốt 18/11):** **bỏ** tính năng Wiki Training Ingest cũ (routine cloud + endpoint `/api/wiki-ingest` + schema `wiki` trên GWT-SalesTracking, nhánh `feat/wiki-training-ingest` chưa merge). Sau khi có đội agent, **Bắp gom dữ liệu từ các kênh training và gửi đề xuất Wiki** (luồng D9, mục 7.14); v2 chỉ cần màn **duyệt đề xuất Wiki** (admin/CEO) khi luồng D9 làm. Wiki v2 **không có phần DB phải chuyển** — nội dung là file trong repo.
+
 ### 4.6 Quản trị
 
 ✅ Nhân viên · Ma trận phân quyền · Hàng chờ duyệt · Nhật ký thao tác · Đồng bộ catalog (kéo danh mục sản phẩm/giá từ Masterdata) · 🆕 Cấu hình thông báo Discord (mục 5).
@@ -134,13 +137,14 @@ Hệ quả cho UI: mỗi task/ticket/đơn/dòng kho hiện **nguồn** (app / S
 ## 6. Nền dữ liệu v2
 
 - **Hiện trạng:** app dùng 2 DB — GWT-SalesTracking (CSKH, Sales, Work, ticket bot) và GWT-Masterdata (sổ kho `wh_*`, catalog gốc, wiki, tồn Shopee); thêm một Supabase riêng của Marketing Kit cho dữ liệu video/hook.
-- **Một Supabase duy nhất: GWT-Masterdata** (anh Dũng chốt hướng 18/11/2026, ghi ở doc AI-Team mục "Trước khi build": review code → file mô tả app → **chuyển data về 1 Masterdata** → build phần agent tích hợp; kế hoạch chuyển chưa có). Data đang ở GWT-SalesTracking (CSKH, Sales, Work) chuyển sang Masterdata. Các bot đang ghi vào SalesTracking (ticket, serial, đơn) phải đổi đích cùng lúc.
-- **Xung đột cần giải:** luật nền tảng "bảng khách gốc `customers` ở Masterdata chỉ chị Trang thêm mã" đụng với ý v2 "khách gõ tay ở đơn tạo luôn hồ sơ" (7.1) và "một hệ khách" (7.2) — mục 10.
-- **Object ngoài migration:** hàm `bot_tao_ticket` mà bot ticket gọi **không có trong file migration nào** (chỉ được nhắc trong chú thích) — là drift, v2 phải hợp thức hoá khi chuyển DB.
-- **Mỗi module một schema riêng** (tiếng Anh, snake_case, bảng số nhiều): vd `cs`, `sales`, `work`, kho đã có. Bảng nhiều module dùng chung (`staff`, khách, catalog) ở `public`; hợp đồng đọc chéo module qua schema `api` (chỉ view/RPC).
-- Migration viết ở repo **GWT-Masterdata**, đi đủ quy trình DDL (CI `db-reset` xanh trước khi áp live).
-- Masterdata gốc `catalog_item`, `customers`, `installed_base`, `customer_contacts` chỉ chị Trang thêm mã.
-- Kế hoạch chuyển data là việc riêng, chưa chốt.
+- **Chỉ v2 dùng GWT-Masterdata** (anh Dũng chốt 18/11/2026): v1 đang chạy vẫn ở GWT-SalesTracking tới khi v2 thay. Dữ liệu GWT-App chuyển sang Masterdata **một lần lúc v2 lên chạy thật** (đóng băng ghi, chép toàn bộ, đếm khớp, giữ SalesTracking chỉ đọc 30 ngày). Bot đang ghi vào SalesTracking (ticket, serial, đơn) đổi đích cùng lúc. Đối chiếu hai DB: `docs/rework/2026-11-18-doi-chieu-db-salestracking-masterdata.md`.
+- 🛡️ **Luật cứng — Masterdata CHỈ BỔ SUNG** (anh Dũng chốt 18/11/2026; nguồn: `GWT-Masterdata/rules/supabase-mcp.md` mục "BẢO VỆ GWT-MASTERDATA", PR GWT-VN/GWT-Masterdata#34): mọi dữ liệu và object đang có trên Masterdata **giữ nguyên**; v2 chỉ thêm schema/bảng/view/hàm **mới** và dòng mới của GWT-App. Ngoại lệ duy nhất được sửa: phần đã chuyển từ GWT-App ngày 30/10 (lô `gwt_app_cskh_20261030`: dòng GWT-App trong `customers`, `installed_base`, `warranty`, `tickets`, `customer_contacts` + schema `customer_care` + `api.cskh_read` mà GWT-ERP đang đọc). Cần thêm trường cho bảng đang có → bảng mở rộng 1–1 trong schema của GWT-App, **không thêm cột**. Trước mỗi migration/lô dữ liệu: liệt kê object bị đụng, ngoài danh sách cho phép → hỏi anh Dũng.
+- **Repo GWT-Masterdata liên kết với gwt-app** như GWT-Agent-Team: repo riêng, đặt cạnh nhau (`../GWT-Masterdata`), mở chung bằng `gwt.code-workspace`; migration của DB v2 viết ở repo Masterdata, code v2 ở gwt-app, sửa cùng lúc trong một phiên.
+- **Mỗi module GWT-App một schema mới** (tiếng Anh, snake_case, bảng số nhiều), không trộn vào schema đang có của module khác (`sales` đang là của ERP/Shopee; `customer_care` là ngoại lệ được dùng tiếp). Bảng dùng chung đang có (`staff`, catalog) **chỉ đọc**; hợp đồng đọc chéo module qua schema `api` (chỉ view/RPC).
+- Migration đi đủ quy trình DDL 6 bước (CI `db-reset` của Masterdata xanh trước khi áp live).
+- 👤 **Người ≠ tài khoản** (anh Dũng chốt 18/11/2026): `public.staff` của Masterdata **chỉ dùng để đăng nhập** (GWT-App chỉ đọc, đúng luật chỉ bổ sung). **Giao việc theo tên người, không theo email**: bảng **người** mới trong schema của GWT-App (tên hiển thị, vai trò, bộ phận, Discord ID, còn làm/nghỉ) nối 0..n tài khoản `staff` (email đang dùng chung giữa nhiều người). Mọi chỗ giao/nhận/theo dõi — người làm việc Work, chủ ticket, người đang phải làm, kỹ thuật viên, CS theo dõi, người được nhắc, người ra lệnh của bot — **trỏ về người**. Quyền vẫn tính theo tài khoản đăng nhập (vai trò trên ma trận quyền).
+- **Rào masterdata gốc — đã chốt 18/11** (PR GWT-VN/GWT-Masterdata#36): `catalog_item` + bảng catalog **chỉ đọc** (chị Trang thêm mã qua `code_requests`); `customers` / `installed_base` / `customer_contacts`: **app v2 tạo trực tiếp** (tra trùng SĐT 9 số cuối, nhật ký thao tác), **chị Trang rà sau** qua màn "Khách / máy mới" (v2 cần màn này). Còn mở: khách Sales gộp vào `customers` hay bảng riêng (mục 10).
+- **Object ngoài migration** trên SalesTracking (37 entry ledger không có file, gồm hàm bot `bot_tao_ticket`…) là việc của v1; v2 dựng mới trên Masterdata nên không kế thừa drift này.
 
 ## 7. Luồng công việc
 
@@ -486,6 +490,8 @@ Mọi thao tác ghi đi qua hàm DB schema `work`, email người làm lấy t�
 | Tổng kết cuối tháng | chưa có |
 | App báo ra Discord (đơn HO, VTP giao xong, ticket quá hạn, @nhắc) | chưa có |
 
+**Nguyên tắc (anh Dũng chốt 18/11):** agent **nhận việc như người** — giao trực tiếp trên Discord hoặc trên gwt-app (chọn Bắp / agent con làm người nhận một việc Work); agent là "người" loại `agent` trong bảng người; việc định kỳ = việc lặp trong Work. **Không cứng hoá tính năng bằng code**: code chỉ cung cấp công cụ + rào an toàn; các luồng D1–D9 dưới đây là **việc mẫu** (lời dặn khởi đầu), sửa bằng lời được. Chi tiết: `docs/rework/2026-11-18-gwt-agent-team-design.md` mục 1b.
+
 **Luồng v2 (đích):**
 
 | # | Luồng | Các bước | Nghiệm thu |
@@ -498,6 +504,7 @@ Mọi thao tác ghi đi qua hàm DB schema `work`, email người làm lấy t�
 | D6 | **Thông báo ra** | CEO yêu cầu: đơn HO mới · VTP giao đến / giao thành công · nhắc việc theo giờ. (đề xuất) thêm: được giao việc · sắp tới hạn / quá hạn · được @nhắc · việc chặn mình đã xong · ticket Khẩn / mở quá X ngày / bot tạo chưa ai nhận · kho sắp hết · CTKM chờ duyệt · nhân viên chờ duyệt · tin 8h/17h | Mỗi loại bật/tắt và chọn kênh ở màn cấu hình (`MaTranThongBao`) |
 | D7 | **Tổng kết tháng** | Ngày 1 hằng tháng gửi bảng tổng kết theo người + link màn tổng kết | |
 | D8 | **Ý tưởng cho App** | Hiền làm việc Sales/CSKH trong Work của Claude (thay vì trong chat) → **cuối mỗi ngày** Claude tổng hợp các việc phải làm tay hôm đó → phân tích việc nào code thành tính năng được → Hiền đọc lại đề xuất một lượt, ổn thì commit; mỗi commit ghi nhận là *"Công việc hàng ngày của Sales/CSKH – Ý tưởng cho App"* — **ý tưởng, chưa phải yêu cầu** (CEO 17/11). Trong app: một danh sách Ý tưởng tách khỏi checklist yêu cầu; CEO chuyển ý tưởng thành yêu cầu (D4) khi duyệt. Cùng luồng: **Hiệp** (quen thao tác app Sales và CS) ghi lại các thao tác còn rườm rà và tự đề xuất cách làm gọn (doc AI-Team mục 0; CEO 17/11) | Ý tưởng không lẫn vào yêu cầu; CEO đọc được mọi ý tưởng theo ngày |
+| D9 | **Đề xuất Wiki** (sau khi có đội agent) | Bắp đọc các kênh training/hỏi đáp trên Discord → lọc cặp hỏi–đáp có giá trị, bỏ thông tin cá nhân → gửi **đề xuất Wiki** (khu, câu hỏi, câu trả lời, link tin gốc) vào hàng chờ của app → admin/CEO duyệt, sửa hoặc bỏ → nội dung đã duyệt vào Wiki (thành file trong repo qua pull request, đúng quy trình `docs/wiki-cap-nhat.md`). Thay cho tính năng Wiki Training Ingest cũ đã bỏ | Không có tin đề xuất nào lên Wiki khi chưa qua người duyệt |
 
 **Nền phải có cho mọi luồng:** bảng nối **Discord ID ↔ nhân viên** (một nguồn, thay các danh sách ID rải trong bot); mọi lệnh ghi qua **một cửa API của app** có kiểm quyền theo người gửi (không ghi thẳng DB như bot ticket hiện nay) — cửa này phục vụ cả **bot Bắp** lẫn **Claude trên máy nhân viên** (doc AI-Team 2.1: "cài Claude trên máy Hiền, nối với GWT App phần Work" → Claude đọc/ghi task của chính người đó, đề xuất dạng MCP); mẫu xác nhận 2 bước dùng chung (như sửa Shopee); tin sửa → cập nhật, tin xoá → huỷ (như bot kho); mọi bản ghi do bot tạo mang nguồn + link tin.
 
