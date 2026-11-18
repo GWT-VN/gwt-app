@@ -23,6 +23,7 @@
 /* ---------- menu nổi ---------- */
 .b-noi { position: fixed; left: var(--noi-x, 0); top: var(--noi-y, 0); z-index: 90; min-width: 200px; max-height: min(420px, calc(100vh - 16px)); overflow-y: auto; } /* toạ độ do Noi tính */
 .b-noi-rong { min-width: 240px; }
+.b-noi.ui-cal-pop { max-height: calc(100vh - 16px); } /* lịch cao hơn menu thường — không cắt chân Áp dụng */
 .b-noi .ui-menu-item { gap: 8px; }
 .b-noi .ui-menu-item[aria-checked="true"]:not(:hover), .b-noi .ui-menu-item[aria-selected="true"]:not(:hover) { background: var(--alpha-04); }
 .b-tick { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); margin-left: auto; color: var(--foreground); }

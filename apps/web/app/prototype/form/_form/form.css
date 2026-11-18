@@ -1,0 +1,10 @@
+/* PROTOTYPE — chỉ bố cục trang demo; component nằm ở khung/_proto/ui.css (khối BỔ SUNG DS FORM) */
+.fm { --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif; min-height: 100vh; padding: 32px 24px 64px; background: var(--muted); color: var(--foreground); font: 400 14px/20px var(--font-sans); }
+.fm > :not(.b-noi) { max-width: 960px; margin-inline: auto; }
+.fm-dau { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.fm-h1 { margin: 0; font-size: 24px; line-height: 28px; font-weight: 600; }
+.fm-khoi { background: var(--background); }
+.fm-khoi + .fm-luoi, .fm > .fm-khoi { margin-bottom: 20px; }
+.fm-luoi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.fm-luoi > :last-child { grid-column: 1 / -1; }
+@media (max-width: 640px) { .fm { padding: 20px 16px 48px; } .fm-luoi { grid-template-columns: minmax(0, 1fr); } }

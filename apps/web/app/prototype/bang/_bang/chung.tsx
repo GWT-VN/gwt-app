@@ -141,18 +141,20 @@ export function Khach({ t }: { t: Ticket }) {
 // ---------- menu chọn nổi (dùng cho sửa tại chỗ + lọc) ----------
 // 18/11: menu nổi vẽ qua portal ra lớp trên cùng (position: fixed) — không bị vùng cuộn ngang của bảng cắt, không bị
 // tiêu đề cột dính đè. Định vị theo ô đã bấm (phần tử cha của <span> neo); thiếu chỗ bên dưới thì lật lên trên.
-export function Noi({ mo, dong, children, className }: { mo: boolean; dong: () => void; children: ReactNode; className?: string }) {
+export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNeo }: { mo: boolean; dong: () => void; children: ReactNode; className?: string; role?: 'menu' | 'dialog'; nhan?: string; theoNeo?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const neo = useRef<HTMLSpanElement>(null)
   useLayoutEffect(() => {
     const a = neo.current?.parentElement, m = ref.current
     if (!mo || !a || !m) return
-    const r = a.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight
+    const r = a.getBoundingClientRect()
+    if (theoNeo) m.style.minWidth = `${r.width}px` // Select: menu rộng bằng ô
+    const w = m.offsetWidth, h = m.offsetHeight
     const x = className?.includes('b-noi-phai') ? Math.max(8, r.right - w) : Math.max(8, Math.min(r.left, innerWidth - w - 8))
     const duoi = r.bottom + 4 + h <= innerHeight - 8 || r.top - 4 - h < 8
-    m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${duoi ? r.bottom + 4 : r.top - 4 - h}px`)
+    m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${Math.max(8, Math.min(duoi ? r.bottom + 4 : r.top - 4 - h, innerHeight - h - 8))}px`) // không đủ chỗ cả 2 phía → ép vào trong màn
     m.style.visibility = 'visible'
-  }, [mo, className])
+  }, [mo, className, theoNeo])
   useEffect(() => {
     if (!mo) return
     const trong = (n: EventTarget | null) => !!ref.current?.contains(n as Node) || !!neo.current?.parentElement?.contains(n as Node)
@@ -170,7 +172,7 @@ export function Noi({ mo, dong, children, className }: { mo: boolean; dong: () =
   return (
     <>
       <span ref={neo} hidden />
-      {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role="menu" style={{ visibility: 'hidden' }}>{children}</div>, document.querySelector('.proto') ?? document.body)}
+      {createPortal(<div ref={ref} className={'ui-menu b-noi ' + (className ?? '')} role={role} aria-label={nhan} style={{ visibility: 'hidden' }}>{children}</div>, document.querySelector('.proto') ?? document.body)}
     </>
   )
 }
