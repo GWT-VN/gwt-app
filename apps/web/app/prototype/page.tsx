@@ -23,6 +23,9 @@ const NHOM: { ten: string; tt: 'chot' | 'duyet'; muc: Muc[] }[] = [
   { ten: 'Xem dữ liệu — bổ sung', tt: 'duyet', muc: [
     { ten: 'FilterBar + Lưu bộ lọc', href: '/prototype/bang?variant=B', ghi: 'Bấm tiêu đề cột "Loại lỗi" → tick 1 loại' },
     { ten: 'Thanh hàng loạt + Phân trang', href: '/prototype/bang?variant=B', ghi: 'Tick ô đầu bảng → "Chọn tất cả 19" → sang trang 2' },
+    { ten: 'Menu trạng thái — Chờ bắt buộc lý do', href: '/prototype/bang?variant=B', ghi: 'Bấm ô Trạng thái → "Chờ ›" → chọn lý do. Kanban (E): kéo thẻ vào cột Chờ' },
+    { ten: 'Tag ưu tiên Gấp/Cao/Thường/Thấp · nhãn loại lỗi ôm chữ', href: '/prototype/bang?variant=A', ghi: 'Rê chuột lên tag để xem P1–P4 + nhóm lỗi' },
+    { ten: 'Kéo độ rộng cột (vùng bấm 16px)', href: '/prototype/bang?variant=B', ghi: 'Rê chuột vào mép phải tiêu đề cột → vạch xanh → kéo' },
   ] },
   { ten: 'Bảng ticket — đã chốt', tt: 'chot', muc: [
     { ten: 'Danh sách 1 dòng', href: '/prototype/bang?variant=A' },
