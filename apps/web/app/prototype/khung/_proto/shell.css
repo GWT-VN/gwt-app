@@ -9,8 +9,13 @@
   -webkit-font-smoothing: antialiased;
 }
 .proto *, .proto *::before, .proto *::after { box-sizing: border-box; }
-/* thanh cuộn mảnh, mờ (18/11) — không dùng thanh cuộn dày mặc định của Windows */
-.proto, .proto * { scrollbar-width: thin; scrollbar-color: var(--alpha-15) transparent; }
+/* thanh cuộn mảnh, mờ (18/11): Chrome/Safari dùng ::-webkit-scrollbar 6px (scrollbar-width sẽ vô hiệu nó nên chỉ đặt cho trình duyệt khác) */
+.proto ::-webkit-scrollbar { width: 6px; height: 6px; }
+.proto ::-webkit-scrollbar-track, .proto ::-webkit-scrollbar-corner { background: transparent; }
+.proto ::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--alpha-10); }
+.proto ::-webkit-scrollbar-thumb:hover { background: var(--alpha-25); }
+.proto ::-webkit-scrollbar-button { display: none; }
+@supports not selector(::-webkit-scrollbar) { .proto, .proto * { scrollbar-width: thin; scrollbar-color: var(--alpha-15) transparent; } }
 .proto button { font: inherit; }
 
 /* ---------- dùng chung ---------- */
@@ -198,7 +203,7 @@
 .pD-xemthem:hover { color: var(--foreground); }
 .pD-xemthem:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
 .pD-panel .p-chat { background: var(--background); border-top: 1px solid var(--border); }
-.pD-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; margin-top: 8px; border-top: 1px solid var(--alpha-08); box-shadow: 0 -4px 8px -4px var(--alpha-05); background: var(--background); overflow: hidden; }
+.pD-main { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; margin-top: 8px; border-top: 1px solid var(--alpha-08); box-shadow: 0 -4px 8px -4px var(--alpha-05); background: var(--background); overflow: hidden; }
 .pD-top { display: none; }
 .pD-noidung { flex: 1; overflow-y: auto; }
 .pD-bap { display: flex; flex-direction: column; width: 380px; min-height: 0; margin: 8px 8px 8px 0; border-radius: var(--radius-xl); background: var(--background); box-shadow: var(--shadow-hairline); overflow: hidden; }

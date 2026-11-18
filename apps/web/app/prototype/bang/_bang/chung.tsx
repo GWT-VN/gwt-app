@@ -9,7 +9,7 @@ import {
 import { HOM_NAY, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 
 // ---------- định dạng ----------
-const bo = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase()
+export const bo = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase()
 export const TEN_TT: Partial<Record<TrangThai, string>> = { 'Chờ khách xác nhận': 'Chờ KH xác nhận' }
 export const TONE_TT: Record<TrangThai, string | undefined> = {
   'Mới': 'discovery', 'Đang xử lý': 'info', 'Chờ': 'warning', 'Chờ khách xác nhận': undefined, 'Đóng': 'success', 'Huỷ': undefined,

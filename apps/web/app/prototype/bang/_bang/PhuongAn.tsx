@@ -7,14 +7,14 @@ import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent
 import { useRouter } from 'next/navigation'
 import {
   ArrowDown, ArrowLeft, ArrowSquareOut, ArrowUp, CaretDown, CaretLeft, CaretRight, Check, Copy, DotsSixVertical, DotsThree,
-  Export, Eye, FloppyDisk, Funnel, GearSix, Kanban, LinkSimple, ListBullets, PencilSimple, Rows, SortAscending, Table, X,
+  Export, Eye, FloppyDisk, MagnifyingGlass, Plus, WarningCircle, Funnel, GearSix, Kanban, LinkSimple, ListBullets, PencilSimple, Rows, SidebarSimple, SortAscending, Table, X,
   type Icon,
 } from '@phosphor-icons/react'
 import { Khung } from '../../khung/_proto/VariantD'
-import { LY_DO_CHO, NHAN_VIEN, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
+import { LY_DO_CHO, NHAN_VIEN, TICKETS, TT_LIST, UU_LIST, type NhomLoi, type Ticket, type TrangThai, type UuTien } from './data'
 import {
   Avatar, ChipTT, DauCot, DsLoc, Han, Khach, MenuChon, NguonTag, Nguoi, NhanDau, NhanLoi, Noi, OChon, OChonTatCa, Rong,
-  SAP_TICKET, ThanhHangLoat, ThanhLoc, Toast, UuTag, useBang, MO, NHOM_LIST, type Bang, type Cot, type Loc,
+  SAP_TICKET, ThanhHangLoat, ThanhLoc, Toast, UuTag, useBang, bo, MO, NHOM_LIST, type Bang, type Cot, type Loc,
 } from './chung'
 
 type BoCuc = 'ds' | 'bang' | 'kanban'
@@ -50,14 +50,14 @@ function gom(rows: Ticket[], theo: NhomTheo): { key: string; nhan: ReactNode; ro
 }
 
 // ======================= sửa tại chỗ (bấm vào nội dung ô) =======================
-function OSua({ nhan, children, menu, rong, an }: { nhan: string; children: ReactNode; menu: (dong: () => void) => ReactNode; rong?: boolean; an?: boolean }) {
+function OSua({ nhan, children, menu, rong, an, lop }: { nhan: string; children: ReactNode; menu: (dong: () => void) => ReactNode; rong?: boolean; an?: boolean; lop?: string }) {
   const [mo, setMo] = useState(false)
   return (
     <span className="b-loc-o b-osua-wrap">
       <button className="b-osua" data-an-mui={an || undefined} aria-label={`Sửa ${nhan}`} aria-expanded={mo} aria-haspopup="menu" onClick={(e) => { e.stopPropagation(); setMo(!mo) }}>
         {children}<CaretDown className="b-osua-mui" aria-hidden />
       </button>
-      <Noi mo={mo} dong={() => setMo(false)} className={rong ? 'b-noi-rong' : undefined}>{menu(() => setMo(false))}</Noi>
+      <Noi mo={mo} dong={() => setMo(false)} className={lop ?? (rong ? 'b-noi-rong' : undefined)}>{menu(() => setMo(false))}</Noi>
     </span>
   )
 }
@@ -86,7 +86,58 @@ function SuaHan({ t, b }: { t: Ticket; b: Bang }) {
   )
 }
 /** Ô sửa được cho từng trường — dùng chung ở Danh sách, Bảng và panel xem nhanh. */
-function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' | 'han' | 'chu'; t: Ticket; b: Bang; gon?: boolean }) {
+// danh sách khách GIẢ (prototype, không PII): gom từ ticket mẫu; mã KH, khu vực, đuôi SĐT là số bịa.
+// Bản thật đọc bảng khách hàng — mỗi dòng phải đủ để phân biệt hai khách trùng/na ná tên.
+type KhachMau = { ten: string; ma: string; loai: 'Cá nhân' | 'Doanh nghiệp'; khu: string; sdt: string; may: string[]; mo: number; luuY: boolean }
+const KHU = ['Q.7', 'Thủ Đức', 'Bình Thạnh', 'Q.1', 'Cầu Giấy', 'Hà Đông', 'Biên Hoà']
+const DS_KHACH: KhachMau[] = [...new Set(TICKETS.map((t) => t.khach))].sort((a, b) => a.localeCompare(b, 'vi')).map((ten, i) => {
+  const ts = TICKETS.filter((t) => t.khach === ten)
+  return {
+    ten, ma: `KH-${String(1001 + i * 7).padStart(5, '0')}`,
+    loai: /^(Công ty|Khách sạn|Trường|Nhà hàng)/.test(ten) ? 'Doanh nghiệp' : 'Cá nhân',
+    khu: KHU[i % KHU.length], sdt: String(1000 + ((i * 2731) % 9000)),
+    may: [...new Set(ts.map((t) => (t.serial ? `${t.may} · ${t.serial}` : t.may)))],
+    mo: ts.filter(MO).length, luuY: ts.some((t) => !!t.luuY),
+  }
+})
+
+function MenuKhach({ gt, chon }: { gt: string; chon: (k: KhachMau) => void }) {
+  const [q, setQ] = useState('')
+  const loc = DS_KHACH.filter((k) => !q || bo([k.ten, k.ma, k.sdt, k.khu, ...k.may].join(' ')).includes(bo(q)))
+  return (
+    <div className="b-kh">
+      <div className="ui-menu-search b-tim-menu">
+        <MagnifyingGlass aria-hidden />
+        <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tên, mã KH, 4 số cuối SĐT, serial…" aria-label="Tìm khách"
+          onKeyDown={(e) => { if (e.key === 'Enter' && loc[0]) chon(loc[0]) }} />
+      </div>
+      <div className="ui-menu-label b-kh-dem">{q ? `${loc.length} khách khớp` : `${DS_KHACH.length} khách`} · Enter chọn dòng đầu</div>
+      <div className="b-kh-ds" role="listbox" aria-label="Khách hàng">
+        {loc.map((k) => (
+          <button key={k.ma} className="ui-menu-item b-kh-muc" role="option" aria-selected={k.ten === gt} onClick={() => chon(k)}>
+            <span className="b-kh-dong1">
+              <span className="b-kh-ten b-cat">{k.ten}</span>
+              {k.luuY && <WarningCircle weight="fill" className="b-kh-luuy" aria-label="Có lưu ý" />}
+              <span className="b-kh-mo">{k.mo ? `${k.mo} ticket mở` : 'không ticket mở'}</span>
+              {k.ten === gt && <Check className="b-tick" aria-hidden />}
+            </span>
+            <span className="b-kh-dong2 b-cat">{k.ma} · {k.loai} · {k.khu} · SĐT •••{k.sdt}</span>
+            <span className="b-kh-dong2 b-cat">{k.may.join(', ')}</span>
+          </button>
+        ))}
+        {!loc.length && <div className="b-kh-rong">Không thấy khách “{q}”</div>}
+      </div>
+      <div className="ui-menu-sep" />
+      <button className="ui-menu-item"><Plus aria-hidden /> Tạo khách mới{q && ` “${q}”`}</button>
+    </div>
+  )
+}
+
+function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' | 'han' | 'chu' | 'khach'; t: Ticket; b: Bang; gon?: boolean }) {
+  if (id === 'khach') return (
+    <OSua nhan={`khách ${t.ma}`} lop="b-noi-kh" menu={(d) => <MenuKhach gt={t.khach}
+      chon={(k) => { b.sua(t.ma, { khach: k.ten, luuY: k.luuY }, `${t.ma}: đổi khách → ${k.ten}`); d() }} />}><Khach t={t} /></OSua>
+  )
   if (id === 'uu') return (
     <OSua an nhan={`ưu tiên ${t.ma}`} menu={(d) => <MenuChon<UuTien> ds={UU_LIST} gt={t.uu} nhan={(v) => <UuTag u={v} />} chon={(v) => { b.sua(t.ma, { uu: v }, `${t.ma}: ưu tiên ${v}`); d() }} />}><UuTag u={t.uu} /></OSua>
   )
@@ -94,7 +145,7 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
     <OSua an rong nhan={`loại lỗi ${t.ma}`} menu={(d) => <MenuChon ds={NHOM_LIST} gt={t.nhom} nhan={(v) => <NhanLoi n={v} />} chon={(v) => { b.sua(t.ma, { nhom: v }, `${t.ma}: loại lỗi ${v}`); d() }} />}><NhanLoi n={t.nhom} /></OSua>
   )
   if (id === 'tt') return (
-    <OSua nhan={`trạng thái ${t.ma}`} menu={(d) => (
+    <OSua an nhan={`trạng thái ${t.ma}`} menu={(d) => (
       <>
         <MenuChon<TrangThai> ds={TT_LIST} gt={t.tt} nhan={(v) => <ChipTT t={{ ...t, tt: v, lyDoCho: undefined }} nho />}
           chon={(v) => { b.sua(t.ma, { tt: v, lyDoCho: v === 'Chờ' ? t.lyDoCho ?? 'khách' : undefined }, `${t.ma} → ${v}`); d() }} />
@@ -210,7 +261,7 @@ function CaiDat({ b, boCuc, setBoCuc, an, setAn, thuTu, nhomTheo, setNhomTheo }:
   )
 }
 
-function ThanhCongCu(p: PropsCaiDat) {
+function ThanhCongCu(p: PropsCaiDat & { xemBat: boolean; setXemBat: (v: boolean) => void }) {
   return (
     <div className="b-cong-cu">
       <CaiDat {...p} />
@@ -220,6 +271,11 @@ function ThanhCongCu(p: PropsCaiDat) {
           <button key={id} className="b-nut-icon" role="radio" aria-checked={p.boCuc === id} aria-label={ten} data-tip={ten} onClick={() => p.setBoCuc(id)}><I aria-hidden /></button>
         ))}
       </div>
+      <span className="b-ngan" aria-hidden />
+      {/* như "Toggle pinned summary" của ChatGPT: ẩn hẳn thẻ xem nhanh, bấm ticket sẽ mở trang ticket */}
+      <button className="b-nut-icon" aria-pressed={p.xemBat} aria-label="Thẻ xem nhanh bên phải" data-tip={p.xemBat ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'} onClick={() => p.setXemBat(!p.xemBat)}>
+        <SidebarSimple mirrored aria-hidden />
+      </button>
     </div>
   )
 }
@@ -242,7 +298,8 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
             <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0} data-xem={dangXem === t.ma || undefined} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
               <span className="b-ticket" onClick={chan}>
                 <span className="b-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></span>
-                <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span><Khach t={t} /></button>
+                <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span></button>
+                <OTruong id="khach" t={t} b={b} />
               </span>
               <span className="b-viec-o" onClick={chan}><OTruong id="viec" t={t} b={b} /></span>
               <span className="b-ds-tt" onClick={chan}><OTruong id="tt" t={t} b={b} /></span>
@@ -264,22 +321,34 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
 }) {
   const hien = thuTu.filter((id) => !an.includes(id)).map((id) => COT.find((c) => c.id === id)!)
   const [keo, setKeo] = useState<CotId | null>(null)
-  const [tren, setTren] = useState<CotId | null>(null)
+  const [tren, setTren] = useState<{ id: CotId; sau: boolean } | null>(null) // cột đang rê qua + thả bên phải hay trái
   const co = useRef<{ id: CotId; x: number; w: number } | null>(null)
   const tong = 36 + 44 + hien.reduce((s, c) => s + rong[c.id], 0)
 
   const tha = (e: DragEvent, dich: CotId) => {
-    e.preventDefault(); setTren(null)
+    e.preventDefault(); const sau = tren?.sau; setTren(null)
     if (!keo || keo === dich) return
-    const m = thuTu.filter((x) => x !== keo); m.splice(m.indexOf(dich), 0, keo); setThuTu(m); setKeo(null)
+    const m = thuTu.filter((x) => x !== keo); m.splice(m.indexOf(dich) + (sau ? 1 : 0), 0, keo); setThuTu(m); setKeo(null)
   }
+  // bóng kéo: nhãn cột dạng thẻ nhỏ đi theo chuột (thay ảnh mờ mặc định của trình duyệt)
+  const batDauKeo = (e: DragEvent, c: (typeof COT)[number]) => {
+    setKeo(c.id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.ten)
+    const bong = document.createElement('div'); bong.className = 'b-keo-bong'; bong.textContent = c.ten
+    document.querySelector('.proto')?.appendChild(bong); e.dataTransfer.setDragImage(bong, 14, 14); setTimeout(() => bong.remove())
+  }
+  const veQua = (e: DragEvent, id: CotId) => {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move'
+    const r = e.currentTarget.getBoundingClientRect(); const sau = e.clientX > r.left + r.width / 2
+    if (tren?.id !== id || tren.sau !== sau) setTren({ id, sau })
+  }
+  const vach = (id: CotId) => (keo && keo !== id && tren?.id === id ? (tren.sau ? 'phai' : 'trai') : undefined)
   const batDauCo = (e: PE, id: CotId) => { e.preventDefault(); e.stopPropagation(); (e.target as HTMLElement).setPointerCapture(e.pointerId); co.current = { id, x: e.clientX, w: rong[id] } }
   const keoCo = (e: PE) => { const c = co.current; if (c) setRong({ ...rong, [c.id]: Math.max(56, Math.round(c.w + e.clientX - c.x)) }) }
 
   const o = (t: Ticket, id: CotId): ReactNode => {
     switch (id) {
       case 'ma': return <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span><Eye className="b-mo-ticket-i" aria-hidden /></button>
-      case 'khach': return <button className="b-mo-ticket" onClick={() => xem(t.ma)}><Khach t={t} /></button>
+      case 'khach': return <OTruong id="khach" t={t} b={b} />
       case 'may': return <span className="b-may b-cat">{t.may}{t.serial && <span className="b-mo"> · {t.serial}</span>}</span>
       case 'mo': return <span className="b-so">{MO(t) ? `${t.moNgay} ngày` : '—'}</span>
       case 'nguon': return <NguonTag t={t} />
@@ -296,9 +365,9 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
             <th className="b-cot-chon"><OChonTatCa b={b} /></th>
             {hien.map((c) => (
               <th key={c.id} className={'b-th-keo' + (c.id === 'han' || c.id === 'mo' ? ' b-phai' : '')} draggable
-                data-tren={(tren === c.id && keo !== c.id) || undefined} data-keo={keo === c.id || undefined}
-                onDragStart={(e) => { setKeo(c.id); e.dataTransfer.effectAllowed = 'move' }} onDragEnd={() => { setKeo(null); setTren(null) }}
-                onDragOver={(e) => { e.preventDefault(); setTren(c.id) }} onDrop={(e) => tha(e, c.id)}>
+                data-tren={vach(c.id)} data-keo={keo === c.id || undefined}
+                onDragStart={(e) => batDauKeo(e, c)} onDragEnd={() => { setKeo(null); setTren(null) }}
+                onDragOver={(e) => veQua(e, c.id)} onDrop={(e) => tha(e, c.id)}>
                 <DotsSixVertical className="b-th-tay" aria-hidden />
                 <DauCot la="o" b={b} ten={c.ten} cot={c.sap} loc={c.loc} menuPhai={c.id === 'chu'} />
                 <span className="b-co" role="separator" aria-label={`Đổi độ rộng cột ${c.ten}`} aria-orientation="vertical"
@@ -315,7 +384,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
             ...g.rows.map((t) => (
               <tr key={t.ma} data-chon={b.chon.has(t.ma) || undefined} data-xem={dangXem === t.ma || undefined}>
                 <td className="b-cot-chon"><OChon b={b} ma={t.ma} /></td>
-                {hien.map((c) => <td key={c.id} className={c.id === 'han' || c.id === 'mo' ? 'b-phai' : undefined}>{o(t, c.id)}</td>)}
+                {hien.map((c) => <td key={c.id} className={c.id === 'han' || c.id === 'mo' ? 'b-phai' : undefined} data-tren={vach(c.id)} data-keo={keo === c.id || undefined}>{o(t, c.id)}</td>)}
                 <td className="b-cot-hd"><MenuDong t={t} b={b} xem={xem} /></td>
               </tr>
             )),
@@ -420,18 +489,26 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
   const [an, setAn] = useState<CotId[]>(AN_MAC_DINH)
   const [thuTu, setThuTu] = useState<CotId[]>(COT.map((c) => c.id))
   const [rong, setRong] = useState(() => Object.fromEntries(COT.map((c) => [c.id, c.w])) as Record<CotId, number>)
-  const [xem, setXem] = useState<string | null>(moSan.xem ? b.thay[0]?.ma ?? null : null)
+  const [xem, setXemMa] = useState<string | null>(moSan.xem ? b.thay[0]?.ma ?? null : null)
+  const [xemBat, setXemBatRaw] = useState(true)
+  // tắt thẻ xem nhanh → bấm ticket là mở trang ticket (prototype: báo bằng toast)
+  const setXem = (ma: string | null) => (xemBat || !ma ? setXemMa(ma) : b.setToast({ chu: `Mở trang ${ma}` }))
+  const setXemBat = (v: boolean) => { setXemBatRaw(v); if (v && !xem) setXemMa(b.thay[0]?.ma ?? null) }
+  const dangXem = xemBat ? xem : null
   const congCu = useMemo(() => ({ b, boCuc, setBoCuc, an, setAn, thuTu, nhomTheo, setNhomTheo }), [b, boCuc, an, thuTu, nhomTheo])
   return (
-    <div className={'b-trang' + (boCuc === 'kanban' ? ' b-trang-k' : '')}>
-      <ThanhLoc b={b} phai={<ThanhCongCu {...congCu} />} />
-      {boCuc === 'ds' && <DanhSach b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={xem} />}
-      {boCuc === 'bang' && <BangCot b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={xem} an={an} thuTu={thuTu} setThuTu={setThuTu} rong={rong} setRong={setRong} />}
-      {boCuc === 'kanban' && <KanbanTT b={b} xem={setXem} dangXem={xem} />}
-      {xem && <XemNhanh b={b} ma={xem} setMa={setXem} />}
+    <>
+    <div className={'b-trang' + (boCuc === 'kanban' ? ' b-trang-k' : '')} data-xem={dangXem ? '' : undefined}>
+      <ThanhLoc b={b} phai={<ThanhCongCu {...congCu} xemBat={xemBat} setXemBat={setXemBat} />} />
+      {boCuc === 'ds' && <DanhSach b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} />}
+      {boCuc === 'bang' && <BangCot b={b} nhomTheo={nhomTheo} xem={setXem} dangXem={dangXem} an={an} thuTu={thuTu} setThuTu={setThuTu} rong={rong} setRong={setRong} />}
+      {boCuc === 'kanban' && <KanbanTT b={b} xem={setXem} dangXem={dangXem} />}
       {boCuc === 'bang' && <ThanhHangLoat b={b} />}
       <Toast b={b} />
     </div>
+    {/* ngoài .b-trang: .b-trang có container-type (layout containment) sẽ thành khung chứa của position:fixed */}
+    {dangXem && <XemNhanh b={b} ma={dangXem} setMa={setXemMa} />}
+    </>
   )
 }
 
