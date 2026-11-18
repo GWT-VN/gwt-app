@@ -21,6 +21,7 @@ import { listTepNhatKy } from '@/app/ticket/tep-actions'
 import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
 import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
 import { DauTicket } from '@/components/ticket/DauTicket'
+import { KhoiThuGon, tomTatNhatKy } from '@/components/ticket/KhoiThuGon'
 import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
 import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
 
@@ -154,10 +155,10 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
 
             <div className="lg:hidden">{khachMay}</div>
 
-            <section className="bg-white rounded-xl border p-5">
-              <h2 className="font-medium text-slate-900 mb-3">Nhật ký trao đổi</h2>
+            {/* Thu gọn được, mặc định đóng (chị Trang 18/11): dòng tiêu đề tóm tắt số dòng + dòng mới nhất. */}
+            <KhoiThuGon tieuDe="Nhật ký trao đổi" tomTat={tomTatNhatKy(notes)}>
               <TicketNotes code={t.ticket_code} notes={notes} teps={tepNK} choTep={!thieuTep && quyen.sua} />
-            </section>
+            </KhoiThuGon>
           </div>
 
           <div className="space-y-4 min-w-0">
