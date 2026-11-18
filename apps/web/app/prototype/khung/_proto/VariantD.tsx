@@ -2,7 +2,7 @@
 // PROTOTYPE — Phương án D/E (theo ảnh mẫu người dùng gửi 18/11): thanh icon chọn khu + panel menu phẳng của khu.
 // D: Bắp là một icon trên thanh — bấm thì panel menu đổi thành khung chat.
 // E: cùng khung, Bắp mở thành panel riêng bên phải, menu giữ nguyên.
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 // Icon: Phosphor (chốt 18/11) — bản thường "regular", mục đang chọn trên thanh icon dùng bản "fill" như ChatGPT
 import {
   ChartBar as BarChart3, Bell, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
@@ -24,7 +24,8 @@ const ICON_MUC: Record<string, LucideIcon> = {
 }
 const ICON_GAN_DAY: Record<string, LucideIcon> = { ticket: Ticket, khach: UserRound, don: ReceiptText, may: Cpu }
 
-function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
+// Khung F đã chốt 18/11 — các prototype sau (bảng…) lồng nội dung vào qua children
+export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'panel' | 'phai' | 'dock'; children?: ReactNode; mucChon?: string }) {
   const bapTrongPanel = che === 'panel'
   const [khu, setKhu] = useState('cskh')
   const [bap, setBap] = useState(false)
@@ -112,7 +113,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
                   {p.muc.map((m, i) => {
                     const I = ICON_MUC[m.icon] ?? BookOpen
                     return (
-                      <button key={m.ten} className="ui-sidebar-item" aria-current={khu === 'cskh' && i === 0 ? 'page' : undefined}>
+                      <button key={m.ten} className="ui-sidebar-item" aria-current={khu === 'cskh' && m.ten === mucChon ? 'page' : undefined}>
                         <I className="ui-icon" aria-hidden />{m.ten}{m.dem ? <span className="pD-so">{m.dem}</span> : null}
                       </button>
                     )
@@ -147,7 +148,7 @@ function Khung({ che }: { che: 'panel' | 'phai' | 'dock' }) {
           {che !== 'dock' && <button className="ui-btn" data-variant="outline" data-size="sm" onClick={() => setBap(true)}><Sparkles aria-hidden /> Bắp</button>}
         </header>
         {/* F: vùng nội dung để trắng (18/11) — chốt nav trước, nội dung làm sau */}
-        <main className="pD-noidung">{che !== 'dock' && <NoiDung />}</main>
+        <main className="pD-noidung">{children ?? (che !== 'dock' && <NoiDung />)}</main>
       </div>
 
       {/* D: panel Bắp bên phải chỉ dùng trên điện thoại (toàn màn); desktop Bắp nằm trong panel menu */}
