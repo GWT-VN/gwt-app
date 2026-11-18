@@ -332,3 +332,11 @@
 @media (prefers-reduced-motion: reduce) { .b-chuotphai { animation: none; } }
 .b-ds-hang[data-cp], .b-bang tbody tr[data-cp] td { background: var(--alpha-05); }
 .b-the[data-cp] { box-shadow: 0 0 0 2px var(--alpha-15), var(--shadow-100); }
+
+/* trang chi tiết ticket (mặc định khi bấm ticket, 18/11): cùng nội dung thẻ xem nhanh, trải trong vùng nội dung */
+.b-chitiet-trang { position: static; width: auto; max-width: 760px; margin: 0 auto; overflow: visible; border-radius: 0; background: none; box-shadow: none; animation: none; }
+.b-chitiet-trang .b-ct-dau { padding: 0; gap: 6px; }
+.b-chitiet-trang .b-ct-cuon { overflow: visible; padding: 28px 0 120px; }
+.b-ct-ve { border: 0; background: none; padding: 0; font: inherit; color: var(--muted-foreground); cursor: pointer; }
+.b-ct-ve:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 0.2em; }
+.b-av-o { display: inline-flex; border-radius: var(--radius-full); }

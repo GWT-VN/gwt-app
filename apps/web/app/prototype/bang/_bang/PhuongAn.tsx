@@ -159,9 +159,9 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
   const ten = id === 'lam' ? t.nguoiLam : t.chu
   const ds = id === 'lam' ? [...NHAN_VIEN, t.khach] : NHAN_VIEN.slice(0, 4)
   return (
-    <OSua rong nhan={`${id === 'lam' ? 'người làm' : 'chủ ticket'} ${t.ma}`}
+    <OSua rong an={gon} nhan={`${id === 'lam' ? 'người làm' : 'chủ ticket'} ${t.ma}`}
       menu={(d) => <MenuChon ds={ds} gt={ten} tim chon={(v) => { b.sua(t.ma, id === 'lam' ? { nguoiLam: v } : { chu: v }, `${t.ma}: ${id === 'lam' ? 'giao cho' : 'chủ mới'} ${v}`); d() }} />}>
-      {gon ? <span title={ten}><Avatar ten={ten} /></span> : <Nguoi ten={ten} />}
+      {gon ? <span className="b-av-o" title={ten}><Avatar ten={ten} /></span> : <Nguoi ten={ten} />}
     </OSua>
   )
 }
@@ -170,7 +170,7 @@ function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' 
 // chuột phải vào dòng/thẻ (18/11, thay nút ⋯). Phím Menu / Shift+F10 trên dòng đang focus cũng mở (trình duyệt tự bắn contextmenu).
 // Vẽ position:fixed NGOÀI .b-trang (container-type = khung chứa của fixed) nên không bị hàng dưới đè lên.
 type ChuotPhai = { ma: string; x: number; y: number; banPhim: boolean }
-function MenuChuotPhai({ cp, b, xem, dong }: { cp: ChuotPhai; b: Bang; xem: (ma: string) => void; dong: () => void }) {
+function MenuChuotPhai({ cp, b, moTrang, xemNhanh, dong }: { cp: ChuotPhai; b: Bang; moTrang: (ma: string) => void; xemNhanh: (ma: string) => void; dong: () => void }) {
   const ref = useRef<HTMLDivElement>(null)
   const t = b.rows.find((x) => x.ma === cp.ma)
   useEffect(() => {
@@ -187,8 +187,8 @@ function MenuChuotPhai({ cp, b, xem, dong }: { cp: ChuotPhai; b: Bang; xem: (ma:
   return (
     <div ref={ref} className="ui-menu b-chuotphai" role="menu" aria-label={`Thao tác ${t.ma}`} style={{ left: x, top: y }}>
       <div className="ui-menu-label">{t.ma}</div>
-      <button className="ui-menu-item" role="menuitem" onClick={lam(() => xem(t.ma))}><Eye aria-hidden /> Xem nhanh</button>
-      <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.setToast({ chu: `Mở trang ${t.ma}` }))}><ArrowSquareOut aria-hidden /> Mở trang ticket</button>
+      <button className="ui-menu-item" role="menuitem" onClick={lam(() => moTrang(t.ma))}><ArrowSquareOut aria-hidden /> Mở ticket</button>
+      <button className="ui-menu-item" role="menuitem" onClick={lam(() => xemNhanh(t.ma))}><SidebarSimple mirrored aria-hidden /> Xem nhanh bên phải</button>
       <button className="ui-menu-item" role="menuitem" onClick={lam(() => b.setToast({ chu: `Đã sao chép ${t.ma}` }))}><Copy aria-hidden /> Sao chép mã</button>
       <div className="ui-menu-sep" />
       {MO(t)
@@ -310,7 +310,7 @@ function DanhSach({ b, nhomTheo, xem, dangXem }: { b: Bang; nhomTheo: NhomTheo; 
             <div key={t.ma} className="b-ds-hang" role="row" tabIndex={0} data-ma={t.ma} data-xem={dangXem === t.ma || undefined} onClick={() => xem(t.ma)} onKeyDown={(e) => e.key === 'Enter' && e.target === e.currentTarget && xem(t.ma)}>
               <span className="b-ticket" onClick={chan}>
                 <span className="b-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></span>
-                <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span></button>
+                <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Mở ${t.ma}`}><span className="b-ma">{t.ma}</span></button>
                 <OTruong id="khach" t={t} b={b} />
               </span>
               <span className="b-viec-o" onClick={chan}><OTruong id="viec" t={t} b={b} /></span>
@@ -358,7 +358,7 @@ function BangCot({ b, nhomTheo, xem, dangXem, an, thuTu, setThuTu, rong, setRong
 
   const o = (t: Ticket, id: CotId): ReactNode => {
     switch (id) {
-      case 'ma': return <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Xem nhanh ${t.ma}`}><span className="b-ma">{t.ma}</span><Eye className="b-mo-ticket-i" aria-hidden /></button>
+      case 'ma': return <button className="b-mo-ticket" onClick={() => xem(t.ma)} aria-label={`Mở ${t.ma}`}><span className="b-ma">{t.ma}</span><Eye className="b-mo-ticket-i" aria-hidden /></button>
       case 'khach': return <OTruong id="khach" t={t} b={b} />
       case 'may': return <span className="b-may b-cat">{t.may}{t.serial && <span className="b-mo"> · {t.serial}</span>}</span>
       case 'mo': return <span className="b-so">{MO(t) ? `${t.moNgay} ngày` : '—'}</span>
@@ -443,7 +443,7 @@ function KanbanTT({ b, xem, dangXem }: { b: Bang; xem: (ma: string) => void; dan
 }
 
 // ======================= panel xem nhanh (nổi bên phải, mọi bố cục) =======================
-function XemNhanh({ b, ma, setMa }: { b: Bang; ma: string; setMa: (v: string | null) => void }) {
+function XemNhanh({ b, ma, setMa, laTrang, moTrang }: { b: Bang; ma: string; setMa: (v: string | null) => void; laTrang?: boolean; moTrang?: (ma: string) => void }) {
   const t = b.rows.find((x) => x.ma === ma)
   const i = b.thay.findIndex((x) => x.ma === ma)
   useEffect(() => {
@@ -457,14 +457,15 @@ function XemNhanh({ b, ma, setMa }: { b: Bang; ma: string; setMa: (v: string | n
   }, [b.thay, i, setMa])
   if (!t) return null
   return (
-    <aside className="b-chitiet" aria-label={`Xem nhanh ${t.ma}`}>
+    <aside className={laTrang ? 'b-chitiet b-chitiet-trang' : 'b-chitiet'} aria-label={laTrang ? `Ticket ${t.ma}` : `Xem nhanh ${t.ma}`}>
       <div className="b-ct-dau">
+        {laTrang && <><button className="b-nut-icon b-nut-nho" aria-label="Về danh sách ticket (Esc)" data-tip="Về danh sách" onClick={() => setMa(null)}><ArrowLeft aria-hidden /></button><button className="b-ct-ve" onClick={() => setMa(null)}>Ticket</button><span className="b-mo">/</span></>}
         <span className="b-ma">{t.ma}</span><span className="b-mo b-cat">· {t.moNgay ? `mở ${t.moNgay} ngày · ` : ''}cập nhật {t.capNhat}</span>
         <span style={{ flex: 1 }} />
         <button className="b-nut-icon b-nut-nho" aria-label="Ticket trước (↑)" disabled={i <= 0} onClick={() => setMa(b.thay[i - 1].ma)}><CaretLeft aria-hidden /></button>
         <button className="b-nut-icon b-nut-nho" aria-label="Ticket sau (↓)" disabled={i < 0 || i >= b.thay.length - 1} onClick={() => setMa(b.thay[i + 1].ma)}><CaretRight aria-hidden /></button>
-        <button className="b-nut-icon b-nut-nho" aria-label="Mở trang ticket"><ArrowSquareOut aria-hidden /></button>
-        <button className="b-nut-icon b-nut-nho" aria-label="Đóng xem nhanh (Esc)" onClick={() => setMa(null)}><X aria-hidden /></button>
+        {!laTrang && <button className="b-nut-icon b-nut-nho" aria-label="Mở trang ticket" onClick={() => moTrang?.(t.ma)}><ArrowSquareOut aria-hidden /></button>}
+        {!laTrang && <button className="b-nut-icon b-nut-nho" aria-label="Đóng xem nhanh (Esc)" onClick={() => setMa(null)}><X aria-hidden /></button>}
       </div>
       <div className="b-ct-cuon">
         <div className="b-ct-nhan-dau"><OTruong id="uu" t={t} b={b} /><OTruong id="nhom" t={t} b={b} /></div>
@@ -499,9 +500,11 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
   const [thuTu, setThuTu] = useState<CotId[]>(COT.map((c) => c.id))
   const [rong, setRong] = useState(() => Object.fromEntries(COT.map((c) => [c.id, c.w])) as Record<CotId, number>)
   const [xem, setXemMa] = useState<string | null>(moSan.xem ? b.thay[0]?.ma ?? null : null)
-  const [xemBat, setXemBatRaw] = useState(true)
-  // tắt thẻ xem nhanh → bấm ticket là mở trang ticket (prototype: báo bằng toast)
-  const setXem = (ma: string | null) => (xemBat || !ma ? setXemMa(ma) : b.setToast({ chu: `Mở trang ${ma}` }))
+  // 18/11: mặc định TẮT xem nhanh — bấm ticket mở trang chi tiết; người dùng bật nút trên thanh công cụ thì bấm mới ra thẻ bên phải
+  const [xemBat, setXemBatRaw] = useState(!!moSan.xem)
+  const [trang, setTrang] = useState<string | null>(null)
+  const setXem = (ma: string | null) => (xemBat || !ma ? setXemMa(ma) : setTrang(ma))
+  const xemNhanh = (ma: string) => { setXemBatRaw(true); setXemMa(ma) }
   const setXemBat = (v: boolean) => { setXemBatRaw(v); if (v && !xem) setXemMa(b.thay[0]?.ma ?? null) }
   const dangXem = xemBat ? xem : null
   const [cp, setCp] = useState<ChuotPhai | null>(null)
@@ -515,6 +518,12 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
     setCp({ ma: dong.dataset.ma!, x: banPhim ? r.left + 16 : e.clientX, y: banPhim ? r.bottom : e.clientY, banPhim })
   }
   const congCu = useMemo(() => ({ b, boCuc, setBoCuc, an, setAn, thuTu, nhomTheo, setNhomTheo }), [b, boCuc, an, thuTu, nhomTheo])
+  if (trang) return (
+    <div className="b-trang">
+      <XemNhanh b={b} ma={trang} setMa={setTrang} laTrang />
+      <Toast b={b} />
+    </div>
+  )
   return (
     <>
     <div className={'b-trang' + (boCuc === 'kanban' ? ' b-trang-k' : '')} data-xem={dangXem ? '' : undefined} onContextMenu={moCp}>
@@ -526,15 +535,15 @@ function ManTicket({ moSan }: { moSan: MoSan }) {
       <Toast b={b} />
     </div>
     {/* ngoài .b-trang: .b-trang có container-type (layout containment) sẽ thành khung chứa của position:fixed */}
-    {dangXem && <XemNhanh b={b} ma={dangXem} setMa={setXemMa} />}
-    {cp && <MenuChuotPhai cp={cp} b={b} xem={setXem} dong={dongCp} />}
+    {dangXem && <XemNhanh b={b} ma={dangXem} setMa={setXemMa} moTrang={setTrang} />}
+    {cp && <MenuChuotPhai cp={cp} b={b} moTrang={setTrang} xemNhanh={xemNhanh} dong={dongCp} />}
     </>
   )
 }
 
 // ======================= thanh chuyển + trang =======================
 const DS: { k: string; ten: string; moSan: MoSan }[] = [
-  { k: 'A', ten: 'Danh sách — 1 dòng, bấm ô để sửa, bấm ticket xem nhanh', moSan: { boCuc: 'ds' } },
+  { k: 'A', ten: 'Danh sách — bấm ô để sửa, bấm dòng mở trang ticket, chuột phải: thao tác', moSan: { boCuc: 'ds' } },
   { k: 'B', ten: 'Bảng — kéo đổi chỗ cột, kéo mép co dãn, sửa tại chỗ', moSan: { boCuc: 'bang' } },
   { k: 'C', ten: 'Bảng nhóm theo trạng thái', moSan: { boCuc: 'bang', nhomTheo: 'tt' } },
   { k: 'D', ten: 'Danh sách + xem nhanh mở sẵn (↑ ↓ để lướt)', moSan: { boCuc: 'ds', xem: true } },
