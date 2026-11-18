@@ -62,7 +62,8 @@ export async function proxy(request: NextRequest) {
   }
 
   // /auth = vòng OAuth quay về, lúc đó CHƯA có session nên bắt buộc phải cho qua
-  const DUONG_CONG_KHAI = ['/login', '/auth']
+  // PROTOTYPE (nhánh prototype/v2-khung, bỏ đi): /prototype mở khi chạy dev, dữ liệu giả, không đọc DB.
+  const DUONG_CONG_KHAI = ['/login', '/auth', ...(process.env.NODE_ENV !== 'production' ? ['/prototype'] : [])]
   const congKhai = DUONG_CONG_KHAI.some((p) => request.nextUrl.pathname.startsWith(p))
 
   // Đã đăng nhập mà còn đứng ở /login -> đá thẳng vào trong.

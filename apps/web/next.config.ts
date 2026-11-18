@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
   // `127.0.0.1` là host khác nên thoát được mà không phải xoá cookie của phiên khác.
   allowedDevOrigins: ['127.0.0.1'],
 
+  // PROTOTYPE (nhánh bỏ đi prototype/v2-khung): tắt nút "N" của Next dev — nó đè lên chân sidebar khi soi bố cục.
+  devIndicators: false,
+
   // Khu Marketing dọn vào khu Wiki (28/08/2026). Giữ đường cũ sống vĩnh viễn: link
   // /marketing đã nằm trong chat, tài liệu và dấu trang của nhân viên từ hôm 28/08.
   // permanent:false — còn có thể đổi cấu trúc nữa, đừng để trình duyệt nhớ cứng 308.
