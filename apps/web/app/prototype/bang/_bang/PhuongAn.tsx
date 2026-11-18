@@ -133,7 +133,7 @@ function MenuKhach({ gt, chon }: { gt: string; chon: (k: KhachMau) => void }) {
   )
 }
 
-function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' | 'han' | 'chu' | 'khach'; t: Ticket; b: Bang; gon?: boolean }) {
+export function OTruong({ id, t, b, gon }: { id: 'uu' | 'nhom' | 'tt' | 'viec' | 'lam' | 'han' | 'chu' | 'khach'; t: Ticket; b: Bang; gon?: boolean }) {
   if (id === 'khach') return (
     <OSua nhan={`khách ${t.ma}`} lop="b-noi-kh" menu={(d) => <MenuKhach gt={t.khach}
       chon={(k) => { b.sua(t.ma, { khach: k.ten, luuY: k.luuY }, `${t.ma}: đổi khách → ${k.ten}`); d() }} />}><Khach t={t} /></OSua>

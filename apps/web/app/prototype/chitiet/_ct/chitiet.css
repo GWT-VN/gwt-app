@@ -1,0 +1,4 @@
+/* PROTOTYPE — chỉ bố cục trang demo; component nằm ở khung/_proto/ui.css (khối BỔ SUNG DS TRANG CHI TIẾT) */
+.ct.fm > :not(.b-noi) { max-width: 1040px; }
+.ct-trang { display: flex; flex-direction: column; gap: 24px; }
+.ct-cot { max-width: 640px; }

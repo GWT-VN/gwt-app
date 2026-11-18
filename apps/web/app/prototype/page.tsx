@@ -20,6 +20,14 @@ const NHOM: { ten: string; tt: 'chot' | 'duyet'; muc: Muc[] }[] = [
     { ten: 'FileUpload', href: '/prototype/form#fileupload', ghi: 'Kéo tệp vào vùng thả' },
     { ten: 'Cả nhóm Form — theme tối', href: '/prototype/form?theme=dark' },
   ] },
+  { ten: 'Trang chi tiết (khung chung)', tt: 'duyet', muc: [
+    { ten: 'Trang mẫu ghép đủ', href: '/prototype/chitiet#trang', ghi: 'Bấm "Đổi trạng thái" → dòng Hoạt động tự ghi. Gõ ghi chú → Ctrl + Enter' },
+    { ten: 'PageHeader (breadcrumb · ‹ › · hành động)', href: '/prototype/chitiet#page-header', ghi: 'Tiêu đề dài: tối đa 2 dòng rồi cắt' },
+    { ten: 'PropertyList', href: '/prototype/chitiet#property-list', ghi: 'Bấm giá trị để sửa tại chỗ' },
+    { ten: 'Timeline', href: '/prototype/chitiet#timeline', ghi: 'Bấm "Hiện … cũ hơn"; rê lên giờ xem ngày đủ' },
+    { ten: 'Composer', href: '/prototype/chitiet#composer', ghi: '3 trạng thái: thường · gửi lỗi · ticket đã đóng' },
+    { ten: 'Cả trang — theme tối', href: '/prototype/chitiet?theme=dark' },
+  ] },
   { ten: 'Xem dữ liệu — bổ sung', tt: 'duyet', muc: [
     { ten: 'FilterBar + Lưu bộ lọc', href: '/prototype/bang?variant=B', ghi: 'Bấm tiêu đề cột "Loại lỗi" → tick 1 loại' },
     { ten: 'Thanh hàng loạt + Phân trang', href: '/prototype/bang?variant=B', ghi: 'Tick ô đầu bảng → "Chọn tất cả 19" → sang trang 2' },

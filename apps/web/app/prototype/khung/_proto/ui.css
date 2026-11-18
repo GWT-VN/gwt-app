@@ -609,3 +609,89 @@
 .ui-saveview-title { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
 .ui-saveview-sum { display: flex; flex-wrap: wrap; gap: 4px; }
 .ui-saveview-foot { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ===== BỔ SUNG DS TRANG CHI TIẾT 18/11/2026 — Breadcrumb · PageHeader · PropertyList · Timeline · Composer
+   Khuôn chung cho mọi trang 1 bản ghi (ticket, khách, máy, phiếu chi…). Tham chiếu: Linear issue, GitHub timeline, ChatGPT composer.
+   Chỉ dùng token DS; đưa lên components/bundle.css của artifact khi người dùng chốt. ===== */
+
+/* ---------- Breadcrumb ---------- */
+.ui-breadcrumb { display: flex; align-items: center; gap: 6px; min-width: 0; margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.ui-breadcrumb > li { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; }
+.ui-breadcrumb > li + li::before { content: "/"; color: var(--color-text-tertiary); }
+.ui-breadcrumb a { color: inherit; text-decoration: none; border-radius: var(--radius-sm); }
+.ui-breadcrumb a:hover { color: var(--foreground); }
+.ui-breadcrumb a:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.ui-breadcrumb [aria-current="page"] { overflow: hidden; text-overflow: ellipsis; color: var(--foreground); font-variant-numeric: tabular-nums; }
+
+/* ---------- PageHeader: breadcrumb + điều hướng bản ghi / tiêu đề + hành động / meta ---------- */
+.ui-page-header { display: flex; flex-direction: column; gap: 12px; }
+.ui-page-header-top { display: flex; align-items: center; gap: 8px; min-height: var(--control-size-md); }
+.ui-page-header-top > :first-child { flex: 1; min-width: 0; } /* <nav><ol.ui-breadcrumb> */
+.ui-page-header-nav { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.ui-page-header-nav .ui-caption { padding: 0 6px; font-variant-numeric: tabular-nums; }
+.ui-page-header-main { display: flex; align-items: flex-start; gap: 16px; }
+.ui-page-header-text { flex: 1; min-width: 0; }
+.ui-page-header-title { margin: 0; font-size: 24px; line-height: 28px; font-weight: 600; overflow-wrap: anywhere;  /* heading-lg */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.ui-page-header-meta { display: flex; flex-wrap: wrap; align-items: center; row-gap: 4px; margin: 6px 0 0 -20px; clip-path: inset(0 0 0 20px); font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-page-header-meta > *::before { content: "·"; display: inline-block; width: 20px; text-align: center; color: var(--color-text-tertiary); } /* mỗi mục mang dấu · ở trước; dấu đầu dòng (kể cả dòng xuống) nằm trong 20px bị cắt → không có "·" mồ côi */
+.ui-page-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+@media (max-width: 640px) {
+  .ui-page-header-main { flex-direction: column; gap: 12px; }
+  .ui-page-header-actions { width: 100%; }
+  .ui-page-header-actions > .ui-btn:not([data-size^="icon"]) { flex: 1; } /* 2 nút chia đôi, ⋯ giữ vuông */
+  .ui-page-header-title { font-size: 20px; line-height: 26px; }          /* heading-md */
+  .ui-page-header-nav .ui-caption { display: none; }                      /* nhường chỗ cho mã bản ghi trên breadcrumb */
+}
+
+/* ---------- PropertyList: nhãn ↔ giá trị, giá trị sửa tại chỗ (InlineEdit) ---------- */
+.ui-props { display: grid; grid-template-columns: minmax(96px, 128px) minmax(0, 1fr); align-items: center; gap: 2px 12px; margin: 0; }
+.ui-props > dt { display: flex; align-items: center; gap: 6px; min-height: var(--control-size-md); font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-props > dt svg { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); flex-shrink: 0; }
+.ui-props > dd { display: flex; align-items: center; min-width: 0; min-height: var(--control-size-md); margin: 0; font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
+.ui-props-empty { color: var(--color-text-tertiary); }
+.ui-props-title { margin: 20px 0 4px; font-size: 12px; line-height: 18px; font-weight: 600; color: var(--foreground); } /* h3 đứng trước mỗi <dl> nhóm */
+.ui-props-title:first-child { margin-top: 0; }
+.ui-props[data-layout="stack"] { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.ui-props[data-layout="stack"] > dt { min-height: 0; margin-top: 10px; }
+.ui-props[data-layout="stack"] > dt:first-child { margin-top: 0; }
+@media (max-width: 640px) { .ui-props:not([data-layout]) { grid-template-columns: minmax(88px, 112px) minmax(0, 1fr); } }
+
+/* ---------- Timeline: hoạt động theo thời gian (bình luận + sự kiện hệ thống) ---------- */
+.ui-timeline { margin: 0; padding: 0; list-style: none; }
+.ui-timeline-day { margin: 4px 0 12px; padding-left: 36px; font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted-foreground); }
+.ui-timeline-item { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 12px; padding-bottom: 16px; }
+.ui-timeline-item::before { content: ""; position: absolute; left: 12px; top: 28px; bottom: 4px; width: 1px; background: var(--alpha-08); } /* đường nối */
+.ui-timeline-item:last-child::before, .ui-timeline-item:has(+ .ui-timeline-day)::before { display: none; }
+.ui-timeline-mark { display: grid; place-content: center; width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--background); box-shadow: inset 0 0 0 1px var(--alpha-10); color: var(--muted-foreground); }
+.ui-timeline-mark svg { width: 14px; height: 14px; }
+.ui-timeline-mark.ui-avatar { box-shadow: none; background: var(--alpha-08); } /* giữ nền Avatar */
+.ui-timeline-mark[data-color="danger"] { background: var(--color-background-danger-soft-alpha); box-shadow: none; color: var(--color-text-danger-soft); }
+.ui-timeline-mark[data-color="success"] { background: var(--color-background-success-soft-alpha); box-shadow: none; color: var(--color-text-success-soft); }
+.ui-timeline-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; min-height: 24px; padding-top: 2px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.ui-timeline-head b { font-weight: 500; color: var(--foreground); }
+.ui-timeline-head time { font-size: 12px; line-height: 18px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+.ui-timeline-body { grid-column: 2; margin-top: 6px; padding: 10px 12px; border-radius: var(--radius-xl); box-shadow: inset 0 0 0 1px var(--alpha-08); background: var(--background); font-size: 14px; line-height: 20px; overflow-wrap: anywhere; white-space: pre-line; }
+.ui-timeline-files { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ui-timeline-more { margin: -4px 0 12px calc(36px - var(--control-gutter-sm)); list-style: none; } /* chữ nút thẳng mép nhãn ngày */
+
+/* ---------- Composer: ô viết bình luận/ghi chú, tự cao theo nội dung, đính tệp, Ctrl+Enter gửi ---------- */
+.ui-composer { display: flex; flex-direction: column; border-radius: var(--radius-xl); background: var(--background); box-shadow: inset 0 0 0 1px var(--input); transition: box-shadow 150ms ease; }
+.ui-composer:hover { box-shadow: inset 0 0 0 1px var(--alpha-25); }
+.ui-composer:focus-within { box-shadow: inset 0 0 0 1px var(--alpha-50); }
+.ui-composer[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--red-500); }
+.ui-composer[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.ui-composer-input { display: block; width: 100%; min-height: 44px; max-height: 240px; padding: 10px 12px 4px; border: 0; background: transparent; color: var(--foreground); font: 400 14px/20px var(--font-sans); resize: none; field-sizing: content; outline: none; }
+.ui-composer-input::placeholder { color: var(--color-text-tertiary); }
+.ui-composer-files { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 10px 0; }
+.ui-composer-bar { display: flex; align-items: center; gap: 4px; padding: 6px; }
+.ui-composer-bar > .ui-caption { margin-left: auto; padding-right: 4px; }
+.ui-composer-bar > .ui-btn:last-child { border-radius: var(--radius-full); }
+@media (max-width: 640px) { .ui-composer-bar > .ui-caption { display: none; } .ui-composer-bar > .ui-btn:last-child { margin-left: auto; } } /* điện thoại không có Ctrl+Enter */
+
+/* ---------- DetailLayout: nội dung chính + cột thuộc tính (Linear issue). Hẹp → thuộc tính lên trên ---------- */
+.ui-detail { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: 40px; }
+.ui-detail-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.ui-detail-aside { position: sticky; top: 16px; min-width: 0; }
+.ui-detail-heading { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; } /* heading-xs */
+@media (max-width: 960px) { .ui-detail { grid-template-columns: minmax(0, 1fr); gap: 24px; } .ui-detail-aside { position: static; order: -1; } }

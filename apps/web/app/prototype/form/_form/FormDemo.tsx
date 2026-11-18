@@ -264,7 +264,7 @@ function ChonLoai({ gt, doi, loi }: { gt: string; doi: (s: string) => void; loi?
 }
 
 // ---------------- trang demo ----------------
-function Khoi({ id, ten, mo, children }: { id: string; ten: string; mo?: string; children: ReactNode }) {
+export function Khoi({ id, ten, mo, children }: { id: string; ten: string; mo?: string; children: ReactNode }) {
   return (
     <section id={id} className="ui-card ui-card-pad fm-khoi" aria-labelledby={'k-' + ten}>
       <h2 className="ui-form-title" id={'k-' + ten} style={mo ? undefined : { marginBottom: 16 }}>{ten}</h2>

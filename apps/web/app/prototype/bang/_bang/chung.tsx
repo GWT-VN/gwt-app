@@ -120,10 +120,10 @@ export function UuTag({ u }: { u: UuTien }) {
  *  (an toàn → P1 …), mục 743 chốt "việc gấp = P1". Mã P + nhóm lỗi ở tooltip/menu. */
 export const TEN_UU_NGAN = { P1: 'Gấp', P2: 'Cao', P3: 'Thường', P4: 'Thấp' } as const
 export const NHOM_UU = { P1: 'lỗi an toàn', P2: 'lỗi nghiêm trọng', P3: 'lỗi thường', P4: 'nhẹ / không lỗi' } as const
-export function Avatar({ ten, nho }: { ten: string; nho?: boolean }) {
+export function Avatar({ ten, nho, lop }: { ten: string; nho?: boolean; lop?: string }) {
   if (ten === '—') return <span className="b-mo">—</span>
   const chu = ten.replace(/^anh /, '').split(' ').map((w) => w[0]).slice(-2).join('').toUpperCase()
-  return <span className="ui-avatar" data-size={nho ? 'sm' : undefined} aria-hidden>{chu}</span>
+  return <span className={'ui-avatar' + (lop ? ' ' + lop : '')} data-size={nho ? 'sm' : undefined} aria-hidden>{chu}</span>
 }
 export function Nguoi({ ten }: { ten: string }) {
   return <span className="b-nguoi" title={ten}><Avatar ten={ten} /><span className="b-cat">{ten}</span></span>

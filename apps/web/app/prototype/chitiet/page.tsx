@@ -1,0 +1,20 @@
+// PROTOTYPE — khung trang chi tiết của DS (PageHeader · PropertyList · Timeline · Composer · DetailLayout). ?theme=dark
+// Nhánh bỏ đi prototype/v2-khung — KHÔNG merge. Dữ liệu giả, không đọc DB.
+import { notFound } from 'next/navigation'
+import { Inter } from 'next/font/google'
+import '../khung/_proto/tokens.css'
+import '../form/_form/tokens-dark.css'
+import '../khung/_proto/ui.css'
+import '../bang/_bang/bang.css'
+import '../form/_form/form.css'
+import './_ct/chitiet.css'
+import { ChiTietDemo } from './_ct/ChiTietDemo'
+
+const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter', display: 'swap' })
+
+export const metadata = { title: 'Prototype · Trang chi tiết DS' }
+
+export default function Page() {
+  if (process.env.NODE_ENV === 'production') notFound()
+  return <div className={inter.variable}><ChiTietDemo /></div>
+}
