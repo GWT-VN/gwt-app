@@ -1,0 +1,1007 @@
+/* GWT — OpenAI + shadcn — generated from tokens.json */
+:root, [data-theme="light"] {
+  --gray-0: #ffffff; /* Thang xám primitive bước 0; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-0: light-dark(#ffffff, #0d0d0d)`. */
+  --gray-25: #fcfcfc; /* Thang xám primitive bước 25; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-25: light-dark(#fcfcfc, #101010)`. */
+  --gray-50: #f9f9f9; /* Thang xám primitive bước 50; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-50: light-dark(#f9f9f9, #131313)`. */
+  --gray-75: #f3f3f3; /* Thang xám primitive bước 75; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-75: light-dark(#f3f3f3, #161616)`. */
+  --gray-100: #ededed; /* Thang xám primitive bước 100; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-100: light-dark(#ededed, #181818)`. */
+  --gray-150: #dfdfdf; /* Thang xám primitive bước 150; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-150: light-dark(#dfdfdf, #1c1c1c)`. */
+  --gray-200: #cdcdcd; /* Thang xám primitive bước 200; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-200: light-dark(#cdcdcd, #212121)`. */
+  --gray-250: #b9b9b9; /* Thang xám primitive bước 250; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-250: light-dark(#b9b9b9, #282828)`. */
+  --gray-300: #afafaf; /* Thang xám primitive bước 300; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-300: light-dark(#afafaf, #303030)`. */
+  --gray-350: #9f9f9f; /* Thang xám primitive bước 350; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-350: light-dark(#9f9f9f, #393939)`. */
+  --gray-400: #8f8f8f; /* Thang xám primitive bước 400; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-400: light-dark(#8f8f8f, #414141)`. */
+  --gray-450: #767676; /* Thang xám primitive bước 450; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-450: light-dark(#767676, #4f4f4f)`. */
+  --gray-500: #5d5d5d; /* Thang xám primitive bước 500; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-500: #5d5d5d`. */
+  --gray-550: #4f4f4f; /* Thang xám primitive bước 550; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-550: light-dark(#4f4f4f, #767676)`. */
+  --gray-600: #414141; /* Thang xám primitive bước 600; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-600: light-dark(#414141, #8f8f8f)`. */
+  --gray-650: #393939; /* Thang xám primitive bước 650; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-650: light-dark(#393939, #9f9f9f)`. */
+  --gray-700: #303030; /* Thang xám primitive bước 700; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-700: light-dark(#303030, #afafaf)`. */
+  --gray-750: #282828; /* Thang xám primitive bước 750; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-750: light-dark(#282828, #b9b9b9)`. */
+  --gray-800: #212121; /* Thang xám primitive bước 800; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-800: light-dark(#212121, #cdcdcd)`. */
+  --gray-850: #1c1c1c; /* Thang xám primitive bước 850; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-850: light-dark(#1c1c1c, #dcdcdc)`. */
+  --gray-900: #181818; /* Thang xám primitive bước 900; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-900: light-dark(#181818, #ededed)`. */
+  --gray-925: #161616; /* Thang xám primitive bước 925; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-925: light-dark(#161616, #f3f3f3)`. */
+  --gray-950: #131313; /* Thang xám primitive bước 950; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-950: light-dark(#131313, #f3f3f3)`. */
+  --gray-975: #101010; /* Thang xám primitive bước 975; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-975: light-dark(#101010, #f9f9f9)`. */
+  --gray-1000: #0d0d0d; /* Thang xám primitive bước 1000; tự đảo theo theme (light-dark). Không dùng trực tiếp trong component — đi qua token semantic. Nguồn: `--gray-1000: light-dark(#0d0d0d, #ffffff)`. */
+  --alpha-base: #0d0d0d; /* Màu gốc của thang alpha (đen ở light, trắng ở dark). Nguồn: `--alpha-base: light-dark(#0d0d0d, #ffffff)`. */
+  --alpha-0: rgba(13, 13, 13, 0); /* Lớp phủ trong suốt 0% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-0: alpha(var(--alpha-base), 0%)`. */
+  --alpha-02: rgba(13, 13, 13, 0.02); /* Lớp phủ trong suốt 2% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-02: alpha(var(--alpha-base), 2%)`. */
+  --alpha-04: rgba(13, 13, 13, 0.04); /* Lớp phủ trong suốt 4% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-04: alpha(var(--alpha-base), 4%)`. */
+  --alpha-05: rgba(13, 13, 13, 0.05); /* Lớp phủ trong suốt 5% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-05: alpha(var(--alpha-base), 5%)`. */
+  --alpha-06: rgba(13, 13, 13, 0.06); /* Lớp phủ trong suốt 6% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-06: alpha(var(--alpha-base), 6%)`. */
+  --alpha-08: rgba(13, 13, 13, 0.08); /* Lớp phủ trong suốt 8% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-08: alpha(var(--alpha-base), 8%)`. */
+  --alpha-10: rgba(13, 13, 13, 0.1); /* Lớp phủ trong suốt 10% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-10: alpha(var(--alpha-base), 10%)`. */
+  --alpha-12: rgba(13, 13, 13, 0.12); /* Lớp phủ trong suốt 12% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-12: alpha(var(--alpha-base), 12%)`. */
+  --alpha-15: rgba(13, 13, 13, 0.15); /* Lớp phủ trong suốt 15% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-15: alpha(var(--alpha-base), 15%)`. */
+  --alpha-16: rgba(13, 13, 13, 0.16); /* Lớp phủ trong suốt 16% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-16: alpha(var(--alpha-base), 16%)`. */
+  --alpha-20: rgba(13, 13, 13, 0.2); /* Lớp phủ trong suốt 20% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-20: alpha(var(--alpha-base), 20%)`. */
+  --alpha-25: rgba(13, 13, 13, 0.25); /* Lớp phủ trong suốt 25% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-25: alpha(var(--alpha-base), 25%)`. */
+  --alpha-30: rgba(13, 13, 13, 0.3); /* Lớp phủ trong suốt 30% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-30: alpha(var(--alpha-base), 30%)`. */
+  --alpha-35: rgba(13, 13, 13, 0.35); /* Lớp phủ trong suốt 35% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-35: alpha(var(--alpha-base), 35%)`. */
+  --alpha-40: rgba(13, 13, 13, 0.4); /* Lớp phủ trong suốt 40% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-40: alpha(var(--alpha-base), 40%)`. */
+  --alpha-50: rgba(13, 13, 13, 0.5); /* Lớp phủ trong suốt 50% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-50: alpha(var(--alpha-base), 50%)`. */
+  --alpha-60: rgba(13, 13, 13, 0.6); /* Lớp phủ trong suốt 60% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-60: alpha(var(--alpha-base), 60%)`. */
+  --alpha-70: rgba(13, 13, 13, 0.7); /* Lớp phủ trong suốt 70% trên màu gốc — dùng cho hover, viền, nền mềm. Nguồn: `--alpha-70: alpha(var(--alpha-base), 70%)`. */
+  --white: #ffffff; /* Màu cố định không đổi theo theme (chữ trên nền solid màu). Nguồn: `--white: #ffffff`. */
+  --black: #000000; /* Màu cố định không đổi theo theme (chữ trên nền solid màu). Nguồn: `--black: #000000`. */
+  --green-25: #edfaf2; /* Primitive green bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-25: #edfaf2`. */
+  --green-50: #d9f4e4; /* Primitive green bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-50: #d9f4e4`. */
+  --green-75: #b8ebcc; /* Primitive green bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-75: #b8ebcc`. */
+  --green-100: #8cdfad; /* Primitive green bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-100: #8cdfad`. */
+  --green-200: #66d492; /* Primitive green bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-200: #66d492`. */
+  --green-300: #40c977; /* Primitive green bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-300: #40c977`. */
+  --green-400: #04b84c; /* Primitive green bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-400: #04b84c`. */
+  --green-500: #00a240; /* Primitive green bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-500: #00a240`. */
+  --green-600: #008635; /* Primitive green bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-600: #008635`. */
+  --green-700: #00692a; /* Primitive green bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-700: #00692a`. */
+  --green-800: #004f1f; /* Primitive green bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-800: #004f1f`. */
+  --green-900: #003716; /* Primitive green bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-900: #003716`. */
+  --green-950: #011c0b; /* Primitive green bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-950: #011c0b`. */
+  --green-1000: #001207; /* Primitive green bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--green-1000: #001207`. */
+  --green-a25: rgba(4, 184, 76, 0.08); /* Primitive green trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a25: alpha(var(--green-400), 8%)`. */
+  --green-a50: rgba(4, 184, 76, 0.15); /* Primitive green trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a50: alpha(var(--green-400), 15%)`. */
+  --green-a75: rgba(4, 184, 76, 0.29); /* Primitive green trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a75: alpha(var(--green-400), 29%)`. */
+  --green-a100: rgba(4, 184, 76, 0.45); /* Primitive green trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a100: alpha(var(--green-400), 45%)`. */
+  --green-a200: rgba(4, 184, 76, 0.6); /* Primitive green trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a200: alpha(var(--green-400), 60%)`. */
+  --green-a300: rgba(4, 184, 76, 0.75); /* Primitive green trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--green-a300: alpha(var(--green-400), 75%)`. */
+  --red-25: #fff0f0; /* Primitive red bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-25: #fff0f0`. */
+  --red-50: #ffd9d9; /* Primitive red bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-50: #ffd9d9`. */
+  --red-75: #ffc6c5; /* Primitive red bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-75: #ffc6c5`. */
+  --red-100: #ffa4a2; /* Primitive red bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-100: #ffa4a2`. */
+  --red-200: #ff8583; /* Primitive red bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-200: #ff8583`. */
+  --red-300: #ff6764; /* Primitive red bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-300: #ff6764`. */
+  --red-400: #fa423e; /* Primitive red bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-400: #fa423e`. */
+  --red-500: #e02e2a; /* Primitive red bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-500: #e02e2a`. */
+  --red-600: #ba2623; /* Primitive red bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-600: #ba2623`. */
+  --red-700: #911e1b; /* Primitive red bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-700: #911e1b`. */
+  --red-800: #6e1615; /* Primitive red bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-800: #6e1615`. */
+  --red-900: #4d100e; /* Primitive red bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-900: #4d100e`. */
+  --red-950: #280b0a; /* Primitive red bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-950: #280b0a`. */
+  --red-1000: #1f0909; /* Primitive red bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--red-1000: #1f0909`. */
+  --red-a25: rgba(250, 66, 62, 0.08); /* Primitive red trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a25: alpha(var(--red-400), 8%)`. */
+  --red-a50: rgba(250, 66, 62, 0.16); /* Primitive red trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a50: alpha(var(--red-400), 16%)`. */
+  --red-a75: rgba(250, 66, 62, 0.3); /* Primitive red trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a75: alpha(var(--red-400), 30%)`. */
+  --red-a100: rgba(250, 66, 62, 0.48); /* Primitive red trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a100: alpha(var(--red-400), 48%)`. */
+  --red-a200: rgba(250, 66, 62, 0.64); /* Primitive red trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a200: alpha(var(--red-400), 64%)`. */
+  --red-a300: rgba(250, 66, 62, 0.79); /* Primitive red trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--red-a300: alpha(var(--red-400), 79%)`. */
+  --pink-25: #fff4f9; /* Primitive pink bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-25: #fff4f9`. */
+  --pink-50: #ffe8f3; /* Primitive pink bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-50: #ffe8f3`. */
+  --pink-75: #ffd4e8; /* Primitive pink bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-75: #ffd4e8`. */
+  --pink-100: #ffbada; /* Primitive pink bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-100: #ffbada`. */
+  --pink-200: #ffa3ce; /* Primitive pink bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-200: #ffa3ce`. */
+  --pink-300: #ff8cc1; /* Primitive pink bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-300: #ff8cc1`. */
+  --pink-400: #ff66ad; /* Primitive pink bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-400: #ff66ad`. */
+  --pink-500: #e04c91; /* Primitive pink bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-500: #e04c91`. */
+  --pink-600: #ba437a; /* Primitive pink bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-600: #ba437a`. */
+  --pink-700: #963c67; /* Primitive pink bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-700: #963c67`. */
+  --pink-800: #6e2c4a; /* Primitive pink bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-800: #6e2c4a`. */
+  --pink-900: #4d1f34; /* Primitive pink bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-900: #4d1f34`. */
+  --pink-950: #29101c; /* Primitive pink bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-950: #29101c`. */
+  --pink-1000: #1a0a11; /* Primitive pink bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--pink-1000: #1a0a11`. */
+  --pink-a25: rgba(255, 102, 173, 0.08); /* Primitive pink trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a25: alpha(var(--pink-400), 8%)`. */
+  --pink-a50: rgba(255, 102, 173, 0.16); /* Primitive pink trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a50: alpha(var(--pink-400), 16%)`. */
+  --pink-a75: rgba(255, 102, 173, 0.28); /* Primitive pink trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a75: alpha(var(--pink-400), 28%)`. */
+  --pink-a100: rgba(255, 102, 173, 0.45); /* Primitive pink trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a100: alpha(var(--pink-400), 45%)`. */
+  --pink-a200: rgba(255, 102, 173, 0.6); /* Primitive pink trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a200: alpha(var(--pink-400), 60%)`. */
+  --pink-a300: rgba(255, 102, 173, 0.76); /* Primitive pink trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--pink-a300: alpha(var(--pink-400), 76%)`. */
+  --orange-25: #fff5f0; /* Primitive orange bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-25: #fff5f0`. */
+  --orange-50: #ffe7d9; /* Primitive orange bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-50: #ffe7d9`. */
+  --orange-75: #ffcfb4; /* Primitive orange bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-75: #ffcfb4`. */
+  --orange-100: #ffb790; /* Primitive orange bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-100: #ffb790`. */
+  --orange-200: #ff9e6c; /* Primitive orange bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-200: #ff9e6c`. */
+  --orange-300: #ff8549; /* Primitive orange bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-300: #ff8549`. */
+  --orange-400: #fb6a22; /* Primitive orange bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-400: #fb6a22`. */
+  --orange-500: #e25507; /* Primitive orange bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-500: #e25507`. */
+  --orange-600: #b9480d; /* Primitive orange bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-600: #b9480d`. */
+  --orange-700: #923b0f; /* Primitive orange bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-700: #923b0f`. */
+  --orange-800: #6d2e0f; /* Primitive orange bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-800: #6d2e0f`. */
+  --orange-900: #4a2206; /* Primitive orange bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-900: #4a2206`. */
+  --orange-950: #281105; /* Primitive orange bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-950: #281105`. */
+  --orange-1000: #211107; /* Primitive orange bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--orange-1000: #211107`. */
+  --orange-a25: rgba(251, 106, 34, 0.07); /* Primitive orange trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a25: alpha(var(--orange-400), 7%)`. */
+  --orange-a50: rgba(251, 106, 34, 0.16); /* Primitive orange trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a50: alpha(var(--orange-400), 16%)`. */
+  --orange-a75: rgba(251, 106, 34, 0.33); /* Primitive orange trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a75: alpha(var(--orange-400), 33%)`. */
+  --orange-a100: rgba(251, 106, 34, 0.48); /* Primitive orange trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a100: alpha(var(--orange-400), 48%)`. */
+  --orange-a200: rgba(251, 106, 34, 0.65); /* Primitive orange trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a200: alpha(var(--orange-400), 65%)`. */
+  --orange-a300: rgba(251, 106, 34, 0.81); /* Primitive orange trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--orange-a300: alpha(var(--orange-400), 81%)`. */
+  --yellow-25: #fffbed; /* Primitive yellow bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-25: #fffbed`. */
+  --yellow-50: #fff6d9; /* Primitive yellow bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-50: #fff6d9`. */
+  --yellow-75: #ffeeb8; /* Primitive yellow bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-75: #ffeeb8`. */
+  --yellow-100: #ffe48c; /* Primitive yellow bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-100: #ffe48c`. */
+  --yellow-200: #ffdb66; /* Primitive yellow bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-200: #ffdb66`. */
+  --yellow-300: #ffd240; /* Primitive yellow bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-300: #ffd240`. */
+  --yellow-400: #ffc300; /* Primitive yellow bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-400: #ffc300`. */
+  --yellow-500: #e0ac00; /* Primitive yellow bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-500: #e0ac00`. */
+  --yellow-600: #ba8e00; /* Primitive yellow bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-600: #ba8e00`. */
+  --yellow-700: #916f00; /* Primitive yellow bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-700: #916f00`. */
+  --yellow-800: #6e5400; /* Primitive yellow bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-800: #6e5400`. */
+  --yellow-900: #4d3b00; /* Primitive yellow bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-900: #4d3b00`. */
+  --yellow-950: #261d00; /* Primitive yellow bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-950: #261d00`. */
+  --yellow-1000: #1a1400; /* Primitive yellow bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--yellow-1000: #1a1400`. */
+  --yellow-a25: rgba(255, 195, 0, 0.08); /* Primitive yellow trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a25: alpha(var(--yellow-400), 8%)`. */
+  --yellow-a50: rgba(255, 195, 0, 0.15); /* Primitive yellow trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a50: alpha(var(--yellow-400), 15%)`. */
+  --yellow-a75: rgba(255, 195, 0, 0.27); /* Primitive yellow trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a75: alpha(var(--yellow-400), 27%)`. */
+  --yellow-a100: rgba(255, 195, 0, 0.45); /* Primitive yellow trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a100: alpha(var(--yellow-400), 45%)`. */
+  --yellow-a200: rgba(255, 195, 0, 0.59); /* Primitive yellow trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a200: alpha(var(--yellow-400), 59%)`. */
+  --yellow-a300: rgba(255, 195, 0, 0.74); /* Primitive yellow trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--yellow-a300: alpha(var(--yellow-400), 74%)`. */
+  --purple-25: #f9f5fe; /* Primitive purple bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-25: #f9f5fe`. */
+  --purple-50: #efe5fe; /* Primitive purple bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-50: #efe5fe`. */
+  --purple-75: #e0cefd; /* Primitive purple bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-75: #e0cefd`. */
+  --purple-100: #ceb0fb; /* Primitive purple bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-100: #ceb0fb`. */
+  --purple-200: #be95fa; /* Primitive purple bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-200: #be95fa`. */
+  --purple-300: #ad7bf9; /* Primitive purple bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-300: #ad7bf9`. */
+  --purple-400: #924ff7; /* Primitive purple bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-400: #924ff7`. */
+  --purple-500: #8046d9; /* Primitive purple bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-500: #8046d9`. */
+  --purple-600: #6b3ab4; /* Primitive purple bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-600: #6b3ab4`. */
+  --purple-700: #532d8d; /* Primitive purple bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-700: #532d8d`. */
+  --purple-800: #3f226a; /* Primitive purple bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-800: #3f226a`. */
+  --purple-900: #2c184a; /* Primitive purple bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-900: #2c184a`. */
+  --purple-950: #160c25; /* Primitive purple bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-950: #160c25`. */
+  --purple-1000: #100a19; /* Primitive purple bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--purple-1000: #100a19`. */
+  --purple-a25: rgba(146, 79, 247, 0.06); /* Primitive purple trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a25: alpha(var(--purple-400), 6%)`. */
+  --purple-a50: rgba(146, 79, 247, 0.15); /* Primitive purple trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a50: alpha(var(--purple-400), 15%)`. */
+  --purple-a75: rgba(146, 79, 247, 0.28); /* Primitive purple trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a75: alpha(var(--purple-400), 28%)`. */
+  --purple-a100: rgba(146, 79, 247, 0.45); /* Primitive purple trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a100: alpha(var(--purple-400), 45%)`. */
+  --purple-a200: rgba(146, 79, 247, 0.6); /* Primitive purple trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a200: alpha(var(--purple-400), 60%)`. */
+  --purple-a300: rgba(146, 79, 247, 0.75); /* Primitive purple trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--purple-a300: alpha(var(--purple-400), 75%)`. */
+  --blue-25: #f5faff; /* Primitive blue bước 25; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-25: #f5faff`. */
+  --blue-50: #e5f3ff; /* Primitive blue bước 50; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-50: #e5f3ff`. */
+  --blue-75: #cce6ff; /* Primitive blue bước 75; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-75: #cce6ff`. */
+  --blue-100: #99ceff; /* Primitive blue bước 100; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-100: #99ceff`. */
+  --blue-200: #66b5ff; /* Primitive blue bước 200; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-200: #66b5ff`. */
+  --blue-300: #339cff; /* Primitive blue bước 300; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-300: #339cff`. */
+  --blue-400: #0285ff; /* Primitive blue bước 400; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-400: #0285ff`. */
+  --blue-500: #0169cc; /* Primitive blue bước 500; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-500: #0169cc`. */
+  --blue-600: #004f99; /* Primitive blue bước 600; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-600: #004f99`. */
+  --blue-700: #003f7a; /* Primitive blue bước 700; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-700: #003f7a`. */
+  --blue-800: #013566; /* Primitive blue bước 800; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-800: #013566`. */
+  --blue-900: #00284d; /* Primitive blue bước 900; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-900: #00284d`. */
+  --blue-950: #000e1a; /* Primitive blue bước 950; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-950: #000e1a`. */
+  --blue-1000: #000d19; /* Primitive blue bước 1000; giống nhau ở cả hai theme. Chỉ dùng qua token semantic. Nguồn: `--blue-1000: #000d19`. */
+  --blue-a25: rgba(2, 133, 255, 0.04); /* Primitive blue trong suốt (bậc a25) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a25: alpha(var(--blue-400), 4%)`. */
+  --blue-a50: rgba(2, 133, 255, 0.13); /* Primitive blue trong suốt (bậc a50) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a50: alpha(var(--blue-400), 13%)`. */
+  --blue-a75: rgba(2, 133, 255, 0.25); /* Primitive blue trong suốt (bậc a75) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a75: alpha(var(--blue-400), 25%)`. */
+  --blue-a100: rgba(2, 133, 255, 0.4); /* Primitive blue trong suốt (bậc a100) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a100: alpha(var(--blue-400), 40%)`. */
+  --blue-a200: rgba(2, 133, 255, 0.6); /* Primitive blue trong suốt (bậc a200) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a200: alpha(var(--blue-400), 60%)`. */
+  --blue-a300: rgba(2, 133, 255, 0.8); /* Primitive blue trong suốt (bậc a300) — nền mềm/surface của màu trạng thái. Nguồn: `--blue-a300: alpha(var(--blue-400), 80%)`. */
+  --color-text: var(--gray-1000); /* Chữ chính trên mọi surface. Nguồn: `--color-text: var(--gray-1000)`. */
+  --color-text-secondary: var(--gray-500); /* Chữ phụ (mô tả, nhãn cột, meta) trên surface. Nguồn: `--color-text-secondary: light-dark(var(--gray-500), var(--gray-700))`. */
+  --color-text-tertiary: var(--gray-400); /* Chữ mờ: placeholder, gợi ý. KHÔNG dùng cho nội dung cần đọc (dưới 4.5:1). Nguồn: `--color-text-tertiary: light-dark(var(--gray-400), var(--gray-600))`. */
+  --color-text-inverse: var(--gray-0); /* Chữ trên nền solid tối/sáng ngược. Nguồn: `--color-text-inverse: var(--gray-0)`. */
+  --color-ring: var(--blue-500); /* Vòng focus mặc định (outline 2px, offset 2px). Nguồn: `--color-ring: light-dark(var(--blue-500), var(--blue-400))`. */
+  --color-text-primary: var(--color-text); /* Chữ primary. Nguồn: `--color-text-primary: var(--color-text)`. */
+  --color-background-primary-soft: var(--gray-100); /* Nền primary kiểu soft. Nguồn: `--color-background-primary-soft: light-dark(var(--gray-100), var(--gray-300))`. */
+  --color-background-primary-soft-hover: var(--gray-150); /* Nền primary kiểu soft khi hover. Nguồn: `--color-background-primary-soft-hover: light-dark(var(--gray-150), var(--gray-350))`. */
+  --color-background-primary-soft-active: var(--gray-200); /* Nền primary kiểu soft khi active. Nguồn: `--color-background-primary-soft-active: light-dark(var(--gray-200), var(--gray-400))`. */
+  --color-background-primary-soft-alpha: var(--alpha-08); /* Nền primary kiểu soft alpha. Nguồn: `--color-background-primary-soft-alpha: light-dark(var(--alpha-08), var(--alpha-12))`. */
+  --color-background-primary-soft-alpha-hover: var(--alpha-12); /* Nền primary kiểu soft alpha khi hover. Nguồn: `--color-background-primary-soft-alpha-hover: light-dark(var(--alpha-12), var(--alpha-16))`. */
+  --color-background-primary-soft-alpha-active: var(--alpha-16); /* Nền primary kiểu soft alpha khi active. Nguồn: `--color-background-primary-soft-alpha-active: light-dark(var(--alpha-16), var(--alpha-20))`. */
+  --color-text-primary-soft: var(--color-text); /* Chữ primary kiểu soft. Nguồn: `--color-text-primary-soft: var(--color-text)`. */
+  --color-background-primary-soft-alt: var(--alpha-02); /* Nền primary kiểu soft alt. Nguồn: `--color-background-primary-soft-alt: var(--alpha-02)`. */
+  --color-border-primary-soft-alt: var(--alpha-06); /* Viền primary kiểu soft alt. Nguồn: `--color-border-primary-soft-alt: var(--alpha-06)`. */
+  --color-text-primary-soft-alt: var(--color-text); /* Chữ primary kiểu soft alt. Nguồn: `--color-text-primary-soft-alt: var(--color-text)`. */
+  --color-background-primary-surface: var(--alpha-05); /* Nền primary kiểu surface. Nguồn: `--color-background-primary-surface: light-dark(var(--alpha-05), var(--alpha-08))`. */
+  --color-border-primary-surface: var(--alpha-05); /* Viền primary kiểu surface. Nguồn: `--color-border-primary-surface: light-dark(var(--alpha-05), var(--alpha-08))`. */
+  --color-text-primary-surface: var(--color-text); /* Chữ primary kiểu surface. Nguồn: `--color-text-primary-surface: var(--color-text)`. */
+  --color-background-primary-solid: var(--gray-900); /* Nền primary kiểu solid. Nguồn: `--color-background-primary-solid: light-dark(var(--gray-900), var(--gray-950))`. */
+  --color-background-primary-solid-hover: var(--gray-700); /* Nền primary kiểu solid khi hover. Nguồn: `--color-background-primary-solid-hover: light-dark(var(--gray-700), var(--gray-900))`. */
+  --color-background-primary-solid-active: var(--gray-600); /* Nền primary kiểu solid khi active. Nguồn: `--color-background-primary-solid-active: light-dark(var(--gray-600), var(--gray-850))`. */
+  --color-text-primary-solid: var(--color-text-inverse); /* Chữ primary kiểu solid. Nguồn: `--color-text-primary-solid: var(--color-text-inverse)`. */
+  --color-background-primary-outline-hover: var(--alpha-02); /* Nền primary kiểu outline khi hover. Nguồn: `--color-background-primary-outline-hover: light-dark(var(--alpha-02), var(--alpha-04))`. */
+  --color-background-primary-outline-active: var(--alpha-04); /* Nền primary kiểu outline khi active. Nguồn: `--color-background-primary-outline-active: light-dark(var(--alpha-04), var(--alpha-06))`. */
+  --color-border-primary-outline: var(--alpha-16); /* Viền primary kiểu outline. Nguồn: `--color-border-primary-outline: light-dark(var(--alpha-16), var(--alpha-25))`. */
+  --color-border-primary-outline-hover: var(--alpha-20); /* Viền primary kiểu outline khi hover. Nguồn: `--color-border-primary-outline-hover: light-dark(var(--alpha-20), var(--alpha-30))`. */
+  --color-text-primary-outline: var(--color-text); /* Chữ primary kiểu outline. Nguồn: `--color-text-primary-outline: var(--color-text)`. */
+  --color-text-primary-outline-hover: var(--color-text); /* Chữ primary kiểu outline khi hover. Nguồn: `--color-text-primary-outline-hover: var(--color-text)`. */
+  --color-background-primary-ghost-hover: var(--alpha-08); /* Nền primary kiểu ghost khi hover. Nguồn: `--color-background-primary-ghost-hover: light-dark(var(--alpha-08), var(--alpha-12))`. */
+  --color-background-primary-ghost-active: var(--alpha-12); /* Nền primary kiểu ghost khi active. Nguồn: `--color-background-primary-ghost-active: light-dark(var(--alpha-12), var(--alpha-16))`. */
+  --color-text-primary-ghost: var(--color-text); /* Chữ primary kiểu ghost. Nguồn: `--color-text-primary-ghost: var(--color-text)`. */
+  --color-text-primary-ghost-hover: var(--color-text); /* Chữ primary kiểu ghost khi hover. Nguồn: `--color-text-primary-ghost-hover: var(--color-text)`. */
+  --color-ring-primary: var(--color-ring); /* Vòng focus primary. Nguồn: `--color-ring-primary: var(--color-ring)`. */
+  --color-ring-primary-soft: var(--color-ring-primary); /* Vòng focus primary kiểu soft. Nguồn: `--color-ring-primary-soft: var(--color-ring-primary)`. */
+  --color-ring-primary-solid: var(--color-ring-primary); /* Vòng focus primary kiểu solid. Nguồn: `--color-ring-primary-solid: var(--color-ring-primary)`. */
+  --color-ring-primary-outline: var(--color-ring-primary); /* Vòng focus primary kiểu outline. Nguồn: `--color-ring-primary-outline: var(--color-ring-primary)`. */
+  --color-ring-primary-ghost: var(--color-ring-primary); /* Vòng focus primary kiểu ghost. Nguồn: `--color-ring-primary-ghost: var(--color-ring-primary)`. */
+  --color-background-secondary-soft: var(--gray-100); /* Nền secondary kiểu soft. Nguồn: `--color-background-secondary-soft: light-dark(var(--gray-100), var(--gray-300))`. */
+  --color-background-secondary-soft-hover: var(--gray-150); /* Nền secondary kiểu soft khi hover. Nguồn: `--color-background-secondary-soft-hover: light-dark(var(--gray-150), var(--gray-350))`. */
+  --color-background-secondary-soft-active: var(--gray-200); /* Nền secondary kiểu soft khi active. Nguồn: `--color-background-secondary-soft-active: light-dark(var(--gray-200), var(--gray-400))`. */
+  --color-background-secondary-soft-alpha: var(--alpha-08); /* Nền secondary kiểu soft alpha. Nguồn: `--color-background-secondary-soft-alpha: light-dark(var(--alpha-08), var(--alpha-12))`. */
+  --color-background-secondary-soft-alpha-hover: var(--alpha-12); /* Nền secondary kiểu soft alpha khi hover. Nguồn: `--color-background-secondary-soft-alpha-hover: light-dark(var(--alpha-12), var(--alpha-16))`. */
+  --color-background-secondary-soft-alpha-active: var(--alpha-16); /* Nền secondary kiểu soft alpha khi active. Nguồn: `--color-background-secondary-soft-alpha-active: light-dark(var(--alpha-16), var(--alpha-20))`. */
+  --color-text-secondary-soft: var(--color-text); /* Chữ secondary kiểu soft. Nguồn: `--color-text-secondary-soft: var(--color-text)`. */
+  --color-background-secondary-soft-alt: var(--alpha-02); /* Nền secondary kiểu soft alt. Nguồn: `--color-background-secondary-soft-alt: var(--alpha-02)`. */
+  --color-border-secondary-soft-alt: var(--alpha-06); /* Viền secondary kiểu soft alt. Nguồn: `--color-border-secondary-soft-alt: var(--alpha-06)`. */
+  --color-text-secondary-soft-alt: var(--color-text); /* Chữ secondary kiểu soft alt. Nguồn: `--color-text-secondary-soft-alt: var(--color-text)`. */
+  --color-background-secondary-solid: var(--gray-500); /* Nền secondary kiểu solid. Nguồn: `--color-background-secondary-solid: light-dark(var(--gray-500), var(--gray-400))`. */
+  --color-background-secondary-solid-hover: var(--gray-600); /* Nền secondary kiểu solid khi hover. Nguồn: `--color-background-secondary-solid-hover: light-dark(var(--gray-600), var(--gray-450))`. */
+  --color-background-secondary-solid-active: var(--gray-700); /* Nền secondary kiểu solid khi active. Nguồn: `--color-background-secondary-solid-active: light-dark(var(--gray-700), var(--gray-500))`. */
+  --color-text-secondary-solid: var(--white); /* Chữ secondary kiểu solid. Nguồn: `--color-text-secondary-solid: var(--white)`. */
+  --color-background-secondary-outline-hover: var(--alpha-02); /* Nền secondary kiểu outline khi hover. Nguồn: `--color-background-secondary-outline-hover: light-dark(var(--alpha-02), var(--alpha-04))`. */
+  --color-background-secondary-outline-active: var(--alpha-04); /* Nền secondary kiểu outline khi active. Nguồn: `--color-background-secondary-outline-active: light-dark(var(--alpha-04), var(--alpha-06))`. */
+  --color-border-secondary-outline: var(--alpha-16); /* Viền secondary kiểu outline. Nguồn: `--color-border-secondary-outline: light-dark(var(--alpha-16), var(--alpha-25))`. */
+  --color-border-secondary-outline-hover: var(--alpha-20); /* Viền secondary kiểu outline khi hover. Nguồn: `--color-border-secondary-outline-hover: light-dark(var(--alpha-20), var(--alpha-30))`. */
+  --color-text-secondary-outline: var(--color-text-secondary); /* Chữ secondary kiểu outline. Nguồn: `--color-text-secondary-outline: var(--color-text-secondary)`. */
+  --color-text-secondary-outline-hover: var(--color-text); /* Chữ secondary kiểu outline khi hover. Nguồn: `--color-text-secondary-outline-hover: var(--color-text)`. */
+  --color-background-secondary-ghost-hover: var(--alpha-08); /* Nền secondary kiểu ghost khi hover. Nguồn: `--color-background-secondary-ghost-hover: light-dark(var(--alpha-08), var(--alpha-12))`. */
+  --color-background-secondary-ghost-active: var(--alpha-12); /* Nền secondary kiểu ghost khi active. Nguồn: `--color-background-secondary-ghost-active: light-dark(var(--alpha-12), var(--alpha-16))`. */
+  --color-text-secondary-ghost: var(--color-text-secondary); /* Chữ secondary kiểu ghost. Nguồn: `--color-text-secondary-ghost: var(--color-text-secondary)`. */
+  --color-text-secondary-ghost-hover: var(--color-text); /* Chữ secondary kiểu ghost khi hover. Nguồn: `--color-text-secondary-ghost-hover: var(--color-text)`. */
+  --color-ring-secondary: var(--color-ring); /* Vòng focus secondary. Nguồn: `--color-ring-secondary: var(--color-ring)`. */
+  --color-ring-secondary-soft: var(--color-ring-secondary); /* Vòng focus secondary kiểu soft. Nguồn: `--color-ring-secondary-soft: var(--color-ring-secondary)`. */
+  --color-ring-secondary-solid: var(--color-ring-secondary); /* Vòng focus secondary kiểu solid. Nguồn: `--color-ring-secondary-solid: var(--color-ring-secondary)`. */
+  --color-ring-secondary-outline: var(--color-ring-secondary); /* Vòng focus secondary kiểu outline. Nguồn: `--color-ring-secondary-outline: var(--color-ring-secondary)`. */
+  --color-ring-secondary-ghost: var(--color-ring-secondary); /* Vòng focus secondary kiểu ghost. Nguồn: `--color-ring-secondary-ghost: var(--color-ring-secondary)`. */
+  --color-text-info: var(--blue-500); /* Chữ info (thông tin). Nguồn: `--color-text-info: light-dark(var(--blue-500), var(--blue-200))`. */
+  --color-background-info-soft: var(--blue-50); /* Nền info (thông tin) kiểu soft. Nguồn: `--color-background-info-soft: var(--blue-50)`. */
+  --color-background-info-soft-hover: var(--blue-75); /* Nền info (thông tin) kiểu soft khi hover. Nguồn: `--color-background-info-soft-hover: var(--blue-75)`. */
+  --color-background-info-soft-active: var(--blue-75); /* Nền info (thông tin) kiểu soft khi active. Nguồn: `--color-background-info-soft-active: var(--blue-75)`. */
+  --color-background-info-soft-alpha: var(--blue-a50); /* Nền info (thông tin) kiểu soft alpha. Nguồn: `--color-background-info-soft-alpha: var(--blue-a50)`. */
+  --color-background-info-soft-alpha-hover: var(--blue-a75); /* Nền info (thông tin) kiểu soft alpha khi hover. Nguồn: `--color-background-info-soft-alpha-hover: var(--blue-a75)`. */
+  --color-background-info-soft-alpha-active: var(--blue-a75); /* Nền info (thông tin) kiểu soft alpha khi active. Nguồn: `--color-background-info-soft-alpha-active: var(--blue-a75)`. */
+  --color-text-info-soft: var(--blue-600); /* Chữ info (thông tin) kiểu soft. Nguồn: `--color-text-info-soft: light-dark(var(--blue-600), var(--blue-300))`. */
+  --color-background-info-surface: var(--blue-a25); /* Nền info (thông tin) kiểu surface. Nguồn: `--color-background-info-surface: light-dark(var(--blue-a25), var(--blue-a50))`. */
+  --color-border-info-surface: var(--blue-a25); /* Viền info (thông tin) kiểu surface. Nguồn: `--color-border-info-surface: light-dark(var(--blue-a25), var(--blue-a50))`. */
+  --color-text-info-surface: var(--blue-600); /* Chữ info (thông tin) kiểu surface. Nguồn: `--color-text-info-surface: light-dark(var(--blue-600), var(--blue-300))`. */
+  --color-background-info-solid: var(--blue-400); /* Nền info (thông tin) kiểu solid. Nguồn: `--color-background-info-solid: var(--blue-400)`. */
+  --color-background-info-solid-hover: var(--blue-500); /* Nền info (thông tin) kiểu solid khi hover. Nguồn: `--color-background-info-solid-hover: var(--blue-500)`. */
+  --color-background-info-solid-active: var(--blue-500); /* Nền info (thông tin) kiểu solid khi active. Nguồn: `--color-background-info-solid-active: var(--blue-500)`. */
+  --color-text-info-solid: var(--white); /* Chữ info (thông tin) kiểu solid. Nguồn: `--color-text-info-solid: var(--white)`. */
+  --color-background-info-outline-hover: var(--blue-a25); /* Nền info (thông tin) kiểu outline khi hover. Nguồn: `--color-background-info-outline-hover: var(--blue-a25)`. */
+  --color-background-info-outline-active: var(--blue-a25); /* Nền info (thông tin) kiểu outline khi active. Nguồn: `--color-background-info-outline-active: var(--blue-a25)`. */
+  --color-border-info-outline: var(--blue-500); /* Viền info (thông tin) kiểu outline. Nguồn: `--color-border-info-outline: var(--blue-500)`. */
+  --color-border-info-outline-hover: var(--blue-500); /* Viền info (thông tin) kiểu outline khi hover. Nguồn: `--color-border-info-outline-hover: var(--blue-500)`. */
+  --color-text-info-outline: var(--blue-500); /* Chữ info (thông tin) kiểu outline. Nguồn: `--color-text-info-outline: var(--blue-500)`. */
+  --color-text-info-outline-hover: var(--blue-500); /* Chữ info (thông tin) kiểu outline khi hover. Nguồn: `--color-text-info-outline-hover: var(--blue-500)`. */
+  --color-background-info-ghost-hover: var(--blue-a50); /* Nền info (thông tin) kiểu ghost khi hover. Nguồn: `--color-background-info-ghost-hover: var(--blue-a50)`. */
+  --color-background-info-ghost-active: var(--blue-a50); /* Nền info (thông tin) kiểu ghost khi active. Nguồn: `--color-background-info-ghost-active: var(--blue-a50)`. */
+  --color-text-info-ghost: var(--blue-500); /* Chữ info (thông tin) kiểu ghost. Nguồn: `--color-text-info-ghost: light-dark(var(--blue-500), var(--blue-200))`. */
+  --color-text-info-ghost-hover: var(--blue-500); /* Chữ info (thông tin) kiểu ghost khi hover. Nguồn: `--color-text-info-ghost-hover: light-dark(var(--blue-500), var(--blue-200))`. */
+  --color-ring-info: var(--color-ring); /* Vòng focus info (thông tin). Nguồn: `--color-ring-info: var(--color-ring)`. */
+  --color-ring-info-soft: var(--color-ring-info); /* Vòng focus info (thông tin) kiểu soft. Nguồn: `--color-ring-info-soft: var(--color-ring-info)`. */
+  --color-ring-info-solid: var(--color-ring-info); /* Vòng focus info (thông tin) kiểu solid. Nguồn: `--color-ring-info-solid: var(--color-ring-info)`. */
+  --color-ring-info-outline: var(--color-ring-info); /* Vòng focus info (thông tin) kiểu outline. Nguồn: `--color-ring-info-outline: var(--color-ring-info)`. */
+  --color-ring-info-ghost: var(--color-ring-info); /* Vòng focus info (thông tin) kiểu ghost. Nguồn: `--color-ring-info-ghost: var(--color-ring-info)`. */
+  --color-text-warning: var(--orange-700); /* Chữ warning (cảnh báo). Nguồn: `--color-text-warning: light-dark(var(--orange-700), var(--orange-500))`. */
+  --color-background-warning-soft: var(--orange-50); /* Nền warning (cảnh báo) kiểu soft. Nguồn: `--color-background-warning-soft: var(--orange-50)`. */
+  --color-background-warning-soft-hover: var(--orange-75); /* Nền warning (cảnh báo) kiểu soft khi hover. Nguồn: `--color-background-warning-soft-hover: var(--orange-75)`. */
+  --color-background-warning-soft-active: var(--orange-75); /* Nền warning (cảnh báo) kiểu soft khi active. Nguồn: `--color-background-warning-soft-active: var(--orange-75)`. */
+  --color-background-warning-soft-alpha: var(--orange-a50); /* Nền warning (cảnh báo) kiểu soft alpha. Nguồn: `--color-background-warning-soft-alpha: var(--orange-a50)`. */
+  --color-background-warning-soft-alpha-hover: var(--orange-a75); /* Nền warning (cảnh báo) kiểu soft alpha khi hover. Nguồn: `--color-background-warning-soft-alpha-hover: var(--orange-a75)`. */
+  --color-background-warning-soft-alpha-active: var(--orange-a75); /* Nền warning (cảnh báo) kiểu soft alpha khi active. Nguồn: `--color-background-warning-soft-alpha-active: var(--orange-a75)`. */
+  --color-text-warning-soft: var(--orange-700); /* Chữ warning (cảnh báo) kiểu soft. Nguồn: `--color-text-warning-soft: light-dark(var(--orange-700), var(--orange-400))`. */
+  --color-background-warning-surface: var(--orange-a25); /* Nền warning (cảnh báo) kiểu surface. Nguồn: `--color-background-warning-surface: light-dark(var(--orange-a25), var(--orange-a50))`. */
+  --color-border-warning-surface: var(--orange-a25); /* Viền warning (cảnh báo) kiểu surface. Nguồn: `--color-border-warning-surface: light-dark(var(--orange-a25), var(--orange-a50))`. */
+  --color-text-warning-surface: var(--orange-700); /* Chữ warning (cảnh báo) kiểu surface. Nguồn: `--color-text-warning-surface: light-dark(var(--orange-700), var(--orange-400))`. */
+  --color-background-warning-solid: var(--orange-500); /* Nền warning (cảnh báo) kiểu solid. Nguồn: `--color-background-warning-solid: var(--orange-500)`. */
+  --color-background-warning-solid-hover: var(--orange-600); /* Nền warning (cảnh báo) kiểu solid khi hover. Nguồn: `--color-background-warning-solid-hover: var(--orange-600)`. */
+  --color-background-warning-solid-active: var(--orange-600); /* Nền warning (cảnh báo) kiểu solid khi active. Nguồn: `--color-background-warning-solid-active: var(--orange-600)`. */
+  --color-text-warning-solid: var(--white); /* Chữ warning (cảnh báo) kiểu solid. Nguồn: `--color-text-warning-solid: var(--white)`. */
+  --color-background-warning-outline-hover: var(--orange-a25); /* Nền warning (cảnh báo) kiểu outline khi hover. Nguồn: `--color-background-warning-outline-hover: var(--orange-a25)`. */
+  --color-background-warning-outline-active: var(--orange-a25); /* Nền warning (cảnh báo) kiểu outline khi active. Nguồn: `--color-background-warning-outline-active: var(--orange-a25)`. */
+  --color-border-warning-outline: var(--orange-500); /* Viền warning (cảnh báo) kiểu outline. Nguồn: `--color-border-warning-outline: var(--orange-500)`. */
+  --color-border-warning-outline-hover: var(--orange-500); /* Viền warning (cảnh báo) kiểu outline khi hover. Nguồn: `--color-border-warning-outline-hover: var(--orange-500)`. */
+  --color-text-warning-outline: var(--orange-500); /* Chữ warning (cảnh báo) kiểu outline. Nguồn: `--color-text-warning-outline: var(--orange-500)`. */
+  --color-text-warning-outline-hover: var(--orange-500); /* Chữ warning (cảnh báo) kiểu outline khi hover. Nguồn: `--color-text-warning-outline-hover: var(--orange-500)`. */
+  --color-background-warning-ghost-hover: var(--orange-a50); /* Nền warning (cảnh báo) kiểu ghost khi hover. Nguồn: `--color-background-warning-ghost-hover: var(--orange-a50)`. */
+  --color-background-warning-ghost-active: var(--orange-a50); /* Nền warning (cảnh báo) kiểu ghost khi active. Nguồn: `--color-background-warning-ghost-active: var(--orange-a50)`. */
+  --color-text-warning-ghost: var(--orange-500); /* Chữ warning (cảnh báo) kiểu ghost. Nguồn: `--color-text-warning-ghost: var(--orange-500)`. */
+  --color-text-warning-ghost-hover: var(--orange-500); /* Chữ warning (cảnh báo) kiểu ghost khi hover. Nguồn: `--color-text-warning-ghost-hover: var(--orange-500)`. */
+  --color-ring-warning: var(--color-ring); /* Vòng focus warning (cảnh báo). Nguồn: `--color-ring-warning: var(--color-ring)`. */
+  --color-ring-warning-soft: var(--color-ring-warning); /* Vòng focus warning (cảnh báo) kiểu soft. Nguồn: `--color-ring-warning-soft: var(--color-ring-warning)`. */
+  --color-ring-warning-solid: var(--color-ring-warning); /* Vòng focus warning (cảnh báo) kiểu solid. Nguồn: `--color-ring-warning-solid: var(--color-ring-warning)`. */
+  --color-ring-warning-outline: var(--color-ring-warning); /* Vòng focus warning (cảnh báo) kiểu outline. Nguồn: `--color-ring-warning-outline: var(--color-ring-warning)`. */
+  --color-ring-warning-ghost: var(--color-ring-warning); /* Vòng focus warning (cảnh báo) kiểu ghost. Nguồn: `--color-ring-warning-ghost: var(--color-ring-warning)`. */
+  --color-text-caution: var(--yellow-700); /* Chữ caution (lưu ý). Nguồn: `--color-text-caution: light-dark(var(--yellow-700), var(--yellow-500))`. */
+  --color-text-caution-hover: var(--yellow-800); /* Chữ caution (lưu ý) khi hover. Nguồn: `--color-text-caution-hover: var(--yellow-800)`. */
+  --color-background-caution-soft: var(--yellow-50); /* Nền caution (lưu ý) kiểu soft. Nguồn: `--color-background-caution-soft: var(--yellow-50)`. */
+  --color-background-caution-soft-hover: var(--yellow-75); /* Nền caution (lưu ý) kiểu soft khi hover. Nguồn: `--color-background-caution-soft-hover: var(--yellow-75)`. */
+  --color-background-caution-soft-active: var(--yellow-75); /* Nền caution (lưu ý) kiểu soft khi active. Nguồn: `--color-background-caution-soft-active: var(--yellow-75)`. */
+  --color-background-caution-soft-alpha: var(--yellow-a50); /* Nền caution (lưu ý) kiểu soft alpha. Nguồn: `--color-background-caution-soft-alpha: var(--yellow-a50)`. */
+  --color-background-caution-soft-alpha-hover: var(--yellow-a75); /* Nền caution (lưu ý) kiểu soft alpha khi hover. Nguồn: `--color-background-caution-soft-alpha-hover: var(--yellow-a75)`. */
+  --color-background-caution-soft-alpha-active: var(--yellow-a75); /* Nền caution (lưu ý) kiểu soft alpha khi active. Nguồn: `--color-background-caution-soft-alpha-active: var(--yellow-a75)`. */
+  --color-text-caution-soft: var(--yellow-800); /* Chữ caution (lưu ý) kiểu soft. Nguồn: `--color-text-caution-soft: light-dark(var(--yellow-800), var(--yellow-400))`. */
+  --color-background-caution-surface: var(--yellow-a25); /* Nền caution (lưu ý) kiểu surface. Nguồn: `--color-background-caution-surface: light-dark(var(--yellow-a25), var(--yellow-a50))`. */
+  --color-border-caution-surface: var(--yellow-a25); /* Viền caution (lưu ý) kiểu surface. Nguồn: `--color-border-caution-surface: light-dark(var(--yellow-a25), var(--yellow-a50))`. */
+  --color-text-caution-surface: var(--yellow-800); /* Chữ caution (lưu ý) kiểu surface. Nguồn: `--color-text-caution-surface: light-dark(var(--yellow-800), var(--yellow-400))`. */
+  --color-background-caution-solid: var(--yellow-600); /* Nền caution (lưu ý) kiểu solid. Nguồn: `--color-background-caution-solid: var(--yellow-600)`. */
+  --color-background-caution-solid-hover: var(--yellow-700); /* Nền caution (lưu ý) kiểu solid khi hover. Nguồn: `--color-background-caution-solid-hover: var(--yellow-700)`. */
+  --color-background-caution-solid-active: var(--yellow-700); /* Nền caution (lưu ý) kiểu solid khi active. Nguồn: `--color-background-caution-solid-active: var(--yellow-700)`. */
+  --color-text-caution-solid: var(--white); /* Chữ caution (lưu ý) kiểu solid. Nguồn: `--color-text-caution-solid: var(--white)`. */
+  --color-background-caution-outline-hover: var(--yellow-a25); /* Nền caution (lưu ý) kiểu outline khi hover. Nguồn: `--color-background-caution-outline-hover: var(--yellow-a25)`. */
+  --color-background-caution-outline-active: var(--yellow-a25); /* Nền caution (lưu ý) kiểu outline khi active. Nguồn: `--color-background-caution-outline-active: var(--yellow-a25)`. */
+  --color-border-caution-outline: var(--yellow-700); /* Viền caution (lưu ý) kiểu outline. Nguồn: `--color-border-caution-outline: var(--yellow-700)`. */
+  --color-border-caution-outline-hover: var(--yellow-700); /* Viền caution (lưu ý) kiểu outline khi hover. Nguồn: `--color-border-caution-outline-hover: var(--yellow-700)`. */
+  --color-text-caution-outline: var(--yellow-700); /* Chữ caution (lưu ý) kiểu outline. Nguồn: `--color-text-caution-outline: var(--yellow-700)`. */
+  --color-text-caution-outline-hover: var(--yellow-700); /* Chữ caution (lưu ý) kiểu outline khi hover. Nguồn: `--color-text-caution-outline-hover: var(--yellow-700)`. */
+  --color-background-caution-ghost-hover: var(--yellow-a50); /* Nền caution (lưu ý) kiểu ghost khi hover. Nguồn: `--color-background-caution-ghost-hover: var(--yellow-a50)`. */
+  --color-background-caution-ghost-active: var(--yellow-a50); /* Nền caution (lưu ý) kiểu ghost khi active. Nguồn: `--color-background-caution-ghost-active: var(--yellow-a50)`. */
+  --color-text-caution-ghost: var(--yellow-700); /* Chữ caution (lưu ý) kiểu ghost. Nguồn: `--color-text-caution-ghost: var(--yellow-700)`. */
+  --color-text-caution-ghost-hover: var(--yellow-700); /* Chữ caution (lưu ý) kiểu ghost khi hover. Nguồn: `--color-text-caution-ghost-hover: var(--yellow-700)`. */
+  --color-ring-caution: var(--color-ring); /* Vòng focus caution (lưu ý). Nguồn: `--color-ring-caution: var(--color-ring)`. */
+  --color-ring-caution-soft: var(--color-ring-caution); /* Vòng focus caution (lưu ý) kiểu soft. Nguồn: `--color-ring-caution-soft: var(--color-ring-caution)`. */
+  --color-ring-caution-solid: var(--color-ring-caution); /* Vòng focus caution (lưu ý) kiểu solid. Nguồn: `--color-ring-caution-solid: var(--color-ring-caution)`. */
+  --color-ring-caution-outline: var(--color-ring-caution); /* Vòng focus caution (lưu ý) kiểu outline. Nguồn: `--color-ring-caution-outline: var(--color-ring-caution)`. */
+  --color-ring-caution-ghost: var(--color-ring-caution); /* Vòng focus caution (lưu ý) kiểu ghost. Nguồn: `--color-ring-caution-ghost: var(--color-ring-caution)`. */
+  --color-text-danger: var(--red-700); /* Chữ danger (lỗi/xoá). Nguồn: `--color-text-danger: light-dark(var(--red-700), var(--red-500))`. */
+  --color-background-danger-soft: var(--red-50); /* Nền danger (lỗi/xoá) kiểu soft. Nguồn: `--color-background-danger-soft: var(--red-50)`. */
+  --color-background-danger-soft-hover: var(--red-75); /* Nền danger (lỗi/xoá) kiểu soft khi hover. Nguồn: `--color-background-danger-soft-hover: var(--red-75)`. */
+  --color-background-danger-soft-active: var(--red-75); /* Nền danger (lỗi/xoá) kiểu soft khi active. Nguồn: `--color-background-danger-soft-active: var(--red-75)`. */
+  --color-background-danger-soft-alpha: var(--red-a50); /* Nền danger (lỗi/xoá) kiểu soft alpha. Nguồn: `--color-background-danger-soft-alpha: var(--red-a50)`. */
+  --color-background-danger-soft-alpha-hover: var(--red-a75); /* Nền danger (lỗi/xoá) kiểu soft alpha khi hover. Nguồn: `--color-background-danger-soft-alpha-hover: var(--red-a75)`. */
+  --color-background-danger-soft-alpha-active: var(--red-a75); /* Nền danger (lỗi/xoá) kiểu soft alpha khi active. Nguồn: `--color-background-danger-soft-alpha-active: var(--red-a75)`. */
+  --color-text-danger-soft: var(--red-600); /* Chữ danger (lỗi/xoá) kiểu soft. Nguồn: `--color-text-danger-soft: light-dark(var(--red-600), var(--red-400))`. */
+  --color-background-danger-surface: var(--red-a25); /* Nền danger (lỗi/xoá) kiểu surface. Nguồn: `--color-background-danger-surface: light-dark(var(--red-a25), var(--red-a50))`. */
+  --color-border-danger-surface: var(--red-a25); /* Viền danger (lỗi/xoá) kiểu surface. Nguồn: `--color-border-danger-surface: light-dark(var(--red-a25), var(--red-a50))`. */
+  --color-text-danger-surface: var(--red-600); /* Chữ danger (lỗi/xoá) kiểu surface. Nguồn: `--color-text-danger-surface: light-dark(var(--red-600), var(--red-400))`. */
+  --color-background-danger-solid: var(--red-500); /* Nền danger (lỗi/xoá) kiểu solid. Nguồn: `--color-background-danger-solid: var(--red-500)`. */
+  --color-background-danger-solid-hover: var(--red-600); /* Nền danger (lỗi/xoá) kiểu solid khi hover. Nguồn: `--color-background-danger-solid-hover: var(--red-600)`. */
+  --color-background-danger-solid-active: var(--red-600); /* Nền danger (lỗi/xoá) kiểu solid khi active. Nguồn: `--color-background-danger-solid-active: var(--red-600)`. */
+  --color-text-danger-solid: var(--white); /* Chữ danger (lỗi/xoá) kiểu solid. Nguồn: `--color-text-danger-solid: var(--white)`. */
+  --color-background-danger-outline-hover: var(--red-a25); /* Nền danger (lỗi/xoá) kiểu outline khi hover. Nguồn: `--color-background-danger-outline-hover: var(--red-a25)`. */
+  --color-background-danger-outline-active: var(--red-a25); /* Nền danger (lỗi/xoá) kiểu outline khi active. Nguồn: `--color-background-danger-outline-active: var(--red-a25)`. */
+  --color-border-danger-outline: var(--red-500); /* Viền danger (lỗi/xoá) kiểu outline. Nguồn: `--color-border-danger-outline: var(--red-500)`. */
+  --color-border-danger-outline-hover: var(--red-500); /* Viền danger (lỗi/xoá) kiểu outline khi hover. Nguồn: `--color-border-danger-outline-hover: var(--red-500)`. */
+  --color-text-danger-outline: var(--red-500); /* Chữ danger (lỗi/xoá) kiểu outline. Nguồn: `--color-text-danger-outline: var(--red-500)`. */
+  --color-text-danger-outline-hover: var(--red-500); /* Chữ danger (lỗi/xoá) kiểu outline khi hover. Nguồn: `--color-text-danger-outline-hover: var(--red-500)`. */
+  --color-background-danger-ghost-hover: var(--red-a50); /* Nền danger (lỗi/xoá) kiểu ghost khi hover. Nguồn: `--color-background-danger-ghost-hover: var(--red-a50)`. */
+  --color-background-danger-ghost-active: var(--red-a50); /* Nền danger (lỗi/xoá) kiểu ghost khi active. Nguồn: `--color-background-danger-ghost-active: var(--red-a50)`. */
+  --color-text-danger-ghost: var(--red-500); /* Chữ danger (lỗi/xoá) kiểu ghost. Nguồn: `--color-text-danger-ghost: var(--red-500)`. */
+  --color-text-danger-ghost-hover: var(--red-500); /* Chữ danger (lỗi/xoá) kiểu ghost khi hover. Nguồn: `--color-text-danger-ghost-hover: var(--red-500)`. */
+  --color-ring-danger: var(--red-200); /* Vòng focus danger (lỗi/xoá). Nguồn: `--color-ring-danger: var(--red-200)`. */
+  --color-ring-danger-soft: var(--color-ring-danger); /* Vòng focus danger (lỗi/xoá) kiểu soft. Nguồn: `--color-ring-danger-soft: var(--color-ring-danger)`. */
+  --color-ring-danger-solid: var(--color-ring-danger); /* Vòng focus danger (lỗi/xoá) kiểu solid. Nguồn: `--color-ring-danger-solid: var(--color-ring-danger)`. */
+  --color-ring-danger-outline: var(--color-ring-danger); /* Vòng focus danger (lỗi/xoá) kiểu outline. Nguồn: `--color-ring-danger-outline: var(--color-ring-danger)`. */
+  --color-ring-danger-ghost: var(--color-ring-danger); /* Vòng focus danger (lỗi/xoá) kiểu ghost. Nguồn: `--color-ring-danger-ghost: var(--color-ring-danger)`. */
+  --color-text-success: var(--green-700); /* Chữ success (thành công). Nguồn: `--color-text-success: light-dark(var(--green-700), var(--green-400))`. */
+  --color-background-success-soft: var(--green-50); /* Nền success (thành công) kiểu soft. Nguồn: `--color-background-success-soft: var(--green-50)`. */
+  --color-background-success-soft-hover: var(--green-75); /* Nền success (thành công) kiểu soft khi hover. Nguồn: `--color-background-success-soft-hover: var(--green-75)`. */
+  --color-background-success-soft-active: var(--green-75); /* Nền success (thành công) kiểu soft khi active. Nguồn: `--color-background-success-soft-active: var(--green-75)`. */
+  --color-background-success-soft-alpha: var(--green-a50); /* Nền success (thành công) kiểu soft alpha. Nguồn: `--color-background-success-soft-alpha: var(--green-a50)`. */
+  --color-background-success-soft-alpha-hover: var(--green-a75); /* Nền success (thành công) kiểu soft alpha khi hover. Nguồn: `--color-background-success-soft-alpha-hover: var(--green-a75)`. */
+  --color-background-success-soft-alpha-active: var(--green-a75); /* Nền success (thành công) kiểu soft alpha khi active. Nguồn: `--color-background-success-soft-alpha-active: var(--green-a75)`. */
+  --color-text-success-soft: var(--green-600); /* Chữ success (thành công) kiểu soft. Nguồn: `--color-text-success-soft: light-dark(var(--green-600), var(--green-400))`. */
+  --color-background-success-surface: var(--green-a25); /* Nền success (thành công) kiểu surface. Nguồn: `--color-background-success-surface: light-dark(var(--green-a25), var(--green-a50))`. */
+  --color-border-success-surface: var(--green-a25); /* Viền success (thành công) kiểu surface. Nguồn: `--color-border-success-surface: light-dark(var(--green-a25), var(--green-a50))`. */
+  --color-text-success-surface: var(--green-600); /* Chữ success (thành công) kiểu surface. Nguồn: `--color-text-success-surface: light-dark(var(--green-600), var(--green-400))`. */
+  --color-background-success-solid: var(--green-500); /* Nền success (thành công) kiểu solid. Nguồn: `--color-background-success-solid: light-dark(var(--green-500), var(--green-600))`. */
+  --color-background-success-solid-hover: var(--green-500); /* Nền success (thành công) kiểu solid khi hover. Nguồn: `--color-background-success-solid-hover: light-dark(var(--green-500), var(--green-600))`. */
+  --color-background-success-solid-active: var(--green-500); /* Nền success (thành công) kiểu solid khi active. Nguồn: `--color-background-success-solid-active: light-dark(var(--green-500), var(--green-600))`. */
+  --color-text-success-solid: var(--white); /* Chữ success (thành công) kiểu solid. Nguồn: `--color-text-success-solid: var(--white)`. */
+  --color-background-success-outline-hover: var(--green-a25); /* Nền success (thành công) kiểu outline khi hover. Nguồn: `--color-background-success-outline-hover: var(--green-a25)`. */
+  --color-background-success-outline-active: var(--green-a25); /* Nền success (thành công) kiểu outline khi active. Nguồn: `--color-background-success-outline-active: var(--green-a25)`. */
+  --color-border-success-outline: var(--green-500); /* Viền success (thành công) kiểu outline. Nguồn: `--color-border-success-outline: light-dark(var(--green-500), var(--green-600))`. */
+  --color-border-success-outline-hover: var(--green-500); /* Viền success (thành công) kiểu outline khi hover. Nguồn: `--color-border-success-outline-hover: light-dark(var(--green-500), var(--green-600))`. */
+  --color-text-success-outline: var(--green-500); /* Chữ success (thành công) kiểu outline. Nguồn: `--color-text-success-outline: var(--green-500)`. */
+  --color-text-success-outline-hover: var(--green-500); /* Chữ success (thành công) kiểu outline khi hover. Nguồn: `--color-text-success-outline-hover: var(--green-500)`. */
+  --color-background-success-ghost-hover: var(--green-a50); /* Nền success (thành công) kiểu ghost khi hover. Nguồn: `--color-background-success-ghost-hover: var(--green-a50)`. */
+  --color-background-success-ghost-active: var(--green-a50); /* Nền success (thành công) kiểu ghost khi active. Nguồn: `--color-background-success-ghost-active: var(--green-a50)`. */
+  --color-text-success-ghost: var(--green-500); /* Chữ success (thành công) kiểu ghost. Nguồn: `--color-text-success-ghost: var(--green-500)`. */
+  --color-text-success-ghost-hover: var(--green-500); /* Chữ success (thành công) kiểu ghost khi hover. Nguồn: `--color-text-success-ghost-hover: var(--green-500)`. */
+  --color-ring-success: var(--color-ring); /* Vòng focus success (thành công). Nguồn: `--color-ring-success: var(--color-ring)`. */
+  --color-ring-success-soft: var(--color-ring-info); /* Vòng focus success (thành công) kiểu soft. Nguồn: `--color-ring-success-soft: var(--color-ring-info)`. */
+  --color-ring-success-solid: var(--color-ring-info); /* Vòng focus success (thành công) kiểu solid. Nguồn: `--color-ring-success-solid: var(--color-ring-info)`. */
+  --color-ring-success-outline: var(--color-ring-info); /* Vòng focus success (thành công) kiểu outline. Nguồn: `--color-ring-success-outline: var(--color-ring-info)`. */
+  --color-ring-success-ghost: var(--color-ring-info); /* Vòng focus success (thành công) kiểu ghost. Nguồn: `--color-ring-success-ghost: var(--color-ring-info)`. */
+  --color-text-discovery: var(--purple-700); /* Chữ discovery (tính năng mới). Nguồn: `--color-text-discovery: light-dark(var(--purple-700), var(--purple-500))`. */
+  --color-background-discovery-soft: var(--purple-50); /* Nền discovery (tính năng mới) kiểu soft. Nguồn: `--color-background-discovery-soft: var(--purple-50)`. */
+  --color-background-discovery-soft-hover: var(--purple-75); /* Nền discovery (tính năng mới) kiểu soft khi hover. Nguồn: `--color-background-discovery-soft-hover: var(--purple-75)`. */
+  --color-background-discovery-soft-active: var(--purple-75); /* Nền discovery (tính năng mới) kiểu soft khi active. Nguồn: `--color-background-discovery-soft-active: var(--purple-75)`. */
+  --color-background-discovery-soft-alpha: var(--purple-a50); /* Nền discovery (tính năng mới) kiểu soft alpha. Nguồn: `--color-background-discovery-soft-alpha: var(--purple-a50)`. */
+  --color-background-discovery-soft-alpha-hover: var(--purple-a75); /* Nền discovery (tính năng mới) kiểu soft alpha khi hover. Nguồn: `--color-background-discovery-soft-alpha-hover: var(--purple-a75)`. */
+  --color-background-discovery-soft-alpha-active: var(--purple-a75); /* Nền discovery (tính năng mới) kiểu soft alpha khi active. Nguồn: `--color-background-discovery-soft-alpha-active: var(--purple-a75)`. */
+  --color-text-discovery-soft: var(--purple-600); /* Chữ discovery (tính năng mới) kiểu soft. Nguồn: `--color-text-discovery-soft: light-dark(var(--purple-600), var(--purple-200))`. */
+  --color-background-discovery-surface: var(--purple-a25); /* Nền discovery (tính năng mới) kiểu surface. Nguồn: `--color-background-discovery-surface: light-dark(var(--purple-a25), var(--purple-a50))`. */
+  --color-border-discovery-surface: var(--purple-a25); /* Viền discovery (tính năng mới) kiểu surface. Nguồn: `--color-border-discovery-surface: light-dark(var(--purple-a25), var(--purple-a50))`. */
+  --color-text-discovery-surface: var(--purple-600); /* Chữ discovery (tính năng mới) kiểu surface. Nguồn: `--color-text-discovery-surface: light-dark(var(--purple-600), var(--purple-200))`. */
+  --color-background-discovery-solid: var(--purple-400); /* Nền discovery (tính năng mới) kiểu solid. Nguồn: `--color-background-discovery-solid: var(--purple-400)`. */
+  --color-background-discovery-solid-hover: var(--purple-500); /* Nền discovery (tính năng mới) kiểu solid khi hover. Nguồn: `--color-background-discovery-solid-hover: var(--purple-500)`. */
+  --color-background-discovery-solid-active: var(--purple-500); /* Nền discovery (tính năng mới) kiểu solid khi active. Nguồn: `--color-background-discovery-solid-active: var(--purple-500)`. */
+  --color-text-discovery-solid: var(--white); /* Chữ discovery (tính năng mới) kiểu solid. Nguồn: `--color-text-discovery-solid: var(--white)`. */
+  --color-background-discovery-outline-hover: var(--purple-a25); /* Nền discovery (tính năng mới) kiểu outline khi hover. Nguồn: `--color-background-discovery-outline-hover: var(--purple-a25)`. */
+  --color-background-discovery-outline-active: var(--purple-a25); /* Nền discovery (tính năng mới) kiểu outline khi active. Nguồn: `--color-background-discovery-outline-active: var(--purple-a25)`. */
+  --color-border-discovery-outline: var(--purple-500); /* Viền discovery (tính năng mới) kiểu outline. Nguồn: `--color-border-discovery-outline: var(--purple-500)`. */
+  --color-border-discovery-outline-hover: var(--purple-500); /* Viền discovery (tính năng mới) kiểu outline khi hover. Nguồn: `--color-border-discovery-outline-hover: var(--purple-500)`. */
+  --color-text-discovery-outline: var(--purple-500); /* Chữ discovery (tính năng mới) kiểu outline. Nguồn: `--color-text-discovery-outline: light-dark(var(--purple-500), var(--purple-400))`. */
+  --color-text-discovery-outline-hover: var(--purple-500); /* Chữ discovery (tính năng mới) kiểu outline khi hover. Nguồn: `--color-text-discovery-outline-hover: light-dark(var(--purple-500), var(--purple-400))`. */
+  --color-background-discovery-ghost-hover: var(--purple-a50); /* Nền discovery (tính năng mới) kiểu ghost khi hover. Nguồn: `--color-background-discovery-ghost-hover: var(--purple-a50)`. */
+  --color-background-discovery-ghost-active: var(--purple-a50); /* Nền discovery (tính năng mới) kiểu ghost khi active. Nguồn: `--color-background-discovery-ghost-active: var(--purple-a50)`. */
+  --color-text-discovery-ghost: var(--purple-500); /* Chữ discovery (tính năng mới) kiểu ghost. Nguồn: `--color-text-discovery-ghost: var(--purple-500)`. */
+  --color-text-discovery-ghost-hover: var(--purple-500); /* Chữ discovery (tính năng mới) kiểu ghost khi hover. Nguồn: `--color-text-discovery-ghost-hover: var(--purple-500)`. */
+  --color-ring-discovery: var(--color-ring); /* Vòng focus discovery (tính năng mới). Nguồn: `--color-ring-discovery: var(--color-ring)`. */
+  --color-ring-discovery-soft: var(--color-ring); /* Vòng focus discovery (tính năng mới) kiểu soft. Nguồn: `--color-ring-discovery-soft: var(--color-ring)`. */
+  --color-ring-discovery-solid: var(--color-ring); /* Vòng focus discovery (tính năng mới) kiểu solid. Nguồn: `--color-ring-discovery-solid: var(--color-ring)`. */
+  --color-ring-discovery-outline: var(--color-ring); /* Vòng focus discovery (tính năng mới) kiểu outline. Nguồn: `--color-ring-discovery-outline: var(--color-ring)`. */
+  --color-ring-discovery-ghost: var(--color-ring); /* Vòng focus discovery (tính năng mới) kiểu ghost. Nguồn: `--color-ring-discovery-ghost: var(--color-ring)`. */
+  --color-background-disabled: var(--alpha-05); /* Nền trạng thái disabled. Nguồn: `--color-background-disabled: var(--alpha-05)`. */
+  --color-border-disabled: var(--alpha-06); /* Viền trạng thái disabled. Nguồn: `--color-border-disabled: var(--alpha-06)`. */
+  --color-text-disabled: var(--gray-400); /* Chữ trạng thái disabled. Nguồn: `--color-text-disabled: light-dark(var(--gray-400), var(--gray-500))`. */
+  --color-border-subtle: var(--alpha-05); /* Viền subtle: chia khối, kẻ bảng, thẻ. Nguồn: `--color-border-subtle: light-dark(var(--alpha-05), var(--alpha-06))`. */
+  --color-border: var(--alpha-10); /* Viền chuẩn: chia khối, kẻ bảng, thẻ. Nguồn: `--color-border: light-dark(var(--alpha-10), var(--alpha-12))`. */
+  --color-border-strong: var(--alpha-15); /* Viền strong: chia khối, kẻ bảng, thẻ. Nguồn: `--color-border-strong: light-dark(var(--alpha-15), var(--alpha-20))`. */
+  --color-surface: var(--gray-0); /* Bề mặt chính (nền trang/khối). Nguồn: `--color-surface: light-dark(var(--gray-0), var(--gray-200))`. */
+  --color-surface-secondary: var(--gray-50); /* Bề mặt secondary (nền trang/khối). Nguồn: `--color-surface-secondary: light-dark(var(--gray-50), var(--gray-100))`. */
+  --color-surface-tertiary: var(--gray-75); /* Bề mặt tertiary (nền trang/khối). Nguồn: `--color-surface-tertiary: light-dark(var(--gray-75), var(--gray-50))`. */
+  --color-surface-elevated: var(--gray-0); /* Bề mặt elevated (nền trang/khối). Nguồn: `--color-surface-elevated: light-dark(var(--gray-0), var(--gray-300))`. */
+  --color-surface-elevated-secondary: var(--gray-50); /* Bề mặt elevated secondary (nền trang/khối). Nguồn: `--color-surface-elevated-secondary: light-dark(var(--gray-50), var(--gray-400))`. */
+  --background: var(--color-surface); /* shadcn `--background` → OpenAI `--color-surface`. Nền trang và vùng nội dung chính. */
+  --foreground: var(--color-text); /* shadcn `--foreground` → OpenAI `--color-text`. Chữ chính trên `background`, `card`, `popover`. */
+  --card: var(--color-surface); /* shadcn `--card` → OpenAI `--color-surface`. Nền Card. Card tách khỏi trang bằng viền `border`, không bằng màu khác. */
+  --card-foreground: var(--color-text); /* shadcn `--card-foreground` → OpenAI `--color-text`. Chữ trong Card. */
+  --popover: var(--color-surface-elevated); /* shadcn `--popover` → OpenAI `--color-surface-elevated`. Nền Popover, DropdownMenu, Select content, Combobox, Dialog, Sheet (lớp nổi). */
+  --popover-foreground: var(--color-text); /* shadcn `--popover-foreground` → OpenAI `--color-text`. Chữ trên `popover`. */
+  --primary: var(--color-background-primary-solid); /* shadcn `--primary` → OpenAI `--color-background-primary-solid`. Nút chính (Button default), Checkbox đã chọn. Đen ở light, gần trắng ở dark — OpenAI không dùng màu thương hiệu cho nút chính. */
+  --primary-foreground: var(--color-text-primary-solid); /* shadcn `--primary-foreground` → OpenAI `--color-text-primary-solid`. Chữ/icon trên `primary`. */
+  --secondary: var(--color-background-secondary-soft); /* shadcn `--secondary` → OpenAI `--color-background-secondary-soft`. Nút phụ (Button secondary). Lấy biến thể soft, KHÔNG lấy secondary-solid (xám đậm) của OpenAI. */
+  --secondary-foreground: var(--color-text-secondary-soft); /* shadcn `--secondary-foreground` → OpenAI `--color-text-secondary-soft`. Chữ trên `secondary`. */
+  --muted: var(--color-surface-tertiary); /* shadcn `--muted` → OpenAI `--color-surface-tertiary`. Nền lùi: TabsList, Skeleton, ô code inline, dải tổng của bảng. */
+  --muted-foreground: var(--color-text-secondary); /* shadcn `--muted-foreground` → OpenAI `--color-text-secondary`. Chữ phụ trên `background`, `card`, `muted`. */
+  --accent: var(--color-background-primary-ghost-hover); /* shadcn `--accent` → OpenAI `--color-background-primary-ghost-hover`. Nền hover/đang chọn của item trong Menu, Select, Combobox, Sidebar, Button ghost. KHÔNG phải màu thương hiệu. */
+  --accent-foreground: var(--color-text); /* shadcn `--accent-foreground` → OpenAI `--color-text`. Chữ trên `accent`. */
+  --destructive: var(--color-background-danger-solid); /* shadcn `--destructive` → OpenAI `--color-background-danger-solid`. Nền nút xoá/huỷ không hoàn tác. */
+  --destructive-foreground: var(--color-text-danger-solid); /* shadcn `--destructive-foreground` → OpenAI `--color-text-danger-solid`. Mở rộng GWT (shadcn v4 bỏ token này, viết cứng text-white). Giữ lại để chữ trên `destructive` đi qua token. */
+  --border: var(--color-border); /* shadcn `--border` → OpenAI `--color-border`. Viền mặc định: Card, Table, Separator, Sheet/Dialog header. */
+  --input: var(--color-border-primary-outline); /* shadcn `--input` → OpenAI `--color-border-primary-outline`. Viền Input, Select trigger, Textarea, Button outline (khớp --input-outline-border-color của OpenAI). */
+  --ring: var(--color-ring); /* shadcn `--ring` → OpenAI `--color-ring`. Vòng focus-visible cho mọi control. */
+  --sidebar: var(--color-surface-secondary); /* shadcn `--sidebar` → OpenAI `--color-surface-secondary`. Nền Sidebar — lùi nhẹ so với nội dung. */
+  --sidebar-foreground: var(--color-text); /* shadcn `--sidebar-foreground` → OpenAI `--color-text`. Chữ trên `sidebar`. */
+  --sidebar-primary: var(--color-background-primary-solid); /* shadcn `--sidebar-primary` → OpenAI `--color-background-primary-solid`. Logo khối/nút chính trong Sidebar. */
+  --sidebar-primary-foreground: var(--color-text-primary-solid); /* shadcn `--sidebar-primary-foreground` → OpenAI `--color-text-primary-solid`. Chữ trên `sidebar-primary`. */
+  --sidebar-accent: var(--color-background-primary-soft-alpha); /* shadcn `--sidebar-accent` → OpenAI `--color-background-primary-soft-alpha`. Nền item đang hover/đang mở trong Sidebar. */
+  --sidebar-accent-foreground: var(--color-text); /* shadcn `--sidebar-accent-foreground` → OpenAI `--color-text`. Chữ trên `sidebar-accent`. */
+  --sidebar-border: var(--color-border); /* shadcn `--sidebar-border` → OpenAI `--color-border`. Viền phân cách Sidebar. */
+  --sidebar-ring: var(--color-ring); /* shadcn `--sidebar-ring` → OpenAI `--color-ring`. Focus trong Sidebar. */
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* Lớp nổi: Menu, Popover, Select content, Combobox, Dialog, Sheet — luôn đi kèm `shadow-hairline`. */
+  --shadow-hairline: 0 0 0 1px rgba(0, 0, 0, 0.08); /* Viền tóc bằng box-shadow cho lớp nổi (thay border). */
+  --shadow-100: 0 1px 2px -1px rgba(0, 0, 0, 0.08); /* Nâng nhẹ: Card hover, thumb Tabs. */
+  --shadow-100-strong: 0 1px 2px -1px rgba(0, 0, 0, 0.1); /* Nâng nhẹ: Card hover, thumb Tabs. Biến thể strong (alpha × 1.25). */
+  --shadow-100-stronger: 0 1px 2px -1px rgba(0, 0, 0, 0.128); /* Nâng nhẹ: Card hover, thumb Tabs. Biến thể stronger (alpha × 1.6). */
+  --shadow-200: 0 2px 4px -1px rgba(0, 0, 0, 0.08); /* Thanh dính (sticky header bảng khi cuộn). */
+  --shadow-200-strong: 0 2px 4px -1px rgba(0, 0, 0, 0.1); /* Thanh dính (sticky header bảng khi cuộn). Biến thể strong (alpha × 1.25). */
+  --shadow-200-stronger: 0 2px 4px -1px rgba(0, 0, 0, 0.128); /* Thanh dính (sticky header bảng khi cuộn). Biến thể stronger (alpha × 1.6). */
+  --shadow-300: 0 4px 8px -2px rgba(0, 0, 0, 0.1); /* Toast, khối nổi nhỏ. */
+  --shadow-300-strong: 0 4px 8px -2px rgba(0, 0, 0, 0.125); /* Toast, khối nổi nhỏ. Biến thể strong (alpha × 1.25). */
+  --shadow-300-stronger: 0 4px 8px -2px rgba(0, 0, 0, 0.16); /* Toast, khối nổi nhỏ. Biến thể stronger (alpha × 1.6). */
+  --shadow-400: 0 8px 16px -4px rgba(0, 0, 0, 0.12); /* Sheet/Dialog khi cần nổi mạnh hơn `shadow`. */
+  --shadow-400-strong: 0 8px 16px -4px rgba(0, 0, 0, 0.15); /* Sheet/Dialog khi cần nổi mạnh hơn `shadow`. Biến thể strong (alpha × 1.25). */
+  --shadow-400-stronger: 0 8px 16px -4px rgba(0, 0, 0, 0.192); /* Sheet/Dialog khi cần nổi mạnh hơn `shadow`. Biến thể stronger (alpha × 1.6). */
+}
+[data-theme="dark"] {
+  --gray-0: #0d0d0d;
+  --gray-25: #101010;
+  --gray-50: #131313;
+  --gray-75: #161616;
+  --gray-100: #181818;
+  --gray-150: #1c1c1c;
+  --gray-200: #212121;
+  --gray-250: #282828;
+  --gray-300: #303030;
+  --gray-350: #393939;
+  --gray-400: #414141;
+  --gray-450: #4f4f4f;
+  --gray-550: #767676;
+  --gray-600: #8f8f8f;
+  --gray-650: #9f9f9f;
+  --gray-700: #afafaf;
+  --gray-750: #b9b9b9;
+  --gray-800: #cdcdcd;
+  --gray-850: #dcdcdc;
+  --gray-900: #ededed;
+  --gray-925: #f3f3f3;
+  --gray-950: #f3f3f3;
+  --gray-975: #f9f9f9;
+  --gray-1000: #ffffff;
+  --alpha-base: #ffffff;
+  --alpha-0: rgba(255, 255, 255, 0);
+  --alpha-02: rgba(255, 255, 255, 0.02);
+  --alpha-04: rgba(255, 255, 255, 0.04);
+  --alpha-05: rgba(255, 255, 255, 0.05);
+  --alpha-06: rgba(255, 255, 255, 0.06);
+  --alpha-08: rgba(255, 255, 255, 0.08);
+  --alpha-10: rgba(255, 255, 255, 0.1);
+  --alpha-12: rgba(255, 255, 255, 0.12);
+  --alpha-15: rgba(255, 255, 255, 0.15);
+  --alpha-16: rgba(255, 255, 255, 0.16);
+  --alpha-20: rgba(255, 255, 255, 0.2);
+  --alpha-25: rgba(255, 255, 255, 0.25);
+  --alpha-30: rgba(255, 255, 255, 0.3);
+  --alpha-35: rgba(255, 255, 255, 0.35);
+  --alpha-40: rgba(255, 255, 255, 0.4);
+  --alpha-50: rgba(255, 255, 255, 0.5);
+  --alpha-60: rgba(255, 255, 255, 0.6);
+  --alpha-70: rgba(255, 255, 255, 0.7);
+  --color-text: var(--gray-1000);
+  --color-text-secondary: var(--gray-700);
+  --color-text-tertiary: var(--gray-600);
+  --color-text-inverse: var(--gray-0);
+  --color-ring: var(--blue-400);
+  --color-text-primary: var(--color-text);
+  --color-background-primary-soft: var(--gray-300);
+  --color-background-primary-soft-hover: var(--gray-350);
+  --color-background-primary-soft-active: var(--gray-400);
+  --color-background-primary-soft-alpha: var(--alpha-12);
+  --color-background-primary-soft-alpha-hover: var(--alpha-16);
+  --color-background-primary-soft-alpha-active: var(--alpha-20);
+  --color-text-primary-soft: var(--color-text);
+  --color-background-primary-soft-alt: var(--alpha-02);
+  --color-border-primary-soft-alt: var(--alpha-06);
+  --color-text-primary-soft-alt: var(--color-text);
+  --color-background-primary-surface: var(--alpha-08);
+  --color-border-primary-surface: var(--alpha-08);
+  --color-text-primary-surface: var(--color-text);
+  --color-background-primary-solid: var(--gray-950);
+  --color-background-primary-solid-hover: var(--gray-900);
+  --color-background-primary-solid-active: var(--gray-850);
+  --color-text-primary-solid: var(--color-text-inverse);
+  --color-background-primary-outline-hover: var(--alpha-04);
+  --color-background-primary-outline-active: var(--alpha-06);
+  --color-border-primary-outline: var(--alpha-25);
+  --color-border-primary-outline-hover: var(--alpha-30);
+  --color-text-primary-outline: var(--color-text);
+  --color-text-primary-outline-hover: var(--color-text);
+  --color-background-primary-ghost-hover: var(--alpha-12);
+  --color-background-primary-ghost-active: var(--alpha-16);
+  --color-text-primary-ghost: var(--color-text);
+  --color-text-primary-ghost-hover: var(--color-text);
+  --color-ring-primary: var(--color-ring);
+  --color-ring-primary-soft: var(--color-ring-primary);
+  --color-ring-primary-solid: var(--color-ring-primary);
+  --color-ring-primary-outline: var(--color-ring-primary);
+  --color-ring-primary-ghost: var(--color-ring-primary);
+  --color-background-secondary-soft: var(--gray-300);
+  --color-background-secondary-soft-hover: var(--gray-350);
+  --color-background-secondary-soft-active: var(--gray-400);
+  --color-background-secondary-soft-alpha: var(--alpha-12);
+  --color-background-secondary-soft-alpha-hover: var(--alpha-16);
+  --color-background-secondary-soft-alpha-active: var(--alpha-20);
+  --color-text-secondary-soft: var(--color-text);
+  --color-background-secondary-soft-alt: var(--alpha-02);
+  --color-border-secondary-soft-alt: var(--alpha-06);
+  --color-text-secondary-soft-alt: var(--color-text);
+  --color-background-secondary-solid: var(--gray-400);
+  --color-background-secondary-solid-hover: var(--gray-450);
+  --color-background-secondary-solid-active: var(--gray-500);
+  --color-text-secondary-solid: var(--white);
+  --color-background-secondary-outline-hover: var(--alpha-04);
+  --color-background-secondary-outline-active: var(--alpha-06);
+  --color-border-secondary-outline: var(--alpha-25);
+  --color-border-secondary-outline-hover: var(--alpha-30);
+  --color-text-secondary-outline: var(--color-text-secondary);
+  --color-text-secondary-outline-hover: var(--color-text);
+  --color-background-secondary-ghost-hover: var(--alpha-12);
+  --color-background-secondary-ghost-active: var(--alpha-16);
+  --color-text-secondary-ghost: var(--color-text-secondary);
+  --color-text-secondary-ghost-hover: var(--color-text);
+  --color-ring-secondary: var(--color-ring);
+  --color-ring-secondary-soft: var(--color-ring-secondary);
+  --color-ring-secondary-solid: var(--color-ring-secondary);
+  --color-ring-secondary-outline: var(--color-ring-secondary);
+  --color-ring-secondary-ghost: var(--color-ring-secondary);
+  --color-text-info: var(--blue-200);
+  --color-background-info-soft: var(--blue-50);
+  --color-background-info-soft-hover: var(--blue-75);
+  --color-background-info-soft-active: var(--blue-75);
+  --color-background-info-soft-alpha: var(--blue-a50);
+  --color-background-info-soft-alpha-hover: var(--blue-a75);
+  --color-background-info-soft-alpha-active: var(--blue-a75);
+  --color-text-info-soft: var(--blue-300);
+  --color-background-info-surface: var(--blue-a50);
+  --color-border-info-surface: var(--blue-a50);
+  --color-text-info-surface: var(--blue-300);
+  --color-background-info-solid: var(--blue-400);
+  --color-background-info-solid-hover: var(--blue-500);
+  --color-background-info-solid-active: var(--blue-500);
+  --color-text-info-solid: var(--white);
+  --color-background-info-outline-hover: var(--blue-a25);
+  --color-background-info-outline-active: var(--blue-a25);
+  --color-border-info-outline: var(--blue-500);
+  --color-border-info-outline-hover: var(--blue-500);
+  --color-text-info-outline: var(--blue-500);
+  --color-text-info-outline-hover: var(--blue-500);
+  --color-background-info-ghost-hover: var(--blue-a50);
+  --color-background-info-ghost-active: var(--blue-a50);
+  --color-text-info-ghost: var(--blue-200);
+  --color-text-info-ghost-hover: var(--blue-200);
+  --color-ring-info: var(--color-ring);
+  --color-ring-info-soft: var(--color-ring-info);
+  --color-ring-info-solid: var(--color-ring-info);
+  --color-ring-info-outline: var(--color-ring-info);
+  --color-ring-info-ghost: var(--color-ring-info);
+  --color-text-warning: var(--orange-500);
+  --color-background-warning-soft: var(--orange-50);
+  --color-background-warning-soft-hover: var(--orange-75);
+  --color-background-warning-soft-active: var(--orange-75);
+  --color-background-warning-soft-alpha: var(--orange-a50);
+  --color-background-warning-soft-alpha-hover: var(--orange-a75);
+  --color-background-warning-soft-alpha-active: var(--orange-a75);
+  --color-text-warning-soft: var(--orange-400);
+  --color-background-warning-surface: var(--orange-a50);
+  --color-border-warning-surface: var(--orange-a50);
+  --color-text-warning-surface: var(--orange-400);
+  --color-background-warning-solid: var(--orange-500);
+  --color-background-warning-solid-hover: var(--orange-600);
+  --color-background-warning-solid-active: var(--orange-600);
+  --color-text-warning-solid: var(--white);
+  --color-background-warning-outline-hover: var(--orange-a25);
+  --color-background-warning-outline-active: var(--orange-a25);
+  --color-border-warning-outline: var(--orange-500);
+  --color-border-warning-outline-hover: var(--orange-500);
+  --color-text-warning-outline: var(--orange-500);
+  --color-text-warning-outline-hover: var(--orange-500);
+  --color-background-warning-ghost-hover: var(--orange-a50);
+  --color-background-warning-ghost-active: var(--orange-a50);
+  --color-text-warning-ghost: var(--orange-500);
+  --color-text-warning-ghost-hover: var(--orange-500);
+  --color-ring-warning: var(--color-ring);
+  --color-ring-warning-soft: var(--color-ring-warning);
+  --color-ring-warning-solid: var(--color-ring-warning);
+  --color-ring-warning-outline: var(--color-ring-warning);
+  --color-ring-warning-ghost: var(--color-ring-warning);
+  --color-text-caution: var(--yellow-500);
+  --color-text-caution-hover: var(--yellow-800);
+  --color-background-caution-soft: var(--yellow-50);
+  --color-background-caution-soft-hover: var(--yellow-75);
+  --color-background-caution-soft-active: var(--yellow-75);
+  --color-background-caution-soft-alpha: var(--yellow-a50);
+  --color-background-caution-soft-alpha-hover: var(--yellow-a75);
+  --color-background-caution-soft-alpha-active: var(--yellow-a75);
+  --color-text-caution-soft: var(--yellow-400);
+  --color-background-caution-surface: var(--yellow-a50);
+  --color-border-caution-surface: var(--yellow-a50);
+  --color-text-caution-surface: var(--yellow-400);
+  --color-background-caution-solid: var(--yellow-600);
+  --color-background-caution-solid-hover: var(--yellow-700);
+  --color-background-caution-solid-active: var(--yellow-700);
+  --color-text-caution-solid: var(--white);
+  --color-background-caution-outline-hover: var(--yellow-a25);
+  --color-background-caution-outline-active: var(--yellow-a25);
+  --color-border-caution-outline: var(--yellow-700);
+  --color-border-caution-outline-hover: var(--yellow-700);
+  --color-text-caution-outline: var(--yellow-700);
+  --color-text-caution-outline-hover: var(--yellow-700);
+  --color-background-caution-ghost-hover: var(--yellow-a50);
+  --color-background-caution-ghost-active: var(--yellow-a50);
+  --color-text-caution-ghost: var(--yellow-700);
+  --color-text-caution-ghost-hover: var(--yellow-700);
+  --color-ring-caution: var(--color-ring);
+  --color-ring-caution-soft: var(--color-ring-caution);
+  --color-ring-caution-solid: var(--color-ring-caution);
+  --color-ring-caution-outline: var(--color-ring-caution);
+  --color-ring-caution-ghost: var(--color-ring-caution);
+  --color-text-danger: var(--red-500);
+  --color-background-danger-soft: var(--red-50);
+  --color-background-danger-soft-hover: var(--red-75);
+  --color-background-danger-soft-active: var(--red-75);
+  --color-background-danger-soft-alpha: var(--red-a50);
+  --color-background-danger-soft-alpha-hover: var(--red-a75);
+  --color-background-danger-soft-alpha-active: var(--red-a75);
+  --color-text-danger-soft: var(--red-400);
+  --color-background-danger-surface: var(--red-a50);
+  --color-border-danger-surface: var(--red-a50);
+  --color-text-danger-surface: var(--red-400);
+  --color-background-danger-solid: var(--red-500);
+  --color-background-danger-solid-hover: var(--red-600);
+  --color-background-danger-solid-active: var(--red-600);
+  --color-text-danger-solid: var(--white);
+  --color-background-danger-outline-hover: var(--red-a25);
+  --color-background-danger-outline-active: var(--red-a25);
+  --color-border-danger-outline: var(--red-500);
+  --color-border-danger-outline-hover: var(--red-500);
+  --color-text-danger-outline: var(--red-500);
+  --color-text-danger-outline-hover: var(--red-500);
+  --color-background-danger-ghost-hover: var(--red-a50);
+  --color-background-danger-ghost-active: var(--red-a50);
+  --color-text-danger-ghost: var(--red-500);
+  --color-text-danger-ghost-hover: var(--red-500);
+  --color-ring-danger: var(--red-200);
+  --color-ring-danger-soft: var(--color-ring-danger);
+  --color-ring-danger-solid: var(--color-ring-danger);
+  --color-ring-danger-outline: var(--color-ring-danger);
+  --color-ring-danger-ghost: var(--color-ring-danger);
+  --color-text-success: var(--green-400);
+  --color-background-success-soft: var(--green-50);
+  --color-background-success-soft-hover: var(--green-75);
+  --color-background-success-soft-active: var(--green-75);
+  --color-background-success-soft-alpha: var(--green-a50);
+  --color-background-success-soft-alpha-hover: var(--green-a75);
+  --color-background-success-soft-alpha-active: var(--green-a75);
+  --color-text-success-soft: var(--green-400);
+  --color-background-success-surface: var(--green-a50);
+  --color-border-success-surface: var(--green-a50);
+  --color-text-success-surface: var(--green-400);
+  --color-background-success-solid: var(--green-600);
+  --color-background-success-solid-hover: var(--green-600);
+  --color-background-success-solid-active: var(--green-600);
+  --color-text-success-solid: var(--white);
+  --color-background-success-outline-hover: var(--green-a25);
+  --color-background-success-outline-active: var(--green-a25);
+  --color-border-success-outline: var(--green-600);
+  --color-border-success-outline-hover: var(--green-600);
+  --color-text-success-outline: var(--green-500);
+  --color-text-success-outline-hover: var(--green-500);
+  --color-background-success-ghost-hover: var(--green-a50);
+  --color-background-success-ghost-active: var(--green-a50);
+  --color-text-success-ghost: var(--green-500);
+  --color-text-success-ghost-hover: var(--green-500);
+  --color-ring-success: var(--color-ring);
+  --color-ring-success-soft: var(--color-ring-info);
+  --color-ring-success-solid: var(--color-ring-info);
+  --color-ring-success-outline: var(--color-ring-info);
+  --color-ring-success-ghost: var(--color-ring-info);
+  --color-text-discovery: var(--purple-500);
+  --color-background-discovery-soft: var(--purple-50);
+  --color-background-discovery-soft-hover: var(--purple-75);
+  --color-background-discovery-soft-active: var(--purple-75);
+  --color-background-discovery-soft-alpha: var(--purple-a50);
+  --color-background-discovery-soft-alpha-hover: var(--purple-a75);
+  --color-background-discovery-soft-alpha-active: var(--purple-a75);
+  --color-text-discovery-soft: var(--purple-200);
+  --color-background-discovery-surface: var(--purple-a50);
+  --color-border-discovery-surface: var(--purple-a50);
+  --color-text-discovery-surface: var(--purple-200);
+  --color-background-discovery-solid: var(--purple-400);
+  --color-background-discovery-solid-hover: var(--purple-500);
+  --color-background-discovery-solid-active: var(--purple-500);
+  --color-text-discovery-solid: var(--white);
+  --color-background-discovery-outline-hover: var(--purple-a25);
+  --color-background-discovery-outline-active: var(--purple-a25);
+  --color-border-discovery-outline: var(--purple-500);
+  --color-border-discovery-outline-hover: var(--purple-500);
+  --color-text-discovery-outline: var(--purple-400);
+  --color-text-discovery-outline-hover: var(--purple-400);
+  --color-background-discovery-ghost-hover: var(--purple-a50);
+  --color-background-discovery-ghost-active: var(--purple-a50);
+  --color-text-discovery-ghost: var(--purple-500);
+  --color-text-discovery-ghost-hover: var(--purple-500);
+  --color-ring-discovery: var(--color-ring);
+  --color-ring-discovery-soft: var(--color-ring);
+  --color-ring-discovery-solid: var(--color-ring);
+  --color-ring-discovery-outline: var(--color-ring);
+  --color-ring-discovery-ghost: var(--color-ring);
+  --color-background-disabled: var(--alpha-05);
+  --color-border-disabled: var(--alpha-06);
+  --color-text-disabled: var(--gray-500);
+  --color-border-subtle: var(--alpha-06);
+  --color-border: var(--alpha-12);
+  --color-border-strong: var(--alpha-20);
+  --color-surface: var(--gray-200);
+  --color-surface-secondary: var(--gray-100);
+  --color-surface-tertiary: var(--gray-50);
+  --color-surface-elevated: var(--gray-300);
+  --color-surface-elevated-secondary: var(--gray-400);
+  --background: var(--color-surface);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface-elevated);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-background-primary-solid);
+  --primary-foreground: var(--color-text-primary-solid);
+  --secondary: var(--color-background-secondary-soft);
+  --secondary-foreground: var(--color-text-secondary-soft);
+  --muted: var(--color-surface-tertiary);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-background-primary-ghost-hover);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-background-danger-solid);
+  --destructive-foreground: var(--color-text-danger-solid);
+  --border: var(--color-border);
+  --input: var(--color-border-primary-outline);
+  --ring: var(--color-ring);
+  --sidebar: var(--color-surface-secondary);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-background-primary-solid);
+  --sidebar-primary-foreground: var(--color-text-primary-solid);
+  --sidebar-accent: var(--color-background-primary-soft-alpha);
+  --sidebar-accent-foreground: var(--color-text);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-ring);
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  --shadow-hairline: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --shadow-100: 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+  --shadow-100-strong: 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+  --shadow-100-stronger: 0 1px 2px -1px rgba(0, 0, 0, 0.32);
+  --shadow-200: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-200-strong: 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+  --shadow-200-stronger: 0 2px 4px -1px rgba(0, 0, 0, 0.32);
+  --shadow-300: 0 4px 8px -2px rgba(0, 0, 0, 0.36);
+  --shadow-300-strong: 0 4px 8px -2px rgba(0, 0, 0, 0.45);
+  --shadow-300-stronger: 0 4px 8px -2px rgba(0, 0, 0, 0.576);
+  --shadow-400: 0 8px 16px -4px rgba(0, 0, 0, 0.3);
+  --shadow-400-strong: 0 8px 16px -4px rgba(0, 0, 0, 0.375);
+  --shadow-400-stronger: 0 8px 16px -4px rgba(0, 0, 0, 0.48);
+}
+:root {
+  --spacing: 4px; /* Đơn vị gốc `--spacing: 0.25rem`. Mọi khoảng cách = bội số (p-3 = 12px, gap-1.5 = 6px). */
+  --control-gutter-2xs: 6px; /* Padding ngang control cỡ tương ứng (`--control-gutter-2xs: 0.375rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --control-gutter-xs: 8px; /* Padding ngang control cỡ tương ứng (`--control-gutter-xs: 0.5rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --control-gutter-sm: 10px; /* Padding ngang control cỡ tương ứng (`--control-gutter-sm: 0.625rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --control-gutter-md: 12px; /* Padding ngang control cỡ tương ứng (`--control-gutter-md: 0.75rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --control-gutter-lg: 14px; /* Padding ngang control cỡ tương ứng (`--control-gutter-lg: 0.875rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --control-gutter-xl: 16px; /* Padding ngang control cỡ tương ứng (`--control-gutter-xl: 1rem`). Pill nhân thêm --control-gutter-pill-scaling (1.33). */
+  --menu-gutter: 6px; /* Padding khung Menu/Select content (`--menu-gutter: spacing(1.5)`). Item: 6px 8px, gap 6px. */
+  --alert-gutter: 16px; /* Padding Alert (`--alert-gutter: spacing(4)`), gap 12px. */
+  --dialog-padding: 20px; /* Padding trong Dialog/Sheet (`--dialog-container-inner-padding: spacing(5)`). */
+  --radius-2xs: 2px; /* Chi tiết rất nhỏ. */
+  --radius-xs: 4px; /* Checkbox, Badge sm/md. */
+  --radius-sm: 6px; /* Control 3xs–sm (`--control-radius-sm`), Badge lg, TextLink. */
+  --radius-md: 8px; /* Input, Select trigger, Tabs md, item Sidebar (`--control-radius-md`). */
+  --radius-lg: 10px; /* Control xl (`--control-radius-lg`). */
+  --radius-xl: 12px; /* Menu, Popover, Alert, Card (`--menu-radius`, `--popover-radius`, `--alert-border-radius`). */
+  --radius-2xl: 16px; /* Dialog — lựa chọn GWT (OpenAI không định radius cho Dialog). */
+  --radius-3xl: 20px; /* Ít dùng. */
+  --radius-4xl: 24px; /* Composer chat của OpenAI; app nội bộ không dùng. */
+  --radius-full: 9999px; /* Pill: Button (mặc định pill), Tabs pill, Avatar, Switch. */
+  --control-size-3xs: 22px; /* Badge md (22px). */
+  --control-size-2xs: 24px; /* Badge lg, nút icon trong ô bảng. */
+  --control-size-xs: 26px; /* Nút rất gọn. */
+  --control-size-sm: 28px; /* shadcn Button size="sm", Input sm, hàng toolbar dày. */
+  --control-size-md: 32px; /* Mặc định: Button, Input, Select, Tabs, item Sidebar. */
+  --control-size-lg: 36px; /* shadcn Button size="lg". */
+  --control-size-xl: 40px; /* Input lớn (form đăng nhập). */
+  --control-size-2xl: 44px; /* Vùng chạm tối thiểu mobile (44px). */
+  --control-size-3xl: 48px; /* Nút CTA lớn hiếm dùng. */
+  --control-icon-size-xs: 14px; /* Icon trong control (`--control-icon-size-xs`). Button md dùng md (18px). */
+  --control-icon-size-sm: 16px; /* Icon trong control (`--control-icon-size-sm`). Button md dùng md (18px). */
+  --control-icon-size-md: 18px; /* Icon trong control (`--control-icon-size-md`). Button md dùng md (18px). */
+  --control-icon-size-lg: 20px; /* Icon trong control (`--control-icon-size-lg`). Button md dùng md (18px). */
+  --control-icon-size-xl: 22px; /* Icon trong control (`--control-icon-size-xl`). Button md dùng md (18px). */
+  --control-icon-size-2xl: 24px; /* Icon trong control (`--control-icon-size-2xl`). Button md dùng md (18px). */
+  --breakpoint-xs: 380px; /* Breakpoint xs của OpenAI (380px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --breakpoint-sm: 576px; /* Breakpoint sm của OpenAI (576px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --breakpoint-md: 768px; /* Breakpoint md của OpenAI (768px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --breakpoint-lg: 1024px; /* Breakpoint lg của OpenAI (1024px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --breakpoint-xl: 1280px; /* Breakpoint xl của OpenAI (1280px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --breakpoint-2xl: 1536px; /* Breakpoint 2xl của OpenAI (1536px). Khác Tailwind mặc định (sm 640, md 768, lg 1024, xl 1280, 2xl 1536). */
+  --font-sans: ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+  --text-heading-5xl: 600 72px/72px var(--font-sans); /* Không dùng trong app nội bộ (quảng bá). */
+  --text-heading-4xl: 600 60px/60px var(--font-sans); /* Không dùng trong app nội bộ. */
+  --text-heading-3xl: 600 48px/48px var(--font-sans); /* Không dùng trong app nội bộ. */
+  --text-heading-2xl: 600 36px/42px var(--font-sans); /* Số KPI lớn trên dashboard. */
+  --text-heading-xl: 600 32px/38px var(--font-sans); /* Hiếm: tiêu đề trang trống/onboarding. */
+  --text-heading-lg: 600 24px/28px var(--font-sans); /* Tiêu đề trang (h1) trong app. */
+  --text-heading-md: 600 20px/26px var(--font-sans); /* Tiêu đề khối/Card, Dialog title. */
+  --text-heading-sm: 600 18px/26px var(--font-sans); /* Tiêu đề Sheet, nhóm form. */
+  --text-heading-xs: 600 16px/24px var(--font-sans); /* Tiêu đề nhỏ trong Card, section bảng. */
+  --text-text-lg: 400 18px/29px var(--font-sans); /* Đoạn văn dài (wiki, mô tả). */
+  --text-text-md: 400 16px/24px var(--font-sans); /* Chữ thân mặc định ngoài control (đoạn văn, ô nội dung). */
+  --text-text-sm: 400 14px/20px var(--font-sans); /* Chữ control (Button, Input, Menu, Table) — cỡ chủ đạo của app nội bộ. */
+  --text-text-xs: 400 12px/18px var(--font-sans); /* Meta, nhãn cột, Badge sm, chú thích dưới Input. */
+  --text-text-2xs: 400 10px/14px var(--font-sans); /* Chú thích phụ cực nhỏ; tránh dùng cho nội dung cần đọc. */
+  --text-text-3xs: 400 8px/12px var(--font-sans); /* Chỉ cho chỉ báo/đồ hoạ, không cho chữ đọc. */
+  --text-code-sm: 400 14px/20px var(--font-mono); /* Mã đơn, mã sản phẩm, SKU trong bảng (dùng text-sm + mono). Mở rộng GWT: OpenAI chỉ khai báo --font-mono, không có style riêng. */
+}
+.heading-5xl {
+  font-family: var(--font-sans);
+  font-size: 72px;
+  line-height: 72px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-4xl {
+  font-family: var(--font-sans);
+  font-size: 60px;
+  line-height: 60px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-3xl {
+  font-family: var(--font-sans);
+  font-size: 48px;
+  line-height: 48px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-2xl {
+  font-family: var(--font-sans);
+  font-size: 36px;
+  line-height: 42px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-xl {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-lg {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-md {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-sm {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.heading-xs {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: 0em;
+}
+.text-lg {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 29px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.text-md {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.text-sm {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.text-xs {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.text-2xs {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.text-3xs {
+  font-family: var(--font-sans);
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: 400;
+  letter-spacing: 0em;
+}
+.code-sm {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+}

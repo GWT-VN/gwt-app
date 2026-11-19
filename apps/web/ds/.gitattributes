@@ -1,0 +1,3 @@
+# Nguồn chép nguyên byte từ artifact: giữ LF trên mọi máy (core.autocrlf=true đổi sang CRLF → sha256 trong NGUON.md
+# lệch và test so tokens.css sinh ra hỏng).
+* text eol=lf
