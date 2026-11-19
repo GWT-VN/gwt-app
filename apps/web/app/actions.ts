@@ -1846,7 +1846,7 @@ export async function kyThuatCuaToi(): Promise<KyThuat | null> {
   return (data as KyThuat) ?? null
 }
 
-// 19/11/2026 (Hiệp): thêm / sửa / xoá hồ sơ thợ chỉ admin@ + ai@ trong giai đoạn hoàn thiện (lib/nen-tang/sua-danh-sach.ts).
+// 19/11/2026 (Hiệp): thêm / sửa / xoá hồ sơ thợ chỉ người giữ vai trò "Sửa danh sách người" (lib/nen-tang/sua-danh-sach.ts).
 export async function taoKyThuat(input: KyThuatInput): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY')) || !(await coSuaDanhSach())) return { ok: false, error: KHONG_DU_QUYEN }
   if (!input.ten.trim()) return { ok: false, error: 'Thiếu tên kỹ thuật.' }

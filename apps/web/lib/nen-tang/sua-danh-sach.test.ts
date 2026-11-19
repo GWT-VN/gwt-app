@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { EMAIL_SUA_DANH_SACH, duocSuaDanhSach } from './sua-danh-sach'
+import { VAI_TRO_SUA_DANH_SACH, duocSuaDanhSach } from './sua-danh-sach'
+import { laVaiTroHopLe, apDungLoaiTruCapBac } from './vai-tro'
 
-describe('duocSuaDanhSach', () => {
-  it('giai đoạn hoàn thiện: chỉ admin@ và ai@', () => {
-    expect([...EMAIL_SUA_DANH_SACH]).toEqual(['admin@gwt.vn', 'ai@gwt.vn'])
+describe('duocSuaDanhSach — theo vai trò "Sửa danh sách người" (Hiệp 19/11)', () => {
+  it('vai trò hợp lệ, có trong danh sách vai trò toàn công ty', () => {
+    expect(laVaiTroHopLe(VAI_TRO_SUA_DANH_SACH)).toBe(true)
   })
-  it('khớp không phân biệt hoa thường, bỏ khoảng trắng', () => {
-    expect(duocSuaDanhSach(' Admin@GWT.vn ')).toBe(true)
-    expect(duocSuaDanhSach('ai@gwt.vn')).toBe(true)
+  it('giữ vai trò → được (kèm vai trò khác cũng được)', () => {
+    expect(duocSuaDanhSach(['cs_manager', 'sales_manager', 'sua_ds_nguoi'])).toBe(true)
+    expect(duocSuaDanhSach(['admin', 'sua_ds_nguoi'])).toBe(true)
   })
-  it('tài khoản khác (kể cả CEO, trưởng CSKH) / rỗng → không', () => {
-    expect(duocSuaDanhSach('bella@gwt.vn')).toBe(false)
-    expect(duocSuaDanhSach('tk@gwt.vn')).toBe(false)
-    expect(duocSuaDanhSach('ai@gwt.vn.evil.com')).toBe(false)
-    expect(duocSuaDanhSach(null)).toBe(false)
-    expect(duocSuaDanhSach('')).toBe(false)
+  it('không giữ vai trò → không, kể cả Toàn quyền, Trưởng CSKH, CEO; rỗng → không', () => {
+    for (const v of [['admin'], ['cs_manager'], ['ceo'], [], null, undefined, 'admin']) expect(duocSuaDanhSach(v)).toBe(false)
+  })
+  it('kiêm với Trưởng CSKH không bị luật loại trừ cấp bậc gỡ mất', () => {
+    expect(apDungLoaiTruCapBac(['cs_manager', 'sua_ds_nguoi'])).toEqual(['cs_manager', 'sua_ds_nguoi'])
+    expect(apDungLoaiTruCapBac(['cs', 'sua_ds_nguoi'])).toEqual(['cs', 'sua_ds_nguoi'])
   })
 })

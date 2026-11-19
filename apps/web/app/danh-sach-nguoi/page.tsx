@@ -12,7 +12,7 @@ import { RosterKyThuat } from '@/components/RosterKyThuat'
 /**
  * Danh sách người (Hiệp 19/11/2026): chỗ DUY NHẤT thêm / xoá CS theo dõi và thêm / sửa / xoá kỹ thuật.
  * Hai tab: ?tab=cs (mặc định) và ?tab=kt (hồ sơ thợ đầy đủ, thay trang /ky-thuat/nhan-su cũ).
- * CHỈ admin@ + ai@ trong giai đoạn hoàn thiện (lib/nen-tang/sua-danh-sach.ts). Trên ticket mọi người chỉ chọn.
+ * CHỈ người giữ vai trò "Sửa danh sách người" (bánh răng › Nhân viên, cột DS người › Sửa). Trên ticket mọi người chỉ chọn.
  */
 export default async function DanhSachNguoiPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   await requireStaff()
@@ -39,7 +39,7 @@ export default async function DanhSachNguoiPage({ searchParams }: { searchParams
     <main className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-4">
         <DauTrang tieuDe="Danh sách người"
-          phuDe="CS theo dõi và kỹ thuật để chọn trên ticket, gán lịch. Chỉ admin@ và ai@ sửa được. Xoá một người thì ticket đã xong vẫn giữ tên; gõ lại đúng tên để khôi phục." />
+          phuDe={'CS theo dõi và kỹ thuật để chọn trên ticket, gán lịch. Chỉ người có vai trò "Sửa danh sách người" (bánh răng › Nhân viên) sửa được. Xoá một người thì ticket đã xong vẫn giữ tên; gõ lại đúng tên để khôi phục.'} />
         <nav className="flex gap-1 border-b">
           {the('cs', 'CS theo dõi', r.cs.filter((x) => x.hoat_dong).length)}
           {the('kt', 'Kỹ thuật', r.kt.filter((x) => x.hoat_dong).length)}

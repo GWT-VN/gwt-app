@@ -1,11 +1,12 @@
+import { chuanHoaVaiTro } from './vai-tro'
+
 // Ai được THÊM / XOÁ người trong các danh sách dùng trên ticket (CS theo dõi, kỹ thuật) — hàm thuần, dùng được ở client.
-// Hiệp 19/11/2026: trong GIAI ĐOẠN HOÀN THIỆN chỉ 2 tài khoản admin@ và ai@. Quyền app tính theo vai trò, mà không vai
-// trò nào khớp đúng 2 tài khoản này (admin = ai@ + bella@; cs_manager = admin@ + tk@) → tạm dùng danh sách email.
-// Xong giai đoạn: chuyển sang một mã quyền trong ma trận quyền và xoá file này.
+// Hiệp 19/11/2026: người giữ vai trò `sua_ds_nguoi` ("DS người › Sửa" ở bánh răng › Nhân viên). Ban đầu gán cho admin@ và
+// ai@ (migration 20261119120000); muốn cho ai thì tích ô đó cho người đó — không cần sửa code.
+// (Trước đó là danh sách email cố định admin@ + ai@ trong file này.)
 
-export const EMAIL_SUA_DANH_SACH = ['admin@gwt.vn', 'ai@gwt.vn'] as const
+export const VAI_TRO_SUA_DANH_SACH = 'sua_ds_nguoi'
 
-export function duocSuaDanhSach(email: string | null | undefined): boolean {
-  const e = email?.trim().toLowerCase()
-  return !!e && (EMAIL_SUA_DANH_SACH as readonly string[]).includes(e)
+export function duocSuaDanhSach(vaiTro: string | string[] | null | undefined): boolean {
+  return chuanHoaVaiTro(vaiTro).includes(VAI_TRO_SUA_DANH_SACH)
 }

@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { VAI_TRO, apDungLoaiTruCapBac, apDungLoaiTruKhiTick, chuanHoaVaiTro, coQuyenQuanLy, laVaiTroHopLe } from './vai-tro'
 
 describe('danh sách 13 vai trò toàn công ty', () => {
-  it('có đủ 14 vai trò, đúng thứ tự khai báo', () => {
+  it('có đủ 15 vai trò, đúng thứ tự khai báo', () => {
     expect([...VAI_TRO]).toEqual([
       'ceo', 'admin', 'quan_tri_ht',
       'kt_giam_doc', 'ky_thuat', 'ctv_lap_dat',
       'cs_manager', 'cs',
+      'sua_ds_nguoi',
       'sales_manager', 'sales',
       'marketing', 'kho', 'ke_toan', 'tai_chinh',
     ])
@@ -93,9 +94,9 @@ describe('apDungLoaiTruKhiTick — vai trò VỪA BẤM là vai trò thắng', (
 })
 
 describe('vai trò quan_tri_ht — quản trị hệ thống KHÔNG đụng dữ liệu khách', () => {
-  it('là vai trò hợp lệ, nâng tổng lên 14', () => {
+  it('là vai trò hợp lệ (tổng 15 từ 19/11/2026: thêm sua_ds_nguoi)', () => {
     expect(laVaiTroHopLe('quan_tri_ht')).toBe(true)
-    expect(VAI_TRO.length).toBe(14)
+    expect(VAI_TRO.length).toBe(15)
   })
 
   it('cùng bộ phận Hệ thống với admin nên LOẠI TRỪ nhau', () => {

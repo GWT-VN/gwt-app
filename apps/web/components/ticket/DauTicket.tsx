@@ -42,7 +42,7 @@ export function DauTicket({
   dsCs?: NguoiDs[] | null; dsKt?: NguoiDs[] | null
   // Kỹ thuật theo hồ sơ thợ (tickets.kt_ho_so).
   ktHoSo?: string | null
-  // Được thêm / xoá người (admin@ + ai@, 19/11) → hiện link "Quản lý danh sách →".
+  // Được thêm / xoá người (vai trò "Sửa danh sách người", 19/11) → hiện link "Quản lý danh sách →".
   quanTri?: boolean
 }) {
   const [busy, setBusy] = useState(false)

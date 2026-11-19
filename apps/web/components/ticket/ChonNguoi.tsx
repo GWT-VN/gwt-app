@@ -12,7 +12,7 @@ const nhan = (x: NguoiDs) => `${x.ten}${x.la_ctv ? ' (CTV)' : ''}`
 
 /**
  * Ô chọn người trên ticket (CS theo dõi / Kỹ thuật) — CHỈ CHỌN (Hiệp 19/11/2026). Thêm / xoá người làm ở trang quản trị
- * /danh-sach-nguoi (chỉ admin@ + ai@); `quanTri` = hiện link sang trang đó. `onChon` gán vào ticket.
+ * /danh-sach-nguoi (chỉ vai trò "Sửa danh sách người"); `quanTri` = hiện link sang trang đó. `onChon` gán vào ticket.
  */
 export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false, className = '' }: {
   loai: LoaiNguoi; ds: NguoiDs[]; dangGan: string | null
