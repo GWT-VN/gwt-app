@@ -65,6 +65,11 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   → ảnh DS có overlay đang mở cạnh preview. Cú pháp đầy đủ ở đầu `so-khop.mjs`.
 - **Tooltip trên nút icon:** chữ tooltip là MÔ TẢ thêm, không lặp nguyên `aria-label` của nút — Radix gắn
   `aria-describedby` → trình đọc màn hình đọc hai lần (vd nút "Thao tác" + tooltip "Mở thao tác cho đơn").
+- **Menu (DropdownMenu, ContextMenu — dùng `components/ui/menu-styles.ts`):** item `disabled` theo WAI-ARIA APG — vẫn
+  hiện, vẫn focus được (↑/↓, gõ chữ đầu dừng ở nó), không kích hoạt; KHÔNG truyền `disabled` cho Radix (Radix loại khỏi
+  bàn phím) mà dùng `itemDisabled()`. Lý do chặn ghi ngay trong chữ ("Chuyển kho (không có quyền)"). Nền sáng chỉ theo
+  `data-highlighted` (một mục), không theo `:hover`. Menu chọn cột / tuỳ chọn nhiều: giữ menu mở khi tick
+  (`onSelect={(e) => e.preventDefault()}` trên CheckboxItem).
 - **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"

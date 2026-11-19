@@ -5,13 +5,23 @@ import { Check } from '@phosphor-icons/react/ssr'
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { useDsPortal } from './ds-root'
-import { menuCheck, menuContent, menuItem, menuItemDestructive, menuLabel, menuSeparator, menuShortcut } from './menu-styles'
+import {
+  itemDisabled,
+  menuCheck,
+  menuContent,
+  menuItem,
+  menuItemDestructive,
+  menuLabel,
+  menuSeparator,
+  menuShortcut,
+} from './menu-styles'
 
 /**
  * DropdownMenu — khung shadcn (Radix DropdownMenu), giá trị từ `.ui-menu*` của ds/nguon/bundle.css qua menu-styles.ts.
  * - Portal vào ô của DsRoot (`useDsPortal`); chưa có ô thì không render nội dung (ra document.body là mất token DS).
- * - Item chặn quyền: truyền `disabled` → Radix gắn `aria-disabled` + `data-disabled`, không gọi onSelect, bàn phím bỏ
- *   qua; item VẪN HIỆN (mờ) để người dùng biết có thao tác đó nhưng mình không có quyền.
+ * - `disabled` trên Item/CheckboxItem theo APG (không phải nghĩa Radix): item VẪN HIỆN và VẪN FOCUS được (↑/↓, gõ chữ
+ *   đầu dừng ở nó) nhưng không kích hoạt — onSelect/onCheckedChange không chạy, menu không đóng. Ghi lý do ngay trong
+ *   chữ ("Chuyển kho (không có quyền)") để trình đọc màn hình đọc kèm. Xem `itemDisabled` trong menu-styles.ts.
  * - Không animation, không sub-menu, không radio: artifact không định nghĩa.
  */
 export function DropdownMenu(props: ComponentProps<typeof DropdownMenuPrimitive.Root>) {
@@ -48,6 +58,8 @@ export function DropdownMenuContent({
 export function DropdownMenuItem({
   className,
   variant = 'default',
+  disabled,
+  onSelect,
   ...props
 }: ComponentProps<typeof DropdownMenuPrimitive.Item> & { variant?: 'default' | 'destructive' }) {
   return (
@@ -56,6 +68,7 @@ export function DropdownMenuItem({
       data-variant={variant}
       className={cn(menuItem, variant === 'destructive' && menuItemDestructive, className)}
       {...props}
+      {...itemDisabled(disabled, onSelect)}
     />
   )
 }
@@ -64,6 +77,9 @@ export function DropdownMenuItem({
 export function DropdownMenuCheckboxItem({
   className,
   children,
+  disabled,
+  onSelect,
+  onCheckedChange,
   ...props
 }: ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {
   return (
@@ -71,6 +87,8 @@ export function DropdownMenuCheckboxItem({
       data-slot="dropdown-menu-checkbox-item"
       className={cn(menuItem, className)}
       {...props}
+      {...itemDisabled(disabled, onSelect)}
+      onCheckedChange={disabled ? undefined : onCheckedChange}
     >
       {children}
       <DropdownMenuPrimitive.ItemIndicator asChild>

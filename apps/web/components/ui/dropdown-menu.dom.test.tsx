@@ -15,6 +15,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from './dropdown-menu'
+import { menuItem } from './menu-styles'
 
 vi.mock('next/font/google', () => ({
   Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
@@ -22,6 +23,7 @@ vi.mock('next/font/google', () => ({
 
 function Mau({ onXem = () => {}, onChuyen = () => {} }: { onXem?: () => void; onChuyen?: () => void }) {
   const [ma, setMa] = useState(true)
+  const [bh, setBh] = useState(false)
   return (
     <DsRoot theme="dark">
       <DropdownMenu>
@@ -43,6 +45,9 @@ function Mau({ onXem = () => {}, onChuyen = () => {} }: { onXem?: () => void; on
           <DropdownMenuItem variant="destructive">Xoá đơn</DropdownMenuItem>
           <DropdownMenuCheckboxItem checked={ma} onCheckedChange={setMa}>
             Mã đơn
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem disabled checked={bh} onCheckedChange={setBh}>
+            Bảo hành (không có quyền)
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -119,4 +124,61 @@ test('checkbox item đổi aria-checked; ✓ chỉ có khi đang bật', async (
   const ma2 = await screen.findByRole('menuitemcheckbox', { name: 'Mã đơn' })
   expect(ma2.getAttribute('aria-checked')).toBe('false')
   expect(ma2.querySelector('svg')).toBeNull()
+})
+
+test('chuột nằm trên X rồi ↓ sang Y → chỉ Y sáng (nền chỉ đi theo data-highlighted, không theo :hover)', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  const xem = await screen.findByRole('menuitem', { name: /Xem chi tiết/ })
+  await user.hover(xem)
+  await waitFor(() => expect(xem.hasAttribute('data-highlighted')).toBe(true))
+  await user.keyboard('{ArrowDown}')
+  const sua = screen.getByRole('menuitem', { name: 'Sửa' })
+  expect(sua.hasAttribute('data-highlighted')).toBe(true)
+  expect(document.querySelectorAll('[data-highlighted]')).toHaveLength(1)
+  // Không có đường tô nền nào theo :hover — nếu có, X (chuột vẫn nằm trên) sáng cùng lúc với Y.
+  expect(menuItem.split(' ').filter((c) => /hover:bg/.test(c))).toEqual([])
+})
+
+test('APG: item disabled vẫn focus được — ↓ dừng ở nó, Enter không gọi onSelect, menu vẫn mở, tên đọc kèm lý do', async () => {
+  const user = userEvent.setup()
+  const onChuyen = vi.fn()
+  render(<Mau onChuyen={onChuyen} />)
+  trigger().focus()
+  await user.keyboard('{Enter}')
+  await waitFor(() => expect(document.activeElement?.textContent).toContain('Xem chi tiết'))
+  await user.keyboard('{ArrowDown}{ArrowDown}')
+  const chuyen = screen.getByRole('menuitem', { name: 'Chuyển kho (không có quyền)' })
+  expect(document.activeElement).toBe(chuyen)
+  expect(chuyen.getAttribute('aria-disabled')).toBe('true')
+  expect(chuyen.hasAttribute('data-disabled')).toBe(true)
+  expect(chuyen.hasAttribute('data-highlighted')).toBe(true)
+  await user.keyboard('{Enter}')
+  expect(onChuyen).not.toHaveBeenCalled()
+  expect(screen.queryByRole('menu')).not.toBeNull()
+})
+
+test('APG: gõ chữ đầu (typeahead) dừng ở item disabled', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  trigger().focus()
+  await user.keyboard('{Enter}')
+  await waitFor(() => expect(document.activeElement?.textContent).toContain('Xem chi tiết'))
+  await user.keyboard('c')
+  await waitFor(() => expect(document.activeElement?.textContent).toBe('Chuyển kho (không có quyền)'))
+})
+
+test('checkbox item disabled: focus được, bấm/Enter không đổi aria-checked, menu vẫn mở', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  const bh = await screen.findByRole('menuitemcheckbox', { name: 'Bảo hành (không có quyền)' })
+  expect(bh.getAttribute('aria-disabled')).toBe('true')
+  await user.click(bh)
+  expect(bh.getAttribute('aria-checked')).toBe('false')
+  bh.focus()
+  await user.keyboard('{Enter}')
+  expect(bh.getAttribute('aria-checked')).toBe('false')
+  expect(screen.queryByRole('menu')).not.toBeNull()
 })

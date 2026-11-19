@@ -83,6 +83,8 @@ export function KhoiDropdownMenu() {
                 data-so={`cot-${k}`}
                 checked={cot[k]}
                 onCheckedChange={(b) => setCot((c) => ({ ...c, [k]: b }))}
+                // Chọn cột: tick nhiều mục liền → giữ menu mở (mặc định Radix đóng sau mỗi lần chọn).
+                onSelect={(e) => e.preventDefault()}
               >
                 {ten}
               </DropdownMenuCheckboxItem>
