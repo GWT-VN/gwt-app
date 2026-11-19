@@ -7,9 +7,10 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 /**
  * #confirm-dialog — tái tạo ds/nguon/components/ConfirmDialog/preview.html (3 hộp vẽ tĩnh) bằng 3 nút mở thật:
- * Đóng ticket (thường, focus nút chính) · Xoá phiếu chi (icon, hậu quả, ô lý do, focus "Quay lại", nút đỏ — lần bấm
- * đầu giả lập LỖI để xem Alert trong hộp, lần sau xoá được) · Gộp khách (gõ đúng mã mới mở khoá nút đỏ).
- * Bấm xác nhận → spinner 1,2 giây (khoá Esc/Huỷ) rồi đóng. Dữ liệu mẫu giả (prototype).
+ * Đóng ticket (thường, focus nút chính) · Xoá phiếu chi (icon, hậu quả, ô lý do BẮT BUỘC — nút đỏ khoá tới khi nhập,
+ * focus "Quay lại"; lần bấm đầu giả lập LỖI để xem Alert trong hộp, lần sau xoá được) · Gộp khách (gõ đúng mã mới mở
+ * khoá nút đỏ). `onXacNhan` trả Promise 1,2 giây: đang chờ → spinner, khoá Esc/Huỷ/ô nhập; resolve → hộp tự đóng.
+ * Dữ liệu mẫu giả (prototype).
  * Ô nhập: CHƯA có Input/Textarea DS (lát 3) → `<label>`/`<textarea>`/`<input>` gốc mang giá trị `.ui-field` /
  * `.ui-label` / `.ui-textarea` / `.ui-input` của bundle.css CHỈ trong khối demo này — đừng chép sang màn thật.
  * `data-so` = khoá so khớp (ds/so-khop/confirmdialog.json).
@@ -21,41 +22,38 @@ const o = [
   'transition-[box-shadow,background-color,color] duration-150 ease-[ease]',
   'hover:[box-shadow:inset_0_0_0_1px_var(--alpha-25)] in-data-[theme=dark]:hover:[box-shadow:inset_0_0_0_1px_var(--alpha-30)]',
   'focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)] in-data-[theme=dark]:focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
+  // `.ui-input:disabled` / `.ui-textarea:disabled` (khoá khi đang chạy)
+  'disabled:cursor-not-allowed disabled:bg-(--color-background-disabled) disabled:text-(--color-text-disabled)',
+  'disabled:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
 ].join(' ')
 const truong = 'flex min-w-0 flex-col gap-1.5 border-none border-current'
 const nhan = 'text-[14px] leading-[20px] font-medium text-foreground'
 
-/** Mở/đóng + "đang chạy" 1,2 giây; `xong()` trả true → đóng, false → giữ hộp (đã đặt lỗi). */
-function useMau(xong: () => boolean = () => true) {
+/** Mở/đóng + `onXacNhan` trả Promise xong sau 1,2 giây; `thanhCong()` false → reject (giả lập lỗi). */
+function useMau(thanhCong: () => boolean = () => true) {
   const [mo, setMo] = useState(false)
-  const [chay, setChay] = useState(false)
   const hen = useRef<ReturnType<typeof setTimeout>>(undefined)
   useEffect(() => () => clearTimeout(hen.current), [])
   const hop = {
     open: mo,
-    dangChay: chay,
     onOpenChange: setMo,
-    onXacNhan: () => {
-      setChay(true)
-      hen.current = setTimeout(() => {
-        setChay(false)
-        if (xong()) setMo(false)
-      }, 1200)
-    },
+    onXacNhan: () =>
+      new Promise<void>((ok, loi) => {
+        hen.current = setTimeout(() => (thanhCong() ? ok() : loi(new Error('giả lập'))), 1200)
+      }),
   }
   return { moHop: () => setMo(true), hop }
 }
 
 export function KhoiConfirmDialog() {
   const dong = useMau()
-  const [loiXoa, setLoiXoa] = useState<string>()
   const daLoi = useRef(false)
   const xoa = useMau(() => {
     if (daLoi.current) return true
     daLoi.current = true
-    setLoiXoa('Không xoá được — máy chủ không phản hồi (lỗi giả lập). Bấm "Xoá phiếu" lần nữa.')
     return false
   })
+  const [lyDo, setLyDo] = useState('')
   const gop = useMau()
   const [ma, setMa] = useState('')
 
@@ -88,15 +86,11 @@ export function KhoiConfirmDialog() {
         onOpenChange={(m) => {
           xoa.hop.onOpenChange(m)
           if (!m) {
-            setLoiXoa(undefined)
+            setLyDo('')
             daLoi.current = false
           }
         }}
-        onXacNhan={() => {
-          setLoiXoa(undefined)
-          xoa.hop.onXacNhan()
-        }}
-        loi={loiXoa}
+        khoaXacNhan={!lyDo.trim()}
         pha
         icon={<Trash />}
         mau="danger"
@@ -122,6 +116,8 @@ export function KhoiConfirmDialog() {
             id="cd-ly-do"
             rows={2}
             required
+            value={lyDo}
+            onChange={(e) => setLyDo(e.target.value)}
             placeholder="VD: nhập trùng với PC-2611-017"
             className={`${o} min-h-20 resize-y py-1.5`}
           />

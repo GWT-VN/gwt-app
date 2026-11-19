@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from './alert'
 import {
@@ -36,16 +36,18 @@ const list = [
  * - `tieuDe`: câu hỏi gọi tên đối tượng ("Xoá phiếu chi PC-…?"). `nutXacNhan`: đúng động từ ("Xoá phiếu"), không "OK".
  * - `hauQua`: gạch đầu dòng những gì sẽ xảy ra; `children` (ô lý do…) cách danh sách 16.
  * - `pha` (phá dữ liệu): nút xác nhận destructive + focus mặc định vào nút Huỷ (an toàn); không `pha` → focus nút xác
- *   nhận. Phần tử con mang `data-autofocus` (vd ô gõ mã để mở khoá) thắng cả hai — dùng `data-autofocus`, KHÔNG
- *   `autoFocus` (React focus trước khi hộp kịp ghi nhớ nút đã mở → đóng xong focus không về được nút đó).
- * - Đang chạy: khoá NGAY từ lần bấm xác nhận đầu (không chờ prop `dangChay`) → bấm hai lần chỉ gọi `onXacNhan` một lần;
- *   khi khoá: nút xác nhận spinner, Huỷ disabled, Esc/Huỷ không đóng; nút đang focus bị disabled → focus chuyển lên
- *   khung hộp (không rơi ra body). Mở khoá khi `dangChay` / `loi` / `open` đổi mà `dangChay` không bật.
- *   → `onXacNhan` phải: tự đóng hộp (`open=false`), HOẶC bật `dangChay` rồi tắt khi xong / lỗi, HOẶC đặt `loi` —
- *   không làm gì cả thì hộp đứng khoá.
- * - `loi`: Alert danger trong thân, hộp không tự đóng; sửa xong bấm lại được. Truyền chuỗi (hoặc giá trị giữ nguyên
- *   giữa các lần render): `loi` đổi = mở khoá, nên JSX mới mỗi lần render sẽ mở khoá sớm.
- * - `khoaXacNhan`: nút xác nhận disabled (chưa nhập đủ — vd chưa gõ đúng mã).
+ *   nhận. Phần tử con mang `data-autofocus` (hoặc `autoFocus`) — vd ô gõ mã để mở khoá — thắng cả hai.
+ * - `onXacNhan` trả **Promise** cho việc bất đồng bộ (khuyên dùng): khoá NGAY từ lần bấm đầu (ref đồng bộ, trước cả
+ *   lần vẽ lại) tới khi Promise xong → bấm hai lần chỉ gọi một lần. Resolve → hộp tự đóng (`onOpenChange(false)`),
+ *   focus về nút đã mở. Reject (hoặc ném lỗi đồng bộ) → mở khoá, hộp ở lại, Alert `loi ?? 'Không thực hiện được — thử
+ *   lại.'`; lỗi đã được bắt (không thành unhandled rejection). Kiểm hợp lệ: `khoaXacNhan` hoặc throw/reject.
+ *   `onXacNhan` đồng bộ (void): không khoá lâu — đóng/mở vẫn do người gọi.
+ * - Khi khoá (đang chờ Promise hoặc prop `dangChay`): nút xác nhận spinner, Huỷ disabled, Esc/Huỷ không đóng, ô con
+ *   (lý do…) disabled qua `<fieldset>`; nút đang focus bị disabled → focus lên khung hộp (không rơi ra body); mở khoá mà
+ *   focus đang ở khung → trả về nút xác nhận.
+ * - `loi`: chỉ để HIỆN (Alert danger trong thân), không điều khiển khoá; ReactNode thoải mái.
+ * - `khoaXacNhan`: nút xác nhận disabled (chưa nhập đủ — vd chưa gõ đúng mã, chưa nhập lý do bắt buộc).
+ * - aria-describedby: mô tả; không có mô tả thì danh sách hậu quả.
  * - Đóng xong focus về phần tử đã mở hộp (hộp điều khiển bằng `open`, không có Trigger của Radix).
  */
 export function ConfirmDialog({
@@ -78,39 +80,75 @@ export function ConfirmDialog({
   dangChay?: boolean
   loi?: ReactNode
   khoaXacNhan?: boolean
-  onXacNhan(): void
+  onXacNhan(): void | Promise<unknown>
   children?: ReactNode
 }) {
   const khung = useRef<HTMLDivElement>(null)
   const nutXn = useRef<HTMLButtonElement>(null)
-  const nutMo = useRef<HTMLElement | null>(null)
-  // chan: chặn đồng bộ lần bấm thứ hai trong cùng tác vụ (trước khi React kịp vẽ lại nút disabled).
+  const idHauQua = useId()
+  // chan: chặn đồng bộ lần bấm thứ hai (trước khi React kịp vẽ lại nút disabled).
   const chan = useRef(false)
-  const [daBam, setDaBam] = useState(false)
-  // Mở khoá khi dangChay / loi / open đổi mà không còn chạy (state dẫn xuất trong render, không setState trong effect).
-  const [moc, setMoc] = useState({ dangChay, loi, open })
-  if (moc.dangChay !== dangChay || moc.loi !== loi || moc.open !== open) {
-    setMoc({ dangChay, loi, open })
-    if (!dangChay) setDaBam(false)
+  const [cho, setCho] = useState(false) // đang chờ Promise của onXacNhan
+  const [thatBai, setThatBai] = useState(false)
+  // Nút đã mở hộp: ghi ở cạnh open false→true NGAY trong render — trước khi `autoFocus` của con (lúc commit) hay
+  // FocusScope kịp dời focus. State dẫn xuất, không setState trong effect.
+  const [moTruoc, setMoTruoc] = useState(open)
+  const [nutMo, setNutMo] = useState<HTMLElement | null>(null)
+  if (open !== moTruoc) {
+    setMoTruoc(open)
+    if (open) {
+      setNutMo(document.activeElement instanceof HTMLElement ? document.activeElement : null)
+      setThatBai(false)
+    }
   }
-  const khoa = dangChay || daBam
+  const khoa = dangChay || cho
 
-  useEffect(() => {
-    if (!khoa) chan.current = false
-  })
-  // Nút đang focus vừa bị disabled → trình duyệt thả focus ra body (FocusScope của Radix không bắt lại) → đưa lên khung.
+  // Khoá: nút đang focus vừa bị disabled → trình duyệt thả focus ra body (FocusScope của Radix không bắt lại) → đưa
+  // lên khung. Mở khoá mà focus còn ở khung → trả về nút xác nhận (bấm lại được ngay bằng Enter).
   useLayoutEffect(() => {
     const k = khung.current
     const a = document.activeElement
-    if (khoa && k && (!k.contains(a) || a?.matches(':disabled'))) k.focus({ preventScroll: true })
+    if (!k) return
+    if (khoa && (!k.contains(a) || a?.matches(':disabled'))) k.focus({ preventScroll: true })
+    else if (!khoa && a === k) nutXn.current?.focus({ preventScroll: true })
   }, [khoa])
+
+  const bam = () => {
+    if (khoa || chan.current) return
+    chan.current = true
+    setThatBai(false)
+    const loiRoi = () => {
+      chan.current = false
+      setCho(false)
+      setThatBai(true)
+    }
+    let r: unknown
+    try {
+      r = onXacNhan()
+    } catch {
+      loiRoi()
+      return
+    }
+    if (r && typeof (r as PromiseLike<unknown>).then === 'function') {
+      setCho(true)
+      ;(r as PromiseLike<unknown>).then(() => {
+        chan.current = false
+        setCho(false)
+        onOpenChange(false)
+      }, loiRoi)
+    } else {
+      // Đồng bộ: không khoá lâu; thả chặn sau tác vụ này (lần bấm thứ hai CÙNG tác vụ vẫn bị chặn).
+      setTimeout(() => (chan.current = false))
+    }
+  }
+  const loiHien = loi ?? (thatBai ? 'Không thực hiện được — thử lại.' : null)
 
   return (
     <AlertDialog open={open} onOpenChange={(o) => (o || !khoa) && onOpenChange(o)}>
       <AlertDialogContent
         ref={khung}
+        aria-describedby={!moTa && hauQua?.length ? idHauQua : undefined}
         onOpenAutoFocus={(e) => {
-          nutMo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
           const dich =
             khung.current?.querySelector<HTMLElement>('[data-autofocus]') ?? (pha || khoaXacNhan || khoa ? null : nutXn.current)
           if (dich) {
@@ -120,7 +158,7 @@ export function ConfirmDialog({
         }}
         onCloseAutoFocus={(e) => {
           e.preventDefault()
-          nutMo.current?.focus({ preventScroll: true })
+          nutMo?.focus({ preventScroll: true })
         }}
       >
         {bieuTuong && (
@@ -135,19 +173,25 @@ export function ConfirmDialog({
         )}
         <AlertDialogTitle>{tieuDe}</AlertDialogTitle>
         {moTa && <AlertDialogDescription>{moTa}</AlertDialogDescription>}
-        {(hauQua?.length || children || loi) && (
+        {(hauQua?.length || children || loiHien) && (
           <AlertDialogBody>
             {hauQua?.length ? (
-              <ul data-slot="confirm-dialog-list" className={list}>
+              <ul id={idHauQua} data-slot="confirm-dialog-list" className={list}>
                 {hauQua.map((x, i) => (
                   <li key={i}>{x}</li>
                 ))}
               </ul>
             ) : null}
-            {children}
-            {loi && (
+            {children && (
+              // contents: không thêm hộp; disabled khoá mọi ô con khi đang chạy. Khoảng 16 sau danh sách đặt lên con đầu
+              // (margin trên phần tử display:contents không có tác dụng).
+              <fieldset disabled={khoa} className="contents [ul+&>:first-child]:mt-4">
+                {children}
+              </fieldset>
+            )}
+            {loiHien && (
               <Alert color="danger" className="[*+&]:mt-4">
-                <AlertDescription>{loi}</AlertDescription>
+                <AlertDescription>{loiHien}</AlertDescription>
               </Alert>
             )}
           </AlertDialogBody>
@@ -163,12 +207,7 @@ export function ConfirmDialog({
             variant={pha ? 'destructive' : 'default'}
             loading={khoa}
             disabled={khoaXacNhan}
-            onClick={() => {
-              if (khoa || chan.current) return
-              chan.current = true
-              setDaBam(true)
-              onXacNhan()
-            }}
+            onClick={bam}
           >
             {nutXacNhan}
           </Button>

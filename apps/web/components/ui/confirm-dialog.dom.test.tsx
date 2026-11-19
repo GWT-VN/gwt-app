@@ -112,8 +112,16 @@ test('dangChay: Esc / Huỷ không gọi onOpenChange(false); nút xác nhận l
   expect(document.activeElement?.matches(':disabled')).toBe(false)
 })
 
-test('Ruling 1: bấm xác nhận 2 lần nhanh (prop dangChay KHÔNG đổi) → onXacNhan đúng 1 lần, hộp tự khoá + giữ focus', async () => {
-  const onXacNhan = vi.fn()
+/** Promise điều khiển được từ test. */
+function hua() {
+  let ok!: () => void, loi!: (e: unknown) => void
+  const p = new Promise<void>((a, b) => ((ok = a), (loi = b)))
+  return { p, ok, loi }
+}
+
+test('Ruling 1 + 14: onXacNhan trả Promise → bấm 2 lần nhanh chỉ 1 lần, khoá tới khi xong; Esc không đóng; focus không rơi', async () => {
+  const h = hua()
+  const onXacNhan = vi.fn(() => h.p)
   const onOpenChange = vi.fn()
   const { user, hop } = await mo({ onXacNhan, onOpenChange })
   const xn = screen.getByRole('button', { name: 'Xoá phiếu' })
@@ -121,50 +129,87 @@ test('Ruling 1: bấm xác nhận 2 lần nhanh (prop dangChay KHÔNG đổi) �
   // Kiểm NGAY sau lần bấm đầu (lần bấm thứ hai vào nút disabled tự kéo focus lên khung → che mất lỗi).
   expect(hop.contains(document.activeElement)).toBe(true)
   expect(document.activeElement?.matches(':disabled')).toBe(false)
+  expect(xn.getAttribute('aria-busy')).toBe('true')
   await user.click(xn)
   expect(onXacNhan).toHaveBeenCalledTimes(1)
-  // Tự khoá ngay sau lần bấm đầu: Esc không đóng.
   await user.keyboard('{Escape}')
+  expect(onOpenChange).not.toHaveBeenCalledWith(false)
+  expect((screen.getByRole('button', { name: 'Huỷ' }) as HTMLButtonElement).disabled).toBe(true)
+  await act(async () => h.ok())
+})
+
+test('Promise resolve → tự đóng (onOpenChange(false)) và focus về nút đã mở', async () => {
+  const onOpenChange = vi.fn()
+  const { user } = await mo({ onXacNhan: () => Promise.resolve(), onOpenChange })
+  await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  expect(onOpenChange).toHaveBeenCalledWith(false)
+  await waitFor(() => expect(document.activeElement).toBe(moNut()))
+})
+
+test('Promise reject (2 lần, cùng lỗi) → mỗi lần mở khoá, hộp không đóng, Alert lỗi mặc định, focus về nút xác nhận', async () => {
+  const onXacNhan = vi.fn(() => Promise.reject(new Error('mạng')))
+  const onOpenChange = vi.fn()
+  const { user, hop } = await mo({ onXacNhan, onOpenChange })
+  const xn = screen.getByRole('button', { name: 'Xoá phiếu' })
+  for (const lan of [1, 2]) {
+    await user.click(xn)
+    const alert = await screen.findByRole('alert')
+    expect(hop.contains(alert)).toBe(true)
+    expect(alert.getAttribute('data-color')).toBe('danger')
+    expect(alert.textContent).toBe('Không thực hiện được — thử lại.')
+    await waitFor(() => expect(xn.getAttribute('aria-busy')).toBeNull())
+    // Mở khoá trong khi focus đang ở khung → trả focus về nút xác nhận (Minor 4).
+    expect(document.activeElement).toBe(xn)
+    expect(onXacNhan).toHaveBeenCalledTimes(lan)
+  }
   expect(onOpenChange).not.toHaveBeenCalledWith(false)
 })
 
-test('chạy xong có lỗi (dangChay true → false + loi) → mở khoá, bấm lại được; lỗi role="alert" trong hộp, hộp không đóng', async () => {
-  const onXacNhan = vi.fn()
-  const user = userEvent.setup()
-  function CoLoi() {
-    const [chay, setChay] = useState(false)
-    const [loi, setLoi] = useState<string>()
-    return (
-      <DsRoot>
-        <ConfirmDialog
-          open
-          onOpenChange={() => {}}
-          tieuDe="Xoá phiếu chi PC-DEMO-0001?"
-          nutXacNhan="Xoá phiếu"
-          dangChay={chay}
-          loi={loi}
-          onXacNhan={() => {
-            onXacNhan()
-            setChay(true)
-          }}
-        />
-        <button data-test="loi" onClick={() => { setChay(false); setLoi('Không xoá được — máy chủ không phản hồi.') }} />
-      </DsRoot>
-    )
-  }
-  render(<CoLoi />)
-  const hop = await screen.findByRole('alertdialog')
+test('loi (prop) chỉ để hiện: thắng chữ mặc định khi reject', async () => {
+  const { user } = await mo({ onXacNhan: () => Promise.reject(), loi: 'Không xoá được — máy chủ không phản hồi.' })
+  expect((await screen.findByRole('alert')).textContent).toBe('Không xoá được — máy chủ không phản hồi.')
   await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
-  // Nút giả lập nằm ngoài hộp modal (Radix ẩn/chặn con trỏ) → bấm bằng click() của DOM.
-  act(() => document.querySelector<HTMLButtonElement>('[data-test="loi"]')!.click())
-  const alert = await screen.findByRole('alert')
-  expect(hop.contains(alert)).toBe(true)
-  expect(alert.getAttribute('data-color')).toBe('danger')
-  expect(alert.textContent).toContain('Không xoá được')
-  const xn = screen.getByRole('button', { name: 'Xoá phiếu' })
-  await waitFor(() => expect(xn.getAttribute('aria-busy')).toBeNull())
-  await user.click(xn)
-  expect(onXacNhan).toHaveBeenCalledTimes(2)
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Xoá phiếu' }).getAttribute('aria-busy')).toBeNull())
+  expect(screen.getAllByRole('alert')).toHaveLength(1)
+})
+
+test('onXacNhan đồng bộ, không làm gì → không kẹt khoá: Huỷ vẫn bấm được và đóng', async () => {
+  const onOpenChange = vi.fn()
+  const onXacNhan = vi.fn()
+  const { user } = await mo({ onXacNhan, onOpenChange })
+  await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
+  expect(onXacNhan).toHaveBeenCalledTimes(1)
+  const huy = screen.getByRole('button', { name: 'Huỷ' }) as HTMLButtonElement
+  expect(huy.disabled).toBe(false)
+  await user.click(huy)
+  expect(onOpenChange).toHaveBeenCalledWith(false)
+})
+
+test('đang chờ Promise → ô con (lý do) bị khoá qua fieldset, xong thì mở lại (Minor 3)', async () => {
+  const h = hua()
+  const { user } = await mo({ onXacNhan: () => h.p, children: <textarea aria-label="Lý do" /> })
+  const o = screen.getByRole('textbox', { name: 'Lý do' }) as HTMLTextAreaElement
+  expect(o.matches(':disabled')).toBe(false)
+  await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
+  expect(o.matches(':disabled')).toBe(true)
+  await act(async () => h.loi(new Error('x')))
+  await waitFor(() => expect(o.matches(':disabled')).toBe(false))
+})
+
+test('autoFocus (React) trên ô con cũng trả focus về nút mở khi đóng (Minor 2)', async () => {
+  const { user } = await mo({ children: <input aria-label="Mã" autoFocus /> })
+  await waitFor(() => expect(document.activeElement?.getAttribute('aria-label')).toBe('Mã'))
+  await user.keyboard('{Escape}')
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  expect(document.activeElement).toBe(moNut())
+})
+
+test('không moTa → aria-describedby trỏ vào danh sách hậu quả (Minor 5)', async () => {
+  const { hop } = await mo({ moTa: undefined, hauQua: ['Mất phiếu.', 'Quỹ tăng lại.'] })
+  const id = hop.getAttribute('aria-describedby')
+  expect(id).toBeTruthy()
+  expect(document.getElementById(id!)?.getAttribute('data-slot')).toBe('confirm-dialog-list')
 })
 
 test('khoaXacNhan → nút xác nhận disabled (chưa gõ mã), Huỷ vẫn bấm được', async () => {
