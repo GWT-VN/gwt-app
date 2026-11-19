@@ -1,6 +1,5 @@
 'use client'
 
-import { duocSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -54,10 +53,12 @@ function Ic({ name, cls = 'w-4 h-4' }: { name: keyof typeof ICON; cls?: string }
 }
 
 export function TopNavClient({
-  quyen, chiKyThuat, coTheVaoCS, coTheVaoSales, email,
+  quyen, chiKyThuat, coTheVaoCS, coTheVaoSales, email, suaDs = false,
 }: {
   quyen: BangQuyen; chiKyThuat: boolean; coTheVaoCS: boolean
   coTheVaoSales: boolean; email: string | null
+  /** giữ vai trò sua_ds_nguoi → hiện mục Danh sách người (khớp chặn ở /danh-sach-nguoi) */
+  suaDs?: boolean
 }) {
   // Mục menu hiện đúng khi CÓ quyền vào trang nó dẫn tới. Thiếu khoá trong bảng
   // = chưa hỏi = coi như không có, tức là hỏng theo hướng ẨN chứ không hở.
@@ -88,8 +89,8 @@ export function TopNavClient({
           { nhan: 'Kênh / đối tác', href: '/kenh' },
         ] },
         { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Danh mục lỗi', href: '/danh-muc-loi' }, { nhan: 'Báo cáo lỗi', href: '/bao-cao-loi' },
-          // Thêm / xoá CS theo dõi + kỹ thuật: chỉ admin@ + ai@ (Hiệp 19/11/2026).
-          ...(duocSuaDanhSach(email) ? [{ nhan: 'Danh sách người', href: '/danh-sach-nguoi' }] : [])] },
+          // Thêm / xoá CS theo dõi + kỹ thuật: vai trò "Sửa danh sách người" (Hiệp 19/11/2026).
+          ...(suaDs ? [{ nhan: 'Danh sách người', href: '/danh-sach-nguoi' }] : [])] },
         { nhan: 'Bảo hành', trang: [{ nhan: 'Đăng ký BH', href: '/dang-ky-bh' }, { nhan: 'Chờ kích hoạt BH', href: '/bh-cho-kich-hoat' }] },
         { nhan: 'Bảo trì', trang: [
           { nhan: 'Lịch bảo trì', href: '/bao-tri' }, { nhan: 'Lịch thay lõi', href: '/loi' },

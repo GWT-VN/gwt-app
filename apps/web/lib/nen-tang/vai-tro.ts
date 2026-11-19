@@ -15,13 +15,14 @@ export const VAI_TRO = [
   'ceo', 'admin', 'quan_tri_ht',
   'kt_giam_doc', 'ky_thuat', 'ctv_lap_dat',
   'cs_manager', 'cs',
+  'sua_ds_nguoi',
   'sales_manager', 'sales',
   'marketing', 'kho', 'ke_toan', 'tai_chinh',
 ] as const
 export type VaiTro = (typeof VAI_TRO)[number]
 
 export type BoPhan =
-  | 'dieu_hanh' | 'he_thong' | 'ky_thuat' | 'cs' | 'sales'
+  | 'dieu_hanh' | 'he_thong' | 'ky_thuat' | 'cs' | 'ds_nguoi' | 'sales'
   | 'marketing' | 'kho' | 'ke_toan' | 'tai_chinh'
 
 export const NHAN_BO_PHAN: Record<BoPhan, string> = {
@@ -29,6 +30,7 @@ export const NHAN_BO_PHAN: Record<BoPhan, string> = {
   he_thong: 'Hệ thống',
   ky_thuat: 'Kỹ thuật',
   cs: 'CSKH',
+  ds_nguoi: 'DS người',
   sales: 'Sales',
   marketing: 'Marketing',
   kho: 'Kho',
@@ -52,6 +54,9 @@ export const HO_SO_VAI_TRO: Record<VaiTro, { boPhan: BoPhan; capBac: number; nha
   ctv_lap_dat: { boPhan: 'ky_thuat', capBac: 0, nhan: 'CTV lắp đặt' },
   cs_manager: { boPhan: 'cs', capBac: 2, nhan: 'Trưởng CSKH' },
   cs: { boPhan: 'cs', capBac: 1, nhan: 'Nhân viên CSKH' },
+  // Hiệp 19/11/2026: quyền THÊM / XOÁ người trong danh sách CS theo dõi + kỹ thuật (trang /danh-sach-nguoi). Bộ phận
+  // riêng để KHÔNG loại trừ với Trưởng / NV CSKH (kiêm thoải mái). Không kéo theo quyền nào trong ma trận.
+  sua_ds_nguoi: { boPhan: 'ds_nguoi', capBac: 0, nhan: 'Sửa danh sách người (CS theo dõi, kỹ thuật)' },
   sales_manager: { boPhan: 'sales', capBac: 2, nhan: 'Trưởng Sales' },
   sales: { boPhan: 'sales', capBac: 1, nhan: 'Nhân viên Sales' },
   marketing: { boPhan: 'marketing', capBac: 0, nhan: 'Marketing' },

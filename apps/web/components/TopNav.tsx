@@ -1,6 +1,7 @@
 import { layNguoiDung } from '@/lib/nen-tang/phien'
 import { coTheVaoCS, coTheVaoSales, laChiKyThuatVien } from '@/lib/nen-tang/gac-cong'
 import { quyenChoMan } from '@/lib/nen-tang/kiem-quyen'
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 import { TopNavClient } from './TopNavClient'
 
 /**
@@ -32,8 +33,8 @@ const MUC_MENU = [
 export async function TopNav() {
   const user = await layNguoiDung()
   if (!user) return null
-  const [chiKyThuat, vaoCS, vaoSales, quyen] = await Promise.all([
-    laChiKyThuatVien(), coTheVaoCS(), coTheVaoSales(), quyenChoMan(MUC_MENU),
+  const [chiKyThuat, vaoCS, vaoSales, quyen, suaDs] = await Promise.all([
+    laChiKyThuatVien(), coTheVaoCS(), coTheVaoSales(), quyenChoMan(MUC_MENU), coSuaDanhSach(),
   ])
   return (
     <TopNavClient
@@ -42,6 +43,7 @@ export async function TopNav() {
       coTheVaoCS={vaoCS}
       coTheVaoSales={vaoSales}
       email={user.email ?? null}
+      suaDs={suaDs}
     />
   )
 }

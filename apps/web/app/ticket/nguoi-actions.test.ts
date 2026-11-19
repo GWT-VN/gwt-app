@@ -5,6 +5,11 @@ let rows: Record<string, Record<string, unknown>[]> = {}
 let ghi: { bang: string; op: 'update' | 'insert' | 'delete'; arg: Record<string, unknown> }[] = []
 let quyenLoi = false
 let emailDangNhap: string | null = 'admin@gwt.vn'
+// Vai trò thật 19/11 (bánh răng › Nhân viên) + vai trò mới sua_ds_nguoi gán cho admin@, ai@.
+const VAI_TRO_THAT: Record<string, string[]> = {
+  'admin@gwt.vn': ['cs_manager', 'sales_manager', 'sua_ds_nguoi'], 'ai@gwt.vn': ['admin', 'kt_giam_doc', 'sua_ds_nguoi'],
+  'tk@gwt.vn': ['cs_manager'], 'bella@gwt.vn': ['admin', 'ceo'],
+}
 
 function builder(t: string) {
   let op: 'select' | 'update' | 'insert' | 'delete' = 'select'
@@ -25,7 +30,7 @@ vi.mock('server-only', () => ({}))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: builder }) }))
 vi.mock('@/lib/nen-tang/phien', () => ({
-  requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => (emailDangNhap ? { email: emailDangNhap } : null)),
+  requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => (emailDangNhap ? { email: emailDangNhap, vai_tro: VAI_TRO_THAT[emailDangNhap] ?? [] } : null)),
 }))
 vi.mock('@/lib/nen-tang/nhat-ky', () => ({ ghiAudit: vi.fn(async () => {}) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
@@ -99,7 +104,7 @@ describe('ganCsTheoDoi', () => {
   })
 })
 
-describe('thêm / xoá người: chỉ admin@ + ai@ (Hiệp 19/11)', () => {
+describe('thêm / xoá người: chỉ vai trò "Sửa danh sách người" (Hiệp 19/11)', () => {
   it('tài khoản khác (trưởng CSKH tk@, CEO bella@) → không thêm, không xoá, không gọi DB ghi', async () => {
     for (const e of ['tk@gwt.vn', 'bella@gwt.vn', null]) {
       emailDangNhap = e

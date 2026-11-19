@@ -8,7 +8,7 @@
 // 19/11/2026 (Hiệp, chiều): "Xoá" KHÔNG xoá dòng nữa mà đặt hoat_dong = false (cách Freshdesk / Jobber "deactivate"):
 // người đó biến mất khỏi danh sách + ô chọn, ticket đã xong GIỮ tên; ticket đang mở chuyển sang người khác hoặc "chưa gán".
 // Thêm lại đúng tên = khôi phục (themNguoi). DB chặn DELETE người đã gán ticket (migration 20261119100000).
-// 19/11/2026 (Hiệp): THÊM / XOÁ người chỉ làm ở trang quản trị /danh-sach-nguoi, chỉ admin@ + ai@ (giai đoạn hoàn thiện,
+// 19/11/2026 (Hiệp): THÊM / XOÁ người chỉ làm ở trang quản trị /danh-sach-nguoi, chỉ người giữ vai trò "Sửa danh sách người" (
 // lib/nen-tang/sua-danh-sach.ts). Bỏ đổi tên. Trên ticket chỉ còn CHỌN người (gán) — quyền cs.ticket.tao_sua như cũ.
 
 import { revalidatePath } from 'next/cache'
@@ -150,7 +150,7 @@ export async function xoaNguoi(loai: LoaiNguoi, id: string, chuyenSang: string |
 
 export type NguoiQuanTri = NguoiDs & { so_ticket: number; so_lich_hen: number }
 
-/** Trang quản trị: hai danh sách + số ticket ĐANG MỞ gán mỗi người (để biết trước khi xoá). Chỉ admin@ + ai@. */
+/** Trang quản trị: hai danh sách + số ticket ĐANG MỞ gán mỗi người (để biết trước khi xoá). Chỉ người giữ vai trò "Sửa danh sách người". */
 export async function dsNguoiQuanTri(): Promise<KQ<{ cs: NguoiQuanTri[]; kt: NguoiQuanTri[] }>> {
   const khong = await chanSuaDanhSach(); if (khong) return khong as KQ<{ cs: NguoiQuanTri[]; kt: NguoiQuanTri[] }>
   const homNay = new Date().toISOString().slice(0, 10)

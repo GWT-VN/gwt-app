@@ -17,7 +17,7 @@ const HOM_NAY = () => new Date().toISOString().slice(0, 10)
  */
 export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
   dsKt: KyThuat[]
-  // Trang này CHỈ gán lịch (Hiệp 19/11/2026). Thêm / sửa / xoá thợ làm ở /danh-sach-nguoi?tab=kt (chỉ admin@ + ai@);
+  // Trang này CHỈ gán lịch (Hiệp 19/11/2026). Thêm / sửa / xoá thợ làm ở /danh-sach-nguoi?tab=kt (chỉ vai trò "Sửa danh sách người");
   // `suaDs` = hiện link sang đó.
   suaDs?: boolean
   prefill?: { khachId: string; ctx: BoiCanhKhach; ngay?: string; viec?: ViecInput[] }
