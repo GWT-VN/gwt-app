@@ -5,9 +5,13 @@
  * `border: 0` / không viền (cùng cách Tooltip).
  */
 
-/** `.ui-menu`: min 200, padding --menu-gutter (6), bo --radius-xl (12), nền popover, shadow + hairline, chữ 14/20. */
+/**
+ * `.ui-menu`: min 200, padding --menu-gutter (6), bo --radius-xl (12), nền popover, shadow + hairline, chữ 14/20.
+ * z-90: menu nổi trên mọi lớp — bundle.css `.b-noi` (menu thả) và `.b-chuotphai` (menu chuột phải) đều `z-index: 90`
+ * (trên tooltip 80). Radix Popper chép z-index của content lên lớp bọc `position: fixed` → z có tác dụng thật.
+ */
 export const menuContent = [
-  'z-50 min-w-[200px] p-(--menu-gutter) rounded-(--radius-xl) border-none border-current outline-none',
+  'z-90 min-w-[200px] p-(--menu-gutter) rounded-(--radius-xl) border-none border-current outline-none',
   'bg-popover text-popover-foreground [box-shadow:var(--shadow),var(--shadow-hairline)] text-[14px] leading-[20px]',
 ].join(' ')
 

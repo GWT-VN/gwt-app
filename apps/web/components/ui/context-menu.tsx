@@ -12,11 +12,11 @@ import { itemDisabled, menuContent, menuItem, menuItemDestructive, menuLabel, me
  * đang mở nền alpha-05) của ds/nguon/bundle.css.
  * - Chuột phải → menu tại con trỏ, focus vào khung menu (không vòng focus ở item). Shift+F10 / phím Menu trên trigger
  *   đang focus → menu neo dưới mép trái dòng + focus mục đầu (Radix tự focus mục đầu khi lần tương tác cuối là phím).
- * - Chuột phải / Shift+F10 trong ô nhập (`input`, `textarea`, contenteditable) hoặc trong một menu khác nằm trong dòng →
+ * - Chuột phải / nhấn giữ (cảm ứng) / Shift+F10 trong ô nhập (`input`, `textarea`, contenteditable) hoặc trong một menu khác nằm trong dòng →
  *   KHÔNG mở menu DS, để nguyên menu trình duyệt (không preventDefault).
  * - Không modal (khác mặc định Radix): đóng khi Esc, bấm ra ngoài, CUỘN (y artifact) — modal thì Radix khoá cuộn; chuột
  *   phải sang dòng khác mở luôn menu của dòng đó.
- * - `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`). Không sub-menu/checkbox/radio: artifact không có.
+ * - `disabled` trên Trigger: không mở bằng gì (cả phím). `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`). Không sub-menu/checkbox/radio: artifact không có.
  */
 export function ContextMenu({
   open: openProp,
@@ -52,7 +52,9 @@ function giuMenuTrinhDuyet(t: EventTarget) {
 
 export function ContextMenuTrigger({
   className,
+  disabled,
   onContextMenuCapture,
+  onPointerDownCapture,
   onKeyDown,
   ...props
 }: ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
@@ -65,10 +67,16 @@ export function ContextMenuTrigger({
         // Chặn sự kiện đi tới handler của Radix (bubble ở chính trigger) mà KHÔNG preventDefault → menu trình duyệt.
         if (giuMenuTrinhDuyet(e.target)) e.stopPropagation()
       }}
+      onPointerDownCapture={(e) => {
+        onPointerDownCapture?.(e)
+        // Nhấn giữ (cảm ứng/bút) trong ô nhập: chặn đường hẹn giờ 700ms của Radix (onPointerDown ở chính trigger) →
+        // giữ chọn chữ/menu dán của hệ điều hành. Chuột không qua đường này (Radix chỉ hẹn giờ cho touch/pen).
+        if (e.pointerType !== 'mouse' && giuMenuTrinhDuyet(e.target)) e.stopPropagation()
+      }}
       onKeyDown={(e: KeyboardEvent<HTMLSpanElement>) => {
         onKeyDown?.(e)
         const phim = e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')
-        if (!phim || e.defaultPrevented || giuMenuTrinhDuyet(e.target)) return
+        if (disabled || !phim || e.defaultPrevented || giuMenuTrinhDuyet(e.target)) return
         // Radix không có đường phím riêng (chỉ nghe contextmenu). Tự mở neo dưới mép trái dòng; preventDefault để trình
         // duyệt không bắn thêm contextmenu của nó (toạ độ tuỳ trình duyệt) — đủ cho Shift+F10.
         e.preventDefault()
@@ -78,15 +86,21 @@ export function ContextMenuTrigger({
         )
         // Phím Menu: Chrome/Windows bắn thêm contextmenu gốc lúc NHẢ phím (đo thật qua CDP), vào item vừa được focus —
         // nằm ngoài trigger nên không ai chặn → menu trình duyệt đè lên menu DS. Chặn mọi contextmenu tới hết keyup đó.
+        // Rời cửa sổ trước khi nhả (Alt+Tab…) thì keyup không tới → gỡ cả khi blur.
         if (e.key === 'ContextMenu') {
           const chan = (ev: Event) => ev.preventDefault()
+          const go = () =>
+            setTimeout(() => {
+              window.removeEventListener('contextmenu', chan, true)
+              window.removeEventListener('keyup', go, true)
+              window.removeEventListener('blur', go)
+            })
           window.addEventListener('contextmenu', chan, true)
-          window.addEventListener('keyup', () => setTimeout(() => window.removeEventListener('contextmenu', chan, true)), {
-            capture: true,
-            once: true,
-          })
+          window.addEventListener('keyup', go, true)
+          window.addEventListener('blur', go)
         }
       }}
+      disabled={disabled}
       {...props}
     />
   )

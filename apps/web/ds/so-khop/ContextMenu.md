@@ -4,14 +4,14 @@ Sinh bởi `node ds/so-khop.mjs ContextMenu --url http://127.0.0.1:3401` (cwd `a
 Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1`). Không sửa tay.
 
 - Artifact: `ds/nguon/tokens.css` + `bundle.css` + `components/ContextMenu/preview.html` (xem `ds/NGUON.md`) ↔ `/ds`.
-- Theme sáng/tối × khổ 1440/390 (CDP `Emulation.setDeviceMetricsOverride`). Đo 27 thuộc tính/phần tử: width, height, paddingTop, paddingRight, paddingBottom, paddingLeft, gap, borderRadius, borderTopWidth, borderTopStyle, borderTopColor, fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color, backgroundColor, boxShadow, opacity, cursor, outlineColor, outlineStyle, outlineWidth, outlineOffset.
+- Theme sáng/tối × khổ 1440/390 (CDP `Emulation.setDeviceMetricsOverride`). Đo 28 thuộc tính/phần tử: width, height, paddingTop, paddingRight, paddingBottom, paddingLeft, gap, borderRadius, borderTopWidth, borderTopStyle, borderTopColor, fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color, backgroundColor, boxShadow, opacity, cursor, outlineColor, outlineStyle, outlineWidth, outlineOffset, zIndex.
 - **Giới hạn:** px làm tròn 0.5 → lệch < 0.25px không thấy được. Màu chuẩn hoá về sRGB số thực (kênh 2 số lẻ, alpha 3 số lẻ).
 - Trạng thái: artifact ép class `.is-hover`/`.is-focus` như preview, trừ khoá có `artifactThat` thì artifact cũng tương tác thật (không khoá nào); DS di chuột thật (`Input.dispatchMouseEvent`, kiểm `:hover`) / phím Tab thật (kiểm `:focus-visible`).
 - Mở bằng tương tác thật (`buoc`, CDP `Input.*`, mỗi khoá trên trang nạp lại mới): khung: chuotPhai #context-menu [data-so="dong"] → cho 200 · nhan: chuotPhai #context-menu [data-so="dong"] → cho 200 · item: chuotPhai #context-menu [data-so="dong"] → cho 200 · item-hover (cả artifact): chuotPhai {"artifact":".ds-muc:nth-child(1) .b-ds-hang","ds":"#context-menu [data-so=\"dong\"]"} → cho 200 → tro {"artifact":".ds-muc:nth-child(1) .ui-menu > :nth-child(3)","ds":"[data-ds-portal] [data-so=\"xem-nhanh\"]"} → cho 200 · vach: chuotPhai #context-menu [data-so="dong"] → cho 200 · dong-ticket: chuotPhai #context-menu [data-so="dong"] → cho 200 · dong-dang-mo: chuotPhai #context-menu [data-so="dong"] → cho 200 → tro [data-ds-portal] [data-slot="context-menu-label"] → cho 200. Vùng `[data-ds="v2"]`: luôn kiểm cho mọi phần tử DS. Ảnh mở bằng `anhTuongTac.buoc`: chuotPhai #context-menu [data-so="dong"] → cho 200. Pseudo: không khoá nào.
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"Inter", "Inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/ContextMenu-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**764/816 khớp** · 52 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
+**792/844 khớp** · 52 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 7 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -21,6 +21,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Dòng mẫu chỉ là hộp `.b-ds-hang` (cao, đệm, bo, nền khi mở) — cột, ô sửa nhanh, vạch ngăn ::after của dòng thuộc ListView, chưa dựng; khoá dong-dang-mo rời chuột sang nhãn menu trước khi đo (focus đã vào menu) → nền alpha-05 chỉ đến từ data-state=open, không từ :hover/:focus-within
 - `.b-the[data-cp]` (thẻ Kanban đang mở: viền 2px alpha-15 + shadow-100): chưa có thẻ trong DS — làm cùng Kanban
 - Icon Phosphor ArrowSquareOut / SidebarSimple (lật ngang, `mirrored` = transform scale(-1,1) như preview) / Copy / Check: cùng path với preview; transform không đo bằng getComputedStyle, so bằng mắt trên ảnh
+- Shift+F10 / phím Menu chỉ đo trên Chrome/Windows (CDP headless, script tạm): Shift+F10 → đúng một contextmenu, focus mục đầu; phím Menu → Chrome/Windows bắn thêm contextmenu gốc lúc nhả phím, đã chặn. macOS/Linux/Firefox/Safari chưa đo
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|

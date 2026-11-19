@@ -36,7 +36,10 @@
         {
           "cho": 200
         }
-      ]
+      ],
+      "lyDo": {
+        "zIndex": "Preview DropdownMenu vẽ `.ui-menu` tĩnh trong .ui-stack, không có class lớp nổi → z-index auto. Menu thả THẬT của artifact là `.b-noi` (bundle.css dòng 729, position fixed, z-index 90 — như `.b-chuotphai` của menu chuột phải, README \"nổi trên mọi lớp\"); DS dùng z-90 chung trong menu-styles.ts (ruling 12). ContextMenu so cùng thuộc tính này với `.b-chuotphai` và khớp 90."
+      }
     },
     {
       "khoa": "khung-cot",
@@ -49,7 +52,10 @@
         {
           "cho": 200
         }
-      ]
+      ],
+      "lyDo": {
+        "zIndex": "Preview DropdownMenu vẽ `.ui-menu` tĩnh trong .ui-stack, không có class lớp nổi → z-index auto. Menu thả THẬT của artifact là `.b-noi` (bundle.css dòng 729, position fixed, z-index 90 — như `.b-chuotphai` của menu chuột phải, README \"nổi trên mọi lớp\"); DS dùng z-90 chung trong menu-styles.ts (ruling 12). ContextMenu so cùng thuộc tính này với `.b-chuotphai` và khớp 90."
+      }
     },
     {
       "khoa": "nhan",

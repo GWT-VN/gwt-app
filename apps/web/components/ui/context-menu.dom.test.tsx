@@ -180,3 +180,61 @@ test('phím Menu: contextmenu gốc trình duyệt bắn lúc nhả phím (vào 
   fireEvent(item, sau)
   expect(sau.defaultPrevented).toBe(false)
 })
+
+test('menu nổi trên mọi lớp: z-90 như .b-chuotphai / .b-noi của nguồn', async () => {
+  render(<Mau />)
+  fireEvent.contextMenu(dong())
+  expect((await screen.findByRole('menu')).className).toContain('z-90')
+})
+
+const cho = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+test('nhấn giữ (cảm ứng) trên dòng → mở menu; nhấn giữ trong <input>/<textarea> → KHÔNG mở', async () => {
+  render(<Mau />)
+  for (const o of [screen.getByLabelText('Đổi hạn'), screen.getByLabelText('Ghi chú')]) {
+    fireEvent.pointerDown(o, { pointerType: 'touch' })
+    await cho(800)
+    expect(screen.queryByRole('menu')).toBeNull()
+    fireEvent.pointerUp(o, { pointerType: 'touch' })
+  }
+  fireEvent.pointerDown(dong(), { pointerType: 'touch' })
+  await cho(800)
+  expect(screen.queryByRole('menu')).not.toBeNull()
+})
+
+test('phím Menu: rời cửa sổ (blur) trước khi nhả phím → gỡ listener chặn contextmenu', async () => {
+  render(<Mau />)
+  dong().focus()
+  fireEvent.keyDown(dong(), { key: 'ContextMenu' })
+  await screen.findByRole('menu')
+  fireEvent.blur(window)
+  await cho(10)
+  const ev = createEvent.contextMenu(document.body)
+  fireEvent(document.body, ev)
+  expect(ev.defaultPrevented).toBe(false)
+})
+
+test('trigger disabled: Shift+F10 / phím Menu không preventDefault, không mở menu', () => {
+  render(
+    <DsRoot>
+      <ContextMenu>
+        <ContextMenuTrigger asChild disabled>
+          <div tabIndex={0} data-testid="tat">
+            TK-DEMO-040
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>Mở ticket</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </DsRoot>,
+  )
+  const t = screen.getByTestId('tat')
+  t.focus()
+  for (const init of [{ key: 'F10', shiftKey: true }, { key: 'ContextMenu' }]) {
+    const ev = createEvent.keyDown(t, init)
+    fireEvent(t, ev)
+    expect(ev.defaultPrevented).toBe(false)
+  }
+  expect(screen.queryByRole('menu')).toBeNull()
+})

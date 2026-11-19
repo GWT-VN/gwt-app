@@ -25,18 +25,26 @@ export function KhoiContextMenu() {
       <h2 className="mb-4 [font:var(--text-heading-xs)]">
         <a href="#context-menu">ContextMenu</a>
       </h2>
-      <div className="pb-56">
+      {/* role table/row/cell y preview (`.b-ds` role="table", `.b-ds-hang` role="row") — dòng focus được có vai trò thật */}
+      <div role="table" aria-label="Ticket mẫu" className="pb-56">
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
               data-so="dong"
               tabIndex={0}
-              aria-label="Ticket TK-2611-039 — chuột phải hoặc Shift+F10 để mở thao tác"
+              role="row"
+              aria-keyshortcuts="Shift+F10"
               className="flex min-h-[50px] cursor-pointer items-center gap-3 border-none border-current rounded-(--radius-xl) px-4 py-1 outline-none hover:bg-(--alpha-05) focus-within:bg-(--alpha-05) focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]"
             >
-              <Badge color="warning">P2</Badge>
-              <span className="shrink-0 font-medium">TK-2611-039</span>
-              <span className="truncate text-muted-foreground">Chờ duyệt miễn phí thay bơm</span>
+              <span role="cell">
+                <Badge color="warning">P2</Badge>
+              </span>
+              <span role="cell" className="shrink-0 font-medium">
+                TK-2611-039
+              </span>
+              <span role="cell" className="truncate text-muted-foreground">
+                Chờ duyệt miễn phí thay bơm
+              </span>
             </div>
           </ContextMenuTrigger>
           <ContextMenuContent aria-label="Thao tác TK-2611-039">

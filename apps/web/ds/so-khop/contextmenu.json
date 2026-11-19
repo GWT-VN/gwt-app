@@ -22,7 +22,8 @@
     "Hiện 120ms ease-out từ opacity 0 / scale .98 (`.b-chuotphai` animation b-hien; DS dùng transition + @starting-style), giảm chuyển động → không: đo sau khi đã hiện xong, không đo khung hình giữa chừng",
     "Dòng mẫu chỉ là hộp `.b-ds-hang` (cao, đệm, bo, nền khi mở) — cột, ô sửa nhanh, vạch ngăn ::after của dòng thuộc ListView, chưa dựng; khoá dong-dang-mo rời chuột sang nhãn menu trước khi đo (focus đã vào menu) → nền alpha-05 chỉ đến từ data-state=open, không từ :hover/:focus-within",
     "`.b-the[data-cp]` (thẻ Kanban đang mở: viền 2px alpha-15 + shadow-100): chưa có thẻ trong DS — làm cùng Kanban",
-    "Icon Phosphor ArrowSquareOut / SidebarSimple (lật ngang, `mirrored` = transform scale(-1,1) như preview) / Copy / Check: cùng path với preview; transform không đo bằng getComputedStyle, so bằng mắt trên ảnh"
+    "Icon Phosphor ArrowSquareOut / SidebarSimple (lật ngang, `mirrored` = transform scale(-1,1) như preview) / Copy / Check: cùng path với preview; transform không đo bằng getComputedStyle, so bằng mắt trên ảnh",
+    "Shift+F10 / phím Menu chỉ đo trên Chrome/Windows (CDP headless, script tạm): Shift+F10 → đúng một contextmenu, focus mục đầu; phím Menu → Chrome/Windows bắn thêm contextmenu gốc lúc nhả phím, đã chặn. macOS/Linux/Firefox/Safari chưa đo"
   ],
   "khoa": [
     {

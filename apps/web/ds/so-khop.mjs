@@ -53,7 +53,9 @@ const PROPS = ['width', 'height', 'paddingTop', 'paddingRight', 'paddingBottom',
   'borderRadius', 'borderTopWidth', 'borderTopStyle', 'borderTopColor',
   'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFeatureSettings', 'textDecorationLine',
   'color', 'backgroundColor', 'boxShadow', 'opacity', 'cursor',
-  'outlineColor', 'outlineStyle', 'outlineWidth', 'outlineOffset']
+  'outlineColor', 'outlineStyle', 'outlineWidth', 'outlineOffset',
+  // zIndex: overlay (menu, tooltip) phải nổi đúng lớp như nguồn; phần tử tĩnh hai bên đều `auto`.
+  'zIndex']
 const URL_MAC_DINH = 'http://localhost:3401'
 
 /** `<Component> [--url <url>]` → { comp, url }. Ném lỗi khi thiếu/thừa/sai cờ. */
