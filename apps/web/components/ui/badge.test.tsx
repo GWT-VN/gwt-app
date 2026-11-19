@@ -109,3 +109,31 @@ test('asChild: ra phần tử con mang class badge; className gộp qua cn', () 
 test('không reset font-feature-settings (kế thừa cv11/ss03 của DsRoot)', () => {
   expect(lop(renderToStaticMarkup(<Badge>x</Badge>)).some((c) => c.includes('font-feature-settings'))).toBe(false)
 })
+
+test('cascade bundle.css: solid/outline đứng sau [data-color] → solid màu không định nghĩa = xám, outline mọi màu = xám', () => {
+  // bundle.css chỉ có solid+success / solid+danger; còn lại [data-variant] (cùng specificity, khai sau) thắng [data-color].
+  const o = lop(renderToStaticMarkup(<Badge variant="outline" color="info">x</Badge>))
+  expect(o).toEqual(
+    expect.arrayContaining([
+      'bg-transparent',
+      '[box-shadow:inset_0_0_0_1px_var(--color-border-secondary-outline)]',
+      'text-(--color-text-secondary-outline)',
+    ]),
+  )
+  expect(o.some((c) => c.includes('info'))).toBe(false)
+  const s = lop(renderToStaticMarkup(<Badge variant="solid" color="warning">x</Badge>))
+  expect(s).toEqual(expect.arrayContaining(['bg-(--color-background-secondary-solid)', 'text-(--color-text-secondary-solid)']))
+  expect(s.some((c) => c.includes('warning'))).toBe(false)
+  const ok = lop(renderToStaticMarkup(<Badge variant="solid" color="success">x</Badge>))
+  expect(ok).toEqual(expect.arrayContaining(['bg-(--color-background-success-solid)', 'text-(--color-text-success-solid)']))
+  expect(ok).not.toContain('bg-(--color-background-secondary-solid)')
+})
+
+test('BadgeDot color: nền <màu>-solid (.ui-dot[data-color]); không màu = currentColor', () => {
+  const h = renderToStaticMarkup(<BadgeDot color="danger" />)
+  expect(theGoc(h)).toContain('data-color="danger"')
+  const c = lop(h)
+  expect(c).toContain('bg-(--color-background-danger-solid)')
+  expect(c).not.toContain('bg-current')
+  expect(theGoc(renderToStaticMarkup(<BadgeDot />))).not.toContain('data-color')
+})

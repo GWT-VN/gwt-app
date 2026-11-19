@@ -4,9 +4,10 @@
     "ds": "#badge > div"
   },
   "chuaDo": [
-    "solid info/warning/discovery, outline có màu (info…discovery) — preview và bundle.css không có tổ hợp này; DS dùng token cùng khuôn --color-*-<màu>-solid|outline, chưa đo",
+    "solid info/warning/discovery (= xám secondary-solid) và outline có màu (= xám secondary-outline) — chép đúng cascade bundle.css, test khoá class; preview không có nên chưa đo computed",
     "chấm màu (BadgeDot) chỉ đo ở badge info; success/warning/danger cùng cơ chế currentColor, chưa đo riêng",
-    ".ui-dot[data-color] (chấm đặc nền solid) và .ui-caret (badge bấm được) — không thuộc Badge preview, chưa làm",
+    "chấm có màu trong badge outline (BadgeDot color = .ui-dot[data-color]) — preview Badge không có, mẫu ở ListView/ContextMenu",
+    ".ui-caret (badge bấm được) — không thuộc preview Badge, chưa làm",
     "asChild (vd <a>) — preview không có"
   ],
   "khoa": [
