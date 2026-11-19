@@ -2,13 +2,13 @@
 
 Artifact **"GWT — OpenAI + shadcn"**, **bản 26** — https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr
 
-File trong `nguon/` chép **nguyên byte** từ artifact bản 26. Không sửa tay.
+File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy bản 29 (19/11 — chỉ thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt). Không sửa tay.
 
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` | `99d035e25e8c14a34a9db0d73ef2a6487c458c14f59f94bacf39bb9359c9e85c` |
+| `nguon/bundle.css` | `e39f5f9912d809e6206b411e41cc612e3f05c9643fc88c7c1ede3827f7c4839a` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 
 `.gitattributes` trong thư mục này ép LF để sha256 trên khớp ở mọi máy (repo bật `core.autocrlf`).
@@ -33,8 +33,8 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 - **Font:** Inter đi kèm `DsRoot` (`components/ui/font-inter.ts`, biến `--font-inter` gắn trên chính phần tử gốc) → màn
   nào bọc `<DsRoot>` cũng có Inter; không nạp font ở layout.
 - **font-feature-settings:** component **không bao giờ reset** (`cv11`/`ss03` kế thừa từ `DsRoot` — CEO chốt 19/11
-  "bật cho đồng bộ"). Shorthand `font:` trong `bundle.css` tắt chúng trên nhiều class `.ui-*` là tật đã biết của
-  artifact → mỗi config `so-khop/<c>.json` ghi `lyDo` cho dòng `fontFeatureSettings`, không sửa component theo.
+  "bật cho đồng bộ"). Artifact bản 29 đã sửa theo: 20 rule dùng shorthand `font:` trong `bundle.css` thêm
+  `font-feature-settings: inherit` → so khớp không còn lệch dòng này, không cần `lyDo`.
 - **Viền:** Button base là `border-none` (khớp `.ui-btn{border:0}`) → cần viền thì thêm `border-solid`. Component khác
   đọc khối `.ui-*` của nó trong `bundle.css` trước khi chọn.
 - **Thang trong vùng DS:** `rounded-*`/`p-*`/`gap-*` theo thang DS (mục trên). Nhưng `--breakpoint-*` khai trong vùng

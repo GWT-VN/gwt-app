@@ -23,20 +23,12 @@
         "hover",
         "focus"
       ],
-      "artifactThat": true,
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "hover.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "focus.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "artifactThat": true
     },
     {
       "khoa": "secondary",
       "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(2)",
-      "ds": "[data-so=\"secondary\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"secondary\"]"
     },
     {
       "khoa": "outline",
@@ -46,12 +38,7 @@
         "hover",
         "focus"
       ],
-      "artifactThat": true,
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "hover.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "focus.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "artifactThat": true
     },
     {
       "khoa": "ghost",
@@ -61,12 +48,7 @@
         "hover",
         "focus"
       ],
-      "artifactThat": true,
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "hover.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "focus.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "artifactThat": true
     },
     {
       "khoa": "destructive",
@@ -76,12 +58,7 @@
         "hover",
         "focus"
       ],
-      "artifactThat": true,
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "hover.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "focus.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "artifactThat": true
     },
     {
       "khoa": "link",
@@ -90,19 +67,12 @@
       "trangThai": [
         "hover"
       ],
-      "artifactThat": true,
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)",
-        "hover.fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "artifactThat": true
     },
     {
       "khoa": "disabled",
       "artifact": ".ui-row:nth-of-type(2) .ui-btn:nth-child(3)",
-      "ds": "[data-so=\"disabled\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"disabled\"]"
     },
     {
       "khoa": "loading",
@@ -130,18 +100,12 @@
             "opacity"
           ]
         }
-      ],
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      ]
     },
     {
       "khoa": "outline-disabled",
       "artifact": ".ui-row:nth-of-type(2) .ui-btn:nth-child(5)",
-      "ds": "[data-so=\"outline-disabled\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"outline-disabled\"]"
     },
     {
       "khoa": "sm",
@@ -153,26 +117,17 @@
           "artifact": "svg",
           "ds": "svg"
         }
-      ],
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      ]
     },
     {
       "khoa": "md",
       "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(2)",
-      "ds": "[data-so=\"md\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"md\"]"
     },
     {
       "khoa": "lg",
       "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(3)",
-      "ds": "[data-so=\"lg\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"lg\"]"
     },
     {
       "khoa": "icon",
@@ -184,18 +139,12 @@
           "artifact": "svg",
           "ds": "svg"
         }
-      ],
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      ]
     },
     {
       "khoa": "rounded-sm",
       "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(5)",
-      "ds": "[data-so=\"rounded-sm\"]",
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      "ds": "[data-so=\"rounded-sm\"]"
     },
     {
       "khoa": "icon-sm-rounded",
@@ -207,10 +156,7 @@
           "artifact": "svg",
           "ds": "svg"
         }
-      ],
-      "lyDo": {
-        "fontFeatureSettings": "CEO chốt 19/11: bật cv11/ss03 đồng bộ cả vùng DS; artifact tắt trên nút chỉ do shorthand `font:` trong bundle.css (vô tình)"
-      }
+      ]
     }
   ]
 }

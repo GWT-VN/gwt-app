@@ -38,7 +38,7 @@ body {
   padding: 0 calc(var(--g) * 1.33);           /* pill: gutter × --control-gutter-pill-scaling */
   border: 0;
   border-radius: var(--radius-full);          /* OpenAI Button pill = true mặc định */
-  font: 500 14px/1 var(--font-sans);          /* --button-font-weight: medium; --control-font-size-md */
+  font: 500 14px/1 var(--font-sans); font-feature-settings: inherit;          /* --button-font-weight: medium; --control-font-size-md */
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -118,7 +118,7 @@ body {
   padding: 0 var(--control-gutter-md);
   border: 0;
   border-radius: var(--radius-md);             /* --control-radius-md */
-  font: 400 14px/20px var(--font-sans);
+  font: 400 14px/20px var(--font-sans); font-feature-settings: inherit;
   color: var(--color-text);
   background: transparent;
   box-shadow: inset 0 0 0 1px var(--input);    /* --input-outline-border-color */
@@ -186,7 +186,7 @@ body {
 .ui-menu-sep { height: 1px; margin: 6px -6px; background: var(--border); }
 .ui-menu-empty, .ui-menu-note { padding: 6px 8px; font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
 .ui-menu-search { display: flex; align-items: center; gap: 8px; height: var(--control-size-md); padding: 0 8px; margin: -6px -6px 6px; border-bottom: 1px solid var(--border); }
-.ui-menu-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font: 400 14px/20px var(--font-sans); color: var(--foreground); }
+.ui-menu-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font: 400 14px/20px var(--font-sans); font-feature-settings: inherit; color: var(--foreground); }
 .ui-menu-search input::placeholder { color: var(--color-text-tertiary); }
 .ui-menu-search .ui-icon { color: var(--muted-foreground); }
 .ui-menu-list { max-height: 240px; overflow-y: auto; scrollbar-color: var(--alpha-30) transparent; }
@@ -238,7 +238,7 @@ body {
   padding: 0 calc(var(--control-gutter-md) * 1.33);
   border: 0; border-radius: var(--radius-full);
   background: transparent;
-  font: 600 14px/1 var(--font-sans);                       /* --segmented-control-font-weight */
+  font: 600 14px/1 var(--font-sans); font-feature-settings: inherit;                       /* --segmented-control-font-weight */
   color: var(--muted-foreground);
   cursor: pointer;
   transition: background-color 150ms ease, color 150ms ease;
@@ -286,7 +286,7 @@ body {
   height: 20px;                                  /* --badge-size-sm = control-size-3xs − 2px */
   padding: 0 7px;                                /* pill (18/11): gutter rộng hơn cho góc tròn */
   border-radius: var(--radius-full);             /* Dũng chốt 18/11: badge dạng pill */
-  font: 600 12px/1 var(--font-sans);
+  font: 600 12px/1 var(--font-sans); font-feature-settings: inherit;
   white-space: nowrap;
   background: var(--color-background-secondary-soft-alpha); color: var(--color-text-secondary-soft);
 }
@@ -372,7 +372,7 @@ body {
   display: flex; align-items: center; gap: 8px; width: 100%;
   height: var(--control-size-md); padding: 0 8px;
   border: 0; border-radius: var(--radius-md);
-  background: transparent; color: inherit; font: 400 14px/20px var(--font-sans); text-align: left; text-decoration: none;
+  background: transparent; color: inherit; font: 400 14px/20px var(--font-sans); font-feature-settings: inherit; text-align: left; text-decoration: none;
   cursor: pointer;
 }
 .ui-sidebar-item .ui-icon { color: var(--muted-foreground); }
@@ -413,14 +413,14 @@ body {
 .ui-btn[data-variant="ghost"]:is([aria-pressed="true"], [aria-checked="true"], [aria-expanded="true"]) { background: var(--accent); }
 /* Tooltip: thêm class ui-tip + data-tip="…" (hiện khi hover hoặc focus phím) */
 .ui-tip { position: relative; }
-.ui-tip[data-tip]:is(:hover, :focus-visible):not([aria-expanded="true"])::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/18px var(--font-sans); white-space: nowrap; pointer-events: none; }
+.ui-tip[data-tip]:is(:hover, :focus-visible):not([aria-expanded="true"])::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
 /* Avatar chữ cái */
 .ui-avatar { display: inline-grid; place-content: center; flex-shrink: 0; width: var(--control-size-3xs); height: var(--control-size-3xs); border-radius: var(--radius-full); background: var(--alpha-08); color: var(--gray-600); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
 .ui-avatar[data-size="sm"] { width: 20px; height: 20px; font-size: 10px; line-height: 14px; }
 /* Toast có hành động (Hoàn tác) — đáy giữa màn */
 .ui-toast { position: fixed; left: 16px; right: 16px; bottom: 72px; z-index: 56; width: max-content; max-width: calc(100% - 32px); margin-inline: auto; display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; border-radius: var(--radius-full); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font-size: 14px; line-height: 20px; box-shadow: var(--shadow); animation: ui-toast-len 180ms cubic-bezier(0.19, 1, 0.22, 1); }
 .ui-toast svg { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); color: var(--green-400); }
-.ui-toast button { height: var(--control-size-xs); padding: 0 10px; border: 0; border-radius: var(--radius-full); background: var(--color-background-primary-solid-hover); color: var(--color-text-primary-solid); font: 500 12px/1 var(--font-sans); cursor: pointer; }
+.ui-toast button { height: var(--control-size-xs); padding: 0 10px; border: 0; border-radius: var(--radius-full); background: var(--color-background-primary-solid-hover); color: var(--color-text-primary-solid); font: 500 12px/1 var(--font-sans); font-feature-settings: inherit; cursor: pointer; }
 @keyframes ui-toast-len { from { opacity: 0; transform: translateY(8px); } } /* căn giữa bằng margin auto, không translateX → không bị co còn 50vw ở màn hẹp */
 @media (prefers-reduced-motion: reduce) { .ui-toast { animation: none; } }
 
@@ -495,7 +495,7 @@ body {
 .ui-cal-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 16px; line-height: 24px; font-weight: 600; white-space: nowrap; pointer-events: none; }
 .ui-cal-grid { display: grid; grid-template-columns: repeat(7, var(--cal-o)); row-gap: 2px; }
 .ui-cal-wd { display: grid; place-content: center; height: var(--control-size-sm); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted-foreground); }
-.ui-cal-day { position: relative; isolation: isolate; display: grid; place-content: center; width: var(--cal-o); height: var(--cal-o); border: 0; border-radius: var(--radius-full); background: transparent; color: var(--foreground); font: 600 14px/20px var(--font-sans); font-variant-numeric: tabular-nums; cursor: pointer; }
+.ui-cal-day { position: relative; isolation: isolate; display: grid; place-content: center; width: var(--cal-o); height: var(--cal-o); border: 0; border-radius: var(--radius-full); background: transparent; color: var(--foreground); font: 600 14px/20px var(--font-sans); font-feature-settings: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
 .ui-cal-day::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--radius-full); }
 .ui-cal-day:not(:disabled):hover::before, .ui-cal-day[data-preview]::before { box-shadow: inset 0 0 0 1.5px var(--foreground); }
 .ui-cal-day:focus { outline: none; }
@@ -516,7 +516,7 @@ body {
 .ui-cal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
 .ui-cal-top-title { margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; }
 .ui-cal-fields { display: grid; grid-template-columns: 1fr 1fr; width: 280px; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px var(--input); }
-.ui-cal-field { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 6px 12px; border: 0; border-radius: var(--radius-lg); background: transparent; color: var(--foreground); font: 400 14px/20px var(--font-sans); text-align: left; cursor: pointer; }
+.ui-cal-field { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 6px 12px; border: 0; border-radius: var(--radius-lg); background: transparent; color: var(--foreground); font: 400 14px/20px var(--font-sans); font-feature-settings: inherit; text-align: left; cursor: pointer; }
 .ui-cal-field + .ui-cal-field { box-shadow: inset 1px 0 0 var(--input); }
 .ui-cal-field > span:first-child { font-size: 10px; line-height: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 .ui-cal-field[data-trong] > span:last-child { color: var(--color-text-tertiary); }
@@ -579,7 +579,7 @@ body {
 
 /* --- FilterBar: chip điều kiện đang lọc + số dòng + Xoá lọc / Lưu bộ lọc --- */
 .ui-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: var(--control-size-sm); }
-.ui-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-full); background: var(--alpha-05); color: var(--foreground); font: 400 12px/18px var(--font-sans); white-space: nowrap; }
+.ui-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-full); background: var(--alpha-05); color: var(--foreground); font: 400 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; }
 .ui-chip > span { overflow: hidden; text-overflow: ellipsis; }
 .ui-chip strong { font-weight: 600; }
 .ui-chip > .ui-icon { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); color: var(--muted-foreground); }
@@ -598,7 +598,7 @@ body {
 .ui-table-foot > .ui-caption, .ui-table-foot > span:first-child { font-variant-numeric: tabular-nums; }
 
 /* --- BulkActionBar: thanh nổi đáy màn khi chọn ≥ 1 dòng (mặt primary-solid) --- */
-.ui-bulkbar { position: fixed; left: 50%; bottom: 24px; z-index: 55; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; max-width: calc(100vw - 32px); padding: 4px 4px 4px 16px; border-radius: var(--radius-full); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 400 14px/20px var(--font-sans); box-shadow: var(--shadow-400); animation: ui-bulk-len 180ms cubic-bezier(0.19, 1, 0.22, 1); }
+.ui-bulkbar { position: fixed; left: 50%; bottom: 24px; z-index: 55; transform: translateX(-50%); display: flex; align-items: center; gap: 2px; max-width: calc(100vw - 32px); padding: 4px 4px 4px 16px; border-radius: var(--radius-full); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 400 14px/20px var(--font-sans); font-feature-settings: inherit; box-shadow: var(--shadow-400); animation: ui-bulk-len 180ms cubic-bezier(0.19, 1, 0.22, 1); }
 .ui-bulkbar-count { margin-right: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .ui-bulkbar-count strong { font-weight: 600; }
 .ui-bulkbar-sub { opacity: 0.7; }
@@ -637,7 +637,7 @@ body {
 .pD-icon svg { width: 18px; height: 18px; }
 .pD-icon:hover { background: var(--alpha-04); color: var(--foreground); }
 .pD-icon[aria-current] { background: var(--alpha-05); color: var(--foreground); }
-.pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/18px var(--font-sans); white-space: nowrap; pointer-events: none; }
+.pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
 .pD-icon:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
 .pD-cham { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--color-background-danger-solid); box-shadow: 0 0 0 2px var(--muted); }
 .pD-ngan { width: 20px; height: 1px; margin: 6px 0; background: var(--border); }
@@ -832,7 +832,7 @@ body {
 .b-bang-c td[data-keo] > *, .b-th-keo[data-keo] > * { opacity: 0.4; }
 .b-bang-c [data-tren="trai"] { box-shadow: inset 2px 0 0 var(--ring); }
 .b-bang-c [data-tren="phai"] { box-shadow: inset -2px 0 0 var(--ring); }
-.b-keo-bong { position: fixed; top: -200px; left: 0; display: inline-flex; align-items: center; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-md); background: var(--background); box-shadow: var(--shadow-hairline), var(--shadow-300); color: var(--foreground); font: 500 12px/18px var(--font-sans); white-space: nowrap; }
+.b-keo-bong { position: fixed; top: -200px; left: 0; display: inline-flex; align-items: center; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-md); background: var(--background); box-shadow: var(--shadow-hairline), var(--shadow-300); color: var(--foreground); font: 500 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; }
 .b-co { position: absolute; top: 0; right: -8px; bottom: 0; z-index: 3; width: 16px; cursor: col-resize; touch-action: none; } /* vùng bấm 16px vắt qua mép cột (Dũng: dễ chọn hơn) */
 .b-co::after { content: ""; position: absolute; top: 6px; bottom: 6px; left: 7px; width: 2px; border-radius: 1px; background: transparent; transition: background-color 120ms ease; }
 .b-co:hover::after, .b-co:active::after { background: var(--ring) !important; }
@@ -999,11 +999,11 @@ body {
 .b-osua[data-an-mui].is-hover > * { box-shadow: 0 0 0 2px var(--alpha-08); }
 .b-osua[data-an-mui].is-hover > .ui-badge[data-variant="outline"] { box-shadow: inset 0 0 0 1px var(--alpha-25); background-color: var(--alpha-04); }
 .b-osua.is-hover .ui-caret { opacity: 1; }
-.ui-tip.is-tip::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/16px var(--font-sans); white-space: nowrap; }
-.pD-icon.is-tip::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/16px var(--font-sans); white-space: nowrap; pointer-events: none; }
+.ui-tip.is-tip::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/16px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; }
+.pD-icon.is-tip::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/16px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
 .ds-tinh .b-caidat { max-height: none; overflow: visible; }
 .ds-muc { margin-bottom: 28px; }
-.ds-nhan { margin-bottom: 8px; font: 500 12px/16px var(--font-sans); color: var(--muted-foreground); }
+.ds-nhan { margin-bottom: 8px; font: 500 12px/16px var(--font-sans); font-feature-settings: inherit; color: var(--muted-foreground); }
 .ds-cuon { overflow-x: auto; padding-bottom: 6px; }
 .ds-hang { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
 .ds-tinh .b-noi, .ds-tinh .b-chuotphai, .ds-tinh .pD-launcher { position: static !important; visibility: visible !important; animation: none !important; }
@@ -1082,7 +1082,7 @@ body {
 .ui-composer:focus-within { box-shadow: inset 0 0 0 1px var(--alpha-50); }
 .ui-composer[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--red-500); }
 .ui-composer[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
-.ui-composer-input { display: block; width: 100%; min-height: 44px; max-height: 240px; padding: 10px 12px 4px; border: 0; background: transparent; color: var(--foreground); font: 400 14px/20px var(--font-sans); resize: none; field-sizing: content; outline: none; }
+.ui-composer-input { display: block; width: 100%; min-height: 44px; max-height: 240px; padding: 10px 12px 4px; border: 0; background: transparent; color: var(--foreground); font: 400 14px/20px var(--font-sans); font-feature-settings: inherit; resize: none; field-sizing: content; outline: none; }
 .ui-composer-input::placeholder { color: var(--color-text-tertiary); }
 .ui-composer-files { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 10px 0; }
 .ui-composer-bar { display: flex; align-items: center; gap: 4px; padding: 6px; }
@@ -1167,7 +1167,7 @@ dialog.ui-dialog[open] { animation: ui-dialog-len 160ms cubic-bezier(0.19, 1, 0.
 
 /* ---------- Kbd: phím tắt ---------- */
 .ui-kbd { display: inline-grid; place-content: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: var(--radius-xs);
-  background: var(--background); box-shadow: inset 0 0 0 1px var(--alpha-12); color: var(--muted-foreground); font: 500 12px/1 var(--font-sans); }
+  background: var(--background); box-shadow: inset 0 0 0 1px var(--alpha-12); color: var(--muted-foreground); font: 500 12px/1 var(--font-sans); font-feature-settings: inherit; }
 
 /* ---------- CommandPalette: <dialog class="ui-command"> qua HopGoc; mẫu APG combobox + listbox ---------- */
 dialog.ui-command { position: fixed; inset: 12vh 0 auto; margin: 0 auto; width: min(640px, calc(100% - 32px)); max-width: none;
@@ -1180,7 +1180,7 @@ dialog.ui-command::backdrop { background: rgba(0, 0, 0, 0.3); }
 .ui-command-input { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding: 0 12px 0 16px; border-bottom: 1px solid var(--border); }
 .ui-command-input > .ui-icon { flex-shrink: 0; width: var(--control-icon-size-sm); height: var(--control-icon-size-sm); color: var(--muted-foreground); }
 .ui-command-input input { flex: 1; min-width: 0; height: 52px; border: 0; background: transparent; color: var(--foreground); outline: none;
-  font: 400 16px/24px var(--font-sans); } /* 16px: Safari iOS không tự phóng to khi focus */
+  font: 400 16px/24px var(--font-sans); font-feature-settings: inherit; } /* 16px: Safari iOS không tự phóng to khi focus */
 .ui-command-input input::placeholder { color: var(--color-text-tertiary); }
 .ui-command-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 6px; }
 .ui-command-list .ui-menu-label { display: flex; align-items: center; gap: 6px; }
