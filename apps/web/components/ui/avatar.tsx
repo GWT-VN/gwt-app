@@ -20,9 +20,8 @@ const avatarVariants = cva(
   {
     variants: {
       size: {
-        // 22px. line-height: .ui-avatar không khai → artifact kế thừa 20px của body bundle.css; vùng DS kế thừa 1.5 của
-        // preflight (ra 15px) → ghi tường minh để khớp.
-        default: 'size-(--control-size-3xs) leading-[20px]',
+        // 22px. line-height: .ui-avatar không khai → kế thừa (20px từ DsRoot = body bundle.css; 18px trong caption).
+        default: 'size-(--control-size-3xs)',
         sm: 'size-5 leading-[14px]', // bundle.css [data-size="sm"]: 20px · line-height 14px
       },
     },
@@ -67,6 +66,8 @@ const TIEN_TO = new Set(['anh', 'chị', 'em'])
  * của từ đầu + từ cuối, viết hoa (giữ dấu: 'Đức' → 'Đ'). 'chị Nguyễn Thu Hiền' → 'NH' · 'Hiền' → 'H' · '  ' → ''.
  */
 export function chuCaiDau(ten: string): string {
+  // ponytail: tiền tố nhận theo chữ, không theo ngữ cảnh → tên ngắn bắt đầu bằng "Anh"/"Em" (vd "Anh Thư") mất từ đầu
+  // ('T' thay vì 'AT'). Xem lại khi nối dữ liệu `staff` thật (khi đó tên không kèm xưng hô → bỏ luật tiền tố).
   const tu = ten.normalize('NFC').trim().split(/\s+/).filter(Boolean)
   if (tu.length > 1 && TIEN_TO.has(tu[0].toLocaleLowerCase('vi'))) tu.shift()
   if (!tu.length) return ''

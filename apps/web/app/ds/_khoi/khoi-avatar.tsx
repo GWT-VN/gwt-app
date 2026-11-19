@@ -15,11 +15,12 @@ export function KhoiAvatar() {
         <Avatar data-so="md"><AvatarFallback>{chuCaiDau('chị Hiền')}</AvatarFallback></Avatar>
         <Avatar data-so="md-2"><AvatarFallback>{chuCaiDau('Kim Thoa')}</AvatarFallback></Avatar>
         <Avatar data-so="sm" size="sm"><AvatarFallback>{chuCaiDau('anh Thanh Tùng')}</AvatarFallback></Avatar>
-        {/* .ui-caption: 12px/18px muted */}
+        {/* .ui-caption (bundle.css): 12px/18px muted — avatar bên trong kế thừa line-height 18px như artifact */}
         <span className="text-[12px] leading-[18px] text-muted-foreground">
           Kèm tên:{' '}
-          <span className="inline-flex items-center gap-1.5">
-            <Avatar><AvatarFallback>{chuCaiDau('Hiền')}</AvatarFallback></Avatar> Hiền
+          {/* preview: .ui-row style="display:inline-flex;gap:6px;align-items:center" */}
+          <span className="inline-flex flex-wrap items-center gap-1.5">
+            <Avatar data-so="ten"><AvatarFallback>{chuCaiDau('Hiền')}</AvatarFallback></Avatar> Hiền
           </span>
         </span>
       </div>

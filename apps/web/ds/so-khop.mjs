@@ -189,6 +189,10 @@ async function moCdp(wsUrl) {
   return { send, doi, dong: () => ws.close() }
 }
 
+// Lớp phủ Next dev (huy hiệu "N", toast lỗi, build watcher) đặt fixed góc dưới-trái → che khối cuối trang trong ảnh 390
+// và có thể che tâm phần tử khi bấm. Ẩn bằng CSS trên mọi trang vừa nạp (trang artifact không có → vô hại).
+const AN_NEXT_DEV = 'nextjs-portal, [data-nextjs-toast], [data-next-badge-root], #__next-build-watcher { display: none !important; }'
+
 async function chay(cdp, bieuThuc) {
   const r = await cdp.send('Runtime.evaluate', { expression: bieuThuc, returnByValue: true, awaitPromise: true })
   if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text)
@@ -282,6 +286,7 @@ async function main() {
       await cdp.send('Page.navigate', { url: dich })
       await xong
       await chay(cdp, 'document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 400))).then(() => true)')
+      await chay(cdp, `document.head.append(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(AN_NEXT_DEV)} })), true`)
       await chay(cdp, TRO_GIUP)
     }
     const S = JSON.stringify

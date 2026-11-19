@@ -24,6 +24,9 @@ test('DsRoot mặc định: vùng v2 sáng, color-scheme light, ô portal là co
   expect(goc).toMatch(/style="[^"]*color-scheme:light/)
   // bundle.css (body): font-feature-settings "cv11", "ss03" — a một tầng, kế thừa xuống nút (preflight: inherit).
   expect(goc).toContain('[font-feature-settings:&quot;cv11&quot;,&quot;ss03&quot;]')
+  // bundle.css (body): font-size 14px · line-height 20px — tách lẻ, KHÔNG shorthand `font:` (sẽ xoá cv11/ss03).
+  expect(goc).toMatch(/class="[^"]*text-\[14px\][^"]*"/)
+  expect(goc).toMatch(/class="[^"]*leading-\[20px\][^"]*"/)
   expect(h).toMatch(/<p>nội dung<\/p><div data-ds-portal=""><\/div><\/div>$/)
 })
 

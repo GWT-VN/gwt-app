@@ -11,12 +11,11 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"Inter", "Inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Avatar-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**324/324 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 3 mục CHƯA ĐO
+**432/432 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 2 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
 - AvatarImage (ảnh thật) — preview chỉ có avatar chữ cái, artifact không định nghĩa kiểu ảnh
-- avatar trong dòng 'Kèm tên' — cùng kiểu với khoá md, không đo riêng
 - ui-timeline-mark.ui-avatar (Timeline) — thuộc component Timeline, chưa làm
 
 Không có dòng lệch.

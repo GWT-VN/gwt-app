@@ -40,11 +40,12 @@ test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ gray-600 10p
       'text-[10px]',
       'font-semibold',
       'tracking-[0.02em]',
-      'leading-[20px]', // artifact kế thừa line-height 20px của body bundle.css; vùng DS không có → ghi tường minh
       'border-none',
       'border-current',
     ]),
   )
+  // line-height không ghi cứng: .ui-avatar không khai → kế thừa (20px từ DsRoot, 18px trong caption) như artifact
+  expect(lop(h).some((c) => c.startsWith('leading-'))).toBe(false)
   expect(h).toContain('>H</span>')
 })
 
