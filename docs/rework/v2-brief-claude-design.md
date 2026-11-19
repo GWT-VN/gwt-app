@@ -321,7 +321,7 @@ Tồn kho theo mã (tồn · tối thiểu · cảnh báo sắp hết/âm · s�
 - **Hàng chờ duyệt**: thẻ `TheDuyetDiff` (trước → sau, ai đề xuất, lý do) · Duyệt / Từ chối (bắt lý do) · duyệt hàng loạt · yêu cầu xuất dữ liệu cá nhân (duyệt xong tải một lần).
 - **Nhân viên**: danh sách (vai, hoạt động, **Discord ID**) · người chờ duyệt (đăng nhập lần đầu) · mời nhân viên.
 - **Ma trận phân quyền**: hàng = mã quyền gom theo khu, cột = 14 vai, ô tick.
-- **Cấu hình thông báo Discord** (`MaTranThongBao`): hàng = loại thông báo (được giao việc · sắp tới hạn · quá hạn · được @nhắc · đơn HO mới · VTP giao xong · ticket Khẩn · ticket mở quá lâu · kho sắp hết · chờ duyệt…), cột = kênh / người nhận, ô bật/tắt.
+- **Cấu hình thông báo** (`MaTranThongBao`, Trong app + Discord): hàng = loại thông báo (được giao việc · sắp tới hạn · quá hạn · được @nhắc · đơn HO mới · VTP giao xong · ticket Khẩn · ticket mở quá lâu · kho sắp hết · chờ duyệt…), cột = **Trong app** (chuông, CEO chốt 19/11) + kênh Discord / người nhận, ô bật/tắt.
 - **Nhật ký thao tác**: ai · lúc · hành động · đối tượng · nguồn (app / bot + người ra lệnh) · chi tiết trước → sau.
 - **Đăng nhập**: Google `@gwt.vn` hoặc email + mật khẩu · màn "Đang chờ duyệt" · đổi mật khẩu bắt buộc lần đầu · quên mật khẩu.
 

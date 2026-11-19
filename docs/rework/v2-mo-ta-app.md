@@ -113,7 +113,7 @@ Ký hiệu: ✅ có ở bản cũ, mang sang (có thể thiết kế lại) · �
 
 ### 4.6 Quản trị
 
-✅ Nhân viên · Ma trận phân quyền · Hàng chờ duyệt · Nhật ký thao tác · Đồng bộ catalog (kéo danh mục sản phẩm/giá từ Masterdata) · 🆕 Cấu hình thông báo Discord (mục 5).
+✅ Nhân viên · Ma trận phân quyền · Hàng chờ duyệt · Nhật ký thao tác · Đồng bộ catalog (kéo danh mục sản phẩm/giá từ Masterdata) · 🆕 Cấu hình thông báo — Trong app + Discord (mục 5).
 
 ### 4.7 Module khác
 
@@ -124,7 +124,7 @@ Ký hiệu: ✅ có ở bản cũ, mang sang (có thể thiết kế lại) · �
 
 Đội làm việc trên Discord. v2 coi Discord là **một cửa vào app** (qua agent Bắp) và **một cửa ra** (app báo vào kênh). Hôm nay bot đã ghi thẳng ticket, sự kiện serial, sổ kho vào DB và đọc đơn — nhưng chưa có gì vào Work, chưa có bảng nối Discord ID ↔ nhân viên, và app chưa gửi được thông báo nào. Chi tiết hiện trạng và 8 luồng đích (giao việc, báo cáo, nhắc theo giờ, task AI + nghiệm thu, việc của tôi, thông báo ra, tổng kết tháng, ý tưởng cho app): **mục 7.14**.
 
-Hệ quả cho UI: mỗi task/ticket/đơn/dòng kho hiện **nguồn** (app / Sheet / Discord ↗ + link tin / bot); nhật ký ghi rõ "qua Discord" và người ra lệnh; hồ sơ nhân viên có ô Discord ID; một màn **cấu hình thông báo** (loại thông báo × kênh × bật/tắt).
+Hệ quả cho UI: mỗi task/ticket/đơn/dòng kho hiện **nguồn** (app / Sheet / Discord ↗ + link tin / bot); nhật ký ghi rõ "qua Discord" và người ra lệnh; hồ sơ nhân viên có ô Discord ID; một màn **cấu hình thông báo** (loại thông báo × kênh × bật/tắt; kênh gồm **Trong app** — chuông trên thanh đầu — và các kênh Discord, CEO chốt 19/11).
 
 ## 6. Nền dữ liệu v2
 
@@ -490,7 +490,7 @@ Mọi thao tác ghi đi qua hàm DB schema `work`, email người làm lấy t�
 | D3 | **Nhắc theo giờ** | "sáng mai 9h nhắc anh Như (nhắc cả chị) kiểm tra abc với khách" → bot reply 4 ý (giờ · người · có tag người giao · nội dung) để xác nhận → đến giờ tag người đó. Lời nhắc ghi vào việc liên quan, chưa có thì tạo việc | Đặt thử 5 phút sau: đúng giờ, đúng người, có trong việc |
 | D4 | **Task AI + nghiệm thu** | CEO giao việc AI trên Discord → bot ghi nhận, **phân loại vào app nào đang code** (không rõ thì hỏi) → việc nhãn AI + tên app + một dòng thêm vào **file checklist yêu cầu trong repo app đó** kèm link tin gốc (CEO: "pull git về là follow được checklist + đưa thêm yêu cầu hoặc chỉnh sửa tiếp") → xong việc, người làm báo cáo theo mẫu: **(1) các yêu cầu từ chị đưa ra · (2) nghiệm thu xem ở đâu** → **màn nghiệm thu**: danh sách yêu cầu → trạng thái từng yêu cầu → link kết quả → CEO **click vào và comment thẳng** chỗ cần sửa / hiểu sai; comment thành việc sửa tiếp. Phần giải thích dài thu gọn/mở rộng được (CEO 04/11) | CEO biết ngay: đã xong hết yêu cầu chưa · việc đang làm thuộc mục nào. Không báo chung chung "đã xong" |
 | D5 | **Việc của tôi** (sơ đồ 1.5) | Nhân viên nhắn Bắp "việc của tôi" → Bắp hỏi Work các task chưa xong của người đó (hạn, ưu tiên, cập nhật cuối) → chia 3 nhóm **Cần gấp · Cần làm · Để lâu rồi quên** → trả lời mỗi task 1 dòng: tên, hạn, link Work. CEO 17/11: nhân sự nhờ Bắp sắp xếp lại việc cần làm, việc gấp, việc để lâu rồi quên | Khớp tab của họ trên Bảng team |
-| D6 | **Thông báo ra** | CEO yêu cầu: đơn HO mới · VTP giao đến / giao thành công · nhắc việc theo giờ. (đề xuất) thêm: được giao việc · sắp tới hạn / quá hạn · được @nhắc · việc chặn mình đã xong · ticket Khẩn / mở quá X ngày / bot tạo chưa ai nhận · kho sắp hết · CTKM chờ duyệt · nhân viên chờ duyệt · tin 8h/17h | Mỗi loại bật/tắt và chọn kênh ở màn cấu hình (`MaTranThongBao`) |
+| D6 | **Thông báo ra** | CEO yêu cầu: đơn HO mới · VTP giao đến / giao thành công · nhắc việc theo giờ. (đề xuất) thêm: được giao việc · sắp tới hạn / quá hạn · được @nhắc · việc chặn mình đã xong · ticket Khẩn / mở quá X ngày / bot tạo chưa ai nhận · kho sắp hết · CTKM chờ duyệt · nhân viên chờ duyệt · tin 8h/17h | Mỗi loại bật/tắt và chọn kênh ở màn cấu hình (`MaTranThongBao`); kênh **Trong app** (chuông) là một cột riêng cạnh Discord (CEO 19/11) |
 | D7 | **Tổng kết tháng** | Ngày 1 hằng tháng gửi bảng tổng kết theo người + link màn tổng kết | |
 | D8 | **Ý tưởng cho App** | Hiền làm việc Sales/CSKH trong Work của Claude (thay vì trong chat) → **cuối mỗi ngày** Claude tổng hợp các việc phải làm tay hôm đó → phân tích việc nào code thành tính năng được → Hiền đọc lại đề xuất một lượt, ổn thì commit; mỗi commit ghi nhận là *"Công việc hàng ngày của Sales/CSKH – Ý tưởng cho App"* — **ý tưởng, chưa phải yêu cầu** (CEO 17/11). Trong app: một danh sách Ý tưởng tách khỏi checklist yêu cầu; CEO chuyển ý tưởng thành yêu cầu (D4) khi duyệt. Cùng luồng: **Hiệp** (quen thao tác app Sales và CS) ghi lại các thao tác còn rườm rà và tự đề xuất cách làm gọn (doc AI-Team mục 0; CEO 17/11) | Ý tưởng không lẫn vào yêu cầu; CEO đọc được mọi ý tưởng theo ngày |
 
@@ -648,7 +648,7 @@ Mỗi component: **dùng ở** (màn), **hành vi**, **biến thể**, **trạng
 | `BangDieuPhoiTuan` | điều phối KTV | Hàng = KTV, cột = ngày trong tuần, ô = phiếu việc; ngày nghỉ KTV tô xám; cảnh báo trùng lịch; kéo phiếu sang ô khác để đổi người/ngày |
 | `NhapCoXemTruoc` | lô serial, danh mục lỗi, Sheet HO | Dán từ Excel hoặc tải xlsx/csv → bảng xem trước, đánh dấu dòng trùng / sai / mới → chỉ ghi khi bấm xác nhận |
 | `TheDuyetDiff` | `/duyet`, lịch sử sửa kho, đề xuất dời lượt bảo trì, nhật ký thao tác | Hiện **trước → sau** từng trường, ai đề xuất, lý do; nút Duyệt / Từ chối (bắt lý do); duyệt một lần duy nhất |
-| `MaTranThongBao` | cấu hình thông báo | Hàng = loại thông báo, cột = kênh Discord / người nhận, ô bật/tắt |
+| `MaTranThongBao` | cấu hình thông báo | Hàng = loại thông báo, cột = **Trong app** (chuông) + kênh Discord / người nhận, ô bật/tắt — tắt cột Trong app thì loại đó không vào chuông (CEO 19/11) |
 | `OSoanBinhLuan` | việc, ticket | Ô soạn có **@nhắc tên** (gợi ý nhân viên), đính kèm tệp, Ctrl+Enter gửi |
 | `PanelLienKet` | chi tiết việc | Việc con (tạo nhanh), phụ thuộc 2 chiều (chặn vòng lặp), chip khách/ticket/đơn |
 | `OSoanNhac` | việc, Discord D3 | Giờ nhắc · người được nhắc · có nhắc người giao · nội dung; hiện danh sách lời nhắc của việc với trạng thái |
