@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@/app/actions', () => ({ updateTicket: vi.fn() }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ datCsTheoDoi: vi.fn() }))
 vi.mock('@/app/ticket/nguoi-actions', () => ({
-  ganCsTheoDoi: vi.fn(), ganKyThuat: vi.fn(), themNguoi: vi.fn(), doiTenNguoi: vi.fn(), xoaNguoi: vi.fn(),
+  ganCsTheoDoi: vi.fn(), ganKyThuat: vi.fn(),
 }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 import { DauTicket } from './DauTicket'
@@ -51,10 +51,16 @@ describe('DauTicket', () => {
     ]
     const moi = { ...co, dsCs, dsKt, ktHoSo: null }
 
-    it('CS theo dõi lấy từ danh sách: có tên mới, không có người đã ẩn, có Thêm / Sửa danh sách', () => {
+    it('CS theo dõi lấy từ danh sách, CHỈ CHỌN: không còn Thêm / Sửa danh sách trên ticket (19/11)', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} />)
-      for (const t of ['>Thanh Hiền<', '+ Thêm tên…', '✎ Sửa danh sách…']) expect(h).toContain(t)
+      expect(h).toContain('>Thanh Hiền<')
+      for (const t of ['Thêm tên', 'Sửa danh sách', 'Đổi tên', 'Quản lý danh sách']) expect(h).not.toContain(t)
       expect(h).not.toContain('Tuyết Trang')
+    })
+    it('admin@ / ai@ (quanTri) → có link sang trang quản trị /danh-sach-nguoi', () => {
+      const h = renderToStaticMarkup(<DauTicket {...moi} quanTri />)
+      expect(h).toContain('href="/danh-sach-nguoi"')
+      expect(h.match(/Sửa danh sách →/g)?.length).toBe(1)
     })
     it('người đã ẩn nhưng đang gán vẫn hiện, đánh dấu đã ẩn', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} csTheoDoi="Tuyết Trang" />)

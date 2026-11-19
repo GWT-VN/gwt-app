@@ -22,12 +22,12 @@ type KQ = { ok: true } | { ok: false; error: string }
 /**
  * Thanh đầu trang ticket: mã · loại · model · tỉnh; 4 ô sửa nhanh (chọn là lưu ngay)
  * Trạng thái · Khẩn · CS theo dõi · Kỹ thuật; tóm tắt "Mở N ngày · K lần lỗi · lần cuối".
- * Có `dsCs` / `dsKt` (DB đã áp migration 18/11) → chọn từ danh sách sửa được (thêm / đổi tên / xoá);
+ * Có `dsCs` / `dsKt` (DB đã áp migration 18/11) → chọn từ danh sách (thêm / xoá người ở trang /danh-sach-nguoi, admin);
  * không có → như 17/11 (4 tên cố định, kỹ thuật theo tài khoản nhân viên).
  */
 export function DauTicket({
   code, loai, model, tinh, state, khan, csTheoDoi, ktId, staff,
-  ngayDau, soLan, ngayCuoi, homNay, choSua, choCs, coCotMoi = true, dsCs = null, dsKt = null, ktHoSo = null,
+  ngayDau, soLan, ngayCuoi, homNay, choSua, choCs, coCotMoi = true, dsCs = null, dsKt = null, ktHoSo = null, quanTri = false,
 }: {
   code: string; loai: string | null; model: string | null; tinh: string | null
   state: string; khan: boolean; csTheoDoi: string | null; ktId: string | null; staff: Staff[]
@@ -42,6 +42,8 @@ export function DauTicket({
   dsCs?: NguoiDs[] | null; dsKt?: NguoiDs[] | null
   // Kỹ thuật theo hồ sơ thợ (tickets.kt_ho_so).
   ktHoSo?: string | null
+  // Được thêm / xoá người (admin@ + ai@, 19/11) → hiện link "Quản lý danh sách →".
+  quanTri?: boolean
 }) {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -104,10 +106,11 @@ export function DauTicket({
           </div>
         )}
 
+        {/* Một link "Sửa danh sách" cho cả hai ô (Hiệp 19/11/2026), đặt ở ô Kỹ thuật. */}
         <div className="flex items-start gap-1.5 text-slate-500">
           <span className="py-1">Kỹ thuật</span>
           {choSua && dsKt ? (
-            <ChonNguoi loai="kt" ds={dsKt} dangGan={ktHoSo} disabled={busy}
+            <ChonNguoi loai="kt" ds={dsKt} dangGan={ktHoSo} disabled={busy} quanTri={quanTri}
               onChon={(id) => ganKyThuat(code, id)} />
           ) : choSua ? (
             <select aria-label="Chọn kỹ thuật" className={o} value={ktId ?? ''} disabled={busy}

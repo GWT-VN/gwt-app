@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { taoKyThuat, suaKyThuat, xoaKyThuat, taoLichKyThuat, boiCanhKhach, capNhatDiaChiMay, lichTuanKyThuat, taoNghiKyThuat, xoaNghiKyThuat, type KyThuat, type ViecInput, type BoiCanhKhach, type TuanKyThuat } from '@/app/actions'
+import { taoLichKyThuat, boiCanhKhach, capNhatDiaChiMay, lichTuanKyThuat, taoNghiKyThuat, xoaNghiKyThuat, type KyThuat, type ViecInput, type BoiCanhKhach, type TuanKyThuat } from '@/app/actions'
 import { LOAI_VIEC_KT, NHAN_LOAI_VIEC } from '@/lib/danhSach'
 import { ChonTinh } from '@/components/ChonTinh'
 import { KhachPicker } from '@/components/KhachPicker'
@@ -14,19 +15,17 @@ const HOM_NAY = () => new Date().toISOString().slice(0, 10)
  * Quản lý kỹ thuật + GÁN CHUYẾN ĐI (1 chuyến nhiều việc).
  * Kỹ thuật gồm nhân viên + cộng tác viên. Việc "Khác" bắt buộc ghi cụ thể.
  */
-export function KyThuatBang({ dsKt, prefill }: {
+export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
   dsKt: KyThuat[]
+  // Trang này CHỈ gán lịch (Hiệp 19/11/2026). Thêm / sửa / xoá thợ làm ở /danh-sach-nguoi?tab=kt (chỉ admin@ + ai@);
+  // `suaDs` = hiện link sang đó.
+  suaDs?: boolean
   prefill?: { khachId: string; ctx: BoiCanhKhach; ngay?: string; viec?: ViecInput[] }
 }) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
-
-  // thêm kỹ thuật
-  const [ten, setTen] = useState('')
-  const [sdt, setSdt] = useState('')
-  const [ctv, setCtv] = useState(false)
 
   // tạo chuyến
   const [ktId, setKtId] = useState('')
@@ -57,31 +56,6 @@ export function KyThuatBang({ dsKt, prefill }: {
     setCtx(c)
     if (c.dia_chi) setDiaChi(c.dia_chi)   // địa chỉ: máy -> khách -> tự điền
     if (c.tinh) setTinh(c.tinh)
-  }
-
-  async function themKt() {
-    if (!ten.trim()) return
-    setBusy(true); setErr(null); setMsg(null)
-    const r = await taoKyThuat({ ten, sdt: sdt || undefined, la_ctv: ctv })
-    setBusy(false)
-    if (!r.ok) { setErr(r.error); return }
-    setTen(''); setSdt(''); setCtv(false); setMsg('Đã thêm kỹ thuật.'); router.refresh()
-  }
-  async function toggle(k: KyThuat) {
-    setBusy(true); setErr(null)
-    // `suaKyThuat` ghi ĐÈ cả hồ sơ, nên phải gửi lại ĐỦ mọi trường — thiếu trường nào là
-    // trường ấy bị xoá trắng. Nút này chỉ định bật/tắt `hoat_dong`; quên `tinh` là mỗi lần
-    // khoá/mở một kỹ thuật lại làm mất tỉnh phụ trách của họ, không ai thấy vì sao.
-    const r = await suaKyThuat(k.id, {
-      ten: k.ten, sdt: k.sdt ?? undefined, vung: k.vung ?? undefined, tinh: k.tinh ?? undefined,
-      email: k.email ?? undefined, la_ctv: k.la_ctv, hoat_dong: !k.hoat_dong,
-    })
-    setBusy(false); if (!r.ok) setErr(r.error); else router.refresh()
-  }
-  async function xoa(k: KyThuat) {
-    if (!window.confirm(`Xoá kỹ thuật "${k.ten}"?`)) return
-    setBusy(true); setErr(null)
-    const r = await xoaKyThuat(k.id); setBusy(false); if (!r.ok) setErr(r.error); else router.refresh()
   }
 
   function setViecAt(i: number, patch: Partial<ViecInput>) {
@@ -222,30 +196,21 @@ export function KyThuatBang({ dsKt, prefill }: {
         </div>
       </section>
 
-      {/* Quản lý kỹ thuật */}
+      {/* Danh sách thợ: chỉ xem. Sửa ở trang Danh sách người. */}
       <section className="bg-white rounded-xl border p-4 space-y-3">
-        <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.length})</h2>
-        <div className="flex flex-wrap items-end gap-2">
-          <input value={ten} onChange={(e) => setTen(e.target.value)} placeholder="Tên kỹ thuật" className={oInput} />
-          <input value={sdt} onChange={(e) => setSdt(e.target.value)} placeholder="SĐT" className={`${oInput} w-32`} />
-          <label className="flex items-center gap-1 text-xs text-slate-700"><input type="checkbox" checked={ctv} onChange={(e) => setCtv(e.target.checked)} />Cộng tác viên</label>
-          <button disabled={busy || !ten.trim()} onClick={themKt} className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm disabled:opacity-50">+ Thêm</button>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.length})</h2>
+          {suaDs && <Link href="/danh-sach-nguoi?tab=kt" className="text-xs text-slate-500 underline">Sửa danh sách →</Link>}
         </div>
         <ul className="divide-y border rounded-lg">
           {dsKt.map((k) => (
-            <li key={k.id} className="px-3 py-2 flex items-center justify-between gap-3">
-              <span className="text-sm">
-                <span className={k.hoat_dong ? 'text-slate-900' : 'text-slate-400 line-through'}>{k.ten}</span>
-                {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
-                {k.sdt && <span className="text-xs text-slate-400 font-mono ml-1">· {k.sdt}</span>}
-              </span>
-              <span className="flex items-center gap-2">
-                <button onClick={() => toggle(k)} className="text-xs text-slate-500 underline">{k.hoat_dong ? 'ngừng' : 'bật'}</button>
-                <button onClick={() => xoa(k)} className="text-xs text-red-600 underline">xoá</button>
-              </span>
+            <li key={k.id} className="px-3 py-2 text-sm">
+              <span className={k.hoat_dong ? 'text-slate-900' : 'text-slate-400 line-through'}>{k.ten}</span>
+              {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
+              {k.sdt && <span className="text-xs text-slate-400 font-mono ml-1">· {k.sdt}</span>}
             </li>
           ))}
-          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-slate-400">Chưa có kỹ thuật. Thêm ở trên.</li>}
+          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-slate-400">Chưa có kỹ thuật.</li>}
         </ul>
       </section>
     </div>

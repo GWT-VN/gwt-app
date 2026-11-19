@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 let rows: Record<string, Record<string, unknown>[]> = {}
 let ghi: { bang: string; op: 'update' | 'insert' | 'delete'; arg: Record<string, unknown> }[] = []
 let quyenLoi = false
+let emailDangNhap: string | null = 'admin@gwt.vn'
 
 function builder(t: string) {
   let op: 'select' | 'update' | 'insert' | 'delete' = 'select'
@@ -23,17 +24,19 @@ function builder(t: string) {
 vi.mock('server-only', () => ({}))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/nen-tang/db', () => ({ dataClient: () => ({ from: builder }) }))
-vi.mock('@/lib/nen-tang/phien', () => ({ requireStaff: vi.fn(async () => ({})) }))
+vi.mock('@/lib/nen-tang/phien', () => ({
+  requireStaff: vi.fn(async () => ({})), layNhanVien: vi.fn(async () => (emailDangNhap ? { email: emailDangNhap } : null)),
+}))
 vi.mock('@/lib/nen-tang/nhat-ky', () => ({ ghiAudit: vi.fn(async () => {}) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   doQuyen: vi.fn(async () => { if (quyenLoi) throw new Error('KHONG_DU_QUYEN') }),
 }))
 
-import { docNguoiTicket, doiTenNguoi, ganCsTheoDoi, ganKyThuat, themNguoi, xoaNguoi } from './nguoi-actions'
+import { docNguoiTicket, dsNguoiQuanTri, ganCsTheoDoi, ganKyThuat, themNguoi, xoaNguoi } from './nguoi-actions'
 
 const MA = 'GWT-260053'
 beforeEach(() => {
-  quyenLoi = false; ghi = []
+  quyenLoi = false; ghi = []; emailDangNhap = 'admin@gwt.vn'
   rows = {
     cs_theo_doi_ds: [
       { id: 'c1', ten: 'Hiệp', hoat_dong: true }, { id: 'c2', ten: 'Tuyết Trang', hoat_dong: false },
@@ -44,7 +47,11 @@ beforeEach(() => {
       { id: 't3', ten: 'Thợ cũ', hoat_dong: false, la_ctv: true, email: null },
     ],
     staff: [{ id: 's-binh', email: 'Binh@GWT.vn', hoat_dong: true }],
-    tickets: [{ ticket_code: MA, cs_theo_doi: null, kt_ho_so: null }],
+    tickets: [
+      { ticket_code: MA, cs_theo_doi: null, kt_ho_so: null, state: 'Open' },
+      { ticket_code: 'GWT-1', cs_theo_doi: 'Hiệp', kt_ho_so: 't2', state: 'Open' },
+      { ticket_code: 'GWT-2', cs_theo_doi: 'Hiệp', kt_ho_so: 't2', state: 'Done' },
+    ],
     lich_ky_thuat: [{ id: 'l1', ky_thuat_id: 't1' }],
   }
 })
@@ -92,7 +99,30 @@ describe('ganCsTheoDoi', () => {
   })
 })
 
-describe('themNguoi / doiTenNguoi / datHienNguoi', () => {
+describe('thêm / xoá người: chỉ admin@ + ai@ (Hiệp 19/11)', () => {
+  it('tài khoản khác (trưởng CSKH tk@, CEO bella@) → không thêm, không xoá, không gọi DB ghi', async () => {
+    for (const e of ['tk@gwt.vn', 'bella@gwt.vn', null]) {
+      emailDangNhap = e
+      expect((await themNguoi('cs', 'Thanh Hiền')).ok).toBe(false)
+      expect((await xoaNguoi('cs', 'c1')).ok).toBe(false)
+      expect((await dsNguoiQuanTri()).ok).toBe(false)
+    }
+    expect(ghi).toEqual([])
+  })
+  it('ai@ cũng được', async () => {
+    emailDangNhap = 'ai@gwt.vn'
+    expect((await themNguoi('cs', 'Thanh Hiền')).ok).toBe(true)
+  })
+  it('trang quản trị: số ticket ĐANG MỞ gán mỗi người (ticket đã xong không tính)', async () => {
+    const r = await dsNguoiQuanTri()
+    if (!r.ok) throw new Error(r.error)
+    expect(r.cs.find((x) => x.id === 'c1')?.so_ticket).toBe(1)
+    expect(r.kt.find((x) => x.id === 't2')?.so_ticket).toBe(1)
+    expect(r.kt.find((x) => x.id === 't1')?.so_ticket).toBe(0)
+  })
+})
+
+describe('themNguoi / xoaNguoi (admin@)', () => {
   it('thêm tên mới (CS) → insert, thứ tự cuối danh sách', async () => {
     const r = await themNguoi('cs', '  Thanh   Hiền ')
     expect(r).toEqual({ ok: true, id: 'moi', ten: 'Thanh Hiền' })
@@ -106,14 +136,6 @@ describe('themNguoi / doiTenNguoi / datHienNguoi', () => {
     const r = await themNguoi('cs', 'tuyet trang')
     expect(r).toEqual({ ok: true, id: 'c2', ten: 'Tuyết Trang' })
     expect(ghi.filter((g) => g.op === 'insert')).toEqual([])
-  })
-  it('đổi tên trùng người khác → chặn', async () => {
-    expect((await doiTenNguoi('kt', 't2', 'do ngoc binh')).ok).toBe(false)
-    expect(ghi).toEqual([])
-  })
-  it('đổi tên hợp lệ → update tên', async () => {
-    expect(await doiTenNguoi('kt', 't2', 'Trần Văn Sơn (HCM)')).toEqual({ ok: true })
-    expect(ghi[0]).toEqual({ bang: 'ky_thuat', op: 'update', arg: { ten: 'Trần Văn Sơn (HCM)' } })
   })
   it('xoá CS → xoá dòng trong danh sách (ticket đang gán về chưa gán nhờ FK on delete set null)', async () => {
     expect(await xoaNguoi('cs', 'c1')).toEqual({ ok: true })

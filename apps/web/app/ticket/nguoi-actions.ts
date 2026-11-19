@@ -6,6 +6,9 @@
 // (xoá sẽ mất ngày nghỉ + bỏ trống lịch cũ) — làm ở trang Kỹ thuật.
 // Riêng file này, không đụng app/actions.ts (dùng chung mọi khu).
 
+// 19/11/2026 (Hiệp): THÊM / XOÁ người chỉ làm ở trang quản trị /danh-sach-nguoi, chỉ admin@ + ai@ (giai đoạn hoàn thiện,
+// lib/nen-tang/sua-danh-sach.ts). Bỏ đổi tên. Trên ticket chỉ còn CHỌN người (gán) — quyền cs.ticket.tao_sua như cũ.
+
 import { revalidatePath } from 'next/cache'
 import { dataClient } from '@/lib/nen-tang/db'
 import { requireStaff } from '@/lib/nen-tang/phien'
@@ -14,6 +17,8 @@ import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import type { KQ } from '@/lib/loi/ganDongMayServer'
 import { maTicketHopLe, thongBaoLoiDb } from '@/lib/loi/kiemDauVao'
 import { chuanTenNguoi, taiKhoanCuaTho, type NguoiDs } from '@/lib/loi/nguoiTicket'
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
+import { KHONG_DU_QUYEN } from '@/lib/nen-tang/nhan-su-luat'
 
 export type LoaiNguoi = 'cs' | 'kt'
 export type NguoiTicket = { cs: NguoiDs[]; kt: NguoiDs[]; kt_ho_so: string | null }
@@ -26,6 +31,12 @@ const laLoai = (x: unknown): x is LoaiNguoi => x === 'cs' || x === 'kt'
 async function chan() {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+}
+
+/** Thêm / xoá người: chỉ tài khoản trong danh sách được sửa (admin@, ai@). */
+async function chanSuaDanhSach(): Promise<KQ | null> {
+  await requireStaff()
+  return (await coSuaDanhSach()) ? null : { ok: false, error: KHONG_DU_QUYEN }
 }
 
 async function docDs(loai: LoaiNguoi): Promise<NguoiDs[]> {
@@ -68,7 +79,7 @@ export async function dsKyThuatChoTicket(): Promise<NguoiDs[]> {
 
 /** Thêm người. Gõ trùng người đã có (bỏ dấu, hoa thường) → dùng lại người đó (thợ đang "nghỉ" thì bật lại). */
 export async function themNguoi(loai: LoaiNguoi, ten: string, laCtv = false): Promise<KQ<{ id: string; ten: string }>> {
-  await chan()
+  const khong = await chanSuaDanhSach(); if (khong) return khong as KQ<{ id: string; ten: string }>
   if (!laLoai(loai)) return { ok: false, error: LOI_LOAI }
   const ds = await docDs(loai)
   const c = chuanTenNguoi(ten, ds)
@@ -93,27 +104,9 @@ export async function themNguoi(loai: LoaiNguoi, ten: string, laCtv = false): Pr
   return { ok: true, id, ten: c.ten }
 }
 
-/** Đổi tên. CS: ticket đang gán tự theo tên mới (FK ON UPDATE CASCADE). */
-export async function doiTenNguoi(loai: LoaiNguoi, id: string, ten: string): Promise<KQ> {
-  await chan()
-  if (!laLoai(loai)) return { ok: false, error: LOI_LOAI }
-  const ds = await docDs(loai)
-  const cu = ds.find((x) => x.id === id)
-  if (!cu) return { ok: false, error: 'Không thấy người này.' }
-  const c = chuanTenNguoi(ten, ds, id)
-  if (!c.ok) return c
-  if (c.trung) return { ok: false, error: `Đã có "${c.trung.ten}" trong danh sách.` }
-  if (c.ten === cu.ten) return { ok: true }
-  const { error } = await dataClient().from(BANG[loai]).update({ ten: c.ten }).eq('id', id)
-  if (error) return { ok: false, error: thongBaoLoiDb(error, 'doiTenNguoi') }
-  await ghiAudit('doi_ten_nguoi_ticket', `${BANG[loai]}:${id}`, { truoc: cu.ten, sau: c.ten })
-  moiTrang()
-  return { ok: true }
-}
-
 /** Xoá người khỏi danh sách. Ticket đang gán → "chưa gán". Thợ đã có lịch kỹ thuật → không xoá ở đây. */
 export async function xoaNguoi(loai: LoaiNguoi, id: string): Promise<KQ> {
-  await chan()
+  const khong = await chanSuaDanhSach(); if (khong) return khong
   if (!laLoai(loai)) return { ok: false, error: LOI_LOAI }
   const db = dataClient()
   const ng = (await docDs(loai)).find((x) => x.id === id)
@@ -122,7 +115,7 @@ export async function xoaNguoi(loai: LoaiNguoi, id: string): Promise<KQ> {
     const { data: lich, error } = await db.from('lich_ky_thuat').select('id').eq('ky_thuat_id', id).limit(1)
     if (error) return { ok: false, error: thongBaoLoiDb(error, 'xoaNguoi lich') }
     if (lich?.length) {
-      return { ok: false, error: `"${ng.ten}" đã có lịch kỹ thuật — không xoá ở đây để giữ lịch sử. Vào CSKH › Kỹ thuật để xử lý.` }
+      return { ok: false, error: `"${ng.ten}" đã có lịch kỹ thuật — không xoá để giữ lịch sử. Bấm "sửa", bỏ chọn "Hoạt động" để ngừng dùng.` }
     }
   }
   const { error } = await db.from(BANG[loai]).delete().eq('id', id)
@@ -130,6 +123,28 @@ export async function xoaNguoi(loai: LoaiNguoi, id: string): Promise<KQ> {
   await ghiAudit('xoa_nguoi_ticket', `${BANG[loai]}:${id}`, { ten: ng.ten })
   moiTrang()
   return { ok: true }
+}
+
+export type NguoiQuanTri = NguoiDs & { so_ticket: number }
+
+/** Trang quản trị: hai danh sách + số ticket ĐANG MỞ gán mỗi người (để biết trước khi xoá). Chỉ admin@ + ai@. */
+export async function dsNguoiQuanTri(): Promise<KQ<{ cs: NguoiQuanTri[]; kt: NguoiQuanTri[] }>> {
+  const khong = await chanSuaDanhSach(); if (khong) return khong as KQ<{ cs: NguoiQuanTri[]; kt: NguoiQuanTri[] }>
+  const [cs, kt, { data: tk, error }] = await Promise.all([
+    docDs('cs'), docDs('kt'),
+    dataClient().from('tickets').select('cs_theo_doi, kt_ho_so').eq('state', 'Open').limit(20000),
+  ])
+  if (error) return { ok: false, error: thongBaoLoiDb(error, 'dsNguoiQuanTri') }
+  const demCs = new Map<string, number>(), demKt = new Map<string, number>()
+  for (const t of (tk ?? []) as { cs_theo_doi: string | null; kt_ho_so: string | null }[]) {
+    if (t.cs_theo_doi) demCs.set(t.cs_theo_doi, (demCs.get(t.cs_theo_doi) ?? 0) + 1)
+    if (t.kt_ho_so) demKt.set(t.kt_ho_so, (demKt.get(t.kt_ho_so) ?? 0) + 1)
+  }
+  return {
+    ok: true,
+    cs: cs.map((x) => ({ ...x, so_ticket: demCs.get(x.ten) ?? 0 })),
+    kt: kt.map((x) => ({ ...x, so_ticket: demKt.get(x.id) ?? 0 })),
+  }
 }
 
 async function ghiTicket(code: string, patch: Record<string, unknown>, viec: string): Promise<KQ> {
