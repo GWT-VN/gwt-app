@@ -83,6 +83,25 @@ Hai nguồn CEO đính kèm từ đầu: **shadcn/ui** (cấu trúc + hành vi c
   tối. `useDsPortal` chưa có test sau mount (vitest chạy node, không jsdom).
 - **CSS khu Việc nằm ngoài layer** (`[data-khu="work"] ::before`, `:focus-visible`, `*` reduced-motion) → đè cả base
   lẫn utilities của DS. Lát chuyển màn khu Việc: đưa các luật đó vào `@layer` hoặc bỏ khi màn dùng DS.
+- **Trùng tên biến với CSS cũ (review cuối lát 1):** `app/globals.css` `[data-khu="work"]` khai `--muted` (màu CHỮ),
+  `--accent` (teal thương hiệu), `--border`, `--shadow`, và `[data-khu="work"] :focus-visible { outline: … var(--accent);
+  border-radius: 4px }` ngoài mọi layer; `app/wiki/wiki.css` `[data-khu="wiki"]` khai `--accent`, `--shadow`… DS khai
+  lại đúng các tên đó với nghĩa khác (`--muted` = NỀN, `--accent` = nền hover xám). Biến kế thừa theo tổ tiên gần nhất →
+  - **Không lồng component cũ trong `<DsRoot>`** (nó đọc `var(--accent)` → ra nền xám DS) và **không đặt `<DsRoot>`
+    trong `[data-khu="work"]` / `[data-khu="wiki"]`** (focus/viền khu Việc đè DS).
+  - Lát chuyển màn Việc/Wiki: hoặc đổi tên biến cũ (vd `--work-*`, `--wiki-*`) TRƯỚC khi lồng, hoặc chuyển trọn cả màn
+    một lần (bỏ `data-khu` cũ cùng lúc bọc `DsRoot`), không chuyển nửa màn.
+  - Consumer đọc `var(--muted|--accent|--border|--shadow)` (grep 19/11, ngoài `components/ui`): `app/globals.css`,
+    `app/work/{page,team/page,tu-sinh/page}.tsx`, `components/work/*` (BangTeam, ChiTietViec, DongViec, FormTaoViec,
+    GanErp, LuatTuSinh, ThanhHangLoat, TuSinh, ViecCuaToi, XacNhanXoa, ui), `app/wiki/wiki.css`,
+    `app/wiki/marketing/{kho-case/[slug],khung/5a,khung/5a/[cat]}/page.tsx`, `components/marketing/AdsResultsView.tsx`,
+    và **`bang/OChonTimXa.tsx`** (gói dùng chung — `--border`/`--shadow` inline; khi `bang/` vào DS ở lát 4 phải đổi).
+- **Button — việc chuyển lát 2 (review cuối lát 1):**
+  - `asChild` + `disabled`/`loading`: `<a>` không có thuộc tính `disabled` → không có kiểu tắt cũng không chặn bấm.
+    `bundle.css` có `.ui-btn[aria-disabled="true"]` → khi cần, gắn `aria-disabled` + kiểu `aria-disabled:` + chặn
+    `onClick`/`href` (shadcn chưa làm sẵn).
+  - `loading` trên nút đang focus: `disabled` làm focus rơi về `body` (mất vị trí bàn phím, screen reader im). Cân nhắc
+    loading = `aria-disabled` + `aria-busy` + chặn `onClick` thay cho `disabled`, có test giữ focus.
 
 ### 5.2 Token: một nguồn, sinh tự động
 - `apps/web/ds/tokens.json` = bản chép nguyên văn từ artifact (ghi phiên bản artifact + sha256 ở `apps/web/ds/NGUON.md`).
