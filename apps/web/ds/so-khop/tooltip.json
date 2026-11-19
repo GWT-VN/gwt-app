@@ -1,0 +1,93 @@
+{
+  "khung": {
+    "artifact": ".ui-row",
+    "ds": [
+      "#tooltip > div",
+      "[data-ds-portal] [data-slot=\"tooltip-content\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "tro": "#tooltip [data-so=\"icon\"]"
+      },
+      {
+        "cho": 400
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí (cách trigger 6px, căn giữa dưới nút): getComputedStyle không đo top/left — ::after artifact là absolute trong nút, nội dung Radix là fixed trong ô portal; khoảng cách đo bằng getBoundingClientRect trong báo cáo task 5, và nhìn trên ảnh",
+    "side top/left/right và tự lật khi sát mép khung nhìn (Radix Popper) — artifact chỉ có bottom",
+    "Nút trigger (ghost icon đang hover, outline sm): đã đo ở so-khop Button",
+    "Ẩn khi trigger aria-expanded=\"true\" và Esc đóng: test jsdom components/ui/tooltip.dom.test.tsx, không đo ở đây"
+  ],
+  "khoa": [
+    {
+      "khoa": "icon-ro",
+      "artifact": ".ui-row > .ui-btn:nth-child(1)",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
+      "buoc": [
+        {
+          "tro": "#tooltip [data-so=\"icon\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "trongVung": true,
+      "lyDo": {
+        "cursor": "::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none)."
+      }
+    },
+    {
+      "khoa": "icon-phim",
+      "artifact": ".ui-row > .ui-btn:nth-child(1)",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
+      "buoc": [
+        {
+          "tab": "#tooltip [data-so=\"icon\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "trongVung": true,
+      "lyDo": {
+        "cursor": "::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none)."
+      }
+    },
+    {
+      "khoa": "excel-ro",
+      "artifact": ".ui-row > .ui-btn:nth-child(2)",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": ".ui-row > .ui-btn:nth-child(2)",
+            "ds": "#tooltip [data-so=\"excel\"]"
+          }
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "trongVung": true,
+      "lyDo": {
+        "cursor": "::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none).",
+        "lineHeight": "Artifact tự mâu thuẫn: rule hover/focus thật `.ui-tip[data-tip]:is(:hover,:focus-visible)…::after` (bundle.css dòng 416) ghi 500 12px/18px, còn móc preview tĩnh `.ui-tip.is-tip::after` (dòng 1002, nút icon đang ép mở) ghi 12px/16px. DS theo 16px = brief + bản đang hiện trên trang artifact (khoá icon-ro/icon-phim khớp). Câu hỏi mở cho CEO/artifact.",
+        "height": "Artifact tự mâu thuẫn: rule hover/focus thật `.ui-tip[data-tip]:is(:hover,:focus-visible)…::after` (bundle.css dòng 416) ghi 500 12px/18px, còn móc preview tĩnh `.ui-tip.is-tip::after` (dòng 1002, nút icon đang ép mở) ghi 12px/16px. DS theo 16px = brief + bản đang hiện trên trang artifact (khoá icon-ro/icon-phim khớp). Cao 26 vs 24 = hệ quả line-height 18 vs 16 (padding 4+4 khớp). Câu hỏi mở cho CEO/artifact."
+      }
+    }
+  ]
+}

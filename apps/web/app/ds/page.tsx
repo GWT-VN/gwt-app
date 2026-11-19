@@ -7,6 +7,7 @@ import { KhoiAvatar } from './_khoi/khoi-avatar'
 import { KhoiBadge } from './_khoi/khoi-badge'
 import { KhoiButton } from './_khoi/khoi-button'
 import { KhoiKbd } from './_khoi/khoi-kbd'
+import { KhoiTooltip } from './_khoi/khoi-tooltip'
 
 /**
  * Mục lục + khối của /ds, theo thứ tự hiện. Mỗi khối một file `_khoi/khoi-<neo>.tsx` export `Khoi<Ten>()` bọc
@@ -18,7 +19,7 @@ const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
   { neo: 'avatar', ten: 'Avatar', Khoi: KhoiAvatar },
   { neo: 'kbd', ten: 'Kbd', Khoi: KhoiKbd },
   { neo: 'alert', ten: 'Alert', Khoi: KhoiAlert },
-  { neo: 'tooltip', ten: 'Tooltip' },
+  { neo: 'tooltip', ten: 'Tooltip', Khoi: KhoiTooltip },
   { neo: 'dropdown-menu', ten: 'DropdownMenu' },
   { neo: 'context-menu', ten: 'ContextMenu' },
   { neo: 'dialog', ten: 'Dialog' },
