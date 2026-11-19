@@ -182,3 +182,38 @@ test('checkbox item disabled: focus được, bấm/Enter không đổi aria-che
   expect(bh.getAttribute('aria-checked')).toBe('false')
   expect(screen.queryByRole('menu')).not.toBeNull()
 })
+
+test('item disabled: onClick của bên gọi không chạy; asChild <a href> bấm/Enter không điều hướng (preventDefault)', async () => {
+  const user = userEvent.setup()
+  const onClick = vi.fn()
+  render(
+    <DsRoot>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button aria-label="Mở">⋯</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem disabled onClick={onClick}>
+            Chuyển kho (không có quyền)
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild disabled>
+            <a href="#chi-tiet">Xem chi tiết (không có quyền)</a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  await user.click(await screen.findByRole('menuitem', { name: 'Chuyển kho (không có quyền)' }))
+  expect(onClick).not.toHaveBeenCalled()
+  const a = screen.getByRole('menuitem', { name: 'Xem chi tiết (không có quyền)' })
+  const bat: boolean[] = []
+  a.addEventListener('click', (e) => queueMicrotask(() => bat.push(e.defaultPrevented)))
+  await user.click(a)
+  a.focus()
+  await user.keyboard('{Enter}')
+  expect(bat.length).toBeGreaterThanOrEqual(2)
+  expect(bat.every(Boolean)).toBe(true)
+  expect(location.hash).toBe('')
+  expect(screen.queryByRole('menu')).not.toBeNull()
+})

@@ -55,11 +55,21 @@ export const menuCheck = 'ml-auto size-4 shrink-0 text-foreground'
  * Item disabled theo WAI-ARIA APG (menu pattern): VẪN focus được — ↑/↓ và gõ chữ đầu dừng ở nó, có vòng focus — nhưng
  * không kích hoạt; người dùng thấy (và trình đọc màn hình đọc) thao tác kèm lý do bị chặn. Vì thế KHÔNG truyền
  * `disabled` cho Radix (Radix loại item khỏi bàn phím): tự gắn `aria-disabled` + `data-disabled`, và `onSelect`
- * preventDefault (menu không đóng, onSelect của bên gọi không chạy). Checkbox: bên gọi còn phải bỏ onCheckedChange —
- * Radix gọi nó bất kể preventDefault.
+ * preventDefault (menu không đóng, onSelect của bên gọi không chạy). `onClick` cũng bị THAY (onClick của bên gọi không
+ * chạy): Radix chạy props.onClick trước handleSelect, và item `asChild` bọc `<a>`/`<Link>` vẫn điều hướng khi bấm lẫn
+ * Enter/Space (Radix gọi `.click()`) → preventDefault + stopPropagation. Rải SAU `{...props}` để đè onClick của props.
+ * Checkbox: bên gọi còn phải bỏ onCheckedChange — Radix gọi nó bất kể preventDefault.
  */
 export function itemDisabled(disabled: boolean | undefined, onSelect?: (e: Event) => void) {
   return disabled
-    ? { 'aria-disabled': true as const, 'data-disabled': '', onSelect: (e: Event) => e.preventDefault() }
+    ? {
+        'aria-disabled': true as const,
+        'data-disabled': '',
+        onSelect: (e: Event) => e.preventDefault(),
+        onClick: (e: { preventDefault(): void; stopPropagation(): void }) => {
+          e.preventDefault()
+          e.stopPropagation()
+        },
+      }
     : { onSelect }
 }
