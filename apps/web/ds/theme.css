@@ -23,3 +23,15 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 }
+
+/*
+ * Viền mặc định trong vùng DS: `border` trơn lấy --border của DS thay vì slate-200 toàn app (app/globals.css).
+ * Cùng layer base, selector cụ thể hơn `*` nên thắng; utility border-* vẫn đè được.
+ */
+@layer base {
+  [data-ds="v2"] *,
+  [data-ds="v2"] ::before,
+  [data-ds="v2"] ::after {
+    border-color: var(--border);
+  }
+}

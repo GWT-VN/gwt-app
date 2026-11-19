@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "../ds/tokens.css"; /* DS v2 — chỉ trong vùng [data-ds="v2"], màn cũ không đổi */
+@import "../ds/tokens.css" layer(base); /* DS v2 — chỉ trong vùng [data-ds="v2"], màn cũ không đổi; layer base để utility đè được .ds-* */
 @import "../ds/theme.css";
 
 /*
