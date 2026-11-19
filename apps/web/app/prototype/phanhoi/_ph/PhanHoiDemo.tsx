@@ -96,7 +96,7 @@ function XoaPhieu({ h, xong }: { h: Hop; xong: (t: ToastT) => void }) {
           <li>Số dư quỹ tiền mặt tăng lại 1.250.000 ₫.</li>
           <li>Lịch sử phiếu vẫn giữ trong nhật ký kiểm toán.</li>
         </ul>
-        <div className="ui-field ph-lydo">
+        <div className="ui-field">
           <label className="ui-label" htmlFor={id}>Lý do xoá <span className="req" aria-hidden>*</span></label>
           <textarea ref={o} id={id} className="ui-textarea" rows={2} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="VD: nhập trùng với PC-2611-017"
             aria-invalid={loi || undefined} aria-describedby={loi ? id + 'e' : undefined} />

@@ -1,7 +1,6 @@
 /* PROTOTYPE — chỉ bố cục trang demo; component nằm ở khung/_proto/ui.css (khối BỔ SUNG DS PHẢN HỒI) */
 .ph-nut { display: flex; flex-wrap: wrap; gap: 8px; }
 .ph-ghi { margin: 12px 0 0; }
-.ph-lydo { margin-top: 16px; }
 .ph-ds { margin-top: 12px; }
 .ph-u { min-width: 60px; justify-content: center; } /* "Thường" 59px — cùng bề rộng tag ưu tiên ở bảng */
 .ph-k { width: 33%; }

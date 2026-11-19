@@ -715,6 +715,7 @@ dialog.ui-dialog[open] { animation: ui-dialog-len 160ms cubic-bezier(0.19, 1, 0.
 .ui-dialog-list { margin: 0; padding-left: 18px; color: var(--foreground); font-size: 14px; line-height: 20px; }
 .ui-dialog-list li + li { margin-top: 4px; }
 .ui-dialog-body > .ui-field + .ui-field { margin-top: 12px; }
+.ui-dialog-list + .ui-field { margin-top: 16px; } /* hệ quả → ô lý do (xoá, gộp) */
 @media (max-width: 640px) {
   dialog.ui-dialog { width: calc(100% - 32px); max-width: none; }
   .ui-dialog-footer { flex-direction: column-reverse; }               /* nút chính lên trên, rộng hết — dễ bấm bằng ngón cái */
@@ -887,7 +888,7 @@ a.ui-stat:hover .ui-stat-foot svg, button.ui-stat:hover .ui-stat-foot svg { tran
 .ui-notif-matrix tbody th[scope="rowgroup"] { height: var(--control-size-md); background: var(--muted); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted-foreground); }
 /* cột tên ghim trái khi cuộn ngang (màn hẹp) */
 .ui-notif-matrix thead th:first-child { left: 0; z-index: 2; box-shadow: inset -1px 0 0 var(--border); }
-.ui-notif-matrix-khu th > span { position: sticky; left: var(--control-gutter-md); } /* tên khu không trôi khi cuộn ngang */ /* cột tên ghim trái khi cuộn ngang (màn hẹp) */
+.ui-notif-matrix-khu th > span { position: sticky; left: var(--control-gutter-md); } /* tên khu không trôi khi cuộn ngang */
 .ui-notif-matrix tbody tr:hover th[scope="row"] { background: linear-gradient(var(--color-background-primary-outline-hover), var(--color-background-primary-outline-hover)), var(--card); } /* nền đặc: ô ghim không lộ chữ cuộn bên dưới */
 .ui-notif-matrix td { text-align: center; }
 .ui-notif-matrix tbody tr:last-child th { border-bottom: 0; }
