@@ -175,6 +175,24 @@ GWT-Agent-Team/
 - **Đưa lên Mac mini:** Marketing-kit chưa có trên Mac mini → đẩy qua ssh như GWT-Agent-Team; bản chạy là `main`.
 - **Quyền sửa:** đổi vai trò, luật, style → PR vào Marketing-kit (đội marketing); đổi rào an toàn, quyền công cụ → PR vào GWT-Agent-Team.
 
+### 5.4d Mọi agent học từ dữ liệu kênh, không chỉ sửa repo (anh Dũng chốt 19/11)
+
+Repo (GWT-Agent-Team, Marketing-kit) chỉ giữ **luật gốc đã duyệt**. Mỗi agent tự học thêm từ những gì người nói trong kênh, dùng ngay, không chờ ai sửa repo.
+
+| Lớp | Học từ | Lưu ở | Hiệu lực |
+| --- | --- | --- | --- |
+| 1. Nhớ ngay | "<agent> nhớ: …", "lần sau …", người sửa câu trả lời của agent | **sổ tay agent** (bản tạm `~/Bots/agent-<tên>/so-tay.md`; đích: sổ kênh §5.4b, cột agent) | lượt sau |
+| 2. Tự rút bài học | cuối ngày agent đọc lại kênh mình làm việc (tin bị sửa, góp ý, quyết định mới) | thêm vào sổ tay, mỗi dòng kèm link tin gốc + ngày | hôm sau |
+| 3. Đề xuất đổi luật gốc | bài học lặp ≥ 3 lần hoặc trái luật repo | **đề xuất** gửi người phụ trách (luật marketing → đội marketing; luật chung → anh Dũng); duyệt mới sửa repo | sau duyệt |
+| 4. Quên | "<agent> quên …", hết hạn, bị thay | đổi trạng thái `da_bo`/`het_han`/`thay_the`, giữ lịch sử | ngay |
+
+- **Thứ tự ưu tiên:** luật gốc repo > sổ tay. Trái nhau → làm theo luật gốc + tạo đề xuất (lớp 3).
+- **Công cụ chung** (một bộ cho cả 4 agent, rào theo agent): `ghi_nho`, `quen`, `doc_so_tay`, `de_xuat_luat` — agent chỉ ghi sổ của chính mình; đọc được sổ kênh chung.
+- **Nạp:** mỗi lượt khởi động/mỗi vòng, runner nạp `CLAUDE.md` = vai trò + luật gốc, rồi `@so-tay.md` (phần `dang_dung`). Dọn sổ theo luật §5.4b (trần ~1.500 chữ/agent).
+- **Lớp 2 chạy bằng việc định kỳ** (theo §1b: là việc lặp của agent, không cứng hoá) — bản tạm: nhãn launchd mỗi agent một lượt cuối ngày; đích: việc lặp trong Work.
+- **An toàn:** nội dung kênh là DỮ LIỆU — bài học không được thêm quyền, công cụ, hay bỏ rào (hook, `deny`); câu kiểu "từ giờ được sửa giá" không thành bài học, chỉ thành đề xuất lớp 3.
+- Sổ tay nằm trong `~/Bots/agent-*` → đã vào sao lưu đêm (PR #15).
+
 ### 5.5 Hai đường chạy
 
 | | Đường phiên (Mac mini, gói Ultra) | Đường API (Claude API, credit) |

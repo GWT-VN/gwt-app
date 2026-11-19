@@ -267,6 +267,14 @@ Làm được ngay (không phụ thuộc 7 ngày theo dõi: chỉ thêm file + t
 - [ ] Trên Mac mini: pull cả hai repo; tắt/mở lại `com.gwt.agent.bo` (bootout → kill `=agent-bo` → `--chi`). Một token một phiên — kiểm đúng 1 plugin Discord với `DISCORD_STATE_DIR=…/bo`.
 - [ ] #bắp-mkt: "@Bơ Marketing gợi ý 3 hook cho video CTS20 từ kho hook" → có dữ liệu từ `kho_hook`; câu chữ không vi phạm `ad-compliance-vn` (chạy `scripts/ra-tu-nhay-cam.py` trên câu trả lời mẫu).
 
+### Task 7e: Mọi agent học từ kênh — bản tạm trước API (spec §5.4d)
+
+**Files:** Create `chay/phien/so-tay.mjs` (MCP chung: `ghi_nho`, `quen`, `doc_so_tay`, `de_xuat_luat`), `tests/so-tay.test.mjs`; Modify `chay/phien/start-agent.sh` (nạp `CLAUDE.md` = vai trò + luật gốc rồi dòng `@so-tay.md`), `agents/nho/agent.json` + `agents/bo` (Marketing-kit) thêm server `so_tay`; nhãn `com.gwt.agent.<tên>.hoc` (cuối ngày 22:30) chạy một lượt `claude -p` đọc lại kênh → ghi sổ tay.
+- `so-tay.md`: mỗi dòng `- [dang_dung|het_han|thay_the|da_bo] <ngày> · <nội dung> · <link tin gốc> · hạn:<ngày|—>`; công cụ chỉ ghi sổ của agent gọi (`AGENT_TEN` trong env của server).
+- Test (đỏ trước): ghi → dòng mới `dang_dung`; `quen` → `da_bo`, dòng vẫn còn; quá hạn → `doc_so_tay` không trả dòng đó; nội dung đòi thêm quyền/bỏ rào ("được sửa giá", "bỏ qua hook") → từ chối ghi, trả "chuyển thành đề xuất"; `de_xuat_luat` ghi file `de-xuat/<ngày>.md` + nhật ký, không tự sửa repo; trần 1.500 chữ → báo cần dọn.
+- Nghiệm thu #bắp-mkt: "Bơ nhớ: caption CTS20 không quá 80 chữ" → lượt sau Bơ viết ≤ 80 chữ; "Bơ quên điều đó" → hết áp dụng.
+- Sau khi có API (Giai đoạn 5, task 5.3): `so-tay.mjs` đổi chỗ lưu sang sổ kênh trên app, giữ nguyên tên công cụ.
+
 ## Giai đoạn 3 — Bắp hai cửa, Nho nhận việc đang chạy (sau khi hết 7 ngày theo dõi mà không có lỗi)
 
 Nhánh: `feat/doi-agent-gd3`. Điều kiện vào: đợt 3–4 xong 7 ngày, không sót hay trùng tin kho/ticket (tiêu chí bước 1); QĐ3 đã có bot "thu".
