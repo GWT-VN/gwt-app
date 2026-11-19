@@ -10,8 +10,16 @@
  * tương tác thật, cho rule chỉ có `:hover`); bên DS luôn tương tác THẬT — hover = Input.dispatchMouseEvent (kiểm
  * `:hover`), focus = phím Tab thật (kiểm `:focus-visible`).
  *
- * Ghi ds/so-khop/<C>.md. Thoát mã 1 nếu: còn lệch chưa có `lyDo`; THIẾU PHẦN TỬ ở bất kỳ bên nào (không lyDo nào miễn
- * được, không tính vào tổng); hoặc có `lyDo` thừa (không còn khớp dòng lệch nào). Mã 2 = lỗi chạy (Button.md bị ghi đè
+ * Overlay (lát 2) — 3 trường tuỳ chọn mỗi khoá:
+ *   `buoc`: [{bam|chuotPhai|tro: sel} | {phim: Tab|Escape|ArrowDown|Shift+F10}] — tương tác thật bằng CDP `Input.*` ngay
+ *     trước khi đo khoá đó, ở bên DS (và bên artifact nếu `artifactThat`). Khoá có `buoc` đo trên trang NẠP LẠI MỚI; khoá
+ *     sau nó cũng nạp lại → không rò trạng thái. Phần tử của bước không có / ẩn / bị phần tử khác che → lỗi chạy (mã 2).
+ *   `pseudo`: { artifact?: '::after', ds?: '::after' } — đo getComputedStyle(el, pseudo) của phần tử chính khoá đó.
+ *   `trongVung: true` — bên DS phần tử phải nằm trong [data-ds="v2"] (portal ra ngoài vùng = mất token) → không thì dòng
+ *     NGOÀI VÙNG DS, không lyDo nào miễn được, không tính vào tổng.
+ *
+ * Ghi ds/so-khop/<C>.md. Thoát mã 1 nếu: còn lệch chưa có `lyDo`; THIẾU PHẦN TỬ ở bất kỳ bên nào hoặc NGOÀI VÙNG DS (không lyDo
+ * nào miễn được, không tính vào tổng); hoặc có `lyDo` thừa (không còn khớp dòng lệch nào). Mã 2 = lỗi chạy (Button.md bị ghi đè
  * bằng ghi chú lỗi). Khoá lyDo = chữ ở cột "thuộc tính" (vd `hover.backgroundColor`), thêm `@toi`, `@390`, `@toi 390`
  * để chỉ áp cho theme/khổ đó. `chuaDo` (mảng chữ) trong config: những gì CHƯA đo — in ngay dưới dòng tổng của <C>.md để
  * con số khớp không bị đọc thành "khớp hết".
@@ -63,6 +71,57 @@ export function timLyDo(lyDo, prop, o) {
     const [p, pham = ''] = k.split('@')
     return p === prop && pham.split(/\s+/).filter(Boolean).every((s) => tok.includes(s))
   })
+}
+
+const PHIM = {
+  Tab: { key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 },
+  Escape: { key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 },
+  ArrowDown: { key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 },
+  'Shift+F10': { key: 'F10', code: 'F10', windowsVirtualKeyCode: 121, modifiers: 8 },
+}
+const NUT = { bam: ['left', 1], chuotPhai: ['right', 2] }
+
+/**
+ * `buoc` của config → danh sách lệnh CDP theo thứ tự. `{ tim: sel }` = định vị phần tử (lúc chạy: phải có, có hộp, không
+ * bị che tại tâm) — các lệnh chuột sau nó nhận x/y = tâm phần tử đó. Chuột phải = nhấn/nhả nút right → trình duyệt tự bắn
+ * contextmenu. Selector là chuỗi (cùng cho hai bên) hoặc `{ artifact, ds }` khi khoá `artifactThat` cần selector riêng.
+ */
+export function docBuoc(buoc, ben = 'ds') {
+  if (buoc === undefined) return []
+  if (!Array.isArray(buoc)) throw new Error(`buoc phải là mảng: ${JSON.stringify(buoc)}`)
+  const chuot = (params) => ({ method: 'Input.dispatchMouseEvent', params })
+  return buoc.flatMap((b) => {
+    const [loai, gt] = Object.entries(b ?? {})[0] ?? []
+    if (Object.keys(b ?? {}).length !== 1 || !['bam', 'chuotPhai', 'tro', 'phim'].includes(loai))
+      throw new Error(`bước lạ: ${JSON.stringify(b)}`)
+    if (loai === 'phim') {
+      const p = PHIM[gt]
+      if (!p) throw new Error(`phím lạ: ${gt} (có: ${Object.keys(PHIM).join(', ')})`)
+      return ['keyDown', 'keyUp'].map((type) => ({ method: 'Input.dispatchKeyEvent', params: { type, ...p } }))
+    }
+    const sel = gt !== null && typeof gt === 'object' ? gt[ben] : gt
+    if (typeof sel !== 'string' || !sel.trim()) throw new Error(`bước ${loai} thiếu selector (bên ${ben}): ${JSON.stringify(b)}`)
+    const lenh = [{ tim: sel }, chuot({ type: 'mouseMoved' })]
+    if (loai === 'tro') return lenh
+    const [button, buttons] = NUT[loai]
+    return [...lenh, chuot({ type: 'mousePressed', button, buttons, clickCount: 1 }),
+      chuot({ type: 'mouseReleased', button, buttons: 0, clickCount: 1 })]
+  })
+}
+
+/**
+ * Một cặp số đo (a = artifact, d = DS; null = thiếu phần tử) → 'thieu' | 'ngoai-vung' | 'lech' | 'khop'.
+ * @param {{ a: Record<string, string> | null, d: Record<string, string> | null, trongVung?: boolean, vung?: boolean | null }} cap
+ */
+export function phanLoai({ a, d, trongVung, vung }) {
+  if (!a || !d) return 'thieu'
+  if (trongVung && vung !== true) return 'ngoai-vung'
+  return Object.keys(a).every((p) => a[p] === d[p]) ? 'khop' : 'lech'
+}
+
+/** 1 nếu còn bất kỳ dòng nào chưa được chấp nhận; thiếu / ngoài vùng không có đường miễn (không đi qua timLyDo). */
+export function maThoat({ chuaLyDo, thieu, ngoaiVung, lyDoThua }) {
+  return chuaLyDo || thieu || ngoaiVung || lyDoThua ? 1 : 0
 }
 
 // ---------- CDP tối giản (Node 22+ có WebSocket) ----------
@@ -124,18 +183,29 @@ const TRO_GIUP = `window.__sk = (() => {
     if (/color-mix\\(|currentcolor/i.test(s)) throw new Error('giá trị màu chưa phân giải: ' + v)
     return s
   }
-  const doEl = (sel, props) => { const el = document.querySelector(sel); if (!el) return null
-    const cs = getComputedStyle(el); return Object.fromEntries(props.map((p) => [p, chuan(cs[p])])) }
+  const doEl = (sel, props, pseudo) => { const el = document.querySelector(sel); if (!el) return null
+    const cs = getComputedStyle(el, pseudo || null); return Object.fromEntries(props.map((p) => [p, chuan(cs[p])])) }
   const hop = (sel) => { const el = document.querySelector(sel); if (!el) return null
     el.scrollIntoView({ block: 'center' }); const r = el.getBoundingClientRect()
     return { x: r.x, y: r.y, w: r.width, h: r.height } }
   const la = (sel, gia) => document.querySelector(sel)?.matches(gia) ?? false
-  return { do: doEl, hop, la }
+  const vung = (sel) => { const el = document.querySelector(sel); return el ? !!el.closest('[data-ds="v2"]') : null }
+  // Điểm tương tác thật = tâm phần tử; trả chuỗi lỗi khi không có / không có hộp / bị phần tử khác che tại tâm.
+  const diem = (sel) => { const el = document.querySelector(sel); if (!el) return 'không thấy phần tử'
+    el.scrollIntoView({ block: 'center', inline: 'center' }); const r = el.getBoundingClientRect()
+    if (!r.width || !r.height) return 'phần tử không có hộp (ẩn?)'
+    const x = r.x + r.width / 2, y = r.y + r.height / 2, tren = document.elementFromPoint(x, y)
+    if (!tren || !(tren === el || el.contains(tren)))
+      return 'bị che tại tâm bởi ' + (tren ? tren.outerHTML.slice(0, 120) : 'không gì (ngoài khung nhìn?)')
+    return { x, y } }
+  return { do: doEl, hop, la, vung, diem }
 })(); true`
 
 async function main() {
   const { comp, url } = docThamSo(process.argv.slice(2))
   const cfg = JSON.parse(readFileSync(join(DS, 'so-khop', `${comp.toLowerCase()}.json`), 'utf8'))
+  // Config sai (bước/phím lạ, thiếu selector bên nào) → ném ngay, trước khi mở Chrome.
+  for (const k of cfg.khoa) for (const ben of k.artifactThat ? ['artifact', 'ds'] : ['ds']) docBuoc(k.buoc, ben)
   const fileMd = join(DS, 'so-khop', `${comp}.md`)
   const ANH = join(DS, 'so-khop', 'anh')
   mkdirSync(ANH, { recursive: true })
@@ -194,6 +264,15 @@ async function main() {
       await chuot(h.x + h.w / 2, h.y + h.h / 2)
       if (!(await chay(cdp, `__sk.la(${S(sel)}, ':hover')`))) throw new Error(`di chuột vào ${sel} nhưng không :hover`)
     }
+    const chayBuoc = async (buoc, ben, nhan) => {
+      let xy = null
+      for (const l of docBuoc(buoc, ben)) {
+        if (l.tim) {
+          xy = await chay(cdp, `__sk.diem(${S(l.tim)})`)
+          if (typeof xy === 'string') throw new Error(`buoc ${nhan}: ${l.tim} — ${xy}`)
+        } else await cdp.send(l.method, l.method === 'Input.dispatchMouseEvent' ? { ...l.params, ...xy } : l.params)
+      }
+    }
 
     const thuDs = await fetch(`${url}/ds`).catch((e) => ({ ok: false, status: e.cause?.code ?? e.message }))
     if (!thuDs.ok) throw new Error(`không mở được ${url}/ds (${thuDs.status}) — dev server đã chạy chưa? (máy này dùng --url http://127.0.0.1:3401)`)
@@ -233,6 +312,7 @@ async function main() {
 
     const lech = [] // { khoa, prop, a, d, o }
     const thieu = [] // { khoa, nhan, ben, sel, o }
+    const ngoaiVung = [] // { nhan, sel, o }
     let tong = 0
     for (const [ten, theme] of THEMES) {
       const trangA = tam(theme)
@@ -240,14 +320,20 @@ async function main() {
         const o = `${ten} ${w}`
         await cdp.send('Emulation.setDeviceMetricsOverride', { width: w, height: CAO, deviceScaleFactor: 1, mobile: false })
         const so = { artifact: {}, ds: {} } // so[ben][nhan] = { prop: giá trị } | null
+        const vung = {} // vung[nhan] = phần tử DS nằm trong [data-ds="v2"]? (chỉ khoá trongVung)
         for (const ben of ['artifact', 'ds']) {
-          await di(ben === 'artifact' ? trangA : `${url}/ds?theme=${theme}`)
-          await chuot(w - 1, CAO - 1)
+          const nap = async () => { await di(ben === 'artifact' ? trangA : `${url}/ds?theme=${theme}`); await chuot(w - 1, CAO - 1) }
+          await nap()
+          let ban = false // trang đã bị `buoc` đổi trạng thái → khoá kế tiếp (và ảnh) phải nạp lại
           for (const k of cfg.khoa) {
             const sel = k[ben]
+            const buoc = ben === 'ds' || k.artifactThat ? k.buoc ?? [] : []
+            if (buoc.length || ban) { await nap(); ban = false }
+            if (buoc.length) { ban = true; await chayBuoc(buoc, ben, `${k.khoa} (${ben} ${o})`); await ngu(350) }
             const doK = async (tt) => {
               const nhan = tt ? `${k.khoa}:${tt}` : k.khoa
-              so[ben][nhan] = await chay(cdp, `__sk.do(${S(sel)}, ${S(PROPS)})`)
+              so[ben][nhan] = await chay(cdp, `__sk.do(${S(sel)}, ${S(PROPS)}, ${S(k.pseudo?.[ben] ?? null)})`)
+              if (ben === 'ds' && k.trongVung) vung[nhan] = await chay(cdp, `__sk.vung(${S(sel)})`)
               for (const c of k.con ?? []) {
                 const v = await chay(cdp, `__sk.do(${S(`${sel} ${c[ben]}`)}, ${S(c.props ?? ['width', 'height'])})`)
                 so[ben][`${nhan}|${c.ten}`] = v
@@ -272,6 +358,7 @@ async function main() {
               await ngu(350)
             }
           }
+          if (ban) await nap()
           // Ảnh: bên DS dựng lại hàng trạng thái bằng tương tác thật (trỏ chuột nút Hover, Tab tới nút Focus).
           if (ben === 'ds' && cfg.anhTuongTac) {
             if (cfg.anhTuongTac.focus) await tabToi(cfg.anhTuongTac.focus)
@@ -289,10 +376,12 @@ async function main() {
           const [phan, con] = nhan.split('|')
           const [khoa, tt] = phan.split(':')
           const a = so.artifact[nhan], d = so.ds[nhan]
-          if (!a || !d) {
+          const k = cfg.khoa.find((x) => x.khoa === khoa)
+          const loai = phanLoai({ a, d, trongVung: k.trongVung, vung: vung[phan] })
+          if (loai === 'ngoai-vung') { ngoaiVung.push({ nhan, sel: k.ds, o }); continue }
+          if (loai === 'thieu') {
             for (const [ben, v] of [['artifact', a], ['ds', d]]) {
               if (v) continue
-              const k = cfg.khoa.find((x) => x.khoa === khoa)
               const sel = con ? `${k[ben]} ${k.con.find((c) => c.ten === con)[ben]}` : k[ben]
               thieu.push({ khoa, nhan, ben, sel, o })
             }
@@ -325,6 +414,11 @@ async function main() {
       const k = [r.nhan, r.ben, r.sel].join('\u0000')
       if (gomThieu.has(k)) gomThieu.get(k).o.push(r.o); else gomThieu.set(k, { ...r, o: [r.o] })
     }
+    const gomVung = new Map()
+    for (const r of ngoaiVung) {
+      const k = [r.nhan, r.sel].join('\u0000')
+      if (gomVung.has(k)) gomVung.get(k).o.push(r.o); else gomVung.set(k, { ...r, o: [r.o] })
+    }
     const chuaLyDo = lech.filter((r) => !r.lyDo).length
     const coLyDo = lech.length - chuaLyDo
     const q = (s) => String(s).replaceAll('|', '\\|')
@@ -339,15 +433,19 @@ async function main() {
       `- Theme sáng/tối × khổ ${KHO.join('/')} (CDP \`Emulation.setDeviceMetricsOverride\`). Đo ${PROPS.length} thuộc tính/phần tử: ${PROPS.join(', ')}.`,
       '- **Giới hạn:** px làm tròn 0.5 → lệch < 0.25px không thấy được. Màu chuẩn hoá về sRGB số thực (kênh 2 số lẻ, alpha 3 số lẻ).',
       `- Trạng thái: artifact ép class \`.is-hover\`/\`.is-focus\` như preview, trừ khoá có \`artifactThat\` thì artifact cũng tương tác thật (${cfg.khoa.filter((k) => k.artifactThat && k.trangThai?.length).map((k) => `${k.khoa}: ${k.trangThai.join('/')}`).join(' · ') || 'không khoá nào'}); DS di chuột thật (\`Input.dispatchMouseEvent\`, kiểm \`:hover\`) / phím Tab thật (kiểm \`:focus-visible\`).`,
+      `- Mở bằng tương tác thật (\`buoc\`, CDP \`Input.*\`, mỗi khoá trên trang nạp lại mới): ${cfg.khoa.filter((k) => k.buoc?.length).map((k) => q(`${k.khoa}${k.artifactThat ? ' (cả artifact)' : ''}: ${k.buoc.map((b) => Object.entries(b)[0].map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')).join(' → ')}`)).join(' · ') || 'không khoá nào'}. Kiểm trong vùng \`[data-ds="v2"]\` (\`trongVung\`): ${cfg.khoa.filter((k) => k.trongVung).map((k) => k.khoa).join(', ') || 'không khoá nào'}. Pseudo: ${cfg.khoa.filter((k) => k.pseudo).map((k) => `${k.khoa} ${JSON.stringify(k.pseudo)}`).join(' · ') || 'không khoá nào'}.`,
       `- Font: trang artifact nạp đúng Inter của /ds và đặt \`--font-sans\` = token \`--font-sans\` của gốc \`[data-ds]\` trên /ds = \`${q(hoFont)}\` (nguồn khai font hệ thống; bỏ \`@import\` Google Fonts vô tác dụng).`,
       `- Ảnh: \`ds/so-khop/anh/${comp}-{sang,toi}-{${KHO.join(',')}}-{artifact,ds}.png\` (gitignore).`,
       '',
-      `**${tong - lech.length}/${tong} khớp** · ${coLyDo} lệch có lý do · ${chuaLyDo} lệch chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} mục CHƯA ĐO`,
+      `**${tong - lech.length}/${tong} khớp** · ${coLyDo} lệch có lý do · ${chuaLyDo} lệch chưa có lý do · ${thieu.length} thiếu phần tử · ${ngoaiVung.length} ngoài vùng DS · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} mục CHƯA ĐO`,
       '',
       ...(chuaDo.length ? ['**Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):', '',
         ...chuaDo.map((x) => `- ${x}`), ''] : []),
       ...(gomThieu.size ? ['## THIẾU PHẦN TỬ (không lyDo nào miễn được)', '', '| khoá | bên | selector | ở |', '|---|---|---|---|',
         ...[...gomThieu.values()].map((r) => `| ${r.nhan.replace('|', ' › ')} | ${r.ben} | \`${q(r.sel)}\` | ${r.o.join(', ')} |`), ''] : []),
+      ...(gomVung.size ? ['## NGOÀI VÙNG DS — phần tử DS không nằm trong `[data-ds="v2"]` (không lyDo nào miễn được)', '',
+        '| khoá | selector | ở |', '|---|---|---|',
+        ...[...gomVung.values()].map((r) => `| ${r.nhan} | \`${q(r.sel)}\` | ${r.o.join(', ')} |`), ''] : []),
       ...(lyDoThua.length ? ['## lyDo thừa (không còn dòng lệch nào khớp — xoá hoặc sửa)', '', ...lyDoThua.map((x) => `- ${x}`), ''] : []),
       ...(gom.size ? ['| khoá | thuộc tính | artifact | ds | ở | lý do |', '|---|---|---|---|---|---|',
         ...[...gom.values()].map((r) => `| ${r.khoa} | ${r.prop} | ${q(r.a)} | ${q(r.d)} | ${r.o.join(', ')} | ${q(r.lyDo ?? '**CHƯA CÓ**')} |`)]
@@ -355,8 +453,8 @@ async function main() {
       '',
     ].join('\n')
     writeFileSync(fileMd, md)
-    console.log(`${comp}: ${tong - lech.length}/${tong} khớp · ${coLyDo} lệch có lý do · ${chuaLyDo} chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} chưa đo → ds/so-khop/${comp}.md`)
-    process.exitCode = chuaLyDo || thieu.length || lyDoThua.length ? 1 : 0
+    console.log(`${comp}: ${tong - lech.length}/${tong} khớp · ${coLyDo} lệch có lý do · ${chuaLyDo} chưa có lý do · ${thieu.length} thiếu phần tử · ${ngoaiVung.length} ngoài vùng DS · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} chưa đo → ds/so-khop/${comp}.md`)
+    process.exitCode = maThoat({ chuaLyDo, thieu: thieu.length, ngoaiVung: ngoaiVung.length, lyDoThua: lyDoThua.length })
   } catch (e) {
     console.error(e)
     writeFileSync(fileMd, `# So khớp ${comp} — LỖI CHẠY, chưa có kết quả\n\n\`node ds/so-khop.mjs ${comp} --url ${url}\` dừng giữa chừng:\n\n\`\`\`\n${e?.stack ?? e}\n\`\`\`\n`)

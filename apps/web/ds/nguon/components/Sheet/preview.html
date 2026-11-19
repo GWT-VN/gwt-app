@@ -1,0 +1,35 @@
+<!-- @dsCard group="Overlay" height=440 subtitle="Bảng bên phải 384px · bộ lọc / chi tiết bản ghi" -->
+<div style="position:relative;height:408px;margin:-16px;overflow:hidden">
+  <div style="padding:16px" aria-hidden="true">
+    <div class="ui-row"><span class="ui-skeleton" style="width:180px"></span><span class="ui-skeleton" style="width:90px"></span></div>
+    <div class="ui-stack" style="margin-top:16px"><span class="ui-skeleton" style="width:70%"></span><span class="ui-skeleton" style="width:55%"></span><span class="ui-skeleton" style="width:62%"></span></div>
+  </div>
+  <div class="ui-overlay"></div>
+  <aside class="ui-sheet" role="dialog" aria-modal="true" aria-labelledby="st" aria-describedby="sd">
+    <div class="ui-sheet-header">
+      <h2 class="ui-sheet-title" id="st">Bộ lọc nâng cao</h2>
+      <p class="ui-sheet-desc" id="sd">Áp dụng cho danh sách đơn (dữ liệu demo).</p>
+    </div>
+    <button class="ui-btn ui-dialog-close" data-variant="ghost" data-size="icon-sm" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="ui-sheet-body">
+      <div class="ui-field">
+        <span class="ui-label" id="kl">Kênh bán</span>
+        <button class="ui-select-trigger" aria-labelledby="kl kv"><span class="ui-select-value" id="kv">Tất cả kênh</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
+      <div class="ui-field">
+        <span class="ui-label">Ngày tạo</span>
+        <div class="ui-row" style="flex-wrap:nowrap"><input class="ui-input" type="date" aria-label="Từ ngày"><input class="ui-input" type="date" aria-label="Đến ngày"></div>
+      </div>
+      <div class="ui-stack">
+        <span class="ui-label">Tình trạng</span>
+        <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" checked> Chờ xử lý</label>
+        <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox"> Đang giao</label>
+        <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox"> Hoàn tất</label>
+      </div>
+    </div>
+    <div class="ui-sheet-footer">
+      <button class="ui-btn" data-variant="ghost">Xoá lọc</button>
+      <button class="ui-btn">Áp dụng</button>
+    </div>
+  </aside>
+</div>

@@ -2,7 +2,7 @@
 
 Artifact **"GWT — OpenAI + shadcn"**, **bản 26** — https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr
 
-File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy bản 29 (19/11 — chỉ thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt). Không sửa tay.
+File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy bản 29 (19/11 — chỉ thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), và 10 `preview.html` của lát 2 lấy **bản 31** (19/11, chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF). Không sửa tay.
 
 | File | sha256 |
 |---|---|
@@ -10,6 +10,16 @@ File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundl
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
 | `nguon/bundle.css` | `e39f5f9912d809e6206b411e41cc612e3f05c9643fc88c7c1ede3827f7c4839a` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
+| `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
+| `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
+| `nguon/components/Kbd/preview.html` (bản 31) | `9a5fcaee5823786d85afef6f07afffcc9ce8d68989c34995e5abc607f2b14b3f` |
+| `nguon/components/Alert/preview.html` (bản 31) | `22cce7f4fdce13943e52729d70092bce3c9cd319c390cda718ef4995897ce4ab` |
+| `nguon/components/Tooltip/preview.html` (bản 31) | `faab4b057f51ad5b31c48bb9287af26bbc2c4dd6704efae14ddba07131b8bf02` |
+| `nguon/components/DropdownMenu/preview.html` (bản 31) | `6afae375e5581ea6e7df670a84fbc9e070d6a23db4103d07f7a6ec6ceab45a45` |
+| `nguon/components/ContextMenu/preview.html` (bản 31) | `5c839bbf28993a967f55c2515781556ee2afa8a3e75c2d8b097fcea59b6afdf6` |
+| `nguon/components/Dialog/preview.html` (bản 31) | `727c5eba30eb50a884300e4337a6b32d1b39b418505e58bb01f6c41bcfe8b2b7` |
+| `nguon/components/ConfirmDialog/preview.html` (bản 31) | `4a13f54f975888e58984a84209e7bd65bcae842af2df36ba589025f3972fd7ec` |
+| `nguon/components/Sheet/preview.html` (bản 31) | `421eac8dd26abecbc212a6beb5931a73a8403cceb5f290377eaa644d5d90a24f` |
 
 `.gitattributes` trong thư mục này ép LF để sha256 trên khớp ở mọi máy (repo bật `core.autocrlf`).
 
@@ -47,6 +57,14 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   `[data-khu="work"]`/`[data-khu="wiki"]` — trùng tên `--muted`/`--accent`/`--border`/`--shadow` (spec §5.1).
 - **So khớp:** mỗi component có `so-khop/<c>.json` + chạy `node ds/so-khop.mjs <C>` thoát 0; trạng thái nào preview
   không có thì ghi vào `chuaDo` (in ra `<C>.md`), không để con số khớp tự nói "khớp hết".
+- **Overlay trong so khớp:** khoá có `buoc` (bấm / chuột phải / rê / phím, CDP thật) mở overlay trên trang nạp lại mới
+  trước khi đo; `trongVung: true` cho MỌI khoá nằm trong portal (ngoài `[data-ds="v2"]` = lỗi, không lyDo nào miễn);
+  `pseudo` khi bên artifact vẽ bằng `::after` (tooltip). Cú pháp đầy đủ ở đầu `so-khop.mjs`.
+- **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
+  Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
+- **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"
+  className="scroll-mt-6">` + `<h2>` link `#<neo>`), rồi gắn `Khoi` vào mục tương ứng trong mảng `KHOI` của
+  `app/ds/page.tsx` (mục lục tự thành link; chưa gắn = chữ mờ "chưa dựng").
 
 ## Tương phản — chấp nhận có chủ đích
 
@@ -55,8 +73,9 @@ Giữ y màu nguồn ChatGPT; 4 cặp dưới WCAG (danger chữ tối 3.52, vi�
 
 ## Cập nhật khi artifact đổi
 
-1. Chép bản mới của 4 file vào `nguon/` (giữ nguyên byte), ghi số bản + sha256 mới vào bảng trên
-   (`sha256sum nguon/tokens.json nguon/tokens.css nguon/bundle.css nguon/components/Button/preview.html`).
+1. Chép bản mới vào `nguon/` bằng `cp` (giữ nguyên byte — đừng ghi qua Python/Node chế độ chữ: trên Windows LF thành
+   CRLF), ghi số bản + sha256 mới vào bảng trên (`sha256sum nguon/tokens.json nguon/tokens.css nguon/bundle.css
+   nguon/components/*/preview.html`; đo cả ở nguồn trước khi chép, hai bên phải trùng).
 2. Sửa số bản trong dòng đầu `sinh-token.mjs` (hằng `DAU`), rồi chạy script (cwd `apps/web`):
    `node ds/sinh-token.mjs` → ghi đè `ds/tokens.css`.
 3. Chạy so khớp: `npm run test -- ds/sinh-token` (mỗi màu trong `tokens.json` có mặt đúng giá trị; `tokens.css` = đầu ra

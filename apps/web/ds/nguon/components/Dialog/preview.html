@@ -1,0 +1,30 @@
+<!-- @dsCard group="Overlay" height=360 subtitle="max 450px · padding 20 · overlay 30%/50% · Esc để đóng" -->
+<div id="stage" style="position:relative;height:328px;margin:-16px;display:grid;place-items:center;padding:16px;overflow:hidden">
+  <div class="ui-overlay" id="ov"></div>
+  <div class="ui-dialog" role="alertdialog" aria-modal="true" aria-labelledby="dt" aria-describedby="dd" id="dlg">
+    <h2 class="ui-dialog-title" id="dt">Xoá đơn DH-DEMO-0001?</h2>
+    <p class="ui-dialog-desc" id="dd">Đơn và lịch sử xử lý sẽ bị xoá vĩnh viễn. Thao tác này không hoàn tác được.</p>
+    <div class="ui-dialog-body ui-field">
+      <label class="ui-label" for="lyDo">Lý do xoá</label>
+      <input class="ui-input" id="lyDo" placeholder="VD: tạo trùng">
+    </div>
+    <div class="ui-dialog-footer">
+      <button class="ui-btn" data-variant="outline" id="huy">Huỷ</button>
+      <button class="ui-btn" data-variant="destructive" id="xoa">Xoá đơn</button>
+    </div>
+    <button class="ui-btn ui-dialog-close" data-variant="ghost" data-size="icon-sm" aria-label="Đóng" id="dong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <button class="ui-btn" data-variant="destructive" id="mo" hidden style="position:relative">Mở lại Dialog</button>
+</div>
+<script>
+  const dlg = document.getElementById('dlg'), ov = document.getElementById('ov'), mo = document.getElementById('mo'), xoa = document.getElementById('xoa');
+  const dong = () => { dlg.hidden = ov.hidden = true; mo.hidden = false; mo.focus(); };
+  const mở = () => { dlg.hidden = ov.hidden = false; mo.hidden = true; document.getElementById('huy').focus(); xoa.removeAttribute('data-loading'); xoa.textContent = 'Xoá đơn'; };
+  document.getElementById('huy').onclick = dong; document.getElementById('dong').onclick = dong; ov.onclick = dong; mo.onclick = mở;
+  xoa.onclick = () => { xoa.setAttribute('data-loading', ''); xoa.innerHTML = '<span>Xoá đơn</span><span class="ui-spinner" aria-hidden="true"></span>'; setTimeout(dong, 1200); };
+  dlg.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') dong();
+    if (e.key === 'Tab') { const f = [...dlg.querySelectorAll('button,input')]; const a = f[0], z = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
+  });
+</script>
