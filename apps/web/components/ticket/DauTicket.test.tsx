@@ -64,7 +64,7 @@ describe('DauTicket', () => {
     })
     it('người đã ẩn nhưng đang gán vẫn hiện, đánh dấu đã ẩn', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} csTheoDoi="Tuyết Trang" />)
-      expect(h).toContain('Tuyết Trang (nghỉ)')
+      expect(h).toContain('Tuyết Trang (đã xoá)')
     })
     it('Kỹ thuật lấy từ hồ sơ thợ (có CTV), không còn liệt kê tài khoản nhân viên', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} />)

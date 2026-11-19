@@ -199,13 +199,13 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
       {/* Danh sách thợ: chỉ xem. Sửa ở trang Danh sách người. */}
       <section className="bg-white rounded-xl border p-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.length})</h2>
+          <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.filter((k) => k.hoat_dong).length})</h2>
           {suaDs && <Link href="/danh-sach-nguoi?tab=kt" className="text-xs text-slate-500 underline">Sửa danh sách →</Link>}
         </div>
         <ul className="divide-y border rounded-lg">
-          {dsKt.map((k) => (
+          {dsKt.filter((k) => k.hoat_dong).map((k) => (
             <li key={k.id} className="px-3 py-2 text-sm">
-              <span className={k.hoat_dong ? 'text-slate-900' : 'text-slate-400 line-through'}>{k.ten}</span>
+              <span className="text-slate-900">{k.ten}</span>
               {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
               {k.sdt && <span className="text-xs text-slate-400 font-mono ml-1">· {k.sdt}</span>}
             </li>

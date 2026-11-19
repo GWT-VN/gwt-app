@@ -11,7 +11,7 @@ function builder(t: string) {
   const loc: [string, unknown][] = []
   const b: Record<string, unknown> = {}
   const khop = () => (rows[t] ?? []).filter((r) => loc.every(([k, v]) => r[k] === v))
-  for (const m of ['select', 'order', 'limit']) b[m] = () => b
+  for (const m of ['select', 'order', 'limit', 'gte']) b[m] = () => b
   b.eq = (k: string, v: unknown) => { loc.push([k, v]); return b }
   b.update = (a: Record<string, unknown>) => { op = 'update'; ghi.push({ bang: t, op, arg: a }); return b }
   b.insert = (a: Record<string, unknown>) => { op = 'insert'; ghi.push({ bang: t, op, arg: a }); return b }
@@ -52,7 +52,7 @@ beforeEach(() => {
       { ticket_code: 'GWT-1', cs_theo_doi: 'Hiệp', kt_ho_so: 't2', state: 'Open' },
       { ticket_code: 'GWT-2', cs_theo_doi: 'Hiệp', kt_ho_so: 't2', state: 'Done' },
     ],
-    lich_ky_thuat: [{ id: 'l1', ky_thuat_id: 't1' }],
+    lich_ky_thuat: [{ id: 'l1', ky_thuat_id: 't1', trang_thai: 'hen' }],
   }
 })
 
@@ -93,9 +93,9 @@ describe('ganCsTheoDoi', () => {
     await ganCsTheoDoi(MA, 'c1')
     expect(ghi[0]).toEqual({ bang: 'tickets', op: 'update', arg: { cs_theo_doi: 'Hiệp' } })
   })
-  it('không còn "ẩn": người cũ bị ẩn trước đây vẫn chọn / gán được (18/11: chỉ Thêm + Xoá)', async () => {
-    expect((await docNguoiTicket(MA)).cs.every((x) => x.hoat_dong)).toBe(true)
-    expect(await ganCsTheoDoi(MA, 'c2')).toEqual({ ok: true })
+  it('người đã xoá (hoat_dong false, 19/11) → không gán mới được, vẫn đọc ra để ticket cũ hiện tên', async () => {
+    expect((await docNguoiTicket(MA)).cs.find((x) => x.id === 'c2')?.hoat_dong).toBe(false)
+    expect((await ganCsTheoDoi(MA, 'c2')).ok).toBe(false)
   })
 })
 
@@ -119,6 +119,7 @@ describe('thêm / xoá người: chỉ admin@ + ai@ (Hiệp 19/11)', () => {
     expect(r.cs.find((x) => x.id === 'c1')?.so_ticket).toBe(1)
     expect(r.kt.find((x) => x.id === 't2')?.so_ticket).toBe(1)
     expect(r.kt.find((x) => x.id === 't1')?.so_ticket).toBe(0)
+    expect(r.kt.find((x) => x.id === 't1')?.so_lich_hen).toBe(1)
   })
 })
 
@@ -137,18 +138,34 @@ describe('themNguoi / xoaNguoi (admin@)', () => {
     expect(r).toEqual({ ok: true, id: 'c2', ten: 'Tuyết Trang' })
     expect(ghi.filter((g) => g.op === 'insert')).toEqual([])
   })
-  it('xoá CS → xoá dòng trong danh sách (ticket đang gán về chưa gán nhờ FK on delete set null)', async () => {
-    expect(await xoaNguoi('cs', 'c1')).toEqual({ ok: true })
-    expect(ghi).toEqual([{ bang: 'cs_theo_doi_ds', op: 'delete', arg: {} }])
+  it('xoá CS = ngừng dùng, KHÔNG xoá dòng: ticket đang mở về chưa gán, ticket đã xong giữ tên', async () => {
+    expect(await xoaNguoi('cs', 'c1')).toEqual({ ok: true, so_ticket: 1 })
+    expect(ghi).toEqual([
+      { bang: 'tickets', op: 'update', arg: { cs_theo_doi: null } },
+      { bang: 'cs_theo_doi_ds', op: 'update', arg: { hoat_dong: false } },
+    ])
+    expect(ghi.some((g) => g.op === 'delete')).toBe(false)
   })
-  it('xoá thợ chưa có lịch kỹ thuật → xoá', async () => {
-    expect(await xoaNguoi('kt', 't2')).toEqual({ ok: true })
-    expect(ghi).toEqual([{ bang: 'ky_thuat', op: 'delete', arg: {} }])
+  it('xoá CS + chuyển ticket đang mở sang người khác → ghi tên người nhận', async () => {
+    rows.cs_theo_doi_ds.push({ id: 'c3', ten: 'Hiền', hoat_dong: true })
+    expect(await xoaNguoi('cs', 'c1', 'c3')).toEqual({ ok: true, so_ticket: 1 })
+    expect(ghi[0]).toEqual({ bang: 'tickets', op: 'update', arg: { cs_theo_doi: 'Hiền' } })
   })
-  it('xoá thợ ĐÃ có lịch kỹ thuật → chặn (giữ lịch sử lịch + ngày nghỉ)', async () => {
-    const r = await xoaNguoi('kt', 't1')
-    expect(r.ok).toBe(false)
+  it('xoá thợ (kể cả đã có lịch) = ngừng dùng; chuyển ticket sang thợ có tài khoản → ghi cả tài khoản', async () => {
+    expect(await xoaNguoi('kt', 't2', 't1')).toEqual({ ok: true, so_ticket: 1 })
+    expect(ghi).toEqual([
+      { bang: 'tickets', op: 'update', arg: { kt_ho_so: 't1', ky_thuat: 's-binh' } },
+      { bang: 'ky_thuat', op: 'update', arg: { hoat_dong: false } },
+    ])
+    expect((await xoaNguoi('kt', 't1')).ok).toBe(true)
+  })
+  it('người nhận không hợp lệ (chính người đó, người đã xoá, không có) → chặn, không ghi gì', async () => {
+    for (const nhan of ['c1', 'c2', 'zz']) expect((await xoaNguoi('cs', 'c1', nhan)).ok).toBe(false)
+    expect((await xoaNguoi('kt', 't2', 't3')).ok).toBe(false)
     expect(ghi).toEqual([])
+  })
+  it('xoá người đã xoá rồi → báo không thấy', async () => {
+    expect((await xoaNguoi('cs', 'c2')).ok).toBe(false)
   })
   it('xoá người không có → báo không thấy', async () => {
     expect((await xoaNguoi('cs', 'zz')).ok).toBe(false)
