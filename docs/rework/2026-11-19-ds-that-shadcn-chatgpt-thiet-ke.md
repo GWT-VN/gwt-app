@@ -78,6 +78,11 @@ Hai nguồn CEO đính kèm từ đầu: **shadcn/ui** (cấu trúc + hành vi c
   trong `components/ui/` truyền `container` từ context đó. (Chép component về repo là cách shadcn khuyên, nên sửa được.)
 - Màn v2 sau này chỉ cần bọc `<DsRoot>`; màn cũ (vẫn còn trên nhánh rework tới khi được chuyển) không đổi gì.
 - Khi mọi màn đã chuyển, có thể nhấc token ra `:root` và bỏ `DsRoot` — một chỗ sửa.
+- **Kiểm portal bằng tương tác thật (review lát 1):** component đầu tiên dùng Radix Portal phải có bằng chứng mở
+  thật (bấm/phím trên bản đang chạy): nội dung portal có `closest('[data-ds="v2"]')` ≠ null và ăn đúng token ở theme
+  tối. `useDsPortal` chưa có test sau mount (vitest chạy node, không jsdom).
+- **CSS khu Việc nằm ngoài layer** (`[data-khu="work"] ::before`, `:focus-visible`, `*` reduced-motion) → đè cả base
+  lẫn utilities của DS. Lát chuyển màn khu Việc: đưa các luật đó vào `@layer` hoặc bỏ khi màn dùng DS.
 
 ### 5.2 Token: một nguồn, sinh tự động
 - `apps/web/ds/tokens.json` = bản chép nguyên văn từ artifact (ghi phiên bản artifact + sha256 ở `apps/web/ds/NGUON.md`).
@@ -100,8 +105,11 @@ Hai nguồn CEO đính kèm từ đầu: **shadcn/ui** (cấu trúc + hành vi c
   hướng; KHÔNG đổi `primary` (nút chính đen) hay `ring` (focus xanh). `DsRoot` không cần biết khu.
 
 ### 5.3 Component
-- Đặt ở `apps/web/components/ui/<ten>.tsx` (tên shadcn, kebab-case), chép bằng shadcn CLI rồi **tô lại** theo README
+- Đặt ở `apps/web/components/ui/<ten>.tsx` (tên shadcn, kebab-case), chép từ nguồn shadcn rồi **tô lại** theo README
   artifact: thay class màu/cỡ bằng utility từ token, đổi icon lucide → Phosphor, gắn portal container.
+- **Không chạy `npx shadcn add` thẳng** (`components.json` có `cssVariables: true` → CLI có thể chèn `:root`/`.dark` và
+  khoá `@theme` vào `globals.css`, phá luật vùng DS). Chép tay từ registry, hoặc chạy CLI rồi soát + bỏ mọi thay đổi
+  `globals.css` trước khi commit.
 - Component artifact không có trong shadcn (PageHeader, PropertyList, Timeline, Composer, DetailLayout, Banner, StatCard,
   Count, NotificationCenter, NotificationMatrix, FilterBar, BulkActionBar, SavedView, KanbanBoard, ListView, InlineEdit,
   RecordPicker…) dựng mới trong cùng thư mục, ghép từ component shadcn bên dưới.
