@@ -128,8 +128,8 @@ GWT-Agent-Team/
   | Tên | Vai | Gánh các vai cũ | Chạy bằng | Bot Discord |
   | --- | --- | --- | --- | --- |
   | **Bắp** | điều phối (boss) + bán hàng + kho + **trợ lý nội bộ của gwt-app** (một agent, hai cửa: Discord + khung trợ lý trong gwt-app — anh Dũng 19/11) + **đăng bản tổng hợp việc 8h/17h vào từng nhóm** (lấy từ app, không đọc tin của Nho) | Bắp, Bắp Sales (Shopee, đơn, doanh số), Bắp Kho (sổ kho, serial), Bắp Trợ lý (nay ở GWT-ERP, đích chuyển về gwt-app) | Claude | token Bắp hiện có |
-  | **Dâu Designer** | thiết kế: ảnh, banner, ấn phẩm, mockup (mới) | — | **API ChatGPT (OpenAI)**: runner riêng gọi API OpenAI (không phải phiên Claude Code); khoá OpenAI anh Dũng tự đặt trên máy | **tạo mới** |
-  | **Bơ Marketing** | nội dung, chiến dịch, lịch đăng, khuyến mại (mới) | — | Claude | **tạo mới** |
+  | **Dâu Designer** | thiết kế: ảnh, banner, ấn phẩm, mockup (mới) — **thuộc Marketing-kit** (§5.4c) | — | **API ChatGPT (OpenAI)**: runner riêng gọi API OpenAI (không phải phiên Claude Code); khoá OpenAI anh Dũng tự đặt trên máy | **tạo mới** |
+  | **Bơ Marketing** | nội dung, chiến dịch, lịch đăng, khuyến mại (mới) — **thuộc Marketing-kit** (§5.4c) | — | Claude | **tạo mới** |
   | **Nho Trợ lý** | quản lý việc + **tổng hợp việc từ nhóm chat → lên thẳng app** (đọc 23 kênh nhóm công việc + kênh riêng; tách ai · việc · hạn · xong/vướng; tạo/cập nhật việc Work kèm ghi chú + link tin gốc = luồng D1/D2 mục 7.14 file mô tả app) + chăm sóc khách hàng + hành chính | Bắp Việc (giao, nhắc, báo cáo, tóm tắt 8h/17h), Bắp CSKH (ticket, CTS20), Bắp Admin (sổ quỹ, chấm công) | Claude | **tạo mới** (server GWT chỉ còn bot Bắp — anh Dũng 18/11); bot Admin đang chạy sổ quỹ/chấm công giữ nguyên tới khi Nho nhận lại việc đó |
 - **Bắp và trợ lý nội bộ là MỘT agent; trợ lý thuộc gwt-app, không thuộc ERP** (anh Dũng 19/11). Hiện trạng: worker `tro-ly` đọc hàng đợi `assistant.*` trong DB ERP, màn `/work/agent` ở repo GWT-ERP — đích: khung trợ lý nằm trong gwt-app v2, hàng đợi qua API gwt-app (DB ở schema GWT-App trên Masterdata, chỉ thêm). Gộp: chung luật (tri thức, giá/khuyến mại, Shopee, cách trả lời — viết một lần, hai cửa cùng nạp), chung bộ công cụ (gộp MCP `bap` `shopee/mcp.mjs` + MCP `troly` `tro-ly/mcp.mjs`; quyền theo NGƯỜI HỎI: gwt-app theo tài khoản, Discord theo Discord ID), cùng tên Bắp. Nhớ: sổ kênh + kiến thức dùng chung; hội thoại riêng trong gwt-app không lộ ra Discord. Làm SAU khi bước 1 chuyển nguyên trạng xong (đợt 5 chuyển `com.gwt.troly` nguyên như cũ). Nghiệm thu: cùng một câu hỏi ở hai cửa → cùng câu trả lời; người không có quyền tài chính hỏi ở cửa nào cũng không thấy số tiền.
 - **Kênh đội agent**: #bắp-mkt sẽ đổi tên thành kênh chung của cả đội (anh Dũng 18/11) — đủ 4 bot của 4 agent trong kênh; đây là kênh `#agent-team` dưới đây.
@@ -160,6 +160,20 @@ GWT-Agent-Team/
 **Agent nạp gì khi được gọi trong một kênh:** sổ kênh (chỉ `dang_dung`) + việc Work đang mở của kênh + vài chục tin gần nhất.
 
 **Tạm thời (trước bước 2 — API gwt-app):** giữ file như hiện nay, thêm sao lưu thư mục `bap-kenh/` mỗi đêm; khi có API thì chuyển `nho.md` vào sổ kênh.
+
+### 5.4c Bơ và Dâu thuộc GWT-Marketing-kit (anh Dũng chốt 19/11)
+
+**Lý do:** dữ liệu, luật và công cụ marketing đều ở repo GWT-Marketing-kit — để agent marketing ở đó thì đội marketing tự sửa được, khỏi chép hai nơi (cùng cách tách phần gwt-app ở `ket-noi/`).
+
+| Thuộc về | Ở đâu | Gồm |
+| --- | --- | --- |
+| **Nhà của Bơ, Dâu** (đội marketing sửa) | GWT-Marketing-kit, thư mục `agents/bo/`, `agents/dau/` | vai trò (`vai-tro.md`), trỏ luật sẵn có: `rules/ad-compliance-vn.md`, `rules/tu-nhay-cam-nen-tang.md`, `rules/prompt-anh-ai.md`, giọng văn; skill dùng lại: `write_script`, `caption-from-image`; dữ liệu: các bảng marketing kit sở hữu (`video_ideas`, `content_keywords`, `hook_library`, `script_approved`, `video_analyses`, `video_deep_analysis`) + schema `video` (chỉ đọc) |
+| **Phần chạy chung** (giữ ở GWT-Agent-Team) | `chay/phien/`, `hooks/`, `agents/doi.md` | bot Discord, watchdog, rào an toàn (hook chặn tag, `deny`), nhật ký công cụ, sinh settings/mcp — đọc định nghĩa agent từ checkout Marketing-kit trên Mac mini (`~/Bots/GWT-Marketing-kit`, biến `MKT_REPO`) |
+
+- **Dâu dùng lại tool gen ảnh** `tools/gen_anh/` (đã vào `main` Marketing-kit 19/11, PR #17): bản máy `local.py` nghe `127.0.0.1:8770`, khoá OpenAI trong `.env.local` của tool; thư viện style `.md`; lõi `core/openai_img.py`. Runner Dâu (GWT-Agent-Team) chỉ nhận tin Discord → gọi API tool đó trên máy → gửi ảnh về kênh; không viết lại phần gen ảnh. Khoá OpenAI dùng chung chỗ của tool (không thêm `~/Bots/.secrets/dau-openai.env` nếu tool đã có khoá).
+- **Bơ:** công cụ đọc bảng marketing (MCP chỉ đọc trước; ghi vào bảng kit sở hữu chỉ khi anh Dũng duyệt từng loại) + tra wiki/Shopee như hiện nay. Cấu hình tạm đang chạy (19/11) ở `GWT-Agent-Team/agents/bo/` giữ tới khi nhà mới xong.
+- **Đưa lên Mac mini:** Marketing-kit chưa có trên Mac mini → đẩy qua ssh như GWT-Agent-Team; bản chạy là `main`.
+- **Quyền sửa:** đổi vai trò, luật, style → PR vào Marketing-kit (đội marketing); đổi rào an toàn, quyền công cụ → PR vào GWT-Agent-Team.
 
 ### 5.5 Hai đường chạy
 
