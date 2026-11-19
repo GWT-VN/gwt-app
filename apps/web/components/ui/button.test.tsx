@@ -164,3 +164,11 @@ test('font-feature-settings normal: shorthand `font:` của .ui-btn reset cv11/s
   for (const variant of ['default', 'link'] as const)
     expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>))).toContain('[font-feature-settings:normal]')
 })
+
+test('viền như `.ui-btn { border: 0 }`: kiểu none + màu currentColor (không ăn preflight `0 solid` + màu --border chung)', () => {
+  // ds/so-khop.mjs (đo borderTop*) lần chạy 2: artifact none/currentColor, DS solid/var(--border) ở cả 15 khoá.
+  for (const variant of ['default', 'outline', 'link'] as const)
+    expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>))).toEqual(
+      expect.arrayContaining(['border-none', 'border-current']),
+    )
+})

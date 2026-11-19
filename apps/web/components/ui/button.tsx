@@ -19,6 +19,9 @@ import { Spinner } from './spinner'
 export const buttonVariants = cva(
   [
     'relative inline-flex items-center justify-center gap-1.5 rounded-(--radius-full) cursor-pointer select-none',
+    // border-none border-current = `.ui-btn { border: 0 }` (rộng 0 sẵn từ preflight; kiểu none, màu currentColor thay cho
+    // `0 solid` + `border-color: var(--border)` chung của app — đo bằng ds/so-khop.mjs).
+    'border-none border-current',
     // [font-feature-settings:normal]: shorthand `font: 500 14px/1 …` của .ui-btn reset cv11/ss03 mà body/DsRoot bật
     // (đo bằng ds/so-khop.mjs: artifact "normal") → chữ trong nút dùng glyph mặc định của Inter.
     'font-medium text-[14px] leading-none whitespace-nowrap [font-feature-settings:normal]',
