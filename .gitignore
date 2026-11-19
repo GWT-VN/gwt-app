@@ -91,7 +91,8 @@ tools/migrate/_out/
 /backlog/
 
 # node_modules ở GỐC repo (apps/web/.gitignore lo cái bên trong apps/web)
-/node_modules/
+# Không có dấu / cuối: khớp cả THƯ MỤC lẫn SYMLINK (worktree hay symlink node_modules — 19/11/2026 lỡ commit symlink, Vercel vỡ build).
+/node_modules
 
 # Claude worktrees (không commit)
 .claude/worktrees/
