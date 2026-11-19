@@ -60,7 +60,12 @@ export function DanhMucLoiBang({ rows, choSua, nhomTuyChon = [] }: { rows: LoiDa
                   <td className="px-3 py-2">{d.nhom ?? '—'}</td>
                   <td className="px-3 py-2 text-xs">{d.ma_may.join(', ') || '—'}</td>
                   <td className="px-3 py-2 text-xs">{tomTatDanhSach(d.aliases) || '—'}</td>
-                  <td className="px-3 py-2 text-xs">{catNgan(d.huong_xu_ly) || '—'}</td>
+                  <td className="px-3 py-2 text-xs">
+                    {catNgan(d.huong_xu_ly) || '—'}
+                    {d.huong_xu_ly?.trim() && (d.huong_duyet
+                      ? <span className="ml-1 whitespace-nowrap rounded bg-emerald-50 px-1.5 py-0.5 text-emerald-700" title={d.huong_duyet_boi ? `Duyệt bởi ${d.huong_duyet_boi}` : undefined}>✓ đã duyệt</span>
+                      : <span className="ml-1 whitespace-nowrap rounded bg-amber-50 px-1.5 py-0.5 text-amber-700" title="Chưa hiện trên ticket — chờ chuyên gia duyệt">chờ duyệt</span>)}
+                  </td>
                   <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-xs ${MAU[d.trang_thai]}`}>{NHAN_TRANG_THAI[d.trang_thai]}</span></td>
                   {choSua && (
                     <td className="px-3 py-2 whitespace-nowrap space-x-2">
@@ -87,7 +92,8 @@ export function DanhMucLoiBang({ rows, choSua, nhomTuyChon = [] }: { rows: LoiDa
                       <label className="text-xs">Các cách ghi (mỗi dòng một cách)<textarea className={o} rows={3} value={form.aliases} onChange={f('aliases')} /></label>
                       <label className="text-xs">Mã máy áp dụng (mỗi dòng một mã)<textarea className={o} rows={3} value={form.ma_may} onChange={f('ma_may')} /></label>
                       <label className="text-xs">Dấu hiệu<textarea className={o} rows={2} value={form.dau_hieu} onChange={f('dau_hieu')} /></label>
-                      <label className="text-xs">Phương án xử lý chuẩn<textarea className={o} rows={2} value={form.huong_xu_ly} onChange={f('huong_xu_ly')} /></label>
+                      <label className="text-xs">Phương án xử lý chuẩn<textarea className={o} rows={2} value={form.huong_xu_ly} onChange={f('huong_xu_ly')} />
+                        <span className="text-[11px] text-slate-500">Sửa nội dung → phương án về &quot;chờ duyệt&quot;, chỉ hiện trên ticket sau khi chuyên gia duyệt lại (Xuất / Nhập phương án).</span></label>
                       <label className="text-xs">Nguồn<input className={o} value={form.nguon} onChange={f('nguon')} /></label>
                       <label className="text-xs">Thứ tự<input className={o} value={form.thu_tu} onChange={f('thu_tu')} /></label>
                       <label className="text-xs">Trạng thái

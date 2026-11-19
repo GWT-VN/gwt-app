@@ -1,5 +1,8 @@
 'use server'
 
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
+import { chuanBiThietBiCombo } from '@/lib/bh/chuaSerial'
+import { kiemTaoTicket } from '@/lib/loi/ticketKhongSerial'
 import { randomBytes } from 'node:crypto'
 import { boDau } from '@/bang/timkiem'
 import type { DoNuoc } from '@/lib/nuoc'
@@ -1843,8 +1846,9 @@ export async function kyThuatCuaToi(): Promise<KyThuat | null> {
   return (data as KyThuat) ?? null
 }
 
+// 19/11/2026 (Hiệp): thêm / sửa / xoá hồ sơ thợ chỉ người giữ vai trò "Sửa danh sách người" (lib/nen-tang/sua-danh-sach.ts).
 export async function taoKyThuat(input: KyThuatInput): Promise<{ ok: true } | { ok: false; error: string }> {
-  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
+  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY')) || !(await coSuaDanhSach())) return { ok: false, error: KHONG_DU_QUYEN }
   if (!input.ten.trim()) return { ok: false, error: 'Thiếu tên kỹ thuật.' }
   const { error } = await dataClient().from('ky_thuat').insert({
     ten: input.ten.trim(), sdt: input.sdt?.trim() || null, vung: input.vung?.trim() || null,
@@ -1857,7 +1861,7 @@ export async function taoKyThuat(input: KyThuatInput): Promise<{ ok: true } | { 
 }
 
 export async function suaKyThuat(id: string, input: KyThuatInput): Promise<{ ok: true } | { ok: false; error: string }> {
-  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
+  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY')) || !(await coSuaDanhSach())) return { ok: false, error: KHONG_DU_QUYEN }
   if (!input.ten.trim()) return { ok: false, error: 'Thiếu tên kỹ thuật.' }
   const { error } = await dataClient().from('ky_thuat').update({
     ten: input.ten.trim(), sdt: input.sdt?.trim() || null, vung: input.vung?.trim() || null,
@@ -1868,12 +1872,7 @@ export async function suaKyThuat(id: string, input: KyThuatInput): Promise<{ ok:
   await ghiAudit('sua_ky_thuat', `ky-thuat:${id}`); revalidatePath('/ky-thuat'); return { ok: true }
 }
 
-export async function xoaKyThuat(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY'))) return { ok: false, error: KHONG_DU_QUYEN }
-  const { error } = await dataClient().from('ky_thuat').delete().eq('id', id)
-  if (error) return { ok: false, error: error.message }
-  await ghiAudit('xoa_ky_thuat', `ky-thuat:${id}`); revalidatePath('/ky-thuat'); return { ok: true }
-}
+// xoaKyThuat (DELETE thợ) đã bỏ 19/11/2026: xoá thợ = ngừng dùng, giữ lịch sử — xoaNguoi('kt', id) ở app/ticket/nguoi-actions.ts.
 
 // ── Cấp tài khoản đăng nhập cho kỹ thuật (email ngoài) — CHỈ ADMIN ────────────
 // Kỹ thuật đăng nhập app nhưng CHỈ thấy lịch chuyến của mình. Cấp quyền = tạo
@@ -3212,34 +3211,49 @@ export async function lapBoCombo(input: {
   customer_id: string
   install_date: string
   install_address?: string
-  serials: { internal_code: string; serial: string }[]
-}): Promise<{ ok: true; ma_bo: string } | { ok: false; error: string }> {
+  // chua_serial (18/11): thiết bị chưa có serial → DB cấp mã tạm, vẫn kích hoạt cả bộ, bổ sung serial sau.
+  serials: { internal_code: string; serial: string; chua_serial?: boolean }[]
+}): Promise<{ ok: true; ma_bo: string; so_chua_serial: number } | { ok: false; error: string }> {
   await requireStaff()
   await doQuyen('cs.may.kich_hoat_bh')
   if (!(MA_COMBO as readonly string[]).includes(input.combo))
     return { ok: false, error: 'Combo không hợp lệ.' }
   if (!input.customer_id) return { ok: false, error: 'Chọn khách.' }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.install_date)) return { ok: false, error: 'Ngày không hợp lệ.' }
-  const dv = (input.serials ?? []).filter((s) => s.serial?.trim())
-  if (!dv.length) return { ok: false, error: 'Chọn serial cho các thiết bị.' }
-  const set = new Set(dv.map((s) => s.serial.trim()))
-  if (set.size !== dv.length) return { ok: false, error: 'Serial thiết bị bị trùng nhau.' }
+  const tb = chuanBiThietBiCombo(input.serials ?? [], (input.serials ?? []).map((s) => !!s.chua_serial))
+  if (!tb.ok) return tb
+  const dv = tb.ds
 
   const { data, error } = await dataClient().rpc('lap_bo_combo', {
     p_combo: input.combo,
     p_customer: input.customer_id,
     p_install_date: input.install_date,
     p_install_address: input.install_address?.trim() || null,
-    p_serials: dv.map((s) => ({ internal_code: s.internal_code, serial: s.serial.trim() })),
+    p_serials: dv.map((s) => ({ internal_code: s.internal_code, serial: s.serial })),
   })
   if (error) return { ok: false, error: error.message }
   const maBo = data as string
+  // Serial thật của bộ → kho "đã lắp" + lịch sử (như lắp máy lẻ). Trước 18/11 thiếu bước này → máy ở khách vẫn hiện
+  // "Tồn kho". Lỗi nhật ký không chặn nghiệp vụ chính.
+  const thatSerial = dv.map((s) => s.serial).filter(Boolean)
+  if (thatSerial.length) {
+    try {
+      const db = dataClient()
+      const nv = await layNhanVien()
+      await db.from('serial_registry').update({ trang_thai: 'da_lap' }).in('serial', thatSerial)
+      await db.from('serial_su_dung').insert(thatSerial.map((serial) => ({
+        serial, su_kien: 'lap_dat', tu_trang_thai: 'ton_kho', den_trang_thai: 'da_lap', customer_id: input.customer_id,
+        ghi_chu: `Lắp bộ ${maBo}`, boi: nv?.email ?? null,
+      })))
+    } catch { /* bỏ qua */ }
+  }
   await ghiAudit('lap_bo_combo', `bo:${maBo}`, {
-    combo: input.combo, customer_id: input.customer_id, so_thiet_bi: dv.length,
+    combo: input.combo, customer_id: input.customer_id, so_thiet_bi: dv.length, so_chua_serial: tb.soChuaSerial,
   })
   revalidatePath('/')
+  revalidatePath('/bh-cho-kich-hoat')
   revalidatePath(`/khach/${input.customer_id}`)
-  return { ok: true, ma_bo: maBo }
+  return { ok: true, ma_bo: maBo, so_chua_serial: tb.soChuaSerial }
 }
 
 // ── Kênh/đối tác (đại lý/KTS/KOL) — dùng dim_channel của Sales, CS chỉ ĐỌC + GÁN (D2) ──
@@ -4301,19 +4315,15 @@ export async function createTicket(input: {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
   const nguoiTao = await layNhanVien()
-  if (!input.customer_id?.trim()) return { ok: false as const, error: 'Bắt buộc chọn khách.' }
+  const loiVao = kiemTaoTicket(input)
+  if (loiVao) return { ok: false as const, error: loiVao }
   if (input.dong_may != null && !Array.isArray(input.dong_may)) return { ok: false as const, error: 'Dòng máy không hợp lệ.' }
   // Serial do SERVER giải: bỏ qua serial/source_serial client gửi khi đã có dòng máy.
   // "Dòng đầu tiên có serial" — CÙNG định nghĩa với dòng nhận vào dòng máy tự động (ganDongMayChoTicketMoi).
   const iSerial = input.dong_may ? viTriDongCoSerial(input.dong_may) : -1
   const serialDong = iSerial >= 0 ? input.dong_may![iSerial].serial : undefined
+  // Serial KHÔNG bắt buộc (17/11): khách báo lỗi trước, thợ kiểm tra mới có serial → bổ sung ở "Sửa dòng".
   const serialTho = (serialDong ?? input.source_serial ?? input.serial ?? '').trim()
-  if (!serialTho) return { ok: false as const, error: 'Bắt buộc có ít nhất một serial máy báo lỗi.' }
-  if (!input.ticket_type?.trim()) return { ok: false as const, error: 'Chọn loại ticket.' }
-  if (!input.description?.trim()) return { ok: false as const, error: 'Nhập mô tả sự cố.' }
-  if (input.state && !['Open', 'Done', 'Cancel'].includes(input.state)) {
-    return { ok: false as const, error: 'Trạng thái không hợp lệ.' }
-  }
 
   const db = dataClient()
   // Bảng dòng máy chưa có (migration chưa áp) → tạo ticket kiểu cũ (chỉ serial), bỏ qua dòng máy + cảnh báo.
@@ -4785,8 +4795,13 @@ export async function nhomLoiChiTiet(code: string): Promise<NhomLoiChiTiet | nul
 export async function nhomLoiChon(): Promise<NhomChon[]> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
-  const { data, error } = await dataClient()
-    .from('issue_group').select('code, ten, muc_do').order('thu_tu')
+  // Chỉ nhóm đang dùng (4 nhóm + "Không phải lỗi" từ 18/11); chưa có cột dang_dung (chưa áp migration) → như cũ.
+  const doc = (chiDangDung: boolean) => {
+    const q = dataClient().from('issue_group').select('code, ten, muc_do').order('thu_tu')
+    return chiDangDung ? q.eq('dang_dung', true) : q
+  }
+  let { data, error } = await doc(true)
+  if (error?.code === '42703') ({ data, error } = await doc(false))
   if (error) throw new Error(error.message)
   return (data ?? []) as NhomChon[]
 }

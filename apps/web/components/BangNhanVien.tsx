@@ -29,6 +29,7 @@ const TEN_COT: Record<VaiTro, string> = {
   ctv_lap_dat: 'CTV',
   cs_manager: 'Trưởng',
   cs: 'NV',
+  sua_ds_nguoi: 'Sửa',
   sales_manager: 'Trưởng',
   sales: 'NV',
   marketing: 'MKT',

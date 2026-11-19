@@ -3,20 +3,29 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
-  taoKyThuat, suaKyThuat, xoaKyThuat, capTaiKhoanKyThuat, thuTaiKhoanKyThuat,
+  taoKyThuat, suaKyThuat, capTaiKhoanKyThuat, thuTaiKhoanKyThuat,
   type KyThuat, type TrangThaiTaiKhoanKT,
 } from '@/app/actions'
 import { ChonTinh } from '@/components/ChonTinh'
+import { xoaNguoi } from '@/app/ticket/nguoi-actions'
+import { chuanTenNguoi } from '@/lib/loi/nguoiTicket'
+import { XacNhanXoa } from '@/components/ticket/XacNhanXoa'
 
 /**
- * Quản lý danh sách kỹ thuật (nhân viên + CTV): thêm/sửa/khoá/xoá.
+ * Quản lý danh sách kỹ thuật (nhân viên + CTV): thêm/sửa/khoá/xoá. Là tab Kỹ thuật của /danh-sach-nguoi — chỗ DUY NHẤT
+ * sửa danh sách thợ (Hiệp 19/11/2026). Xoá = ngừng dùng (giữ lịch sử ticket, lịch): hỏi lại ngay trong dòng, cho chuyển
+ * ticket đang mở sang thợ khác. `dsKt` gồm cả thợ đã xoá để gõ lại đúng tên thì KHÔI PHỤC hồ sơ cũ.
  * Cột "Đăng nhập" chỉ ADMIN thấy: cấp/thu quyền đăng nhập cho KT (email ngoài).
  * Cấp quyền tạo mật khẩu tạm — hiện 1 lần để admin chuyển cho kỹ thuật.
  */
 export function RosterKyThuat({
-  dsKt, trangThai, choTaiKhoanKT,
+  dsKt, trangThai, choTaiKhoanKT, soTicket = {}, soLichHen = {},
 }: {
   dsKt: KyThuat[]; trangThai: Record<string, TrangThaiTaiKhoanKT>
+  /** id thợ → số ticket ĐANG MỞ gán cho thợ đó */
+  soTicket?: Record<string, number>
+  /** id thợ → số chuyến hẹn từ hôm nay trở đi */
+  soLichHen?: Record<string, number>
   /** Cấp / thu tài khoản đăng nhập cho kỹ thuật — cs.ky_thuat.tai_khoan */
   choTaiKhoanKT: boolean
 }) {
@@ -24,6 +33,7 @@ export function RosterKyThuat({
   const [busy, setBusy] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [suaId, setSuaId] = useState<string | null>(null)
+  const [xoaId, setXoaId] = useState<string | null>(null)
   const [matKhau, setMatKhau] = useState<{ id: string; mk: string } | null>(null)
 
   // form thêm mới
@@ -40,10 +50,23 @@ export function RosterKyThuat({
   const [eEmail, setEEmail] = useState('')
   const [eCtv, setECtv] = useState(false); const [eHd, setEHd] = useState(true)
 
+  const dangDung = dsKt.filter((k) => k.hoat_dong)
+  const kiemTen = ten.trim() ? chuanTenNguoi(ten, dsKt) : null
+  const trungCu = kiemTen?.ok ? (kiemTen.trung as KyThuat | null) : null
+  const trungTen = trungCu?.hoat_dong ? trungCu : null
+  const khoiPhuc = trungCu && !trungCu.hoat_dong ? trungCu : null
+
   async function them() {
     if (!ten.trim()) { setErr('Nhập tên kỹ thuật.'); return }
+    if (trungTen) { setErr(`Đã có "${trungTen.ten}" trong danh sách.`); return }
     setBusy('them'); setErr(null)
-    const r = await taoKyThuat({ ten, sdt: sdt || undefined, vung: vung || undefined, tinh: tinh || undefined, email: email || undefined, la_ctv: ctv })
+    // Gõ lại đúng tên thợ đã xoá → bật lại hồ sơ cũ (giữ lịch sử); ô nào gõ thì cập nhật, ô trống giữ giá trị cũ.
+    // suaKyThuat ghi ĐÈ cả hồ sơ nên phải gửi đủ mọi trường.
+    const r = khoiPhuc ? await suaKyThuat(khoiPhuc.id, {
+      ten: khoiPhuc.ten, sdt: sdt || khoiPhuc.sdt || undefined, vung: vung || khoiPhuc.vung || undefined,
+      tinh: tinh || khoiPhuc.tinh || undefined, email: email || khoiPhuc.email || undefined,
+      la_ctv: ctv || khoiPhuc.la_ctv, hoat_dong: true,
+    }) : await taoKyThuat({ ten, sdt: sdt || undefined, vung: vung || undefined, tinh: tinh || undefined, email: email || undefined, la_ctv: ctv })
     setBusy(null)
     if (!r.ok) { setErr(r.error); return }
     setTen(''); setSdt(''); setVung(''); setTinh(''); setEmail(''); setCtv(false); router.refresh()
@@ -61,12 +84,11 @@ export function RosterKyThuat({
     if (!r.ok) { setErr(r.error); return }
     setSuaId(null); router.refresh()
   }
-  async function xoa(id: string) {
-    if (!window.confirm('Xoá kỹ thuật này? (không xoá được nếu đã có chuyến gán)')) return
+  async function xoa(id: string, chuyenSang: string | null) {
     setBusy(id); setErr(null)
-    const r = await xoaKyThuat(id); setBusy(null)
+    const r = await xoaNguoi('kt', id, chuyenSang); setBusy(null)
     if (!r.ok) { setErr(r.error); return }
-    router.refresh()
+    setXoaId(null); router.refresh()
   }
   async function cap(id: string) {
     setBusy(id); setErr(null); setMatKhau(null)
@@ -101,18 +123,25 @@ export function RosterKyThuat({
           <ChonTinh value={tinh} onChange={setTinh} className={`${oInput} bg-white min-w-44`} />
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (để cấp đăng nhập)" className={`${oInput} min-w-56`} />
           <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={ctv} onChange={(e) => setCtv(e.target.checked)} /> CTV</label>
-          <button onClick={them} disabled={busy === 'them'} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{busy === 'them' ? '…' : 'Thêm'}</button>
+          <button onClick={them} disabled={busy === 'them' || !!trungTen} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{busy === 'them' ? '…' : khoiPhuc ? 'Khôi phục' : 'Thêm'}</button>
         </div>
+        {trungTen && <p className="text-xs text-amber-700">Đã có <strong>{trungTen.ten}</strong> trong danh sách.</p>}
+        {khoiPhuc && <p className="text-xs text-slate-600"><strong>{khoiPhuc.ten}</strong> đã xoá trước đây. Bấm Khôi phục để đưa lại hồ sơ cũ (ô nào điền sẽ cập nhật).</p>}
       </div>
 
       {/* Danh sách */}
       <ul className="space-y-2">
-        {dsKt.map((k) => {
+        {dangDung.map((k) => {
           const tt = k.email ? trangThai[k.email.trim().toLowerCase()] : undefined
           const dangSua = suaId === k.id
+          const nTk = soTicket[k.id] ?? 0
           return (
-            <li key={k.id} className={`bg-white rounded-xl border p-3 ${k.hoat_dong ? '' : 'opacity-60'}`}>
-              {dangSua ? (
+            <li key={k.id} className="bg-white rounded-xl border p-3">
+              {xoaId === k.id ? (
+                <XacNhanXoa ten={k.ten} soTicket={nTk} soLichHen={soLichHen[k.id] ?? 0} coTaiKhoan={!!tt?.hoat_dong}
+                  nguoiNhan={dangDung.filter((y) => y.id !== k.id)} busy={busy === k.id}
+                  onXoa={(nhan) => xoa(k.id, nhan)} onHuy={() => setXoaId(null)} />
+              ) : dangSua ? (
                 <div className="flex flex-wrap items-center gap-2">
                   <input value={eTen} onChange={(e) => setETen(e.target.value)} placeholder="Tên" className={oInput} />
                   <input value={eSdt} onChange={(e) => setESdt(e.target.value)} placeholder="SĐT" className={oInput} />
@@ -120,7 +149,6 @@ export function RosterKyThuat({
                   <ChonTinh value={eTinh} onChange={setETinh} className={`${oInput} bg-white min-w-44`} />
                   <input value={eEmail} onChange={(e) => setEEmail(e.target.value)} placeholder="Email" className={`${oInput} min-w-56`} />
                   <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={eCtv} onChange={(e) => setECtv(e.target.checked)} /> CTV</label>
-                  <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={eHd} onChange={(e) => setEHd(e.target.checked)} /> Hoạt động</label>
                   <button onClick={() => luuSua(k.id)} disabled={busy === k.id} className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm disabled:opacity-50">Lưu</button>
                   <button onClick={() => setSuaId(null)} className="text-sm text-slate-500 underline">Huỷ</button>
                 </div>
@@ -129,7 +157,6 @@ export function RosterKyThuat({
                   <div className="min-w-0">
                     <span className="text-sm font-medium text-slate-900">{k.ten}</span>
                     {k.la_ctv && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">CTV</span>}
-                    {!k.hoat_dong && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500">đã khoá</span>}
                     <div className="text-xs text-slate-500 mt-0.5">
                       {[k.sdt, k.vung, k.tinh, k.email].filter(Boolean).join(' · ') || '—'}
                     </div>
@@ -147,17 +174,18 @@ export function RosterKyThuat({
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-none">
+                    <span className="text-xs text-slate-500">{nTk} ticket đang mở</span>
                     {choTaiKhoanKT && k.email && !tt?.hoat_dong && <button onClick={() => cap(k.id)} disabled={busy === k.id} className="text-xs text-sky-700 underline">cấp đăng nhập</button>}
                     {choTaiKhoanKT && tt?.hoat_dong && <button onClick={() => thu(k.id)} disabled={busy === k.id} className="text-xs text-amber-700 underline">thu quyền</button>}
                     <button onClick={() => moSua(k)} className="text-xs text-slate-600 underline">sửa</button>
-                    <button onClick={() => xoa(k.id)} disabled={busy === k.id} className="text-xs text-red-600 underline">xoá</button>
+                    <button onClick={() => { setErr(null); setXoaId(k.id) }} disabled={busy === k.id} className="text-xs text-red-600 underline">xoá</button>
                   </div>
                 </div>
               )}
             </li>
           )
         })}
-        {dsKt.length === 0 && <li className="text-sm text-slate-400">Chưa có kỹ thuật nào.</li>}
+        {dangDung.length === 0 && <li className="text-sm text-slate-400">Chưa có kỹ thuật nào.</li>}
       </ul>
     </div>
   )

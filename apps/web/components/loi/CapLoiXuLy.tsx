@@ -4,8 +4,10 @@ import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { themLanLoi, suaLanLoi, xoaLanLoi } from '@/app/ticket/lan-loi-actions'
 import type { LanLoi } from '@/lib/loi/lanLoi'
+import { ngayCuaLan, ngayVNHienThi, ngayVNHomNay } from '@/lib/loi/ngayTicket'
 
-const ngayVN = (s: string | null) => (s ? new Date(s).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '')
+/** 'YYYY-MM-DD' (ngày khách báo) hoặc ISO (ngày tạo) → dd/mm/yyyy giờ VN. */
+const ngayVN = (s: string | null) => (s ? ngayVNHienThi(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ngayCuaLan(null, s)) : '')
 
 /** Một cặp "Khách báo ↔ Xử lý" ở chế độ xem: hai cột cạnh nhau (mobile xếp dọc). */
 export function KhungCap({ lan, ngay, moTa, xuLy, nut }: {
@@ -18,13 +20,13 @@ export function KhungCap({ lan, ngay, moTa, xuLy, nut }: {
         {nut}
       </div>
       <div className="grid sm:grid-cols-2 sm:divide-x divide-slate-100 text-sm">
-        <div className="p-3">
+        <div className="p-3 min-w-0">
           <span className="text-xs text-slate-500">Khách báo</span>
-          <p className="text-slate-900 whitespace-pre-wrap">{moTa || '—'}</p>
+          <p className="text-slate-900 whitespace-pre-wrap [overflow-wrap:anywhere]">{moTa || '—'}</p>
         </div>
-        <div className="p-3">
+        <div className="p-3 min-w-0">
           <span className="text-xs text-slate-500">Xử lý</span>
-          <p className={`whitespace-pre-wrap ${xuLy ? 'text-slate-900' : 'text-amber-600'}`}>{xuLy || 'chưa có'}</p>
+          <p className={`whitespace-pre-wrap [overflow-wrap:anywhere] ${xuLy ? 'text-slate-900' : 'text-amber-600'}`}>{xuLy || 'chưa có'}</p>
         </div>
       </div>
     </div>
@@ -52,25 +54,40 @@ export function O2Cot({ moTa, setMoTa, xuLy, setXuLy, batBuoc = true }: {
   )
 }
 
-function FormCap({ dau, moTa0 = '', xuLy0 = '', onLuu, onHuy }: {
-  dau: string; moTa0?: string; xuLy0?: string
-  onLuu: (v: { mo_ta: string; xu_ly: string }) => Promise<{ ok: true } | { ok: false; error: string }>
+/** Ô chọn ngày khách báo (cho phép ngày lùi, chặn tương lai bằng `max`). */
+export function ONgay({ ngay, setNgay, homNay }: { ngay: string; setNgay: (s: string) => void; homNay: string }) {
+  return (
+    <label className="flex items-center gap-2 text-sm text-slate-700">
+      Ngày khách báo
+      <input type="date" value={ngay} max={homNay} min="2020-01-01" onChange={(e) => setNgay(e.target.value)}
+        className="rounded-lg border px-2 py-1 text-sm text-slate-900" />
+    </label>
+  )
+}
+
+export function FormCap({ dau, moTa0 = '', xuLy0 = '', ngay0 = '', homNay = ngayVNHomNay(), onLuu, onHuy }: {
+  dau: string; moTa0?: string; xuLy0?: string; ngay0?: string; homNay?: string
+  onLuu: (v: { mo_ta: string; xu_ly: string; ngay: string }) => Promise<{ ok: true } | { ok: false; error: string }>
   onHuy: () => void
 }) {
   const [moTa, setMoTa] = useState(moTa0)
   const [xuLy, setXuLy] = useState(xuLy0)
+  const [ngay, setNgay] = useState(ngay0)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   async function luu() {
     if (!moTa.trim()) { setErr('Nhập mô tả khách báo.'); return }
     setBusy(true); setErr(null)
-    const r = await onLuu({ mo_ta: moTa, xu_ly: xuLy })
+    const r = await onLuu({ mo_ta: moTa, xu_ly: xuLy, ngay })
     setBusy(false)
     if (!r.ok) setErr(r.error)
   }
   return (
     <div className="rounded-lg border border-slate-300 p-3 space-y-3">
-      <p className="text-xs font-medium text-slate-700">{dau}</p>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="text-xs font-medium text-slate-700">{dau}</p>
+        <ONgay ngay={ngay} setNgay={setNgay} homNay={homNay} />
+      </div>
       <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={xuLy} setXuLy={setXuLy} />
       <div className="flex items-center gap-3">
         <button onClick={luu} disabled={busy}
@@ -105,9 +122,10 @@ export function LanLoiTiepTheo({ code, ds, choSua, lanKe }: { code: string; ds: 
     <div className="space-y-3">
       {ds.map((l) => dangSua === l.id ? (
         <FormCap key={l.id} dau={`Sửa lần ${l.lan}`} moTa0={l.mo_ta} xuLy0={l.xu_ly ?? ''}
+          ngay0={ngayCuaLan(l.ngay, l.created_at) ?? ''}
           onLuu={async (v) => xong(await suaLanLoi(l.id, code, v))} onHuy={() => setDangSua(null)} />
       ) : (
-        <KhungCap key={l.id} lan={l.lan} ngay={l.created_at} moTa={l.mo_ta} xuLy={l.xu_ly}
+        <KhungCap key={l.id} lan={l.lan} ngay={ngayCuaLan(l.ngay, l.created_at)} moTa={l.mo_ta} xuLy={l.xu_ly}
           nut={choSua && (
             <span className="flex gap-3 text-xs">
               <button onClick={() => setDangSua(l.id)} className="text-slate-600 underline">Sửa</button>
@@ -117,7 +135,7 @@ export function LanLoiTiepTheo({ code, ds, choSua, lanKe }: { code: string; ds: 
       ))}
 
       {choSua && (dangThem ? (
-        <FormCap dau={`Lần ${lanKe} — khách báo lỗi tiếp`}
+        <FormCap dau={`Lần ${lanKe} — khách báo lỗi tiếp`} ngay0={ngayVNHomNay()}
           onLuu={async (v) => xong(await themLanLoi(code, v))} onHuy={() => setDangThem(false)} />
       ) : (
         <button onClick={() => setDangThem(true)}

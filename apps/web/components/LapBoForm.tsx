@@ -86,6 +86,9 @@ export function LapBoForm() {
   const [combo, setCombo] = useState('')
   const [linhKien, setLinhKien] = useState<LinhKienCombo[]>([])
   const [chon, setChon] = useState<Record<string, string>>({})   // internal_code -> serial
+  // Thiết bị đánh dấu "Chưa có serial" (18/11): vẫn lắp + kích hoạt BH, app cấp mã tạm, bổ sung serial sau.
+  const [chuaSerial, setChuaSerial] = useState<Record<string, boolean>>({})
+  const [soChoSerial, setSoChoSerial] = useState(0)
   const [khachId, setKhachId] = useState('')
   const [khachAddr, setKhachAddr] = useState<string | null>(null)
   const [dungDcKhach, setDungDcKhach] = useState(true)
@@ -99,7 +102,7 @@ export function LapBoForm() {
   useEffect(() => { comboChon().then(setCombos) }, [])
 
   function chonCombo(c: string) {
-    setCombo(c); setChon({}); setLinhKien([]); setErr(null); setMaBo(null)
+    setCombo(c); setChon({}); setChuaSerial({}); setLinhKien([]); setErr(null); setMaBo(null)
     if (c) linhKienCombo(c).then(setLinhKien)
   }
   function chonKhach(id: string, _nhan: string, k?: KhachTom) {
@@ -119,7 +122,7 @@ export function LapBoForm() {
   const dcLapCuoi = dungDcKhach
     ? (khachAddr ?? '')
     : [dcLap.trim(), tinhLap.trim()].filter(Boolean).join(', ')
-  const duSerial = slots.length > 0 && slots.every((s) => (chon[s.key] ?? '').trim())
+  const duSerial = slots.length > 0 && slots.every((s) => chuaSerial[s.key] || (chon[s.key] ?? '').trim())
   const sanSang = !!combo && !!khachId && duSerial && /^\d{4}-\d{2}-\d{2}$/.test(ngay)
 
   const tienMa = useMemo(() => {
@@ -133,12 +136,12 @@ export function LapBoForm() {
     const r = await lapBoCombo({
       combo, customer_id: khachId, install_date: ngay,
       install_address: dcLapCuoi.trim() || undefined,
-      serials: slots.map((s) => ({ internal_code: s.internal_code, serial: chon[s.key] })),
+      serials: slots.map((s) => ({ internal_code: s.internal_code, serial: chon[s.key] ?? '', chua_serial: !!chuaSerial[s.key] })),
     })
     setBusy(false)
     if (!r.ok) { setErr(r.error); return }
-    setMaBo(r.ma_bo)
-    setCombo(''); setLinhKien([]); setChon({}); setKhachId(''); setKhachAddr(null)
+    setMaBo(r.ma_bo); setSoChoSerial(r.so_chua_serial)
+    setCombo(''); setLinhKien([]); setChon({}); setChuaSerial({}); setKhachId(''); setKhachAddr(null)
     setDcLap(''); setTinhLap(''); setDungDcKhach(true); setNgay(HOM_NAY())
     router.refresh()
   }
@@ -161,11 +164,30 @@ export function LapBoForm() {
       {/* 2. Serial từng thiết bị (mỗi slot 1 serial; ECO có 2× UPF10) */}
       {slots.length > 0 && (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">2. Serial thiết bị ({slots.length})</label>
+          <div className="flex items-baseline justify-between gap-2">
+            <label className="text-sm font-medium text-slate-700">2. Serial thiết bị ({slots.length})</label>
+            <button type="button" className="text-xs underline text-slate-600"
+              onClick={() => setChuaSerial(Object.fromEntries(slots.map((s) => [s.key, true])))}>
+              Chưa có serial cả bộ
+            </button>
+          </div>
           {slots.map((s) => (
-            <ChonSerialThietBi key={s.key} internalCode={s.internal_code} ten={s.ten}
-              value={chon[s.key] ?? ''}
-              onChange={(v) => setChon((p) => ({ ...p, [s.key]: v }))} />
+            <div key={s.key} className="space-y-1">
+              {chuaSerial[s.key] ? (
+                <p className="text-sm rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+                  <strong>{s.ten ?? s.internal_code}</strong> — chưa có serial: app cấp mã tạm, bổ sung serial sau ở trang máy.
+                </p>
+              ) : (
+                <ChonSerialThietBi internalCode={s.internal_code} ten={s.ten}
+                  value={chon[s.key] ?? ''}
+                  onChange={(v) => setChon((p) => ({ ...p, [s.key]: v }))} />
+              )}
+              <label className="flex items-center gap-1.5 text-xs text-slate-600">
+                <input type="checkbox" checked={!!chuaSerial[s.key]}
+                  onChange={(e) => setChuaSerial((p) => ({ ...p, [s.key]: e.target.checked }))} />
+                Chưa có serial — kích hoạt trước, bổ sung sau
+              </label>
+            </div>
           ))}
         </div>
       )}
@@ -219,6 +241,7 @@ export function LapBoForm() {
       {maBo && (
         <p className="text-sm bg-emerald-50 text-emerald-800 rounded-lg px-3 py-2">
           ✅ Đã lắp bộ <span className="font-mono font-medium">{maBo}</span> + kích hoạt BH từng thiết bị.
+          {soChoSerial > 0 && <> {soChoSerial} thiết bị <strong>chờ bổ sung serial</strong> — xem ở Bảo hành › Chờ kích hoạt BH.</>}
         </p>
       )}
     </div>

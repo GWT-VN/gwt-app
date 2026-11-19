@@ -9,6 +9,7 @@ import { KHONG_DU_QUYEN } from '@/lib/nen-tang/nhan-su-luat'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import { boDau } from '@/bang/timkiem'
 import { kiemDangSerial } from '@/lib/loi/serial'
+import { serialBoSungChoTicket } from '@/lib/loi/ticketKhongSerial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 import { demDoiTrangThai, docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
 import type { DongCa, MauSo } from '@/lib/loi/tanSuat'
@@ -269,6 +270,16 @@ export async function suaDongMay(id: string, patch: DongMayInput & { huong_xu_ly
   const { data: kq, error } = await db.from('ticket_may').update(up).eq('id', id).select('id')
   if (error) return { ok: false, error: thongBaoLoiDb(error, 'suaDongMay') }
   if (!nDong(kq)) return { ok: false, error: 'Không thấy dòng máy.' }
+  // Ticket tạo khi chưa có serial: serial điền ở dòng máy thì ghi luôn lên ticket (Máy / Bảo hành hiện đúng).
+  if (p.serial !== undefined && (up.serial || up.source_serial)) {
+    const { data: tk } = await db.from('tickets').select('serial, source_serial').eq('ticket_code', code).maybeSingle()
+    const bs = tk ? serialBoSungChoTicket(tk as { serial: string | null; source_serial: string | null }, up as { serial: string | null; source_serial: string | null }) : null
+    if (bs) {
+      const { error: e2 } = await db.from('tickets').update(bs).eq('ticket_code', code)
+      if (e2) return { ok: false, error: thongBaoLoiDb(e2, 'suaDongMay.ticket') }
+      await ghiAudit('bo_sung_serial_ticket', `ticket:${code}`, bs)
+    }
+  }
   lamMoi(code)
   return { ok: true }
 }
@@ -399,4 +410,17 @@ export async function duLieuTanSuat(): Promise<{ ca: DongCa[]; ban: MauSo[]; nha
     ban: ban.map((r) => ({ internal_code: String(r.internal_code), thang: String(r.thang), so: Number(r.so_ban) || 0 })),
     nhap: nhap.map((r) => ({ internal_code: String(r.internal_code), thang: String(r.thang), so: Number(r.so_nhap) || 0 })),
   }
+}
+
+/** Số máy đang chạy theo mã máy (installed_base) — mẫu số "% máy từng lỗi" ở Báo cáo lỗi › Theo máy. */
+export async function soMayDangChay(): Promise<Record<string, number>> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  const ds = await docHetView(dataClient(), 'installed_base', ['serial'])
+  const ra: Record<string, number> = {}
+  for (const r of ds) {
+    const k = r.internal_code as string | null
+    if (k) ra[k] = (ra[k] ?? 0) + 1
+  }
+  return ra
 }

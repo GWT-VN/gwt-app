@@ -4,6 +4,8 @@ export type LoiDanhMuc = {
   code: string; nhom: string | null; ten: string; aliases: string[]; ma_may: string[]
   dau_hieu: string | null; huong_xu_ly: string | null; nguon: string | null
   trang_thai: TrangThaiLoi; duyet_boi: string | null; duyet_luc: string | null; thu_tu: number
+  // Duyệt RIÊNG phương án xử lý (migration 20261118090000). Không có cột (chưa áp) → coi như chưa duyệt.
+  huong_duyet?: boolean; huong_duyet_boi?: string | null; huong_duyet_luc?: string | null; huong_y_kien?: string | null
 }
 export type TrangThaiDong = 'dang_xu_ly' | 'da_xu_ly' | 'khong_loi'
 export type DongMay = {
