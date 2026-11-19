@@ -1,0 +1,111 @@
+import { renderToStaticMarkup } from 'react-dom/server'
+import { expect, test } from 'vitest'
+import { Badge, BadgeDot } from './badge'
+
+const theGoc = (h: string) => h.match(/^<[^>]*>/)?.[0] ?? ''
+const lop = (h: string) => (theGoc(h).match(/class="([^"]*)"/)?.[1] ?? '').split(' ')
+
+test('Badge mặc định: <span> soft · secondary · sm, pill 20px, 12px semibold, nền soft-alpha', () => {
+  const h = renderToStaticMarkup(<Badge>Nháp</Badge>)
+  const goc = theGoc(h)
+  expect(goc).toMatch(/^<span/)
+  expect(goc).toContain('data-slot="badge"')
+  expect(goc).toContain('data-variant="soft"')
+  expect(goc).toContain('data-color="secondary"')
+  expect(goc).toContain('data-size="sm"')
+  // bundle.css .ui-badge: height 20 · padding 0 7px · radius-full (không rounded-full = calc(infinity*1px)) · 600 12px/1
+  expect(lop(h)).toEqual(
+    expect.arrayContaining([
+      'h-5',
+      'px-[7px]',
+      'gap-1',
+      'rounded-(--radius-full)',
+      'font-semibold',
+      'text-[12px]',
+      'leading-none',
+      'bg-(--color-background-secondary-soft-alpha)',
+      'text-(--color-text-secondary-soft)',
+    ]),
+  )
+  expect(h).toContain('>Nháp</span>')
+})
+
+test('color="danger" variant="solid": data-* đúng, nền/chữ solid danger, không còn soft', () => {
+  const h = renderToStaticMarkup(
+    <Badge color="danger" variant="solid">
+      Lỗi
+    </Badge>,
+  )
+  const goc = theGoc(h)
+  expect(goc).toContain('data-variant="solid"')
+  expect(goc).toContain('data-color="danger"')
+  const c = lop(h)
+  expect(c).toEqual(expect.arrayContaining(['bg-(--color-background-danger-solid)', 'text-(--color-text-danger-solid)']))
+  expect(c).not.toContain('bg-(--color-background-danger-soft-alpha)')
+  expect(c).not.toContain('text-(--color-text-danger-soft)')
+  expect(c).toContain('text-[12px]') // tailwind-merge không nuốt cỡ chữ khi gặp text-(--màu)
+  expect(h).toContain('Lỗi')
+})
+
+test('6 màu soft: nền <màu>-soft-alpha + chữ <màu>-soft', () => {
+  for (const color of ['secondary', 'info', 'success', 'warning', 'danger', 'discovery'] as const)
+    expect(lop(renderToStaticMarkup(<Badge color={color}>x</Badge>))).toEqual(
+      expect.arrayContaining([`bg-(--color-background-${color}-soft-alpha)`, `text-(--color-text-${color}-soft)`]),
+    )
+})
+
+test('outline: nền trong suốt + viền inset 1px secondary-outline, chữ secondary-outline', () => {
+  const c = lop(renderToStaticMarkup(<Badge variant="outline">Outline</Badge>))
+  expect(c).toEqual(
+    expect.arrayContaining([
+      'bg-transparent',
+      '[box-shadow:inset_0_0_0_1px_var(--color-border-secondary-outline)]',
+      'text-(--color-text-secondary-outline)',
+    ]),
+  )
+  expect(c).not.toContain('bg-(--color-background-secondary-soft-alpha)')
+})
+
+test('size md: cao control-size-3xs (22), padding gutter-2xs (6), 14px', () => {
+  const h = renderToStaticMarkup(<Badge size="md">Cỡ md</Badge>)
+  expect(theGoc(h)).toContain('data-size="md"')
+  const c = lop(h)
+  expect(c).toEqual(expect.arrayContaining(['h-(--control-size-3xs)', 'px-(--control-gutter-2xs)', 'text-[14px]', 'leading-none']))
+  expect(c).not.toContain('h-5')
+  expect(c).not.toContain('px-[7px]')
+  expect(c).not.toContain('text-[12px]')
+})
+
+test('viền như span artifact: kiểu none + currentColor (không ăn preflight 0 solid --border)', () => {
+  expect(lop(renderToStaticMarkup(<Badge>x</Badge>))).toEqual(expect.arrayContaining(['border-none', 'border-current']))
+})
+
+test('BadgeDot: span aria-hidden 6px tròn, nền currentColor (màu theo badge cha); chữ badge vẫn trong DOM', () => {
+  const h = renderToStaticMarkup(
+    <Badge color="info">
+      <BadgeDot />
+      Đang giao
+    </Badge>,
+  )
+  expect(h).toContain('Đang giao')
+  const dot = h.match(/<span aria-hidden="true"[^>]*>/)?.[0] ?? ''
+  expect(dot).toContain('data-slot="badge-dot"')
+  expect(lop(dot)).toEqual(expect.arrayContaining(['size-1.5', 'rounded-(--radius-full)', 'bg-current', 'shrink-0']))
+})
+
+test('asChild: ra phần tử con mang class badge; className gộp qua cn', () => {
+  const a = renderToStaticMarkup(
+    <Badge asChild>
+      <a href="/x">Mở</a>
+    </Badge>,
+  )
+  expect(a).toMatch(/^<a /)
+  expect(lop(a)).toContain('rounded-(--radius-full)')
+  const c = lop(renderToStaticMarkup(<Badge className="h-6">x</Badge>))
+  expect(c).toContain('h-6')
+  expect(c).not.toContain('h-5')
+})
+
+test('không reset font-feature-settings (kế thừa cv11/ss03 của DsRoot)', () => {
+  expect(lop(renderToStaticMarkup(<Badge>x</Badge>)).some((c) => c.includes('font-feature-settings'))).toBe(false)
+})

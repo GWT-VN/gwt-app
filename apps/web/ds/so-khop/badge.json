@@ -1,0 +1,83 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#badge > div"
+  },
+  "chuaDo": [
+    "solid info/warning/discovery, outline có màu (info…discovery) — preview và bundle.css không có tổ hợp này; DS dùng token cùng khuôn --color-*-<màu>-solid|outline, chưa đo",
+    "chấm màu (BadgeDot) chỉ đo ở badge info; success/warning/danger cùng cơ chế currentColor, chưa đo riêng",
+    ".ui-dot[data-color] (chấm đặc nền solid) và .ui-caret (badge bấm được) — không thuộc Badge preview, chưa làm",
+    "asChild (vd <a>) — preview không có"
+  ],
+  "khoa": [
+    {
+      "khoa": "nhap",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(1)",
+      "ds": "#badge [data-so=\"nhap\"]"
+    },
+    {
+      "khoa": "info",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(2)",
+      "ds": "#badge [data-so=\"info\"]",
+      "con": [
+        {
+          "ten": "cham",
+          "artifact": "> .ui-dot",
+          "ds": "> [data-slot=\"badge-dot\"]",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "opacity"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "success",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(3)",
+      "ds": "#badge [data-so=\"success\"]"
+    },
+    {
+      "khoa": "warning",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(4)",
+      "ds": "#badge [data-so=\"warning\"]"
+    },
+    {
+      "khoa": "danger",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(5)",
+      "ds": "#badge [data-so=\"danger\"]"
+    },
+    {
+      "khoa": "discovery",
+      "artifact": ".ui-row:nth-of-type(1) .ui-badge:nth-child(6)",
+      "ds": "#badge [data-so=\"discovery\"]"
+    },
+    {
+      "khoa": "solid",
+      "artifact": ".ui-row:nth-of-type(2) .ui-badge:nth-child(1)",
+      "ds": "#badge [data-so=\"solid\"]"
+    },
+    {
+      "khoa": "solid-success",
+      "artifact": ".ui-row:nth-of-type(2) .ui-badge:nth-child(2)",
+      "ds": "#badge [data-so=\"solid-success\"]"
+    },
+    {
+      "khoa": "solid-danger",
+      "artifact": ".ui-row:nth-of-type(2) .ui-badge:nth-child(3)",
+      "ds": "#badge [data-so=\"solid-danger\"]"
+    },
+    {
+      "khoa": "outline",
+      "artifact": ".ui-row:nth-of-type(2) .ui-badge:nth-child(4)",
+      "ds": "#badge [data-so=\"outline\"]"
+    },
+    {
+      "khoa": "md-info",
+      "artifact": ".ui-row:nth-of-type(2) .ui-badge:nth-child(5)",
+      "ds": "#badge [data-so=\"md-info\"]"
+    }
+  ]
+}

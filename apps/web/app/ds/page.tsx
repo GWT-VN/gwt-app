@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ComponentType } from 'react'
 import { DsRoot } from '@/components/ui/ds-root'
 import { Button } from '@/components/ui/button'
+import { KhoiBadge } from './_khoi/khoi-badge'
 import { KhoiButton } from './_khoi/khoi-button'
 
 /**
@@ -10,7 +11,7 @@ import { KhoiButton } from './_khoi/khoi-button'
  */
 const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
   { neo: 'button', ten: 'Button', Khoi: KhoiButton },
-  { neo: 'badge', ten: 'Badge' },
+  { neo: 'badge', ten: 'Badge', Khoi: KhoiBadge },
   { neo: 'avatar', ten: 'Avatar' },
   { neo: 'kbd', ten: 'Kbd' },
   { neo: 'alert', ten: 'Alert' },
