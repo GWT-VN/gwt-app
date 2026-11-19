@@ -2,8 +2,10 @@ import Link from 'next/link'
 import type { ComponentType } from 'react'
 import { DsRoot } from '@/components/ui/ds-root'
 import { Button } from '@/components/ui/button'
+import { KhoiAvatar } from './_khoi/khoi-avatar'
 import { KhoiBadge } from './_khoi/khoi-badge'
 import { KhoiButton } from './_khoi/khoi-button'
+import { KhoiKbd } from './_khoi/khoi-kbd'
 
 /**
  * Mục lục + khối của /ds, theo thứ tự hiện. Mỗi khối một file `_khoi/khoi-<neo>.tsx` export `Khoi<Ten>()` bọc
@@ -12,8 +14,8 @@ import { KhoiButton } from './_khoi/khoi-button'
 const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
   { neo: 'button', ten: 'Button', Khoi: KhoiButton },
   { neo: 'badge', ten: 'Badge', Khoi: KhoiBadge },
-  { neo: 'avatar', ten: 'Avatar' },
-  { neo: 'kbd', ten: 'Kbd' },
+  { neo: 'avatar', ten: 'Avatar', Khoi: KhoiAvatar },
+  { neo: 'kbd', ten: 'Kbd', Khoi: KhoiKbd },
   { neo: 'alert', ten: 'Alert' },
   { neo: 'tooltip', ten: 'Tooltip' },
   { neo: 'dropdown-menu', ten: 'DropdownMenu' },

@@ -1,0 +1,36 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#kbd > div"
+  },
+  "chuaDo": [
+    "ẩn trên thiết bị cảm ứng (pointer-coarse:hidden) — so khớp chạy chuột, không giả lập cảm ứng; test khoá class",
+    "KbdGroup (gap 4px như .ui-command-foot > span) — preview Kbd không có, đo ở CommandPalette lát 6",
+    "hover/focus của nút chứa phím — đã đo ở Button (outline)"
+  ],
+  "khoa": [
+    {
+      "khoa": "ctrl",
+      "artifact": ".ui-kbd:nth-of-type(1)",
+      "ds": "#kbd [data-so=\"ctrl\"]"
+    },
+    {
+      "khoa": "k",
+      "artifact": ".ui-kbd:nth-of-type(2)",
+      "ds": "#kbd [data-so=\"k\"]"
+    },
+    {
+      "khoa": "nut",
+      "artifact": ".ui-btn",
+      "ds": "#kbd [data-so=\"nut\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": ["width", "height", "color"]
+        }
+      ]
+    }
+  ]
+}

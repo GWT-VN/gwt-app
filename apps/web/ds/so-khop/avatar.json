@@ -1,0 +1,28 @@
+{
+  "khung": {
+    "artifact": ".ui-row",
+    "ds": "#avatar > div"
+  },
+  "chuaDo": [
+    "AvatarImage (ảnh thật) — preview chỉ có avatar chữ cái, artifact không định nghĩa kiểu ảnh",
+    "avatar trong dòng 'Kèm tên' — cùng kiểu với khoá md, không đo riêng",
+    "ui-timeline-mark.ui-avatar (Timeline) — thuộc component Timeline, chưa làm"
+  ],
+  "khoa": [
+    {
+      "khoa": "md",
+      "artifact": ".ui-row > .ui-avatar:nth-child(1)",
+      "ds": "#avatar [data-so=\"md\"]"
+    },
+    {
+      "khoa": "md-2",
+      "artifact": ".ui-row > .ui-avatar:nth-child(2)",
+      "ds": "#avatar [data-so=\"md-2\"]"
+    },
+    {
+      "khoa": "sm",
+      "artifact": ".ui-row > .ui-avatar[data-size=\"sm\"]",
+      "ds": "#avatar [data-so=\"sm\"]"
+    }
+  ]
+}
