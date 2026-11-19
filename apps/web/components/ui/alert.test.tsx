@@ -74,6 +74,11 @@ test('icon mặc định theo màu (Phosphor 16px, aria-hidden); icon truyền v
   const h = renderToStaticMarkup(<Alert icon={<i data-icon="rieng" />}>x</Alert>)
   expect(h).toContain('data-icon="rieng"')
   expect(h).not.toContain('<svg')
+  // icon tự truyền vào cũng là trang trí → tự gắn aria-hidden
+  expect(h.match(/<i [^>]*>/)?.[0]).toContain('aria-hidden="true"')
+  // Alert luôn có icon: null/false không qua được kiểu
+  // @ts-expect-error icon phải là ReactElement
+  renderToStaticMarkup(<Alert icon={null}>x</Alert>)
   // hộp icon: 16px + lệch xuống 2px (bundle .ui-alert > .ui-icon margin-top: 2px)
   expect(lop(renderToStaticMarkup(<Alert>x</Alert>))).toEqual(
     expect.arrayContaining(['[&>svg]:size-4', '[&>svg]:mt-[2px]', '[&>svg]:shrink-0']),

@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from 'react'
+import { cloneElement, type ComponentProps, type ReactElement } from 'react'
 import { Check, Info, Warning, WarningCircle } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils'
  * - Icon nhắm `[&>svg]` như `.ui-alert > .ui-icon` → icon truyền vào qua `icon` cũng ăn cỡ/màu.
  * - Icon mặc định theo hình preview: Info (i tròn) · Check (dấu tích trần — preview không có vòng tròn, nên không dùng
  *   CheckCircle như chữ brief) · Warning (tam giác) · WarningCircle (! tròn).
+ * - Alert luôn có icon (artifact không định nghĩa alert không icon): `icon` là ReactElement (null/false = lỗi kiểu),
+ *   tự gắn `aria-hidden` (icon trang trí, nghĩa nằm ở tiêu đề).
  * - role: mặc định `status`; `danger` → `alert`; `role` người gọi truyền luôn thắng.
  */
 const MAU = {
@@ -32,7 +34,7 @@ export function Alert({
   role,
   children,
   ...props
-}: Omit<ComponentProps<'div'>, 'color'> & { color?: keyof typeof MAU; icon?: ReactNode }) {
+}: Omit<ComponentProps<'div'>, 'color'> & { color?: keyof typeof MAU; icon?: ReactElement<{ 'aria-hidden'?: boolean | 'true' | 'false' }> }) {
   const Icon = ICON[color]
   return (
     <div
@@ -49,7 +51,7 @@ export function Alert({
       )}
       {...props}
     >
-      {icon ?? <Icon size={16} aria-hidden="true" />}
+      {icon ? cloneElement(icon, { 'aria-hidden': true }) : <Icon size={16} aria-hidden="true" />}
       {children}
     </div>
   )

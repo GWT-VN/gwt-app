@@ -29,8 +29,9 @@ const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
 /** /ds — xem component DS v2 thật, mỗi component một khối có #neo. `?theme=dark` cho tối. */
 export default async function DsPage({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
   const theme = (await searchParams).theme === 'dark' ? 'dark' : 'light'
+  // p-4 = body ds/nguon/bundle.css padding 16 → khối giãn ngang so khớp được width
   return (
-    <DsRoot theme={theme} className="min-h-screen p-6">
+    <DsRoot theme={theme} className="min-h-screen p-4">
       <header className="mb-8 flex items-center justify-between gap-4">
         <h1 className="[font:var(--text-heading-md)]">Design system v2</h1>
         <Button asChild variant="outline" size="sm">
