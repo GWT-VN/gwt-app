@@ -63,6 +63,12 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   `trongVung` cũ vẫn nhận, không tác dụng thêm). `pseudo` khi bên artifact vẽ bằng `::after` (tooltip). Ảnh overlay:
   `anhTuongTac.buoc` mở overlay ngay trước khi chụp + `khung.ds` dạng mảng (`["#<neo> > div", "[data-ds-portal] > *"]`)
   → ảnh DS có overlay đang mở cạnh preview. Cú pháp đầy đủ ở đầu `so-khop.mjs`.
+- **Thang z (một chỗ duy nhất — component mới đọc ở đây, không tự chọn số):** bulkbar **55** (`.ui-bulkbar`) · toast
+  **56** (`.ui-toast`) · tip thanh bên / sheet đáy điện thoại **60** (`.pD-icon` tip, `.b-caidat`) · dialog + overlay
+  (Dialog, AlertDialog/ConfirmDialog, Sheet) **70** (`dialog-styles.ts`; artifact dùng top layer của `<dialog>` —
+  trên mọi lớp trang) · tooltip **80** (`.ui-tip::after`) · menu **90** (`.b-noi`, `.b-chuotphai`). Tooltip/menu > dialog
+  vì mở được BÊN TRONG hộp. **Toast (lát 5) phải < 70** như artifact (toast nằm dưới hộp đang mở): Sonner tự đặt
+  z-index rất cao trên toaster (gói chưa cài — đo lại khi dựng) → ghi đè về 56, thêm khoá `zIndex` vào so khớp Toast.
 - **Tooltip trên nút icon:** chữ tooltip là MÔ TẢ thêm, không lặp nguyên `aria-label` của nút — Radix gắn
   `aria-describedby` → trình đọc màn hình đọc hai lần (vd nút "Thao tác" + tooltip "Mở thao tác cho đơn").
 - **Menu (DropdownMenu, ContextMenu — dùng `components/ui/menu-styles.ts`):** item `disabled` theo WAI-ARIA APG — vẫn

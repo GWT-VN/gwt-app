@@ -43,10 +43,12 @@ export const body = 'mt-4 border-none border-current'
 /**
  * `.ui-dialog-footer`: cách thân 20, căn phải, gap 8. ≤640: xếp dọc đảo thứ tự (nút chính — đặt cuối trong DOM — lên
  * trên) và mỗi nút rộng hết (`> .ui-btn { width: 100% }`), dễ bấm bằng ngón cái.
+ * `[&>*]` chứ không `[&>[data-slot=button]]`: nút bọc `DialogClose`/`AlertDialogCancel asChild` mang data-slot của lớp
+ * bọc (Slot ghi đè) → selector theo data-slot=button trượt đúng nút Huỷ. Footer chỉ chứa nút.
  */
 export const footer = [
   'mt-5 flex justify-end gap-2 border-none border-current',
-  '[@media(max-width:640px)]:flex-col-reverse [@media(max-width:640px)]:[&>[data-slot=button]]:w-full',
+  '[@media(max-width:640px)]:flex-col-reverse [@media(max-width:640px)]:[&>*]:w-full',
 ].join(' ')
 
 /** `.ui-dialog-close`: nút ✕ góc trên phải cách 12 (gắn lên `Button` ghost icon-sm; `absolute` đè `relative` của nút). */

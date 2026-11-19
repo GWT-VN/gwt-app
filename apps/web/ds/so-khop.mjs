@@ -55,7 +55,9 @@ const PROPS = ['width', 'height', 'paddingTop', 'paddingRight', 'paddingBottom',
   'color', 'backgroundColor', 'boxShadow', 'opacity', 'cursor',
   'outlineColor', 'outlineStyle', 'outlineWidth', 'outlineOffset',
   // zIndex: overlay (menu, tooltip) phải nổi đúng lớp như nguồn; phần tử tĩnh hai bên đều `auto`.
-  'zIndex']
+  'zIndex',
+  // flexDirection: footer Dialog/ConfirmDialog ≤640 xếp dọc đảo (nút chính trên) — kích thước không lộ thứ tự.
+  'flexDirection']
 const URL_MAC_DINH = 'http://localhost:3401'
 
 /** `<Component> [--url <url>]` → { comp, url }. Ném lỗi khi thiếu/thừa/sai cờ. */

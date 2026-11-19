@@ -16,6 +16,10 @@ import { body, closeBtn, desc, footer, overlay, panel, title } from './dialog-st
  *   aria-describedby theo DialogTitle / DialogDescription.
  * - Focus khi mở: Radix focus phần tử focus được ĐẦU TIÊN (thường là ô nhập). README artifact muốn focus nút AN TOÀN
  *   (Huỷ) → đặt `autoFocus` lên nút đó (React focus nó lúc mount, FocusScope của Radix giữ nguyên).
+ * - LUÔN có `DialogTitle` (thiếu → hộp không có aria-labelledby, trình đọc màn hình không đọc được tên hộp).
+ *   `DialogDescription` tuỳ chọn: Radix Dialog 1.3 (gói radix-ui 1.8) chỉ gắn aria-describedby khi có Description và
+ *   không còn cảnh báo dev → KHÔNG cần `aria-describedby={undefined}` như shadcn dặn cho bản Radix cũ (đã đọc mã
+ *   node_modules/@radix-ui/react-dialog 1.3.1: không có console.warn nào).
  * - Nút ✕ (`showClose`, mặc định bật) nằm CUỐI hộp trong DOM như preview → Tab đi thân → footer → ✕.
  * - Không có trạng thái đang chạy / lỗi trong hộp: đó là ConfirmDialog.
  */

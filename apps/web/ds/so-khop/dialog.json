@@ -25,7 +25,7 @@
   },
   "chuaDo": [
     "Vị trí hộp: preview căn giữa khung #stage 328px; DS căn giữa KHUNG NHÌN (fixed, inset 0, margin auto, cao vừa nội dung — y `dialog.ui-dialog`). Chỉ đo hộp/màu, không đo left/top; so vị trí bằng mắt trên ảnh",
-    "Thứ tự nút ≤640 (nút chính Xoá đơn ở TRÊN — flex-direction column-reverse): getComputedStyle không có flexDirection trong bộ đo; footer cao 72 (2×32 + gap 8) và hai nút rộng hết khớp artifact ở khổ 390, thứ tự so bằng mắt trên ảnh 390 + test chuỗi class trong dialog.dom.test.tsx",
+    "Nút rộng hết ≤640 (`> .ui-btn { width: 100% }`): footer column-reverse đã ĐO (flexDirection, khoá footer @390) nhưng nút cột dọc tự giãn hết bề ngang kể cả khi selector `[&>*]:w-full` trượt → width khớp không chứng minh selector; chứng minh bằng test DOM dialog.dom.test.tsx (selector khớp cả hai nút, kể cả Huỷ bọc DialogClose asChild)",
     "Hiện 160ms cubic-bezier(0.19, 1, 0.22, 1) từ opacity 0, translateY(4px) scale(.98) (`ui-dialog-len`; DS dùng transition + @starting-style), giảm chuyển động → không: đo sau khi đã hiện xong (cho 250ms), không đo khung hình giữa chừng",
     "Cuộn khi hộp cao hơn khung nhìn (max-height 100dvh − 32, overflow-y auto): nội dung preview ngắn, không đo",
     "Focus khi mở vào nút an toàn Huỷ, Tab/Shift+Tab vòng trong hộp, Esc / ✕ / bấm overlay đóng + trả focus về trigger, aria-labelledby/aria-describedby, overlay + hộp trong ô portal của vùng DS: test jsdom components/ui/dialog.dom.test.tsx, không đo ở đây",

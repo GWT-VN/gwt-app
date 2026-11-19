@@ -137,9 +137,20 @@ test('showClose={false} → không có nút ✕', async () => {
   await user.keyboard('{Escape}')
 })
 
-test('kiểu dùng chung: ≤640px (y @media max-width 640 của bundle) panel rộng 100%−32, footer xếp dọc đảo + nút rộng hết', () => {
+test('kiểu dùng chung: ≤640px (y @media max-width 640 của bundle) panel rộng 100%−32, footer xếp dọc đảo', () => {
   expect(panel).toContain('[@media(max-width:640px)]:w-[calc(100%-32px)]')
   expect(panel).toContain('max-w-[450px]')
   expect(footer).toContain('[@media(max-width:640px)]:flex-col-reverse')
-  expect(footer).toContain('[@media(max-width:640px)]:[&>[data-slot=button]]:w-full')
+})
+
+test('footer ≤640: selector "nút rộng hết" khớp CẢ HAI nút trên DOM thật (Huỷ bọc DialogClose asChild mất data-slot=button)', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  const hop = await screen.findByRole('dialog')
+  const sel = footer.match(/\[&>(.+?)\]:w-full/)?.[1]
+  expect(sel, 'footer phải có biến thể [&>…]:w-full').toBeTruthy()
+  const f = hop.querySelector('[data-slot="dialog-footer"]')!
+  expect(f.children).toHaveLength(2)
+  expect(f.querySelectorAll(`:scope > ${sel!.replaceAll('_', ' ')}`)).toHaveLength(2)
 })
