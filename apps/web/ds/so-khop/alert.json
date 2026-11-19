@@ -1,0 +1,192 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#alert > div"
+  },
+  "chuaDo": [
+    "Hình icon: preview vẽ tay (vòng tròn i / dấu tích / tam giác / vòng tròn !), DS dùng Phosphor Info/Check/Warning/WarningCircle — chỉ đo hộp, màu, fill/stroke; hình nét so bằng mắt trên ảnh",
+    "Alert không tiêu đề / không mô tả / nhiều hành động, icon tuỳ chỉnh (prop icon) — preview không có",
+    "Nút trong hành động: chỉ đo trạng thái nghỉ; hover/focus của Button outline sm đã đo ở so-khop Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "mac-dinh",
+      "artifact": ".ui-stack > .ui-alert:nth-child(1)",
+      "ds": "#alert [data-so=\"mac-dinh\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "marginTop",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp.",
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp."
+      }
+    },
+    {
+      "khoa": "info",
+      "artifact": ".ui-stack > .ui-alert:nth-child(2)",
+      "ds": "#alert [data-so=\"info\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "marginTop",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp.",
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp."
+      }
+    },
+    {
+      "khoa": "success",
+      "artifact": ".ui-stack > .ui-alert:nth-child(3)",
+      "ds": "#alert [data-so=\"success\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "marginTop",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp.",
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp."
+      }
+    },
+    {
+      "khoa": "warning",
+      "artifact": ".ui-stack > .ui-alert:nth-child(4)",
+      "ds": "#alert [data-so=\"warning\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "marginTop",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        },
+        {
+          "ten": "tieu-de",
+          "artifact": "> div > .ui-alert-title",
+          "ds": "> [data-slot=\"alert-title\"]",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "mo-ta",
+          "artifact": "> div > .ui-alert-desc",
+          "ds": "> [data-slot=\"alert-description\"]",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "hanh-dong",
+          "artifact": "> .ui-alert-actions",
+          "ds": "> [data-slot=\"alert-actions\"]",
+          "props": [
+            "width",
+            "height",
+            "gap",
+            "alignSelf"
+          ]
+        },
+        {
+          "ten": "nut",
+          "artifact": "> .ui-alert-actions > .ui-btn",
+          "ds": "> [data-slot=\"alert-actions\"] > button",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "boxShadow",
+            "color",
+            "fontSize",
+            "fontWeight"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp.",
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "tieu-de.width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp. Cột chữ (1fr) hẹp theo.",
+        "mo-ta.width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp. Cột chữ (1fr) hẹp theo."
+      }
+    },
+    {
+      "khoa": "danger",
+      "artifact": ".ui-stack > .ui-alert:nth-child(5)",
+      "ds": "#alert [data-so=\"danger\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "marginTop",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối chứa khác, không phải component: body trang artifact padding 16px, /ds DsRoot p-6 (24px) → hẹp hơn đúng 16px ở mọi khổ. Alert là grid khối giãn hết chiều ngang khối chứa; cao (kể cả xuống dòng ở 390) khớp.",
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 + margin-top 2px khớp."
+      }
+    }
+  ]
+}
