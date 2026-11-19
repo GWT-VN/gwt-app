@@ -1,0 +1,229 @@
+{
+  "khung": {
+    "artifact": "#stage",
+    "ds": [
+      "#dialog > div",
+      "[data-ds-portal] [data-slot=\"dialog-overlay\"]",
+      "[data-ds-portal] [role=\"dialog\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#dialog [data-so=\"mo\"]"
+      },
+      {
+        "cho": 250
+      },
+      {
+        "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+      },
+      {
+        "cho": 100
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí hộp: preview căn giữa khung #stage 328px; DS căn giữa KHUNG NHÌN (fixed, inset 0, margin auto, cao vừa nội dung — y `dialog.ui-dialog`). Chỉ đo hộp/màu, không đo left/top; so vị trí bằng mắt trên ảnh",
+    "Thứ tự nút ≤640 (nút chính Xoá đơn ở TRÊN — flex-direction column-reverse): getComputedStyle không có flexDirection trong bộ đo; footer cao 72 (2×32 + gap 8) và hai nút rộng hết khớp artifact ở khổ 390, thứ tự so bằng mắt trên ảnh 390 + test chuỗi class trong dialog.dom.test.tsx",
+    "Hiện 160ms cubic-bezier(0.19, 1, 0.22, 1) từ opacity 0, translateY(4px) scale(.98) (`ui-dialog-len`; DS dùng transition + @starting-style), giảm chuyển động → không: đo sau khi đã hiện xong (cho 250ms), không đo khung hình giữa chừng",
+    "Cuộn khi hộp cao hơn khung nhìn (max-height 100dvh − 32, overflow-y auto): nội dung preview ngắn, không đo",
+    "Focus khi mở vào nút an toàn Huỷ, Tab/Shift+Tab vòng trong hộp, Esc / ✕ / bấm overlay đóng + trả focus về trigger, aria-labelledby/aria-describedby, overlay + hộp trong ô portal của vùng DS: test jsdom components/ui/dialog.dom.test.tsx, không đo ở đây",
+    "Đang xoá (Xoá đơn có spinner, Huỷ khoá, 1,2 giây sau đóng) và lỗi server trong hộp (Alert danger, không đóng): preview chỉ có spinner sau khi bấm — không đo; khoá khi đang chạy + lỗi trong hộp thuộc ConfirmDialog (Task 9)",
+    "Ô \"Lý do xoá\": Input DS — lát 3. Khối demo dùng <label>/<input> gốc mang giá trị `.ui-label`/`.ui-input` — không khoá so khớp (chỉ đo thân `.ui-dialog-body.ui-field`: cột, gap 6)",
+    "Icon ✕: preview vẽ tay bằng nét (path M18 6 6 18M6 6l12 12), DS dùng Phosphor X regular (path tô) — chỉ đo hộp + màu; hình nét so bằng mắt",
+    "Nút Huỷ / Xoá đơn / ✕ ở trạng thái hover/focus/active: đã đo ở so-khop Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "overlay",
+      "artifact": "#ov",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-overlay\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "height": "Preview: `.ui-overlay` absolute inset 0 trong khung #stage cao 328px (khung minh hoạ, preview.html dòng 2). DS: phủ kín khung nhìn (fixed inset 0, như `dialog.ui-dialog::backdrop`) → cao 900 = khung nhìn đo. Rộng khớp vì #stage tràn hết bề ngang (margin −16 bù padding body).",
+        "zIndex": "Preview vẽ hộp tĩnh trong khung #stage (position relative/absolute, không z-index → auto). Hộp THẬT của artifact là `<dialog class=\"ui-dialog\">.showModal()` (bundle.css khối ConfirmDialog) → top layer, trên mọi lớp trang (cao nhất bundle.css 60). DS dùng Radix Portal (không top layer) → z-70 cho overlay + hộp: trên mọi lớp trang, dưới tooltip (80) và menu (90) — hai thứ mở được bên trong hộp. Ghi ở dialog-styles.ts."
+      }
+    },
+    {
+      "khoa": "panel",
+      "artifact": "#dlg",
+      "ds": "[data-ds-portal] [role=\"dialog\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ hộp tĩnh trong khung #stage (position relative/absolute, không z-index → auto). Hộp THẬT của artifact là `<dialog class=\"ui-dialog\">.showModal()` (bundle.css khối ConfirmDialog) → top layer, trên mọi lớp trang (cao nhất bundle.css 60). DS dùng Radix Portal (không top layer) → z-70 cho overlay + hộp: trên mọi lớp trang, dưới tooltip (80) và menu (90) — hai thứ mở được bên trong hộp. Ghi ở dialog-styles.ts."
+      }
+    },
+    {
+      "khoa": "title",
+      "artifact": "#dt",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-title\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "desc",
+      "artifact": "#dd",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-description\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "body",
+      "artifact": ".ui-dialog-body",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-body\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "footer",
+      "artifact": ".ui-dialog-footer",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-footer\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "huy",
+      "artifact": "#huy",
+      "ds": "[data-ds-portal] [data-so=\"huy\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "xoa",
+      "artifact": "#xoa",
+      "ds": "[data-ds-portal] [data-so=\"xoa\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "close",
+      "artifact": "#dong",
+      "ds": "[data-ds-portal] [aria-label=\"Đóng\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    }
+  ]
+}
