@@ -81,6 +81,29 @@ test('ghost: nền accent khi aria-pressed/checked/expanded; destructive: vòng 
   expect(g).toEqual(expect.arrayContaining(['aria-pressed:bg-accent', 'aria-checked:bg-accent', 'aria-expanded:bg-accent']))
   const d = lop(renderToStaticMarkup(<Button variant="destructive">x</Button>))
   expect(d).toEqual(expect.arrayContaining(['bg-destructive', 'focus-visible:outline-(--color-ring-danger)']))
+  // tailwind-merge phải bỏ vòng focus chung — còn sót thì thứ tự CSS quyết định màu, không chắc đỏ.
+  expect(d).not.toContain('focus-visible:outline-ring')
+})
+
+test('ghost đang bật (pressed/expanded/checked): nền accent thắng :active như bundle.css', () => {
+  const g = lop(renderToStaticMarkup(<Button variant="ghost">x</Button>))
+  const active = g.filter((c) => c.includes('active:'))
+  expect(active).toEqual([
+    'not-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
+  ])
+})
+
+test('type mặc định "button" (không submit nhầm form); type của bên gọi thắng; asChild không gắn type', () => {
+  expect(theGoc(renderToStaticMarkup(<Button>x</Button>))).toContain('type="button"')
+  const submit = theGoc(renderToStaticMarkup(<Button type="submit">x</Button>))
+  expect(submit).toContain('type="submit"')
+  expect(submit).not.toContain('type="button"')
+  const a = renderToStaticMarkup(
+    <Button asChild>
+      <a href="/x">Mở</a>
+    </Button>,
+  )
+  expect(theGoc(a)).not.toContain('type=')
 })
 
 test('loading: disabled + aria-busy + data-loading, có Spinner, chữ vẫn trong DOM (giữ bề rộng)', () => {

@@ -59,7 +59,8 @@ export const buttonVariants = cva(
         ghost: [
           'bg-transparent text-foreground',
           'not-disabled:hover:bg-accent not-disabled:hover:text-accent-foreground',
-          'not-disabled:active:bg-(--color-background-primary-ghost-active)',
+          // Đang bật (pressed/expanded/checked) thì nền accent thắng :active — bundle.css khai rule đó sau :active.
+          'not-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
           'aria-pressed:bg-accent aria-checked:bg-accent aria-expanded:bg-accent',
           'focus-visible:-outline-offset-1 disabled:not-data-loading:bg-transparent',
         ],
@@ -93,6 +94,7 @@ export function Button({
   asChild = false,
   loading = false,
   disabled,
+  type,
   children,
   ...props
 }: ComponentProps<'button'> & VariantProps<typeof buttonVariants> & { asChild?: boolean; loading?: boolean }) {
@@ -106,11 +108,14 @@ export function Button({
       data-loading={loading ? '' : undefined}
       aria-busy={loading || undefined}
       disabled={disabled || loading}
+      // Mặc định "button": nút DS nằm trong <form> không submit nhầm. asChild (vd <a>) không mang type.
+      type={asChild ? type : (type ?? 'button')}
       className={cn(buttonVariants({ variant, size, shape, className }))}
       {...props}
     >
       {/* Loading: nội dung ẩn bằng opacity (vẫn chiếm chỗ → nút không co), spinner nằm đè giữa.
-          asChild cần đúng 1 con → không chèn spinner, bên gọi tự lo. */}
+          asChild cần đúng 1 con → không chèn spinner, bên gọi tự lo.
+          Bật/tắt loading đổi cây con (bọc/không bọc <span>) → children bị remount, state bên trong children mất. */}
       {loading && !asChild ? (
         <>
           <span className="inline-flex items-center gap-[inherit] opacity-0">{children}</span>

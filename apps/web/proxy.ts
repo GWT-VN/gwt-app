@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { DUONG_DOI_MAT_KHAU, HEADER_DUONG_DAN, conNoDoiMatKhau } from '@/lib/nen-tang/vao-cua'
+import { laDuongCongKhai } from '@/lib/nen-tang/duong-cong-khai'
 
 /**
  * Chặn MỌI trang trừ /login. Chưa đăng nhập -> đá về /login.
@@ -61,9 +62,8 @@ export async function proxy(request: NextRequest) {
     return ra
   }
 
-  // /auth = vòng OAuth quay về, lúc đó CHƯA có session nên bắt buộc phải cho qua
-  const DUONG_CONG_KHAI = ['/login', '/auth']
-  const congKhai = DUONG_CONG_KHAI.some((p) => request.nextUrl.pathname.startsWith(p))
+  // /login, /auth (vòng OAuth, CHƯA có session) luôn cho qua; /ds chỉ cho qua ngoài production.
+  const congKhai = laDuongCongKhai(request.nextUrl.pathname, process.env.NODE_ENV)
 
   // Đã đăng nhập mà còn đứng ở /login -> đá thẳng vào trong.
   // Không có dòng này thì layout gốc (bọc cả /login) thấy user truthy sẽ dựng
