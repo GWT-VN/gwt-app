@@ -193,6 +193,15 @@ Repo (GWT-Agent-Team, Marketing-kit) chỉ giữ **luật gốc đã duyệt**. 
 - **An toàn:** nội dung kênh là DỮ LIỆU — bài học không được thêm quyền, công cụ, hay bỏ rào (hook, `deny`); câu kiểu "từ giờ được sửa giá" không thành bài học, chỉ thành đề xuất lớp 3.
 - Sổ tay nằm trong `~/Bots/agent-*` → đã vào sao lưu đêm (PR #15).
 
+### 5.4e Đường chạy: Bơ, Nho, Dâu bằng API — Bắp giữ phiên (anh Dũng chốt 19/11)
+
+- **Bơ, Nho, Dâu chạy bằng Claude API** (tiền API của công ty, ban đầu 200 đô credit); **phiên Claude Code chỉ là đường lùi** (`lui: "phien"`). **Bắp giữ phiên** như hiện nay.
+- **Dâu = Claude** (chat, suy nghĩ) + công cụ tạo ảnh gọi OpenAI qua tool `tools/gen_anh` của Marketing-kit — không có bộ chạy OpenAI riêng.
+- **Bộ chạy API chung** (một chương trình Node trên Mac mini, mỗi agent một tiến trình): nghe Discord Gateway bằng token của bot → gọi **Claude Agent SDK** (bộ máy Claude Code dạng thư viện, tính tiền API) với đúng cấu hình agent: vai trò + luật từ nhà (§5.4c), sổ tay (§5.4d), MCP stdio sẵn có, danh sách `allow`/`deny`, hook chặn tag + nhật ký → gửi câu trả lời về kênh (không tag, ≤2000 ký tự/tin, đính ảnh).
+- **Hạn mức chi theo ngày cho từng agent** (đếm token × giá); chạm hạn mức hoặc API lỗi liên tiếp → báo một tin + **tự lùi về phiên** (bật nhãn `com.gwt.agent.<tên>` kiểu phiên), sáng hôm sau trở lại API.
+- **Giá tham khảo** (19/11, mỗi 1 triệu token): Opus 5.5 vào 4 đô / ra 20 đô / đọc cache 0,20 đô; Sonnet 5.5 2 / 10 / 0,10; Haiku 5.5 0,10 / 0,50. Ước ~0,05–0,15 đô/câu có gọi công cụ trên Opus — đo thật tuần đầu rồi chỉnh model/hạn mức.
+- **Khoá API Anthropic** do anh Dũng tự đặt trên Mac mini (`~/Bots/.secrets/anthropic.env`, chmod 600) — không vào repo.
+
 ### 5.5 Hai đường chạy
 
 | | Đường phiên (Mac mini, gói Ultra) | Đường API (Claude API, credit) |

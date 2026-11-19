@@ -174,6 +174,9 @@ Nhánh: `feat/doi-agent-gd1`. Xong giai đoạn này: tag @Bơ Marketing hay @Nh
 
 ## Giai đoạn 2 — Dâu Designer (thuộc GWT-Marketing-kit, spec §5.4c)
 
+> **Thay thế toàn bộ Giai đoạn 2 cũ bằng §5.4e (anh Dũng chốt 19/11):** Dâu là phiên **Claude** + công cụ tạo ảnh (OpenAI qua `tools/gen_anh`); Bơ, Nho, Dâu chạy **API** (Claude Agent SDK), phiên là đường lùi; Bắp giữ phiên. T5 (Gateway tối giản) giữ — dùng cho bộ chạy API chung; **T6 (runner OpenAI) bỏ**, thay bằng: **T6′ bộ chạy API chung** `chay/api/agent.mjs` (Gateway → Agent SDK với settings/mcp/allow-deny/hook từ `chay/phien/agent.mjs`, vai trò + luật từ nhà, sổ tay, hạn mức chi/ngày, tự lùi về phiên) + **T6″ MCP `anh`** ở Marketing-kit gọi `tools/gen_anh` (chạy `local.py` thường trực, nhãn `com.gwt.mkt.genanh`) trả đường dẫn ảnh để agent đính vào tin. T7 = đưa Bơ → Nho → Dâu sang API lần lượt, mỗi con thử ở #bắp-mkt trước. Kế hoạch chi tiết T6′/T6″ viết khi bắt đầu giai đoạn này (cần đọc tài liệu Claude Agent SDK hiện hành).
+
+
 > **Sửa theo §5.4c (anh Dũng chốt 19/11 — Bơ, Dâu thuộc Marketing-kit; tool gen ảnh đã vào `main` Marketing-kit, PR #17):**
 > - **T6 không gọi thẳng `api.openai.com`.** `goiOpenAI(body)` đổi thành `goiGenAnh(yeuCau)` gọi API của tool `tools/gen_anh` chạy bản máy (`local.py`, `127.0.0.1:8770`) — tool đã có style `.md`, prompt JSON, nhiều góc máy, hạn mức tính tiền. Phần trả lời chữ (không vẽ) vẫn qua Responses API nếu cần, cùng khoá của tool. Test `taoYeuCau`/`docKetQua` viết lại theo API của tool (đọc `tools/gen_anh/api/index.py`).
 > - **Khoá OpenAI:** dùng khoá của tool (`tools/gen_anh/.env.local` trên Mac mini), không tạo thêm `~/Bots/.secrets/dau-openai.env` (bỏ chỗ nhắc file đó ở T6, T7, QĐ4).
