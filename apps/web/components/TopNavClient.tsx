@@ -1,5 +1,6 @@
 'use client'
 
+import { duocSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -86,7 +87,9 @@ export function TopNavClient({
           { nhan: 'Soát kênh khách', href: '/khach/kenh' },
           { nhan: 'Kênh / đối tác', href: '/kenh' },
         ] },
-        { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Danh mục lỗi', href: '/danh-muc-loi' }, { nhan: 'Báo cáo lỗi', href: '/bao-cao-loi' }] },
+        { nhan: 'Ticket & lỗi', trang: [{ nhan: 'Ticket', href: '/ticket' }, { nhan: 'Danh mục lỗi', href: '/danh-muc-loi' }, { nhan: 'Báo cáo lỗi', href: '/bao-cao-loi' },
+          // Thêm / xoá CS theo dõi + kỹ thuật: chỉ admin@ + ai@ (Hiệp 19/11/2026).
+          ...(duocSuaDanhSach(email) ? [{ nhan: 'Danh sách người', href: '/danh-sach-nguoi' }] : [])] },
         { nhan: 'Bảo hành', trang: [{ nhan: 'Đăng ký BH', href: '/dang-ky-bh' }, { nhan: 'Chờ kích hoạt BH', href: '/bh-cho-kich-hoat' }] },
         { nhan: 'Bảo trì', trang: [
           { nhan: 'Lịch bảo trì', href: '/bao-tri' }, { nhan: 'Lịch thay lõi', href: '/loi' },
@@ -96,7 +99,7 @@ export function TopNavClient({
           ] : []),
           ...(co('cs.ky_thuat.ho_so') ? [{ nhan: 'Gán lịch kỹ thuật', href: '/ky-thuat' }] : []),
           ...(co('cs.ky_thuat.xep_lich') ? [{ nhan: 'Xem lịch kỹ thuật', href: '/ky-thuat/lich' }] : []),
-          ...(co('cs.ky_thuat.ho_so') ? [{ nhan: 'Danh sách kỹ thuật', href: '/ky-thuat/nhan-su' }] : []),
+          ...(co('cs.ky_thuat.ho_so') && duocSuaDanhSach(email) ? [{ nhan: 'Danh sách kỹ thuật', href: '/ky-thuat/nhan-su' }] : []),
         ] },
       ]
   const cskh: Module = { key: 'cskh', nhan: 'CSKH', mau: '#b5642a', href: chiKyThuat ? '/ky-thuat/cua-toi' : '/', icon: 'headset', trang: cskhTrang }

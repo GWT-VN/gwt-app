@@ -14,8 +14,10 @@ const HOM_NAY = () => new Date().toISOString().slice(0, 10)
  * Quản lý kỹ thuật + GÁN CHUYẾN ĐI (1 chuyến nhiều việc).
  * Kỹ thuật gồm nhân viên + cộng tác viên. Việc "Khác" bắt buộc ghi cụ thể.
  */
-export function KyThuatBang({ dsKt, prefill }: {
+export function KyThuatBang({ dsKt, prefill, choSuaTho = false }: {
   dsKt: KyThuat[]
+  // Thêm / ngừng / xoá thợ: chỉ admin@ + ai@ (Hiệp 19/11/2026, lib/nen-tang/sua-danh-sach.ts). Người khác chỉ xem + gán lịch.
+  choSuaTho?: boolean
   prefill?: { khachId: string; ctx: BoiCanhKhach; ngay?: string; viec?: ViecInput[] }
 }) {
   const router = useRouter()
@@ -225,12 +227,12 @@ export function KyThuatBang({ dsKt, prefill }: {
       {/* Quản lý kỹ thuật */}
       <section className="bg-white rounded-xl border p-4 space-y-3">
         <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.length})</h2>
-        <div className="flex flex-wrap items-end gap-2">
+        {choSuaTho && <div className="flex flex-wrap items-end gap-2">
           <input value={ten} onChange={(e) => setTen(e.target.value)} placeholder="Tên kỹ thuật" className={oInput} />
           <input value={sdt} onChange={(e) => setSdt(e.target.value)} placeholder="SĐT" className={`${oInput} w-32`} />
           <label className="flex items-center gap-1 text-xs text-slate-700"><input type="checkbox" checked={ctv} onChange={(e) => setCtv(e.target.checked)} />Cộng tác viên</label>
           <button disabled={busy || !ten.trim()} onClick={themKt} className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm disabled:opacity-50">+ Thêm</button>
-        </div>
+        </div>}
         <ul className="divide-y border rounded-lg">
           {dsKt.map((k) => (
             <li key={k.id} className="px-3 py-2 flex items-center justify-between gap-3">
@@ -239,13 +241,13 @@ export function KyThuatBang({ dsKt, prefill }: {
                 {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
                 {k.sdt && <span className="text-xs text-slate-400 font-mono ml-1">· {k.sdt}</span>}
               </span>
-              <span className="flex items-center gap-2">
+              {choSuaTho && <span className="flex items-center gap-2">
                 <button onClick={() => toggle(k)} className="text-xs text-slate-500 underline">{k.hoat_dong ? 'ngừng' : 'bật'}</button>
                 <button onClick={() => xoa(k)} className="text-xs text-red-600 underline">xoá</button>
-              </span>
+              </span>}
             </li>
           ))}
-          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-slate-400">Chưa có kỹ thuật. Thêm ở trên.</li>}
+          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-slate-400">Chưa có kỹ thuật.{choSuaTho ? ' Thêm ở trên.' : ''}</li>}
         </ul>
       </section>
     </div>

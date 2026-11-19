@@ -2,6 +2,7 @@ import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { dsKyThuat, boiCanhKhach, type ViecInput } from '@/app/actions'
 import { KyThuatBang } from '@/components/KyThuatBang'
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 
 export default async function KyThuatPage({
   searchParams,
@@ -10,7 +11,7 @@ export default async function KyThuatPage({
 }) {
   await chanNeuThieuQuyen('cs.ky_thuat.ho_so', 'QUANLY')
   const { kh, loai, ref, mota, ngay } = await searchParams
-  const dsKt = await dsKyThuat()
+  const [dsKt, choSuaTho] = await Promise.all([dsKyThuat(), coSuaDanhSach()])
 
   // Quick-link từ ticket/máy/bảo trì: prefill khách + 1 việc.
   let prefill: { khachId: string; ctx: Awaited<ReturnType<typeof boiCanhKhach>>; ngay?: string; viec?: ViecInput[] } | undefined
@@ -33,7 +34,7 @@ export default async function KyThuatPage({
 
         {prefill && <p className="text-sm bg-sky-50 text-sky-900 rounded-lg px-3 py-2">Đã tạo sẵn 1 việc từ liên kết nhanh — chọn kỹ thuật + ngày rồi tạo chuyến (thêm việc khác nếu cần).</p>}
 
-        <KyThuatBang dsKt={dsKt} prefill={prefill} />
+        <KyThuatBang choSuaTho={choSuaTho} dsKt={dsKt} prefill={prefill} />
       </div>
     </main>
   )

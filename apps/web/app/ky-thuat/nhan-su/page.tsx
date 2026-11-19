@@ -1,4 +1,6 @@
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { redirect } from 'next/navigation'
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 import Link from 'next/link'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { dsKyThuat, trangThaiTaiKhoanKT } from '@/app/actions'
@@ -7,6 +9,8 @@ import { RosterKyThuat } from '@/components/RosterKyThuat'
 /** Quản lý danh sách kỹ thuật + (admin) cấp/thu quyền đăng nhập cho họ. */
 export default async function NhanSuKyThuatPage() {
   await chanNeuThieuQuyen('cs.ky_thuat.ho_so', 'QUANLY')
+  // Hiệp 19/11/2026 (phương án b): trang quản lý hồ sơ thợ chỉ admin@ + ai@ trong giai đoạn hoàn thiện.
+  if (!(await coSuaDanhSach())) redirect('/?loi=khong_du_quyen')
   const [dsKt, quyen, trangThai] = await Promise.all([
     dsKyThuat(false),
     hoiQuyen({ taiKhoanKT: ['cs.ky_thuat.tai_khoan', 'ADMIN'] }),

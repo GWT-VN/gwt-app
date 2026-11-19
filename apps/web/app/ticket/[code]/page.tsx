@@ -20,6 +20,7 @@ import { lanTiepTheo } from '@/lib/loi/lanLoi'
 import { listTepNhatKy } from '@/app/ticket/tep-actions'
 import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
 import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
+import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 import { DauTicket } from '@/components/ticket/DauTicket'
 import { KhoiThuGon, tomTatNhatKy } from '@/components/ticket/KhoiThuGon'
 import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
@@ -30,7 +31,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, { data: nguoi, loi: thieuNguoi }, quyen] = await Promise.all([
+  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, { data: nguoi, loi: thieuNguoi }, quyen, suaDs] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma),
     listCatalogItems(), ticketTypes(),
     docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
@@ -45,6 +46,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
       sua: ['cs.ticket.tao_sua', 'NHANVIEN'],
     }),
+    coSuaDanhSach(),
   ])
   if (!t) notFound()
 
@@ -126,7 +128,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
           state={t.state} khan={t.khan} csTheoDoi={them.cs_theo_doi} ktId={t.ky_thuat} staff={staff}
           ngayDau={ngayDau} soLan={1 + lanLoi.length} ngayCuoi={ngayCuoi} homNay={homNay}
           choSua={quyen.sua} choCs={quyen.sua && !thieuCotMoi} coCotMoi={!thieuCotMoi}
-          dsCs={thieuNguoi ? null : nguoi?.cs ?? null} dsKt={thieuNguoi ? null : nguoi?.kt ?? null} ktHoSo={nguoi?.kt_ho_so ?? null}
+          dsCs={thieuNguoi ? null : nguoi?.cs ?? null} dsKt={thieuNguoi ? null : nguoi?.kt ?? null} ktHoSo={nguoi?.kt_ho_so ?? null} quanTri={suaDs}
         />
 
         {canhBao && <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2">⚠️ {canhBao}</p>}
