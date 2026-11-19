@@ -57,9 +57,12 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   `[data-khu="work"]`/`[data-khu="wiki"]` — trùng tên `--muted`/`--accent`/`--border`/`--shadow` (spec §5.1).
 - **So khớp:** mỗi component có `so-khop/<c>.json` + chạy `node ds/so-khop.mjs <C>` thoát 0; trạng thái nào preview
   không có thì ghi vào `chuaDo` (in ra `<C>.md`), không để con số khớp tự nói "khớp hết".
-- **Overlay trong so khớp:** khoá có `buoc` (bấm / chuột phải / rê / phím, CDP thật) mở overlay trên trang nạp lại mới
-  trước khi đo; `trongVung: true` cho MỌI khoá nằm trong portal (ngoài `[data-ds="v2"]` = lỗi, không lyDo nào miễn);
-  `pseudo` khi bên artifact vẽ bằng `::after` (tooltip). Cú pháp đầy đủ ở đầu `so-khop.mjs`.
+- **Overlay trong so khớp:** khoá có `buoc` (bấm / chuột phải / rê / `tab` / phím / `cho`, CDP thật) mở overlay trên
+  trang nạp lại mới trước khi đo; focus trong overlay đo bằng bước `{ "tab": sel }`, KHÔNG bằng `trangThai: focus`
+  (config bị từ chối). Vùng DS **luôn kiểm** cho mọi phần tử bên DS (ngoài `[data-ds="v2"]` = lỗi, không lyDo nào miễn;
+  `trongVung` cũ vẫn nhận, không tác dụng thêm). `pseudo` khi bên artifact vẽ bằng `::after` (tooltip). Ảnh overlay:
+  `anhTuongTac.buoc` mở overlay ngay trước khi chụp + `khung.ds` dạng mảng (`["#<neo> > div", "[data-ds-portal] > *"]`)
+  → ảnh DS có overlay đang mở cạnh preview. Cú pháp đầy đủ ở đầu `so-khop.mjs`.
 - **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"

@@ -10,13 +10,21 @@
  * tương tác thật, cho rule chỉ có `:hover`); bên DS luôn tương tác THẬT — hover = Input.dispatchMouseEvent (kiểm
  * `:hover`), focus = phím Tab thật (kiểm `:focus-visible`).
  *
- * Overlay (lát 2) — 3 trường tuỳ chọn mỗi khoá:
- *   `buoc`: [{bam|chuotPhai|tro: sel} | {phim: Tab|Escape|ArrowDown|Shift+F10}] — tương tác thật bằng CDP `Input.*` ngay
- *     trước khi đo khoá đó, ở bên DS (và bên artifact nếu `artifactThat`). Khoá có `buoc` đo trên trang NẠP LẠI MỚI; khoá
- *     sau nó cũng nạp lại → không rò trạng thái. Phần tử của bước không có / ẩn / bị phần tử khác che → lỗi chạy (mã 2).
- *   `pseudo`: { artifact?: '::after', ds?: '::after' } — đo getComputedStyle(el, pseudo) của phần tử chính khoá đó.
- *   `trongVung: true` — bên DS phần tử phải nằm trong [data-ds="v2"] (portal ra ngoài vùng = mất token) → không thì dòng
- *     NGOÀI VÙNG DS, không lyDo nào miễn được, không tính vào tổng.
+ * Overlay (lát 2):
+ *   `buoc` (mỗi khoá): [{bam|chuotPhai|tro|tab: sel} | {phim: Tab|Escape|ArrowDown|Shift+F10} | {cho: ms}] — tương tác
+ *     thật bằng CDP `Input.*` ngay trước khi đo khoá đó, ở bên DS (và bên artifact nếu `artifactThat`; sel là chuỗi hoặc
+ *     `{ artifact, ds }`). `tab` = nhấn Tab thật từ chỗ focus hiện tại tới đúng phần tử (kiểm `:focus-visible`, không
+ *     blur trước — dùng để đo focus TRONG overlay đang mở). Khoá có `buoc` đo trên trang NẠP LẠI MỚI; khoá sau nó cũng
+ *     nạp lại → không rò trạng thái. Trước mỗi bước chuột chờ tới ~1,5 giây cho phần tử có, có hộp và không bị che tại
+ *     tâm (Radix Popper đặt nội dung ngoài khung tới khi định vị xong); hết giờ → lỗi chạy (mã 2). `buoc` + `trangThai:
+ *     focus` cùng khoá bị từ chối lúc đọc config (focus kiểu cũ blur + Tab từ đầu trang → đóng overlay) — dùng `{tab}`.
+ *   `pseudo` (mỗi khoá): { artifact?: '::after', ds?: '::after' } — đo getComputedStyle(el, pseudo) của phần tử chính.
+ *   Vùng DS LUÔN kiểm: mọi phần tử đo bên DS phải nằm trong [data-ds="v2"] (portal ra ngoài vùng = mất token) → không thì
+ *     dòng NGOÀI VÙNG DS, không lyDo nào miễn được, không tính vào tổng. `trongVung: true` trong config vẫn nhận (không
+ *     tác dụng thêm).
+ *   Ảnh: `khung.<bên>` là selector hoặc MẢNG selector → chụp hộp chung của mọi phần tử khớp (vd `["#dialog > div",
+ *     "[data-ds-portal] > *"]`); selector không khớp gì → mã 2. `anhTuongTac.buoc` chạy sau lần nạp lại cuối, ngay trước
+ *     khi chụp (bên DS; bên artifact chỉ khi `anhTuongTac.artifactThat`) → ảnh DS có overlay ĐANG MỞ như preview.
  *
  * Ghi ds/so-khop/<C>.md. Thoát mã 1 nếu: còn lệch chưa có `lyDo`; THIẾU PHẦN TỬ ở bất kỳ bên nào hoặc NGOÀI VÙNG DS (không lyDo
  * nào miễn được, không tính vào tổng); hoặc có `lyDo` thừa (không còn khớp dòng lệch nào). Mã 2 = lỗi chạy (Button.md bị ghi đè
@@ -92,8 +100,12 @@ export function docBuoc(buoc, ben = 'ds') {
   const chuot = (params) => ({ method: 'Input.dispatchMouseEvent', params })
   return buoc.flatMap((b) => {
     const [loai, gt] = Object.entries(b ?? {})[0] ?? []
-    if (Object.keys(b ?? {}).length !== 1 || !['bam', 'chuotPhai', 'tro', 'phim'].includes(loai))
+    if (Object.keys(b ?? {}).length !== 1 || !['bam', 'chuotPhai', 'tro', 'tab', 'phim', 'cho'].includes(loai))
       throw new Error(`bước lạ: ${JSON.stringify(b)}`)
+    if (loai === 'cho') {
+      if (!Number.isInteger(gt) || gt < 0 || gt > 10000) throw new Error(`bước cho phải là số nguyên ms 0–10000: ${JSON.stringify(b)}`)
+      return [{ cho: gt }]
+    }
     if (loai === 'phim') {
       const p = PHIM[gt]
       if (!p) throw new Error(`phím lạ: ${gt} (có: ${Object.keys(PHIM).join(', ')})`)
@@ -101,6 +113,7 @@ export function docBuoc(buoc, ben = 'ds') {
     }
     const sel = gt !== null && typeof gt === 'object' ? gt[ben] : gt
     if (typeof sel !== 'string' || !sel.trim()) throw new Error(`bước ${loai} thiếu selector (bên ${ben}): ${JSON.stringify(b)}`)
+    if (loai === 'tab') return [{ tab: sel }]
     const lenh = [{ tim: sel }, chuot({ type: 'mouseMoved' })]
     if (loai === 'tro') return lenh
     const [button, buttons] = NUT[loai]
@@ -111,12 +124,38 @@ export function docBuoc(buoc, ben = 'ds') {
 
 /**
  * Một cặp số đo (a = artifact, d = DS; null = thiếu phần tử) → 'thieu' | 'ngoai-vung' | 'lech' | 'khop'.
+ * `vung` = phần tử DS nằm trong [data-ds="v2"] — LUÔN xét; khác `true` (kể cả chưa đo) = ngoài vùng. `trongVung` bỏ qua.
  * @param {{ a: Record<string, string> | null, d: Record<string, string> | null, trongVung?: boolean, vung?: boolean | null }} cap
  */
-export function phanLoai({ a, d, trongVung, vung }) {
+export function phanLoai({ a, d, vung }) {
   if (!a || !d) return 'thieu'
-  if (trongVung && vung !== true) return 'ngoai-vung'
+  if (vung !== true) return 'ngoai-vung'
   return Object.keys(a).every((p) => a[p] === d[p]) ? 'khop' : 'lech'
+}
+
+/** Hộp chung (x, y, w, h) của các hộp; bỏ hộp 0×0 (vd ô portal rỗng). Không còn hộp nào → lỗi. */
+export function hopGop(hops) {
+  const co = hops.filter((h) => h.w > 0 || h.h > 0)
+  if (!co.length) throw new Error('khung chụp rỗng (mọi phần tử 0×0)')
+  const x = Math.min(...co.map((h) => h.x)), y = Math.min(...co.map((h) => h.y))
+  return { x, y, w: Math.max(...co.map((h) => h.x + h.w)) - x, h: Math.max(...co.map((h) => h.y + h.h)) - y }
+}
+
+/** Kiểm config trước khi mở Chrome — sai thì ném (mã 2). */
+export function kiemCauHinh(cfg) {
+  for (const ben of ['artifact', 'ds']) {
+    const kh = cfg.khung?.[ben]
+    const ds = Array.isArray(kh) ? kh : [kh]
+    if (!ds.length || ds.some((x) => typeof x !== 'string' || !x.trim()))
+      throw new Error(`khung.${ben} phải là selector hoặc mảng selector không rỗng: ${JSON.stringify(kh)}`)
+  }
+  for (const k of cfg.khoa) {
+    for (const ben of k.artifactThat ? ['artifact', 'ds'] : ['ds']) docBuoc(k.buoc, ben)
+    if (k.buoc?.length && k.trangThai?.includes('focus'))
+      throw new Error(`khoá ${k.khoa}: buoc + trangThai focus không đi cùng (focus kiểu cũ blur rồi Tab từ đầu trang → đóng overlay vừa mở) — thêm bước { "tab": "<sel>" } vào buoc và đo thành khoá riêng`)
+  }
+  const a = cfg.anhTuongTac
+  if (a) for (const ben of a.artifactThat ? ['artifact', 'ds'] : ['ds']) docBuoc(a.buoc, ben)
 }
 
 /** 1 nếu còn bất kỳ dòng nào chưa được chấp nhận; thiếu / ngoài vùng không có đường miễn (không đi qua timLyDo). */
@@ -198,14 +237,18 @@ const TRO_GIUP = `window.__sk = (() => {
     if (!tren || !(tren === el || el.contains(tren)))
       return 'bị che tại tâm bởi ' + (tren ? tren.outerHTML.slice(0, 120) : 'không gì (ngoài khung nhìn?)')
     return { x, y } }
-  return { do: doEl, hop, la, vung, diem }
+  // Khung chụp: hộp (toạ độ khung nhìn) của MỌI phần tử khớp từng selector; selector không khớp gì → { thieu: sel }.
+  const khung = (sels) => { const hops = []
+    for (const sel of sels) { const els = [...document.querySelectorAll(sel)]; if (!els.length) return { thieu: sel }
+      for (const el of els) { const r = el.getBoundingClientRect(); hops.push({ x: r.x, y: r.y, w: r.width, h: r.height }) } }
+    return { hops } }
+  return { do: doEl, hop, la, vung, diem, khung }
 })(); true`
 
 async function main() {
   const { comp, url } = docThamSo(process.argv.slice(2))
   const cfg = JSON.parse(readFileSync(join(DS, 'so-khop', `${comp.toLowerCase()}.json`), 'utf8'))
-  // Config sai (bước/phím lạ, thiếu selector bên nào) → ném ngay, trước khi mở Chrome.
-  for (const k of cfg.khoa) for (const ben of k.artifactThat ? ['artifact', 'ds'] : ['ds']) docBuoc(k.buoc, ben)
+  kiemCauHinh(cfg) // sai (bước/phím lạ, thiếu selector, buoc + focus, khung rỗng) → ném ngay, trước khi mở Chrome
   const fileMd = join(DS, 'so-khop', `${comp}.md`)
   const ANH = join(DS, 'so-khop', 'anh')
   mkdirSync(ANH, { recursive: true })
@@ -247,8 +290,9 @@ async function main() {
       for (const type of ['keyDown', 'keyUp'])
         await cdp.send('Input.dispatchKeyEvent', { type, key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
     }
-    const tabToi = async (sel) => {
-      await chay(cdp, 'document.activeElement?.blur(), true')
+    // tuDau: blur rồi Tab từ đầu trang (trangThai focus); false: Tab tiếp từ focus hiện tại (bước `tab`, trong overlay).
+    const tabToi = async (sel, tuDau = true) => {
+      if (tuDau) await chay(cdp, 'document.activeElement?.blur(), true')
       for (let i = 0; i < 200; i++) {
         await phim()
         if (await chay(cdp, `document.activeElement === document.querySelector(${S(sel)})`)) {
@@ -267,9 +311,16 @@ async function main() {
     const chayBuoc = async (buoc, ben, nhan) => {
       let xy = null
       for (const l of docBuoc(buoc, ben)) {
-        if (l.tim) {
-          xy = await chay(cdp, `__sk.diem(${S(l.tim)})`)
-          if (typeof xy === 'string') throw new Error(`buoc ${nhan}: ${l.tim} — ${xy}`)
+        if (l.cho !== undefined) await ngu(l.cho)
+        else if (l.tab) await tabToi(l.tab, false).catch((e) => { throw new Error(`buoc ${nhan}: ${e.message}`) })
+        else if (l.tim) {
+          // Chờ tới 1,5 giây: Radix Popper để nội dung ngoài khung (translate -200%) tới khi định vị xong.
+          for (let t = 0; ; t += 100) {
+            xy = await chay(cdp, `__sk.diem(${S(l.tim)})`)
+            if (typeof xy !== 'string') break
+            if (t >= 1500) throw new Error(`buoc ${nhan}: ${l.tim} — ${xy} (đã chờ 1,5 giây)`)
+            await ngu(100)
+          }
         } else await cdp.send(l.method, l.method === 'Input.dispatchMouseEvent' ? { ...l.params, ...xy } : l.params)
       }
     }
@@ -320,7 +371,7 @@ async function main() {
         const o = `${ten} ${w}`
         await cdp.send('Emulation.setDeviceMetricsOverride', { width: w, height: CAO, deviceScaleFactor: 1, mobile: false })
         const so = { artifact: {}, ds: {} } // so[ben][nhan] = { prop: giá trị } | null
-        const vung = {} // vung[nhan] = phần tử DS nằm trong [data-ds="v2"]? (chỉ khoá trongVung)
+        const vung = {} // vung[nhan] = phần tử DS nằm trong [data-ds="v2"]? (luôn đo)
         for (const ben of ['artifact', 'ds']) {
           const nap = async () => { await di(ben === 'artifact' ? trangA : `${url}/ds?theme=${theme}`); await chuot(w - 1, CAO - 1) }
           await nap()
@@ -333,7 +384,7 @@ async function main() {
             const doK = async (tt) => {
               const nhan = tt ? `${k.khoa}:${tt}` : k.khoa
               so[ben][nhan] = await chay(cdp, `__sk.do(${S(sel)}, ${S(PROPS)}, ${S(k.pseudo?.[ben] ?? null)})`)
-              if (ben === 'ds' && k.trongVung) vung[nhan] = await chay(cdp, `__sk.vung(${S(sel)})`)
+              if (ben === 'ds') vung[nhan] = await chay(cdp, `__sk.vung(${S(sel)})`)
               for (const c of k.con ?? []) {
                 const v = await chay(cdp, `__sk.do(${S(`${sel} ${c[ben]}`)}, ${S(c.props ?? ['width', 'height'])})`)
                 so[ben][`${nhan}|${c.ten}`] = v
@@ -360,16 +411,38 @@ async function main() {
           }
           if (ban) await nap()
           // Ảnh: bên DS dựng lại hàng trạng thái bằng tương tác thật (trỏ chuột nút Hover, Tab tới nút Focus).
-          if (ben === 'ds' && cfg.anhTuongTac) {
-            if (cfg.anhTuongTac.focus) await tabToi(cfg.anhTuongTac.focus)
-            if (cfg.anhTuongTac.hover) await troVao(cfg.anhTuongTac.hover)
+          // anhTuongTac.buoc chạy cuối (sau focus/hover) để overlay vừa mở không bị đóng trước khi chụp.
+          const at = cfg.anhTuongTac
+          if (ben === 'ds' && at) {
+            if (at.focus) await tabToi(at.focus)
+            if (at.hover) await troVao(at.hover)
             await ngu(350)
           }
-          const h = await chay(cdp, `(() => { const el = document.querySelector(${S(cfg.khung[ben])}); if (!el) return null
-            const r = el.getBoundingClientRect(); return { x: r.x + scrollX, y: r.y + scrollY, w: r.width, h: r.height } })()`)
-          if (!h) throw new Error(`không thấy khung chụp ${cfg.khung[ben]} (${ben})`)
-          const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true,
-            clip: { x: Math.max(0, h.x - 8), y: Math.max(0, h.y - 8), width: h.w + 16, height: h.h + 16, scale: 1 } })
+          if (at?.buoc?.length && (ben === 'ds' || at.artifactThat)) { await chayBuoc(at.buoc, ben, `ảnh (${ben} ${o})`); await ngu(350) }
+          const selKhung = [cfg.khung[ben]].flat()
+          const doKhung = async () => {
+            const r = await chay(cdp, `__sk.khung(${S(selKhung)})`)
+            if (r.thieu) throw new Error(`khung chụp ${ben}: ${r.thieu} không khớp phần tử nào (${o})`)
+            return hopGop(r.hops)
+          }
+          // Chụp TRONG khung nhìn khi khung đã nằm gọn trong đó (overlay position:fixed giữ đúng chỗ; tương tác vừa rồi đã
+          // cuộn phần tử ra giữa nên thường gọn). Chưa gọn mà đủ thấp → cuộn rồi đo lại — phương án cuối vì cuộn làm mất
+          // hover và có thể đóng tooltip. Cao hơn khung nhìn → chụp ngoài khung nhìn (trang giãn, phần tử fixed có thể dời —
+          // chỉ hợp khối tĩnh dài).
+          const gon = (x) => x.y >= 0 && x.y + x.h <= CAO
+          let h = await doKhung()
+          if (!gon(h) && h.h + 16 <= CAO) {
+            await chay(cdp, `scrollBy(0, ${h.y - 8}), true`)
+            await ngu(350)
+            h = await doKhung()
+          }
+          const vua = gon(h)
+          const cuon = await chay(cdp, '({ x: scrollX, y: scrollY })')
+          // Lề 8px; trong khung nhìn thì cắt theo khung nhìn (overlay tràn ngang không đẻ dải đen ngoài trang).
+          const [x0, y0] = [h.x - 8, h.y - 8].map((v) => Math.max(0, v))
+          const x1 = vua ? Math.min(w, h.x + h.w + 8) : h.x + h.w + 8, y1 = vua ? Math.min(CAO, h.y + h.h + 8) : h.y + h.h + 8
+          const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: !vua,
+            clip: { x: x0 + cuon.x, y: y0 + cuon.y, width: x1 - x0, height: y1 - y0, scale: 1 } })
           writeFileSync(join(ANH, `${comp}-${ten}-${w}-${ben}.png`), Buffer.from(data, 'base64'))
         }
         for (const nhan of new Set([...Object.keys(so.artifact), ...Object.keys(so.ds)])) {
@@ -377,7 +450,7 @@ async function main() {
           const [khoa, tt] = phan.split(':')
           const a = so.artifact[nhan], d = so.ds[nhan]
           const k = cfg.khoa.find((x) => x.khoa === khoa)
-          const loai = phanLoai({ a, d, trongVung: k.trongVung, vung: vung[phan] })
+          const loai = phanLoai({ a, d, vung: vung[phan] })
           if (loai === 'ngoai-vung') { ngoaiVung.push({ nhan, sel: k.ds, o }); continue }
           if (loai === 'thieu') {
             for (const [ben, v] of [['artifact', a], ['ds', d]]) {
@@ -433,7 +506,7 @@ async function main() {
       `- Theme sáng/tối × khổ ${KHO.join('/')} (CDP \`Emulation.setDeviceMetricsOverride\`). Đo ${PROPS.length} thuộc tính/phần tử: ${PROPS.join(', ')}.`,
       '- **Giới hạn:** px làm tròn 0.5 → lệch < 0.25px không thấy được. Màu chuẩn hoá về sRGB số thực (kênh 2 số lẻ, alpha 3 số lẻ).',
       `- Trạng thái: artifact ép class \`.is-hover\`/\`.is-focus\` như preview, trừ khoá có \`artifactThat\` thì artifact cũng tương tác thật (${cfg.khoa.filter((k) => k.artifactThat && k.trangThai?.length).map((k) => `${k.khoa}: ${k.trangThai.join('/')}`).join(' · ') || 'không khoá nào'}); DS di chuột thật (\`Input.dispatchMouseEvent\`, kiểm \`:hover\`) / phím Tab thật (kiểm \`:focus-visible\`).`,
-      `- Mở bằng tương tác thật (\`buoc\`, CDP \`Input.*\`, mỗi khoá trên trang nạp lại mới): ${cfg.khoa.filter((k) => k.buoc?.length).map((k) => q(`${k.khoa}${k.artifactThat ? ' (cả artifact)' : ''}: ${k.buoc.map((b) => Object.entries(b)[0].map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')).join(' → ')}`)).join(' · ') || 'không khoá nào'}. Kiểm trong vùng \`[data-ds="v2"]\` (\`trongVung\`): ${cfg.khoa.filter((k) => k.trongVung).map((k) => k.khoa).join(', ') || 'không khoá nào'}. Pseudo: ${cfg.khoa.filter((k) => k.pseudo).map((k) => `${k.khoa} ${JSON.stringify(k.pseudo)}`).join(' · ') || 'không khoá nào'}.`,
+      `- Mở bằng tương tác thật (\`buoc\`, CDP \`Input.*\`, mỗi khoá trên trang nạp lại mới): ${cfg.khoa.filter((k) => k.buoc?.length).map((k) => q(`${k.khoa}${k.artifactThat ? ' (cả artifact)' : ''}: ${k.buoc.map((b) => Object.entries(b)[0].map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')).join(' → ')}`)).join(' · ') || 'không khoá nào'}. Vùng \`[data-ds="v2"]\`: luôn kiểm cho mọi phần tử DS. Ảnh mở bằng \`anhTuongTac.buoc\`: ${q(cfg.anhTuongTac?.buoc?.length ? cfg.anhTuongTac.buoc.map((b) => Object.entries(b)[0].map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')).join(' → ') : 'không')}. Pseudo: ${cfg.khoa.filter((k) => k.pseudo).map((k) => `${k.khoa} ${JSON.stringify(k.pseudo)}`).join(' · ') || 'không khoá nào'}.`,
       `- Font: trang artifact nạp đúng Inter của /ds và đặt \`--font-sans\` = token \`--font-sans\` của gốc \`[data-ds]\` trên /ds = \`${q(hoFont)}\` (nguồn khai font hệ thống; bỏ \`@import\` Google Fonts vô tác dụng).`,
       `- Ảnh: \`ds/so-khop/anh/${comp}-{sang,toi}-{${KHO.join(',')}}-{artifact,ds}.png\` (gitignore).`,
       '',

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { docBuoc, docThamSo, maThoat, phanLoai, timLyDo } from './so-khop.mjs'
+import { docBuoc, docThamSo, hopGop, kiemCauHinh, maThoat, phanLoai, timLyDo } from './so-khop.mjs'
 
 test('docThamSo: không --url thì dùng mặc định localhost:3401', () => {
   expect(docThamSo(['Button'])).toEqual({ comp: 'Button', url: 'http://localhost:3401' })
@@ -74,17 +74,18 @@ test('docBuoc: bước lạ / phím lạ / selector rỗng / không phải mản
 
 const do_ = { width: '32px', color: 'rgb(0 0 0)' }
 test('phanLoai: thiếu bên nào → "thieu"; khớp hết → "khop"; khác một thuộc tính → "lech"', () => {
-  expect(phanLoai({ a: null, d: do_ })).toBe('thieu')
-  expect(phanLoai({ a: do_, d: null, trongVung: true, vung: null })).toBe('thieu')
-  expect(phanLoai({ a: do_, d: { ...do_ } })).toBe('khop')
-  expect(phanLoai({ a: do_, d: { ...do_, width: '33px' } })).toBe('lech')
+  expect(phanLoai({ a: null, d: do_, vung: true })).toBe('thieu')
+  expect(phanLoai({ a: do_, d: null, vung: null })).toBe('thieu')
+  expect(phanLoai({ a: do_, d: { ...do_ }, vung: true })).toBe('khop')
+  expect(phanLoai({ a: do_, d: { ...do_, width: '33px' }, vung: true })).toBe('lech')
 })
-test('phanLoai: trongVung mà phần tử DS ngoài [data-ds="v2"] → "ngoai-vung", kể cả khi số đo khớp hết', () => {
-  expect(phanLoai({ a: do_, d: { ...do_ }, trongVung: true, vung: false })).toBe('ngoai-vung')
-  expect(phanLoai({ a: do_, d: { ...do_, width: '1px' }, trongVung: true, vung: false })).toBe('ngoai-vung')
+test('phanLoai: vùng LUÔN xét — phần tử DS ngoài [data-ds="v2"] (hoặc chưa đo vùng) → "ngoai-vung", kể cả khi khớp hết', () => {
+  expect(phanLoai({ a: do_, d: { ...do_ }, vung: false })).toBe('ngoai-vung')
+  expect(phanLoai({ a: do_, d: { ...do_, width: '1px' }, vung: false })).toBe('ngoai-vung')
+  // Không cần (và không tắt được bằng) trongVung: quên đo vùng = ngoài vùng.
+  expect(phanLoai({ a: do_, d: { ...do_ }, trongVung: false, vung: false })).toBe('ngoai-vung')
+  expect(phanLoai({ a: do_, d: { ...do_ } })).toBe('ngoai-vung')
   expect(phanLoai({ a: do_, d: { ...do_ }, trongVung: true, vung: true })).toBe('khop')
-  // Không bật trongVung thì không xét vùng.
-  expect(phanLoai({ a: do_, d: { ...do_ }, vung: false })).toBe('khop')
 })
 test('maThoat: ngoài vùng / thiếu / lệch chưa lý do / lyDo thừa → 1; sạch → 0 (lyDo không miễn được ngoài vùng)', () => {
   const sach = { chuaLyDo: 0, thieu: 0, ngoaiVung: 0, lyDoThua: 0 }
@@ -93,4 +94,50 @@ test('maThoat: ngoài vùng / thiếu / lệch chưa lý do / lyDo thừa → 1;
   expect(maThoat({ ...sach, thieu: 2 })).toBe(1)
   expect(maThoat({ ...sach, chuaLyDo: 1 })).toBe(1)
   expect(maThoat({ ...sach, lyDoThua: 1 })).toBe(1)
+})
+
+test('docBuoc: { cho: ms } = chờ (0–10000 ms); { tab: sel } = Tab thật tới phần tử, không blur trước', () => {
+  expect(docBuoc([{ bam: '#a' }, { cho: 300 }, { tab: '[role="menuitem"]' }])).toEqual([
+    { tim: '#a' },
+    chuot({ type: 'mouseMoved' }),
+    chuot({ type: 'mousePressed', button: 'left', buttons: 1, clickCount: 1 }),
+    chuot({ type: 'mouseReleased', button: 'left', buttons: 0, clickCount: 1 }),
+    { cho: 300 },
+    { tab: '[role="menuitem"]' },
+  ])
+  expect(docBuoc([{ tab: { artifact: '.x', ds: '#y' } }], 'artifact')).toEqual([{ tab: '.x' }])
+  expect(() => docBuoc([{ cho: -1 }])).toThrow(/cho/)
+  expect(() => docBuoc([{ cho: 20000 }])).toThrow(/cho/)
+  expect(() => docBuoc([{ cho: '300' }])).toThrow(/cho/)
+  expect(() => docBuoc([{ tab: '' }])).toThrow(/selector/)
+})
+
+test('hopGop: hộp chung của nhiều hộp; bỏ hộp 0×0 (ô portal rỗng); không còn hộp nào → lỗi', () => {
+  expect(hopGop([{ x: 10, y: 20, w: 100, h: 50 }])).toEqual({ x: 10, y: 20, w: 100, h: 50 })
+  expect(hopGop([{ x: 10, y: 20, w: 100, h: 50 }, { x: 60, y: 5, w: 200, h: 10 }, { x: 0, y: 0, w: 0, h: 0 }]))
+    .toEqual({ x: 10, y: 5, w: 250, h: 65 })
+  expect(() => hopGop([{ x: 0, y: 0, w: 0, h: 0 }])).toThrow(/rỗng/)
+  expect(() => hopGop([])).toThrow(/rỗng/)
+})
+
+const cfgMau = (o = {}) => ({ khung: { artifact: '.a', ds: '#b > div' }, khoa: [{ khoa: 'k', artifact: '.a', ds: '#b' }], ...o })
+test('kiemCauHinh: khung chuỗi hoặc mảng chuỗi không rỗng; sai → lỗi', () => {
+  expect(() => kiemCauHinh(cfgMau())).not.toThrow()
+  expect(() => kiemCauHinh(cfgMau({ khung: { artifact: '.a', ds: ['#dialog > div', '[data-ds-portal] > *'] } }))).not.toThrow()
+  expect(() => kiemCauHinh(cfgMau({ khung: { artifact: '.a', ds: [] } }))).toThrow(/khung\.ds/)
+  expect(() => kiemCauHinh(cfgMau({ khung: { artifact: '.a', ds: ['#x', ''] } }))).toThrow(/khung\.ds/)
+  expect(() => kiemCauHinh(cfgMau({ khung: { ds: '#x' } }))).toThrow(/khung\.artifact/)
+})
+test('kiemCauHinh: buoc + trangThai focus cùng khoá → lỗi (tabToi blur + Tab từ đầu trang đóng overlay vừa mở)', () => {
+  const k = { khoa: 'menu', artifact: '.m', ds: '#m', buoc: [{ bam: '#t' }] }
+  expect(() => kiemCauHinh(cfgMau({ khoa: [{ ...k, trangThai: ['focus'] }] }))).toThrow(/menu[\s\S]*buoc[\s\S]*focus[\s\S]*\{ ?"tab"/)
+  expect(() => kiemCauHinh(cfgMau({ khoa: [{ ...k, trangThai: ['hover'] }] }))).not.toThrow()
+  expect(() => kiemCauHinh(cfgMau({ khoa: [{ ...k, buoc: [{ phim: 'Enter' }] }] }))).toThrow(/phím lạ/)
+  // artifactThat: bước phải có selector cho bên artifact
+  expect(() => kiemCauHinh(cfgMau({ khoa: [{ ...k, artifactThat: true, buoc: [{ bam: { ds: '#t' } }] }] }))).toThrow(/bên artifact/)
+})
+test('kiemCauHinh: anhTuongTac.buoc kiểm như buoc (bên artifact chỉ khi anhTuongTac.artifactThat)', () => {
+  expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { buoc: [{ bam: '#t' }] } }))).not.toThrow()
+  expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { buoc: [{ nhay: '#t' }] } }))).toThrow(/bước lạ/)
+  expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { artifactThat: true, buoc: [{ bam: { ds: '#t' } }] } }))).toThrow(/bên artifact/)
 })
