@@ -112,3 +112,6 @@ supabase/.tmp-*
 # Ghi chú làm việc cá nhân qua Superpowers (plan nháp có thể dán nguyên văn
 # thông tin khách — tên, SĐT, MST, địa chỉ) — không commit, chỉ máy cục bộ.
 /docs/superpowers/
+
+# Ảnh so khớp DS (sinh bởi apps/web/ds/so-khop.mjs) — không commit
+apps/web/ds/so-khop/anh/

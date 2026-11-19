@@ -1,0 +1,30 @@
+{
+  "khung": { "artifact": ".ui-stack", "ds": "#button > div" },
+  "anhTuongTac": {
+    "hover": "#button > div > div:nth-child(2) > button:nth-child(1)",
+    "focus": "#button > div > div:nth-child(2) > button:nth-child(2)"
+  },
+  "khoa": [
+    { "khoa": "default", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(1)", "ds": "[data-so=\"default\"]", "trangThai": ["hover", "focus"] },
+    { "khoa": "secondary", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(2)", "ds": "[data-so=\"secondary\"]" },
+    { "khoa": "outline", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(3)", "ds": "[data-so=\"outline\"]", "trangThai": ["hover", "focus"] },
+    { "khoa": "ghost", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(4)", "ds": "[data-so=\"ghost\"]", "trangThai": ["hover", "focus"] },
+    { "khoa": "destructive", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(5)", "ds": "[data-so=\"destructive\"]", "trangThai": ["hover", "focus"] },
+    { "khoa": "link", "artifact": ".ui-row:nth-of-type(1) .ui-btn:nth-child(6)", "ds": "[data-so=\"link\"]" },
+    { "khoa": "disabled", "artifact": ".ui-row:nth-of-type(2) .ui-btn:nth-child(3)", "ds": "[data-so=\"disabled\"]" },
+    {
+      "khoa": "loading", "artifact": ".ui-row:nth-of-type(2) .ui-btn:nth-child(4)", "ds": "[data-so=\"loading\"]",
+      "con": { "artifact": ".ui-spinner", "ds": "[data-slot=\"spinner\"]" }
+    },
+    { "khoa": "outline-disabled", "artifact": ".ui-row:nth-of-type(2) .ui-btn:nth-child(5)", "ds": "[data-so=\"outline-disabled\"]" },
+    { "khoa": "sm", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(1)", "ds": "[data-so=\"sm\"]", "con": { "artifact": "svg", "ds": "svg" } },
+    { "khoa": "md", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(2)", "ds": "[data-so=\"md\"]" },
+    { "khoa": "lg", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(3)", "ds": "[data-so=\"lg\"]" },
+    { "khoa": "icon", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(4)", "ds": "[data-so=\"icon\"]", "con": { "artifact": "svg", "ds": "svg" } },
+    { "khoa": "rounded-sm", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(5)", "ds": "[data-so=\"rounded-sm\"]" },
+    {
+      "khoa": "icon-sm-rounded", "artifact": ".ui-row:nth-of-type(3) .ui-btn:nth-child(6)", "ds": "[data-so=\"icon-sm-rounded\"]",
+      "con": { "artifact": "svg", "ds": "svg" }
+    }
+  ]
+}

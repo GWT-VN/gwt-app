@@ -158,3 +158,9 @@ test('Spinner: span aria-hidden 16px, viền 2px currentColor hở phải, quay 
     ]),
   )
 })
+
+test('font-feature-settings normal: shorthand `font:` của .ui-btn reset cv11/ss03 mà DsRoot bật (so khớp đo được)', () => {
+  // ds/so-khop/Button.md lần chạy đầu: artifact "normal", DS kế thừa "cv11","ss03" từ DsRoot → lệch ở cả 15 khoá.
+  for (const variant of ['default', 'link'] as const)
+    expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>))).toContain('[font-feature-settings:normal]')
+})
