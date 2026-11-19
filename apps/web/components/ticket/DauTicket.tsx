@@ -94,7 +94,7 @@ export function DauTicket({
           <div className="flex items-start gap-1.5 text-slate-500">
             <span className="py-1">CS theo dõi</span>
             {choCs && dsCs ? (
-              <ChonNguoi loai="cs" ds={dsCs} dangGan={csId} disabled={busy} quanTri={quanTri}
+              <ChonNguoi loai="cs" ds={dsCs} dangGan={csId} disabled={busy}
                 onChon={(id) => ganCsTheoDoi(code, id)} />
             ) : choCs ? (
               <select aria-label="Chọn CS theo dõi" className={o} value={csTheoDoi ?? ''} disabled={busy}
@@ -106,6 +106,7 @@ export function DauTicket({
           </div>
         )}
 
+        {/* Một link "Sửa danh sách" cho cả hai ô (Hiệp 19/11/2026), đặt ở ô Kỹ thuật. */}
         <div className="flex items-start gap-1.5 text-slate-500">
           <span className="py-1">Kỹ thuật</span>
           {choSua && dsKt ? (

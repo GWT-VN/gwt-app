@@ -40,7 +40,7 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false
           <option value="">— Chưa gán —</option>
           {dsChoChon(ds, dangGan).map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (nghỉ)' : ''}</option>)}
         </select>
-        {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-slate-500 underline whitespace-nowrap">Quản lý danh sách →</Link>}
+        {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-slate-500 underline whitespace-nowrap">Sửa danh sách →</Link>}
       </span>
       {err && <span className="text-xs text-red-600">{err}</span>}
     </span>

@@ -60,7 +60,7 @@ describe('DauTicket', () => {
     it('admin@ / ai@ (quanTri) → có link sang trang quản trị /danh-sach-nguoi', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} quanTri />)
       expect(h).toContain('href="/danh-sach-nguoi"')
-      expect(h).toContain('Quản lý danh sách')
+      expect(h.match(/Sửa danh sách →/g)?.length).toBe(1)
     })
     it('người đã ẩn nhưng đang gán vẫn hiện, đánh dấu đã ẩn', () => {
       const h = renderToStaticMarkup(<DauTicket {...moi} csTheoDoi="Tuyết Trang" />)

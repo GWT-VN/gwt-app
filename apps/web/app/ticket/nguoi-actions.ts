@@ -115,7 +115,7 @@ export async function xoaNguoi(loai: LoaiNguoi, id: string): Promise<KQ> {
     const { data: lich, error } = await db.from('lich_ky_thuat').select('id').eq('ky_thuat_id', id).limit(1)
     if (error) return { ok: false, error: thongBaoLoiDb(error, 'xoaNguoi lich') }
     if (lich?.length) {
-      return { ok: false, error: `"${ng.ten}" đã có lịch kỹ thuật — không xoá ở đây để giữ lịch sử. Vào CSKH › Kỹ thuật để xử lý.` }
+      return { ok: false, error: `"${ng.ten}" đã có lịch kỹ thuật — không xoá để giữ lịch sử. Bấm "sửa", bỏ chọn "Hoạt động" để ngừng dùng.` }
     }
   }
   const { error } = await db.from(BANG[loai]).delete().eq('id', id)

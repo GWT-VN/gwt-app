@@ -99,7 +99,6 @@ export function TopNavClient({
           ] : []),
           ...(co('cs.ky_thuat.ho_so') ? [{ nhan: 'Gán lịch kỹ thuật', href: '/ky-thuat' }] : []),
           ...(co('cs.ky_thuat.xep_lich') ? [{ nhan: 'Xem lịch kỹ thuật', href: '/ky-thuat/lich' }] : []),
-          ...(co('cs.ky_thuat.ho_so') && duocSuaDanhSach(email) ? [{ nhan: 'Danh sách kỹ thuật', href: '/ky-thuat/nhan-su' }] : []),
         ] },
       ]
   const cskh: Module = { key: 'cskh', nhan: 'CSKH', mau: '#b5642a', href: chiKyThuat ? '/ky-thuat/cua-toi' : '/', icon: 'headset', trang: cskhTrang }
