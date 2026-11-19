@@ -1872,12 +1872,7 @@ export async function suaKyThuat(id: string, input: KyThuatInput): Promise<{ ok:
   await ghiAudit('sua_ky_thuat', `ky-thuat:${id}`); revalidatePath('/ky-thuat'); return { ok: true }
 }
 
-export async function xoaKyThuat(id: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  await requireStaff(); if (!(await coQuyen('cs.ky_thuat.ho_so', 'QUANLY')) || !(await coSuaDanhSach())) return { ok: false, error: KHONG_DU_QUYEN }
-  const { error } = await dataClient().from('ky_thuat').delete().eq('id', id)
-  if (error) return { ok: false, error: error.message }
-  await ghiAudit('xoa_ky_thuat', `ky-thuat:${id}`); revalidatePath('/ky-thuat'); return { ok: true }
-}
+// xoaKyThuat (DELETE thợ) đã bỏ 19/11/2026: xoá thợ = ngừng dùng, giữ lịch sử — xoaNguoi('kt', id) ở app/ticket/nguoi-actions.ts.
 
 // ── Cấp tài khoản đăng nhập cho kỹ thuật (email ngoài) — CHỈ ADMIN ────────────
 // Kỹ thuật đăng nhập app nhưng CHỈ thấy lịch chuyến của mình. Cấp quyền = tạo

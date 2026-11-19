@@ -38,7 +38,7 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false
           disabled={disabled || busy} aria-label={`Chọn ${tenDs}`} value={dangGan ?? ''}
           onChange={(e) => chon(e.target.value || null)}>
           <option value="">— Chưa gán —</option>
-          {dsChoChon(ds, dangGan).map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (nghỉ)' : ''}</option>)}
+          {dsChoChon(ds, dangGan).map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã xoá)' : ''}</option>)}
         </select>
         {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-slate-500 underline whitespace-nowrap">Sửa danh sách →</Link>}
       </span>
