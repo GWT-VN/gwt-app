@@ -11,6 +11,7 @@ import { KhoiContextMenu } from './_khoi/khoi-context-menu'
 import { KhoiDialog } from './_khoi/khoi-dialog'
 import { KhoiDropdownMenu } from './_khoi/khoi-dropdown-menu'
 import { KhoiKbd } from './_khoi/khoi-kbd'
+import { KhoiSheet } from './_khoi/khoi-sheet'
 import { KhoiTooltip } from './_khoi/khoi-tooltip'
 
 /**
@@ -28,7 +29,7 @@ const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
   { neo: 'context-menu', ten: 'ContextMenu', Khoi: KhoiContextMenu },
   { neo: 'dialog', ten: 'Dialog', Khoi: KhoiDialog },
   { neo: 'confirm-dialog', ten: 'ConfirmDialog', Khoi: KhoiConfirmDialog },
-  { neo: 'sheet', ten: 'Sheet' },
+  { neo: 'sheet', ten: 'Sheet', Khoi: KhoiSheet },
 ]
 
 /** /ds — xem component DS v2 thật, mỗi component một khối có #neo. `?theme=dark` cho tối. */

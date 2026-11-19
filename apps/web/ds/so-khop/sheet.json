@@ -1,0 +1,288 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#sheet > div",
+      "[data-ds-portal] [data-slot=\"sheet-overlay\"]",
+      "[data-ds-portal] [role=\"dialog\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#sheet [data-so=\"mo\"]"
+      },
+      {
+        "cho": 300
+      },
+      {
+        "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+      },
+      {
+        "cho": 100
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí: preview vẽ sheet tĩnh bám mép phải khung 408px; DS bám mép phải KHUNG NHÌN (fixed, top/right/bottom 0). Không đo left/top; so vị trí bằng mắt trên ảnh",
+    "Viền DƯỚI header (1px --border): bộ đo chỉ có borderTop* → đo tay bằng getComputedStyle (borderBottom 1px solid, trên 0 none) — ghi trong task-10-report; viền TRÊN footer đã đo ở khoá footer",
+    "Cuộn thân khi nội dung dài hơn khung (flex 1, overflow-y auto) trong khi header/footer đứng yên: nội dung preview ngắn, không đo; khung cột + lớp cuộn chứng minh bằng test jsdom components/ui/sheet.dom.test.tsx",
+    "Chuyển động: bundle.css KHÔNG định nghĩa animation cho `.ui-sheet` (Dialog có `ui-dialog-len`, Sheet không) → DS không trượt vào. Muốn trượt = quyết định mới (thêm vào artifact trước)",
+    "Esc / ✕ / bấm overlay đóng + trả focus về trigger, Tab không rời sheet, ✕ đứng ngay sau header trong DOM như preview, role dialog + aria-labelledby/describedby, overlay + panel trong ô portal vùng DS: test jsdom components/ui/sheet.dom.test.tsx, không đo ở đây",
+    "Chỉ cạnh PHẢI: artifact chỉ định nghĩa `.ui-sheet` phải; trái/trên/dưới chưa dựng",
+    "Ô \"Kênh bán\" (select), hai ô ngày, ba checkbox: Select/Input/Checkbox DS — lát 3. Khối demo dùng control GỐC mang giá trị `.ui-select-trigger`/`.ui-input`/`.ui-checkbox` — không khoá so khớp (chỉ đo khung `.ui-field` đầu: cột, gap 6). Preview dùng `<button class=\"ui-select-trigger\">`, demo dùng `<select>` gốc",
+    "Icon ✕: preview vẽ tay bằng nét, DS dùng Phosphor X regular — chỉ đo hộp + màu; hình nét so bằng mắt",
+    "Nút Xoá lọc / Áp dụng / ✕ ở trạng thái hover/focus/active: đã đo ở so khớp Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "overlay",
+      "artifact": ".ui-overlay",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-overlay\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "height": "Preview vẽ sheet TĨNH trong khung minh hoạ cao 408px (preview.html dòng 2: `position:relative;height:408px`, `.ui-overlay`/`.ui-sheet` absolute bám khung đó). DS bám KHUNG NHÌN (fixed, top 0 → bottom 0) → cao 900 = khung nhìn đo. README artifact: sheet cao hết màn.",
+        "zIndex": "Preview vẽ sheet tĩnh (position absolute, không z-index → auto). Sheet thật là hộp modal như Dialog (artifact: top layer của `<dialog>`, trên mọi lớp trang). DS dùng Radix Portal → z-70 cho overlay + panel theo thang z một chỗ ở ds/NGUON.md (dialog/overlay 70: trên mọi lớp trang, dưới tooltip 80 / menu 90)."
+      }
+    },
+    {
+      "khoa": "panel",
+      "artifact": ".ui-sheet",
+      "ds": "[data-ds-portal] [role=\"dialog\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "height": "Preview vẽ sheet TĨNH trong khung minh hoạ cao 408px (preview.html dòng 2: `position:relative;height:408px`, `.ui-overlay`/`.ui-sheet` absolute bám khung đó). DS bám KHUNG NHÌN (fixed, top 0 → bottom 0) → cao 900 = khung nhìn đo. README artifact: sheet cao hết màn.",
+        "zIndex": "Preview vẽ sheet tĩnh (position absolute, không z-index → auto). Sheet thật là hộp modal như Dialog (artifact: top layer của `<dialog>`, trên mọi lớp trang). DS dùng Radix Portal → z-70 cho overlay + panel theo thang z một chỗ ở ds/NGUON.md (dialog/overlay 70: trên mọi lớp trang, dưới tooltip 80 / menu 90).",
+        "width@390": "≤640 DS rộng 100% (README artifact \"mobile 100%\", Review Focus #5 kế hoạch lát 2; mốc `@media (max-width: 640px)` như Dialog). bundle `.ui-sheet` chỉ có `width: min(384px, 100%)` → ở khung 390 preview ra 384 (hở 6px overlay bên trái). Lệch có chủ đích: lấy README/kế hoạch, không lấy số 384 ở khổ 390."
+      }
+    },
+    {
+      "khoa": "header",
+      "artifact": ".ui-sheet-header",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-header\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "title",
+      "artifact": "#st",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-title\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "desc",
+      "artifact": "#sd",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-description\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "close",
+      "artifact": ".ui-dialog-close",
+      "ds": "[data-ds-portal] [aria-label=\"Đóng\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "body",
+      "artifact": ".ui-sheet-body",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-body\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "height": "Hệ quả của `panel` height: thân `flex: 1` lấp phần còn lại giữa header và footer — preview 408 − header − footer = 260, DS 900 − header − footer = 752. Header/footer cao khớp (đo ở khoá header/footer).",
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "truong",
+      "artifact": ".ui-sheet-body > .ui-field:first-child",
+      "ds": "[data-ds-portal] [data-so=\"truong\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "footer",
+      "artifact": ".ui-sheet-footer",
+      "ds": "[data-ds-portal] [data-slot=\"sheet-footer\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px."
+      }
+    },
+    {
+      "khoa": "xoa-loc",
+      "artifact": ".ui-sheet-footer > .ui-btn:first-child",
+      "ds": "[data-ds-portal] [data-so=\"xoa-loc\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "ap-dung",
+      "artifact": ".ui-sheet-footer > .ui-btn:last-child",
+      "ds": "[data-ds-portal] [data-so=\"ap-dung\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    }
+  ]
+}
