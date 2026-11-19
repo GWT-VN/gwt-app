@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google'
 import './_proto/tokens.css'
 import './_proto/ui.css'
 import './_proto/shell.css'
+import '../bang/_bang/bang.css' // .b-noi: định vị hộp nổi (Noi) cho hộp thông báo
 import { KhungPrototype } from './_proto/Switcher'
 
 // Inter tự host lúc build (next/font), có bộ dấu tiếng Việt

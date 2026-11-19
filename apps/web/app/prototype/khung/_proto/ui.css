@@ -828,3 +828,53 @@ a.ui-stat:hover .ui-stat-foot svg, button.ui-stat:hover .ui-stat-foot svg { tran
 /* Chữ chỉ dành cho trình đọc màn hình (mẫu chuẩn — Tailwind sr-only / WCAG technique C7) */
 .ui-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .ui-command-rong { padding: 16px 16px 4px; }
+
+/* ===== BỔ SUNG DS THÔNG BÁO 19/11/2026 — Count (số trên nút icon) · NotificationCenter (ThongBao)
+   Hộp nổi không chặn, rộng 400px (390: tràn 8px hai bên). Hover chỉ một lớp: nền ở dòng, nút đánh dấu chỉ đổi màu chữ. */
+.ui-count {
+  position: absolute; top: -2px; right: -2px; min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: var(--radius-full); background: var(--color-background-danger-solid); color: var(--color-text-danger-solid);
+  font-size: 10px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center;
+  box-shadow: 0 0 0 2px var(--ui-count-ring, var(--background)); pointer-events: none;
+}
+.ui-notif-neo { position: relative; display: inline-flex; }
+.ui-menu.ui-notif { width: min(400px, calc(100vw - 16px)); max-height: min(560px, calc(100vh - 16px)); padding: 0; overflow: visible; display: flex; flex-direction: column; } /* không cắt tooltip nút đầu hộp; phần cuộn nằm ở danh sách */
+.ui-notif-khung { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.ui-notif-head { display: flex; align-items: center; gap: 4px; padding: 12px 8px 4px 16px; }
+.ui-notif-title { flex: 1; margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.ui-notif-tabs { align-self: flex-start; margin: 4px 16px 4px; }
+.ui-notif-list { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0 8px 8px; scrollbar-width: thin; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
+.ui-notif-list .ui-menu-label { margin: 0; padding: 12px 8px 4px; }
+.ui-notif-list .ui-empty { padding: 32px 16px; }
+.ui-notif-ul { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ui-notif-item { position: relative; border-radius: var(--radius-lg); }
+.ui-notif-item:hover { background: var(--accent); }
+.ui-notif-main {
+  display: flex; gap: 12px; width: 100%; padding: 8px 40px 8px 8px; border: 0; border-radius: inherit;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.ui-notif-main:focus { outline: none; }
+.ui-notif-main:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.ui-notif-icon {
+  display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: var(--radius-full);
+  background: var(--alpha-04); color: var(--muted-foreground);
+}
+.ui-notif-icon svg { width: 16px; height: 16px; }
+.ui-notif-icon[data-loai="gap"] { background: var(--color-background-danger-soft); color: var(--color-text-danger-soft); }
+.ui-notif-icon[data-loai="nhac"] { background: var(--color-background-info-soft); color: var(--color-text-info-soft); }
+.ui-notif-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ui-notif-text { color: var(--muted-foreground); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ui-notif-text b { font-weight: 500; }
+.ui-notif-item[data-unread] .ui-notif-text { color: var(--foreground); }
+.ui-notif-quote {
+  padding-left: 8px; border-left: 2px solid var(--border); color: var(--muted-foreground);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ui-notif-meta { font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-btn.ui-notif-mark[data-variant] { position: absolute; top: 8px; right: 4px; color: var(--muted-foreground); }
+.ui-btn.ui-notif-mark[data-variant]:hover, .ui-btn.ui-notif-mark[data-variant]:active { background: transparent; color: var(--foreground); } /* dòng đã có nền hover — nút không chồng thêm lớp */
+.ui-notif-mark .ui-dot { display: block; width: 8px; height: 8px; border-radius: var(--radius-full); }
+@media (hover: hover) {
+  .ui-notif-item:not([data-unread]) .ui-notif-mark { opacity: 0; }
+  .ui-notif-item:is(:hover, :focus-within) .ui-notif-mark { opacity: 1; } /* đủ độ ưu tiên thắng luật ẩn — focus bàn phím luôn thấy nút */
+}

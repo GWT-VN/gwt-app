@@ -2,3 +2,5 @@
 .ta-tim { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .ta-tim .ui-btn .ui-kbd { margin-left: 4px; }
 .ta-chon { margin: 12px 0 0; }
+.ta-tb { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ta-tb-thanh { display: flex; align-items: center; gap: 8px; flex: 1 1 320px; max-width: 480px; padding: 4px 4px 4px 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); }

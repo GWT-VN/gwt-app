@@ -162,25 +162,32 @@ export function Noi({ mo, dong, children, className, role = 'menu', nhan, theoNe
   useLayoutEffect(() => {
     const a = neo.current?.parentElement, m = ref.current
     if (!mo || !a || !m) return
-    const r = a.getBoundingClientRect()
-    if (theoNeo) m.style.minWidth = `${r.width}px` // Select: menu rộng bằng ô
-    const w = m.offsetWidth, h = m.offsetHeight
-    const x = className?.includes('b-noi-phai') ? Math.max(8, r.right - w) : Math.max(8, Math.min(r.left, innerWidth - w - 8))
-    const duoi = r.bottom + 4 + h <= innerHeight - 8 || r.top - 4 - h < 8
-    m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${Math.max(8, Math.min(duoi ? r.bottom + 4 : r.top - 4 - h, innerHeight - h - 8))}px`) // không đủ chỗ cả 2 phía → ép vào trong màn
+    const dat = () => {
+      const r = a.getBoundingClientRect()
+      if (theoNeo) m.style.minWidth = `${r.width}px` // Select: menu rộng bằng ô
+      const w = m.offsetWidth, h = m.offsetHeight
+      const x = className?.includes('b-noi-phai') ? Math.max(8, r.right - w) : Math.max(8, Math.min(r.left, innerWidth - w - 8))
+      const duoi = r.bottom + 4 + h <= innerHeight - 8 || r.top - 4 - h < 8
+      m.style.setProperty('--noi-x', `${x}px`); m.style.setProperty('--noi-y', `${Math.max(8, Math.min(duoi ? r.bottom + 4 : r.top - 4 - h, innerHeight - h - 8))}px`) // không đủ chỗ cả 2 phía → ép vào trong màn
+    }
+    dat()
     m.style.visibility = 'visible'
+    // nội dung đổi cao (đổi tab, lọc) khi hộp đang lật lên trên → tính lại, không để hở khoảng với nút neo
+    const ro = new ResizeObserver(dat); ro.observe(m)
     // autoFocus không ăn khi nội dung gắn lúc còn hidden → đưa focus vào ô nhập / mục đang chọn / mục đầu (APG menu)
     const f = requestAnimationFrame(() => {
       if (m.contains(document.activeElement)) return
       // theo THỨ TỰ ưu tiên (querySelector với nhiều selector lấy theo thứ tự DOM): ô tìm → mục đang chọn → mục đầu
-      ;(m.querySelector<HTMLElement>('input') ?? m.querySelector<HTMLElement>('[aria-checked="true"]') ?? m.querySelector<HTMLElement>('.ui-menu-item'))?.focus()
+      ;(m.querySelector<HTMLElement>('[data-autofocus]') ?? m.querySelector<HTMLElement>('input') ?? m.querySelector<HTMLElement>('[aria-checked="true"]') ?? m.querySelector<HTMLElement>('.ui-menu-item'))?.focus()
     })
-    return () => cancelAnimationFrame(f)
+    return () => { cancelAnimationFrame(f); ro.disconnect() }
   }, [mo, className, theoNeo])
   // đóng menu → trả focus về nút đã mở nó (nếu focus đang rơi về body), như DatePicker/APG
   useLayoutEffect(() => {
     if (!mo) return
-    const truoc = document.activeElement as HTMLElement | null
+    // Safari: bấm chuột không focus nút → activeElement là body; khi đó trả về nút trong ô neo
+    const dang = document.activeElement as HTMLElement | null
+    const truoc = dang && dang !== document.body ? dang : neo.current?.parentElement?.querySelector<HTMLElement>('button, [tabindex="0"]') ?? null
     return () => { requestAnimationFrame(() => { const a = document.activeElement; if ((!a || a === document.body) && truoc?.isConnected) truoc.focus() }) }
   }, [mo])
   const phim = (e: ReactKeyboardEvent<HTMLDivElement>) => {

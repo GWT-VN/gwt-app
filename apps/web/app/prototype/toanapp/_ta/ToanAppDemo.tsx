@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ArrowDown, ArrowRight, ArrowUp, MagnifyingGlass, Minus, Moon, Sun } from '@phosphor-icons/react'
 import { Khoi } from '../../form/_form/FormDemo'
 import { TimToanCuc, usePhimTim, type KetQua } from '../../khung/_proto/TimToanCuc'
+import { DS_TB, TB_MOI, ThongBao, type TB } from '../../khung/_proto/ThongBao'
 import { MO } from '../../bang/_bang/chung'
 import { HOM_NAY, TICKETS } from '../../bang/_bang/data'
 
@@ -42,6 +43,9 @@ export function ToanAppDemo({ toi }: { toi?: boolean }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(toi ? 'dark' : 'light')
   const [tim, setTim] = useState(false)
   const [daChon, setDaChon] = useState<KetQua | null>(null)
+  const [dsTB, setDsTB] = useState(DS_TB)
+  const [moTB, setMoTB] = useState('')
+  const coMoi = dsTB.some((t) => t.id === 'moi')
   usePhimTim(() => setTim(true))
   const dangMo = TICKETS.filter(MO).length
   const quaHan = TICKETS.filter((t) => MO(t) && t.han.slice(0, 10) < HOM_NAY).length
@@ -72,6 +76,19 @@ export function ToanAppDemo({ toi }: { toi?: boolean }) {
           <span className="ui-caption">Thử gõ: <b>sen vang</b> (không dấu) · <b>TK-2611-04</b> · <b>V9L</b> (serial) · <b>HO-1123</b> (đơn) · <b>4462</b> (đuôi SĐT)</span>
         </div>
         <p className="ui-caption ta-chon" aria-live="polite">{daChon ? <>Đã chọn: <b>{daChon.ten}</b> ({daChon.loai}) — trong khung F sẽ mở đúng màn.</> : 'Chưa chọn gì.'}</p>
+      </Khoi>
+
+      <Khoi id="thongbao" ten="Thông báo trong app (ThongBao)" mo="Cùng sự kiện với tin bot gửi Discord (giao việc, @nhắc, ticket Gấp chưa ai nhận, tới hạn, mở quá lâu, bot tạo chờ nhận). Số đỏ trên chuông = chưa đọc. Bấm dòng → mở đúng chỗ và tự đánh dấu đã đọc.">
+        <div className="ta-tb">
+          <div className="ta-tb-thanh">
+            <span className="ui-caption">Thanh trên khung (minh hoạ)</span>
+            <span style={{ flex: 1 }} />
+            <ThongBao ds={dsTB} setDs={setDsTB} nut="icon" mo={(t: TB) => setMoTB(`${t.ai ? t.ai + ' ' : ''}${t.noi} ${t.dt ?? ''}`)} cauHinh={() => setMoTB('Cấu hình thông báo (màn Quản trị — chưa dựng)')} />
+          </div>
+          <button type="button" className="ui-btn" data-variant="outline" disabled={coMoi} onClick={(e) => { setDsTB((d) => [{ ...TB_MOI, id: 'moi' }, ...d]); (e.currentTarget.nextElementSibling as HTMLElement | null)?.focus() }}>Giả lập thông báo mới đến</button>
+          <button type="button" className="ui-btn" data-variant="ghost" onClick={() => { setDsTB(DS_TB); setMoTB('') }}>Đặt lại</button>
+        </div>
+        <p className="ui-caption ta-chon" aria-live="polite">{moTB ? <>Đã mở: <b>{moTB}</b> — trong khung F sẽ mở đúng ticket.</> : 'Chưa mở thông báo nào.'}</p>
       </Khoi>
 
       <Khoi id="stat" ten="StatCard — màn Tổng quan" mo="Màu theo NGHĨA, không theo chiều: quá hạn GIẢM là tốt (xanh), khách hỏi lại TĂNG là xấu (đỏ). Thẻ có liên kết → bấm mở danh sách đã lọc.">

@@ -5,9 +5,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TimToanCuc, usePhimTim, type KetQua } from './TimToanCuc'
+import { DS_TB, ThongBao, type TB } from './ThongBao'
 // Icon: Phosphor (chốt 18/11) — bản thường "regular", mục đang chọn trên thanh icon dùng bản "fill" như ChatGPT
 import {
-  ChartBar as BarChart3, Bell, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
+  ChartBar as BarChart3, BookOpen, CalendarCheck, CalendarBlank as CalendarDays, CheckSquare as Check, CaretLeft as ChevronLeft,
   Clock, Funnel as Filter, Headset as Headphones, Tray as Inbox, SquaresFour as LayoutGrid, ListChecks, List as Menu, Package, Plus,
   Repeat, MagnifyingGlass as Search, GearSix as Settings, ShieldCheck, ShoppingCart, Sparkle as Sparkles, Ticket, Users, Wrench, X,
   SealCheck as BadgeCheck, User as UserRound, Receipt as ReceiptText, Cpu, type Icon as LucideIcon,
@@ -36,11 +37,14 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
   const [xemThem, setXemThem] = useState(false)
   const [launcher, setLauncher] = useState(false)
   const [tim, setTim] = useState(false)
+  const [dsTB, setDsTB] = useState(DS_TB)
   const [bao, setBao] = useState('')
   const router = useRouter()
   usePhimTim(() => setTim(true))
   useEffect(() => { if (!bao) return; const id = setTimeout(() => setBao(''), 4000); return () => clearTimeout(id) }, [bao])
   // chọn kết quả ô tìm → mở đúng màn đã có trong prototype; màn chưa dựng thì nói thẳng
+  // bấm thông báo → mở đúng ticket; loại chưa có màn (việc) thì nói thẳng
+  const moTB = (t: TB) => (t.ma ? router.push(`/prototype/chitiet?ma=${t.ma}#trang`) : setBao(`Prototype: màn việc “${t.dt}” chưa dựng`))
   const moKetQua = (kq: KetQua) => {
     const ma = /TK-\d{4}-\d{3}/.exec(kq.id)?.[0]
     if (kq.loai === 'ticket' && ma) return router.push(`/prototype/chitiet?ma=${ma}#trang`)
@@ -117,7 +121,7 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
               <div className="pD-dau">
                 <span className="pD-tieude"><span className="p-cham" style={{ background: k.mau }} aria-hidden />{k.ten}</span>
                 <span style={{ flex: 1 }} />
-                <button className="ui-btn" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Thông báo"><Bell aria-hidden /></button>
+                <ThongBao ds={dsTB} setDs={setDsTB} mo={moTB} cauHinh={() => setBao('Prototype: màn “Cấu hình thông báo” (Quản trị) chưa dựng')} />
                 <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Tìm toàn cục (Ctrl K)" data-tip="Tìm · Ctrl K" aria-haspopup="dialog" onClick={() => setTim(true)}><Search aria-hidden /></button>
                 <button className="ui-btn pD-chi-mobile" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Đóng menu" onClick={() => setMenuMo(false)}><X aria-hidden /></button>
               </div>
