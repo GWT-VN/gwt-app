@@ -186,6 +186,15 @@ Nhánh: `feat/doi-agent-gd1`. Xong giai đoạn này: tag @Bơ Marketing hay @Nh
 
 Nhánh: `feat/doi-agent-dau`. T5–T6 làm được trước khi có khoá; T7 phải chờ khoá và QĐ4.
 
+## Giai đoạn 2′ — Bộ chạy API chung cho Bơ, Nho, Dâu (spec §5.4e; thay T6–T7 cũ)
+
+Ghi chú tra cứu SDK (bắt buộc đọc): `GWT-Agent-Team/.superpowers/sdd/2026-11-19-gwt-agent-team-plan-doi-4-agent/agent-sdk-ghi-chu.md`. Bắp giữ phiên, không đụng.
+
+**Quy ước đường chạy (một token ↔ một kết nối Gateway, luôn đúng):**
+- `agent.json`: `duong_chay` = đường chính (`"api"` cho bo/nho/dau), `lui: "phien"`.
+- File trạng thái máy `~/Bots/agent-<tên>/duong` (một dòng `api` hoặc `phien|<YYYY-MM-DD hết hạn>`), không có → theo `duong_chay`. Bộ chạy API chạm hạn mức ngày / lỗi API liên tiếp → ghi `phien|<ngày mai>` rồi thoát; hết ngày → tự về `api`.
+- `watchdog-agent.sh` (nhãn `com.gwt.agent.<tên>` sẵn có) đọc đường hiệu lực: `api` → tmux `agent-<tên>` chạy `node chay/api/agent.mjs <tên>`; `phien` → `start-agent.sh` như nay. Đổi đường → **tắt hẳn phiên tmux cũ trước** (đã có bài học: chỉ giết claude là chạy lại vòng cũ). `start-agent.sh` thôi từ chối `duong_chay=api` khi đường hiệu lực là `phien` (đường lùi); vẫn từ chối mọi giá trị khác `api|phien`.
+
 ### Task 5: Thư viện Gateway Discord tối giản
 
 **Files:** Create: `thu-vien/gateway.mjs`; Test: `tests/gateway.test.mjs`
@@ -203,7 +212,35 @@ Nhánh: `feat/doi-agent-dau`. T5–T6 làm được trước khi có khoá; T7 p
 - [ ] **Step 2–4:** chạy test FAIL → viết → `node --test tests/gateway.test.mjs` PASS.
 - [ ] **Step 5: Commit** `feat(thu-vien): Gateway Discord tối giản dùng chung`.
 
-### Task 6: Bộ chạy Dâu (OpenAI)
+### Task 6a: Cổng tin + gửi tin (hàm thuần)
+
+**Files:** Create `chay/api/cong-tin.mjs`, `tests/cong-tin.test.mjs`. Dùng lại `chiaTin` (`kenh/nhom-cv.mjs`).
+- `xetTin(tin, access, botId) → boolean`: như `gate()` của plugin — kênh/thread cha ∈ `access.groups`; `allowFrom` rỗng = ai cũng được; `requireMention` → tag `botId` | reply tin của `botId` | khớp `mentionPatterns` (cờ `i`); bỏ tin của bot (mọi bot), bỏ tin của chính mình.
+- `anhDuocDung(attachments) → {url, media_type}[]`: chỉ `image/png|jpeg|gif|webp`, ≤ 5 MB, tối đa 4.
+- `taoTinGui({ chu, traLoi, tep? }) → payload[]`: mỗi phần ≤ 2000 ký tự, `allowed_mentions: { parse: [] }`, `message_reference` ở phần đầu, tệp ở phần cuối; xoá mọi `<@…>`, `@everyone`, `@here` khỏi chữ (lớp chặn thứ hai, ngoài hook).
+- Test: tin tag Bơ không tag Nho → Nho bỏ; "Bơ ơi …" khớp; "nhờ Bơ …" không khớp; bot khác → bỏ; pdf/ảnh 6 MB/ảnh thứ 5 → bỏ; chữ 4500 ký tự → 3 phần; `<@123>` bị gỡ.
+
+### Task 6b: Bộ chạy API `chay/api/agent.mjs`
+
+**Files:** Create `chay/api/agent.mjs`, `chay/api/so-chi.mjs`, `tests/api-agent.test.mjs`; Modify `chay/phien/agent.mjs` (export `taoSettings`, `taoMcp`, `docAgent` dùng lại), `package.json` gốc hoặc `chay/api/package.json` (`@anthropic-ai/claude-agent-sdk` khoá phiên bản 0.3.328, `npm ci` KHÔNG `--omit=optional`).
+- `taoTuyChon(agent, { repo, mkt, home, key }) → options` (hàm thuần, test kỹ): `model` = agent.model; `systemPrompt` = chuỗi ghép vai trò + luật (`luat`) + `doi.md` + `so-tay.md` (phần `dang_dung`, khi có T7e); `cwd` = `~/Bots/agent-<tên>`; `settingSources: []`; `settings` = `taoSettings` (allow/deny); `permissionMode: "dontAsk"`; `tools` = `cong_cu_goc` (vd `["WebSearch"]`); `mcpServers` = `taoMcp`; `allowedTools` = `cho_phep`; `maxTurns: 12`; `maxBudgetUsd` = `agent.tran_chi_luot_usd ?? 0.5`; `env` = `{...process.env, ANTHROPIC_API_KEY: key, CLAUDE_CONFIG_DIR: ~/Bots/agent-<tên>/.claude-api, CLAUDE_CODE_DISABLE_AUTO_MEMORY:"1", BAP_REPO, MKT_REPO, AGENT_TEN}`; `hooks`: PreToolUse (mọi công cụ) chặn `<@`/`@everyone`/`@here` trong input, `onFailure:"block"`; PostToolUse + PostToolUseFailure ghi `logs/cong-cu-<ngày>.jsonl` có `agent`.
+- Vòng chạy: `moGateway` (T5, intents GUILDS|GUILD_MESSAGES|MESSAGE_CONTENT) → `xetTin` → hàng đợi (mỗi kênh/thread 1 lượt đang chạy, toàn agent tối đa 2) → bật "đang gõ" → `query()` streaming input (chữ + ảnh base64 tải từ Discord) với `resume` = phiên của kênh (lưu `~/Bots/agent-<tên>/phien-kenh.json`) → chữ cuối từ `result` → `taoTinGui` → POST Discord REST bằng token bot.
+- Chi: `so-chi.mjs` ghi `logs/chi-<tên>-<YYYY-MM-DD giờ VN>.json` = cộng chênh lệch `total_cost_usd` từng lượt (phiên resume: lấy delta). Chạm `agent.tran_chi_ngay_usd ?? 5` → trả lời một tin "Em tạm nghỉ tới mai, anh/chị hỏi Bắp nhé", ghi `duong` = `phien|<ngày mai>`, thoát 0. 3 lượt lỗi API liên tiếp → như trên, lý do "API lỗi".
+- Khoá: đọc `~/Bots/.secrets/anthropic.env` (`ANTHROPIC_API_KEY`) và `~/.claude/channels/<state>/.env` (`DISCORD_BOT_TOKEN`), không in, không ghi log.
+- Test (đỏ trước, `query` và `fetch` giả): `taoTuyChon` đủ trường, `settingSources` rỗng, không có `bypassPermissions`, env có `CLAUDE_CONFIG_DIR` riêng, không khoá nào lọt vào log; hook Pre chặn `<@1>`; ảnh vào đúng khối `image` base64; phiên kênh được resume; hai tin cùng kênh chạy tuần tự; chạm trần → 1 tin báo + file `duong` = `phien|…` + thoát; `error_max_budget_usd` → báo ngắn, không thử lại.
+
+### Task 6c: Chọn đường chạy + đổi đường an toàn
+
+**Files:** Modify `chay/phien/watchdog-agent.sh`, `chay/phien/start-agent.sh`, `chay/phien/agent.mjs` (CLI `duong-hieu-luc <tên>`), `tests/chay-phien.test.mjs`.
+- `duong-hieu-luc`: đọc file `duong` (hết hạn → bỏ) rồi tới `duong_chay`. Watchdog: đường hiệu lực khác loại đang chạy trong `agent-<tên>` → `tmux kill-session -t "=agent-<tên>"`, chờ tiến trình (claude/bun hoặc node agent.mjs) hết, rồi mở đúng loại. Test bằng stub tmux/node: đổi `api`→`phien` thì phiên cũ bị tắt trước khi mở mới; không bao giờ hai loại cùng sống.
+
+### Task 6d (Marketing-kit): công cụ ảnh cho Dâu
+- MCP `tools/mcp-anh/` gọi API bản máy của `tools/gen_anh` (`127.0.0.1:8770`, đọc `api/index.py` để lấy đúng route): `tao_anh(yeu_cau, style?, kich_thuoc?)` → đường dẫn PNG trong `~/Bots/agent-dau/anh/`; bộ chạy API đính tệp đó vào tin trả lời (chỉ nhận tệp trong thư mục này). Nhãn `com.gwt.mkt.genanh` chạy `local.py` thường trực (khoá OpenAI trong `tools/gen_anh/.env.local` trên Mac mini — anh Dũng đặt).
+
+### Task 7′: Đưa lên lần lượt Bơ → Nho → Dâu
+- Mỗi con: đặt `duong_chay:"api"` (+ `lui:"phien"`) → cài lại nhãn → thử ở #bắp-mkt (chữ, ảnh gửi kèm cho Bơ, ảnh tạo ra cho Dâu) → xem `logs/chi-<tên>-*.json` sau 1 ngày → báo anh Dũng chi phí thật. Lỗi → ghi `duong`=`phien` (lùi ngay, một lệnh).
+
+### ~~Task 6: Bộ chạy Dâu (OpenAI)~~ — BỎ (thay bằng 6a–6d, §5.4e)
 
 **Files:** Create: `chay/api/dau.mjs`; Test: `tests/dau.test.mjs`
 
