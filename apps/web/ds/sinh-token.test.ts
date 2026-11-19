@@ -52,8 +52,8 @@ test('class kiểu chữ đổi tiền tố ds- (không đè .text-sm của Tail
   expect(ra).not.toMatch(/^\.text-sm \{/m)
 })
 
-test('--font-sans trong vùng DS là Inter', () => {
-  expect(ra).toMatch(/--font-sans: var\(--font-inter\),/)
+test('--font-sans trong vùng DS là Inter, thiếu --font-inter thì rơi về stack (không về font kế thừa)', () => {
+  expect(ra).toContain('--font-sans: var(--font-inter, ui-sans-serif),')
 })
 
 test('file tokens.css đã commit đúng bằng đầu ra của script (không sửa tay)', () => {

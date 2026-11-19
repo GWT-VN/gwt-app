@@ -16,7 +16,7 @@ export function sinhToken(cssNguon) {
       .replace(/^\[data-theme="dark"\] \{$/gm, '[data-ds="v2"][data-theme="dark"] {')
       .replace(/^:root \{$/gm, '[data-ds="v2"] {')
       .replace(/^\.([a-z0-9-]+) \{$/gm, '[data-ds="v2"] .ds-$1 {')
-      .replace(/^( {2}--font-sans: )/m, '$1var(--font-inter), ')
+      .replace(/^( {2}--font-sans: )/m, '$1var(--font-inter, ui-sans-serif), ')
   )
 }
 
