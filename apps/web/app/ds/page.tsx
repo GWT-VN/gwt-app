@@ -6,6 +6,7 @@ import { KhoiAlert } from './_khoi/khoi-alert'
 import { KhoiAvatar } from './_khoi/khoi-avatar'
 import { KhoiBadge } from './_khoi/khoi-badge'
 import { KhoiButton } from './_khoi/khoi-button'
+import { KhoiConfirmDialog } from './_khoi/khoi-confirm-dialog'
 import { KhoiContextMenu } from './_khoi/khoi-context-menu'
 import { KhoiDialog } from './_khoi/khoi-dialog'
 import { KhoiDropdownMenu } from './_khoi/khoi-dropdown-menu'
@@ -26,7 +27,7 @@ const KHOI: { neo: string; ten: string; Khoi?: ComponentType }[] = [
   { neo: 'dropdown-menu', ten: 'DropdownMenu', Khoi: KhoiDropdownMenu },
   { neo: 'context-menu', ten: 'ContextMenu', Khoi: KhoiContextMenu },
   { neo: 'dialog', ten: 'Dialog', Khoi: KhoiDialog },
-  { neo: 'confirm-dialog', ten: 'ConfirmDialog' },
+  { neo: 'confirm-dialog', ten: 'ConfirmDialog', Khoi: KhoiConfirmDialog },
   { neo: 'sheet', ten: 'Sheet' },
 ]
 

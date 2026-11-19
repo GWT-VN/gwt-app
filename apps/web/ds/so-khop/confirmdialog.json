@@ -1,0 +1,591 @@
+{
+  "khung": {
+    "artifact": ".ds-muc:nth-child(2) dialog",
+    "ds": [
+      "[data-ds-portal] [role=\"alertdialog\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+      },
+      {
+        "cho": 250
+      },
+      {
+        "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+      },
+      {
+        "cho": 100
+      }
+    ]
+  },
+  "chuaDo": [
+    "Overlay: preview vẽ hộp tĩnh, không có nền phủ (hộp thật dùng ::backdrop của showModal) — overlay DS dùng chung `overlay` của dialog-styles.ts, đã đo ở so khớp Dialog (#ov 30%/50%)",
+    "Vị trí hộp: preview xếp 3 hộp tĩnh trong khung 450; DS mở từng hộp giữa KHUNG NHÌN (fixed, inset 0, margin auto — y `dialog.ui-dialog`). Không đo left/top; so bằng mắt trên ảnh",
+    "Khoảng cách dọc (margin: icon→tiêu đề 16, tiêu đề→mô tả 4, mô tả→thân 16, danh sách→ô lý do 16, mục cách 4, thân→footer 20): getComputedStyle không có margin trong bộ đo — khớp gián tiếp qua chiều cao hộp `panel` (cộng mọi khoảng) + chiều cao `body`; lệch một khoảng là lệch height",
+    "Mục danh sách `li` (chấm tròn, cách 4): chỉ đo `ul` (thụt 18, chữ 14/20, màu) + chiều cao ul gồm 3 mục",
+    "Hiện 160ms cubic-bezier(0.19, 1, 0.22, 1) từ opacity 0, translateY(4px) scale(.98), giảm chuyển động → không: đo sau khi đã hiện xong (cho 250ms)",
+    "Focus khi mở (thường → nút chính; pha → Huỷ/Quay lại; ô `data-autofocus` thắng), Esc/Huỷ đóng + focus về nút mở, overlay không đóng, khoá khi đang chạy (Esc/Huỷ không đóng, bấm 2 lần gọi 1 lần, focus không rơi ra body), lỗi Alert role=alert trong hộp, khoaXacNhan, aria-labelledby/describedby, portal trong vùng DS: test jsdom components/ui/confirm-dialog.dom.test.tsx, không đo ở đây",
+    "Đang chạy (spinner trên nút xác nhận, Huỷ khoá) và lỗi trong hộp (Alert danger): preview không có hai trạng thái này — không đo; Spinner đo ở so khớp Button (loading), Alert danger ở so khớp Alert",
+    "aria-describedby: preview mẫu Xoá trỏ vào danh sách hậu quả; DS trỏ vào mô tả (README: describedby = description) — danh sách vẫn đọc được khi duyệt hộp",
+    "Ô \"Lý do xoá\" (textarea) và ô gõ mã (input): Input/Textarea DS — lát 3. Khối demo dùng control gốc mang giá trị `.ui-textarea`/`.ui-input` — chỉ đo khung `.ui-field` mẫu Xoá (cột, gap 6), không khoá control",
+    "Nhiều ô trong thân (`.ui-dialog-body > .ui-field + .ui-field` cách 12): preview không có mẫu nhiều ô — chưa dựng (người gọi tự xếp tới khi có Field DS, lát 3)",
+    "Nút Huỷ / xác nhận ở trạng thái hover/focus/active/disabled: đã đo ở so khớp Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "dong-panel",
+      "artifact": ".ds-muc:nth-child(1) dialog",
+      "ds": "[data-ds-portal] [role=\"alertdialog\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ 3 hộp TĨNH (`<dialog open style=\"position:relative\">`, không z-index → auto). Hộp THẬT của artifact mở bằng `showModal()` → top layer, trên mọi lớp trang. DS dùng Radix Portal (không top layer) → z-70 (dialog-styles.ts, thang z ở ds/NGUON.md): trên mọi lớp trang, dưới tooltip 80 / menu 90.",
+        "width@390": "≤640 bundle `dialog.ui-dialog { width: calc(100% - 32px) }`: preview tĩnh lấy 100% của khung `.ds-tinh` (390 − 2×16 padding body = 358) → 326; hộp thật (fixed, như DS) lấy 100% khung nhìn → 390 − 32 = 358 = lề 16 mỗi bên như README."
+      }
+    },
+    {
+      "khoa": "dong-title",
+      "artifact": ".ds-muc:nth-child(1) .ui-dialog-title",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "dong-desc",
+      "artifact": ".ds-muc:nth-child(1) .ui-dialog-desc",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-description\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "dong-footer",
+      "artifact": ".ds-muc:nth-child(1) .ui-dialog-footer",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "dong-huy",
+      "artifact": ".ds-muc:nth-child(1) .ui-dialog-footer > :nth-child(1)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(1)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "dong-xn",
+      "artifact": ".ds-muc:nth-child(1) .ui-dialog-footer > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(2)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-dong\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-panel",
+      "artifact": ".ds-muc:nth-child(2) dialog",
+      "ds": "[data-ds-portal] [role=\"alertdialog\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ 3 hộp TĨNH (`<dialog open style=\"position:relative\">`, không z-index → auto). Hộp THẬT của artifact mở bằng `showModal()` → top layer, trên mọi lớp trang. DS dùng Radix Portal (không top layer) → z-70 (dialog-styles.ts, thang z ở ds/NGUON.md): trên mọi lớp trang, dưới tooltip 80 / menu 90.",
+        "width@390": "≤640 bundle `dialog.ui-dialog { width: calc(100% - 32px) }`: preview tĩnh lấy 100% của khung `.ds-tinh` (390 − 2×16 padding body = 358) → 326; hộp thật (fixed, như DS) lấy 100% khung nhìn → 390 − 32 = 358 = lề 16 mỗi bên như README.",
+        "height@390": "Hệ quả của width@390: ruột preview hẹp hơn 32px (286 vs 318) → mục \"Phiếu biến mất khỏi Báo cáo thu chi tháng 11.\" xuống thành 2 dòng (+20px), cộng dồn lên danh sách → thân → hộp. Ở 1440 (cùng bề ngang 450) chiều cao khớp."
+      }
+    },
+    {
+      "khoa": "xoa-icon",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-icon",
+      "ds": "[data-ds-portal] [data-slot=\"confirm-dialog-icon\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "xoa-title",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-title",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-desc",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-desc",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-description\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-body",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-body",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-body\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc.",
+        "height@390": "Hệ quả của width@390: ruột preview hẹp hơn 32px (286 vs 318) → mục \"Phiếu biến mất khỏi Báo cáo thu chi tháng 11.\" xuống thành 2 dòng (+20px), cộng dồn lên danh sách → thân → hộp. Ở 1440 (cùng bề ngang 450) chiều cao khớp."
+      }
+    },
+    {
+      "khoa": "xoa-list",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-list",
+      "ds": "[data-ds-portal] [data-slot=\"confirm-dialog-list\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc.",
+        "height@390": "Hệ quả của width@390: ruột preview hẹp hơn 32px (286 vs 318) → mục \"Phiếu biến mất khỏi Báo cáo thu chi tháng 11.\" xuống thành 2 dòng (+20px), cộng dồn lên danh sách → thân → hộp. Ở 1440 (cùng bề ngang 450) chiều cao khớp."
+      }
+    },
+    {
+      "khoa": "xoa-truong",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-body .ui-field",
+      "ds": "[data-ds-portal] [data-so=\"truong\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-footer",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-footer",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-huy",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-footer > :nth-child(1)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(1)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-xn",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-footer > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(2)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-panel",
+      "artifact": ".ds-muc:nth-child(3) dialog",
+      "ds": "[data-ds-portal] [role=\"alertdialog\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ 3 hộp TĨNH (`<dialog open style=\"position:relative\">`, không z-index → auto). Hộp THẬT của artifact mở bằng `showModal()` → top layer, trên mọi lớp trang. DS dùng Radix Portal (không top layer) → z-70 (dialog-styles.ts, thang z ở ds/NGUON.md): trên mọi lớp trang, dưới tooltip 80 / menu 90.",
+        "width@390": "≤640 bundle `dialog.ui-dialog { width: calc(100% - 32px) }`: preview tĩnh lấy 100% của khung `.ds-tinh` (390 − 2×16 padding body = 358) → 326; hộp thật (fixed, như DS) lấy 100% khung nhìn → 390 − 32 = 358 = lề 16 mỗi bên như README."
+      }
+    },
+    {
+      "khoa": "gop-icon",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-icon",
+      "ds": "[data-ds-portal] [data-slot=\"confirm-dialog-icon\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "gop-title",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-title",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-desc",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-desc",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-description\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-body",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-body",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-body\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-footer",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-footer",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-huy",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-footer > :nth-child(1)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(1)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-xn",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-footer > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"] > :nth-child(2)",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    }
+  ]
+}
