@@ -13,7 +13,8 @@
  * Ghi ds/so-khop/<C>.md. Thoát mã 1 nếu: còn lệch chưa có `lyDo`; THIẾU PHẦN TỬ ở bất kỳ bên nào (không lyDo nào miễn
  * được, không tính vào tổng); hoặc có `lyDo` thừa (không còn khớp dòng lệch nào). Mã 2 = lỗi chạy (Button.md bị ghi đè
  * bằng ghi chú lỗi). Khoá lyDo = chữ ở cột "thuộc tính" (vd `hover.backgroundColor`), thêm `@toi`, `@390`, `@toi 390`
- * để chỉ áp cho theme/khổ đó.
+ * để chỉ áp cho theme/khổ đó. `chuaDo` (mảng chữ) trong config: những gì CHƯA đo — in ngay dưới dòng tổng của <C>.md để
+ * con số khớp không bị đọc thành "khớp hết".
  *
  * Font: preview nguồn khai --font-sans = font hệ thống (không có Inter); DS dùng Inter (next/font). Để đo CSS component
  * chứ không đo font sẵn có của máy, trang tạm nạp ĐÚNG file Inter mà /ds đang dùng (lấy @font-face từ /ds, nhúng
@@ -327,6 +328,7 @@ async function main() {
     const chuaLyDo = lech.filter((r) => !r.lyDo).length
     const coLyDo = lech.length - chuaLyDo
     const q = (s) => String(s).replaceAll('|', '\\|')
+    const chuaDo = cfg.chuaDo ?? []
     const md = [
       `# So khớp ${comp} — artifact ↔ /ds`,
       '',
@@ -336,12 +338,14 @@ async function main() {
       `- Artifact: \`ds/nguon/tokens.css\` + \`bundle.css\` + \`components/${comp}/preview.html\` (xem \`ds/NGUON.md\`) ↔ \`/ds\`.`,
       `- Theme sáng/tối × khổ ${KHO.join('/')} (CDP \`Emulation.setDeviceMetricsOverride\`). Đo ${PROPS.length} thuộc tính/phần tử: ${PROPS.join(', ')}.`,
       '- **Giới hạn:** px làm tròn 0.5 → lệch < 0.25px không thấy được. Màu chuẩn hoá về sRGB số thực (kênh 2 số lẻ, alpha 3 số lẻ).',
-      '- Trạng thái: artifact ép class `.is-hover`/`.is-focus` như preview (khoá có `artifactThat` thì tương tác thật); DS di chuột thật (`Input.dispatchMouseEvent`, kiểm `:hover`) / phím Tab thật (kiểm `:focus-visible`).',
+      `- Trạng thái: artifact ép class \`.is-hover\`/\`.is-focus\` như preview, trừ khoá có \`artifactThat\` thì artifact cũng tương tác thật (${cfg.khoa.filter((k) => k.artifactThat && k.trangThai?.length).map((k) => `${k.khoa}: ${k.trangThai.join('/')}`).join(' · ') || 'không khoá nào'}); DS di chuột thật (\`Input.dispatchMouseEvent\`, kiểm \`:hover\`) / phím Tab thật (kiểm \`:focus-visible\`).`,
       `- Font: trang artifact nạp đúng Inter của /ds và đặt \`--font-sans\` = token \`--font-sans\` của gốc \`[data-ds]\` trên /ds = \`${q(hoFont)}\` (nguồn khai font hệ thống; bỏ \`@import\` Google Fonts vô tác dụng).`,
       `- Ảnh: \`ds/so-khop/anh/${comp}-{sang,toi}-{${KHO.join(',')}}-{artifact,ds}.png\` (gitignore).`,
       '',
-      `**${tong - lech.length}/${tong} khớp** · ${coLyDo} lệch có lý do · ${chuaLyDo} lệch chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa`,
+      `**${tong - lech.length}/${tong} khớp** · ${coLyDo} lệch có lý do · ${chuaLyDo} lệch chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} mục CHƯA ĐO`,
       '',
+      ...(chuaDo.length ? ['**Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):', '',
+        ...chuaDo.map((x) => `- ${x}`), ''] : []),
       ...(gomThieu.size ? ['## THIẾU PHẦN TỬ (không lyDo nào miễn được)', '', '| khoá | bên | selector | ở |', '|---|---|---|---|',
         ...[...gomThieu.values()].map((r) => `| ${r.nhan.replace('|', ' › ')} | ${r.ben} | \`${q(r.sel)}\` | ${r.o.join(', ')} |`), ''] : []),
       ...(lyDoThua.length ? ['## lyDo thừa (không còn dòng lệch nào khớp — xoá hoặc sửa)', '', ...lyDoThua.map((x) => `- ${x}`), ''] : []),
@@ -351,7 +355,7 @@ async function main() {
       '',
     ].join('\n')
     writeFileSync(fileMd, md)
-    console.log(`${comp}: ${tong - lech.length}/${tong} khớp · ${coLyDo} lệch có lý do · ${chuaLyDo} chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa → ds/so-khop/${comp}.md`)
+    console.log(`${comp}: ${tong - lech.length}/${tong} khớp · ${coLyDo} lệch có lý do · ${chuaLyDo} chưa có lý do · ${thieu.length} thiếu phần tử · ${lyDoThua.length} lyDo thừa · ${chuaDo.length} chưa đo → ds/so-khop/${comp}.md`)
     process.exitCode = chuaLyDo || thieu.length || lyDoThua.length ? 1 : 0
   } catch (e) {
     console.error(e)

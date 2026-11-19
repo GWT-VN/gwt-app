@@ -159,10 +159,12 @@ test('Spinner: span aria-hidden 16px, viền 2px currentColor hở phải, quay 
   )
 })
 
-test('font-feature-settings normal: shorthand `font:` của .ui-btn reset cv11/ss03 mà DsRoot bật (so khớp đo được)', () => {
-  // ds/so-khop/Button.md lần chạy đầu: artifact "normal", DS kế thừa "cv11","ss03" từ DsRoot → lệch ở cả 15 khoá.
-  for (const variant of ['default', 'link'] as const)
-    expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>))).toContain('[font-feature-settings:normal]')
+test('không reset font-feature-settings: nút kế thừa cv11/ss03 của DsRoot (CEO chốt 19/11 "bật cho đồng bộ")', () => {
+  // Artifact tắt cv11/ss03 trên nút chỉ do shorthand `font:` của .ui-btn (vô tình) → ghi lyDo trong ds/so-khop/button.json.
+  for (const variant of ['default', 'outline', 'ghost', 'destructive', 'link'] as const)
+    expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>)).some((c) => c.includes('font-feature-settings'))).toBe(
+      false,
+    )
 })
 
 test('viền như `.ui-btn { border: 0 }`: kiểu none + màu currentColor (không ăn preflight `0 solid` + màu --border chung)', () => {

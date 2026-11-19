@@ -21,10 +21,11 @@ export const buttonVariants = cva(
     'relative inline-flex items-center justify-center gap-1.5 rounded-(--radius-full) cursor-pointer select-none',
     // border-none border-current = `.ui-btn { border: 0 }` (rộng 0 sẵn từ preflight; kiểu none, màu currentColor thay cho
     // `0 solid` + `border-color: var(--border)` chung của app — đo bằng ds/so-khop.mjs).
+    // Muốn có viền thì thêm `border-solid` (base là border-none để khớp artifact `.ui-btn{border:0}`).
     'border-none border-current',
-    // [font-feature-settings:normal]: shorthand `font: 500 14px/1 …` của .ui-btn reset cv11/ss03 mà body/DsRoot bật
-    // (đo bằng ds/so-khop.mjs: artifact "normal") → chữ trong nút dùng glyph mặc định của Inter.
-    'font-medium text-[14px] leading-none whitespace-nowrap [font-feature-settings:normal]',
+    // Không reset font-feature-settings: nút kế thừa cv11/ss03 của DsRoot (CEO chốt 19/11 "bật cho đồng bộ"); artifact
+    // tắt chúng trên nút chỉ do shorthand `font:` của .ui-btn — lyDo ghi trong ds/so-khop/button.json.
+    'font-medium text-[14px] leading-none whitespace-nowrap',
     'transition-[background-color,box-shadow,color,opacity] duration-150 ease-[ease]',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
     'disabled:not-data-loading:cursor-not-allowed disabled:not-data-loading:bg-(--color-background-disabled)',
