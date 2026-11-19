@@ -81,11 +81,14 @@ Hai nguồn CEO đính kèm từ đầu: **shadcn/ui** (cấu trúc + hành vi c
 
 ### 5.2 Token: một nguồn, sinh tự động
 - `apps/web/ds/tokens.json` = bản chép nguyên văn từ artifact (ghi phiên bản artifact + sha256 ở `apps/web/ds/NGUON.md`).
-- Script `apps/web/ds/sinh-token.mjs` sinh `apps/web/ds/tokens.css`: biến CSS trong `[data-ds="v2"]` (màu theo theme,
-  khoảng cách, bo góc, cỡ control, bóng, chữ). File sinh có dòng đầu "sinh từ tokens.json — không sửa tay".
-- `@theme inline` (Tailwind 4) ánh xạ biến → utility: màu semantic shadcn (`bg-background`, `text-muted-foreground`,
-  `border-input`, `ring-ring`…), màu OpenAI cần dùng (`bg-background-danger-soft`…), bo góc, bóng, cỡ control
-  (`h-control-md`, `px-control-gutter-md`…), cỡ chữ theo style token.
+- Script `apps/web/ds/sinh-token.mjs` sinh `apps/web/ds/tokens.css` từ `tokens.css` đã biên dịch của artifact (chính bản
+  preview artifact dùng, sinh từ `tokens.json`): đổi selector `:root`/`[data-theme]` sang vùng `[data-ds="v2"]`, class
+  kiểu chữ thêm tiền tố `ds-` (tránh đè `.text-sm` của Tailwind), `--font-sans` = Inter. Test đối chiếu từng màu trong
+  `tokens.json`. File sinh có dòng đầu "không sửa tay".
+- `@theme inline` (Tailwind 4) chỉ ánh xạ **màu semantic kiểu shadcn** (`bg-primary`, `text-muted-foreground`,
+  `border-input`…) — tên không trùng Tailwind. Bo góc, bóng, cỡ control, màu OpenAI chi tiết dùng cú pháp biến
+  `h-(--control-size-md)`, `bg-(--color-background-danger-soft)` như README artifact; **không** khai `--radius-*`,
+  `--shadow-*`, `--text-*` trong `@theme` vì sẽ đổi `rounded-md`/`shadow-sm`/`text-sm` mà màn cũ đang dùng.
 - Test (vitest): mỗi token trong `tokens.json` có mặt đúng giá trị trong `tokens.css`; chạy lại script không đổi file
   (chống sửa tay).
 - Khi artifact đổi: chép `tokens.json` mới → chạy script → chạy so khớp (§5.5). Mỗi lát so với **bản artifact mới nhất
