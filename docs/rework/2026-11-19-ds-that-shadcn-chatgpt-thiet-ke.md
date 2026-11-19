@@ -158,6 +158,13 @@ Mỗi lát: test + tsc + build sạch → so khớp → ảnh → reviewer độ
 ## 8. Môi trường làm việc
 - Worktree `gwt-worktrees/rework-v2.0.0`, nhánh `rework/v2.0.0`.
 - Cổng dev 3401 (Nền tảng; server prototype đã tắt 19/11).
+- **Đồng bộ `main` → rework (CEO chốt 19/11):** đầu mỗi lát kéo `main` vào `rework/v2.0.0` để giữ được fast-forward
+  về sau. Nhưng **không nhận 100%**: gộp xong thì soát các commit mới của `main` —
+  - dữ liệu/migration/logic nghiệp vụ sạch → giữ;
+  - giao diện → sẽ dựng lại bằng DS khi tới màn đó, không chỉnh UI cũ;
+  - code chưa sạch (trùng lặp, đường tắt, sai luật repo) → sửa lại ngay trên rework, ghi vào `docs/rework/` mục
+    "Soát main" (commit nào, sửa gì, vì sao).
+  Fast-forward chỉ cần rework chứa lịch sử của `main`, không cần code giống `main`.
 - Prototype đã chốt hết và lưu bản chuẩn trong artifact (bản 26) → nhánh `prototype/v2-khung` không cần giữ làm nguồn
   (CEO 19/11: "xong thì chỉ cần lưu 1 bản trong artifact").
 - Không đụng DB.
