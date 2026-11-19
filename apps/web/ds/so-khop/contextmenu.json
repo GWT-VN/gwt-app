@@ -1,0 +1,202 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh > .ds-muc:nth-child(1)",
+    "ds": [
+      "#context-menu > div",
+      "[data-ds-portal] [role=\"menu\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "chuotPhai": "#context-menu [data-so=\"dong\"]"
+      },
+      {
+        "cho": 200
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí menu: DS mở TẠI CON TRỎ (Radix Popper, tự lật/dời khi sát mép); preview xếp menu tĩnh dưới dòng (margin 4px 0 0 560px) — không đo left/top, chỉ đo hộp/màu",
+    "Shift+F10 / phím Menu trên dòng đang focus → menu neo dưới mép trái dòng + focus mục đầu; chuột phải → focus khung menu, không vòng ở item; chuột phải / Shift+F10 trong input/textarea → menu trình duyệt (không preventDefault); Esc trả focus về dòng; cuộn / bấm ra ngoài đóng; item disabled APG (onSelect + onClick không chạy, <a> asChild không điều hướng): test jsdom components/ui/context-menu.dom.test.tsx, không đo ở đây",
+    "Hiện 120ms ease-out từ opacity 0 / scale .98 (`.b-chuotphai` animation b-hien; DS dùng transition + @starting-style), giảm chuyển động → không: đo sau khi đã hiện xong, không đo khung hình giữa chừng",
+    "Dòng mẫu chỉ là hộp `.b-ds-hang` (cao, đệm, bo, nền khi mở) — cột, ô sửa nhanh, vạch ngăn ::after của dòng thuộc ListView, chưa dựng; khoá dong-dang-mo rời chuột sang nhãn menu trước khi đo (focus đã vào menu) → nền alpha-05 chỉ đến từ data-state=open, không từ :hover/:focus-within",
+    "`.b-the[data-cp]` (thẻ Kanban đang mở: viền 2px alpha-15 + shadow-100): chưa có thẻ trong DS — làm cùng Kanban",
+    "Icon Phosphor ArrowSquareOut / SidebarSimple (lật ngang, `mirrored` = transform scale(-1,1) như preview) / Copy / Check: cùng path với preview; transform không đo bằng getComputedStyle, so bằng mắt trên ảnh"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu-label",
+      "ds": "[data-ds-portal] [data-slot=\"context-menu-label\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "item",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-so=\"mo\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
+      }
+    },
+    {
+      "khoa": "item-hover",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu > :nth-child(3)",
+      "ds": "[data-ds-portal] [data-so=\"xem-nhanh\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "chuotPhai": {
+            "artifact": ".ds-muc:nth-child(1) .b-ds-hang",
+            "ds": "#context-menu [data-so=\"dong\"]"
+          }
+        },
+        {
+          "cho": 200
+        },
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(1) .ui-menu > :nth-child(3)",
+            "ds": "[data-ds-portal] [data-so=\"xem-nhanh\"]"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
+      }
+    },
+    {
+      "khoa": "vach",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu-sep",
+      "ds": "[data-ds-portal] [data-slot=\"context-menu-separator\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "dong-ticket",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu > :nth-child(6)",
+      "ds": "[data-ds-portal] [data-so=\"dong-ticket\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
+        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
+      }
+    },
+    {
+      "khoa": "dong-dang-mo",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-hang[data-cp]",
+      "ds": "#context-menu [data-so=\"dong\"]",
+      "buoc": [
+        {
+          "chuotPhai": "#context-menu [data-so=\"dong\"]"
+        },
+        {
+          "cho": 200
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"context-menu-label\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "width": "Dòng artifact nằm trong khung cố định 1100px của preview (.ds-cuon > div style width:1100px; .b-trang padding 0) → 1116 cả hai khổ; dòng DS giãn theo khối /ds (1408 ở 1440, 358 ở 390). Bề rộng là của ListView, không phải của ContextMenu."
+      }
+    }
+  ]
+}
