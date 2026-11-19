@@ -16,4 +16,5 @@ test('/ds công khai chỉ ngoài production', () => {
 test('đường khác không công khai; /ds chỉ khớp đúng đoạn (không khớp /dsx)', () => {
   expect(laDuongCongKhai('/ticket', 'development')).toBe(false)
   expect(laDuongCongKhai('/dsx', 'development')).toBe(false)
+  expect(laDuongCongKhai('/ds-x', 'development')).toBe(false)
 })

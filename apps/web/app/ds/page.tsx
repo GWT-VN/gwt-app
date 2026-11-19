@@ -40,13 +40,13 @@ export default async function DsPage({ searchParams }: { searchParams: Promise<{
             <Button data-so="outline-disabled" variant="outline" disabled>Outline disabled</Button>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button data-so="sm" size="sm"><Plus weight="bold" />Thêm (sm 28)</Button>
+            <Button data-so="sm" size="sm"><Plus />Thêm (sm 28)</Button>
             <Button data-so="md">Thêm (md 32)</Button>
             <Button data-so="lg" size="lg">Thêm (lg 36)</Button>
-            <Button data-so="icon" size="icon" variant="outline" aria-label="Thêm"><Plus weight="bold" /></Button>
+            <Button data-so="icon" size="icon" variant="outline" aria-label="Thêm"><Plus /></Button>
             <Button data-so="rounded-sm" size="sm" shape="rounded" variant="outline">Rounded (trong bảng)</Button>
             <Button data-so="icon-sm-rounded" size="icon-sm" shape="rounded" variant="ghost" aria-label="Thêm thao tác">
-              <DotsThree weight="bold" />
+              <DotsThree />
             </Button>
           </div>
           <p className="m-0 [font:var(--text-text-xs)] text-muted-foreground">

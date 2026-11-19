@@ -4,7 +4,8 @@ import { DUONG_DOI_MAT_KHAU, HEADER_DUONG_DAN, conNoDoiMatKhau } from '@/lib/nen
 import { laDuongCongKhai } from '@/lib/nen-tang/duong-cong-khai'
 
 /**
- * Chặn MỌI trang trừ /login. Chưa đăng nhập -> đá về /login.
+ * Chặn MỌI trang trừ đường công khai (laDuongCongKhai: /login, /auth; /ds chỉ ngoài production).
+ * Chưa đăng nhập -> đá về /login.
  *
  * Đây CHỈ là kiểm tra lạc quan để đá sớm, KHÔNG phải rào bảo mật. Rào thật là
  * requireStaff() — nó gọi getUser() xác minh token qua mạng trên MỌI đường đọc

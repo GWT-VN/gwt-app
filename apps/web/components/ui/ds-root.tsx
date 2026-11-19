@@ -10,6 +10,7 @@ const DsPortalContext = createContext<HTMLElement | null>(null)
  * (selector tối là [data-ds="v2"][data-theme="dark"]). Ô [data-ds-portal] ở cuối để Radix Portal (menu, dialog…)
  * render vào TRONG vùng thay vì document.body — ra ngoài vùng là mất token.
  * font-[family-name:var(--font-sans)]: Inter của DS; utility `font-sans` toàn app vẫn là Geist.
+ * font-feature-settings "cv11", "ss03": y body của ds/nguon/bundle.css (a một tầng…) — tokens không có khoá cho nó.
  */
 export function DsRoot({
   theme = 'light',
@@ -25,7 +26,11 @@ export function DsRoot({
     <div
       data-ds="v2"
       data-theme={theme}
-      className={cn('bg-background text-foreground font-[family-name:var(--font-sans)] antialiased', className)}
+      className={cn(
+        'bg-background text-foreground font-[family-name:var(--font-sans)] antialiased',
+        '[font-feature-settings:"cv11","ss03"]',
+        className,
+      )}
       style={{ colorScheme: theme }}
     >
       <DsPortalContext.Provider value={portal}>{children}</DsPortalContext.Provider>
