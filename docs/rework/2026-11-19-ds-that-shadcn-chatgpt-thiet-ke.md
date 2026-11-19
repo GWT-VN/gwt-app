@@ -115,6 +115,12 @@ Hai nguồn CEO đính kèm từ đầu: **shadcn/ui** (cấu trúc + hành vi c
     hành vi từ prototype.
   - Chỗ markup cố định của `bang/` khác DOM `preview.html`: so khớp theo **số đo** (cao, padding, màu…) của phần tử
     tương ứng, không đòi DOM giống hệt.
+- **Tiêu đề cột (CEO nhắc lại 19/11):** cột **nhãn/phân loại** (Loại lỗi, Trạng thái, Chủ, Khách, Nguồn…) chỉ có menu
+  **lọc theo tag** — liệt kê đúng các tag/giá trị có (vd Main · Rò rỉ nước · Chất lượng nước · App · Chưa phân loại), tick
+  nhiều, "Bỏ lọc cột này". **Không** có "Tăng dần/Giảm dần". Sắp xếp chỉ cho cột có thứ tự/số lượng (ưu tiên, hạn, số
+  ngày mở, thứ tự tạo) và nói nghĩa bằng lời ("muộn nhất trước"), không ghi "Tăng dần". Component tiêu đề cột nhận
+  `kieu: 'sap' | 'loc'` — test chặn cột nhãn nhận `sap`. Tiêu đề gộp ở dạng Danh sách cũng tách: sắp theo ưu tiên/thứ
+  tự tạo, lọc theo ưu tiên/loại lỗi.
 - Không dùng `<select>` trần cho danh sách > 10 mục (luật `CHUAN-FILTER.md`): Combobox gõ để tìm.
 
 ### 5.4 Trang xem `/ds`
