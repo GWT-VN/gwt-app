@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { Button } from './button'
 import { DsRoot } from './ds-root'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { Tooltip } from './tooltip'
 
 vi.mock('next/font/google', () => ({
@@ -81,5 +82,39 @@ test('rê chuột (không focus) rồi cuộn → đóng như Radix mặc địn
   await user.hover(screen.getByRole('button', { name: 'Cài đặt' }))
   await screen.findByRole('tooltip')
   fireEvent.scroll(document)
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
+})
+
+test('đang mở mà trigger chuyển aria-expanded false → true (menu vừa mở) → tooltip đóng', async () => {
+  const user = userEvent.setup()
+  const { rerender } = render(<Mau expanded={false} />)
+  await user.tab()
+  await screen.findByRole('tooltip')
+  rerender(<Mau expanded />)
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
+})
+
+test('ghép thật với DropdownMenuTrigger: focus phím hiện tooltip; mở menu → tooltip ẩn', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <DropdownMenu>
+        <Tooltip content="Mở thao tác cho đơn">
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" aria-label="Thao tác">
+              ⋯
+            </Button>
+          </DropdownMenuTrigger>
+        </Tooltip>
+        <DropdownMenuContent>
+          <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </DsRoot>,
+  )
+  await user.tab()
+  expect((await screen.findByRole('tooltip')).textContent).toBe('Mở thao tác cho đơn')
+  await user.keyboard('{Enter}')
+  await screen.findByRole('menu')
   await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
 })

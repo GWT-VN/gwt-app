@@ -63,6 +63,8 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   `trongVung` cũ vẫn nhận, không tác dụng thêm). `pseudo` khi bên artifact vẽ bằng `::after` (tooltip). Ảnh overlay:
   `anhTuongTac.buoc` mở overlay ngay trước khi chụp + `khung.ds` dạng mảng (`["#<neo> > div", "[data-ds-portal] > *"]`)
   → ảnh DS có overlay đang mở cạnh preview. Cú pháp đầy đủ ở đầu `so-khop.mjs`.
+- **Tooltip trên nút icon:** chữ tooltip là MÔ TẢ thêm, không lặp nguyên `aria-label` của nút — Radix gắn
+  `aria-describedby` → trình đọc màn hình đọc hai lần (vd nút "Thao tác" + tooltip "Mở thao tác cho đơn").
 - **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"

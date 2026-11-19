@@ -1,0 +1,294 @@
+{
+  "khung": {
+    "artifact": ".ui-row",
+    "ds": [
+      "#dropdown-menu > div",
+      "[data-ds-portal] [role=\"menu\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+      },
+      {
+        "cho": 200
+      }
+    ]
+  },
+  "chuaDo": [
+    "Hình icon: preview vẽ tay bằng nét (mắt / bút / 2 ô / mũi tên / thùng rác / ✓ / ⋯), DS dùng Phosphor Eye/PencilSimple/Copy/ArrowRight/Trash/Check/DotsThree — chỉ đo hộp, màu, fill/stroke; hình nét so bằng mắt trên ảnh",
+    "Vị trí menu (cách trigger 4px = sideOffset shadcn, căn mép trái align=\"start\") — preview xếp tĩnh trong .ui-stack gap 8; Radix Popper tự lật/dời khi sát mép khung nhìn — không đo bằng getComputedStyle",
+    "Hai menu mở CÙNG LÚC như preview: DS menu modal, mở menu này đóng menu kia → mỗi khoá mở đúng trigger của nó; ảnh DS chỉ có menu ⋯ đang mở",
+    "Item vừa hover vừa :focus-visible: DS cố ý ẩn vòng focus (Radix focus() lúc rê chuột bị Chrome tính là :focus-visible) — preview không có ca này",
+    "Item chặn quyền khi rê chuột / bàn phím bỏ qua, Esc trả focus, checkbox đổi aria-checked: test jsdom components/ui/dropdown-menu.dom.test.tsx, không đo ở đây",
+    "Trigger (outline icon, outline): đã đo ở so-khop Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "khung-cot",
+      "artifact": ".ui-row > .ui-stack:nth-child(2) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-cot\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) .ui-menu-label",
+      "ds": "[data-ds-portal] [data-slot=\"dropdown-menu-label\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "item",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) > .ui-menu > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-so=\"xem\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp."
+      }
+    },
+    {
+      "khoa": "item-hover",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) .ui-menu-item.is-hover",
+      "ds": "[data-ds-portal] [data-so=\"sua\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        },
+        {
+          "tro": "[data-ds-portal] [data-so=\"sua\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp."
+      }
+    },
+    {
+      "khoa": "item-phim",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) > .ui-menu > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-so=\"xem\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        },
+        {
+          "phim": "ArrowDown"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "backgroundColor": "Preview không có item đang focus phím (không có `.is-focus` cho menu) → artifact đo item nghỉ. DS mở bằng phím thật (bấm trigger → ↓ → Radix focus item đầu, :focus-visible) — đây là bằng chứng DS ra đúng `.ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px }` + nền `[data-highlighted]` alpha-08 (tối alpha-10) của bundle.css dòng 177–179.",
+        "outlineColor": "Preview không có item đang focus phím (không có `.is-focus` cho menu) → artifact đo item nghỉ. DS mở bằng phím thật (bấm trigger → ↓ → Radix focus item đầu, :focus-visible) — đây là bằng chứng DS ra đúng `.ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px }` + nền `[data-highlighted]` alpha-08 (tối alpha-10) của bundle.css dòng 177–179.",
+        "outlineStyle": "Preview không có item đang focus phím (không có `.is-focus` cho menu) → artifact đo item nghỉ. DS mở bằng phím thật (bấm trigger → ↓ → Radix focus item đầu, :focus-visible) — đây là bằng chứng DS ra đúng `.ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px }` + nền `[data-highlighted]` alpha-08 (tối alpha-10) của bundle.css dòng 177–179.",
+        "outlineWidth": "Preview không có item đang focus phím (không có `.is-focus` cho menu) → artifact đo item nghỉ. DS mở bằng phím thật (bấm trigger → ↓ → Radix focus item đầu, :focus-visible) — đây là bằng chứng DS ra đúng `.ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px }` + nền `[data-highlighted]` alpha-08 (tối alpha-10) của bundle.css dòng 177–179.",
+        "outlineOffset": "Preview không có item đang focus phím (không có `.is-focus` cho menu) → artifact đo item nghỉ. DS mở bằng phím thật (bấm trigger → ↓ → Radix focus item đầu, :focus-visible) — đây là bằng chứng DS ra đúng `.ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px }` + nền `[data-highlighted]` alpha-08 (tối alpha-10) của bundle.css dòng 177–179."
+      }
+    },
+    {
+      "khoa": "shortcut",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) > .ui-menu > :nth-child(2) > .ui-menu-shortcut",
+      "ds": "[data-ds-portal] [data-so=\"xem\"] > [data-slot=\"dropdown-menu-shortcut\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "disabled",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) .ui-menu-item[aria-disabled=\"true\"]",
+      "ds": "[data-ds-portal] [data-so=\"chuyen-kho\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp."
+      }
+    },
+    {
+      "khoa": "vach",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) .ui-menu-sep",
+      "ds": "[data-ds-portal] [data-slot=\"dropdown-menu-separator\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "xoa",
+      "artifact": ".ui-row > .ui-stack:nth-child(1) .ui-menu-item[data-variant=\"destructive\"]",
+      "ds": "[data-ds-portal] [data-so=\"xoa\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-thao-tac\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp."
+      }
+    },
+    {
+      "khoa": "check-on",
+      "artifact": ".ui-row > .ui-stack:nth-child(2) > .ui-menu > :nth-child(2)",
+      "ds": "[data-ds-portal] [data-so=\"cot-ma\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-cot\"]"
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "con": [
+        {
+          "ten": "check",
+          "artifact": "> .ui-check",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fill",
+            "stroke"
+          ]
+        }
+      ],
+      "lyDo": {
+        "check.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (check.color khớp), hộp 16×16 khớp.",
+        "check.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (check.color khớp), hộp 16×16 khớp."
+      }
+    },
+    {
+      "khoa": "check-off",
+      "artifact": ".ui-row > .ui-stack:nth-child(2) > .ui-menu > :nth-child(4)",
+      "ds": "[data-ds-portal] [data-so=\"cot-kenh\"]",
+      "buoc": [
+        {
+          "bam": "#dropdown-menu [data-so=\"mo-cot\"]"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    }
+  ]
+}

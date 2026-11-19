@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type ReactElement, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactElement, type ReactNode, type Ref } from 'react'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 import { useDsPortal } from './ds-root'
 
@@ -11,10 +11,13 @@ import { useDsPortal } from './ds-root'
  * - Portal vào ô của DsRoot (`useDsPortal`); chưa có ô (trước mount / ngoài DsRoot) thì không render nội dung —
  *   ra document.body là mất token DS.
  * - Không mở khi trigger đang `aria-expanded="true"` (nút đang mở menu) — y `:not([aria-expanded="true"])` của
- *   bundle.css; tooltip không được đè lên menu.
+ *   bundle.css; tooltip không được đè lên menu. Đang mở mà trigger chuyển sang `aria-expanded="true"` (menu mở bằng
+ *   code / không lấy focus) → đóng ngay (MutationObserver chỉ sống khi tooltip đang mở).
  * - Đang focus phím (`:focus-visible`) thì chỉ Esc hoặc rời focus mới đóng — y `:is(:hover, :focus-visible)` của
- *   bundle.css. Radix mặc định đóng cả khi trang cuộn / chuột rời đi: Tab tới nút ngoài khung nhìn → trình duyệt tự
- *   cuộn → tooltip vừa mở đã tắt (đo thật ở so-khop khổ 390).
+ *   bundle.css. CỐ Ý: tooltip focus phím vẫn mở khi trang cuộn, khi chuột rê sang nút khác, và khi bấm Enter/Space
+ *   (Radix mặc định đóng cả ba). Lý do cuộn: Tab tới nút ngoài khung nhìn → trình duyệt tự cuộn → tooltip vừa mở đã
+ *   tắt (đo thật ở so-khop khổ 390). Hai ca kia: CSS artifact giữ `::after` chừng nào nút còn `:focus-visible`.
+ * - Trigger có thể là <button> hoặc <a> (asChild) → ref kiểu HTMLElement.
  * - Không mũi tên, không animation: artifact không định nghĩa.
  */
 export function Tooltip({
@@ -27,9 +30,18 @@ export function Tooltip({
   children: ReactElement
 }) {
   const container = useDsPortal()
-  const trigger = useRef<HTMLButtonElement>(null)
+  const trigger = useRef<HTMLElement>(null)
   const esc = useRef(false)
   const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const t = trigger.current
+    if (!open || !t) return
+    const mo = new MutationObserver(() => {
+      if (t.getAttribute('aria-expanded') === 'true') setOpen(false)
+    })
+    mo.observe(t, { attributes: true, attributeFilter: ['aria-expanded'] })
+    return () => mo.disconnect()
+  }, [open])
   return (
     <TooltipPrimitive.Provider delayDuration={300}>
       <TooltipPrimitive.Root
@@ -41,7 +53,8 @@ export function Tooltip({
           setOpen(o && t?.getAttribute('aria-expanded') !== 'true')
         }}
       >
-        <TooltipPrimitive.Trigger asChild ref={trigger}>
+        {/* Radix khai ref là HTMLButtonElement; asChild truyền ref thẳng xuống phần tử con (button hoặc a). */}
+        <TooltipPrimitive.Trigger asChild ref={trigger as Ref<HTMLButtonElement>}>
           {children}
         </TooltipPrimitive.Trigger>
         {container && (
