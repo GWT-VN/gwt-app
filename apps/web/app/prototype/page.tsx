@@ -25,6 +25,7 @@ const NHOM: { ten: string; tt: 'chot' | 'duyet'; muc: Muc[] }[] = [
     { ten: 'Tìm toàn cục trong khung F', href: '/prototype/khung?variant=F', ghi: 'Bấm 🔍 hoặc Ctrl K → gõ TK-2611-020 → Enter: mở đúng trang ticket' },
     { ten: 'Thông báo trong app — chuông', href: '/prototype/toanapp#thongbao', ghi: 'Bấm chuông (số đỏ = chưa đọc) → tab Chưa đọc → bấm 1 dòng. Bấm "Giả lập thông báo mới đến" để thấy số tăng' },
     { ten: 'Chuông thông báo trong khung F', href: '/prototype/khung?variant=F', ghi: 'Bấm 🔔 cạnh 🔍 → bấm dòng "Hiệp nhắc bạn…": mở đúng TK-2611-042' },
+    { ten: 'Cấu hình thông báo — ma trận', href: '/prototype/toanapp#cauhinh', ghi: 'Tắt ô Trong app ở “Được @nhắc” → chuông mục trên bớt 1. Bỏ tick Discord kênh → ô chọn kênh mờ' },
     { ten: 'StatCard — màn Tổng quan', href: '/prototype/toanapp#stat', ghi: 'Màu theo nghĩa: quá hạn giảm = xanh, khách hỏi lại tăng = đỏ' },
     { ten: 'Cả nhóm — theme tối', href: '/prototype/toanapp?theme=dark' },
   ] },

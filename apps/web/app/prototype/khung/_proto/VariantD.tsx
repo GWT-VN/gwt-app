@@ -121,7 +121,7 @@ export function Khung({ che, children, mucChon = 'Việc hôm nay' }: { che: 'pa
               <div className="pD-dau">
                 <span className="pD-tieude"><span className="p-cham" style={{ background: k.mau }} aria-hidden />{k.ten}</span>
                 <span style={{ flex: 1 }} />
-                <ThongBao ds={dsTB} setDs={setDsTB} mo={moTB} cauHinh={() => setBao('Prototype: màn “Cấu hình thông báo” (Quản trị) chưa dựng')} />
+                <ThongBao ds={dsTB} setDs={setDsTB} mo={moTB} cauHinh={() => router.push('/prototype/toanapp#cauhinh')} />
                 <button className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Tìm toàn cục (Ctrl K)" data-tip="Tìm · Ctrl K" aria-haspopup="dialog" onClick={() => setTim(true)}><Search aria-hidden /></button>
                 <button className="ui-btn pD-chi-mobile" data-variant="ghost" data-size="icon-sm" data-shape="rounded" aria-label="Đóng menu" onClick={() => setMenuMo(false)}><X aria-hidden /></button>
               </div>

@@ -315,7 +315,7 @@
 .ui-alert[data-color="info"] > .ui-icon { color: var(--color-text-info); }
 
 /* ---------- Table / Data table (mở rộng GWT dựng từ token) ---------- */
-.ui-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); }
+.ui-table-wrap { position: relative; /* khối chứa cho phần tử absolute bên trong (ui-sr-only) — không thì nó thoát khung cuộn, kéo giãn trang */ width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); }
 .ui-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; line-height: 20px; }
 .ui-table th {
   position: sticky; top: 0; z-index: 1;
@@ -878,3 +878,22 @@ a.ui-stat:hover .ui-stat-foot svg, button.ui-stat:hover .ui-stat-foot svg { tran
   .ui-notif-item:not([data-unread]) .ui-notif-mark { opacity: 0; }
   .ui-notif-item:is(:hover, :focus-within) .ui-notif-mark { opacity: 1; } /* đủ độ ưu tiên thắng luật ẩn — focus bàn phím luôn thấy nút */
 }
+
+/* NotificationMatrix (MaTranThongBao, 19/11/2026): hàng = loại thông báo gom theo khu, cột = kênh; ô = Checkbox (+ Select kênh) */
+.ui-notif-matrix thead th:not(:first-child) { text-align: center; }
+.ui-notif-matrix tbody th { position: static; background: var(--card); color: var(--foreground); }
+.ui-notif-matrix tbody th[scope="row"] { position: sticky; left: 0; z-index: 1; box-shadow: inset -1px 0 0 var(--border); height: auto; min-width: 180px; padding: 8px var(--control-gutter-md); font-size: 14px; line-height: 20px; font-weight: 400; white-space: normal; }
+.ui-notif-matrix-gui { display: block; font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
+.ui-notif-matrix tbody th[scope="rowgroup"] { height: var(--control-size-md); background: var(--muted); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted-foreground); }
+/* cột tên ghim trái khi cuộn ngang (màn hẹp) */
+.ui-notif-matrix thead th:first-child { left: 0; z-index: 2; box-shadow: inset -1px 0 0 var(--border); }
+.ui-notif-matrix-khu th > span { position: sticky; left: var(--control-gutter-md); } /* tên khu không trôi khi cuộn ngang */ /* cột tên ghim trái khi cuộn ngang (màn hẹp) */
+.ui-notif-matrix tbody tr:hover th[scope="row"] { background: linear-gradient(var(--color-background-primary-outline-hover), var(--color-background-primary-outline-hover)), var(--card); } /* nền đặc: ô ghim không lộ chữ cuộn bên dưới */
+.ui-notif-matrix td { text-align: center; }
+.ui-notif-matrix tbody tr:last-child th { border-bottom: 0; }
+.ui-notif-matrix-o { display: flex; align-items: center; justify-content: center; gap: 8px; } /* flex khối: ô td canh giữa dọc theo hàng 2 dòng, không lệch baseline */
+.ui-notif-matrix-o .ui-checkbox { margin: 0; }
+.ui-notif-matrix-select { position: relative; display: inline-block; }
+.ui-notif-matrix-select .ui-select-trigger { width: 120px; }
+.ui-notif-matrix-na { color: var(--color-text-tertiary); }
+.ui-notif-matrix-luu { margin: 12px 0 0; }

@@ -75,7 +75,7 @@ export function ThongBao({ ds, setDs, mo: moTB, cauHinh, nut = 'icon-sm' }: {
           <div className="ui-notif-head">
             <h2 className="ui-notif-title" id={id + '-t'}>Thông báo</h2>
             <button type="button" className="ui-btn" data-variant="ghost" data-size="sm" disabled={!chua}
-              onClick={(e) => { setDs((d) => d.map((t) => ({ ...t, doc: true }))); e.currentTarget.closest('.ui-notif-khung')?.querySelector<HTMLElement>('[role=tab][aria-selected=true]')?.focus() }}><Checks aria-hidden />Đọc hết</button>{/* nút sắp tắt → dời focus sang tab đang chọn, không rơi về body */}
+              onClick={(e) => { const hien = new Set(ds.map((t) => t.id)); setDs((d) => d.map((t) => (hien.has(t.id) ? { ...t, doc: true } : t))); /* chỉ loại đang hiện — loại tắt Trong app không bị đọc hộ */ e.currentTarget.closest('.ui-notif-khung')?.querySelector<HTMLElement>('[role=tab][aria-selected=true]')?.focus() }}><Checks aria-hidden />Đọc hết</button>{/* nút sắp tắt → dời focus sang tab đang chọn, không rơi về body */}
             <button type="button" className="ui-btn ui-tip" data-variant="ghost" data-size="icon-sm" aria-label="Cấu hình thông báo" data-tip="Cấu hình"
               onClick={() => { dong(); cauHinh() }}><GearSix aria-hidden /></button>
           </div>

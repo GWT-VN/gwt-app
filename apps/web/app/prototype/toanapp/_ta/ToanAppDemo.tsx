@@ -1,11 +1,12 @@
 'use client'
 // PROTOTYPE — nhóm Toàn app: TimToanCuc (⌘K) + StatCard (màn Tổng quan). Class ở khối "BỔ SUNG DS TOÀN APP" (khung/_proto/ui.css).
 // Số liệu Tổng quan: 2 số đầu khớp dữ liệu mẫu bảng ticket; còn lại minh hoạ.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowDown, ArrowRight, ArrowUp, MagnifyingGlass, Minus, Moon, Sun } from '@phosphor-icons/react'
 import { Khoi } from '../../form/_form/FormDemo'
 import { TimToanCuc, usePhimTim, type KetQua } from '../../khung/_proto/TimToanCuc'
 import { DS_TB, TB_MOI, ThongBao, type TB } from '../../khung/_proto/ThongBao'
+import { CAU_HINH_TB, MaTranThongBao, batTrongApp } from '../../khung/_proto/MaTranThongBao'
 import { MO } from '../../bang/_bang/chung'
 import { HOM_NAY, TICKETS } from '../../bang/_bang/data'
 
@@ -45,7 +46,13 @@ export function ToanAppDemo({ toi }: { toi?: boolean }) {
   const [daChon, setDaChon] = useState<KetQua | null>(null)
   const [dsTB, setDsTB] = useState(DS_TB)
   const [moTB, setMoTB] = useState('')
+  const [ch, setCh] = useState(CAU_HINH_TB)
+  const dsTBHien = dsTB.filter((t) => batTrongApp(ch, t.loai)) // tắt cột Trong app → loại đó không vào chuông
   const coMoi = dsTB.some((t) => t.id === 'moi')
+  const moiBiTat = !batTrongApp(ch, TB_MOI.loai)
+  const denCauHinh = () => { document.getElementById('cauhinh')?.scrollIntoView({ block: 'start' }); document.querySelector<HTMLElement>('#cauhinh input')?.focus({ preventScroll: true }) }
+  // vào thẳng #cauhinh (bánh răng ở khung F) → focus vào ma trận như bánh răng tại chỗ, không rơi về body
+  useEffect(() => { if (location.hash === '#cauhinh') denCauHinh() }, [])
   usePhimTim(() => setTim(true))
   const dangMo = TICKETS.filter(MO).length
   const quaHan = TICKETS.filter((t) => MO(t) && t.han.slice(0, 10) < HOM_NAY).length
@@ -83,12 +90,18 @@ export function ToanAppDemo({ toi }: { toi?: boolean }) {
           <div className="ta-tb-thanh">
             <span className="ui-caption">Thanh trên khung (minh hoạ)</span>
             <span style={{ flex: 1 }} />
-            <ThongBao ds={dsTB} setDs={setDsTB} nut="icon" mo={(t: TB) => setMoTB(`${t.ai ? t.ai + ' ' : ''}${t.noi} ${t.dt ?? ''}`)} cauHinh={() => setMoTB('Cấu hình thông báo (màn Quản trị — chưa dựng)')} />
+            <ThongBao ds={dsTBHien} setDs={setDsTB} nut="icon" mo={(t: TB) => setMoTB(`${t.ai ? t.ai + ' ' : ''}${t.noi} ${t.dt ?? ''}`)}
+              cauHinh={denCauHinh} />
           </div>
-          <button type="button" className="ui-btn" data-variant="outline" disabled={coMoi} onClick={(e) => { setDsTB((d) => [{ ...TB_MOI, id: 'moi' }, ...d]); (e.currentTarget.nextElementSibling as HTMLElement | null)?.focus() }}>Giả lập thông báo mới đến</button>
+          <button type="button" className="ui-btn" data-variant="outline" disabled={coMoi || moiBiTat} onClick={(e) => { setDsTB((d) => [{ ...TB_MOI, id: 'moi' }, ...d]); (e.currentTarget.nextElementSibling as HTMLElement | null)?.focus() }}>Giả lập thông báo mới đến</button>
           <button type="button" className="ui-btn" data-variant="ghost" onClick={() => { setDsTB(DS_TB); setMoTB('') }}>Đặt lại</button>
+          {moiBiTat && <span className="ui-caption">Thông báo mẫu là loại “Được @nhắc” — đang tắt Trong app ở mục Cấu hình.</span>}
         </div>
         <p className="ui-caption ta-chon" aria-live="polite">{moTB ? <>Đã mở: <b>{moTB}</b> — trong khung F sẽ mở đúng ticket.</> : 'Chưa mở thông báo nào.'}</p>
+      </Khoi>
+
+      <Khoi id="cauhinh" ten="Cấu hình thông báo (MaTranThongBao)" mo="Màn Quản trị (spec mục 5). Hàng = loại thông báo theo khu, cột = Trong app (chuông) · Discord tin riêng · Discord kênh. Thử tắt Trong app ở “Được @nhắc” → chuông ở mục trên bớt 1 dòng. “—” = kênh không áp dụng. Tên kênh minh hoạ (câu hỏi mở 6, chưa chốt).">
+        <MaTranThongBao ch={ch} setCh={setCh} />
       </Khoi>
 
       <Khoi id="stat" ten="StatCard — màn Tổng quan" mo="Màu theo NGHĨA, không theo chiều: quá hạn GIẢM là tốt (xanh), khách hỏi lại TĂNG là xấu (đỏ). Thẻ có liên kết → bấm mở danh sách đã lọc.">
