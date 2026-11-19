@@ -12,12 +12,13 @@ const conLai = css.replace(khoiTheme, '').trim()
 const khoa = [...khoiTheme.matchAll(/^\s*(--[a-z0-9-]+):/gm)].map((m) => m[1])
 
 const SEMANTIC = [
-  'primary', 'primary-foreground', 'secondary', 'secondary-foreground', 'accent', 'muted-foreground', 'muted',
+  'primary', 'primary-foreground', 'secondary', 'secondary-foreground', 'accent', 'accent-foreground',
+  'muted-foreground', 'muted',
   'input', 'border', 'ring', 'destructive', 'destructive-foreground', 'popover', 'popover-foreground', 'card',
   'card-foreground',
 ]
 
-test('theme.css chỉ có một khối @theme inline, khoá đúng 16 màu semantic (không khai lại background/foreground)', () => {
+test('theme.css chỉ có một khối @theme inline, khoá đúng 17 màu semantic (không khai lại background/foreground)', () => {
   expect(css.match(/@theme/g)).toHaveLength(1)
   expect([...khoa].sort()).toEqual(SEMANTIC.map((t) => `--color-${t}`).sort())
 })
@@ -40,7 +41,7 @@ test('mọi var(--x) trong theme.css có --x: trong ds/tokens.css', () => {
 test('ngoài @theme chỉ có luật viền mặc định trong vùng DS: `border` trơn lấy --border, không lấy slate-200 của app', () => {
   const vien = conLai.replace(/\s+/g, ' ')
   expect(vien).toBe(
-    '@layer base { [data-ds="v2"] *, [data-ds="v2"] ::before, [data-ds="v2"] ::after { border-color: var(--border); } }',
+    '@layer base { [data-ds="v2"] *, [data-ds="v2"] ::before, [data-ds="v2"] ::after, [data-ds="v2"] ::backdrop, [data-ds="v2"] ::file-selector-button { border-color: var(--border); } }',
   )
 })
 

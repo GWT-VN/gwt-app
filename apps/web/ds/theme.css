@@ -11,6 +11,7 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-input: var(--input);
@@ -31,7 +32,9 @@
 @layer base {
   [data-ds="v2"] *,
   [data-ds="v2"] ::before,
-  [data-ds="v2"] ::after {
+  [data-ds="v2"] ::after,
+  [data-ds="v2"] ::backdrop,
+  [data-ds="v2"] ::file-selector-button {
     border-color: var(--border);
   }
 }
