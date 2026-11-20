@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Alert, AlertActions, AlertDescription, AlertTitle } from './alert'
 import { Button } from './button'
 import { EmptyState } from './empty-state'
-import { Skeleton } from './skeleton'
+import { Skeleton, VungDoc } from './skeleton'
 import * as s from './table-styles'
 import type { BenTha } from './use-cot-bang'
 
@@ -92,7 +92,7 @@ export function TableCell({ cot, phai, className, ...props }: ComponentProps<'td
 
 /**
  * BangTrangThai — 4 trạng thái bắt buộc của README Table; không `trangThai` → hiện `children` (bảng).
- * - `tai`: khung + header thật (`cot`) + `soDong` dòng skeleton, `role="status"` `aria-busy` + chữ đọc được;
+ * - `tai`: khung `aria-busy` + header thật (`cot`) + `soDong` dòng skeleton; câu `nhanTai` đọc qua `VungDoc` NGOÀI khung;
  * - `rongLoc`: gợi ý bỏ điều kiện (`moTa`) + "Xoá bộ lọc" (`onXoaLoc`);
  * - `rongThat`: nói cách tạo bản ghi đầu (`moTa`) + `hanhDong` (nút tạo, nếu có quyền);
  * - `loi`: Alert danger + "Thử lại" (`onThuLai`), GIỮ dữ liệu cũ (`children`) và nói rõ có thể đã cũ.
@@ -125,31 +125,34 @@ export function BangTrangThai({
 }) {
   if (trangThai === 'tai')
     return (
-      <TableWrap vien role="status" aria-busy="true" className={className}>
-        <span className="sr-only">{nhanTai}</span>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {cot.map((c) => (
-                <TableHead key={c.ten} phai={c.so}>
-                  {c.ten}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody aria-hidden="true">
-            {Array.from({ length: soDong }, (_, i) => (
-              <TableRow key={i} className="hover:[&>td]:bg-transparent">
+      <>
+        {/* Câu "Đang tải…" đọc ở vùng status NGOÀI khung busy — trình đọc hoãn mọi thay đổi trong vùng aria-busy. */}
+        <VungDoc chu={nhanTai} />
+        <TableWrap vien aria-busy="true" className={className}>
+          <Table>
+            <TableHeader>
+              <TableRow>
                 {cot.map((c) => (
-                  <TableCell key={c.ten} phai={c.so}>
-                    <Skeleton width={c.so ? '1/2' : (['2/3', '1/2', '3/4'] as const)[i % 3]} className={c.so ? 'ml-auto' : undefined} />
-                  </TableCell>
+                  <TableHead key={c.ten} phai={c.so}>
+                    {c.ten}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableWrap>
+            </TableHeader>
+            <TableBody aria-hidden="true">
+              {Array.from({ length: soDong }, (_, i) => (
+                <TableRow key={i} className="hover:[&>td]:bg-transparent">
+                  {cot.map((c) => (
+                    <TableCell key={c.ten} phai={c.so}>
+                      <Skeleton width={c.so ? '1/2' : (['2/3', '1/2', '3/4'] as const)[i % 3]} className={c.so ? 'ml-auto' : undefined} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableWrap>
+      </>
     )
   if (trangThai === 'rongLoc' || trangThai === 'rongThat')
     return (

@@ -48,14 +48,22 @@ type Chieu = 'tang' | 'giam'
 /** Một tag trong menu lọc — vẽ bằng `Badge` outline (+ chấm màu) như trong ô. Có cả "Chưa phân loại" nếu dữ liệu có. */
 export type MucLoc = { giaTri: string; nhan: string; color?: 'info' | 'success' | 'warning' | 'danger' | 'discovery' }
 
-export type PropsTieuDeCot = {
-  cot: CotBang
+export type SapCot = { chieu: Chieu | null; onDoi: (chieu: Chieu | null) => void }
+export type LocCot = { tuyChon: MucLoc[]; daChon: string[]; onDoi: (giaTri: string[]) => void }
+
+/**
+ * Props theo `cot.kieu` (tsc chặn): cột biết rõ kiểu (vd hằng `{ kieu: 'loc' }`) mà nhận `sap` → lỗi kiểu (`never`).
+ * Cột kiểu chung `CotBang` (lấy từ mảng, `useCotBang().hien`) nhận cả hai — thu hẹp bằng `cot.kieu === 'sap' ? … : undefined`;
+ * lách kiểu vẫn ném lỗi lúc chạy. `PropsTieuDeCot` (không tham số) = dạng chung, `Omit<…>` dùng được như cũ.
+ */
+export type PropsTieuDeCot<C extends CotBang = CotBang> = {
+  cot: C
   /** Vị trí trong hàng (0…) — ô trước nằm trên ô sau để nửa phải tay co dãn (vắt qua mép) không bị ô kế đè. */
   viTri?: number
   /** Chỉ cột `kieu: 'sap'`: chiều đang sắp theo cột này (`null` = không). */
-  sap?: { chieu: Chieu | null; onDoi: (chieu: Chieu | null) => void }
+  sap?: C extends { kieu: 'sap' } ? SapCot : never
   /** Chỉ cột `kieu: 'loc'`: tag có trong dữ liệu + đang chọn. */
-  loc?: { tuyChon: MucLoc[]; daChon: string[]; onDoi: (giaTri: string[]) => void }
+  loc?: C extends { kieu: 'loc' } ? LocCot : never
   /** Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp về `cot.rong`). */
   coDan?: { rong: number; onDoi: (rong: number) => void }
   /** Menu canh phải ô (cột sát mép phải bảng, vd Chủ). Cột `phai` tự canh phải. */
@@ -72,7 +80,8 @@ export type PropsTieuDeCot = {
  * Trong `KeoCot`: kéo cả ô để đổi chỗ (chuột) / Space nhấc · ←→ dời · Space thả · Esc huỷ (bàn phím, câu đọc tiếng Việt);
  * Enter / ↓ mở menu. Một lớp hover: cả ô sáng, nút menu phủ kín ô; không icon tay cầm (con trỏ grab).
  */
-export function TieuDeCot(p: PropsTieuDeCot) {
+export function TieuDeCot<C extends CotBang>(props: PropsTieuDeCot<C>) {
+  const p = props as PropsTieuDeCot
   const { cot } = p
   if (process.env.NODE_ENV !== 'production') {
     if (cot.kieu !== 'sap' && (cot.nghia || p.sap))
@@ -104,8 +113,10 @@ function TieuDeKeo(p: PropsTieuDeCot) {
     onPointerDown: so.listeners?.onPointerDown as PointerEventHandler | undefined,
     onKeyDown: (e) => {
       // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — chặn Radix mở menu bằng Space/Enter/↓ khi thả.
+      // Esc cũng preventDefault: listener Esc ở document (thanh hàng loạt bang/ — bỏ hết dòng đã chọn) chạy TRƯỚC listener
+      // của cảm biến và chỉ nhường phím đã bị chặn. Chừa Tab (thả + đi tiếp như thường).
       if (so.active) {
-        if (e.key !== 'Tab' && e.key !== 'Escape') e.preventDefault()
+        if (e.key !== 'Tab') e.preventDefault()
         return
       }
       so.listeners?.onKeyDown?.(e)

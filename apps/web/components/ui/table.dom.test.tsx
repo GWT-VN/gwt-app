@@ -11,6 +11,8 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(nav.qs),
 }))
 
+import { KhungChon, OChonDong, ThanhDaChon, useDaChon } from '@/bang'
+import { CauHinhBangDs } from './bang-ds'
 import { DsRoot } from './ds-root'
 import { BangTrangThai, Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from './table'
 import { KeoCot, TieuDeCot, type MucLoc } from './tieu-de-cot'
@@ -71,6 +73,42 @@ function Bang({ onLoc, chon = false }: { onLoc?: (gt: string[]) => void; chon?: 
   )
 }
 
+/** Bảng trong KhungChon + ThanhDaChon (CauHinhBangDs bật Esc bỏ chọn) — như màn danh sách thật. */
+function SoChon() {
+  return <p data-testid="so-chon">{useDaChon().soDong}</p>
+}
+function BangChon() {
+  const c = useCotBang(COT)
+  return (
+    <DsRoot>
+      <CauHinhBangDs>
+        <KhungChon khoaTrang={['1']} tong={1} bat thamSo={{}}>
+          <TableWrap>
+            <KeoCot cot={c.hien} doiCho={c.doiCho}>
+              <Table layout="fixed">
+                <TableHeader>
+                  <TableRow>
+                    {c.hien.map((cot, i) => (
+                      <TieuDeCot key={cot.id} cot={cot} viTri={i} />
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <OChonDong khoa="1" moTa="dòng 1" />
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </KeoCot>
+          </TableWrap>
+          <ThanhDaChon nhan="dòng" />
+          <SoChon />
+        </KhungChon>
+      </CauHinhBangDs>
+    </DsRoot>
+  )
+}
+
 const tenCot = () => screen.getAllByRole('columnheader').map((th) => th.getAttribute('data-cot'))
 
 beforeEach(() => {
@@ -95,15 +133,19 @@ describe('tiêu đề cột — kieu sap | loc', () => {
         </DsRoot>,
       ),
     ).toThrow(/không sắp được/)
-    // Truyền trạng thái sắp cho cột lọc (lách kiểu) cũng bị chặn.
-    const cotLoc = COT[1]
+    // Truyền trạng thái sắp cho cột lọc: lỗi kiểu (props theo `cot.kieu`) + ném lỗi lúc chạy nếu lách kiểu.
+    const cotLoc = { id: 'nhom', ten: 'Loại lỗi', rong: 148, kieu: 'loc' } as const satisfies CotBang
     expect(() =>
       render(
         <DsRoot>
           <table>
             <thead>
               <tr>
-                <TieuDeCot cot={cotLoc} sap={{ chieu: 'tang', onDoi: () => {} }} />
+                <TieuDeCot
+                  cot={cotLoc}
+                  // @ts-expect-error cột lọc không nhận `sap`
+                  sap={{ chieu: 'tang', onDoi: () => {} }}
+                />
               </tr>
             </thead>
           </table>
@@ -216,6 +258,20 @@ describe('đổi chỗ cột bằng bàn phím (dnd-kit KeyboardSensor)', () => 
     expect(await screen.findByText(/về chỗ cũ/)).toBeTruthy()
   })
 
+  test('Esc khi đang nhấc cột: cột về chỗ cũ, KHÔNG bỏ chọn dòng (Esc thuộc cảm biến kéo, không tới thanh hàng loạt)', async () => {
+    const user = userEvent.setup()
+    render(<BangChon />)
+    await user.click(screen.getByRole('checkbox', { name: 'Chọn dòng 1' }))
+    expect(screen.getByTestId('so-chon').textContent).toBe('1')
+    screen.getByRole('button', { name: /^Mã/ }).focus()
+    await nhan(user, ' ')
+    await nhan(user, '{ArrowLeft}')
+    await nhan(user, '{Escape}')
+    expect(tenCot()).toEqual(['uu', 'nhom', 'ma'])
+    expect(screen.getByTestId('so-chon').textContent).toBe('1')
+    expect((screen.getByRole('checkbox', { name: 'Chọn dòng 1' }) as HTMLInputElement).checked).toBe(true)
+  })
+
   test('Enter trên tiêu đề có menu vẫn mở menu', async () => {
     const user = userEvent.setup()
     render(<Bang />)
@@ -228,12 +284,18 @@ describe('đổi chỗ cột bằng bàn phím (dnd-kit KeyboardSensor)', () => 
 describe('4 trạng thái + dòng chọn', () => {
   const COT_TAI = [{ ten: 'Đang tải' }, { ten: 'Thành tiền', so: true }]
 
-  test('đang tải: aria-busy, header thật + dòng skeleton', () => {
-    render(<BangTrangThai trangThai="tai" cot={COT_TAI} />)
-    const vung = screen.getByRole('status')
-    expect(vung.getAttribute('aria-busy')).toBe('true')
+  test('đang tải: câu đọc ở vùng status NGOÀI vùng aria-busy; khung busy có header thật + dòng skeleton', async () => {
+    const { container } = render(<BangTrangThai trangThai="tai" cot={COT_TAI} />)
+    const doc = screen.getByRole('status')
+    // Vùng live gắn rỗng rồi mới điền chữ (effect) — và không nằm trong vùng busy (trình đọc hoãn đọc vùng busy).
+    await waitFor(() => expect(doc.textContent).toBe('Đang tải danh sách'))
+    expect(doc.closest('[aria-busy="true"]')).toBeNull()
+    expect(doc.hasAttribute('aria-busy')).toBe(false)
+    const busy = container.querySelector('[aria-busy="true"]')!
+    expect(busy).toBeTruthy()
+    expect(busy.contains(doc)).toBe(false)
     expect(screen.getAllByRole('columnheader').map((x) => x.textContent)).toEqual(['Đang tải', 'Thành tiền'])
-    expect(vung.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThanOrEqual(6)
+    expect(busy.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThanOrEqual(6)
   })
 
   test('rỗng do lọc: gợi ý + "Xoá bộ lọc"', async () => {
