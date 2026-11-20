@@ -23,10 +23,13 @@ import { useDsPortal } from './ds-root'
 export function Tooltip({
   content,
   side = 'bottom',
+  sideOffset = 6,
   children,
 }: {
   content: ReactNode
   side?: 'bottom' | 'right' | 'top' | 'left'
+  /** Khoảng cách tới trigger (px). Mặc định 6 = `.ui-tip`; tip thanh bên Sidebar 8 (`.pD-icon` tip). */
+  sideOffset?: number
   children: ReactElement
 }) {
   const container = useDsPortal()
@@ -62,7 +65,7 @@ export function Tooltip({
             <TooltipPrimitive.Content
               data-slot="tooltip-content"
               side={side}
-              sideOffset={6}
+              sideOffset={sideOffset}
               onEscapeKeyDown={() => {
                 esc.current = true
               }}

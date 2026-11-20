@@ -200,7 +200,7 @@ function Trai({
             const dang = x.id === khuDangChon
             const I = x.icon
             return (
-              <Tooltip key={x.id} content={<TenTip ten={x.ten} />} side="right">
+              <Tooltip key={x.id} content={<TenTip ten={x.ten} />} side="right" sideOffset={8}>
                 <button
                   type="button"
                   data-slot="khu-icon"
@@ -219,7 +219,7 @@ function Trai({
           })}
         <div data-slot="khung-ngan" className={s.ngan} />
         <DropdownMenu>
-          <Tooltip content={<TenTip ten="Tất cả khu" />} side="right">
+          <Tooltip content={<TenTip ten="Tất cả khu" />} side="right" sideOffset={8}>
             <DropdownMenuTrigger asChild>
               <button type="button" data-slot="khu-tat-ca" className={s.iconKhu} aria-label="Tất cả khu">
                 <SquaresFour aria-hidden="true" />
@@ -245,7 +245,7 @@ function Trai({
         </DropdownMenu>
         <span className="flex-1" />
         {quanTri && (
-          <Tooltip content={<TenTip ten="Quản trị" />} side="right">
+          <Tooltip content={<TenTip ten="Quản trị" />} side="right" sideOffset={8}>
             <Link href={quanTri} data-slot="khu-quan-tri" className={s.iconKhu} aria-label="Quản trị">
               <GearSix aria-hidden="true" />
             </Link>
