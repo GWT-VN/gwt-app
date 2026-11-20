@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ArrowRight, Copy, DotsThree, Eye, PencilSimple, Trash } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { BienThe, KhoiHang } from '../_khung/tam'
 
 const COT = [
   ['ma', 'Mã đơn'],
@@ -21,6 +22,101 @@ const COT = [
   ['bao-hanh', 'Bảo hành'],
 ] as const
 
+/** Mục của menu ⋯ đơn — dùng chung giữa khối cũ (đủ mục) và các hàng biến thể (từng nhóm mục). */
+const MUC = {
+  nhan: <DropdownMenuLabel>Đơn DH-DEMO-0001</DropdownMenuLabel>,
+  xem: (
+    <DropdownMenuItem data-so="xem">
+      <Eye aria-hidden="true" />
+      Xem chi tiết
+      <DropdownMenuShortcut>Enter</DropdownMenuShortcut>
+    </DropdownMenuItem>
+  ),
+  sua: (
+    <DropdownMenuItem data-so="sua">
+      <PencilSimple aria-hidden="true" />
+      Sửa
+      <DropdownMenuShortcut>E</DropdownMenuShortcut>
+    </DropdownMenuItem>
+  ),
+  nhanBan: (
+    <DropdownMenuItem data-so="nhan-ban">
+      <Copy aria-hidden="true" />
+      Nhân bản
+    </DropdownMenuItem>
+  ),
+  chuyenKho: (
+    <DropdownMenuItem data-so="chuyen-kho" disabled>
+      <ArrowRight aria-hidden="true" />
+      Chuyển kho (không có quyền)
+    </DropdownMenuItem>
+  ),
+  xoa: (
+    <DropdownMenuItem data-so="xoa" variant="destructive">
+      <Trash aria-hidden="true" />
+      Xoá đơn
+    </DropdownMenuItem>
+  ),
+}
+
+/** Menu ⋯ đủ mục (thứ tự của preview). */
+const DU = (
+  <>
+    {MUC.nhan}
+    {MUC.xem}
+    {MUC.sua}
+    {MUC.nhanBan}
+    {MUC.chuyenKho}
+    <DropdownMenuSeparator />
+    {MUC.xoa}
+  </>
+)
+
+/** Nút ⋯ + menu thao tác đơn. `so` = khoá so khớp của nút (chỉ khối cũ — các hàng có nhiều nút ⋯). */
+function MenuDon({ so, children }: { so?: string; children: ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button data-so={so} variant="outline" size="icon" aria-label="Thao tác với đơn DH-DEMO-0001">
+          <DotsThree aria-hidden="true" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[240px]">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** Menu chọn cột hiển thị (CheckboxItem). */
+function MenuCot() {
+  const [cot, setCot] = useState<Record<string, boolean>>({ ma: true, khach: true, kenh: false, 'bao-hanh': false })
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button data-so="mo-cot" variant="outline">
+          Cột hiển thị
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[220px]">
+        <DropdownMenuLabel>Hiện cột</DropdownMenuLabel>
+        {COT.map(([k, ten]) => (
+          <DropdownMenuCheckboxItem
+            key={k}
+            data-so={`cot-${k}`}
+            checked={cot[k]}
+            onCheckedChange={(b) => setCot((c) => ({ ...c, [k]: b }))}
+            // Chọn cột: tick nhiều mục liền → giữ menu mở (mặc định Radix đóng sau mỗi lần chọn).
+            onSelect={(e) => e.preventDefault()}
+          >
+            {ten}
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 /**
  * #dropdown-menu — tái tạo ds/nguon/components/DropdownMenu/preview.html (gap 24, căn trên = style inline của preview;
  * rộng 240/220 = style inline của từng .ui-menu). Preview ép hai menu mở cùng lúc; ở đây bấm trigger thật mới mở (một
@@ -28,70 +124,50 @@ const COT = [
  * khối nằm cuối trang mà không chừa thì Radix lật menu lên trên nút. `data-so` = khoá so khớp (ds/so-khop/dropdownmenu.json).
  */
 export function KhoiDropdownMenu() {
-  const [cot, setCot] = useState<Record<string, boolean>>({ ma: true, khach: true, kenh: false, 'bao-hanh': false })
   return (
     <section id="dropdown-menu" className="scroll-mt-6">
       <h2 className="mb-4 [font:var(--text-heading-xs)]">
         <a href="#dropdown-menu">DropdownMenu</a>
       </h2>
       <div className="flex flex-wrap items-start gap-6 pb-60">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button data-so="mo-thao-tac" variant="outline" size="icon" aria-label="Thao tác với đơn DH-DEMO-0001">
-              <DotsThree aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[240px]">
-            <DropdownMenuLabel>Đơn DH-DEMO-0001</DropdownMenuLabel>
-            <DropdownMenuItem data-so="xem">
-              <Eye aria-hidden="true" />
-              Xem chi tiết
-              <DropdownMenuShortcut>Enter</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem data-so="sua">
-              <PencilSimple aria-hidden="true" />
-              Sửa
-              <DropdownMenuShortcut>E</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem data-so="nhan-ban">
-              <Copy aria-hidden="true" />
-              Nhân bản
-            </DropdownMenuItem>
-            <DropdownMenuItem data-so="chuyen-kho" disabled>
-              <ArrowRight aria-hidden="true" />
-              Chuyển kho (không có quyền)
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem data-so="xoa" variant="destructive">
-              <Trash aria-hidden="true" />
-              Xoá đơn
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button data-so="mo-cot" variant="outline">
-              Cột hiển thị
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[220px]">
-            <DropdownMenuLabel>Hiện cột</DropdownMenuLabel>
-            {COT.map(([k, ten]) => (
-              <DropdownMenuCheckboxItem
-                key={k}
-                data-so={`cot-${k}`}
-                checked={cot[k]}
-                onCheckedChange={(b) => setCot((c) => ({ ...c, [k]: b }))}
-                // Chọn cột: tick nhiều mục liền → giữ menu mở (mặc định Radix đóng sau mỗi lần chọn).
-                onSelect={(e) => e.preventDefault()}
-              >
-                {ten}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <MenuDon so="mo-thao-tac">{DU}</MenuDon>
+        <MenuCot />
       </div>
     </section>
+  )
+}
+
+/** /ds dạng hàng: mỗi kiểu mục một hàng, nút mở menu thật chỉ chứa nhóm mục đó. */
+export function KhoiDropdownMenuHang() {
+  return (
+    <KhoiHang neo="dropdown-menu">
+      <BienThe ten="Nhóm + phím tắt" moTa="Nhãn nhóm ở đầu; phím tắt canh phải, chỉ để gợi nhớ">
+        <MenuDon>
+          {MUC.nhan}
+          {MUC.xem}
+          {MUC.sua}
+          {MUC.nhanBan}
+        </MenuDon>
+      </BienThe>
+      <BienThe ten="Mục bị chặn quyền" moTa="Vẫn hiện, vẫn focus được; lý do ghi ngay trong chữ">
+        <MenuDon>
+          {MUC.xem}
+          {MUC.chuyenKho}
+        </MenuDon>
+      </BienThe>
+      <BienThe ten="Mục nguy hiểm" moTa="Xoá/huỷ: chữ đỏ, đặt cuối sau đường kẻ">
+        <MenuDon>
+          {MUC.sua}
+          <DropdownMenuSeparator />
+          {MUC.xoa}
+        </MenuDon>
+      </BienThe>
+      <BienThe ten="Checkbox item" moTa="Chọn nhiều (vd cột hiển thị), menu giữ mở khi tick">
+        <MenuCot />
+      </BienThe>
+      <BienThe ten="Menu ⋯ của dòng" moTa="Đủ các kiểu trên trong một menu thao tác">
+        <MenuDon>{DU}</MenuDon>
+      </BienThe>
+    </KhoiHang>
   )
 }

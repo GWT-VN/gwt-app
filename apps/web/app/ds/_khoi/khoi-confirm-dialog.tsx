@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { GitMerge, Trash } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { BienThe, KhoiHang } from '../_khung/tam'
 
 /**
  * #confirm-dialog — tái tạo ds/nguon/components/ConfirmDialog/preview.html (3 hộp vẽ tĩnh) bằng 3 nút mở thật:
@@ -45,8 +46,26 @@ function useMau(thanhCong: () => boolean = () => true) {
   return { moHop: () => setMo(true), hop }
 }
 
-export function KhoiConfirmDialog() {
+/** Đóng ticket — thường (không `pha`): focus nút chính. */
+function MauDong() {
   const dong = useMau()
+  return (
+    <>
+      <Button data-so="mo-dong" variant="outline" onClick={dong.moHop}>
+        Đóng ticket…
+      </Button>
+      <ConfirmDialog
+        {...dong.hop}
+        tieuDe="Đóng ticket TK-2611-045?"
+        moTa="Ticket chuyển sang “Đóng”. Khách báo lại trong 7 ngày thì ticket tự mở lại."
+        nutXacNhan="Đóng ticket"
+      />
+    </>
+  )
+}
+
+/** Xoá phiếu chi — `pha` + hậu quả + lý do BẮT BUỘC; lần bấm đầu giả lập lỗi. */
+function MauXoa() {
   const daLoi = useRef(false)
   const xoa = useMau(() => {
     if (daLoi.current) return true
@@ -54,33 +73,11 @@ export function KhoiConfirmDialog() {
     return false
   })
   const [lyDo, setLyDo] = useState('')
-  const gop = useMau()
-  const [ma, setMa] = useState('')
-
   return (
-    <section id="confirm-dialog" className="scroll-mt-6">
-      <h2 className="mb-4 [font:var(--text-heading-xs)]">
-        <a href="#confirm-dialog">ConfirmDialog</a>
-      </h2>
-      <div className="flex flex-wrap gap-2">
-        <Button data-so="mo-dong" variant="outline" onClick={dong.moHop}>
-          Đóng ticket…
-        </Button>
-        <Button data-so="mo-xoa" variant="destructive" onClick={xoa.moHop}>
-          Xoá phiếu chi…
-        </Button>
-        <Button data-so="mo-gop" variant="outline" onClick={gop.moHop}>
-          Gộp khách…
-        </Button>
-      </div>
-
-      <ConfirmDialog
-        {...dong.hop}
-        tieuDe="Đóng ticket TK-2611-045?"
-        moTa="Ticket chuyển sang “Đóng”. Khách báo lại trong 7 ngày thì ticket tự mở lại."
-        nutXacNhan="Đóng ticket"
-      />
-
+    <>
+      <Button data-so="mo-xoa" variant="destructive" onClick={xoa.moHop}>
+        Xoá phiếu chi…
+      </Button>
       <ConfirmDialog
         {...xoa.hop}
         onOpenChange={(m) => {
@@ -123,7 +120,19 @@ export function KhoiConfirmDialog() {
           />
         </div>
       </ConfirmDialog>
+    </>
+  )
+}
 
+/** Gộp khách — gõ đúng mã mới mở khoá nút đỏ. */
+function MauGop() {
+  const gop = useMau()
+  const [ma, setMa] = useState('')
+  return (
+    <>
+      <Button data-so="mo-gop" variant="outline" onClick={gop.moHop}>
+        Gộp khách…
+      </Button>
       <ConfirmDialog
         {...gop.hop}
         onOpenChange={(m) => {
@@ -153,6 +162,38 @@ export function KhoiConfirmDialog() {
           />
         </div>
       </ConfirmDialog>
+    </>
+  )
+}
+
+export function KhoiConfirmDialog() {
+  return (
+    <section id="confirm-dialog" className="scroll-mt-6">
+      <h2 className="mb-4 [font:var(--text-heading-xs)]">
+        <a href="#confirm-dialog">ConfirmDialog</a>
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        <MauDong />
+        <MauXoa />
+        <MauGop />
+      </div>
     </section>
+  )
+}
+
+/** /ds dạng hàng: ba mẫu, mỗi mẫu một hàng; đang chạy (spinner, khoá Esc/Huỷ) + lỗi trong hộp xem ở hàng Xoá. */
+export function KhoiConfirmDialogHang() {
+  return (
+    <KhoiHang neo="confirm-dialog">
+      <BienThe ten="Thường" moTa="Việc hoàn tác được — focus nút xác nhận, chạy xong tự đóng">
+        <MauDong />
+      </BienThe>
+      <BienThe ten="Phá + hậu quả" moTa="Không hoàn tác: kê hậu quả, bắt nhập lý do; lần đầu báo lỗi trong hộp">
+        <MauXoa />
+      </BienThe>
+      <BienThe ten="Gõ mã để mở khoá" moTa="Việc rất nặng (gộp, xoá loạt) — gõ đúng mã mới bật nút">
+        <MauGop />
+      </BienThe>
+    </KhoiHang>
   )
 }
