@@ -15,7 +15,9 @@ import { useNutMo } from './use-nut-mo'
  * - Portal vào ô của DsRoot (`useDsPortal`); chưa có ô thì không render gì.
  * - Radix lo: bẫy Tab, Esc / bấm overlay đóng, khoá cuộn nền, aria-labelledby/describedby. Đóng → focus về phần tử
  *   đã mở sheet (use-nut-mo.ts — cả khi điều khiển bằng `open` không có SheetTrigger).
- * - LUÔN có `SheetHeader` + `SheetTitle`. Lát này chỉ cạnh PHẢI (artifact chỉ định nghĩa `.ui-sheet` phải).
+ * - LUÔN có `SheetHeader` + `SheetTitle`. Cạnh PHẢI (mặc định, `.ui-sheet` của artifact) hoặc TRÁI (`side="left"`).
+ *   Ngoại lệ duy nhất không SheetHeader: ngăn kéo menu của Sidebar (`KhungApp`) — đầu panel menu đã có nút "Đóng menu"
+ *   (SheetClose, nhận focus khi mở) + `SheetTitle` sr-only; header + ✕ riêng sẽ là nút đóng thứ hai và chiếm 52px đỉnh.
  * - Nút ✕ nằm CUỐI `SheetHeader` (header không `relative` → ✕ vẫn tuyệt đối theo panel, góc trên phải cách 19 như
  *   preview) → thứ tự DOM header → ✕ → thân → footer như preview → Tab đầu tiên vào ✕ (focus mặc định khi mở). Muốn ô
  *   lọc đầu nhận focus → `data-autofocus` trên ô đó.
@@ -40,9 +42,12 @@ export function SheetClose(props: ComponentProps<typeof SheetPrimitive.Close>) {
  * `.ui-sheet`: bám mép phải từ trên xuống dưới, cột flex, rộng min(384px, 100%) (shadcn `sm:max-w-sm`), nền popover,
  * `--shadow-400` + hairline. ≤640: rộng 100% (README artifact "mobile 100%"; cùng mốc `@media (max-width: 640px)` của
  * Dialog). z-70 = thang z dialog/overlay (ds/NGUON.md).
+ * `side="left"` (ngăn kéo menu điện thoại — Sidebar ≤767): đối xứng, bám mép trái. Artifact chỉ vẽ cạnh phải và cạnh phải
+ * không có chuyển động / viền / bo → cạnh trái cũng không (bóng đổ đều quanh nên không cần đổi chiều).
  */
+const SIDE = { right: 'right-0', left: 'left-0' } as const
 const panel = [
-  'fixed inset-y-0 right-0 z-70 flex flex-col',
+  'fixed inset-y-0 z-70 flex flex-col',
   'w-[min(384px,100%)] [@media(max-width:640px)]:w-full',
   'border-none border-current outline-none',
   'bg-popover text-popover-foreground [box-shadow:var(--shadow-400),var(--shadow-hairline)]',
@@ -53,13 +58,13 @@ export function SheetContent({
   children,
   side = 'right',
   ...props
-}: ComponentProps<typeof SheetPrimitive.Content> & { side?: 'right' }) {
+}: ComponentProps<typeof SheetPrimitive.Content> & { side?: keyof typeof SIDE }) {
   const container = useDsPortal()
   if (!container) return null
   return (
     <SheetPrimitive.Portal container={container}>
       <SheetPrimitive.Overlay data-slot="sheet-overlay" className={overlay} />
-      <SheetPanel data-slot="sheet-content" data-side={side} className={cn(panel, className)} {...props}>
+      <SheetPanel data-slot="sheet-content" data-side={side} className={cn(panel, SIDE[side], className)} {...props}>
         {children}
       </SheetPanel>
     </SheetPrimitive.Portal>

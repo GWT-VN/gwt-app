@@ -110,6 +110,10 @@ test('điện thoại: nút "Mở menu" → ngăn kéo (dialog) có thanh khu + 
   await user.click(mo)
   const ngan = await screen.findByRole('dialog')
   expect(ngan.closest('[data-ds-portal]')).not.toBeNull()
+  expect(ngan.getAttribute('data-side')).toBe('left')
+  // Sheet side="left": bám mép trái, không còn class bám mép phải.
+  expect(ngan.classList.contains('left-0')).toBe(true)
+  expect(ngan.classList.contains('right-0')).toBe(false)
   expect(within(ngan).getByRole('navigation', { name: 'Khu' })).toBeTruthy()
   expect(within(ngan).getByRole('link', { name: 'Ticket' })).toBeTruthy()
   expect(mo.getAttribute('aria-expanded')).toBe('true')
@@ -130,7 +134,7 @@ test('điện thoại: bấm "Đóng menu" trong ngăn kéo → đóng', async (
 test('nút Bắp: số gợi ý trong tên; bấm mở thẻ Bắp, Esc đóng và focus về nút', async () => {
   const user = userEvent.setup()
   render(<Mau bap />)
-  const nut = screen.getByRole('button', { name: 'Mở Bắp (⌘J) — 2 gợi ý' })
+  const nut = screen.getByRole('button', { name: 'Mở Bắp (Ctrl J) — 2 gợi ý' })
   expect(nut.getAttribute('aria-expanded')).toBe('false')
   await user.click(nut)
   const the = screen.getByRole('dialog', { name: 'Bắp' })
@@ -144,4 +148,37 @@ test('nút Bắp: số gợi ý trong tên; bấm mở thẻ Bắp, Esc đóng v
 test('không truyền bap → không có nút Bắp', () => {
   render(<Mau />)
   expect(screen.queryByRole('button', { name: /Bắp/ })).toBeNull()
+})
+
+test('Ctrl+J (máy không phải Mac) bật / tắt thẻ Bắp; ⌘J không tác dụng', async () => {
+  const user = userEvent.setup()
+  render(<Mau bap />)
+  await user.keyboard('{Meta>}j{/Meta}')
+  expect(screen.queryByRole('dialog', { name: 'Bắp' })).toBeNull()
+  await user.keyboard('{Control>}j{/Control}')
+  expect(screen.getByRole('dialog', { name: 'Bắp' })).toBeTruthy()
+  await user.keyboard('{Control>}j{/Control}')
+  expect(screen.queryByRole('dialog', { name: 'Bắp' })).toBeNull()
+})
+
+test('nhiều khung có Bắp: chỉ khung mount sau cùng nhận Ctrl+J; gỡ nó thì khung trước nhận lại', async () => {
+  const user = userEvent.setup()
+  function Hai({ hai }: { hai: boolean }) {
+    return (
+      <>
+        <Mau bap />
+        {hai && <Mau bap />}
+      </>
+    )
+  }
+  const { rerender } = render(<Hai hai />)
+  await user.keyboard('{Control>}j{/Control}')
+  const the = screen.getAllByRole('dialog', { name: 'Bắp' })
+  expect(the.length).toBe(1)
+  const nuts = [...document.querySelectorAll('[data-slot="khung-dock"]')]
+  expect(nuts[1].getAttribute('aria-expanded')).toBe('true')
+  expect(nuts[0].getAttribute('aria-expanded')).toBe('false')
+  rerender(<Hai hai={false} />)
+  await user.keyboard('{Control>}j{/Control}')
+  expect(document.querySelector('[data-slot="khung-dock"]')?.getAttribute('aria-expanded')).toBe('true')
 })

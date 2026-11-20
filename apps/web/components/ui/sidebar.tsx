@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import Link from 'next/link'
 import { Funnel, GearSix, List, Plus, Sparkle, SquaresFour, X, type Icon } from '@phosphor-icons/react'
 import { laMac } from '@/lib/phim-tat'
@@ -19,6 +19,22 @@ export type MucMenu = { id: string; ten: string; href: string; dem?: number; dan
 const GAN_DAY_HIEN = 5
 
 /**
+ * Phím Bắp: Ctrl+J (Windows/Linux) · ⌘J (Mac) — cùng luật nền tảng với phím mở lệnh của `lib/phim-tat.ts` (Mac không
+ * nhận Ctrl; bộ gõ đang ghép chữ, kèm Alt/Shift → không). Ở đây vì `phim-tat.ts` thuộc CommandPalette (chỉ phím K).
+ */
+function laPhimBap(e: KeyboardEvent, mac: boolean) {
+  if (e.isComposing || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'j') return false
+  return mac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey
+}
+
+/**
+ * Các KhungApp có Bắp đang mount, theo thứ tự mount. Chỉ cái mount SAU CÙNG phản hồi Ctrl/⌘J (app thật chỉ có một khung;
+ * trang /ds có thể có nhiều bản demo → không bật hết cùng lúc). Gỡ khi unmount → cái trước đó nhận lại.
+ */
+const NGHE_BAP: symbol[] = []
+const khongDangKy = () => () => {}
+
+/**
  * KhungApp — khung điều hướng GWT App (Sidebar, phương án F; README `ds/nguon/components/Sidebar`): thanh icon khu 52px
  * + panel menu 288px của khu đang chọn + vùng nội dung + nút Bắp (dock). Giá trị ở `sidebar-styles.ts`.
  * - Đổ đầy phần tử cha (`h-full`): màn đặt nó trong khung cao toàn màn; trang /ds đặt trong hộp cao cố định.
@@ -26,9 +42,10 @@ const GAN_DAY_HIEN = 5
  * - Nội dung màn tự bọc `<main>` (khung không tự đặt landmark main — trang /ds đã có main).
  * - Tooltip tên khu bên PHẢI icon, hiện cả khi Tab tới (DS Tooltip). Chữ tooltip trùng tên nút → `aria-hidden` (TenTip)
  *   (không đọc hai lần).
- * - ≤767px: thanh trên 52px có "Mở menu" → Sheet trái chứa thanh khu + panel; Esc / "Đóng menu" / bấm link → đóng, focus
+ * - ≤767px: thanh trên 52px có "Mở menu" → Sheet `side="left"` chứa thanh khu + panel — NGOẠI LỆ không SheetHeader:
+ *   nút "Đóng menu" (SheetClose, `data-autofocus`) nằm trong đầu panel, tiêu đề hộp là `SheetTitle` sr-only "Menu <khu>"; Esc / "Đóng menu" / bấm link → đóng, focus
  *   về nút. Màn hình nở ra ≥768 khi đang mở → tự đóng.
- * - `bap`: nội dung thẻ Bắp (chưa chốt) — có thì hiện nút dock; Ctrl/⌘J bật tắt; Esc đóng, focus về nút.
+ * - `bap`: nội dung thẻ Bắp (chưa chốt) — có thì hiện nút dock; Ctrl J (Mac ⌘J) bật tắt — nhiều khung thì chỉ khung mount sau cùng; Esc đóng, focus về nút.
  */
 export function KhungApp({
   khu,
@@ -75,18 +92,23 @@ export function KhungApp({
     return () => m?.removeEventListener('change', f)
   }, [moMenu])
 
+  const coBap = bap !== undefined
   useEffect(() => {
-    if (!bap) return
+    if (!coBap) return
+    const toi = Symbol()
+    NGHE_BAP.push(toi)
     const mac = laMac()
     const f = (e: KeyboardEvent) => {
-      if (e.isComposing || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'j') return
-      if (mac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return
+      if (NGHE_BAP.at(-1) !== toi || !laPhimBap(e, mac)) return
       e.preventDefault()
       setMoBap((v) => !v)
     }
     window.addEventListener('keydown', f)
-    return () => window.removeEventListener('keydown', f)
-  }, [bap])
+    return () => {
+      window.removeEventListener('keydown', f)
+      NGHE_BAP.splice(NGHE_BAP.indexOf(toi), 1)
+    }
+  }, [coBap])
 
   const trai = (trongNgan: boolean) => (
     <Trai
@@ -100,7 +122,7 @@ export function KhungApp({
     <div data-slot="khung-app" className={s.khung}>
       {moMenu ? (
         <Sheet open onOpenChange={setMoMenu}>
-          <SheetContent data-side="left" aria-describedby={undefined} className={s.nganKeo}>
+          <SheetContent side="left" aria-describedby={undefined} className={s.nganKeo}>
             <SheetTitle className="sr-only">Menu {k?.ten}</SheetTitle>
             {trai(true)}
           </SheetContent>
@@ -129,7 +151,7 @@ export function KhungApp({
           {children}
         </div>
       </div>
-      {bap !== undefined && <Bap mo={moBap} setMo={setMoBap} goiY={bapGoiY} noiDung={bap} />}
+      {coBap && <Bap mo={moBap} setMo={setMoBap} goiY={bapGoiY} noiDung={bap} />}
     </div>
   )
 }
@@ -326,6 +348,8 @@ function Muc({ m, ganDay }: { m: MucMenu; ganDay?: boolean }) {
 }
 
 function Bap({ mo, setMo, goiY, noiDung }: { mo: boolean; setMo: (v: boolean) => void; goiY?: number; noiDung: ReactNode }) {
+  // Chữ phím theo nền tảng (như CommandPalette): server + lần hydrate đầu là Ctrl J, Mac đổi sang ⌘J sau hydrate.
+  const phim = useSyncExternalStore(khongDangKy, () => laMac(), () => false) ? '⌘J' : 'Ctrl J'
   const nut = useRef<HTMLButtonElement>(null)
   const the = useRef<HTMLDivElement>(null)
   const id = useId()
@@ -356,7 +380,7 @@ function Bap({ mo, setMo, goiY, noiDung }: { mo: boolean; setMo: (v: boolean) =>
           <div className={s.theBapDau}>
             <Sparkle aria-hidden="true" className="size-4 shrink-0" />
             <span className="font-semibold">Bắp</span>
-            <span className="text-[12px] leading-[18px] text-muted-foreground">trợ lý trong app · ⌘J</span>
+            <span className="text-[12px] leading-[18px] text-muted-foreground">trợ lý trong app · {phim}</span>
             <span className="flex-1" />
             <Button variant="ghost" size="icon-sm" shape="rounded" aria-label="Đóng Bắp" onClick={dong}>
               <X aria-hidden="true" />
@@ -370,8 +394,8 @@ function Bap({ mo, setMo, goiY, noiDung }: { mo: boolean; setMo: (v: boolean) =>
         type="button"
         data-slot="khung-dock"
         className={s.dock}
-        aria-label={mo ? 'Đóng Bắp' : `Mở Bắp (⌘J)${goiY ? ` — ${goiY} gợi ý` : ''}`}
-        title="Bắp (⌘J)"
+        aria-label={mo ? 'Đóng Bắp' : `Mở Bắp (${phim})${goiY ? ` — ${goiY} gợi ý` : ''}`}
+        title={`Bắp (${phim})`}
         aria-expanded={mo}
         aria-controls={mo ? id : undefined}
         onClick={() => setMo(!mo)}

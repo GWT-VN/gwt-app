@@ -17,9 +17,8 @@ export const trai = [
   'max-[767px]:absolute max-[767px]:inset-y-0 max-[767px]:left-0 max-[767px]:z-45 max-[767px]:-translate-x-full max-[767px]:invisible max-[767px]:bg-muted',
 ].join(' ')
 
-/** SheetContent ngăn kéo trái: bám mép trái, rộng theo nội dung, nền muted, `--shadow-400` (`.pD-trai[data-mo="true"]`). */
-export const nganKeo =
-  'left-0 right-auto w-auto [@media(max-width:640px)]:w-auto flex-row bg-muted [box-shadow:var(--shadow-400)]'
+/** SheetContent `side="left"` làm ngăn kéo: rộng theo nội dung (rail + panel), hàng ngang, nền muted, `--shadow-400` (`.pD-trai[data-mo="true"]`). */
+export const nganKeo = 'w-auto [@media(max-width:640px)]:w-auto flex-row bg-muted [box-shadow:var(--shadow-400)]'
 
 /** `.pD-rail`: 52px, cột, gap 8, padding 8/0/12, z 2. */
 export const rail =
