@@ -1,0 +1,141 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#page-header > div"
+  },
+  "chuaDo": [
+    "Nút ‹ › đang bật (giữa danh sách), bấm chuyển bản ghi, tooltip mô tả: preview chỉ có \"1 / 1\" hai nút tắt — test jsdom components/ui/chi-tiet.dom.test.tsx + bản hàng \"Đầy đủ\" trên /ds",
+    "Menu \"Đổi trạng thái\" / ⋯ đang mở: đo ở so-khop DropdownMenu; hover/focus của Button đo ở so-khop Button",
+    "Chữ ẩn nhìn \"Ticket thứ 1 trong 1\" (thay aria-label trên span trơn của preview): không có hộp — test jsdom"
+  ],
+  "khoa": [
+    {
+      "khoa": "header",
+      "artifact": ".ui-page-header",
+      "ds": "#page-header [data-slot=\"page-header\"]",
+      "con": [
+        {
+          "ten": "top",
+          "artifact": "> .ui-page-header-top",
+          "ds": "> [data-slot=\"page-header-top\"]"
+        },
+        {
+          "ten": "nav-duong-dan",
+          "artifact": ".ui-page-header-top > nav",
+          "ds": "[data-slot=\"page-header-top\"] > nav"
+        },
+        {
+          "ten": "ma",
+          "artifact": "[aria-current=\"page\"]",
+          "ds": "[aria-current=\"page\"]"
+        },
+        {
+          "ten": "nav",
+          "artifact": ".ui-page-header-nav",
+          "ds": "[data-slot=\"page-header-nav\"]"
+        },
+        {
+          "ten": "vi-tri",
+          "artifact": ".ui-page-header-nav > .ui-caption",
+          "ds": "[data-slot=\"page-header-nav\"] > span:first-child"
+        },
+        {
+          "ten": "truoc",
+          "artifact": ".ui-page-header-nav > button:nth-of-type(1)",
+          "ds": "[data-slot=\"page-header-nav\"] > button:nth-of-type(1)"
+        },
+        {
+          "ten": "sau",
+          "artifact": ".ui-page-header-nav > button:nth-of-type(2)",
+          "ds": "[data-slot=\"page-header-nav\"] > button:nth-of-type(2)"
+        },
+        {
+          "ten": "main",
+          "artifact": "> .ui-page-header-main",
+          "ds": "> [data-slot=\"page-header-main\"]"
+        },
+        {
+          "ten": "text",
+          "artifact": ".ui-page-header-text",
+          "ds": "[data-slot=\"page-header-main\"] > div:first-child"
+        },
+        {
+          "ten": "tieu-de",
+          "artifact": ".ui-page-header-title",
+          "ds": "[data-slot=\"page-header-title\"]"
+        },
+        {
+          "ten": "meta",
+          "artifact": ".ui-page-header-meta",
+          "ds": "[data-slot=\"page-header-meta\"]"
+        },
+        {
+          "ten": "meta-2",
+          "artifact": ".ui-page-header-meta > span:nth-child(2)",
+          "ds": "[data-slot=\"page-header-meta\"] > span:nth-child(2)"
+        },
+        {
+          "ten": "hanh-dong",
+          "artifact": ".ui-page-header-actions",
+          "ds": "[data-slot=\"page-header-actions\"]"
+        },
+        {
+          "ten": "goi",
+          "artifact": ".ui-page-header-actions > button",
+          "ds": "[data-so=\"goi\"]",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow",
+            "fontSize",
+            "fontWeight"
+          ]
+        },
+        {
+          "ten": "doi",
+          "artifact": ".ui-page-header-actions > span:nth-of-type(1) > button",
+          "ds": "[data-so=\"doi\"]",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow",
+            "fontSize",
+            "fontWeight"
+          ]
+        },
+        {
+          "ten": "khac",
+          "artifact": ".ui-page-header-actions > span:nth-of-type(2) > button",
+          "ds": "[data-so=\"khac\"]",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow"
+          ]
+        }
+      ],
+      "lyDo": {
+        "goi.width@390": "README: ≤640 \"2 nút chữ chia đôi bề rộng\". DS: hai nút là con trực tiếp (trigger menu asChild) → flex 1 chia đúng 155/155 (tổng 310 = preview). Preview ra 163/147 (tổng cũng 310) — preview bọc nút menu trong span inline-flex, nút trong span rộng 100%; chưa truy chính xác vì sao preview không chia đều (đang đoán do lớp span bọc), DS theo README",
+        "doi.width@390": "Cùng lý do goi.width@390: DS chia đều 155/155 đúng README; preview 163/147"
+      }
+    },
+    {
+      "khoa": "meta-dau",
+      "artifact": ".ui-page-header-meta > span:nth-child(2)",
+      "ds": "#page-header [data-slot=\"page-header-meta\"] > span:nth-child(2)",
+      "pseudo": {
+        "artifact": "::before",
+        "ds": "::before"
+      }
+    }
+  ]
+}

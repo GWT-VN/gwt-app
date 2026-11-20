@@ -1,0 +1,181 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#composer > div"
+  },
+  "chuaDo": [
+    "Đang gửi (ô chỉ đọc, nút quay vòng aria-busy), gửi thật / xoá sau khi gửi, Ctrl/⌘+Enter, bộ gõ đang ghép chữ, chọn + bỏ tệp: preview không có — test jsdom components/ui/chi-tiet.dom.test.tsx + bản hàng trên /ds",
+    "Câu lỗi dưới ô lỗi (FieldError trong vùng aria-live): preview không có (README: lỗi gửi giữ nội dung, viền đỏ, nút Gửi lại) — DS thêm, đo ở so-khop Input (câu lỗi .ui-error)",
+    "Màu placeholder (color-text-tertiary): getComputedStyle không đọc được ::placeholder — xem ảnh",
+    "Chữ tooltip của 📎 / Gửi: đo ở so-khop Tooltip; DS ghi mô tả thêm (\"Chọn tệp từ máy\", \"Ctrl + Enter\") thay vì lặp tên nút như preview (luật NGUON)",
+    "Nút 📎 / Gửi: hover/focus của Button đo ở so-khop Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "thuong",
+      "artifact": ".ui-stack > .ui-composer:nth-child(1)",
+      "ds": "#composer > div > div:nth-child(1) > [data-slot=\"composer\"]",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> textarea",
+          "ds": "> textarea"
+        },
+        {
+          "ten": "thanh",
+          "artifact": "> .ui-composer-bar",
+          "ds": "> div:last-child"
+        },
+        {
+          "ten": "dinh",
+          "artifact": "> .ui-composer-bar > button:first-child",
+          "ds": "> div:last-child > button:first-child",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow"
+          ]
+        },
+        {
+          "ten": "goi-y",
+          "artifact": "> .ui-composer-bar > .ui-caption",
+          "ds": "> div:last-child > span"
+        },
+        {
+          "ten": "gui",
+          "artifact": "> .ui-composer-bar > button:last-child",
+          "ds": "> div:last-child > button:last-child",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow",
+            "opacity",
+            "cursor"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "focus",
+      "artifact": ".ui-stack > .ui-composer:nth-child(1)",
+      "ds": "#composer > div > div:nth-child(1) > [data-slot=\"composer\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tab": {
+            "artifact": ".ui-stack > .ui-composer:nth-child(1) > textarea",
+            "ds": "#composer > div > div:nth-child(1) textarea"
+          }
+        }
+      ],
+      "props": [
+        "boxShadow"
+      ]
+    },
+    {
+      "khoa": "loi",
+      "artifact": ".ui-stack > .ui-composer:nth-child(2)",
+      "ds": "#composer > div > div:nth-child(2) > [data-slot=\"composer\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> textarea",
+          "ds": "> textarea"
+        },
+        {
+          "ten": "tep",
+          "artifact": "> .ui-composer-files",
+          "ds": "> div:nth-child(2)"
+        },
+        {
+          "ten": "chip",
+          "artifact": ".ui-chip",
+          "ds": "> div:nth-child(2) > span"
+        },
+        {
+          "ten": "chip-icon",
+          "artifact": ".ui-chip > svg",
+          "ds": "> div:nth-child(2) > span > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "chip-ten",
+          "artifact": ".ui-chip > span",
+          "ds": "> div:nth-child(2) > span > span"
+        },
+        {
+          "ten": "chip-x",
+          "artifact": ".ui-chip-x",
+          "ds": "[data-slot=\"chip-x\"]"
+        },
+        {
+          "ten": "gui-lai",
+          "artifact": "> .ui-composer-bar > button:last-child",
+          "ds": "> div:last-child > button:last-child",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow",
+            "opacity",
+            "cursor"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "chip-x-hover",
+      "artifact": ".ui-chip-x",
+      "ds": "#composer [data-slot=\"chip-x\"]",
+      "trangThai": [
+        "hover",
+        "focus"
+      ],
+      "artifactThat": true,
+      "boChu": true
+    },
+    {
+      "khoa": "khoa",
+      "artifact": ".ui-stack > .ui-composer:nth-child(3)",
+      "ds": "#composer > div > div:nth-child(3) > [data-slot=\"composer\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> textarea",
+          "ds": "> textarea"
+        },
+        {
+          "ten": "gui",
+          "artifact": "> .ui-composer-bar > button:last-child",
+          "ds": "> div:last-child > button:last-child",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color",
+            "boxShadow",
+            "opacity",
+            "cursor"
+          ]
+        }
+      ]
+    }
+  ]
+}

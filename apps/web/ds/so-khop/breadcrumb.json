@@ -1,0 +1,32 @@
+{
+  "khung": { "artifact": ".ds-tinh", "ds": "#breadcrumb > div" },
+  "chuaDo": [
+    "Mã dài bị cắt dấu ba chấm ở chỗ hẹp: preview không có — xem bản hàng \"Chỗ hẹp\" trên /ds",
+    "a11y (nav \"Đường dẫn\", aria-current, mục cuối không phải liên kết, \"/\" không nằm trong DOM): test jsdom components/ui/chi-tiet.dom.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "ol",
+      "artifact": ".ui-breadcrumb",
+      "ds": "#breadcrumb [data-so=\"ol\"]",
+      "con": [
+        { "ten": "li-1", "artifact": "> li:nth-child(1)", "ds": "> li:nth-child(1)" },
+        { "ten": "li-3", "artifact": "> li:nth-child(3)", "ds": "> li:nth-child(3)" },
+        { "ten": "trang", "artifact": "[aria-current=\"page\"]", "ds": "[aria-current=\"page\"]" }
+      ]
+    },
+    {
+      "khoa": "dau-ngan",
+      "artifact": ".ui-breadcrumb > li:nth-child(2)",
+      "ds": "#breadcrumb [data-so=\"li-2\"]",
+      "pseudo": { "artifact": "::before", "ds": "::before" }
+    },
+    {
+      "khoa": "lien-ket",
+      "artifact": ".ui-breadcrumb > li:nth-child(1) > a",
+      "ds": "#breadcrumb [data-so=\"a-1\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "khung": { "artifact": ".ds-tinh", "ds": "#property-list > div" },
+  "chuaDo": [
+    "Giá trị sửa tại chỗ (InlineEdit: ô trạng thái/ưu tiên/người/việc/hạn của preview): InlineEdit dựng ở Task 10 — khối DS hiện giá trị TĨNH (Badge, Avatar + tên, chữ). Chỉ đo hộp dt/dd (cao tối thiểu 32 giữ hàng), không đo phần tử bên trong dd nhóm 1",
+    "Tiêu đề nhóm h3 (ui-props-title) và khổ ≤640 nhãn 88–112: preview không có tiêu đề nhóm; ≤640 chỉ lộ khi khung rộng hơn 340 — xem bản hàng \"Nhóm có tiêu đề\" trên /ds, cấu trúc kiểm ở test jsdom",
+    "Nhãn mục kiểu ds-nhan và khoảng cách giữa hai mục: khung trình bày của preview, không phải component"
+  ],
+  "khoa": [
+    {
+      "khoa": "dl-1",
+      "artifact": ".ds-muc:nth-child(1) dl",
+      "ds": "#property-list [data-so=\"dl-1\"]",
+      "con": [
+        { "ten": "dt-1", "artifact": "> dt:nth-of-type(1)", "ds": "> dt:nth-of-type(1)" },
+        { "ten": "dd-1", "artifact": "> dd:nth-of-type(1)", "ds": "> dd:nth-of-type(1)" },
+        { "ten": "dt-6", "artifact": "> dt:nth-of-type(6)", "ds": "> dt:nth-of-type(6)" },
+        { "ten": "dd-6", "artifact": "> dd:nth-of-type(6)", "ds": "> dd:nth-of-type(6)" },
+        { "ten": "dd-7", "artifact": "> dd:nth-of-type(7)", "ds": "> dd:nth-of-type(7)" }
+      ]
+    },
+    {
+      "khoa": "dl-2",
+      "artifact": ".ds-muc:nth-child(2) dl",
+      "ds": "#property-list [data-so=\"dl-2\"]",
+      "con": [
+        { "ten": "dt-1", "artifact": "> dt:nth-of-type(1)", "ds": "> dt:nth-of-type(1)" },
+        { "ten": "dd-1", "artifact": "> dd:nth-of-type(1)", "ds": "> dd:nth-of-type(1)" },
+        { "ten": "dt-2", "artifact": "> dt:nth-of-type(2)", "ds": "> dt:nth-of-type(2)" },
+        { "ten": "dd-4", "artifact": "> dd:nth-of-type(4)", "ds": "> dd:nth-of-type(4)" },
+        { "ten": "trong", "artifact": ".ui-props-empty", "ds": "[data-slot=\"props-empty\"]" }
+      ]
+    }
+  ]
+}

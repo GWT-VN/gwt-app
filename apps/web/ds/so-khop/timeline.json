@@ -1,0 +1,44 @@
+{
+  "khung": { "artifact": ".ds-tinh", "ds": "#timeline > div" },
+  "chuaDo": [
+    "Bấm \"Hiện 3 hoạt động cũ hơn\" (mở phần cũ, focus vào mục cũ nhất), mục có tệp đính (chip), mốc màu success: preview không có — test jsdom components/ui/chi-tiet.dom.test.tsx + bản hàng \"Mở hết\" trên /ds",
+    "Nút \"Hiện N\": hover/focus của Button ghost sm đo ở so-khop Button",
+    "Viền focus của mục (focus bằng code sau khi mở phần cũ): bundle.css không có kiểu này — DS dùng outline ring như phần tử DS khác",
+    "title của <time>: preview ghi \"Hôm qua · 08:30\" (tương đối), DS ghi ngày đủ \"Thứ Ba, 17/11/2026 · 08:30\" theo README \"title ngày giờ đủ\" — không phải thuộc tính CSS"
+  ],
+  "khoa": [
+    {
+      "khoa": "ol",
+      "artifact": ".ui-timeline",
+      "ds": "#timeline [data-slot=\"timeline\"]",
+      "con": [
+        { "ten": "them", "artifact": "> .ui-timeline-more", "ds": "> li:nth-child(1)" },
+        { "ten": "nut-them", "artifact": "> .ui-timeline-more > button", "ds": "> li:nth-child(1) > button", "props": ["width", "height", "paddingLeft", "paddingRight", "fontSize", "fontWeight", "color", "backgroundColor"] },
+        { "ten": "ngay-1", "artifact": "> li:nth-child(2)", "ds": "> li:nth-child(2)" },
+        { "ten": "muc-3", "artifact": "> li:nth-child(3)", "ds": "> li:nth-child(3)" },
+        { "ten": "moc-avatar", "artifact": "> li:nth-child(3) > .ui-timeline-mark", "ds": "> li:nth-child(3) > span:first-child" },
+        { "ten": "dau", "artifact": "> li:nth-child(3) > .ui-timeline-head", "ds": "> li:nth-child(3) > div:nth-child(2)" },
+        { "ten": "ten", "artifact": "> li:nth-child(3) > .ui-timeline-head > b", "ds": "> li:nth-child(3) > div:nth-child(2) > b" },
+        { "ten": "gio", "artifact": "> li:nth-child(3) > .ui-timeline-head > time", "ds": "> li:nth-child(3) > div:nth-child(2) > time" },
+        { "ten": "than", "artifact": "> li:nth-child(3) > .ui-timeline-body", "ds": "> li:nth-child(3) > [data-slot=\"timeline-body\"]" },
+        { "ten": "muc-5", "artifact": "> li:nth-child(5)", "ds": "> li:nth-child(5)" },
+        { "ten": "moc-icon", "artifact": "> li:nth-child(5) > .ui-timeline-mark", "ds": "> li:nth-child(5) > span:first-child" },
+        { "ten": "icon", "artifact": "> li:nth-child(5) > .ui-timeline-mark > svg", "ds": "> li:nth-child(5) > span:first-child > svg", "props": ["width", "height", "color"] },
+        { "ten": "muc-8", "artifact": "> li:nth-child(8)", "ds": "> li:nth-child(8)" },
+        { "ten": "moc-do", "artifact": "> li:nth-child(8) > .ui-timeline-mark", "ds": "> li:nth-child(8) > span:first-child" }
+      ]
+    },
+    {
+      "khoa": "noi-giua",
+      "artifact": ".ui-timeline > li:nth-child(5)",
+      "ds": "#timeline [data-slot=\"timeline\"] > li:nth-child(5)",
+      "pseudo": { "artifact": "::before", "ds": "::before" }
+    },
+    {
+      "khoa": "noi-cuoi-ngay",
+      "artifact": ".ui-timeline > li:nth-child(3)",
+      "ds": "#timeline [data-slot=\"timeline\"] > li:nth-child(3)",
+      "pseudo": { "artifact": "::before", "ds": "::before" }
+    }
+  ]
+}
