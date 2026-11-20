@@ -1,0 +1,35 @@
+<!-- @dsCard group="Navigation" height=250 subtitle="Kiểu SegmentedControl của OpenAI · ←/→ để chuyển" -->
+<div>
+  <div class="ui-tabs-list" role="tablist" aria-label="Lọc theo trạng thái">
+    <button class="ui-tabs-trigger" role="tab" id="t1" aria-controls="p1" aria-selected="true">Tất cả <span class="ui-tabs-count">128</span></button>
+    <button class="ui-tabs-trigger" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Chờ xử lý <span class="ui-tabs-count">12</span></button>
+    <button class="ui-tabs-trigger" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Hoàn tất</button>
+    <button class="ui-tabs-trigger" role="tab" id="t4" aria-selected="false" tabindex="-1" disabled>Lưu trữ</button>
+  </div>
+  <div class="ui-tabs-panel" role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0">128 đơn (dữ liệu demo).</div>
+  <div class="ui-tabs-panel" role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden>12 đơn đang chờ xử lý.</div>
+  <div class="ui-tabs-panel" role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden>Đơn đã hoàn tất.</div>
+  <p class="ui-caption" style="margin:20px 0 8px">Biến thể <code>pill</code> — hàng tab màn dữ liệu (kiểu ChatGPT):</p>
+  <div class="ui-tabs-list" data-variant="pill" role="tablist" aria-label="Nhóm ticket (pill)">
+    <button class="ui-tabs-trigger" role="tab" aria-selected="true">Đang mở <span class="ui-tabs-count">19</span></button>
+    <button class="ui-tabs-trigger" role="tab" aria-selected="false" tabindex="-1">Của tôi <span class="ui-tabs-count">5</span></button>
+    <button class="ui-tabs-trigger" role="tab" aria-selected="false" tabindex="-1">Quá hạn <span class="ui-tabs-count" data-color="danger">2</span></button>
+    <button class="ui-tabs-trigger" role="tab" aria-selected="false" tabindex="-1">Tất cả <span class="ui-tabs-count">22</span></button>
+  </div>
+  <p class="ui-caption" style="margin:12px 0 0">Trạng thái: <button class="ui-tabs-trigger is-hover" style="height:24px">Hover</button> <button class="ui-tabs-trigger is-focus" style="height:24px">Focus</button></p>
+</div>
+<script>
+  const tabs = [...document.querySelectorAll('[role=tab]:not(:disabled)')];
+  function chon(t) {
+    tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; const p = document.getElementById(x.getAttribute('aria-controls')); if (p) p.hidden = !on; });
+    t.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.onclick = () => chon(t);
+    t.onkeydown = (e) => {
+      const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (d) { e.preventDefault(); chon(tabs[(i + d + tabs.length) % tabs.length]); }
+      if (e.key === 'Home') chon(tabs[0]); if (e.key === 'End') chon(tabs[tabs.length - 1]);
+    };
+  });
+</script>
