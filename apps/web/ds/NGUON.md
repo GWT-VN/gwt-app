@@ -112,6 +112,8 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   className="scroll-mt-6">` + `<h2>` link `#<neo>`), rồi gắn `Khoi` vào mục tương ứng trong mảng `KHOI` của
   `app/ds/page.tsx` (mục lục tự thành link; chưa gắn = chữ mờ "chưa dựng").
 
+- **Tailwind quét cả file test:** chuỗi trông như class (vd câu báo lỗi chứa `[&_<selector>]:pr-9`) trong `*.test.tsx` cũng được sinh CSS — chuỗi hỏng làm dev server 500 (gặp 20/11). Trong test viết mô tả bằng lời, đừng dán class có `<…>`/chỗ trống; lỡ dính thì sửa chuỗi rồi `touch ds/tokens.css` để Tailwind quét lại.
+
 ## Tương phản — chấp nhận có chủ đích
 
 Giữ y màu nguồn ChatGPT; 4 cặp dưới WCAG (danger chữ tối 3.52, viền input 1.42/2.28, viền Checkbox 1.6, chữ Badge
