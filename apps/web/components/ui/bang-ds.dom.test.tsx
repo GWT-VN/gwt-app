@@ -25,6 +25,8 @@ import {
   ThanhDangLoc,
 } from '@/bang'
 import { CauHinhBangDs } from './bang-ds'
+import { Button } from './button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { DsRoot } from './ds-root'
 
 const LOAI = [
@@ -209,17 +211,25 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
   const TAT_CA = Array.from({ length: 19 }, (_, i) => `T-${101 + i}`)
   const TRANG = [TAT_CA.slice(0, 15), TAT_CA.slice(15)]
 
-  function Bang({ trang = 0, tham = {} as Record<string, string>, ds = true }) {
+  function Bang({ trang = 0, tham = {} as Record<string, string>, ds = true, tatCaTrang = true }) {
     const bang = (
       <KhungChon khoaTrang={TRANG[trang]} tong={19} bat thamSo={tham} layTatCaKhoa={async () => TAT_CA}>
         <ThanhDaChon nhan="ticket">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                Đổi trạng thái
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>Đã xong</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <button type="button">Xuất Excel</button>
         </ThanhDaChon>
         <table>
           <thead>
-            <tr>
-              <OChonTatCa nhan="ticket" />
-            </tr>
+            <tr>{tatCaTrang && <OChonTatCa nhan="ticket" />}</tr>
           </thead>
           <tbody>
             {TRANG[trang].map((k) => (
@@ -235,17 +245,18 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     return ds ? <Ds>{bang}</Ds> : bang
   }
   const thanh = () => screen.queryByRole('toolbar', { name: 'Thao tác hàng loạt' })
+  const vungDoc = () => document.querySelector('[aria-live="polite"][aria-atomic="true"]')
   const esc = (el: Element = document.body, o: KeyboardEventInit = {}) => fireEvent.keyDown(el, { key: 'Escape', ...o })
+  const oTatCa = () => screen.getByRole('checkbox', { name: 'Chọn 15 ticket trên trang này' })
 
-  test('chọn hết trang → mời chọn toàn bộ; bấm → 19 (gồm cả trang khác); sang trang 2 vẫn nói ra; số aria-live', async () => {
+  test('chọn hết trang → mời chọn toàn bộ; bấm → 19 (gồm cả trang khác); sang trang 2 vẫn nói ra', async () => {
     const user = userEvent.setup()
     const { rerender } = render(<Bang />)
     expect(thanh()).toBeNull()
-    await user.click(screen.getByRole('checkbox', { name: 'Chọn 15 ticket trên trang này' }))
+    await user.click(oTatCa())
     const t = thanh()!
     expect(t.textContent).toContain('Đã chọn 15 ticket')
     expect(t.textContent).not.toContain('trang khác')
-    expect(t.querySelector('[aria-live="polite"]')?.textContent).toContain('Đã chọn 15 ticket')
     await user.click(within(t).getByRole('button', { name: 'Chọn tất cả 19 ticket khớp bộ lọc' }))
     await waitFor(() => expect(thanh()!.textContent).toContain('Đã chọn 19 ticket'))
     expect(thanh()!.textContent).toContain('(gồm cả dòng ở trang khác)')
@@ -255,10 +266,27 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     expect(thanh()!.textContent).toContain('(gồm cả dòng ở trang khác)')
   })
 
-  test('"Bỏ chọn" (nút icon có tên) xoá HẾT, kể cả dòng ở trang khác', async () => {
+  test('vùng đọc aria-live LUÔN có (0 dòng chọn), nằm ngoài thanh; nhận số dòng + lời mời chọn toàn bộ; bỏ chọn thì nói ra', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    const v = vungDoc()!
+    expect(v).not.toBeNull()
+    expect(v.textContent).toBe('')
+    await user.click(screen.getByRole('checkbox', { name: 'Chọn T-101' }))
+    expect(vungDoc()).toBe(v)
+    expect(v.textContent).toBe('Đã chọn 1 ticket.')
+    expect(thanh()!.contains(v)).toBe(false)
+    expect(thanh()!.querySelector('[aria-live]')).toBeNull()
+    await user.click(oTatCa())
+    expect(v.textContent).toBe('Đã chọn 15 ticket. Có thể chọn tất cả 19 ticket khớp bộ lọc.')
+    await user.click(within(thanh()!).getByRole('button', { name: 'Bỏ chọn' }))
+    expect(v.textContent).toBe('Đã bỏ chọn.')
+  })
+
+  test('"Bỏ chọn" (nút icon có tên) xoá HẾT, kể cả trang khác; focus về ô "chọn hết trang", không rơi về body', async () => {
     const user = userEvent.setup()
     const { rerender } = render(<Bang />)
-    await user.click(screen.getByRole('checkbox', { name: 'Chọn 15 ticket trên trang này' }))
+    await user.click(oTatCa())
     rerender(<Bang trang={1} />)
     await user.click(screen.getByRole('checkbox', { name: 'Chọn T-116' }))
     expect(thanh()!.textContent).toContain('Đã chọn 16 ticket')
@@ -266,27 +294,85 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     expect(bo.querySelector('svg')).not.toBeNull()
     await user.click(bo)
     expect(thanh()).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Chọn 4 ticket trên trang này' }))
     rerender(<Bang trang={0} />)
-    expect(screen.getByRole('checkbox', { name: 'Chọn T-101' }).getAttribute('checked')).toBeNull()
     expect((screen.getByRole('checkbox', { name: 'Chọn T-101' }) as HTMLInputElement).checked).toBe(false)
   })
 
-  test('Esc xoá hết lựa chọn — trừ khi đang gõ trong ô chữ, đang ghép chữ (bộ gõ), hoặc có menu/hộp đang mở', async () => {
+  test('không có ô "chọn hết trang" → focus về khung chọn (không về body)', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<Bang tatCaTrang={false} />)
+    await user.click(screen.getByRole('checkbox', { name: 'Chọn T-101' }))
+    await user.click(within(thanh()!).getByRole('button', { name: 'Bỏ chọn' }))
+    expect(document.activeElement).not.toBe(document.body)
+    expect(document.activeElement?.contains(container.querySelector('table'))).toBe(true)
+  })
+
+  test('Esc bỏ hết — trừ khi đang gõ trong ô chữ hoặc đang ghép chữ (bộ gõ); listbox/menu TĨNH trong DOM không chặn', async () => {
     const user = userEvent.setup()
     render(<Bang />)
-    await user.click(screen.getByRole('checkbox', { name: 'Chọn 15 ticket trên trang này' }))
+    await user.click(oTatCa())
     esc(screen.getByRole('textbox', { name: 'Ô gõ' }))
     expect(thanh()).not.toBeNull()
     esc(document.body, { isComposing: true })
     expect(thanh()).not.toBeNull()
-    const menu = document.createElement('div')
-    menu.setAttribute('role', 'menu')
-    document.body.append(menu)
-    esc()
-    expect(thanh()).not.toBeNull()
-    menu.remove()
-    esc()
+    // Listbox thường trực (Combobox, bảng lệnh tĩnh) — trước đây chặn Esc vĩnh viễn.
+    const tinh = document.createElement('div')
+    tinh.setAttribute('role', 'listbox')
+    document.body.append(tinh)
+    esc(oTatCa())
     expect(thanh()).toBeNull()
+    expect(document.activeElement).toBe(oTatCa())
+    tinh.remove()
+  })
+
+  test('Esc trong thanh → bỏ hết, focus về ô "chọn hết trang"', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    await user.click(oTatCa())
+    const xuat = within(thanh()!).getByRole('button', { name: 'Xuất Excel' })
+    xuat.focus()
+    await user.keyboard('{Escape}')
+    expect(thanh()).toBeNull()
+    expect(document.activeElement).toBe(oTatCa())
+  })
+
+  test('menu Radix đang mở trên thanh → Esc chỉ đóng menu, lựa chọn còn nguyên', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    await user.click(oTatCa())
+    await user.click(within(thanh()!).getByRole('button', { name: 'Đổi trạng thái' }))
+    await screen.findByRole('menu')
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
+    expect(thanh()!.textContent).toContain('Đã chọn 15 ticket')
+    await user.keyboard('{Escape}')
+    expect(thanh()).toBeNull()
+  })
+
+  test('toolbar APG: một điểm Tab; ←/→ đi giữa các nút (vòng), Home/End về đầu/cuối', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    await user.click(oTatCa())
+    const t = thanh()!
+    const nut = [...t.querySelectorAll<HTMLElement>('button')]
+    await waitFor(() => expect(nut.filter((b) => b.tabIndex === 0).length).toBe(1))
+    expect(nut[0].tabIndex).toBe(0)
+    nut[0].focus()
+    await user.keyboard('{ArrowRight}')
+    expect(document.activeElement).toBe(nut[1])
+    await user.keyboard('{End}')
+    expect(document.activeElement).toBe(nut[nut.length - 1])
+    await user.keyboard('{ArrowRight}')
+    expect(document.activeElement).toBe(nut[0])
+    await user.keyboard('{ArrowLeft}')
+    expect(document.activeElement).toBe(nut[nut.length - 1])
+    await user.keyboard('{Home}')
+    expect(document.activeElement).toBe(nut[0])
+    // Nút vừa focus giữ điểm Tab duy nhất
+    await user.keyboard('{End}')
+    await waitFor(() => expect(nut[nut.length - 1].tabIndex).toBe(0))
+    expect(nut.filter((b) => b.tabIndex === 0).length).toBe(1)
   })
 
   test('đổi bộ lọc → bỏ chọn', async () => {

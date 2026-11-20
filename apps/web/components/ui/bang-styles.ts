@@ -159,6 +159,7 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
     'mr-2 whitespace-nowrap tabular-nums [&_strong]:font-semibold',
     'max-[640px]:flex-[1_0_calc(100%-40px)] max-[640px]:min-w-0 max-[640px]:whitespace-normal',
   ),
+  chon_vungDoc: 'sr-only',
   chon_thanhPhuChu: cn(kv, 'opacity-70'),
   chon_thanhCanhBao: cn(kv, 'text-(--yellow-300) text-[12px] leading-[18px] max-[640px]:order-2'),
   // `Button link sm` cùng màu chữ thanh, gạch chân chấm; ≤640 xuống hàng cuối, trọn bề ngang, đệm dưới 4

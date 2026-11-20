@@ -8,7 +8,6 @@ import { GIAO_DIEN_DS } from './bang-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { Tooltip } from './tooltip'
 
-export { GIAO_DIEN_DS }
 
 /** Radix Select cấm mục giá trị '' → mục "Tất cả" mang khoá riêng, đổi về '' khi báo ra. */
 const TAT_CA = '__tat-ca__'
