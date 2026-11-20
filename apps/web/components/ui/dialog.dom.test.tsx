@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './dialog'
-import { footer, overlay, panel } from './dialog-styles'
+import { chuaNutDong, footer, overlay, panel } from './dialog-styles'
 
 vi.mock('next/font/google', () => ({
   Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
@@ -102,6 +102,36 @@ test('nút ✕ căn tâm dòng tiêu đề (CEO chốt 20/11): top = right = 19 
   const c = (await screen.findByRole('button', { name: 'Đóng' })).className.split(/\s+/)
   expect(c).toEqual(expect.arrayContaining(['absolute', 'top-[19px]', 'right-[19px]']))
   expect(c).not.toContain('top-3')
+})
+
+test('tiêu đề chừa lề phải cho ✕ (CEO chốt 20/11): pr-9 = 36px — ✕ chiếm 19–47 từ mép phải, padding 20 → chữ dừng ở 56, cách ✕ 9px', () => {
+  expect(chuaNutDong).toBe('[&_[data-slot=dialog-title]]:pr-9')
+})
+
+test('có ✕ → khung mang chuaNutDong và selector của nó trúng ĐÚNG tiêu đề; showClose={false} → không mang', async () => {
+  const user = userEvent.setup()
+  const { unmount } = render(<Mau />)
+  await user.click(trigger())
+  const hop = await screen.findByRole('dialog')
+  expect(hop.className.split(/\s+/)).toContain(chuaNutDong)
+  const sel = chuaNutDong.match(/^\[&_(.+)\]:pr-9$/)?.[1]
+  expect(sel, 'chuaNutDong phải là biến thể con cháu kèm pr-9').toBeTruthy()
+  const trung = hop.querySelectorAll(sel!.replaceAll('_', ' '))
+  expect([...trung]).toEqual([screen.getByRole('heading', { name: 'Xoá đơn DH-DEMO-0001?' })])
+  unmount()
+
+  render(
+    <DsRoot>
+      <Dialog defaultOpen>
+        <DialogContent showClose={false}>
+          <DialogTitle>Tiêu đề</DialogTitle>
+        </DialogContent>
+      </Dialog>
+    </DsRoot>,
+  )
+  const hop2 = await screen.findByRole('dialog')
+  expect(hop2.className).not.toContain('pr-9')
+  expect(screen.getByRole('heading', { name: 'Tiêu đề' }).className).not.toMatch(/(^| )pr-/)
 })
 
 test('bấm overlay đóng', async () => {

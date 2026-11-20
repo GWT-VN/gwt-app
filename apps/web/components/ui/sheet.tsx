@@ -72,7 +72,8 @@ function SheetPanel(props: ComponentProps<typeof SheetPrimitive.Content>) {
 }
 
 /**
- * `.ui-sheet-header`: padding 20 (phải 52 chừa nút ✕), viền DƯỚI 1px `--border`. Viền trên/trái/phải giữ `0 none
+ * `.ui-sheet-header`: padding 20 (phải 56 = `pr-14` chừa nút ✕ — ✕ chiếm 19–47 từ mép phải → chữ cách ✕ 9px như tiêu đề
+ * Dialog; bản 37, CEO chốt 20/11), viền DƯỚI 1px `--border`. Viền trên/trái/phải giữ `0 none
  * currentColor` như artifact (div ăn preflight `0 solid var(--border)` của app) → longhand viền dưới.
  * Nút ✕ render CUỐI header (sau tiêu đề/mô tả): không phụ thuộc thứ tự con của SheetContent (form bọc thân, header có
  * điều kiện…). Header KHÔNG `relative` — ✕ `absolute` neo theo panel `fixed` (số đo không đổi).
@@ -82,7 +83,7 @@ export function SheetHeader({ className, children, ...props }: ComponentProps<'d
     <div
       data-slot="sheet-header"
       className={cn(
-        'shrink-0 p-(--dialog-padding) pr-[52px] border-none border-current',
+        'shrink-0 p-(--dialog-padding) pr-14 border-none border-current',
         '[border-bottom-style:solid] [border-bottom-width:1px] [border-bottom-color:var(--border)]',
         className,
       )}

@@ -6,7 +6,7 @@ import { Dialog as DialogPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { useDsPortal } from './ds-root'
-import { body, closeBtn, desc, footer, overlay, panel, title } from './dialog-styles'
+import { body, chuaNutDong, closeBtn, desc, footer, overlay, panel, title } from './dialog-styles'
 import { useNutMo } from './use-nut-mo'
 
 /**
@@ -24,7 +24,8 @@ import { useNutMo } from './use-nut-mo'
  *   `DialogDescription` tuỳ chọn: Radix Dialog 1.3 (gói radix-ui 1.8) chỉ gắn aria-describedby khi có Description và
  *   không còn cảnh báo dev → KHÔNG cần `aria-describedby={undefined}` như shadcn dặn cho bản Radix cũ (đã đọc mã
  *   node_modules/@radix-ui/react-dialog 1.3.1: không có console.warn nào).
- * - Nút ✕ (`showClose`, mặc định bật) nằm CUỐI hộp trong DOM như preview → Tab đi thân → footer → ✕.
+ * - Nút ✕ (`showClose`, mặc định bật) nằm CUỐI hộp trong DOM như preview → Tab đi thân → footer → ✕. Có ✕ thì tiêu đề
+ *   chừa lề phải 36 (`chuaNutDong`) để chữ dài xuống dòng thay vì chạy dưới ✕.
  * - Không có trạng thái đang chạy / lỗi trong hộp: đó là ConfirmDialog.
  */
 export function Dialog(props: ComponentProps<typeof DialogPrimitive.Root>) {
@@ -50,7 +51,7 @@ export function DialogContent({
   return (
     <DialogPrimitive.Portal container={container}>
       <DialogPrimitive.Overlay data-slot="dialog-overlay" className={overlay} />
-      <DialogPanel data-slot="dialog-content" className={cn(panel, className)} {...props}>
+      <DialogPanel data-slot="dialog-content" className={cn(panel, showClose && chuaNutDong, className)} {...props}>
         {children}
         {showClose && (
           <DialogPrimitive.Close asChild>

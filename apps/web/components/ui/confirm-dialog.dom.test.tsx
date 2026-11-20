@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { Button } from './button'
 import { ConfirmDialog } from './confirm-dialog'
-import { footer } from './dialog-styles'
+import { chuaNutDong, footer } from './dialog-styles'
 import { DsRoot } from './ds-root'
 
 vi.mock('next/font/google', () => ({
@@ -323,6 +323,13 @@ test('Promise cũ reject sau khi mở lại → không hiện lỗi trên hộp 
   await act(async () => cu.loi(new Error('cũ')))
   expect(screen.queryByRole('alert')).toBeNull()
   expect(screen.getByRole('button', { name: 'Xoá phiếu' }).getAttribute('aria-busy')).toBeNull()
+})
+
+test('không ✕ → tiêu đề trọn bề ngang: khung không mang chuaNutDong, tiêu đề không có pr-*', async () => {
+  const { hop } = await mo()
+  expect(screen.queryByRole('button', { name: 'Đóng' })).toBeNull()
+  expect(hop.className).not.toContain(chuaNutDong)
+  expect(screen.getByRole('heading', { name: 'Xoá phiếu chi PC-DEMO-0001?' }).className).not.toMatch(/(^| )pr-/)
 })
 
 test('thang z (ds/NGUON.md): overlay + khung AlertDialog (nền của ConfirmDialog) đều z-70', async () => {

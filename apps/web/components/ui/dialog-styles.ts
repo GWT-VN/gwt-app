@@ -54,6 +54,15 @@ export const footer = [
 /**
  * `.ui-dialog-close` (bản 35, CEO chốt 20/11): tâm nút ✕ thẳng tâm dòng tiêu đề — top = --dialog-padding 20 + (line-height
  * tiêu đề 26 − --control-size-sm 28) / 2 = 19; right = top cho cân góc. Dùng chung Dialog + Sheet (header Sheet cũng
- * padding 20, tiêu đề 26; pr 52 vẫn chừa đủ: 19 + 28 = 47). Gắn lên `Button` ghost icon-sm; `absolute` đè `relative` của nút.
+ * padding 20, tiêu đề 26). Gắn lên `Button` ghost icon-sm; `absolute` đè `relative` của nút.
  */
 export const closeBtn = 'absolute top-[19px] right-[19px]'
+
+/**
+ * `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (bản 37, CEO chốt 20/11): tiêu đề dài
+ * không chạy dưới ✕. ✕ chiếm 19–47px tính từ mép phải hộp; tiêu đề nằm trong padding 20 → cần ≥ 47 − 20 + 8 = 35 để cách
+ * ✕ 8px → lấy 36 = `pr-9` (9 × --spacing 4, thang DS) → chữ dừng cách mép 56, cách ✕ 9px. Chỉ khi CÓ ✕: DialogContent
+ * gắn lên khung khi `showClose` (thay `:has()` của artifact — biết sẵn có ✕ hay không); AlertDialog/ConfirmDialog không ✕,
+ * tiêu đề `alert-dialog-title` không trúng → trọn bề ngang. Header Sheet (✕ luôn có) chừa riêng `pr-14` = 56 (sheet.tsx).
+ */
+export const chuaNutDong = '[&_[data-slot=dialog-title]]:pr-9'

@@ -93,6 +93,16 @@ test('nút ✕ căn tâm dòng tiêu đề (CEO chốt 20/11): top = right = 19 
   expect(c).not.toContain('top-3')
 })
 
+test('header chừa lề phải cho ✕ (CEO chốt 20/11): pr-14 = 56px — ✕ chiếm 19–47 từ mép phải → chữ cách ✕ 9px (52 cũ chỉ 5px)', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  await screen.findByRole('dialog')
+  const c = document.querySelector('[data-slot="sheet-header"]')!.className.split(/\s+/)
+  expect(c).toContain('pr-14')
+  expect(c).not.toContain('pr-[52px]')
+})
+
 test('bấm overlay đóng và trả focus về trigger', async () => {
   const user = userEvent.setup()
   render(<Mau />)
