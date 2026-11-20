@@ -98,10 +98,7 @@
       "artifact": "#i5",
       "ds": "#input [data-so=\"tat\"]",
       "trangThai": ["hover"],
-      "artifactThat": true,
-      "lyDo": {
-        "hover.boxShadow@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-input:hover, đặc hiệu 0,3,0) thắng .ui-input:disabled (0,2,0) → ô TẮT vẫn đậm viền alpha-30 khi rê ở theme tối, theme sáng thì không. DS giữ viền tắt color-border-disabled ở cả hai theme (ô tắt không phản hồi chuột), nhất quán theme sáng — đề xuất đồng bộ ngược artifact."
-      }
+      "artifactThat": true
     },
     {
       "khoa": "tat-help",

@@ -11,6 +11,7 @@ shadcn `Checkbox` theo OpenAI: ô 18px, bo 4px, viền xám, khi chọn nền `g
 | Disabled | viền gray-150 / gray-300, nền gray-25 / gray-200 |
 
 - Nhãn 14px/20px, cách ô 8px; ô lệch xuống 1px để thẳng dòng đầu nhãn.
+- Mô tả dưới nhãn (`ui-choice-desc`): nối vào ô bằng `aria-describedby` — tên ô chỉ là nhãn, mô tả đọc sau; câu lỗi (nếu có) đứng trước mô tả.
 - Lỗi: viền red-500 + dòng `ui-error` bên dưới (mở rộng GWT — OpenAI Checkbox không có trạng thái lỗi).
 
 ⚠️ Viền gray-200 (#cdcdcd) trên trắng = 1.6:1, dưới 3:1 của WCAG 1.4.11. Giữ đúng nguồn; xem "Quyết định còn mở".

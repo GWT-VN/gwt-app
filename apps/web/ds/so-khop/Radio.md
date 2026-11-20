@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Radio-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**3944/3948 khớp** · 4 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
+**3948/3948 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -24,7 +24,4 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Khoá `cham-chua`: bỏ thuộc tính chữ (fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color) và màu viền/outline khi kiểu none — phần tử không vẽ chữ (lọc trong config).
 - Khoá `cham-tat`: bỏ thuộc tính chữ (fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color) và màu viền/outline khi kiểu none — phần tử không vẽ chữ (lọc trong config).
 
-| khoá | thuộc tính | artifact | ds | ở | lý do |
-|---|---|---|---|---|---|
-| loi-hover | o.borderTopColor | rgb(143 143 143) | rgb(224 46 42) | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-radio:hover, 0,3,0) thắng .ui-radio[aria-invalid] (0,2,0) → vòng LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact. |
-| loi-hover | o.borderBottomColor | rgb(143 143 143) | rgb(224 46 42) | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-radio:hover, 0,3,0) thắng .ui-radio[aria-invalid] (0,2,0) → vòng LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact. |
+Không có dòng lệch.

@@ -11,14 +11,13 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Combobox-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1604/1612 khớp** · 8 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
+**1604/1612 khớp** · 8 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 4 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
 - Vị trí pop (cách trigger 4px, căn mép trái, Radix Popper tự lật/dời khi sát mép, chừa mép 8) — preview xếp menu tĩnh trong .ui-stack; so bằng mắt trên ảnh
 - Hình icon: preview vẽ tay chevron/kính lúp/✓ bằng nét, DS dùng Phosphor CaretUpDown/MagnifyingGlass/Check (path tô) — chỉ đo hộp + màu
 - Nút ✕ "Bỏ chọn" trong trigger: preview không có (plan Task 7 yêu cầu) — không có cặp để đo
-- Gõ tắt chữ đầu ("dn" → Đà Nẵng) của script preview: DS lọc bằng locMucChon của bang/ (tách nguyên logic OChonGoiY, không có gõ tắt) — để quyết định riêng
 - Bàn phím (↑/↓, Enter, Esc + focus về trigger, Esc trong Dialog chỉ đóng pop), bộ gõ đang ghép chữ, ghi chú cắt bớt, tìm xa (gõ thêm / đang tìm / lỗi / bỏ kết quả về muộn), nút ✕: test jsdom components/ui/combobox.dom.test.tsx + bang/useTimXa.dom.test.ts + bang/timkiem.test.ts
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |

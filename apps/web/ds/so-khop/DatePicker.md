@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/DatePicker-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**3236/3300 khớp** · 64 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
+**3238/3300 khớp** · 62 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -43,4 +43,3 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | ngay-chan | paddingLeft | 6px | 0px | sang 1440, sang 390, toi 1440, toi 390 | Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ. |
 | pop | height | 461px | 422px | sang 390, toi 390 | Trần cao theo chỗ trống (review lát 3, I3): calendarPop có max-height = --radix-popover-content-available-height (khoảng trigger → mép khung nhìn trừ 8) + cuộn trong pop, để khổ 390 nút giữa màn lịch không tràn mất chân. Trang đo cao 900, trigger nằm giữa trang → pop chỉ còn 422px, cuộn bên trong; preview vẽ `.ui-cal-pop` tĩnh trọn chiều cao (440 / 550; 390: 461 / 504). Đo Chrome 390×844 nút giữa màn: pop 442→836, cuộn tới đáy thấy nút chân. Ô ngày, đệm, bo, chữ vẫn so ở các khoá khác; khối mẫu mở sẵn (lich-mau / bang) không nằm trong Popover nên vẫn cao trọn. |
 | lich-mau | height | 461px | 461.5px | sang 390, toi 390 | Như khoá pop: 0,5px làm tròn hàng bảng ở ô lẻ 48,857px (khổ ≤ 640). |
-| trigger-tat | hover.boxShadow | rgb(255 255 255 / 0.302) 0px 0px 0px 1px inset | rgb(255 255 255 / 0.059) 0px 0px 0px 1px inset | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn (như khoá tat của so khớp Select/Input): rule hover theme tối của bundle.css (data-theme tối + .ui-select-trigger:hover, 0,3,0) thắng .ui-select-trigger:disabled (0,2,0) → trigger TẮT vẫn đậm viền alpha-30 khi rê ở theme tối. DS giữ viền tắt color-border-disabled ở cả hai theme (controlOutline) — đề xuất đồng bộ ngược artifact. |

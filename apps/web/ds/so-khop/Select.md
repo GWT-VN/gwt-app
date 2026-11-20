@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Select-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**2330/2348 khớp** · 18 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
+**2332/2348 khớp** · 16 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -29,4 +29,3 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | content | zIndex | auto | 90 | sang 1440, sang 390, toi 1440, toi 390 | Preview Select vẽ `.ui-menu` tĩnh trong .ui-stack, không có lớp nổi → z-index auto. Menu nổi THẬT của artifact là `.b-noi` (bundle.css dòng 731, position fixed, z-index 90); DS dùng z-90 chung của menuContent (thang z ds/NGUON.md) — như khoá khung của so khớp DropdownMenu. |
 | content | flexDirection | row | column | sang 1440, sang 390, toi 1440, toi 390 | Radix Select Content tự gắn style inline display flex + flex-direction column (để Viewport bên trong giãn và cuộn); `.ui-menu` của preview là block → giá trị mặc định row. Một con duy nhất (Viewport) giãn hết bề ngang ở cả hai cách → bố cục mục như nhau (width/height/padding của content và item đều khớp). |
 | luoi | height | 430px | 282px | sang 390, toi 390 | Preview vẽ menu mở TĨNH ngay dưới nút trong cột 1 (.ui-stack: nhãn 20 + 8 + nút 32 + 8 + menu 140 = 208); DS chỉ mở menu khi bấm (Select modal, nổi trong portal) nên cột 1 còn nhãn + nút 60. Khổ 390 hai cột xếp chồng: artifact 208 + 16 + 206 = 430, DS 60 + 16 + 206 = 282. |
-| tat | hover.boxShadow | rgb(255 255 255 / 0.302) 0px 0px 0px 1px inset | rgb(255 255 255 / 0.059) 0px 0px 0px 1px inset | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn (như khoá tat của so khớp Input): rule hover theme tối của bundle.css (data-theme tối + .ui-select-trigger:hover, đặc hiệu 0,3,0) thắng .ui-select-trigger:disabled (0,2,0) → trigger TẮT vẫn đậm viền alpha-30 khi rê ở theme tối, theme sáng thì không. DS giữ viền tắt color-border-disabled ở cả hai theme (controlOutline) — đề xuất đồng bộ ngược artifact. |

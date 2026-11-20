@@ -444,11 +444,7 @@
         {
           "cho": 200
         }
-      ],
-      "lyDo": {
-        "o.borderTopColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-checkbox:hover, 0,3,0) thắng .ui-checkbox[aria-invalid] (0,2,0) → ô LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact.",
-        "o.borderBottomColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-checkbox:hover, 0,3,0) thắng .ui-checkbox[aria-invalid] (0,2,0) → ô LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact."
-      }
+      ]
     },
     {
       "khoa": "loi-msg",

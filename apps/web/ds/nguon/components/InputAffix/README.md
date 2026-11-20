@@ -10,7 +10,7 @@
 | Số | | `data-align="end"` căn phải; `inputmode="numeric"` (tiền) / `decimal` (%) → `tabular-nums` |
 | Gợi ý | `ui-help` | có thể ghi lại số đã định dạng ("= 2.500.000 ₫") |
 
-**Hành vi ô tiền:** gõ chỉ nhận chữ số, tự chèn dấu chấm; lưu **giá trị số** (không lưu chuỗi có dấu chấm); trống = `null`, khác 0. Không dùng `type="number"` (bàn phím mất dấu chấm, con lăn chuột đổi số).
+**Hành vi ô tiền:** gõ chỉ nhận chữ số, tự chèn dấu chấm; lưu **giá trị số** (không lưu chuỗi có dấu chấm); trống = `null`, khác 0. **Phần lẻ chỉ hiểu khi DÁN** (chốt 20/11/2026): dán "1.250.000,00" → 1250000, "12,5" → 13 (1–2 chữ số sau dấu cuối = phần lẻ, làm tròn); khi gõ chỉ lấy chữ số — xoá chữ số cuối của "1.250.000" không bị đọc thành 1250. Ô tiền **không âm**: dán "-500.000" → 500000; cần số âm (điều chỉnh, hoàn tiền) thì dùng ô khác. Không dùng `type="number"` (bàn phím mất dấu chấm, con lăn chuột đổi số).
 
 **Dùng lại:** định dạng hiển thị = `fmtVnd()` (`apps/web/app/sales/_ui.tsx`, `Intl.NumberFormat('vi-VN')`). ⚠️ Đề xuất dời `fmtVnd`/`fmtDate` sang file dùng chung (vd `lib/dinh-dang.ts`) vì mọi khu cần — chờ duyệt, chưa dời.
 

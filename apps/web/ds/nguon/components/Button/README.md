@@ -19,7 +19,7 @@ shadcn `Button` mặc áo OpenAI: pill, cao 32px, chữ 14px medium; dùng cho m
 - Bo góc: OpenAI để `pill = true` mặc định → `rounded-full`. Nút trong ô bảng, toolbar dày: `data-shape="rounded"` dùng `--control-radius-*` (sm 6px, md 8px).
 - Focus-visible: outline 2px `ring`, offset 2px (outline/ghost: offset −1px). Không dùng ring 3px mờ mặc định của shadcn.
 - Disabled: nền `color-background-disabled`, chữ `color-text-disabled`, viền `color-border-disabled`.
-- Loading: giữ nguyên bề rộng, ẩn nội dung (opacity 0), spinner 16px giữa nút, `aria-busy="true"`, không cho bấm lại.
+- Loading: giữ nguyên bề rộng, ẩn nội dung (opacity 0), spinner 16px giữa nút, `aria-busy="true"` + `aria-disabled="true"`, không cho bấm lại. **Không dùng `disabled`** (chốt 20/11/2026): nút `disabled` rơi focus về `body` giữa lúc lưu và trình đọc màn hình mất chỗ; `aria-disabled` giữ focus trên nút, chặn bấm trong `onClick`.
 
 Tailwind (sửa `buttonVariants` của shadcn):
 ```ts

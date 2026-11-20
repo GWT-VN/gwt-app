@@ -101,10 +101,7 @@
         "hover"
       ],
       "artifactThat": true,
-      "boChu": true,
-      "lyDo": {
-        "hover.backgroundColor": "Lỗi nguồn: .ui-switch:checked:hover của bundle.css không loại :disabled → công tắc TẮT (khoá) vẫn đổi sang primary-solid-hover khi rê. DS: công tắc tắt không phản hồi chuột (hover chỉ khi enabled), nhất quán ô nhập tắt (input.json) — đề xuất đồng bộ ngược artifact."
-      }
+      "boChu": true
     },
     {
       "khoa": "khoa-num",

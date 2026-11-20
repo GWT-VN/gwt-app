@@ -14,8 +14,8 @@ import { cn } from '@/lib/utils'
  *   alpha-15; trượt 14px trong 150ms, tắt hiệu ứng khi prefers-reduced-motion.
  * - Focus phím: outline 2 ring, offset 2. Tắt: opacity 0.5, not-allowed.
  * - Rê chuột chia theo trạng thái (unchecked / checked) vì biến thể hover + enabled đặc hiệu cao hơn data-state: viết
- *   chung một hover sẽ đè màu "bật". Tắt (disabled) KHÔNG đổi màu khi rê — bundle.css thì có (`.ui-switch:hover` không
- *   loại `:disabled`); DS nhất quán với ô nhập tắt (lyDo trong ds/so-khop/switch.json).
+ *   chung một hover sẽ đè màu "bật". Tắt (disabled) KHÔNG đổi màu khi rê, nhất quán ô nhập tắt — artifact
+ *   bản 38 đã sửa theo (hover của `.ui-switch` loại `:disabled`).
  */
 export function Switch({
   className,

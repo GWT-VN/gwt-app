@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Input-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**3338/3340 khớp** · 2 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
+**3340/3340 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -22,6 +22,4 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - controlOutlineWithin (khung bọc ô không viền): không dùng trong khối Input — đo ở so khớp InputAffix
 - Bấm nhãn focus ô, tên đọc được bỏ dấu *, gợi ý nối aria-describedby: test jsdom components/ui/field-input.test.tsx
 
-| khoá | thuộc tính | artifact | ds | ở | lý do |
-|---|---|---|---|---|---|
-| tat | hover.boxShadow | rgb(255 255 255 / 0.302) 0px 0px 0px 1px inset | rgb(255 255 255 / 0.059) 0px 0px 0px 1px inset | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-input:hover, đặc hiệu 0,3,0) thắng .ui-input:disabled (0,2,0) → ô TẮT vẫn đậm viền alpha-30 khi rê ở theme tối, theme sáng thì không. DS giữ viền tắt color-border-disabled ở cả hai theme (ô tắt không phản hồi chuột), nhất quán theme sáng — đề xuất đồng bộ ngược artifact. |
+Không có dòng lệch.

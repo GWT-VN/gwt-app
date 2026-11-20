@@ -9,9 +9,8 @@ import { cn } from '@/lib/utils'
  *   không dùng utility shadow của Tailwind: nó ghép 5 lớp bóng → computed khác artifact (cùng cách Button outline).
  * - Màu đổi theo theme qua biến cục bộ: `--ctl-hover` alpha-25 (tối alpha-30), `--ctl-invalid` red-500 (tối red-600).
  * - Thứ tự ưu tiên (thứ tự biến thể Tailwind 4: hover < focus-visible < enabled/disabled < aria-*): tắt > lỗi > focus
- *   > hover > thường. Lỗi gắn `enabled:` → không tranh với tắt (hai trạng thái loại trừ nhau). Khác bundle.css ở một
- *   ca không có trong preview: theme tối, rê chuột lên ô ĐANG focus — bundle ra alpha-30 (rule tối đặc hiệu cao hơn
- *   :focus), ở đây giữ alpha-50 (focus thắng hover như theme sáng).
+ *   > hover > thường. Lỗi gắn `enabled:` → không tranh với tắt (hai trạng thái loại trừ nhau). Cùng thứ tự ở cả hai
+ *   theme — artifact bản 38 đã sửa theo (trước đó rule hover tối của bundle.css thắng tắt/focus).
  * - `[outline:none]` (shorthand, không phải `outline-none`): reset cả màu outline UA `:focus-visible` như `outline: none`
  *   của bundle.css → computed outline khớp.
  * - Font kế thừa DsRoot (preflight `font: inherit`), không reset font-feature-settings (luật NGUON).

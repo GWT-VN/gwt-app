@@ -12,6 +12,8 @@ Chọn **khoảng ngày** — **kiểu Airbnb** (Dũng chốt 18/11/2026), dựn
 | Chân | | trái "Xoá ngày" (`ghost sm`, gạch chân) · phải Huỷ (`outline sm`) · Áp dụng (`sm`, tắt khi chưa đủ 2 đầu) |
 | Điện thoại ≤ 640px | | đầu bảng xếp dọc, ô Từ/Đến full ngang; **1 tháng** (tháng chứa ngày cuối) đủ ‹ › |
 
+**Như `DatePicker`:** trigger đọc tên = nhãn + khoảng đang chọn; bảng nổi trần cao theo chỗ trống + cuộn trong bảng; `min`/`max` kẹp tháng mở và ‹ ›.
+
 **Hành vi:** bấm lần 1 = ngày đầu, lần 2 = ngày cuối (bấm trước ngày đầu → làm lại ngày đầu). Giá trị chỉ đổi khi **Áp dụng**; Huỷ/Esc giữ giá trị cũ. Phím đưa focus ra ngoài tháng đang xem → tự lật tháng.
 
 **Mốc "30 ngày"** = `homNay − 30` → hôm nay, tức **31 ngày** tính cả hai đầu — giữ nguyên theo `ngay.ts` (Dũng chốt 18/11/2026), không sửa.

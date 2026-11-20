@@ -11,8 +11,7 @@ import { cn } from '@/lib/utils'
  * Radix vẽ bằng button (không phải input) → trạng thái đọc từ data-state, không từ pseudo checked.
  * Ưu tiên (thứ tự biến thể Tailwind 4: hover < focus-visible < enabled/disabled < aria < data): tắt > lỗi > chọn >
  * hover. Lỗi và chọn gắn `enabled:` (không tranh với tắt); viền "chọn" gắn `not-aria-invalid` để lỗi thắng như nguồn.
- * Khác bundle.css ở các ca theme tối (rule tối đặc hiệu 0,3,0 thắng mọi trạng thái 0,2,0 → ô lỗi/đã chọn rê chuột đổi
- * viền xám): DS giữ thứ tự như theme sáng.
+ * Thứ tự này giữ ở cả hai theme — artifact bản 38 đã sửa theo (trước đó hover tối của bundle.css đè viền lỗi/đã chọn).
  */
 export const oChon = [
   'relative top-px m-0 inline-grid size-[18px] shrink-0 place-content-center p-0',

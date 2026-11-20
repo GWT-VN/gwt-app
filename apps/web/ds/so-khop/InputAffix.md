@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/InputAffix-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**2558/2560 khớp** · 2 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
+**2560/2560 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -21,6 +21,4 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Nhãn Chiết khấu: DS ghi "Chiết khấu (%)" theo README (nói đơn vị vì % là aria-hidden), preview ghi "Chiết khấu" — không đo nhãn này
 - fontVariantNumeric (tabular-nums theo inputmode): không nằm trong bộ thuộc tính đo; kiểm bằng mắt ở ảnh
 
-| khoá | thuộc tính | artifact | ds | ở | lý do |
-|---|---|---|---|---|---|
-| loi | boxShadow | rgb(186 38 35) 0px 0px 0px 1px inset | none | toi 1440, toi 390 | Lỗi đặc hiệu của nguồn: rule lỗi theme tối của bundle.css (data-theme tối + .ui-input có aria-invalid, đặc hiệu 0,3,0) thắng rule reset ô trong khung (.ui-input-affix > .ui-input, 0,2,0) → ở theme tối Ô SỐ bên trong tự vẽ thêm viền đỏ thứ hai lồng trong viền đỏ của khung; theme sáng (0,2,0, viết trước) thì không. DS chỉ vẽ viền lỗi ở khung (cả hai theme) như README — đề xuất đồng bộ ngược artifact. |
+Không có dòng lệch.

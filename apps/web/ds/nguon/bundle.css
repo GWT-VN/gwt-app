@@ -126,14 +126,19 @@ body {
   transition: box-shadow 150ms ease, background-color 150ms ease, color 150ms ease;
 }
 .ui-input::placeholder, .ui-textarea::placeholder { color: var(--color-text-tertiary); }
-.ui-input:hover, .ui-input.is-hover, .ui-textarea:hover, .ui-select-trigger:hover, .ui-select-trigger.is-hover { box-shadow: inset 0 0 0 1px var(--alpha-25); }
-[data-theme="dark"] .ui-input:hover, [data-theme="dark"] .ui-input.is-hover, [data-theme="dark"] .ui-textarea:hover,
-[data-theme="dark"] .ui-select-trigger:hover, [data-theme="dark"] .ui-select-trigger.is-hover { box-shadow: inset 0 0 0 1px var(--alpha-30); }
+/* Hover chỉ ở trạng thái THƯỜNG — thứ tự tắt > lỗi > focus/mở > hover ở cả hai theme. :not(:where()) không cộng đặc hiệu:
+   trước đây rule tối (0,3,0) thắng :disabled/:focus (0,2,0) → ô tắt/đang focus đổi viền khi rê ở tối (đồng bộ ngược 20/11). */
+.ui-input:is(:hover, .is-hover):not(:where(:disabled, :focus, .is-focus, [aria-invalid="true"])),
+.ui-textarea:hover:not(:where(:disabled, :focus, [aria-invalid="true"])),
+.ui-select-trigger:is(:hover, .is-hover):not(:where(:disabled, :focus-visible, .is-focus, [aria-expanded="true"], [aria-invalid="true"])) { box-shadow: inset 0 0 0 1px var(--alpha-25); }
+[data-theme="dark"] .ui-input:is(:hover, .is-hover):not(:where(:disabled, :focus, .is-focus, [aria-invalid="true"])),
+[data-theme="dark"] .ui-textarea:hover:not(:where(:disabled, :focus, [aria-invalid="true"])),
+[data-theme="dark"] .ui-select-trigger:is(:hover, .is-hover):not(:where(:disabled, :focus-visible, .is-focus, [aria-expanded="true"], [aria-invalid="true"])) { box-shadow: inset 0 0 0 1px var(--alpha-30); }
 .ui-input:focus, .ui-input.is-focus, .ui-textarea:focus, .ui-select-trigger:focus-visible, .ui-select-trigger.is-focus,
 .ui-select-trigger[aria-expanded="true"] { box-shadow: inset 0 0 0 1px var(--alpha-50); }   /* --input-outline-border-color-focus */
 .ui-input[aria-invalid="true"], .ui-textarea[aria-invalid="true"], .ui-select-trigger[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--red-500); }
-[data-theme="dark"] .ui-input[aria-invalid="true"], [data-theme="dark"] .ui-textarea[aria-invalid="true"],
-[data-theme="dark"] .ui-select-trigger[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--red-600); }   /* --input-border-color-invalid */
+[data-theme="dark"] .ui-input[aria-invalid="true"]:not(:where(:disabled)), [data-theme="dark"] .ui-textarea[aria-invalid="true"]:not(:where(:disabled)),
+[data-theme="dark"] .ui-select-trigger[aria-invalid="true"]:not(:where(:disabled)) { box-shadow: inset 0 0 0 1px var(--red-600); }   /* --input-border-color-invalid */
 .ui-input:disabled, .ui-textarea:disabled, .ui-select-trigger:disabled {
   background: var(--color-background-disabled);
   box-shadow: inset 0 0 0 1px var(--color-border-disabled);
@@ -209,7 +214,7 @@ body {
 }
 [data-theme="dark"] .ui-checkbox { border-color: var(--gray-500); }
 .ui-checkbox:hover, .ui-checkbox.is-hover { border-color: var(--gray-300); }
-[data-theme="dark"] .ui-checkbox:hover, [data-theme="dark"] .ui-checkbox.is-hover { border-color: var(--gray-600); }
+[data-theme="dark"] .ui-checkbox:is(:hover, .is-hover):not(:where(:checked, :indeterminate, :disabled, [aria-invalid="true"])) { border-color: var(--gray-600); }   /* tối 0,3,0 không được đè chọn/tắt/lỗi */
 .ui-checkbox:checked, .ui-checkbox:indeterminate { border-color: var(--gray-900); background: var(--gray-900); }
 .ui-checkbox::after { content: ""; width: 10px; height: 6px; border: solid var(--gray-0); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); opacity: 0; }
 .ui-checkbox:checked::after { opacity: 1; }
@@ -221,7 +226,7 @@ body {
 .ui-checkbox:disabled:checked { border-color: var(--gray-300); background: var(--gray-300); }
 [data-theme="dark"] .ui-checkbox:disabled:checked { border-color: var(--gray-200); background: var(--gray-200); }
 .ui-checkbox-label:has(.ui-checkbox:disabled) { color: var(--color-text-disabled); cursor: not-allowed; }
-.ui-checkbox[aria-invalid="true"] { border-color: var(--red-500); }
+.ui-checkbox[aria-invalid="true"]:not(:where(:disabled)) { border-color: var(--red-500); }   /* tắt > lỗi */
 
 /* ---------- Tabs (shadcn Tabs · OpenAI SegmentedControl md) ---------- */
 .ui-tabs-list {
@@ -434,7 +439,7 @@ body {
 .ui-radio { appearance: none; -webkit-appearance: none; position: relative; top: 1px; display: inline-grid; place-content: center; width: 18px; height: 18px; margin: 0; flex-shrink: 0; border: 1px solid var(--gray-200); border-radius: var(--radius-full); background: transparent; cursor: pointer; transition: border-color 150ms ease; }
 [data-theme="dark"] .ui-radio { border-color: var(--gray-500); }
 .ui-radio:hover { border-color: var(--gray-300); }
-[data-theme="dark"] .ui-radio:hover { border-color: var(--gray-600); }
+[data-theme="dark"] .ui-radio:hover:not(:where(:checked, :disabled, [aria-invalid="true"])) { border-color: var(--gray-600); }
 .ui-radio:checked { border-color: var(--color-background-primary-solid); }
 .ui-radio::after { content: ""; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--color-background-primary-solid); transform: scale(0); transition: transform 120ms ease; }
 .ui-radio:checked::after { transform: scale(1); }
@@ -443,7 +448,7 @@ body {
 .ui-radio:disabled { cursor: not-allowed; border-color: var(--gray-150); background: var(--gray-25); }
 .ui-radio:disabled::after { background: var(--gray-300); }
 [data-theme="dark"] .ui-radio:disabled { border-color: var(--gray-300); background: transparent; }
-.ui-radio[aria-invalid="true"] { border-color: var(--red-500); }
+.ui-radio[aria-invalid="true"]:not(:where(:disabled)) { border-color: var(--red-500); }
 
 /* --- Nhóm lựa chọn (Radio / Checkbox): <fieldset class="ui-choices"><legend class="ui-label"> --- */
 .ui-choices { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -455,11 +460,11 @@ body {
 
 /* --- Switch: <input type="checkbox" role="switch"> — rãnh 32×18, núm 14 --- */
 .ui-switch { appearance: none; -webkit-appearance: none; position: relative; width: 32px; height: 18px; margin: 1px 0 0; flex-shrink: 0; border: 0; border-radius: var(--radius-full); background: var(--alpha-25); cursor: pointer; transition: background-color 150ms ease; }
-.ui-switch:hover { background: var(--alpha-30); }
+.ui-switch:hover:not(:where(:disabled)) { background: var(--alpha-30); }   /* khoá: không phản hồi chuột */
 .ui-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: var(--radius-full); background: var(--background); box-shadow: var(--shadow-hairline), 0 1px 2px var(--alpha-15); transition: transform 150ms cubic-bezier(0.19, 1, 0.22, 1); }
 [data-theme="dark"] .ui-switch::after { background: var(--foreground); }
 .ui-switch:checked { background: var(--color-background-primary-solid); }
-.ui-switch:checked:hover { background: var(--color-background-primary-solid-hover); }
+.ui-switch:checked:hover:not(:where(:disabled)) { background: var(--color-background-primary-solid-hover); }
 .ui-switch:checked::after { transform: translateX(14px); background: var(--color-text-primary-solid); }
 .ui-switch:focus { outline: none; }
 .ui-switch:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
@@ -471,13 +476,14 @@ body {
 /* --- InputAffix (input group): khung viền bọc cả số + đơn vị (₫, %, kg) — đơn vị đứng SÁT số, cách 4px cho mọi đơn vị.
    Viền/hover/focus/lỗi/tắt chép đúng của Input, chuyển từ ô lên khung (:focus-within / :has). --- */
 .ui-input-affix { display: flex; align-items: center; gap: 4px; height: var(--control-size-md); padding: 0 var(--control-gutter-md); border-radius: var(--radius-md); box-shadow: inset 0 0 0 1px var(--input); cursor: text; transition: box-shadow 150ms ease, background-color 150ms ease; }
-.ui-input-affix:hover { box-shadow: inset 0 0 0 1px var(--alpha-25); }
-[data-theme="dark"] .ui-input-affix:hover { box-shadow: inset 0 0 0 1px var(--alpha-30); }
+.ui-input-affix:hover:not(:where(:focus-within)) { box-shadow: inset 0 0 0 1px var(--alpha-25); }
+[data-theme="dark"] .ui-input-affix:hover:not(:where(:focus-within)) { box-shadow: inset 0 0 0 1px var(--alpha-30); }
 .ui-input-affix:focus-within { box-shadow: inset 0 0 0 1px var(--alpha-50); }
 .ui-input-affix:has(> .ui-input[aria-invalid="true"]) { box-shadow: inset 0 0 0 1px var(--red-500); }
-[data-theme="dark"] .ui-input-affix:has(> .ui-input[aria-invalid="true"]) { box-shadow: inset 0 0 0 1px var(--red-600); }
+[data-theme="dark"] .ui-input-affix:has(> .ui-input[aria-invalid="true"]:not(:disabled)) { box-shadow: inset 0 0 0 1px var(--red-600); }
 .ui-input-affix:has(> .ui-input:disabled) { background: var(--color-background-disabled); box-shadow: inset 0 0 0 1px var(--color-border-disabled); cursor: not-allowed; }
-.ui-input-affix > .ui-input, .ui-input-affix > .ui-input:hover, .ui-input-affix > .ui-input:focus, .ui-input-affix > .ui-input:disabled { flex: 1; min-width: 0; height: 100%; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.ui-input-affix > .ui-input, .ui-input-affix > .ui-input:hover, .ui-input-affix > .ui-input:focus, .ui-input-affix > .ui-input:disabled,
+.ui-input-affix > .ui-input[aria-invalid="true"] {   /* 0,3,0 viết sau → thắng rule lỗi tối: viền lỗi chỉ ở khung */ flex: 1; min-width: 0; height: 100%; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .ui-input-affix > .ui-affix { flex-shrink: 0; font-size: 14px; line-height: 20px; color: var(--color-text-tertiary); pointer-events: none; }
 .ui-input-affix > .ui-affix[data-side="start"] { order: -1; }
 .ui-input[data-align="end"] { text-align: right; }

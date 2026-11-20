@@ -2,7 +2,7 @@
 
 Artifact **"GWT — OpenAI + shadcn"**, **bản 26** — https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr
 
-File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy **bản 37** (20/11; bản 36 chỉ đổi index; bản 29 của 19/11 đã thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), 10 `preview.html` của lát 2 lấy **bản 31** (19/11) trừ Tooltip và ContextMenu lấy **bản 33** (20/11); 11 `preview.html` + README của lát 3 (Form) lấy **bản 37** (20/11). Chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF. Không sửa tay.
+File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy **bản 38** (20/11; bản 37 thêm lề tiêu đề Dialog/Sheet; bản 36 chỉ đổi index; bản 29 của 19/11 đã thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), 10 `preview.html` của lát 2 lấy **bản 31** (19/11) trừ Tooltip và ContextMenu lấy **bản 33** (20/11); 11 `preview.html` + README của lát 3 (Form) lấy **bản 37** (20/11), trừ `Combobox/preview.html` + README gốc và README Button/InputAffix/Combobox/DatePicker/DateRangePicker/Checkbox/Radio lấy **bản 38** (20/11). Chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF. Không sửa tay.
 
 Bản 33–34 đồng bộ ngược 5 điểm từ code lát 2 vào artifact: tooltip line-height 16 (cả tooltip sidebar); mục menu disabled ở theme tối không sáng nền khi trỏ; aria-label của preview Tooltip không lặp `data-tip`; icon ContextMenu 16px màu muted; `.b-noi .ui-menu-item` khớp menu-styles.
 
@@ -17,11 +17,22 @@ chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề 
 bản 35). Code: `chuaNutDong` (`dialog-styles.ts`, gắn khi `showClose`) + header Sheet `pr-14`. README Dialog/Sheet thêm 1 dòng;
 không preview.html nào đổi.
 
+Bản 38 (CEO duyệt 20/11, "Sửa artifact luôn" — đồng bộ ngược lát 3; bản 39 chỉ đổi index `lastChange`): sửa lỗi đặc
+hiệu theme tối/trạng thái của `bundle.css` mà DS đã KHÔNG chép — hover chỉ ở trạng thái thường bằng `:not(:where(…))`
+(không cộng đặc hiệu): ô nhập/textarea/Select trigger (dùng chung DatePicker/DateRangePicker) loại tắt/focus/mở/lỗi; rule
+lỗi tối loại `:disabled` (tắt > lỗi); InputAffix: hover khung loại `:focus-within`, lỗi tối của khung loại con tắt, reset ô
+trong khung thêm `[aria-invalid]` (hết viền đỏ đôi); Switch hover loại `:disabled`; Checkbox/Radio hover tối loại
+chọn/tắt/lỗi, lỗi loại `:disabled`. Không đổi token. Kiểm bằng Chrome headless (chuột/phím CDP thật): 37 ca × 2 theme đúng
+ở bản mới (bản 37 sai 21 ca). Bỏ 9 `lyDo` (input, inputaffix, checkbox ×2, radio ×2, switch, select, datepicker). README
+thêm quyết định đã chốt (Inter chính chủ, Button loading, ô tiền dán phần lẻ/không âm, Combobox khớp chuỗi con + tên
+trigger, DatePicker/DateRangePicker trần cao pop + kẹp tháng, mô tả Checkbox/Radio `aria-describedby`); preview Combobox
+đổi sang 34 tỉnh/thành (NQ 202/2025/QH15) và bỏ khớp chữ cái đầu.
+
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` (bản 37) | `2b9b6e28e1b1b7ff7f685de0c0a276675dadd16e9a9831c3617a089b87361899` |
+| `nguon/bundle.css` (bản 38) | `73241bf9b79dd8394cec094350603868080d0025fa6bc26e6b20cf6087b225a9` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
@@ -39,30 +50,30 @@ không preview.html nào đổi.
 | `nguon/components/Radio/preview.html` (bản 37) | `c345332155acc101844d432bd8486ae12547134fd848c050742b2ec5e47a8743` |
 | `nguon/components/Switch/preview.html` (bản 37) | `e8489c3891fa016ee5def8f7d49c7079508b38d601d6a6f48739339602c166d5` |
 | `nguon/components/Select/preview.html` (bản 37) | `2db038aae769479a473a9f1151863bcf190d9147dfc9756b1892517858fbb4a6` |
-| `nguon/components/Combobox/preview.html` (bản 37) | `cf5167b27d78c3b0399a7a1dbc4f45142a982c80b5c9cbb7d98ab4c1e8f74856` |
+| `nguon/components/Combobox/preview.html` (bản 38) | `4e9f82c0079b2649c5d69a80e50b91152fb0b98f11c12ec1bebc36dc7cdf58af` |
 | `nguon/components/DatePicker/preview.html` (bản 37) | `fc39754c75bb053fc7ce95a921278209a217f256fec23c6f3a5f081bbe7c1212` |
 | `nguon/components/DateRangePicker/preview.html` (bản 37) | `4af2927ade5a4a0ce7ab6bfc13442f427d2ffbaebe527d61b3859b6cebb29a04` |
 | `nguon/components/FileUpload/preview.html` (bản 37) | `20fb1d1ad2ddb757e4bf8b01e7f96fd3571ad56dff9f11020242a56e8a3643ab` |
 | `nguon/components/FormLayout/preview.html` (bản 37) | `9b10b2fec50fabda5418c14c6765bd3c921624a87c30c79670ce85e29c0621f0` |
-| `nguon/README.md` (bản 37) | `5fb5801ef1f1c216de1d8710301f48b55e81cf0024b501575f99b3b76a5c6504` |
+| `nguon/README.md` (bản 38) | `8ec35c76deebd58a5d22e8ed2ceb9967ab9e0891e973dd0094a7bd2343be84f3` |
 | `nguon/components/Alert/README.md` (bản 37) | `6c43cfce0fe38d1142ec6b2b9dba9d6cd303246d2b6eea2ccf405a66e2b1eae5` |
 | `nguon/components/Avatar/README.md` (bản 37) | `1c96c7dc37ca072574340859677e57acdab3e9db5a9b4224d981eac458c2b7fa` |
 | `nguon/components/Badge/README.md` (bản 37) | `8d46db52bed6a44d72998f9dd9c179ad8634ebd1131d451ebad9eebdc4ef2db0` |
-| `nguon/components/Button/README.md` (bản 37) | `b2aeefe62b7a8997395d975f85b891dd62c333247e7db5f8ac5c100a446942cf` |
-| `nguon/components/Checkbox/README.md` (bản 37) | `8450d45598fa6c7fc73ba0fdeaa3109a3ff02108353446ffad11f3afceab8c59` |
-| `nguon/components/Combobox/README.md` (bản 37) | `8ca80c46a239716dcd343cc53a34a3eac45287bc9d60380ad83ecb7024e7cfa8` |
+| `nguon/components/Button/README.md` (bản 38) | `7c4d765de3fe02a32f24018c9ed1e64ce9842e98ddb66c3e55feae9e477e918b` |
+| `nguon/components/Checkbox/README.md` (bản 38) | `0f34e20be1686968560d4e29e8b509eabc42e3135d16608bbab7b385b247996f` |
+| `nguon/components/Combobox/README.md` (bản 38) | `495c777aa0daf6f6f30c041a406f219a5a584386f02b15f83773a169089e0810` |
 | `nguon/components/ConfirmDialog/README.md` (bản 37) | `248bf80fa9b9de0b996faaa33ac2b2f267839a9553eaf902d363f01857b3318b` |
 | `nguon/components/ContextMenu/README.md` (bản 37) | `088c1cbe787cc7b8733b9ad0e6b76a2bec1af0ea64846bbd80816f1aadd799ad` |
-| `nguon/components/DatePicker/README.md` (bản 37) | `4ae6528d5b5100325b22dbf775e804e1526062a5d00ada493d8092dfdb5fffda` |
-| `nguon/components/DateRangePicker/README.md` (bản 37) | `fdc075c42a1f390d9f953baa5d792b91d3ce7450ab34ea7da3eebac8ae92b3d4` |
+| `nguon/components/DatePicker/README.md` (bản 38) | `dad40ee70250e18a136f8acfd51ba5683c9275b11c29e8cf5dc0e5998af9bf9f` |
+| `nguon/components/DateRangePicker/README.md` (bản 38) | `80834ce79bb5396898cab475d29c738586194922314bba20f19f332b8a30dd93` |
 | `nguon/components/Dialog/README.md` (bản 37) | `83ecfd3b3a6183d01b1a425638b3380987c503ed19c952be22b583484b24c9b7` |
 | `nguon/components/DropdownMenu/README.md` (bản 37) | `d47d89bde8bc826d043e035c62a3adc067ed474f047f175f29dbc83428059871` |
 | `nguon/components/FileUpload/README.md` (bản 37) | `e85ea46db97771f580342ca82bc007bf06c356fe3fca6756e6702b73a4878660` |
 | `nguon/components/FormLayout/README.md` (bản 37) | `c7509a2d4f3d5dbbd4a99c2496d738bc6a6558d8379033cfcf5f5d581e632f98` |
 | `nguon/components/Input/README.md` (bản 37) | `b365f1544aea4d76a7286dbe4c8a78dbe7ba7af457c09031366bc965582e27db` |
-| `nguon/components/InputAffix/README.md` (bản 37) | `018cb5c7e6e3a96165790364c6e000d386429513abc3c2d185126c9cd4c6dc57` |
+| `nguon/components/InputAffix/README.md` (bản 38) | `5044880db9347ff445b9f6bec5b11b3b948a60b2b65f619f9262e7d5d9278d57` |
 | `nguon/components/Kbd/README.md` (bản 37) | `7fce49f5b25ab4124497cfefcc8e625f38f2e17296e25ab4313dd4548d2b4014` |
-| `nguon/components/Radio/README.md` (bản 37) | `3fc355574590b9db5e17497fdd1cc3fb4ce1ab3ea75de205c8e700375279be65` |
+| `nguon/components/Radio/README.md` (bản 38) | `11fcbde03ccbd9c837321ceb48e36d346cec557a62377274da5c1f7db94d0287` |
 | `nguon/components/Select/README.md` (bản 37) | `392e3e868604d2bcdfbcab9f3ed749e3a768659e1d6aa21eec667761dd5e646a` |
 | `nguon/components/Sheet/README.md` (bản 37) | `53427ff7e087ffb8fc3232054afb5b598d2c2244d4e55987d79cf07f1be55fbf` |
 | `nguon/components/Switch/README.md` (bản 37) | `36e09dcbec0756dfcbe9ad61cec14f55a3d25c252aab7c3cf232b4a3be0b9c9e` |
@@ -155,8 +166,9 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   `@media (hover:hover)`) < `focus-visible` < `disabled` < `has-*` < `aria-*`. Trạng thái chồng nhau (tắt + lỗi, focus +
   hover) phải chặn bằng `not-*`/`enabled:` — không trông vào thứ tự viết class. Mẫu: `control-styles.ts`.
 - **Comment trong `.ts/.tsx` cũng bị Tailwind quét** — tả mẫu class bằng lời, đừng viết dạng ngoặc vuông có dấu ba chấm.
-- **bundle.css lỗi đặc hiệu theme tối:** `[data-theme=dark] X:hover` (0,3,0) thắng `:disabled`/`:focus` (0,2,0) → ô
-  tắt/đang focus vẫn đổi viền khi rê ở tối. DS KHÔNG chép lỗi này (ghi `lyDo`), gom đề xuất đồng bộ ngược artifact.
+- **bundle.css lỗi đặc hiệu theme tối:** `[data-theme=dark] X:hover` (0,3,0) từng thắng `:disabled`/`:focus` (0,2,0) →
+  ô tắt/đang focus đổi viền khi rê ở tối. DS không chép; **artifact bản 38 đã sửa** (hover loại trạng thái khác bằng
+  `:not(:where(…))`), lyDo đã bỏ. Gặp lỗi đặc hiệu nguồn mới: ghi `lyDo` + gom đồng bộ ngược như cũ.
 
 
 ### Luật thêm từ lát 3 (Form)

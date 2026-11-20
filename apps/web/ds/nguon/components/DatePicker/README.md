@@ -5,7 +5,7 @@ Chọn **một ngày** — **kiểu Airbnb** (Dũng chốt 18/11/2026). Trigger 
 | Phần | Token | Giá trị |
 | --- | --- | --- |
 | Trigger | `ui-select-trigger` | icon `CalendarBlank` 16px `muted-foreground` trước giá trị; placeholder "Chọn ngày" |
-| Bảng nổi | `ui-menu ui-cal-pop` | padding 20/24, bo `radius-4xl` 24px, cách ô 4px, tự lật lên khi thiếu chỗ, ép vào trong màn |
+| Bảng nổi | `ui-menu ui-cal-pop` | padding 20/24, bo `radius-4xl` 24px, cách ô 4px, tự lật lên khi thiếu chỗ, ép vào trong màn; **trần cao = chỗ trống** tới mép màn (`--radix-popover-content-available-height`) + cuộn trong bảng → điện thoại không mất chân |
 | Tiêu đề tháng | `heading-xs` | "Tháng 11, 2026" 16/24 600, căn giữa; ‹ › = `Button ghost icon-sm` bo tròn |
 | Thứ | `muted-foreground` | T2 … CN (**tuần bắt đầu Thứ 2**), 12/18 600 |
 | Ô ngày | `control-size-2xl` | **44×44 tròn**, chữ 14/20 **600** `tabular-nums`, `foreground` |
@@ -17,7 +17,9 @@ Chọn **một ngày** — **kiểu Airbnb** (Dũng chốt 18/11/2026). Trigger 
 | Chân | | trái "Xoá ngày" (`ghost sm`, gạch chân) khi đã có giá trị · phải "Hôm nay" (`outline sm`); kẻ trên `alpha-08` |
 | Điện thoại ≤ 640px | | bảng rộng `100vw − 16px`, ô ngày giãn đủ ngang (vuông, `aspect-ratio: 1`) |
 
-**Bàn phím & a11y (APG Date Picker Dialog):** trigger `aria-haspopup="dialog"` `aria-expanded`; bảng `role="dialog"` có nhãn; lưới `role="grid"`, ô `role="gridcell"` + `aria-selected`, `aria-label` đọc đủ ngày ("18/11/2026, hôm nay"). Một ô duy nhất `tabIndex=0`. ←→ ±1 ngày, ↑↓ ±1 tuần, PageUp/PageDown ±1 tháng, Home/End đầu/cuối tuần, Enter chọn, Esc đóng và trả focus về trigger.
+**`min`/`max`:** tháng mở **kẹp vào khoảng** (hôm nay ngoài khoảng → mở tháng gần nhất còn chọn được), ‹ › không đi ra ngoài tháng của min/max.
+
+**Bàn phím & a11y (APG Date Picker Dialog):** trigger là nút thường, tên đọc = **nhãn + ngày đang chọn**; `aria-haspopup="dialog"` `aria-expanded`; bảng `role="dialog"` có nhãn; lưới `role="grid"`, ô `role="gridcell"` + `aria-selected`, `aria-label` đọc đủ ngày ("18/11/2026, hôm nay"). Một ô duy nhất `tabIndex=0`. ←→ ±1 ngày, ↑↓ ±1 tuần, PageUp/PageDown ±1 tháng, Home/End đầu/cuối tuần, Enter chọn, Esc đóng và trả focus về trigger.
 
 **Dùng lại:** `isoNgay()` (`apps/web/bang/ngay.ts`) — **không dùng `toISOString()`** (lệch 1 ngày từ 0–7h sáng giờ VN, xem `ngay.test.ts`); `fmtDate()` để hiển thị.
 

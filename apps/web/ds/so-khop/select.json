@@ -178,10 +178,7 @@
             "color"
           ]
         }
-      ],
-      "lyDo": {
-        "hover.boxShadow@toi": "Lỗi đặc hiệu của nguồn (như khoá tat của so khớp Input): rule hover theme tối của bundle.css (data-theme tối + .ui-select-trigger:hover, đặc hiệu 0,3,0) thắng .ui-select-trigger:disabled (0,2,0) → trigger TẮT vẫn đậm viền alpha-30 khi rê ở theme tối, theme sáng thì không. DS giữ viền tắt color-border-disabled ở cả hai theme (controlOutline) — đề xuất đồng bộ ngược artifact."
-      }
+      ]
     },
     {
       "khoa": "content",
