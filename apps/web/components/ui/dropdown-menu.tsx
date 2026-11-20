@@ -1,6 +1,6 @@
 'use client'
 
-import type { ComponentProps } from 'react'
+import { createContext, useContext, useId, type ComponentProps } from 'react'
 import { Check } from '@phosphor-icons/react/ssr'
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
@@ -24,12 +24,24 @@ import {
  *   chữ ("Chuyển kho (không có quyền)") để trình đọc màn hình đọc kèm. Xem `itemDisabled` trong menu-styles.ts.
  * - Không animation, không sub-menu, không radio: artifact không định nghĩa.
  */
+/** Nút mở mang `data-ds-menu-trigger`, khung menu mang `data-trigger-id` cùng giá trị → mục menu mở Dialog/ConfirmDialog
+ * thì hộp đóng xong focus về nút (use-nut-mo.ts). Không dựa `aria-labelledby` của Radix: nút `asChild` có `id` riêng
+ * thì Slot cho id đó thắng, còn aria-labelledby vẫn là id Radix tự sinh. */
+const IdNut = createContext<string | undefined>(undefined)
+
 export function DropdownMenu(props: ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  const id = useId()
+  return (
+    <IdNut.Provider value={id}>
+      <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+    </IdNut.Provider>
+  )
 }
 
 export function DropdownMenuTrigger(props: ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
-  return <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
+  return (
+    <DropdownMenuPrimitive.Trigger data-ds-menu-trigger={useContext(IdNut)} data-slot="dropdown-menu-trigger" {...props} />
+  )
 }
 
 export function DropdownMenuGroup(props: ComponentProps<typeof DropdownMenuPrimitive.Group>) {
@@ -39,15 +51,20 @@ export function DropdownMenuGroup(props: ComponentProps<typeof DropdownMenuPrimi
 export function DropdownMenuContent({
   className,
   sideOffset = 4,
+  collisionPadding = 8,
   ...props
 }: ComponentProps<typeof DropdownMenuPrimitive.Content>) {
   const container = useDsPortal()
+  const idNut = useContext(IdNut)
   if (!container) return null
   return (
     <DropdownMenuPrimitive.Portal container={container}>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
+        data-trigger-id={idNut}
         sideOffset={sideOffset}
+        // 8px mỗi mép = trần cao `calc(100vh-16px)` của menuContent: khổ 390 menu không dính mép khung nhìn.
+        collisionPadding={collisionPadding}
         className={cn(menuContent, className)}
         {...props}
       />

@@ -63,7 +63,8 @@ export default async function DsPage({ searchParams }: { searchParams: Promise<{
         </ul>
       </nav>
 
-      <div className="flex flex-col gap-12">
+      {/* Neo tiêu đề khối (`h2 > a` ở mọi _khoi): vòng focus DS như Button, thay outline mặc định trình duyệt. */}
+      <div className="flex flex-col gap-12 [&_h2>a]:rounded-sm [&_h2>a]:focus-visible:outline-2 [&_h2>a]:focus-visible:outline-offset-2 [&_h2>a]:focus-visible:outline-ring">
         {KHOI.map(({ neo, Khoi }) => Khoi && <Khoi key={neo} />)}
       </div>
     </DsRoot>

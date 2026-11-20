@@ -259,3 +259,66 @@ test('ContextMenu trong Sheet: chuột phải dòng mở menu; Esc chỉ đóng 
   expect(screen.getByRole('dialog')).toBe(sheet)
   await waitFor(() => expect(document.activeElement).toBe(dong))
 })
+
+test('ContextMenu: dòng (asChild) mang `id` RIÊNG → mục mở ConfirmDialog → Huỷ: focus vẫn về đúng dòng', async () => {
+  // Radix Slot cho `id` của con thắng `id` DS đặt trên Trigger → tra theo id là ra null, focus rơi body.
+  function Mau() {
+    const [mo, setMo] = useState(false)
+    return (
+      <DsRoot>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div id="dong-1" tabIndex={0}>
+              DH-DEMO-0001
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem onSelect={() => setMo(true)}>Xoá đơn…</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+        <XacNhan open={mo} onOpenChange={setMo} />
+      </DsRoot>
+    )
+  }
+  const user = userEvent.setup()
+  const { container } = render(<Mau />)
+  const dong = container.ownerDocument.getElementById('dong-1')!
+  fireEvent.contextMenu(dong, { clientX: 40, clientY: 60 })
+  await user.click(await screen.findByRole('menuitem', { name: 'Xoá đơn…' }))
+  await screen.findByRole('alertdialog')
+  await user.click(screen.getByRole('button', { name: 'Huỷ' }))
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  await waitFor(() => expect(document.activeElement).toBe(dong))
+})
+
+test('DropdownMenu: nút (asChild) mang `id` RIÊNG → mục mở ConfirmDialog → Huỷ: focus vẫn về nút', async () => {
+  function Mau() {
+    const [mo, setMo] = useState(false)
+    return (
+      <DsRoot>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button id="nut-1" variant="outline" size="icon" aria-label="Thao tác với đơn">
+              ⋯
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={() => setMo(true)}>Xoá đơn…</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <XacNhan open={mo} onOpenChange={setMo} />
+      </DsRoot>
+    )
+  }
+  const user = userEvent.setup()
+  render(<Mau />)
+  const nut = screen.getByRole('button', { name: 'Thao tác với đơn' })
+  expect(nut.id).toBe('nut-1')
+  await user.click(nut)
+  // Radix vẫn ghi aria-labelledby = id nó tự sinh (không phải `nut-1`) → không tra nút theo aria-labelledby được.
+  await user.click(await screen.findByRole('menuitem', { name: 'Xoá đơn…' }))
+  await screen.findByRole('alertdialog')
+  await user.click(screen.getByRole('button', { name: 'Huỷ' }))
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  await waitFor(() => expect(document.activeElement).toBe(nut))
+})

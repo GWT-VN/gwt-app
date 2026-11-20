@@ -36,7 +36,7 @@ const list = [
  * - `tieuDe`: câu hỏi gọi tên đối tượng ("Xoá phiếu chi PC-…?"). `nutXacNhan`: đúng động từ ("Xoá phiếu"), không "OK".
  * - `hauQua`: gạch đầu dòng những gì sẽ xảy ra; `children` (ô lý do…) cách danh sách 16.
  * - `pha` (phá dữ liệu): nút xác nhận destructive + focus mặc định vào nút Huỷ (an toàn); không `pha` → focus nút xác
- *   nhận. Phần tử con mang `data-autofocus` (hoặc `autoFocus`) — vd ô gõ mã để mở khoá — thắng cả hai.
+ *   nhận. Phần tử con mang `data-autofocus` — vd ô gõ mã để mở khoá — thắng cả hai.
  * - `onXacNhan` trả **Promise** cho việc bất đồng bộ (khuyên dùng): khoá NGAY từ lần bấm đầu (ref đồng bộ, trước cả
  *   lần vẽ lại) tới khi Promise xong → bấm hai lần chỉ gọi một lần. Resolve → hộp tự đóng (`onOpenChange(false)`),
  *   focus về nút đã mở. Reject (hoặc ném lỗi đồng bộ) → mở khoá, hộp ở lại, Alert `loi ?? 'Không thực hiện được — thử

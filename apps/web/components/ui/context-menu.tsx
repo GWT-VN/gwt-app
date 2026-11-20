@@ -17,7 +17,8 @@ import { itemDisabled, menuContent, menuItem, menuItemDestructive, menuLabel, me
  * - Không modal (khác mặc định Radix): đóng khi Esc, bấm ra ngoài, CUỘN (y artifact) — modal thì Radix khoá cuộn; chuột
  *   phải sang dòng khác mở luôn menu của dòng đó.
  * - `disabled` trên Trigger: không mở bằng gì (cả phím). `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`). Không sub-menu/checkbox/radio: artifact không có.
- * - Dòng mang `id` (DS tự đặt nếu không truyền) và khung menu mang `data-trigger-id` trỏ về nó → mục menu mở Dialog /
+ * - Dòng mang `data-ds-menu-trigger` và khung menu mang `data-trigger-id` cùng giá trị (không dùng `id`: dòng có `id`
+ *   riêng thì Slot cho id của dòng thắng) → mục menu mở Dialog /
  *   ConfirmDialog thì hộp đóng xong focus về DÒNG (use-nut-mo.ts), không rơi body (mục menu đã bị gỡ).
  */
 const IdDong = createContext<string | undefined>(undefined)
@@ -70,7 +71,7 @@ export function ContextMenuTrigger({
   const id = useContext(IdDong)
   return (
     <ContextMenuPrimitive.Trigger
-      id={id}
+      data-ds-menu-trigger={id}
       data-slot="context-menu-trigger"
       className={cn('data-[state=open]:bg-(--alpha-05)', className)}
       onContextMenuCapture={(e) => {
@@ -121,10 +122,12 @@ export function ContextMenuTrigger({
  * `side="bottom"` (Radix mặc định "right"): Popper chỉ dời theo trục căn → mở bên phải thì menu 220 tràn mép phải ở khổ
  * hẹp (đo 390: chuột ở giữa dòng, không đủ chỗ cả phải lẫn trái). Mở xuống dưới con trỏ thì dời ngang vào trong khung
  * nhìn, lật lên khi sát đáy — như menu chuột phải của hệ điều hành; phím Shift+F10 → ngay dưới mép trái dòng.
+ * `collisionPadding` 8 = trần cao `calc(100vh-16px)` của menuContent: dời vào trong còn cách mép khung nhìn 8px.
  */
 export function ContextMenuContent({
   className,
   side = 'bottom',
+  collisionPadding = 8,
   ...props
 }: ComponentProps<typeof ContextMenuPrimitive.Content>) {
   const container = useDsPortal()
@@ -136,6 +139,7 @@ export function ContextMenuContent({
         data-slot="context-menu-content"
         data-trigger-id={idDong}
         side={side}
+        collisionPadding={collisionPadding}
         className={cn(
           menuContent,
           'w-[220px]',

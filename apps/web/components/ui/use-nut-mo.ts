@@ -4,8 +4,9 @@ import { useState } from 'react'
 
 /**
  * Phần tử sẽ nhận lại focus khi overlay đóng = phần tử đang focus lúc overlay MỞ. Mở từ một mục menu (DropdownMenu,
- * ContextMenu): mục đó bị gỡ khỏi DOM ngay khi menu đóng → đổi sang nút/dòng đã mở menu — DropdownMenu: `id` trong
- * `aria-labelledby` của khung menu (Radix gắn = id trigger); ContextMenu: `data-trigger-id` (DS gắn, context-menu.tsx).
+ * ContextMenu): mục đó bị gỡ khỏi DOM ngay khi menu đóng → đổi sang nút/dòng đã mở menu: khung menu mang
+ * `data-trigger-id`, trigger mang `data-ds-menu-trigger` cùng giá trị (DS gắn cả hai). Không tra theo `id`: trigger
+ * `asChild` mà con có `id` riêng thì Slot cho id của con thắng → id DS/Radix (cả `aria-labelledby`) trỏ vào hư không.
  */
 function timNutMo(): HTMLElement | null {
   if (typeof document === 'undefined') return null
@@ -13,8 +14,8 @@ function timNutMo(): HTMLElement | null {
   if (!(a instanceof HTMLElement) || a === document.body) return null
   const menu = a.closest('[role="menu"]')
   if (!menu) return a
-  const id = menu.getAttribute('data-trigger-id') ?? menu.getAttribute('aria-labelledby')
-  return (id && document.getElementById(id)) || a
+  const id = menu.getAttribute('data-trigger-id')
+  return (id && document.querySelector<HTMLElement>(`[data-ds-menu-trigger="${CSS.escape(id)}"]`)) || a
 }
 
 /**
