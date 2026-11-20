@@ -6,7 +6,7 @@
   "chuaDo": [
     "Đang kéo tệp vào (data-over: viền liền ring, nền info-soft-alpha, chữ \"Thả tệp vào đây\"): preview không có trạng thái này, so-khop không giả lập kéo thả — test jsdom components/ui/file-upload.dom.test.tsx + kéo thử tay trên /ds",
     "Chọn tệp qua hộp chọn, thả không lọc ngầm, kiemTep (loại trước dung lượng), kichThuocDoc, nút Thử lại: test jsdom components/ui/file-upload.dom.test.tsx",
-    "Vùng thả lỗi (aria-invalid viền red-500): có trong bundle.css nhưng preview không có, FileDrop chưa nhận prop lỗi",
+    "Vùng thả lỗi (aria-invalid → data-invalid, viền red-500 như khối aria-invalid của .ui-drop trong bundle.css): preview không có trạng thái này nên không có khoá — đo tay getComputedStyle trên /ds (báo cáo fix I2); nối nhãn/mô tả/required: test jsdom",
     "Ô xem trước có ảnh thật (img cover): preview không có — khối demo không tạo URL xem trước",
     "Nút Bỏ: hover/focus của Button ghost icon-sm đo ở so-khop Button; chữ tooltip \"Bỏ tệp\" đo ở so-khop Tooltip",
     "Input file ẩn nhìn (1×1, opacity 0): chỉ đo rộng/cao/opacity/cursor (con \"input\" của drop/tat) — font, viền, màu chữ của nó không lộ ra mắt (UA mặc định bên artifact ≠ preflight app bên DS)"

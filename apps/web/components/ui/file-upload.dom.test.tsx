@@ -114,3 +114,81 @@ test('FileItem lỗi: data-state error, chữ phụ là câu lỗi, onThuLai →
   await userEvent.click(screen.getByRole('button', { name: 'Thử lại' }))
   expect(onThuLai).toHaveBeenCalledOnce()
 })
+
+test('kiemTep: accept dạng MIME đầy đủ → câu lỗi ra tên dễ đọc', () => {
+  const accept = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/png',
+  ].join(',')
+  expect(kiemTep(tep('a.mov', 1, 'video/quicktime'), { accept, toiDaMB: 10 })).toBe('Chỉ nhận PDF, Excel, Word, ảnh PNG')
+})
+
+test('FileDrop: Tab tới input; tên = nhãn ngoài + tiêu đề vùng, không lặp gợi ý; mô tả = gợi ý + lỗi', async () => {
+  render(
+    <>
+      <span id="nhan">Biên bản bàn giao</span>
+      <FileDrop
+        id="u4"
+        onChonTep={() => {}}
+        goiY="PDF · tối đa 10 MB"
+        aria-labelledby="nhan"
+        aria-describedby="loi"
+        aria-invalid
+        required
+      />
+      <span id="loi">Cần đính kèm biên bản.</span>
+    </>,
+  )
+  await userEvent.tab()
+  const input = document.activeElement as HTMLInputElement
+  expect(input.id).toBe('u4')
+  expect(input.required).toBe(true)
+  expect(input.getAttribute('aria-invalid')).toBe('true')
+  expect(input.closest('label')!.hasAttribute('data-invalid')).toBe(true)
+  // aria-labelledby thắng label bọc ngoài (accname bước 2B) → tên = nối chữ các id, theo thứ tự.
+  const ten = input.getAttribute('aria-labelledby')!.split(' ').map((i) => document.getElementById(i)!.textContent)
+  expect(ten).toEqual(['Biên bản bàn giao', 'Kéo thả tệp hoặc chọn từ máy'])
+  expect(ten.join(' ')).not.toContain('tối đa')
+  const mo = input.getAttribute('aria-describedby')!.split(' ')
+  expect(mo).toEqual(['u4-goi-y', 'loi'])
+})
+
+test('FileDrop multiple=false: thả nhiều tệp chỉ trả tệp đầu', () => {
+  const onChonTep = vi.fn()
+  const { container } = render(<FileDrop multiple={false} onChonTep={onChonTep} goiY="g" />)
+  const a = tep('a.pdf', 1)
+  fireEvent.drop(container.querySelector('label')!, { dataTransfer: { files: [a, tep('b.pdf', 1)] } })
+  expect(onChonTep).toHaveBeenCalledWith([a])
+})
+
+test('FileDrop tắt: kéo qua đặt dropEffect none', () => {
+  const { container } = render(<FileDrop disabled onChonTep={() => {}} goiY="g" />)
+  const dataTransfer = { files: [], dropEffect: 'copy' }
+  fireEvent.dragOver(container.querySelector('label')!, { dataTransfer })
+  expect(dataTransfer.dropEffect).toBe('none')
+})
+
+test('FileList là live region polite chỉ đọc phần thêm vào (dòng lỗi mới được đọc)', () => {
+  render(<FileList />)
+  const ul = screen.getByRole('list', { name: 'Tệp đã chọn' })
+  expect(ul.getAttribute('aria-live')).toBe('polite')
+  expect(ul.getAttribute('aria-relevant')).toBe('additions')
+})
+
+test('FileItem chuyển sang lỗi: chữ phụ là phần tử MỚI (live region đọc câu lỗi), % tiến độ đổi tại chỗ', () => {
+  const dong = (p: Partial<Parameters<typeof FileItem>[0]>) => (
+    <FileList>
+      <FileItem ten="a.jpg" kichThuoc={1} trangThai="dang-tai" tienDo={20} onBo={() => {}} {...p} />
+    </FileList>
+  )
+  const { container, rerender } = render(dong({}))
+  const phu = () => container.querySelector('[data-slot="file-meta"]')!
+  const truoc = phu()
+  rerender(dong({ tienDo: 40 }))
+  expect(phu()).toBe(truoc)
+  rerender(dong({ trangThai: 'loi', loi: 'Mất mạng — thử lại' }))
+  expect(phu()).not.toBe(truoc)
+  expect(phu().textContent).toBe('Mất mạng — thử lại')
+})
