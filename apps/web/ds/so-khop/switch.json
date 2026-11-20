@@ -1,0 +1,209 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#switch > div"
+  },
+  "anhTuongTac": {
+    "focus": "#switch [data-so=\"tat\"]"
+  },
+  "chuaDo": [
+    "Hiệu ứng trượt núm 150ms và tắt trượt khi prefers-reduced-motion: thuộc tính transition không nằm trong bộ đo — khoá bằng class trong components/ui/switch.tsx",
+    "Vị trí núm (cách mép 2, bật dịch 14px): bộ đo không đo toạ độ — nhìn ảnh chụp so khớp",
+    "Bấm chữ đổi công tắc, Space bật/tắt, tên đọc được = nhãn, mô tả qua aria-describedby, tắt không đổi: test jsdom components/ui/switch.dom.test.tsx",
+    "Hàng tắt CÓ mô tả: preview không có (mô tả giữ muted-foreground)"
+  ],
+  "khoa": [
+    {
+      "khoa": "cot",
+      "artifact": ".ui-stack",
+      "ds": "#switch > div"
+    },
+    {
+      "khoa": "hang-1",
+      "artifact": ".ui-switch-row:nth-child(1)",
+      "ds": "#switch [data-so=\"hang-1\"]"
+    },
+    {
+      "khoa": "nhan-1",
+      "artifact": ".ui-switch-row:nth-child(1) .ui-label",
+      "ds": "#switch [data-so=\"hang-1\"] [data-slot=\"switch-row-label\"]"
+    },
+    {
+      "khoa": "mo-ta-1",
+      "artifact": ".ui-switch-row:nth-child(1) .ui-help",
+      "ds": "#switch [data-so=\"hang-1\"] [data-slot=\"switch-row-description\"]"
+    },
+    {
+      "khoa": "bat",
+      "artifact": ".ui-switch-row:nth-child(1) .ui-switch",
+      "ds": "#switch [data-so=\"bat\"]",
+      "trangThai": [
+        "hover",
+        "focus"
+      ],
+      "artifactThat": true,
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    },
+    {
+      "khoa": "bat-num",
+      "artifact": ".ui-switch-row:nth-child(1) .ui-switch",
+      "ds": "#switch [data-so=\"bat\"] > [data-slot=\"switch-thumb\"]",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    },
+    {
+      "khoa": "hang-2",
+      "artifact": ".ui-switch-row:nth-child(2)",
+      "ds": "#switch [data-so=\"hang-2\"]"
+    },
+    {
+      "khoa": "nhan-2",
+      "artifact": ".ui-switch-row:nth-child(2) .ui-label",
+      "ds": "#switch [data-so=\"hang-2\"] [data-slot=\"switch-row-label\"]"
+    },
+    {
+      "khoa": "tat",
+      "artifact": ".ui-switch-row:nth-child(2) .ui-switch",
+      "ds": "#switch [data-so=\"tat\"]",
+      "trangThai": [
+        "hover",
+        "focus"
+      ],
+      "artifactThat": true,
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "focus.fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "focus.color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    },
+    {
+      "khoa": "tat-num",
+      "artifact": ".ui-switch-row:nth-child(2) .ui-switch",
+      "ds": "#switch [data-so=\"tat\"] > [data-slot=\"switch-thumb\"]",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    },
+    {
+      "khoa": "hang-3",
+      "artifact": ".ui-switch-row:nth-child(3)",
+      "ds": "#switch [data-so=\"hang-3\"]"
+    },
+    {
+      "khoa": "nhan-3",
+      "artifact": ".ui-switch-row:nth-child(3) .ui-label",
+      "ds": "#switch [data-so=\"hang-3\"] [data-slot=\"switch-row-label\"]"
+    },
+    {
+      "khoa": "khoa",
+      "artifact": ".ui-switch-row:nth-child(3) .ui-switch",
+      "ds": "#switch [data-so=\"khoa\"]",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "hover.color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "hover.backgroundColor": "Lỗi nguồn: .ui-switch:checked:hover của bundle.css không loại :disabled → công tắc TẮT (khoá) vẫn đổi sang primary-solid-hover khi rê. DS: công tắc tắt không phản hồi chuột (hover chỉ khi enabled), nhất quán ô nhập tắt (input.json) — đề xuất đồng bộ ngược artifact.",
+        "hover.outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    },
+    {
+      "khoa": "khoa-num",
+      "artifact": ".ui-switch-row:nth-child(3) .ui-switch",
+      "ds": "#switch [data-so=\"khoa\"] > [data-slot=\"switch-thumb\"]",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "lyDo": {
+        "borderTopColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "borderBottomColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "fontFamily": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontSize": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "lineHeight": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "fontFeatureSettings": "Không có chữ: nguồn input ăn font UA (Arial 13.33, normal), núm ::after kế thừa; DS button kế thừa DsRoot. Không vẽ ra.",
+        "color": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d.",
+        "outlineColor": "currentColor không vẽ ra (viền 0, outline none ngoài focus): nguồn input màu chữ UA đen, DS kế thừa foreground #0d0d0d."
+      }
+    }
+  ]
+}
