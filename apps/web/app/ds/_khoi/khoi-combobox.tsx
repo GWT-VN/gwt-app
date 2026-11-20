@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import type { MucChon } from '@/bang/OChonGoiY'
+import { locMucChon } from '@/bang/timkiem'
 import { Combobox, ComboboxPanel } from '@/components/ui/combobox'
-import { FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field'
 import { menuContent } from '@/components/ui/menu-styles'
 import { cn } from '@/lib/utils'
+import { BienThe, KhoiHang } from '../_khung/tam'
 
 // Dữ liệu demo: 34 đơn vị hành chính cấp tỉnh từ 1/7/2025 theo Nghị quyết 202/2025/QH15 của Quốc hội (12/6/2025),
 // Điều 1: khoản 1–23 (23 đơn vị hình thành sau sắp xếp) + khoản 24 (11 đơn vị không sắp xếp). Đối chiếu 20/11/2026:
@@ -21,8 +23,25 @@ const TINH: MucChon[] = [
 /** Tìm xa giả: không bao giờ trả lời → giữ trạng thái "Đang tìm…" (demo). Cấp module → tham chiếu cố định cho useTimXa. */
 const timTreo = () => new Promise<MucChon[]>(() => {})
 
+/** Tìm xa giả (demo): lọc TINH sau 400ms như gọi server. Cấp module → tham chiếu cố định. */
+const timGia = (q: string) =>
+  new Promise<MucChon[]>((xong) => setTimeout(() => xong(locMucChon(TINH, q, 30).ds), 400))
+
 /** Mặt `.ui-menu` nằm tĩnh trong cột (không nổi): bỏ z của lớp menu. */
 const matTinh = cn(menuContent, 'z-auto')
+
+/** Ba trạng thái vẽ tĩnh bằng thân pop — dùng chung khối cũ (một cột) và bản hàng (mỗi trạng thái một hàng). */
+const TRANG_THAI: { ten: string; moTa: string; options?: MucChon[]; tim?: typeof timTreo; defaultSearch: string }[] = [
+  { ten: 'Rỗng', moTa: 'Gõ không khớp mục nào — pop nói rõ, không để trống trơn.', options: TINH, defaultSearch: 'zzz' },
+  { ten: 'Tìm xa: gõ thêm', moTa: 'Chế độ tìm xa, chưa đủ 2 ký tự — chưa gọi server.', tim: timTreo, defaultSearch: 'n' },
+  { ten: 'Tìm xa: đang tìm', moTa: 'Đã gửi truy vấn, chờ server trả về.', tim: timTreo, defaultSearch: 'nguyen' },
+]
+
+function PanelTrangThai({ options, tim, defaultSearch }: (typeof TRANG_THAI)[number]) {
+  return (
+    <ComboboxPanel className={matTinh} value={null} onSelect={() => {}} options={options} tim={tim} defaultSearch={defaultSearch} />
+  )
+}
 
 /**
  * #combobox — tái tạo ds/nguon/components/Combobox/preview.html: lưới tự xếp cột tối thiểu 260, gap 16, căn trên.
@@ -46,11 +65,71 @@ export function KhoiCombobox() {
         </div>
         <FieldSet>
           <FieldLegend className="mb-2">Rỗng · Tìm xa (OChonTimXa)</FieldLegend>
-          <ComboboxPanel className={matTinh} value={null} onSelect={() => {}} options={TINH} defaultSearch="zzz" />
-          <ComboboxPanel className={matTinh} value={null} onSelect={() => {}} tim={timTreo} defaultSearch="n" />
-          <ComboboxPanel className={matTinh} value={null} onSelect={() => {}} tim={timTreo} defaultSearch="nguyen" />
+          {TRANG_THAI.map((t) => (
+            <PanelTrangThai key={t.defaultSearch} {...t} />
+          ))}
         </FieldSet>
       </div>
     </section>
+  )
+}
+
+/** #combobox dạng hàng (/ds): mỗi chế độ / trạng thái một hàng. Ô rộng tối đa 320 như cột preview. */
+export function KhoiComboboxHang() {
+  const [sanCo, setSanCo] = useState<string | null>('01')
+  const [xa, setXa] = useState<string | null>(null)
+  const [sua, setSua] = useState<string | null>(TINH[21].gt)
+  const [loi, setLoi] = useState<string | null>(null)
+  return (
+    <KhoiHang neo="combobox">
+      <BienThe ten="Danh sách nạp sẵn" moTa="Tập > 10 mục đã có ở client (tỉnh, kho, nhóm hàng) — lọc tại chỗ theo mã/tên.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-cb-san">Tỉnh/thành (gõ thử: &quot;ha&quot;, &quot;12&quot;)</FieldLabel>
+          <Combobox id="dsh-cb-san" value={sanCo} onValueChange={setSanCo} options={TINH} max={8} />
+        </Field>
+      </BienThe>
+      <BienThe ten="Tìm xa (tim)" moTa="Tập lớn không nạp trước (khách, đơn, ticket) — gọi server từ 2 ký tự.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-cb-xa">Tỉnh/thành (tìm xa, demo trễ 0,4 giây)</FieldLabel>
+          <Combobox id="dsh-cb-xa" value={xa} onValueChange={setXa} tim={timGia} />
+        </Field>
+      </BienThe>
+      <BienThe ten="Form sửa (mucDangChon)" moTa="Mở form với mã đã lưu ở chế độ tìm xa — trigger hiện tên, không hiện mã thô.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-cb-sua">Tỉnh/thành đã lưu</FieldLabel>
+          <Combobox id="dsh-cb-sua" value={sua} onValueChange={setSua} tim={timGia} mucDangChon={TINH[21]} />
+        </Field>
+      </BienThe>
+      <BienThe ten="Lỗi" moTa="Bắt buộc mà chưa chọn — viền đỏ + câu lỗi gắn aria-describedby.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-cb-loi" required>
+            Tỉnh/thành giao
+          </FieldLabel>
+          <Combobox
+            id="dsh-cb-loi"
+            value={loi}
+            onValueChange={setLoi}
+            options={TINH}
+            required
+            aria-invalid={!loi}
+            aria-describedby={loi ? undefined : 'dsh-cb-loi-msg'}
+          />
+          {!loi && <FieldError id="dsh-cb-loi-msg">Chọn tỉnh/thành giao.</FieldError>}
+        </Field>
+      </BienThe>
+      <BienThe ten="Tắt" moTa="Không được sửa (đã khoá, thiếu quyền) — vẫn đọc được giá trị.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-cb-tat">Tỉnh/thành</FieldLabel>
+          <Combobox id="dsh-cb-tat" value="04" onValueChange={() => {}} options={TINH} disabled />
+        </Field>
+      </BienThe>
+      {TRANG_THAI.map((t) => (
+        <BienThe key={t.defaultSearch} ten={t.ten} moTa={t.moTa}>
+          <div className="max-w-80 border-none border-current">
+            <PanelTrangThai {...t} />
+          </div>
+        </BienThe>
+      ))}
+    </KhoiHang>
   )
 }
