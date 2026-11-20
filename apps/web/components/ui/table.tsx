@@ -15,6 +15,7 @@ import type { BenTha } from './use-cot-bang'
  * dòng 44 kẻ alpha-05, hover alpha-02, chọn info-soft · `layout="fixed"` = `.b-bang-c` (colgroup giữ đúng độ rộng đã kéo,
  * đệm ngang 6). `TableWrap` = khung tự cuộn hai chiều, thanh cuộn ẩn (`vien` = khung có viền `.ui-table-wrap`).
  * Tiêu đề cột lọc/sắp + kéo đổi chỗ + co dãn: `TieuDeCot` / `KeoCot` (tieu-de-cot.tsx), trạng thái cột: `useCotBang`.
+ * `variant="thuong"` = vẻ `.ui-table` (bảng thường: NotificationMatrix…) — con đọc qua context.
  * Ô chọn dòng: `KhungChon`/`OChonTatCa`/`OChonDong` của bang/ trong `CauHinhBangDs giaoDien={CHON_BANG}`.
  */
 
@@ -37,14 +38,26 @@ export function TableWrap({ vien, className, ...props }: ComponentProps<'div'> &
   return <div data-slot="table-wrap" className={cn(s.tableWrap, vien && s.tableWrapVien, className)} {...props} />
 }
 
-export function Table({ layout = 'auto', className, ...props }: ComponentProps<'table'> & { layout?: 'auto' | 'fixed' }) {
+/** Vẻ bảng: `du-lieu` = `.b-bang` (dạng xem Bảng, mặc định) · `thuong` = `.ui-table` (bảng thường của artifact). */
+type VeBang = 'du-lieu' | 'thuong'
+const VeCtx = createContext<VeBang>('du-lieu')
+
+export function Table({
+  layout = 'auto',
+  variant = 'du-lieu',
+  className,
+  ...props
+}: ComponentProps<'table'> & { layout?: 'auto' | 'fixed'; variant?: VeBang }) {
   return (
-    <table
-      data-slot="table"
-      data-layout={layout}
-      className={cn(s.table, layout === 'fixed' && s.tableFixed, className)}
-      {...props}
-    />
+    <VeCtx.Provider value={variant}>
+      <table
+        data-slot="table"
+        data-layout={layout}
+        data-variant={variant}
+        className={cn(variant === 'thuong' ? s.tableThuong : s.table, layout === 'fixed' && s.tableFixed, className)}
+        {...props}
+      />
+    </VeCtx.Provider>
   )
 }
 
@@ -66,7 +79,7 @@ export function TableRow({ chon, className, ...props }: ComponentProps<'tr'> & {
     <tr
       data-slot="table-row"
       data-state={chon ? 'selected' : undefined}
-      className={cn('border-none border-current', s.tr, className)}
+      className={cn('border-none border-current', useContext(VeCtx) === 'thuong' ? s.trThuong : s.tr, className)}
       {...props}
     />
   )
@@ -74,17 +87,19 @@ export function TableRow({ chon, className, ...props }: ComponentProps<'tr'> & {
 
 /** `<th>` tĩnh (cột không menu, không kéo — vd ô chọn, cột đệm). Cột lọc/sắp/kéo được dùng `TieuDeCot`. */
 export function TableHead({ phai, className, ...props }: ComponentProps<'th'> & { phai?: boolean }) {
-  return <th data-slot="table-head" className={cn(s.th, phai && s.phai, className)} {...props} />
+  const ve = useContext(VeCtx)
+  return <th data-slot="table-head" className={cn(ve === 'thuong' ? s.thThuong : s.th, phai && s.phai, className)} {...props} />
 }
 
 /** `cot` = id cột → ô vẽ theo lúc kéo đổi chỗ (nền mờ cột nguồn, vạch thả suốt chiều cao). `phai` = số / hạn căn phải. */
 export function TableCell({ cot, phai, className, ...props }: ComponentProps<'td'> & { cot?: string; phai?: boolean }) {
+  const ve = useContext(VeCtx)
   return (
     <td
       data-slot="table-cell"
       data-cot={cot}
       {...useOKeo(cot)}
-      className={cn(s.td, s.oKeo, phai && s.phai, className)}
+      className={cn(ve === 'thuong' ? s.tdThuong : cn(s.td, s.oKeo), phai && s.phai, className)}
       {...props}
     />
   )

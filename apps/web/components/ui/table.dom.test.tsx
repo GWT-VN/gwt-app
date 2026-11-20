@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 import { KhungChon, OChonDong, ThanhDaChon, useDaChon } from '@/bang'
 import { CauHinhBangDs } from './bang-ds'
 import { DsRoot } from './ds-root'
-import { BangTrangThai, Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from './table'
+import { BangTrangThai, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from './table'
 import { KeoCot, TieuDeCot, type MucLoc } from './tieu-de-cot'
 import { docUrlCot, ghiUrlCot, useCotBang, type CotBang } from './use-cot-bang'
 
@@ -367,3 +367,51 @@ function Url() {
   const c = useCotBang(COT, { url: true })
   return <p data-testid="hien">{c.hien.map((x) => x.id).join(',')}</p>
 }
+
+describe('vẻ bảng thường (.ui-table)', () => {
+  test('variant="thuong": đầu cột nền surface-secondary 600 đệm 12, ô 40 kẻ --border, rê primary-outline-hover; mặc định giữ .b-bang', () => {
+    const { container } = render(
+      <>
+        <Table variant="thuong" data-testid="thuong">
+          <TableHeader>
+            <TableRow>
+              <TableHead>A</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>1</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <Table data-testid="du-lieu">
+          <TableHeader>
+            <TableRow>
+              <TableHead>A</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>1</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </>,
+    )
+    const [t, d] = ['thuong', 'du-lieu'].map((x) => container.querySelector(`[data-testid="${x}"]`)!)
+    expect(t.getAttribute('data-variant')).toBe('thuong')
+    const th = t.querySelector('th')!.className
+    expect(th).toContain('bg-(--color-surface-secondary)')
+    expect(th).toContain('font-semibold')
+    expect(th).toContain('px-(--control-gutter-md)')
+    expect(th).not.toContain('bg-background')
+    const td = t.querySelector('td')!.className
+    expect(td).toContain('h-(--control-size-xl)')
+    expect(td).toContain('border-b-(--border)')
+    expect(t.querySelector('tbody tr')!.className).toContain('--color-background-primary-outline-hover')
+    // Mặc định: vẻ dữ liệu như cũ.
+    expect(d.getAttribute('data-variant')).toBe('du-lieu')
+    expect(d.querySelector('th')!.className).toContain('bg-background')
+    expect(d.querySelector('td')!.className).toContain('h-(--control-size-2xl)')
+  })
+})

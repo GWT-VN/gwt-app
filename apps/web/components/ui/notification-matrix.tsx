@@ -34,7 +34,7 @@ const datO = (g: GiaTriMaTran, loai: string, kenh: string, o: OThongBao): GiaTri
 
 /**
  * NotificationMatrix — ma trận cấu hình thông báo ở màn Quản trị (README NotificationMatrix): hàng = loại gom theo khu,
- * cột = kênh nhận. Dựng trên Table DS (`table.tsx`) + phần riêng `.ui-notif-matrix*` của ds/nguon/bundle.css.
+ * cột = kênh nhận. Dựng trên Table DS vẻ thường (`table.tsx`, `variant="thuong"` = `.ui-table`) + phần riêng `.ui-notif-matrix*` của ds/nguon/bundle.css.
  * - Bấm là lưu (không nút Lưu): `onDoi(giaTriMoi)` ngay, rồi `onLuu(thayDoi)`; xong → dòng `role="status"` báo "Đã lưu: …".
  *   `onLuu` trả Promise bị từ chối → CHỈ ô đó trả về như cũ (trên giá trị MỚI NHẤT — ô khác bấm trong lúc chờ không bị
  *   đè; ô đó đã bị đổi tiếp thì để nguyên) + báo "Chưa lưu được: …. Thử lại."
@@ -85,7 +85,7 @@ export function NotificationMatrix({
   return (
     <div className="border-none border-current">
       <TableWrap vien data-slot="notif-matrix-khung">
-        <Table data-slot="notif-matrix">
+        <Table variant="thuong" data-slot="notif-matrix">
           <caption className="sr-only">{caption}</caption>
           <TableHeader>
             <TableRow>

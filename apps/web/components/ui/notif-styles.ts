@@ -95,32 +95,32 @@ export const notifMark = [
 export const notifDot = `${kv} block size-2 rounded-(--radius-full) bg-(--color-background-info-solid)`
 
 /* ---------- NotificationMatrix — phần RIÊNG của ma trận (`.ui-notif-matrix*`), ghép SAU kiểu Table DS qua cn() ---------- */
-// Khung, bảng, ô, kẻ, hover lấy từ Table DS (`table.tsx`: TableWrap vien · Table · TableHead · TableCell). Ở đây chỉ còn
+// Khung, bảng, ô, kẻ, hover lấy từ Table DS vẻ THƯỜNG (`<Table variant="thuong">` = `.ui-table*`; TableWrap vien). Ở đây chỉ còn
 // thứ của ma trận: cột kênh căn giữa, cột tên ghim trái, hàng nhóm khu, ô Checkbox (+ Select), ô không áp dụng.
 
 /** Hàng cuối của mỗi tbody hết kẻ dưới (`.ui-table tbody tr:last-child td/th`) — thead không áp. */
 const hetKeCuoi = '[tbody>tr:last-child>&]:border-b-0'
-/** `thead th`: cột kênh căn giữa; cột đầu ghim trái trên cả các ô dính khác (z 3 > 2 của TableHead) + kẻ phải inset. */
-export const maTranThCot = 'not-first:text-center first:left-0 first:z-3 first:[box-shadow:inset_-1px_0_0_var(--border)]'
+/** `thead th`: cột kênh căn giữa; cột đầu ghim trái trên các ô dính khác (z 2 > 1 của `.ui-table th`) + kẻ phải inset. */
+export const maTranThCot = 'not-first:text-center first:left-0 first:z-2 first:[box-shadow:inset_-1px_0_0_var(--border)]'
 /**
  * `tbody th[scope=row]`: ghim TRÁI (không dính đầu như th của header), nền card + kẻ phải inset; cao theo nội dung, rộng
- * ≥ 180, đệm dọc 8, 14/20 400 foreground, xuống dòng được. Rê hàng → nền hover của Table (alpha-02) phủ trên card, ĐẶC —
+ * ≥ 180, đệm dọc 8, 14/20 400 foreground, xuống dòng được. Rê hàng → nền rê của `.ui-table` (primary-outline-hover) phủ trên card, ĐẶC —
  * chữ cuộn ngang bên dưới không lộ.
  */
 export const maTranThHang = [
   hetKeCuoi,
   'top-auto left-0 z-1 h-auto min-w-[180px] bg-card py-2 [box-shadow:inset_-1px_0_0_var(--border)]',
   'text-[14px] leading-[20px] font-normal text-foreground whitespace-normal',
-  '[tr:hover>&]:[background:linear-gradient(var(--alpha-02),var(--alpha-02)),var(--card)]',
+  '[tr:hover>&]:[background:linear-gradient(var(--color-background-primary-outline-hover),var(--color-background-primary-outline-hover)),var(--card)]',
 ].join(' ')
 /** `.ui-notif-matrix-gui`: dòng phụ "Gửi cho: …" block 12/18 muted. */
 export const maTranGui = `${kv} block text-[12px] leading-[18px] text-muted-foreground`
 /** `tbody th[scope=rowgroup]`: không dính, cao control-size-md, nền muted, 12/18 600 muted. */
 export const maTranThKhu = 'static h-(--control-size-md) bg-muted font-semibold'
 /** `.ui-notif-matrix-khu th > span`: tên khu dính trái khi cuộn ngang (lề = đệm ngang ô). */
-export const maTranTenKhu = `${kv} sticky left-2.5`
-/** `.ui-notif-matrix td`: căn giữa; hàng cuối mỗi nhóm hết kẻ dưới. */
-export const maTranO = `text-center ${hetKeCuoi}`
+export const maTranTenKhu = `${kv} sticky left-(--control-gutter-md)`
+/** `.ui-notif-matrix td`: căn giữa (hàng cuối hết kẻ đã có ở `.ui-table` td). */
+export const maTranO = 'text-center'
 /** `.ui-notif-matrix-o`: flex căn giữa gap 8 (ô hàng 2 dòng canh giữa dọc, không lệch baseline). */
 export const maTranOChon = `${kv} flex items-center justify-center gap-2`
 /** `.ui-notif-matrix-na`: "—" color-text-tertiary. */

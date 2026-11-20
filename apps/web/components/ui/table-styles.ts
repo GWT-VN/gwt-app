@@ -118,3 +118,25 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
   chon_oTh: cn(th, cotChon),
   chon_oTd: cn(td, cotChon),
 }
+
+/*
+ * Vẻ bảng THƯỜNG — `.ui-table*` của bundle.css (bảng thường của artifact: NotificationMatrix, bảng số liệu…), chọn bằng
+ * `<Table variant="thuong">`. Khác vẻ dữ liệu (`.b-bang`): đầu cột nền surface-secondary 600 đệm 12 z 1, ô cao 40 đệm 12,
+ * kẻ dưới `--border`, hàng cuối hết kẻ, rê primary-outline-hover, chọn accent. Chữ bảng 14/20.
+ */
+export const tableThuong = cn(kv, 'w-full border-separate border-spacing-0 text-[14px] leading-[20px]')
+export const thThuong = cn(
+  'sticky top-0 z-1 h-(--control-size-lg) px-(--control-gutter-md) bg-(--color-surface-secondary)',
+  'border-0 border-b [border-style:none_none_solid] border-current border-b-(--border)',
+  'text-left text-[12px] leading-[18px] font-semibold text-muted-foreground whitespace-nowrap',
+)
+export const tdThuong = cn(
+  'h-(--control-size-xl) px-(--control-gutter-md) whitespace-nowrap',
+  'border-0 border-b [border-style:none_none_solid] border-current border-b-(--border)',
+  // `.ui-table tbody tr:last-child td { border-bottom: 0 }`
+  '[tbody>tr:last-child>&]:border-b-0',
+)
+export const trThuong = cn(
+  'not-data-[state=selected]:hover:[&>td]:bg-(--color-background-primary-outline-hover)',
+  'data-[state=selected]:[&>td]:bg-accent',
+)
