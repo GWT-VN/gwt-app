@@ -17,7 +17,10 @@ import { cotChon, ma as lopMa } from '@/components/ui/table-styles'
 import { thongBao } from '@/components/ui/toast'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ChonHanA2 } from '../../chon-gio/_chon-gio/bien-the-a2'
+import { ChonHanA4 } from '../../chon-gio/_chon-gio/bien-the-a4'
 import { ChonHanA5 } from '../../chon-gio/_chon-gio/bien-the-a5'
+
+type BienThe = 'A4' | 'A2' | 'A5'
 import { hienGon } from '../../chon-gio/_chon-gio/gio'
 import { dichCua, NGUOI, NHAN, phimMuc, ticketDau, TRANG_THAI, UU_TIEN, type Sub, type Ticket } from './du-lieu'
 import { NoiDungMenu, type Doi } from './menu'
@@ -37,7 +40,7 @@ export function TrangMenuThuocTinh() {
   const [neo, setNeo] = useState<string | null>(null)
   const [mo, setMo] = useState<Mo | null>(null)
   const [sub, setSub] = useState<Sub | null>(null)
-  const [bienThe, setBienThe] = useState<'A2' | 'A5'>('A5')
+  const [bienThe, setBienThe] = useState<BienThe>('A4') // CEO chốt A4 + chỉ lưu khi Xong (20/11)
   const bang = useRef<HTMLTableSectionElement>(null)
   /** "Đặt hạn…" vừa bấm trong menu → mở ô chọn hạn SAU khi menu gỡ xong (onCloseAutoFocus). */
   const diHan = useRef<{ dich: string[]; ma: string } | null>(null)
@@ -45,7 +48,7 @@ export function TrangMenuThuocTinh() {
   const phienHan = useRef<PhienHan | null>(null)
 
   const thuTu = ds.map((t) => t.ma)
-  const ChonHan = bienThe === 'A2' ? ChonHanA2 : ChonHanA5
+  const ChonHan = { A4: ChonHanA4, A2: ChonHanA2, A5: ChonHanA5 }[bienThe]
 
   const focusDong = (ma: string) => bang.current?.querySelector<HTMLElement>(`tr[data-ma="${ma}"]`)?.focus()
 
@@ -239,7 +242,10 @@ export function TrangMenuThuocTinh() {
         </Card>
         <div className="flex flex-wrap items-center gap-3 border-none border-current">
           <span className="ds-text-sm text-muted-foreground">Ô chọn hạn</span>
-          <ToggleGroup type="single" aria-label="Ô chọn hạn" value={bienThe} onValueChange={(v) => v && setBienThe(v as 'A2' | 'A5')}>
+          <ToggleGroup type="single" aria-label="Ô chọn hạn" value={bienThe} onValueChange={(v) => v && setBienThe(v as BienThe)}>
+            <ToggleGroupItem value="A4" size="sm">
+              A4 · gõ ngày + giờ (đã chốt)
+            </ToggleGroupItem>
             <ToggleGroupItem value="A2" size="sm">
               A2 · lịch + cột giờ
             </ToggleGroupItem>
