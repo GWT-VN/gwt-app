@@ -16,10 +16,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { DsRoot } from './ds-root'
 import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from './sheet'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function XacNhan({ open, onOpenChange }: { open: boolean; onOpenChange(o: boolean): void }) {
   return (
     <ConfirmDialog

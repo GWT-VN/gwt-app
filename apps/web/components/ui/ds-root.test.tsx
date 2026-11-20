@@ -3,11 +3,6 @@ import { expect, test, vi } from 'vitest'
 import { cn } from '@/lib/utils'
 import { DsRoot } from './ds-root'
 
-// next/font/google ngoài Next chỉ là file đích rỗng của loader → giả lập: trả class mang tên biến --font-inter.
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 // Thẻ mở của phần tử gốc (div đầu tiên) — data-ds và data-theme phải nằm CÙNG phần tử này,
 // vì selector tối là [data-ds="v2"][data-theme="dark"] (ds/tokens.css).
 const theGoc = (h: string) => h.match(/^<div[^>]*>/)?.[0] ?? ''

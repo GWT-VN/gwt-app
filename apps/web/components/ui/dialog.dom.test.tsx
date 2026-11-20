@@ -16,10 +16,6 @@ import {
 } from './dialog'
 import { chuaNutDong, footer, overlay, panel } from './dialog-styles'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function Mau() {
   return (
     <DsRoot theme="dark">

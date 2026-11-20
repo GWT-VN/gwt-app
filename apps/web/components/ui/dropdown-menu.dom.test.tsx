@@ -17,10 +17,6 @@ import {
 } from './dropdown-menu'
 import { menuItem } from './menu-styles'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function Mau({ onXem = () => {}, onChuyen = () => {} }: { onXem?: () => void; onChuyen?: () => void }) {
   const [ma, setMa] = useState(true)
   const [bh, setBh] = useState(false)

@@ -19,10 +19,6 @@ afterAll(() => {
   else process.env.TZ = tzCu
 })
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 // 00:30 sáng 20/11 giờ VN = 17:30 ngày 19/11 UTC — giờ sớm là chỗ toISOString() ra hôm trước.
 const BAY_GIO = new Date('2026-11-20T00:30:00+07:00')
 beforeEach(() => {

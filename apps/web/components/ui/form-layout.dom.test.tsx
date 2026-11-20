@@ -6,11 +6,6 @@ import { FormMau } from '@/app/ds/_khoi/khoi-form-layout'
 import { DsRoot } from './ds-root'
 import { focusLoiDau } from './form-layout'
 
-// DatePicker → Popover → DsRoot nạp next/font (không chạy được ngoài Next).
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 afterEach(() => vi.useRealTimers())
 
 const nut = (f: HTMLElement, ten: string) => within(f).getByRole('button', { name: ten }) as HTMLButtonElement

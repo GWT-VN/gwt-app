@@ -12,10 +12,6 @@ import {
   ContextMenuTrigger,
 } from './context-menu'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function Mau({ onMo = () => {}, onDong = () => {}, onClickDong = () => {} }) {
   return (
     <DsRoot theme="dark">

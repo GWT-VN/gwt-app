@@ -8,10 +8,6 @@ import { Combobox } from './combobox'
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { DsRoot } from './ds-root'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 // Dữ liệu demo: mã là số thứ tự.
 const TINH: MucChon[] = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'An Giang', 'Bắc Giang', 'Bắc Ninh',
   'Bến Tre', 'Bình Định', 'Bình Dương', 'Cà Mau'].map((nhan, i) => ({ gt: String(i + 1).padStart(2, '0'), nhan }))

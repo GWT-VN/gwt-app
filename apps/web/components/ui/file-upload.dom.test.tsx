@@ -6,10 +6,6 @@ import { KhoiFileUpload } from '@/app/ds/_khoi/khoi-file-upload'
 import { DsRoot } from './ds-root'
 import { FileDrop, FileItem, FileList, kichThuocDoc, kiemTep } from './file-upload'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 const MB = 1024 * 1024
 const tep = (ten: string, co: number, type = '') => {
   const f = new File(['x'], ten, { type })

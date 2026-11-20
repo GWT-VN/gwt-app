@@ -13,10 +13,6 @@ import { DsRoot } from './ds-root'
 
 const ghi = vi.hoisted(() => [] as unknown[])
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 vi.mock('radix-ui', async (goc) => {
   const m = await goc<typeof import('radix-ui')>()
   const { createElement } = await import('react')

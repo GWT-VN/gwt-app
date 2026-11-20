@@ -7,10 +7,6 @@ import { DsRoot } from './ds-root'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { Tooltip } from './tooltip'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 /**
  * Đồng hồ giả cho test chạm ngưỡng 300ms (đồng hồ thật trên máy chậm/CI dễ lệch ngưỡng). `delay: null`: user-event không
  * hẹn giờ giữa các thao tác. KHÔNG `shouldAdvanceTime` (đo thật: thời gian thật trôi ~40ms lúc chạy làm tooltip hiện ở

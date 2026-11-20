@@ -11,10 +11,6 @@ import { DsRoot } from './ds-root'
 import { FieldLabel } from './field'
 import type { TriggerChonProps } from './use-trigger-chon'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 const TINH: MucChon[] = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng'].map((nhan, i) => ({ gt: String(i + 1).padStart(2, '0'), nhan }))
 
 /**

@@ -11,10 +11,6 @@ import * as khoang from './date-range-picker'
 import * as tep from './file-upload'
 import * as chon from './select'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 // Hằng/hàm thuần mà server component (vd `<Link className={buttonVariants()}>`) hay server action (`kiemTep`) cần gọi:
 // file 'use client' biến mọi export thành tham chiếu client → gọi ở server ném lỗi. Nên chúng sống ở file THƯỜNG.
 const THUAN = [

@@ -7,10 +7,6 @@ import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { DsRoot } from './ds-root'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, selectTrigger } from './select'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function KenhBan({ onDoi = () => {}, invalid }: { onDoi?: (v: string) => void; invalid?: boolean }) {
   const [v, setV] = useState('showroom')
   return (

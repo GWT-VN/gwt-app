@@ -8,10 +8,6 @@ import { ConfirmDialog } from './confirm-dialog'
 import { chuaNutDong, footer } from './dialog-styles'
 import { DsRoot } from './ds-root'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 type Them = Partial<ComponentProps<typeof ConfirmDialog>>
 
 /** Nút mở ngoài hộp + ConfirmDialog điều khiển (open do người gọi giữ), như màn thật dùng. */

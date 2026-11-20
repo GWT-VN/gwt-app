@@ -3,10 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { expect, test, vi } from 'vitest'
 import { DsRoot, useDsPortal } from './ds-root'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 // Probe ghi lại mọi giá trị useDsPortal() qua các lần render: lần đầu null (ref chưa gắn), sau mount phải là ô portal.
 const thay: (HTMLElement | null)[] = []
 function Probe() {

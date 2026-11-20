@@ -6,10 +6,6 @@ import { Button } from './button'
 import { DsRoot } from './ds-root'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 
-vi.mock('next/font/google', () => ({
-  Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
-}))
-
 function Mau() {
   return (
     <DsRoot theme="dark">
