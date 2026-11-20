@@ -14,8 +14,9 @@ import { cn } from '@/lib/utils'
 const avatarVariants = cva(
   [
     'relative inline-grid place-content-center shrink-0 rounded-(--radius-full) border-none border-current',
-    // bundle.css .ui-avatar: font-size 10px · 600 · letter-spacing 0.02em (số trần đúng bundle.css)
-    'bg-(--alpha-08) text-(--gray-600) text-[10px] font-semibold tracking-[0.02em]',
+    // bundle.css .ui-avatar: font-size 10px · 600 · letter-spacing 0.02em (số trần đúng bundle.css). Chữ muted-foreground
+    // (bản 35, CEO chốt 20/11): đạt AA cả hai theme trên alpha-08 — sáng 5.57:1, tối 5.81:1 (gray-600 tối chỉ 3.94:1).
+    'bg-(--alpha-08) text-muted-foreground text-[10px] font-semibold tracking-[0.02em]',
   ],
   {
     variants: {

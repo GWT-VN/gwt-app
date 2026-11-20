@@ -16,7 +16,7 @@ import { useNutMo } from './use-nut-mo'
  * - Radix lo: bẫy Tab, Esc / bấm overlay đóng, khoá cuộn nền, aria-labelledby/describedby. Đóng → focus về phần tử
  *   đã mở sheet (use-nut-mo.ts — cả khi điều khiển bằng `open` không có SheetTrigger).
  * - LUÔN có `SheetHeader` + `SheetTitle`. Lát này chỉ cạnh PHẢI (artifact chỉ định nghĩa `.ui-sheet` phải).
- * - Nút ✕ nằm CUỐI `SheetHeader` (header không `relative` → ✕ vẫn tuyệt đối theo panel, góc trên phải cách 12 như
+ * - Nút ✕ nằm CUỐI `SheetHeader` (header không `relative` → ✕ vẫn tuyệt đối theo panel, góc trên phải cách 19 như
  *   preview) → thứ tự DOM header → ✕ → thân → footer như preview → Tab đầu tiên vào ✕ (focus mặc định khi mở). Muốn ô
  *   lọc đầu nhận focus → `data-autofocus` trên ô đó.
  * - Bộ lọc dạng form: `<form id>` bọc THÂN (SheetBody), nút Áp dụng trong footer dùng thuộc tính `form="<id>"` — không

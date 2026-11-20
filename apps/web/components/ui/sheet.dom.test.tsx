@@ -84,6 +84,15 @@ test('nút ✕ (aria-label "Đóng") đóng và trả focus về trigger', async
   expect(document.activeElement).toBe(nut)
 })
 
+test('nút ✕ căn tâm dòng tiêu đề (CEO chốt 20/11): top = right = 19 = padding 20 + (26 − 28) / 2', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  const c = (await screen.findByRole('button', { name: 'Đóng' })).className.split(/\s+/)
+  expect(c).toEqual(expect.arrayContaining(['absolute', 'top-[19px]', 'right-[19px]']))
+  expect(c).not.toContain('top-3')
+})
+
 test('bấm overlay đóng và trả focus về trigger', async () => {
   const user = userEvent.setup()
   render(<Mau />)

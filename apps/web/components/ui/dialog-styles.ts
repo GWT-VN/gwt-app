@@ -51,5 +51,9 @@ export const footer = [
   '[@media(max-width:640px)]:flex-col-reverse [@media(max-width:640px)]:[&>*]:w-full',
 ].join(' ')
 
-/** `.ui-dialog-close`: nút ✕ góc trên phải cách 12 (gắn lên `Button` ghost icon-sm; `absolute` đè `relative` của nút). */
-export const closeBtn = 'absolute top-3 right-3'
+/**
+ * `.ui-dialog-close` (bản 35, CEO chốt 20/11): tâm nút ✕ thẳng tâm dòng tiêu đề — top = --dialog-padding 20 + (line-height
+ * tiêu đề 26 − --control-size-sm 28) / 2 = 19; right = top cho cân góc. Dùng chung Dialog + Sheet (header Sheet cũng
+ * padding 20, tiêu đề 26; pr 52 vẫn chừa đủ: 19 + 28 = 47). Gắn lên `Button` ghost icon-sm; `absolute` đè `relative` của nút.
+ */
+export const closeBtn = 'absolute top-[19px] right-[19px]'

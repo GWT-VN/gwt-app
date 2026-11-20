@@ -17,7 +17,7 @@ test('chuCaiDau: chữ đầu của từ đầu + từ cuối, bỏ tiền tố 
   expect(chuCaiDau('chị')).toBe('C') // chỉ có tiền tố → giữ lại, không ra rỗng
 })
 
-test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ gray-600 10px 600, fallback render chữ', () => {
+test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ muted-foreground (AA cả hai theme) 10px 600, fallback render chữ', () => {
   const h = renderToStaticMarkup(
     <Avatar>
       <AvatarFallback>H</AvatarFallback>
@@ -27,7 +27,7 @@ test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ gray-600 10p
   expect(goc).toMatch(/^<span/)
   expect(goc).toContain('data-slot="avatar"')
   expect(goc).toContain('data-size="default"')
-  // bundle.css .ui-avatar: control-size-3xs · radius-full · alpha-08 · gray-600 · 600 10px · letter-spacing 0.02em
+  // bundle.css .ui-avatar (bản 35, CEO chốt 20/11): control-size-3xs · radius-full · alpha-08 · muted-foreground · 600 10px · 0.02em
   expect(lop(h)).toEqual(
     expect.arrayContaining([
       'inline-grid',
@@ -36,7 +36,7 @@ test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ gray-600 10p
       'size-(--control-size-3xs)',
       'rounded-(--radius-full)',
       'bg-(--alpha-08)',
-      'text-(--gray-600)',
+      'text-muted-foreground',
       'text-[10px]',
       'font-semibold',
       'tracking-[0.02em]',
@@ -46,6 +46,7 @@ test('Avatar mặc định: <span> 22px pill, nền alpha-08, chữ gray-600 10p
   )
   // line-height không ghi cứng: .ui-avatar không khai → kế thừa (20px từ DsRoot, 18px trong caption) như artifact
   expect(lop(h).some((c) => c.startsWith('leading-'))).toBe(false)
+  expect(lop(h)).not.toContain('text-(--gray-600)') // gray-600 tối chỉ 3.94:1 trên alpha-08
   expect(h).toContain('>H</span>')
 })
 
@@ -57,7 +58,7 @@ test('Avatar size="sm": data-size="sm", 20px, line-height 14px, cỡ chữ vẫn
   )
   expect(theGoc(h)).toContain('data-size="sm"')
   const c = lop(h)
-  expect(c).toEqual(expect.arrayContaining(['size-5', 'leading-[14px]', 'text-[10px]', 'text-(--gray-600)']))
+  expect(c).toEqual(expect.arrayContaining(['size-5', 'leading-[14px]', 'text-[10px]', 'text-muted-foreground']))
   expect(c).not.toContain('size-(--control-size-3xs)')
   expect(c).not.toContain('leading-[20px]')
   expect(h).toContain('TT')
