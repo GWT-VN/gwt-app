@@ -1,0 +1,88 @@
+{
+  "khung": {
+    "artifact": ".ui-stat-grid",
+    "ds": "#stat-card [data-slot=\"stat-grid\"]"
+  },
+  "chuaDo": [
+    "Mũi tên chân thẻ dịch 2px khi rê (transform/translate) và chuyển động 150ms: bộ đo không có thuộc tính transform — xem bằng mắt ở /ds#stat-card",
+    "Hiện sau 300ms của thẻ đang tải (`@starting-style`): không đo bằng computed style — xem bằng mắt",
+    "Hình mũi tên: preview là SVG Phosphor nhúng (ArrowUp, ArrowDown, Minus, ArrowRight); DS dùng đúng các icon đó — chỉ đo hộp + màu",
+    "Câu đọc cho trình đọc màn hình (sr-only) và màu theo nghĩa tốt/xấu: kiểm ở components/ui/feedback.dom.test.tsx; ở đây đo màu chữ số biến động (khoá s-1…s-5, con dam)"
+  ],
+  "khoa": [
+    {
+      "khoa": "s-1",
+      "artifact": ".ui-stat-grid > :nth-child(1)",
+      "ds": "#stat-card [data-so=\"s-1\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true,
+      "con": [
+        { "ten": "nhan", "artifact": "> .ui-kpi-label", "ds": "> [data-slot=\"stat-label\"]" },
+        { "ten": "so", "artifact": "> .ui-kpi-value", "ds": "> [data-slot=\"stat-value\"]" },
+        { "ten": "doi", "artifact": "> .ui-stat-delta", "ds": "> [data-slot=\"stat-delta\"]" },
+        { "ten": "dam", "artifact": "> .ui-stat-delta > b", "ds": "> [data-slot=\"stat-delta\"] > b" },
+        { "ten": "mui", "artifact": "> .ui-stat-delta > b > svg", "ds": "> [data-slot=\"stat-delta\"] > b > svg", "props": ["width", "height", "color"] },
+        { "ten": "chan", "artifact": "> .ui-stat-foot", "ds": "> [data-slot=\"stat-foot\"]" },
+        { "ten": "chan-mui", "artifact": "> .ui-stat-foot > svg", "ds": "> [data-slot=\"stat-foot\"] > svg", "props": ["width", "height", "color"] }
+      ]
+    },
+    {
+      "khoa": "s-2",
+      "artifact": ".ui-stat-grid > :nth-child(2)",
+      "ds": "#stat-card [data-so=\"s-2\"]",
+      "con": [
+        { "ten": "doi", "artifact": "> .ui-stat-delta", "ds": "> [data-slot=\"stat-delta\"]" },
+        { "ten": "dam", "artifact": "> .ui-stat-delta > b", "ds": "> [data-slot=\"stat-delta\"] > b" },
+        { "ten": "chan", "artifact": "> .ui-stat-foot", "ds": "> [data-slot=\"stat-foot\"]" }
+      ]
+    },
+    {
+      "khoa": "s-3",
+      "artifact": ".ui-stat-grid > :nth-child(3)",
+      "ds": "#stat-card [data-so=\"s-3\"]",
+      "con": [
+        { "ten": "so", "artifact": "> .ui-kpi-value", "ds": "> [data-slot=\"stat-value\"]" },
+        { "ten": "don-vi", "artifact": "> .ui-kpi-value > .ui-stat-unit", "ds": "> [data-slot=\"stat-value\"] > span" },
+        { "ten": "doi", "artifact": "> .ui-stat-delta", "ds": "> [data-slot=\"stat-delta\"]" },
+        { "ten": "dam", "artifact": "> .ui-stat-delta > b", "ds": "> [data-slot=\"stat-delta\"] > b" }
+      ]
+    },
+    {
+      "khoa": "s-4",
+      "artifact": ".ui-stat-grid > :nth-child(4)",
+      "ds": "#stat-card [data-so=\"s-4\"]",
+      "con": [
+        { "ten": "dam", "artifact": "> .ui-stat-delta > b", "ds": "> [data-slot=\"stat-delta\"] > b" }
+      ]
+    },
+    {
+      "khoa": "s-5",
+      "artifact": ".ui-stat-grid > :nth-child(5)",
+      "ds": "#stat-card [data-so=\"s-5\"]",
+      "con": [
+        { "ten": "doi", "artifact": "> .ui-stat-delta", "ds": "> [data-slot=\"stat-delta\"]" },
+        { "ten": "dam", "artifact": "> .ui-stat-delta > b", "ds": "> [data-slot=\"stat-delta\"] > b" },
+        { "ten": "mui", "artifact": "> .ui-stat-delta > b > svg", "ds": "> [data-slot=\"stat-delta\"] > b > svg", "props": ["width", "height", "color"] }
+      ]
+    },
+    {
+      "khoa": "s-6",
+      "artifact": ".ui-stat-grid > :nth-child(6)",
+      "ds": "#stat-card [data-so=\"s-6\"]",
+      "con": [
+        { "ten": "so", "artifact": "> .ui-kpi-value", "ds": "> [data-slot=\"stat-value\"]" },
+        { "ten": "doi", "artifact": "> .ui-stat-delta", "ds": "> [data-slot=\"stat-delta\"]" }
+      ]
+    },
+    {
+      "khoa": "s-7",
+      "artifact": ".ui-stat-grid > :nth-child(7)",
+      "ds": "#stat-card [data-so=\"s-7\"]",
+      "con": [
+        { "ten": "cho-1", "artifact": "> .ui-skeleton:nth-child(2)", "ds": "> [data-slot=\"skeleton\"]:nth-child(2)" },
+        { "ten": "cho-2", "artifact": "> .ui-skeleton:nth-child(3)", "ds": "> [data-slot=\"skeleton\"]:nth-child(3)" },
+        { "ten": "cho-3", "artifact": "> .ui-skeleton:nth-child(4)", "ds": "> [data-slot=\"skeleton\"]:nth-child(4)" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#skeleton > div"
+  },
+  "chuaDo": [
+    "Khối chờ `.ui-skeleton` và dòng bảng đang tải: preview Skeleton ở trạng thái ĐÃ TẢI (aria-busy=false, chỉ có dòng dữ liệu thật) — dòng chữ 1/2, dòng tiêu đề 1/3, dòng chữ 2/3 đo ở so-khop StatCard (thẻ đang tải, khoá s-7); hình circle, pill, bậc 1/4 và 3/4, chồng dọc `ui-skeleton-stack`, dòng chờ của SkeletonDong (cùng khung `skeletonRow` với dòng thật đo ở đây) chưa đo bằng số — hành vi (aria-hidden, aria-busy, số dòng) kiểm ở components/ui/feedback.dom.test.tsx",
+    "Hiện sau 300ms (`@starting-style` + transition trễ) và nhấp nháy 1.4s / đứng yên khi giảm chuyển động: không đo bằng computed style — xem bằng mắt (bấm Tải lại trên /ds#skeleton)",
+    "Nội dung dòng thật (badge, tên, mô tả, avatar): class `ph-*` của prototype không có trong bundle.css → chỉ đo khung dòng; Badge/Avatar đo ở so-khop Badge, Avatar",
+    "Nút: chỉ đo hộp + màu ở trạng thái nghỉ; hover/focus của Button đo ở so-khop Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "tai-lai",
+      "artifact": ".ds-muc:nth-child(1) > .ui-btn",
+      "ds": "#skeleton [data-so=\"tai-lai\"]",
+      "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight", "gap"]
+    },
+    {
+      "khoa": "dong-1",
+      "artifact": ".ph-ds > .ui-skeleton-row:nth-child(1)",
+      "ds": "#skeleton [data-so=\"vung\"] > [data-so=\"dong\"]:nth-child(1)"
+    },
+    {
+      "khoa": "dong-5",
+      "artifact": ".ph-ds > .ui-skeleton-row:nth-child(5)",
+      "ds": "#skeleton [data-so=\"vung\"] > [data-so=\"dong\"]:nth-child(5)"
+    },
+    {
+      "khoa": "luu",
+      "artifact": ".ph-nut > .ui-btn:nth-child(1)",
+      "ds": "#skeleton [data-so=\"luu\"]",
+      "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight", "cursor"]
+    },
+    {
+      "khoa": "dang-gui",
+      "artifact": ".ph-nut > .ui-btn:nth-child(2)",
+      "ds": "#skeleton [data-so=\"dang-gui\"]",
+      "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight", "cursor"],
+      "con": [
+        { "ten": "chu", "artifact": "> span:first-child", "ds": "> span:first-child", "props": ["opacity"] },
+        {
+          "ten": "spinner",
+          "artifact": "> .ui-spinner",
+          "ds": "> [data-slot=\"spinner\"]",
+          "props": ["width", "height", "borderRadius", "borderTopWidth", "borderTopStyle", "borderTopColor", "opacity"]
+        }
+      ]
+    }
+  ]
+}

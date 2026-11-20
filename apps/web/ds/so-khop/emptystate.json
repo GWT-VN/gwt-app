@@ -1,0 +1,80 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh > div",
+    "ds": "#empty-state > div > div"
+  },
+  "chuaDo": [
+    "Cỡ thường (đệm 40/16): preview chỉ có cỡ nhỏ `data-size=sm` — cỡ thường so bằng mắt ở /ds#empty-state",
+    "Hình icon: preview là SVG Phosphor nhúng (Tray, MagnifyingGlass, CloudSlash, LockSimple); DS dùng đúng bốn icon đó — chỉ đo hộp + màu, nét so bằng mắt",
+    "Nút: chỉ đo hộp + màu ở trạng thái nghỉ; hover/focus của Button đo ở so-khop Button; nút Thử lại đang chạy là Button loading đã đo ở so-khop Skeleton"
+  ],
+  "khoa": [
+    {
+      "khoa": "e-1",
+      "artifact": ".ds-tinh > div > .ui-empty:nth-child(1)",
+      "ds": "#empty-state [data-so=\"e-1\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
+        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
+        { "ten": "hanh-dong", "artifact": "> .ui-empty-actions", "ds": "> [data-slot=\"empty-actions\"]" },
+        {
+          "ten": "nut-1",
+          "artifact": "> .ui-empty-actions > .ui-btn:nth-child(1)",
+          "ds": "> [data-slot=\"empty-actions\"] > button:nth-child(1)",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
+        },
+        {
+          "ten": "nut-2",
+          "artifact": "> .ui-empty-actions > .ui-btn:nth-child(2)",
+          "ds": "> [data-slot=\"empty-actions\"] > button:nth-child(2)",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
+        }
+      ]
+    },
+    {
+      "khoa": "e-2",
+      "artifact": ".ds-tinh > div > .ui-empty:nth-child(2)",
+      "ds": "#empty-state [data-so=\"e-2\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
+        {
+          "ten": "nut",
+          "artifact": "> .ui-empty-actions > .ui-btn",
+          "ds": "> [data-slot=\"empty-actions\"] > button",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"]
+        }
+      ]
+    },
+    {
+      "khoa": "e-3",
+      "artifact": ".ds-tinh > div > .ui-empty:nth-child(3)",
+      "ds": "#empty-state [data-so=\"e-3\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
+        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
+        {
+          "ten": "nut",
+          "artifact": "> .ui-empty-actions > .ui-btn",
+          "ds": "> [data-slot=\"empty-actions\"] > button",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "gap"]
+        }
+      ]
+    },
+    {
+      "khoa": "e-4",
+      "artifact": ".ds-tinh > div > .ui-empty:nth-child(4)",
+      "ds": "#empty-state [data-so=\"e-4\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" }
+      ]
+    }
+  ]
+}

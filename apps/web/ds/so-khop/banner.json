@@ -1,0 +1,76 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#banner > div > div"
+  },
+  "chuaDo": [
+    "Tooltip \"Ẩn\" trên nút ✕ của preview: DS bỏ — chữ tooltip lặp nhãn \"Ẩn thông báo\" (luật NGUON: tooltip là mô tả thêm, không lặp aria-label); hành vi đóng + giữ focus kiểm ở components/ui/feedback.dom.test.tsx",
+    "Hình icon: preview là SVG Phosphor nhúng (CloudSlash, Flask, Info, WarningCircle tô); DS dùng đúng bốn icon đó — chỉ đo hộp + màu, nét so bằng mắt",
+    "Nút: chỉ đo hộp + màu ở trạng thái nghỉ; hover/focus của Button đo ở so-khop Button",
+    "Mốc ≤640: đo ở khổ 390 (xuống dòng, đệm 8/8/8/12); đúng khổ 640 chưa đo — DS dùng biến thể Tailwind max-[640px] (width < 640) còn nguồn là max-width 640 (≤ 640): khác nhau đúng ở khổ 640"
+  ],
+  "khoa": [
+    {
+      "khoa": "b-1",
+      "artifact": ".ui-stack > .ui-banner:nth-child(1)",
+      "ds": "#banner [data-so=\"b-1\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "chu", "artifact": "> .ui-banner-text", "ds": "> [data-slot=\"banner-text\"]" },
+        { "ten": "dam", "artifact": "> .ui-banner-text > b", "ds": "> [data-slot=\"banner-text\"] > b", "props": ["fontWeight", "color"] },
+        {
+          "ten": "nut",
+          "artifact": "> button",
+          "ds": "> button",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
+        }
+      ]
+    },
+    {
+      "khoa": "b-2",
+      "artifact": ".ui-stack > .ui-banner:nth-child(2)",
+      "ds": "#banner [data-so=\"b-2\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "chu", "artifact": "> .ui-banner-text", "ds": "> [data-slot=\"banner-text\"]" }
+      ]
+    },
+    {
+      "khoa": "b-3",
+      "artifact": ".ui-stack > .ui-banner:nth-child(3)",
+      "ds": "#banner [data-so=\"b-3\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "chu", "artifact": "> .ui-banner-text", "ds": "> [data-slot=\"banner-text\"]" },
+        {
+          "ten": "nut",
+          "artifact": "> button:nth-of-type(1)",
+          "ds": "> button:nth-of-type(1)",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
+        },
+        {
+          "ten": "dong",
+          "artifact": "> button:nth-of-type(2)",
+          "ds": "> button:nth-of-type(2)",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"]
+        },
+        { "ten": "dong-icon", "artifact": "> button:nth-of-type(2) > svg", "ds": "> button:nth-of-type(2) > svg", "props": ["width", "height", "color"] }
+      ]
+    },
+    {
+      "khoa": "b-4",
+      "artifact": ".ui-stack > .ui-banner:nth-child(4)",
+      "ds": "#banner [data-so=\"b-4\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "chu", "artifact": "> .ui-banner-text", "ds": "> [data-slot=\"banner-text\"]" },
+        {
+          "ten": "nut",
+          "artifact": "> button",
+          "ds": "> button",
+          "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
+        }
+      ]
+    }
+  ]
+}
