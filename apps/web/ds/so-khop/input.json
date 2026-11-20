@@ -1,0 +1,125 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#input > div"
+  },
+  "anhTuongTac": {
+    "hover": "#input [data-so=\"hover\"]",
+    "focus": "#input [data-so=\"focus\"]"
+  },
+  "chuaDo": [
+    "Theme tối, rê chuột lên ô ĐANG focus: bundle.css ra viền alpha-30 (rule tối đặc hiệu cao hơn :focus), DS giữ alpha-50 (focus thắng hover như theme sáng) — có chủ đích, ghi ở control-styles.ts",
+    "Ô vừa lỗi vừa tắt: preview không có; DS cho tắt thắng lỗi",
+    "Nút ✕ xoá chữ của ô type=search và tay kéo giãn Textarea: kiểu mặc định trình duyệt, hai bên như nhau, không đo",
+    "FieldSet / FieldLegend / FieldMeta: preview Input không có — đo ở so khớp Radio, Checkbox và FormLayout",
+    "controlOutlineWithin (khung bọc ô không viền): không dùng trong khối Input — đo ở so khớp InputAffix",
+    "Bấm nhãn focus ô, tên đọc được bỏ dấu *, gợi ý nối aria-describedby: test jsdom components/ui/field-input.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "luoi",
+      "artifact": "body > div",
+      "ds": "#input > div"
+    },
+    {
+      "khoa": "field",
+      "artifact": "body > div > .ui-field:nth-child(1)",
+      "ds": "#input [data-so=\"field\"]"
+    },
+    {
+      "khoa": "label",
+      "artifact": "body > div > .ui-field:nth-child(1) > .ui-label",
+      "ds": "#input [data-so=\"label\"]"
+    },
+    {
+      "khoa": "req",
+      "artifact": "body > div > .ui-field:nth-child(1) .req",
+      "ds": "#input [data-so=\"label\"] > [aria-hidden=\"true\"]"
+    },
+    {
+      "khoa": "ten",
+      "artifact": "#i1",
+      "ds": "#input [data-so=\"ten\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    },
+    {
+      "khoa": "ten-placeholder",
+      "artifact": "#i1",
+      "ds": "#input [data-so=\"ten\"]",
+      "pseudo": { "artifact": "::placeholder", "ds": "::placeholder" }
+    },
+    {
+      "khoa": "help",
+      "artifact": "body > div > .ui-field:nth-child(1) > .ui-help",
+      "ds": "#input [data-so=\"help\"]"
+    },
+    {
+      "khoa": "tim-khung",
+      "artifact": ".ui-input-wrap",
+      "ds": "#input [data-slot=\"input-wrap\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> .ui-icon", "ds": "svg", "props": ["width", "height", "color"] }
+      ]
+    },
+    {
+      "khoa": "tim",
+      "artifact": "#i2",
+      "ds": "#input [data-so=\"tim\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    },
+    {
+      "khoa": "hover",
+      "artifact": "#i3",
+      "ds": "#input [data-so=\"hover\"]",
+      "buoc": [{ "tro": "#input [data-so=\"hover\"]" }, { "cho": 200 }]
+    },
+    {
+      "khoa": "focus",
+      "artifact": ".ui-input.is-focus",
+      "ds": "#input [data-so=\"focus\"]",
+      "buoc": [{ "tab": "#input [data-so=\"focus\"]" }, { "cho": 200 }]
+    },
+    {
+      "khoa": "loi",
+      "artifact": "#i4",
+      "ds": "#input [data-so=\"loi\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    },
+    {
+      "khoa": "loi-msg",
+      "artifact": "#i4e",
+      "ds": "#input [data-so=\"loi-msg\"]"
+    },
+    {
+      "khoa": "tat",
+      "artifact": "#i5",
+      "ds": "#input [data-so=\"tat\"]",
+      "trangThai": ["hover"],
+      "artifactThat": true,
+      "lyDo": {
+        "hover.boxShadow@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-input:hover, đặc hiệu 0,3,0) thắng .ui-input:disabled (0,2,0) → ô TẮT vẫn đậm viền alpha-30 khi rê ở theme tối, theme sáng thì không. DS giữ viền tắt color-border-disabled ở cả hai theme (ô tắt không phản hồi chuột), nhất quán theme sáng — đề xuất đồng bộ ngược artifact."
+      }
+    },
+    {
+      "khoa": "tat-help",
+      "artifact": "body > div > .ui-field:nth-child(5) > .ui-help",
+      "ds": "#input [data-so=\"tat-help\"]"
+    },
+    {
+      "khoa": "ghi-chu",
+      "artifact": "#i6",
+      "ds": "#input [data-so=\"ghi-chu\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    },
+    {
+      "khoa": "ghi-chu-placeholder",
+      "artifact": "#i6",
+      "ds": "#input [data-so=\"ghi-chu\"]",
+      "pseudo": { "artifact": "::placeholder", "ds": "::placeholder" }
+    }
+  ]
+}
