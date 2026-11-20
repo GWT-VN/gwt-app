@@ -10,6 +10,7 @@ import { calendarFoot, calendarFootClear, calendarPop } from './calendar-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { selectTrigger, selectValue } from './control-styles'
 import { useMoBangChuot } from './use-mo-bang-chuot'
+import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
 export { calendarFoot, calendarFootClear, calendarPop, kepNgay }
 
@@ -18,7 +19,9 @@ export { calendarFoot, calendarFootClear, calendarPop, kepNgay }
  * `toISOString()`), hiện `dd/MM/yyyy`.
  *
  * - Trigger = `selectTrigger` (y Select) + icon CalendarBlank 16 đầu ô; `aria-haspopup="dialog"` + `aria-expanded` (Radix
- *   Popover). Đặt tên bằng `FieldLabel htmlFor={id}`; lỗi: `aria-invalid` + `aria-describedby` câu lỗi.
+ *   Popover). Đặt tên bằng `FieldLabel htmlFor={id}` / `aria-labelledby` / `aria-label`; tên đọc = nhãn + ngày đang chọn
+ *   (`useTriggerChon`). Lỗi: `aria-invalid` + `aria-describedby` câu lỗi. `name` → input ẩn `YYYY-MM-DD` cho form.
+ *   `onBlur` khi focus rời trigger lúc pop đóng.
  * - Pop = `role="dialog"` "Chọn ngày" (Radix Popover, portal vùng DS, z-90 → mở được trong Dialog/Sheet). Mở: focus ô
  *   đang chọn, không có thì hôm nay (react-day-picker `autoFocus`). Chọn ngày / "Hôm nay" / "Xoá ngày" → đóng, focus về
  *   trigger. Esc đóng pop; trong Dialog chỉ đóng pop (DismissableLayer lớp trên cùng).
@@ -33,27 +36,17 @@ export function DatePicker({
   min,
   max,
   placeholder = 'Chọn ngày',
-  disabled,
-  id,
-  required,
-  'aria-required': ariaRequired,
-  'aria-invalid': ariaInvalid,
-  'aria-describedby': ariaDescribedby,
-}: {
+  name,
+  ...trig
+}: TriggerChonProps & {
   value: string | null
   onValueChange(v: string | null): void
   min?: string
   max?: string
   placeholder?: string
-  disabled?: boolean
-  id?: string
-  /** Ô bắt buộc → `aria-required` trên trigger (nút không nhận `required` gốc). */
-  required?: boolean
-  'aria-required'?: boolean
-  'aria-invalid'?: boolean
-  'aria-describedby'?: string
 }) {
   const [mo, setMo] = useState(false)
+  const { idGiaTri, trigger } = useTriggerChon(trig, !!value, mo)
   const chuot = useMoBangChuot()
   const homNay = isoNgay(new Date())
   const chon = (v: string | null) => {
@@ -66,11 +59,7 @@ export function DatePicker({
       <PopoverTrigger asChild>
         <button
           type="button"
-          id={id}
-          disabled={disabled}
-          aria-required={required || ariaRequired || undefined}
-          aria-invalid={ariaInvalid || undefined}
-          aria-describedby={ariaDescribedby}
+          {...trigger}
           data-placeholder={value ? undefined : ''}
           data-slot="date-picker-trigger"
           // cn(): tailwind-merge bỏ chữ 400 của controlOutline để chữ 500 của selectTrigger thắng (y SelectTrigger).
@@ -80,11 +69,12 @@ export function DatePicker({
         >
           <CalendarBlank aria-hidden="true" />
           {/* `.ui-select-trigger > .ui-icon:first-child + .ui-select-value`: giá trị giãn hết phần còn lại, sát icon. */}
-          <span data-slot="select-value" className={cn(selectValue, 'flex-1')}>
+          <span id={idGiaTri} data-slot="select-value" className={cn(selectValue, 'flex-1')}>
             {value ? hienNgay(value) : placeholder}
           </span>
         </button>
       </PopoverTrigger>
+      {name && <input type="hidden" name={name} value={value ?? ''} />}
       <PopoverContent
         aria-label="Chọn ngày"
         data-mo-chuot={chuot.chuot || undefined}

@@ -32,7 +32,8 @@ function ChonTinh({ onDoi = () => {}, max, dau = '01' }: { onDoi?: (v: string | 
   )
 }
 
-const trigger = () => screen.getByRole('button', { name: 'Tỉnh/thành' })
+// Tên đọc = nhãn + mục đang chọn ("Tỉnh/thành Hà Nội") — khớp đầu nhãn.
+const trigger = () => screen.getByRole('button', { name: /^Tỉnh\/thành( |$)/ })
 const oTim = () => screen.getByRole('combobox')
 const muc = () => screen.queryAllByRole('option')
 
@@ -145,7 +146,7 @@ test('Combobox trong Dialog: Esc lần 1 chỉ đóng pop (Dialog còn mở), l�
       </Dialog>
     </DsRoot>,
   )
-  const nut = await screen.findByRole('button', { name: 'Tỉnh/thành' })
+  const nut = await screen.findByRole('button', { name: 'Tỉnh/thành Hà Nội' })
   await user.click(nut)
   await screen.findByRole('listbox')
   await user.keyboard('{Escape}')
@@ -199,7 +200,7 @@ test('aria-invalid trên trigger; disabled → không mở, không có ✕', asy
     </DsRoot>,
   )
   expect(screen.getByRole('button', { name: 'Lỗi' }).getAttribute('aria-invalid')).toBe('true')
-  const tat = screen.getByRole('button', { name: 'Tắt' })
+  const tat = screen.getByRole('button', { name: 'Tắt Hà Nội' })
   await user.click(tat)
   expect(screen.queryByRole('listbox')).toBeNull()
   expect(screen.queryByRole('button', { name: /^Bỏ chọn/ })).toBeNull()
@@ -268,12 +269,12 @@ test('tìm xa + value có sẵn (form sửa): mucDangChon cho trigger hiện tê
       <Combobox aria-label="Khách lệch" value="KH02" mucDangChon={{ gt: 'KH01', nhan: 'Sai' }} onValueChange={() => {}} tim={tim} />
     </DsRoot>,
   )
-  const nut = screen.getByRole('button', { name: 'Khách' })
+  const nut = screen.getByRole('button', { name: 'Khách Nguyễn Văn A (demo)' })
   expect(nut.textContent).toContain('Nguyễn Văn A (demo)')
   expect(nut.textContent).not.toContain('KH01')
   expect(screen.getByRole('button', { name: 'Bỏ chọn Nguyễn Văn A (demo)' })).toBeTruthy()
   // mucDangChon không khớp value → không bịa tên, hiện mã.
-  expect(screen.getByRole('button', { name: 'Khách lệch' }).textContent).toContain('KH02')
+  expect(screen.getByRole('button', { name: 'Khách lệch KH02' }).textContent).toContain('KH02')
 })
 
 test('tìm xa: kết quả chạm trần max → "N kết quả đầu — gõ thêm để thu hẹp"', async () => {

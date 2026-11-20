@@ -11,6 +11,7 @@ import { menuCheck, menuContent, menuItem } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { selectTrigger, selectValue } from './control-styles'
 import { Spinner } from './spinner'
+import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
 /**
  * Combobox — khung shadcn (Popover + cmdk `Command`), giá trị từ `.ui-select-trigger` (trigger, qua `selectTrigger`) và
@@ -32,7 +33,9 @@ import { Spinner } from './spinner'
  * - Ghi chú cuối (`aria-live="polite"`, một vùng duy nhất cho mọi câu trạng thái): cắt bớt → "Đang hiện N / M mục — gõ
  *   thêm để thu hẹp", không cắt → "M mục"; rỗng / chưa đủ ký tự / đang tìm / lỗi (câu lỗi `tim` ném ra) theo README.
  *
- * Tên: `FieldLabel htmlFor` trỏ `id`, hoặc `aria-labelledby` / `aria-label`; lỗi → `aria-invalid` + `aria-describedby`.
+ * Tên: `FieldLabel htmlFor` trỏ `id`, hoặc `aria-labelledby` / `aria-label`; tên đọc = nhãn + mục đang chọn
+ * (`useTriggerChon`). Lỗi → `aria-invalid` + `aria-describedby`; `required` → `aria-required`; `name` → input ẩn mang mã
+ * (`gt`) cho form; `onBlur` khi focus rời trigger lúc pop đóng.
  * Pop là `role="dialog"` của Radix (chứa ô tìm combobox + listbox), tên lấy từ `aria-labelledby` / `aria-label` của trigger.
  */
 export function Combobox({
@@ -44,10 +47,9 @@ export function Combobox({
   placeholder = 'Chọn…',
   searchPlaceholder,
   max,
-  disabled,
-  id,
-  ...aria
-}: {
+  name,
+  ...trig
+}: TriggerChonProps & {
   value: string | null
   onValueChange(v: string | null): void
   /** Danh sách đã nạp ở client (lọc tại chỗ). Truyền `options` HOẶC `tim`. */
@@ -66,14 +68,9 @@ export function Combobox({
   searchPlaceholder?: string
   /** Số mục hiện tối đa (mặc định 30); cắt thì ghi chú nói rõ. */
   max?: number
-  disabled?: boolean
-  id?: string
-  'aria-invalid'?: boolean
-  'aria-labelledby'?: string
-  'aria-label'?: string
-  'aria-describedby'?: string
 }) {
   const [mo, setMo] = useState(false)
+  const { idGiaTri, trigger } = useTriggerChon(trig, !!value, mo)
   const nutRef = useRef<HTMLButtonElement>(null)
   // Tìm xa: mục vừa chọn không nằm trong `options` → nhớ để trigger hiện tên thay vì mã.
   const [nho, setNho] = useState<MucChon | null>(null)
@@ -81,7 +78,7 @@ export function Combobox({
     ? (options?.find((m) => m.gt === value) ?? [mucDangChon, nho].find((m) => m?.gt === value) ?? null)
     : null
   const ten = value ? (dang?.nhan ?? value) : null
-  const coXoa = !!value && !disabled
+  const coXoa = !!value && !trig.disabled
 
   return (
     <Popover open={mo} onOpenChange={setMo}>
@@ -90,15 +87,13 @@ export function Combobox({
           <button
             ref={nutRef}
             type="button"
-            id={id}
-            disabled={disabled}
+            {...trigger}
             data-slot="combobox-trigger"
             data-placeholder={value ? undefined : ''}
             // cn: selectTrigger chứa cả font-normal (controlOutline) lẫn font-medium — twMerge giữ 500 như Select.
             className={cn(selectTrigger)}
-            {...aria}
           >
-            <span data-slot="select-value" className={selectValue}>
+            <span id={idGiaTri} data-slot="select-value" className={selectValue}>
               {ten ?? placeholder}
             </span>
             {/* Chừa chỗ cho nút ✕ (nằm ngoài <button> — không lồng nút trong nút). */}
@@ -125,11 +120,12 @@ export function Combobox({
             <X aria-hidden="true" />
           </button>
         )}
+        {name && <input type="hidden" name={name} value={value ?? ''} />}
       </div>
       <PopoverContent
         data-slot="combobox-content"
-        aria-labelledby={aria['aria-labelledby']}
-        aria-label={aria['aria-labelledby'] ? undefined : (aria['aria-label'] ?? 'Danh sách chọn')}
+        aria-labelledby={trig['aria-labelledby']}
+        aria-label={trig['aria-labelledby'] ? undefined : (trig['aria-label'] ?? 'Danh sách chọn')}
         className={cn(
           menuContent,
           'min-w-[max(200px,var(--radix-popover-trigger-width))] max-w-[calc(100vw-16px)]',

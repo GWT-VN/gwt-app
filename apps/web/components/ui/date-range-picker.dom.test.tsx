@@ -52,7 +52,8 @@ function Khoang(props: { dau?: K; onDoi?: (v: K) => void; min?: string; max?: st
   )
 }
 
-const trigger = () => screen.getByRole('button', { name: 'Khoảng ngày' })
+// Tên đọc = nhãn + khoảng đang chọn — khớp đầu nhãn.
+const trigger = () => screen.getByRole('button', { name: /^Khoảng ngày( |$)/ })
 const o = (ten: RegExp) => screen.getByRole('button', { name: ten })
 const nut = (ten: string) => screen.getByRole('button', { name: ten }) as HTMLButtonElement
 const tieuDe = () => screen.getByRole('dialog', { name: 'Chọn khoảng ngày' }).querySelector('[aria-live]')?.textContent
@@ -254,7 +255,7 @@ test('trong Dialog: Esc lần 1 chỉ đóng bảng (Dialog còn), focus về tr
       </Dialog>
     </DsRoot>,
   )
-  const t = await screen.findByRole('button', { name: 'Khoảng ngày' })
+  const t = await screen.findByRole('button', { name: 'Khoảng ngày' }) // chưa chọn → chỉ nhãn
   await user.click(t)
   await screen.findByRole('dialog', { name: 'Chọn khoảng ngày' })
   await user.keyboard('{Escape}')

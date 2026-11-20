@@ -6,6 +6,7 @@ import { kichThuocDoc, kiemTep } from '@/lib/tep'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Tooltip } from './tooltip'
+import { laLoi, type AriaInvalid } from './use-trigger-chon'
 
 export { kichThuocDoc, kiemTep }
 
@@ -60,12 +61,12 @@ export function FileDrop({
   required?: boolean
   'aria-labelledby'?: string
   'aria-describedby'?: string
-  'aria-invalid'?: ComponentProps<'input'>['aria-invalid']
+  'aria-invalid'?: AriaInvalid
 }) {
   const tuSinh = useId()
   const idInput = id ?? tuSinh
   const [qua, setQua] = useState(false)
-  const loi = ariaInvalid === true || ariaInvalid === 'true'
+  const loi = laLoi(ariaInvalid)
   // Luôn preventDefault (kể cả khi tắt): bỏ qua thì trình duyệt mở tệp thả vào → rời trang. Tắt → con trỏ "cấm".
   const keoQua = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
@@ -112,7 +113,7 @@ export function FileDrop({
         accept={accept}
         disabled={disabled}
         required={required}
-        aria-invalid={ariaInvalid}
+        aria-invalid={loi || undefined}
         aria-labelledby={[nhanNgoai, `${idInput}-tieu-de`].filter(Boolean).join(' ')}
         aria-describedby={[`${idInput}-goi-y`, moTaNgoai].filter(Boolean).join(' ')}
         // input file của .ui-drop: ẩn nhìn nhưng vẫn nhận Tab (không display:none / sr-only).

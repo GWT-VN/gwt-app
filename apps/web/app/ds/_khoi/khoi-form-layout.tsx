@@ -201,6 +201,7 @@ export function FormMau({
                 aria-required
                 aria-invalid={!!loiLoai || undefined}
                 aria-describedby={loiLoai ? id('loai-e') : undefined}
+                onBlur={() => roi('loai')}
               >
                 <SelectValue placeholder="Chọn loại" />
               </SelectTrigger>
@@ -226,8 +227,10 @@ export function FormMau({
                 sua('ngay')
               }}
               min={homNay}
+              required
               aria-invalid={!!loiNgay}
               aria-describedby={id('ngay-m')}
+              onBlur={() => roi('ngay')}
             />
             {loiNgay ? (
               <FieldError data-so="ngay-loi" id={id('ngay-m')}>

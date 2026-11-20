@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
-import { act, render, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
 import { FormMau } from '@/app/ds/_khoi/khoi-form-layout'
+import { DsRoot } from './ds-root'
 import { focusLoiDau } from './form-layout'
 
 // DatePicker → Popover → DsRoot nạp next/font (không chạy được ngoài Next).
@@ -98,4 +99,20 @@ test('đang lưu: Lưu loading + khoá cả 2 nút; lỗi máy chủ → Alert d
   })
   expect(within(f).queryByRole('alert')).toBeNull()
   expect(f.textContent).toContain('Đã lưu')
+})
+
+test('Ngày hẹn (DatePicker): xoá ngày (đã sửa) rồi rời ô → lỗi hiện như ô nhập; còn đứng ở ô thì chưa', async () => {
+  const u = userEvent.setup()
+  render(
+    <DsRoot>
+      <FormMau p="t" dau={{ loai: 'bao-duong', ngay: '2099-01-15' }} />
+    </DsRoot>,
+  )
+  const ngay = screen.getByRole('button', { name: 'Ngày hẹn 15/01/2099' })
+  await u.click(ngay)
+  await u.click(await screen.findByRole('button', { name: 'Xoá ngày' }))
+  await waitFor(() => expect(document.activeElement).toBe(ngay))
+  expect(ngay.getAttribute('aria-invalid')).toBeNull()
+  await u.tab()
+  expect(ngay.getAttribute('aria-invalid')).toBe('true')
 })

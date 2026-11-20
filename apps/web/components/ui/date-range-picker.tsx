@@ -10,6 +10,7 @@ import { calendarFoot, calendarFootClear, calendarPop } from './calendar-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { selectTrigger, selectValue } from './control-styles'
 import { useMoBangChuot } from './use-mo-bang-chuot'
+import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
 export { hienKhoang, type KhoangNgay }
 
@@ -208,7 +209,8 @@ export function DateRangePanel({
  * (`isoNgay`, giờ máy — không `toISOString()`), trigger hiện "dd/MM/yyyy – dd/MM/yyyy".
  *
  * - Trigger = `selectTrigger` + CalendarBlank 16 (y DatePicker); `aria-haspopup="dialog"`. Đặt tên bằng
- *   `FieldLabel htmlFor={id}`.
+ *   `FieldLabel htmlFor={id}` / `aria-labelledby` / `aria-label`; tên đọc = nhãn + khoảng đang chọn (`useTriggerChon`).
+ *   `name` → input ẩn dạng khoảng ISO 8601 `YYYY-MM-DD/YYYY-MM-DD` (một khoá FormData). `onBlur` khi rời trigger lúc pop đóng.
  * - Pop = `role="dialog"` "Chọn khoảng ngày" (Radix Popover, portal vùng DS, z-90 → mở được trong Dialog/Sheet), mặt
  *   `calendarPop` (≤ 640 rộng 100vw − 16). Mở: focus ngày đầu đang chọn, không có thì hôm nay.
  * - Giá trị CHỈ đổi khi Áp dụng (đóng + focus trigger). Huỷ / Esc / bấm ngoài = bỏ nháp, giữ giá trị cũ. Trong Dialog,
@@ -223,38 +225,24 @@ export function DateRangePicker({
   min,
   max,
   placeholder = 'Chọn khoảng ngày',
-  disabled,
-  id,
-  required,
-  'aria-required': ariaRequired,
-  'aria-invalid': ariaInvalid,
-  'aria-describedby': ariaDescribedby,
-}: {
+  name,
+  ...trig
+}: TriggerChonProps & {
   value: KhoangNgay | null
   onValueChange(v: KhoangNgay | null): void
   min?: string
   max?: string
   placeholder?: string
-  disabled?: boolean
-  id?: string
-  /** Ô bắt buộc → `aria-required` trên trigger. */
-  required?: boolean
-  'aria-required'?: boolean
-  'aria-invalid'?: boolean
-  'aria-describedby'?: string
 }) {
   const [mo, setMo] = useState(false)
+  const { idGiaTri, trigger } = useTriggerChon(trig, !!value, mo)
   const chuot = useMoBangChuot()
   return (
     <Popover open={mo} onOpenChange={setMo}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          id={id}
-          disabled={disabled}
-          aria-required={required || ariaRequired || undefined}
-          aria-invalid={ariaInvalid || undefined}
-          aria-describedby={ariaDescribedby}
+          {...trigger}
           data-placeholder={value ? undefined : ''}
           data-slot="date-range-picker-trigger"
           className={cn(selectTrigger)}
@@ -262,11 +250,12 @@ export function DateRangePicker({
           onKeyDown={chuot.onKeyDown}
         >
           <CalendarBlank aria-hidden="true" />
-          <span data-slot="select-value" className={cn(selectValue, 'flex-1')}>
+          <span id={idGiaTri} data-slot="select-value" className={cn(selectValue, 'flex-1')}>
             {value ? hienKhoang(value) : placeholder}
           </span>
         </button>
       </PopoverTrigger>
+      {name && <input type="hidden" name={name} value={value ? `${value.tu}/${value.den}` : ''} />}
       <PopoverContent
         aria-label="Chọn khoảng ngày"
         data-mo-chuot={chuot.chuot || undefined}

@@ -59,7 +59,8 @@ function NgayGiao(props: {
   )
 }
 
-const trigger = () => screen.getByRole('button', { name: 'Ngày giao' })
+// Tên đọc = nhãn + ngày đang chọn ("Ngày giao 18/11/2026") — khớp đầu nhãn.
+const trigger = () => screen.getByRole('button', { name: /^Ngày giao( |$)/ })
 const o = (ten: RegExp) => screen.getByRole('button', { name: ten })
 
 test('file chạy đúng giờ VN (+07:00) và giờ giả 00:30 ngày 20/11', () => {
@@ -177,7 +178,7 @@ test('trigger: aria-haspopup dialog, chưa chọn → data-placeholder + "Chọn
   expect(t.hasAttribute('data-placeholder')).toBe(true)
   expect(t.textContent).toContain('Chọn ngày')
   expect(t.getAttribute('aria-invalid')).toBe('true')
-  const t2 = screen.getByRole('button', { name: 'Ngày 2' })
+  const t2 = screen.getByRole('button', { name: 'Ngày 2 05/01/2026' })
   expect(t2.hasAttribute('data-placeholder')).toBe(false)
   expect(t2.textContent).toContain('05/01/2026')
 })
@@ -231,7 +232,7 @@ test('DatePicker trong Dialog: Esc lần 1 chỉ đóng lịch (Dialog còn), fo
       </Dialog>
     </DsRoot>,
   )
-  const nut = await screen.findByRole('button', { name: 'Ngày giao' })
+  const nut = await screen.findByRole('button', { name: 'Ngày giao' }) // chưa chọn → chỉ nhãn
   await user.click(nut)
   await screen.findByRole('dialog', { name: 'Chọn ngày' })
   await user.keyboard('{Escape}')
