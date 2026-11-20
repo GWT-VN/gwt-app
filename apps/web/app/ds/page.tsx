@@ -7,9 +7,9 @@ import { HuongDan } from './_khung/tai-lieu'
 /**
  * Khối `_khoi/*` giữ nguyên (cổng so khớp đo trên /ds/tron): ở đây ẩn `h2` riêng của khối — tiêu đề + mô tả nằm ở hàng
  * tiêu đề `Muc`. `id` vẫn ở `section` của khối → neo `#<neo>` cuộn tới thân, nên chừa trên đủ cao cho hàng tiêu đề
- * (≈ 68 + padding 20 → 112; màn hẹp thêm thanh trên 49 → 160).
+ * (hàng tiêu đề ≈ 91 + đệm thân 20 + khe 24 → 144; màn hẹp thêm thanh trên 49 → 192).
  */
-const BOC_KHOI = '[&>section>h2]:hidden [&>section[id]]:scroll-mt-28 max-md:[&>section[id]]:scroll-mt-40'
+const BOC_KHOI = '[&>section>h2]:hidden [&>section[id]]:scroll-mt-36 max-md:[&>section[id]]:scroll-mt-48'
 
 /**
  * /ds — trang Components: mỗi component một `Muc` (tiêu đề + một dòng mô tả từ README artifact, thân = khối demo,

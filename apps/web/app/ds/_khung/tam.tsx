@@ -72,9 +72,10 @@ export function Muc({
   return (
     <section id={id} className={cn('scroll-mt-6 overflow-hidden rounded-(--radius-2xl) border border-(--border) bg-background', className)}>
       {tieuDe && (
-        <div className={`flex min-h-14 items-center justify-between gap-4 py-3 ${LE}`}>
-          <div className="min-w-0">
-            <h2 className="m-0 text-[16px] leading-[24px] font-medium">
+        <div className={`flex min-h-14 items-center justify-between gap-4 py-5 ${LE}`}>
+          <div className="flex min-w-0 flex-col gap-1">
+            {/* CEO 20/11: tiêu đề tấm rõ hơn (heading-sm 18/26 600) + đệm trên dưới 20 */}
+            <h2 className="m-0 ds-heading-sm">
               {neo ? (
                 <a href={`#${neo}`} className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
                   {tieuDe}

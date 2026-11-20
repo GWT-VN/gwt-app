@@ -34,7 +34,7 @@ function useNeoDangXem(bat: boolean): string {
     const tinh = () => {
       let id = ''
       for (const s of document.querySelectorAll<HTMLElement>('main section[id]')) {
-        // Ngưỡng = scroll-margin-top của chính khối (chỗ nhảy #neo dừng lại: 112, màn hẹp 160) + 8 — ngưỡng cứng 96
+        // Ngưỡng = scroll-margin-top của chính khối (chỗ nhảy #neo dừng lại: 144, màn hẹp 192) + 8 — ngưỡng cứng 96
         // thấp hơn chỗ dừng → bấm #date-picker lại đánh dấu khối trước nó.
         if (s.getBoundingClientRect().top > (parseFloat(getComputedStyle(s).scrollMarginTop) || 0) + 8) break
         id = s.id
