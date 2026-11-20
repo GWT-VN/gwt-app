@@ -1,0 +1,239 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#kanban-board > div"
+  },
+  "chuaDo": [
+    "Kéo THẬT (chuột nhích 4px; bàn phím Space nhấc · ←→ sang cột · Space/Enter thả · Esc/Tab huỷ; câu đọc tiếng Việt; thẻ nguồn mờ 40%, cột đích nền alpha-05 + viền trong alpha-10, bóng kéo shadow-200 z 90): preview tĩnh không có trạng thái kéo — hành vi đo bằng test jsdom components/ui/kanban-board.dom.test.tsx, giao diện bằng ảnh tự kiểm /ds#kanban-board (kéo chuột thật + phím thật trên Chrome)",
+    "Hộp hỏi lý do khi thả vào Chờ (Dialog + Select, focus Huỷ, thiếu lý do báo lỗi): preview không có — test jsdom + ảnh; giao diện hộp/ô đo ở so-khop Dialog, Select",
+    "Menu chuột phải \"Chuyển sang…\" (ContextMenu): preview không có — test jsdom + ảnh; giao diện menu đo ở so-khop ContextMenu. Thẻ đang mở menu (vòng alpha-15 = `.b-the[data-cp]`) so bằng ảnh",
+    "Toast Hoàn tác / lỗi Thử lại: test jsdom (gọi thongBao đúng câu); giao diện đo ở so-khop Toast",
+    "Rỗng do lọc cả màn (EmptyState): preview không có — ảnh /ds#kanban-board; đo ở so-khop EmptyState",
+    "Số thẻ đầu cột: preview gõ số giả (4, 6, 7, 2, 0) khác số thẻ đang hiện; DS đếm thật — chỉ so kiểu chữ (một chữ số, tabular-nums cùng bề ngang)"
+  ],
+  "khoa": [
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-muc > .ds-nhan",
+      "ds": "#kanban-board [data-so=\"muc\"] > p"
+    },
+    {
+      "khoa": "trang",
+      "artifact": ".b-trang-k",
+      "ds": "#kanban-board [data-so=\"trang\"]",
+      "props": [
+        "width",
+        "height",
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft"
+      ]
+    },
+    {
+      "khoa": "bang",
+      "artifact": ".b-kanban",
+      "ds": "#kanban-board [data-slot=\"kanban-board\"]"
+    },
+    {
+      "khoa": "cot",
+      "artifact": ".b-k-cot:nth-child(1)",
+      "ds": "#kanban-board [data-cot-id=\"moi\"]"
+    },
+    {
+      "khoa": "cot-dau",
+      "artifact": ".b-k-cot:nth-child(1) > .b-k-dau",
+      "ds": "#kanban-board [data-cot-id=\"moi\"] > header"
+    },
+    {
+      "khoa": "cot-chip",
+      "artifact": ".b-k-cot:nth-child(2) > .b-k-dau > .ui-badge",
+      "ds": "#kanban-board [data-cot-id=\"xu-ly\"] > header > [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "cot-chip-xam",
+      "artifact": ".b-k-cot:nth-child(4) > .b-k-dau > .ui-badge",
+      "ds": "#kanban-board [data-cot-id=\"cho-kh\"] > header > [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "cot-dem",
+      "artifact": ".b-k-cot:nth-child(1) > .b-k-dau > .b-mo",
+      "ds": "#kanban-board [data-cot-id=\"moi\"] > header > span:last-child"
+    },
+    {
+      "khoa": "cot-ds",
+      "artifact": ".b-k-cot:nth-child(1) > .b-k-ds",
+      "ds": "#kanban-board [data-cot-id=\"moi\"] > div"
+    },
+    {
+      "khoa": "the",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1)",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"]",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "the-dau",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) > .b-the-dau",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(1)"
+    },
+    {
+      "khoa": "the-nhan",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) .b-nhan-dau",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(1) > span"
+    },
+    {
+      "khoa": "nhan-uu",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) .b-nhan-dau > .ui-badge:nth-child(1)",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(1) > span > [data-slot=\"badge\"]:nth-child(1)"
+    },
+    {
+      "khoa": "nhan-loi",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) .b-nhan-dau > .ui-badge:nth-child(2)",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(1) > span > [data-slot=\"badge\"]:nth-child(2)",
+      "con": [
+        {
+          "ten": "cham",
+          "artifact": "> .ui-dot",
+          "ds": "> [data-slot=\"badge-dot\"]",
+          "props": [
+            "width",
+            "height",
+            "backgroundColor",
+            "borderRadius"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "the-khach",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) > .b-the-khach",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(2)",
+      "con": [
+        {
+          "ten": "khach",
+          "artifact": "> .b-khach",
+          "ds": "> span"
+        },
+        {
+          "ten": "luu-y",
+          "artifact": ".b-luuy",
+          "ds": "span > span:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "luu-y-icon",
+          "artifact": ".b-luuy > svg",
+          "ds": "span > span:nth-child(2) > svg",
+          "props": [
+            "width",
+            "height"
+          ]
+        },
+        {
+          "ten": "hoi-lai",
+          "artifact": ".b-hoilai",
+          "ds": "span > span:nth-child(3)",
+          "props": [
+            "height",
+            "gap",
+            "fontSize",
+            "fontWeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "hoi-lai-icon",
+          "artifact": ".b-hoilai > svg",
+          "ds": "span > span:nth-child(3) > svg",
+          "props": [
+            "width",
+            "height"
+          ]
+        }
+      ],
+      "lyDo": {
+        "khach.width": "Tên khách demo dài hơn preview (R11: \"Khách sạn Demo Sen Vàng\" thay \"Khách sạn Sen Vàng\"). Preview `.b-khach` inline-flex không trần rộng → tên dài tràn khỏi thẻ, cờ ↻ bị danh sách cuộn cắt (thấy ở ảnh tự kiểm); DS thêm trần 100% bề ngang thẻ → tên cắt …, cờ lưu ý/hỏi lại luôn thấy. Đề xuất đồng bộ ngược `max-width: 100%` cho `.b-khach` trong thẻ."
+      }
+    },
+    {
+      "khoa": "the-viec",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) > .b-the-viec",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(3)"
+    },
+    {
+      "khoa": "the-chan",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) > .b-the-chan",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(4)",
+      "con": [
+        {
+          "ten": "avatar",
+          "artifact": "> .ui-avatar",
+          "ds": "> [data-slot=\"avatar\"]",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "color",
+            "backgroundColor",
+            "borderRadius"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "ma",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) .b-the-chan > .b-ma",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(4) > span:nth-child(1)"
+    },
+    {
+      "khoa": "han-hom-nay",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1) .b-the-chan > .b-han",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"] > div:nth-child(4) > span:nth-child(2)"
+    },
+    {
+      "khoa": "han-thuong",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(2) .b-the-chan > .b-han",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-041\"] > div:nth-child(4) > span:nth-child(2)"
+    },
+    {
+      "khoa": "han-tre",
+      "artifact": ".b-k-cot:nth-child(2) .b-the:nth-child(2) .b-the-chan > .b-han",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-043\"] > div:nth-child(4) > span:nth-child(2)"
+    },
+    {
+      "khoa": "rong",
+      "artifact": ".b-k-cot:nth-child(5) .b-k-rong",
+      "ds": "#kanban-board [data-cot-id=\"dong\"] > div > div"
+    },
+    {
+      "khoa": "the-focus",
+      "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1)",
+      "ds": "#kanban-board [data-the-id=\"TK-2611-045\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "tab": {
+            "artifact": ".b-k-cot:nth-child(1) .b-the:nth-child(1)",
+            "ds": "#kanban-board [data-the-id=\"TK-2611-045\"]"
+          }
+        }
+      ],
+      "lyDo": {
+        "outlineColor": "Preview không khai vòng focus cho thẻ (`.b-the` không có :focus-visible) → vòng mặc định trình duyệt (auto 1px). DS: vòng 2px `ring` như mọi phần tử focus được, nằm TRONG mép thẻ (offset −2) vì danh sách cuộn dọc `.b-k-ds` cắt phần tràn ra ngoài thẻ đầu/cuối.",
+        "outlineStyle": "Preview không khai vòng focus cho thẻ (`.b-the` không có :focus-visible) → vòng mặc định trình duyệt (auto 1px). DS: vòng 2px `ring` như mọi phần tử focus được, nằm TRONG mép thẻ (offset −2) vì danh sách cuộn dọc `.b-k-ds` cắt phần tràn ra ngoài thẻ đầu/cuối.",
+        "outlineWidth": "Preview không khai vòng focus cho thẻ (`.b-the` không có :focus-visible) → vòng mặc định trình duyệt (auto 1px). DS: vòng 2px `ring` như mọi phần tử focus được, nằm TRONG mép thẻ (offset −2) vì danh sách cuộn dọc `.b-k-ds` cắt phần tràn ra ngoài thẻ đầu/cuối.",
+        "outlineOffset": "Preview không khai vòng focus cho thẻ (`.b-the` không có :focus-visible) → vòng mặc định trình duyệt (auto 1px). DS: vòng 2px `ring` như mọi phần tử focus được, nằm TRONG mép thẻ (offset −2) vì danh sách cuộn dọc `.b-k-ds` cắt phần tràn ra ngoài thẻ đầu/cuối."
+      }
+    }
+  ]
+}
