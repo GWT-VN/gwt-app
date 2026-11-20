@@ -10,6 +10,9 @@ import {
   NHOM_CHU,
   NHOM_MAU,
   chiaNhomMau,
+  docMau,
+  hienMau,
+  nenCua,
   giai,
   nhomCua,
   tiLe,
@@ -98,4 +101,36 @@ test('bóng có giá trị riêng sáng/tối; tiLe ra phần trăm so với m�
   const r = tiLe(MOC_MAN_HINH)
   expect(Math.max(...r.map((x) => x.phanTram))).toBe(100)
   expect(r.every((x) => x.phanTram > 0)).toBe(true)
+})
+
+test('mọi giá trị màu đọc được (#rrggbb hoặc rgba); hienMau ra hex hoa + % alpha', () => {
+  for (const m of NHOM_MAU.flatMap((n) => n.mau)) for (const v of [m.sang, m.toi]) expect(() => docMau(v)).not.toThrow()
+  expect(hienMau('rgba(13, 13, 13, 0.1)')).toEqual({ hex: '#0D0D0D', phanTram: 10 })
+  expect(hienMau('#ffffff')).toEqual({ hex: '#FFFFFF' })
+})
+
+test('tương phản khớp số đo trong README artifact (mục "Độ tương phản đã đo")', () => {
+  const tim = (ten: string) => NHOM_MAU.flatMap((n) => n.mau).find((m) => m.ten === ten)!.tuongPhan!
+  const lam = (x: { sang: number; toi: number }) => [x.sang, x.toi].map((v) => Math.round(v * 100) / 100)
+  expect(tim('foreground').nen).toBe('background')
+  expect(lam(tim('foreground'))).toEqual([19.44, 16.1])
+  expect(lam(tim('primary-foreground'))).toEqual([17.76, 17.52])
+  expect(lam(tim('muted-foreground'))).toEqual([5.93, 8.47])
+  expect(tim('color-text-danger').nen).toBe('background')
+  expect(lam(tim('color-text-danger'))[1]).toBe(3.52)
+  expect(tim('color-text-danger-soft').nen).toBe('color-background-danger-soft-alpha')
+  expect(lam(tim('color-text-danger-soft'))).toEqual([5.03, 3.81])
+  expect(lam(tim('color-text-success-soft'))).toEqual([4.05, 4.86])
+})
+
+test('nenCua: cặp nền theo tên; token không phải chữ → undefined', () => {
+  const co = (t: string) => t === 'color-background-danger-soft' || t === 'color-background-info-soft' || t === 'color-background-info-soft-alpha'
+  expect(nenCua('foreground', co)).toBe('background')
+  expect(nenCua('sidebar-primary-foreground', co)).toBe('sidebar-primary')
+  expect(nenCua('color-text-danger-soft', co)).toBe('color-background-danger-soft')
+  expect(nenCua('color-text-info-soft', co)).toBe('color-background-info-soft-alpha')
+  expect(nenCua('color-text-danger-outline', co)).toBe('background')
+  expect(nenCua('color-text', co)).toBe('background')
+  expect(nenCua('primary', co)).toBeUndefined()
+  expect(nenCua('gray-500', co)).toBeUndefined()
 })

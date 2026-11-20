@@ -1,5 +1,6 @@
 // File thường (server): đọc ds/nguon/tokens.json → danh sách hiển thị cho 7 trang nền của /ds. Không gõ tay giá trị
-// token nào ở đây — mọi số đi ra từ JSON; mẫu trên trang tô bằng chính biến CSS (var(--tên)) của ds/tokens.css.
+// token nào ở đây — mọi số đi ra từ JSON. Màu: cột Sáng/Tối tô bằng giá trị đã giải của đúng theme đó (var() chỉ cho
+// được theme đang xem; ds/sinh-token.test.ts bảo đảm tokens.css = tokens.json). Trang khác: mẫu tô bằng var(--tên).
 import tokens from '@/ds/nguon/tokens.json'
 
 type GiaTri = string | { light: string; dark: string }
@@ -14,6 +15,8 @@ export type Token = {
   toi: string
   tro?: { sang?: string; toi?: string }
   dung?: string
+  /** Chỉ màu chữ: tỉ lệ tương phản trên `nen` ở mỗi theme. */
+  tuongPhan?: { nen: string; sang: number; toi: number }
 }
 export type NhomMau = { id: string; ten: string; mau: Token[] }
 
@@ -33,9 +36,58 @@ export function giai(v: GiaTri, theme: Theme, nguon: Map<string, TokenNguon> = T
   return giai(t.value, theme, nguon)
 }
 
+type Rgba = [number, number, number, number]
+
+/** `#rrggbb` hoặc `rgba(r, g, b, a)` — hai dạng duy nhất tokens.json dùng (test bắt dạng lạ). */
+export function docMau(s: string): Rgba {
+  const hex = s.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  if (hex) return [...hex.slice(1, 4).map((h) => Number.parseInt(h, 16)), 1] as Rgba
+  const rgba = s.match(/^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/)
+  if (rgba) return rgba.slice(1, 5).map(Number) as Rgba
+  throw new Error(`Màu không đọc được: ${s}`)
+}
+
+/** Hiển thị kiểu artifact: `#0D0D0D` + % alpha khi trong suốt. */
+export function hienMau(s: string): { hex: string; phanTram?: number } {
+  const [r, g, b, a] = docMau(s)
+  const hex = `#${[r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')}`.toUpperCase()
+  return a < 1 ? { hex, phanTram: Math.round(a * 100) } : { hex }
+}
+
+const chong = ([r, g, b, a]: Rgba, [R, G, B]: Rgba): Rgba => [r * a + R * (1 - a), g * a + G * (1 - a), b * a + B * (1 - a), 1]
+const doSang = ([r, g, b]: Rgba) => {
+  const k = (c: number) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
+  return 0.2126 * k(r) + 0.7152 * k(g) + 0.0722 * k(b)
+}
+
+/** Tỉ lệ tương phản WCAG 2 của chữ `chu` trên `nen`; màu trong suốt chồng lên `nenTrang` (background của theme). */
+export function tiLeTuongPhan(chu: string, nen: string, nenTrang: string): number {
+  const day = chong(docMau(nen), docMau(nenTrang))
+  const [a, b] = [doSang(chong(docMau(chu), day)), doSang(day)].sort((x, y) => y - x)
+  return (a + 0.05) / (b + 0.05)
+}
+
+/**
+ * Nền để đo một màu chữ: `x-foreground` → `x` (foreground → background); `color-text-<đuôi>` → `color-background-<đuôi>`
+ * nếu có (đuôi `-soft` → `-soft-alpha` trước); còn lại → background. Không phải màu chữ → undefined.
+ */
+export function nenCua(ten: string, co: (ten: string) => boolean = (t) => THEO_TEN.has(t)): string | undefined {
+  if (ten === 'foreground' || ten.endsWith('-foreground')) return ten.replace(/-?foreground$/, '') || 'background'
+  if (!ten.startsWith('color-text')) return undefined
+  const cap = ten.replace(/^color-text/, 'color-background')
+  // Chữ `-soft` đi với nền `-soft-alpha` (cặp Badge, cặp README đo) — ưu tiên khi có.
+  const ung = cap.endsWith('-soft') ? [`${cap}-alpha`, cap] : [cap]
+  return ung.find((c) => c !== 'color-background' && co(c)) ?? 'background'
+}
+
 function token(t: TokenNguon): Token {
   const troSang = thamChieu(theoTheme(t.value, 'light'))
   const troToi = thamChieu(theoTheme(t.value, 'dark'))
+  const nen = nenCua(t.name)
+  const doTheo = (theme: Theme) => {
+    const giaiTen = (ten: string) => giai(THEO_TEN.get(ten)!.value, theme)
+    return tiLeTuongPhan(giai(t.value, theme), giaiTen(nen!), giaiTen('background'))
+  }
   return {
     ten: t.name,
     bien: `--${t.name}`,
@@ -43,7 +95,14 @@ function token(t: TokenNguon): Token {
     toi: giai(t.value, 'dark'),
     tro: troSang || troToi ? { sang: troSang, toi: troToi } : undefined,
     dung: t.usage,
+    tuongPhan: nen ? { nen, sang: doTheo('light'), toi: doTheo('dark') } : undefined,
   }
+}
+
+/** Ô caro sau màu trong suốt — hai bậc xám của đúng theme của cột, giải từ tokens.json. */
+export const CARO = {
+  sang: [giai('{gray-0}', 'light'), giai('{gray-150}', 'light')],
+  toi: [giai('{gray-0}', 'dark'), giai('{gray-150}', 'dark')],
 }
 
 const THANG = /^(gray|alpha|green|red|pink|orange|yellow|purple|blue)-/
