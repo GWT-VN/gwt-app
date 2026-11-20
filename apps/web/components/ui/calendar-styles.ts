@@ -4,12 +4,15 @@ import { menuContent } from './menu-styles'
 
 /**
  * `.ui-menu.ui-cal-pop` (+ `.b-noi.ui-cal-pop`): mặt Menu (nền popover, shadow + hairline, z-90) nhưng rộng theo lịch,
- * padding 20/24, bo --radius-4xl 24; trần cao 100vh − 16 (lịch cao hơn menu thường, không cắt chân). Khổ ≤ 640: rộng
- * 100vw − 16, padding 16. Xuất ra cho DateRangePicker và khối /ds dùng lại.
+ * padding 20/24, bo --radius-4xl 24. Trần cao = chỗ trống Radix tính giữa trigger và mép khung nhìn (đã trừ 8 mỗi mép)
+ * + cuộn trong pop (overflow-y của menuContent): khổ 390 nút giữa màn, lịch cao hơn nửa màn → cuộn bên trong, không tràn
+ * khỏi màn cắt mất chân (đo 20/11: trước sửa pop tràn tới 904 / 1108 trên màn 844). Ngoài Popover (khối /ds vẽ tĩnh)
+ * không có biến → rơi về 100vh − 16 của `.ui-cal-pop`. Khổ ≤ 640: rộng 100vw − 16, padding 16.
  */
 export const calendarPop = cn(
   menuContent,
-  'min-w-0 w-max px-[24px] py-[20px] rounded-(--radius-4xl) max-h-[calc(100vh-16px)]',
+  'min-w-0 w-max px-[24px] py-[20px] rounded-(--radius-4xl)',
+  'max-h-[var(--radix-popover-content-available-height,calc(100vh-16px))]',
   'max-[640px]:w-[calc(100vw-16px)] max-[640px]:max-w-[calc(100vw-16px)] max-[640px]:p-[16px]',
 )
 

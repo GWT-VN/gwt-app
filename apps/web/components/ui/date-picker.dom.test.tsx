@@ -322,3 +322,17 @@ test('required → aria-required trên trigger (ô bắt buộc trong FormLayout
   )
   expect(trigger().getAttribute('aria-required')).toBe('true')
 })
+
+test('pop lịch: trần cao = chỗ trống Radix tính (khổ 390 nút giữa màn không tràn), cuộn trong pop', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <NgayGiao />
+    </DsRoot>,
+  )
+  await user.click(trigger())
+  const pop = await screen.findByRole('dialog', { name: 'Chọn ngày' })
+  // jsdom không dàn trang: kiểm lớp. Số đo thật (Chrome 390×844, nút giữa màn): xem báo cáo lát 3.
+  expect(pop.className).toContain('max-h-[var(--radix-popover-content-available-height,calc(100vh-16px))]')
+  expect(pop.className).toContain('overflow-y-auto')
+})
