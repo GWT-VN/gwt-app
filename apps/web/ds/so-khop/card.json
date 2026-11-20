@@ -1,0 +1,62 @@
+{
+  "khung": {
+    "artifact": ".ui-stack",
+    "ds": "#card > div"
+  },
+  "chuaDo": [
+    "Card không header / chỉ nội dung, header có action nhưng không mô tả, CardTitle không role heading: preview không có — cấu trúc + data-slot kiểm ở test components/ui/card.test.tsx",
+    "Nút trong action/chân và ô nhập trong thẻ bọc form: chỉ đo hộp + màu ở trạng thái nghỉ; hover/focus/lỗi của Button, Input đo ở so-khop Button, Input",
+    "Thẻ bọc FormLayout (form nhiều khối): đo ở so-khop FormLayout (khoá the-1, the-2)"
+  ],
+  "khoa": [
+    {
+      "khoa": "the-1",
+      "artifact": ".ui-stack > .ui-card:nth-child(1)",
+      "ds": "#card [data-so=\"the-1\"]",
+      "con": [
+        { "ten": "dau", "artifact": "> .ui-card-header", "ds": "> [data-so=\"dau\"]" },
+        { "ten": "tieu-de", "artifact": ".ui-card-title", "ds": "[data-so=\"tieu-de\"]" },
+        { "ten": "mo-ta", "artifact": ".ui-card-desc", "ds": "[data-so=\"mo-ta\"]" },
+        { "ten": "than", "artifact": "> .ui-card-content", "ds": "> [data-so=\"than\"]" }
+      ]
+    },
+    {
+      "khoa": "the-2",
+      "artifact": ".ui-stack > .ui-card:nth-child(2)",
+      "ds": "#card [data-so=\"the-2\"]",
+      "con": [
+        { "ten": "dau", "artifact": "> .ui-card-header", "ds": "> [data-so=\"dau\"]" },
+        { "ten": "tieu-de", "artifact": ".ui-card-title", "ds": "[data-so=\"tieu-de\"]" },
+        { "ten": "mo-ta", "artifact": ".ui-card-desc", "ds": "[data-so=\"mo-ta\"]" },
+        { "ten": "hanh-dong", "artifact": ".ui-card-action", "ds": "[data-so=\"hanh-dong\"]" },
+        { "ten": "nut", "artifact": ".ui-card-action > .ui-btn", "ds": "[data-so=\"sua\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"] },
+        { "ten": "than", "artifact": "> .ui-card-content", "ds": "> [data-so=\"than\"]" }
+      ]
+    },
+    {
+      "khoa": "the-3",
+      "artifact": ".ui-stack > .ui-card:nth-child(3)",
+      "ds": "#card [data-so=\"the-3\"]",
+      "con": [
+        { "ten": "dau", "artifact": "> .ui-card-header", "ds": "> [data-so=\"dau\"]" },
+        { "ten": "than", "artifact": "> .ui-card-content", "ds": "> [data-so=\"than\"]" },
+        { "ten": "chan", "artifact": "> .ui-card-footer", "ds": "> [data-so=\"chan\"]" },
+        { "ten": "phu", "artifact": ".ui-card-footer > .ui-btn:nth-child(1)", "ds": "[data-so=\"phu\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"] },
+        { "ten": "chinh", "artifact": ".ui-card-footer > .ui-btn:nth-child(2)", "ds": "[data-so=\"chinh\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"] }
+      ]
+    },
+    {
+      "khoa": "the-4",
+      "artifact": ".ui-stack > .ui-card:nth-child(4)",
+      "ds": "#card [data-so=\"the-4\"]",
+      "con": [
+        { "ten": "dau", "artifact": ".ui-card-header", "ds": "[data-so=\"dau\"]" },
+        { "ten": "than", "artifact": ".ui-card-content", "ds": "[data-so=\"than\"]" },
+        { "ten": "o-1", "artifact": ".ui-card-content > .ui-field:nth-child(1)", "ds": "[data-so=\"o-1\"]", "props": ["width", "height", "gap"] },
+        { "ten": "o-2", "artifact": ".ui-card-content > .ui-field:nth-child(2)", "ds": "[data-so=\"o-2\"]", "props": ["width", "height", "gap"] },
+        { "ten": "chan", "artifact": ".ui-card-footer", "ds": "[data-so=\"chan\"]" },
+        { "ten": "chinh", "artifact": ".ui-card-footer > .ui-btn:nth-child(2)", "ds": "[data-so=\"chinh\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"] }
+      ]
+    }
+  ]
+}

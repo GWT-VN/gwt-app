@@ -3,6 +3,7 @@ import { KhoiAlert } from '../_khoi/khoi-alert'
 import { KhoiAvatar } from '../_khoi/khoi-avatar'
 import { KhoiBadge } from '../_khoi/khoi-badge'
 import { KhoiButton } from '../_khoi/khoi-button'
+import { KhoiCard } from '../_khoi/khoi-card'
 import { KhoiCheckbox } from '../_khoi/khoi-checkbox'
 import { KhoiCombobox } from '../_khoi/khoi-combobox'
 import { KhoiConfirmDialog } from '../_khoi/khoi-confirm-dialog'
@@ -39,7 +40,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   {
     ten: 'Nền',
     lat: 1,
-    khoi: [k('Button', KhoiButton), k('Badge', KhoiBadge), k('Avatar', KhoiAvatar), k('Kbd', KhoiKbd), k('Alert', KhoiAlert), k('Tooltip', KhoiTooltip)],
+    khoi: [k('Button', KhoiButton), k('Badge', KhoiBadge), k('Avatar', KhoiAvatar), k('Kbd', KhoiKbd), k('Alert', KhoiAlert), k('Tooltip', KhoiTooltip), k('Card', KhoiCard)],
   },
   {
     ten: 'Overlay',
