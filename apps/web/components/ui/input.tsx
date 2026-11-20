@@ -9,7 +9,8 @@ import { controlOutline } from './control-styles'
  *   `aria-describedby`, lỗi thì `aria-invalid`.
  * - `icon` (vd `<MagnifyingGlass />` cho ô tìm) → bọc khung `.ui-input-wrap`: icon 16 cách mép trái 12, cách chữ 8,
  *   màu muted-foreground, `aria-hidden`, không bắt chuột (bấm vào icon là bấm vào ô). `id`/`className`/mọi prop khác
- *   vẫn rơi vào chính `<input>`.
+ *   vẫn rơi vào chính `<input>` — `className` KHÔNG vào khung bọc (cần đổi bề rộng/lề cả cụm thì bọc thêm một div).
+ * - `required` dấu * ở nhãn chỉ là hình: ô bắt buộc phải mang `required` hoặc `aria-required` để trình đọc màn hình biết.
  */
 export function Input({ className, icon, ...props }: ComponentProps<'input'> & { icon?: ReactNode }) {
   const o = (

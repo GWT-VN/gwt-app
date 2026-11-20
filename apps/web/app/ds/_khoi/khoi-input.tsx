@@ -21,7 +21,13 @@ export function KhoiInput() {
           <FieldLabel data-so="label" htmlFor="ds-input-ten" required>
             Tên khách hàng
           </FieldLabel>
-          <Input data-so="ten" id="ds-input-ten" placeholder="VD: Công ty Demo A" aria-describedby="ds-input-ten-h" />
+          <Input
+            data-so="ten"
+            id="ds-input-ten"
+            placeholder="VD: Công ty Demo A"
+            aria-required
+            aria-describedby="ds-input-ten-h"
+          />
           <FieldDescription data-so="help" id="ds-input-ten-h">
             Dữ liệu minh hoạ (demo).
           </FieldDescription>
