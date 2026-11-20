@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom'
 import { isoNgay } from '@/bang/ngay'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, FieldDescription, FieldError, FieldLabel, FieldLegend, FieldMeta, FieldSet } from '@/components/ui/field'
@@ -24,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch, SwitchRow } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { kiemTep } from '@/lib/tep'
+import { BienThe, KhoiHang } from '../_khung/tam'
 
 /** Loại việc (demo) — 4 mục ≤ 10 → Select (CHUAN-FILTER). */
 const LOAI = [
@@ -57,19 +59,22 @@ type Truong = 'ten' | 'loai' | 'ngay'
 /**
  * Form mẫu của khối (dữ liệu demo) — tái tạo form trong ds/nguon/components/FormLayout/preview.html. `p` = tiền tố id
  * (hai form cùng trang); `batDauLoi` = mở ở trạng thái "đã bấm Lưu khi còn trống" như form thứ hai của preview (không
- * cướp focus lúc mở); `dau` = giá trị ban đầu của Loại / Ngày hẹn (test dùng, khỏi mở pop trong jsdom).
+ * cướp focus lúc mở); `dau` = giá trị ban đầu của Tiêu đề / Loại / Ngày hẹn (test dùng, khỏi mở pop trong jsdom);
+ * `trangThaiDau` = mở sẵn ở trạng thái đang lưu / vừa lỗi máy chủ (bản hàng biến thể của /ds).
  */
 export function FormMau({
   p,
   batDauLoi = false,
   dau,
+  trangThaiDau,
 }: {
   p: string
   batDauLoi?: boolean
-  dau?: { loai?: string; ngay?: string }
+  dau?: { ten?: string; loai?: string; ngay?: string }
+  trangThaiDau?: 'dangLuu' | 'loiMay'
 }) {
   const homNay = isoNgay(new Date())
-  const [ten, setTen] = useState('')
+  const [ten, setTen] = useState(dau?.ten ?? '')
   const [loai, setLoai] = useState(dau?.loai ?? '')
   const [ngay, setNgay] = useState<string | null>(dau?.ngay ?? null)
   const [tien, setTien] = useState<number | null>(null)
@@ -82,10 +87,11 @@ export function FormMau({
   /** Ô đã sửa rồi rời → hiện lỗi ô đó dù chưa bấm Lưu. */
   const [daRoi, setDaRoi] = useState<ReadonlySet<Truong>>(new Set())
   const daSua = useRef(new Set<Truong>())
-  const [dangLuu, setDangLuu] = useState(false)
-  const [loiMay, setLoiMay] = useState(false)
+  const [dangLuu, setDangLuu] = useState(trangThaiDau === 'dangLuu')
+  const [loiMay, setLoiMay] = useState(trangThaiDau === 'loiMay')
   const [daLuu, setDaLuu] = useState(false)
-  const lanLuu = useRef(0)
+  /** Đã giả lỗi máy chủ một lần (mở sẵn ở lỗi máy chủ = đã) → lần lưu sau được. */
+  const lanLuu = useRef(trangThaiDau === 'loiMay' ? 1 : 0)
 
   const loi: Record<Truong, string | null> = {
     ten: ten.trim() ? null : 'Nhập tiêu đề để người khác biết việc gì.',
@@ -101,7 +107,7 @@ export function FormMau({
     if (daSua.current.has(t) && !daRoi.has(t)) setDaRoi(new Set(daRoi).add(t))
   }
   const huy = () => {
-    setTen('')
+    setTen(dau?.ten ?? '')
     setLoai(dau?.loai ?? '')
     setNgay(dau?.ngay ?? null)
     setTien(null)
@@ -203,7 +209,8 @@ export function FormMau({
                 aria-describedby={loiLoai ? id('loai-e') : undefined}
                 onBlur={() => roi('loai')}
               >
-                <SelectValue placeholder="Chọn loại" />
+                {/* Chữ giá trị truyền thẳng: Radix chỉ lấy chữ mục khi danh sách đã mở một lần — mở sẵn có giá trị thì trống. */}
+                <SelectValue placeholder="Chọn loại">{LOAI.find(([gt]) => gt === loai)?.[1]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {LOAI.map(([gt, nhan]) => (
@@ -342,13 +349,8 @@ function Nhan({ children }: { children: ReactNode }) {
 }
 
 /**
- * Thẻ bọc form của preview (`.ui-card.ui-card-pad`: viền 1px border, bo radius-xl, nền card, đệm 16). DS chưa có
- * component Card → dựng tối thiểu tại khối, chỉ để trình bày.
- */
-const the = 'rounded-(--radius-xl) border border-solid border-(--border) bg-(--card) p-4 text-(--card-foreground)'
-
-/**
- * #form-layout — tái tạo ds/nguon/components/FormLayout/preview.html: khung rộng tối đa 880, hai mục cách 28. Mục 1
+ * #form-layout — tái tạo ds/nguon/components/FormLayout/preview.html: khung rộng tối đa 880, hai mục cách 28; thẻ bọc
+ * = `Card` DS (preview: `.ui-card.ui-card-pad`). Mục 1
  * form trống; mục 2 mở ở trạng thái "đã bấm Lưu khi còn trống". Cả hai tương tác thật: kiểm khi bấm Lưu / rời ô đã sửa,
  * lưu lỗi → focus ô lỗi đầu; lần lưu hợp lệ đầu tiên giả lỗi máy chủ (Alert đầu form, giữ dữ liệu), lần sau lưu được.
  * Khổ ≤ 640 lưới 1 cột. Dữ liệu demo. `data-mau` + `data-so` = khoá so khớp (ds/so-khop/formlayout.json).
@@ -362,17 +364,63 @@ export function KhoiFormLayout() {
       <div className="max-w-220 border-none border-current">
         <div data-mau="1" className="mb-7 border-none border-current">
           <Nhan>Form ghép từ component DS (trống)</Nhan>
-          <div data-so="the" className={the}>
+          <Card data-so="the">
             <FormMau p="ds-fl1" />
-          </div>
+          </Card>
         </div>
         <div data-mau="2" className="mb-7 border-none border-current">
           <Nhan>Bấm Lưu khi còn trống: lỗi từng trường, focus về ô lỗi đầu tiên</Nhan>
-          <div data-so="the" className={the}>
+          <Card data-so="the">
             <FormMau p="ds-fl2" batDauLoi />
-          </div>
+          </Card>
         </div>
       </div>
     </section>
+  )
+}
+
+/** Ngày hẹn hợp lệ cho mẫu đã điền đủ: 7 ngày sau hôm nay (min của DatePicker là hôm nay). */
+const sauBayNgay = () => {
+  const d = new Date()
+  d.setDate(d.getDate() + 7)
+  return isoNgay(d)
+}
+
+/** Form trong thẻ, rộng tối đa 880 như preview. */
+function TheForm(props: Parameters<typeof FormMau>[0]) {
+  return (
+    <Card className="max-w-220">
+      <FormMau {...props} />
+    </Card>
+  )
+}
+
+/**
+ * #form-layout bản HÀNG cho /ds (CEO 20/11): mỗi trạng thái của form một hàng, mỗi form tương tác thật. Khối cũ
+ * `KhoiFormLayout` giữ cho /ds/tron (cổng so khớp FormLayout).
+ */
+export function KhoiFormLayoutHang() {
+  const dien = { ten: 'Bảo dưỡng định kỳ máy nén khí', loai: 'bao-duong', ngay: sauBayNgay() }
+  return (
+    <KhoiHang neo="form-layout">
+      <BienThe ten="Form 2 cột" moTa="Khối có tiêu đề · lưới 2 cột · chân nút. Mới mở: chưa đỏ ô nào.">
+        <TheForm p="ds-flh1" />
+      </BienThe>
+      <BienThe ten="Đã bấm Lưu, còn lỗi" moTa="Lỗi từng trường viết cách sửa; Lưu lại → focus ô lỗi đầu.">
+        <TheForm p="ds-flh2" batDauLoi />
+      </BienThe>
+      <BienThe ten="Đang lưu" moTa="Lưu hiện vòng quay, Huỷ khoá; chân báo “Đang lưu…”.">
+        <TheForm p="ds-flh3" dau={dien} trangThaiDau="dangLuu" />
+      </BienThe>
+      <BienThe ten="Lỗi máy chủ" moTa="Alert danger đầu form, dữ liệu giữ nguyên; bấm Lưu để thử lại.">
+        <TheForm p="ds-flh4" dau={dien} trangThaiDau="loiMay" />
+      </BienThe>
+      <BienThe ten="Khổ ≤ 640px" moTa="Lưới 1 cột.">
+        <p className="m-0 max-w-160 border-none border-current text-[14px] leading-[20px] text-muted-foreground">
+          Khung nhìn từ 640px trở xuống: mọi ô xếp 1 cột, ô dài (ghi chú, đính kèm) vẫn trọn hàng. Theo bề rộng màn hình,
+          không theo bề rộng thẻ — thu hẹp cửa sổ để xem trên các form ở trên.
+        </p>
+      </BienThe>
+    </KhoiHang>
   )
 }
