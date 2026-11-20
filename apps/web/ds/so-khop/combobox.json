@@ -12,7 +12,7 @@
         "bam": "#ds-combobox-tinh"
       },
       {
-        "cho": 300
+        "cho": 800
       }
     ]
   },
@@ -41,7 +41,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ],
       "con": [
@@ -77,7 +77,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ],
       "lyDo": {
@@ -96,7 +96,7 @@
           }
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ],
       "con": [
@@ -127,7 +127,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ]
     },
@@ -140,7 +140,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ],
       "con": [
@@ -170,7 +170,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ]
     },
@@ -183,7 +183,7 @@
           "bam": "#ds-combobox-tinh"
         },
         {
-          "cho": 300
+          "cho": 800
         }
       ]
     },
