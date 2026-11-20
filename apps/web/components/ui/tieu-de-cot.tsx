@@ -2,6 +2,7 @@
 
 import {
   useContext,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -111,8 +112,7 @@ function TieuDeKeo(p: PropsTieuDeCot) {
     onPointerDown: so.listeners?.onPointerDown as PointerEventHandler | undefined,
     onKeyDown: (e) => {
       // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — chặn Radix mở menu bằng Space/Enter/↓ khi thả.
-      // Esc cũng preventDefault: listener Esc ở document (thanh hàng loạt bang/ — bỏ hết dòng đã chọn) chạy TRƯỚC listener
-      // của cảm biến và chỉ nhường phím đã bị chặn. Chừa Tab (thả + đi tiếp như thường).
+      // Chừa Tab (thả + đi tiếp như thường). Esc: `useEscKhiKeo` đã chặn ở document cho mọi cảm biến.
       if (so.active) {
         if (e.key !== 'Tab') e.preventDefault()
         return
@@ -322,6 +322,27 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   )
 }
 
+/**
+ * Đang kéo (`dangKeo`, bất kể cảm biến): Esc chỉ để huỷ kéo. Cảm biến chuột/pointer của dnd-kit 6 huỷ kéo khi Esc nhưng
+ * KHÔNG preventDefault → phím trôi tới ThanhDaChon (`escBoChon`, window pha nổi) và bỏ hết dòng đã chọn. Chặn ở
+ * document pha capture: dnd-kit không đọc `defaultPrevented` nên vẫn tự huỷ; ai nhường phím đã xử lý thì nhường.
+ * Kèm dấu `data-dang-keo` trên body cho listener gắn TRƯỚC (XemNhanh, cũng capture ở document) biết mà bỏ qua.
+ */
+export function useEscKhiKeo(dangKeo: boolean) {
+  useEffect(() => {
+    if (!dangKeo) return
+    const k = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') e.preventDefault()
+    }
+    document.addEventListener('keydown', k, true)
+    document.body.setAttribute('data-dang-keo', '')
+    return () => {
+      document.removeEventListener('keydown', k, true)
+      document.body.removeAttribute('data-dang-keo')
+    }
+  }, [dangKeo])
+}
+
 const vaCham: CollisionDetection = (a) => {
   const tro = pointerWithin(a)
   return tro.length ? tro : closestCenter(a)
@@ -348,6 +369,7 @@ export function KeoCot({
   const [tren, setTren] = useState<{ id: string; ben: BenTha } | null>(null)
   const trenRef = useRef(tren)
   const ketThuc = useRef(0)
+  useEscKhiKeo(!!keo)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {

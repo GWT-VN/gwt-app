@@ -5,6 +5,7 @@ import { CaretLeft, CaretRight, X } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { xnDau, xnKhung, xnMa, xnNoiDungNhuong, xnThan, xnThe } from './data-view-styles'
+import { useDsPortal } from './ds-root'
 
 /**
  * Phím thuộc ô gõ / menu / hộp đang mở — không lật bản ghi (prototype: input, textarea, [role=menu]). Ô chọn dòng
@@ -15,6 +16,11 @@ const BO_QUA =
 /** Nghe ở pha capture nên chạy TRƯỚC widget đang focus: ↑/↓ trong widget tự dùng mũi tên thì nhường cho widget. */
 const BO_QUA_MUI =
   '[role="radiogroup"], [role="tablist"], [role="toolbar"], [role="grid"], [role="tree"], [role="slider"], [role="spinbutton"], [role="combobox"], [role="menubar"]'
+/**
+ * Lớp Radix đang mở trong ô portal của DsRoot (menu, Select, popover, hộp, sheet: `open`; tooltip: `delayed-open` /
+ * `instant-open`). Nội dung lớp chỉ được mount khi mở → không đụng phần tử thường trực.
+ */
+const LOP_MO = '[data-state="open"], [data-state="delayed-open"], [data-state="instant-open"]'
 
 /**
  * XemNhanh — khung "thẻ xem nhanh" bên phải màn dữ liệu (README DataViewToolbar: bật nút xem nhanh → bấm bản ghi mở thẻ
@@ -24,7 +30,9 @@ const BO_QUA_MUI =
  *   từng màn tự dựng từ DS: Alert · PropertyList · Timeline — chưa chốt chung).
  * - Phím khi thẻ mở: ↑/k trước, ↓/j sau, Esc đóng — nghe ở document pha capture và `preventDefault` phím đã dùng (Esc
  *   đóng thẻ không bỏ luôn lựa chọn dòng của ThanhDaChon). Bỏ qua khi đang gõ trong ô / trong menu / hộp, bộ gõ đang ghép
- *   chữ, có Ctrl/⌘/Alt (Ctrl+K…), hoặc phím đã bị xử lý trước (`defaultPrevented`).
+ *   chữ, có Ctrl/⌘/Alt (Ctrl+K…), hoặc phím đã bị xử lý trước (`defaultPrevented`). Esc nhường lớp trên: đang kéo
+ *   (`data-dang-keo` trên body — Esc huỷ kéo) hoặc có lớp Radix đang mở (tooltip đang hiện, menu…) — listener này gắn
+ *   TRƯỚC listener Esc của lớp (cùng document capture) nên phải tự nhường, không thì lớp kẹt mở.
  * - Không tự giữ state: bên gọi giữ bản ghi đang xem (thường là tham số URL) và truyền `the`.
  */
 export function XemNhanh({
@@ -48,6 +56,7 @@ export function XemNhanh({
     ham.current = { onDong, onTruoc, onSau }
   })
   const mo = the != null
+  const portal = useDsPortal()
   useEffect(() => {
     if (!mo) return
     const k = (e: KeyboardEvent) => {
@@ -55,6 +64,7 @@ export function XemNhanh({
       if ((e.target as Element | null)?.closest?.(BO_QUA)) return
       const h = ham.current
       if (e.key === 'Escape') {
+        if (document.body.hasAttribute('data-dang-keo') || portal?.querySelector(LOP_MO)) return
         // preventDefault: Esc này đã dùng để đóng thẻ — ThanhDaChon (escBoChon) bỏ qua phím đã xử lý, lựa chọn dòng còn.
         e.preventDefault()
         h.onDong()
@@ -67,11 +77,10 @@ export function XemNhanh({
         h.onTruoc()
       }
     }
-    // document pha CAPTURE: chạy trước ThanhDaChon (document, pha nổi) và trước handler của phần tử đang focus; lớp Radix
-    // đang mở (popover, menu) thì phím nằm trong [role=dialog|menu] → bỏ qua ở trên.
+    // document pha CAPTURE: chạy trước ThanhDaChon (window, pha nổi) và trước handler của phần tử đang focus.
     document.addEventListener('keydown', k, true)
     return () => document.removeEventListener('keydown', k, true)
-  }, [mo])
+  }, [mo, portal])
 
   return (
     <div data-slot="xem-nhanh-khung" className={cn(xnKhung, className)}>

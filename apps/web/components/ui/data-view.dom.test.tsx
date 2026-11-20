@@ -12,6 +12,7 @@ vi.mock('next/navigation', () => ({
 
 import { CauHinhBangDs } from './bang-ds'
 import { KhungChon, OChonDong, ThanhDaChon } from '@/bang'
+import { Button } from './button'
 import { buttonVariants } from './button-variants'
 import { CaiDatHienThi, DataViewToolbar } from './data-view-toolbar'
 import type { CotBang } from './use-cot-bang'
@@ -21,6 +22,7 @@ import { SavedView } from './saved-view'
 import { Tabs, TabsList, TabsTrigger } from './tabs'
 import { thongBao } from './toast'
 import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
+import { Tooltip } from './tooltip'
 import { XemNhanh } from './xem-nhanh'
 
 afterEach(() => vi.restoreAllMocks())
@@ -332,4 +334,43 @@ test('XemNhanh trong bảng có chọn dòng (escBoChon): Esc chỉ đóng thẻ
   expect(thanh()).not.toBeNull()
   await user.keyboard('{Escape}')
   expect(thanh()).toBeNull()
+})
+
+test('XemNhanh nhường Esc cho lớp trên: đang kéo (body data-dang-keo) → không đóng thẻ', async () => {
+  const user = userEvent.setup()
+  const onDong = vi.fn()
+  render(<Nhanh onDong={onDong} />)
+  document.body.setAttribute('data-dang-keo', '')
+  try {
+    await user.keyboard('{Escape}')
+    expect(onDong).not.toHaveBeenCalled()
+  } finally {
+    document.body.removeAttribute('data-dang-keo')
+  }
+  await user.keyboard('{Escape}')
+  expect(onDong).toHaveBeenCalledTimes(1)
+})
+
+test('XemNhanh nhường Esc cho lớp trên: tooltip đang hiện → Esc đóng tooltip, thẻ còn; Esc lần nữa mới đóng thẻ', async () => {
+  const user = userEvent.setup()
+  const onDong = vi.fn()
+  render(
+    <DsRoot>
+      <XemNhanh the={{ ma: 'T-101' }} onDong={onDong}>
+        <input aria-label="Ô gõ" />
+        <Tooltip content="Mô tả nút">
+          <Button variant="ghost">Nút có tooltip</Button>
+        </Tooltip>
+      </XemNhanh>
+    </DsRoot>,
+  )
+  // Tab thật để nút :focus-visible (tooltip phím chỉ đóng bằng Esc / rời focus).
+  act(() => screen.getByRole('textbox', { name: 'Ô gõ' }).focus())
+  await user.tab()
+  expect(await screen.findByRole('tooltip')).toBeTruthy()
+  await user.keyboard('{Escape}')
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
+  expect(onDong).not.toHaveBeenCalled()
+  await user.keyboard('{Escape}')
+  expect(onDong).toHaveBeenCalledTimes(1)
 })

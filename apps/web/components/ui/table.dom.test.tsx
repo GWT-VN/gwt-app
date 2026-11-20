@@ -272,6 +272,28 @@ describe('đổi chỗ cột bằng bàn phím (dnd-kit KeyboardSensor)', () => 
     expect((screen.getByRole('checkbox', { name: 'Chọn dòng 1' }) as HTMLInputElement).checked).toBe(true)
   })
 
+  test('kéo bằng CHUỘT + Esc: huỷ kéo, KHÔNG bỏ chọn dòng; body mang data-dang-keo chỉ khi đang kéo', async () => {
+    const user = userEvent.setup()
+    render(<BangChon />)
+    await user.click(screen.getByRole('checkbox', { name: 'Chọn dòng 1' }))
+    expect(screen.getByTestId('so-chon').textContent).toBe('1')
+    // Cảm biến chuột của dnd-kit huỷ kéo khi Esc nhưng KHÔNG preventDefault — phím trôi tới thanh hàng loạt. Nắm ở
+    // phần đệm của ô (không focus được) → focus không nằm trên nút tiêu đề, Esc đi thẳng từ body.
+    const ma = screen.getByRole('button', { name: /^Mã/ }).closest('th')!
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: ma, coords: { clientX: 250, clientY: 10 } },
+      { coords: { clientX: 150, clientY: 10 } },
+    ])
+    expect(await screen.findByText(/Đã nhấc cột Mã/)).toBeTruthy()
+    expect(document.body.hasAttribute('data-dang-keo')).toBe(true)
+    await user.keyboard('{Escape}')
+    expect(await screen.findByText(/Đã huỷ kéo/)).toBeTruthy()
+    expect(tenCot()).toEqual(['uu', 'nhom', 'ma'])
+    expect(screen.getByTestId('so-chon').textContent).toBe('1')
+    expect(document.body.hasAttribute('data-dang-keo')).toBe(false)
+    await user.pointer({ keys: '[/MouseLeft]' })
+  })
+
   test('Enter trên tiêu đề có menu vẫn mở menu', async () => {
     const user = userEvent.setup()
     render(<Bang />)

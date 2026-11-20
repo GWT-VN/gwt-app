@@ -3,6 +3,15 @@ import { useState } from 'react'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => '/ds',
+  useSearchParams: () => new URLSearchParams(),
+}))
+
+import { KhungChon, OChonDong, ThanhDaChon } from '@/bang'
+import { CauHinhBangDs } from './bang-ds'
 import { ContextMenuItem } from './context-menu'
 import { DsRoot } from './ds-root'
 import { KanbanBoard, type CotKanban, type TheKanban } from './kanban-board'
@@ -26,8 +35,16 @@ const THE: TheKanban[] = [
 ]
 
 /** Bảng có state như màn thật: onChuyen đổi cột của thẻ. */
-function Bang({ onChuyen, onMo = () => {} }: { onChuyen?: (id: string, cot: string, lyDo?: string) => unknown; onMo?: (id: string) => void }) {
-  const [the, setThe] = useState(THE)
+function Bang({
+  onChuyen,
+  onMo = () => {},
+  batDau = THE,
+}: {
+  onChuyen?: (id: string, cot: string, lyDo?: string) => unknown
+  onMo?: (id: string) => void
+  batDau?: TheKanban[]
+}) {
+  const [the, setThe] = useState(batDau)
   return (
     <DsRoot>
       <KanbanBoard
@@ -206,6 +223,51 @@ describe('cột hỏi lý do (Chờ)', () => {
   })
 })
 
+/** Kanban cạnh một bảng đang chọn dòng (ThanhDaChon bật Esc bỏ chọn — escBoChon của CauHinhBangDs). */
+function BangVaChon({ onChuyen = () => {} }: { onChuyen?: () => void }) {
+  return (
+    <DsRoot>
+      <CauHinhBangDs>
+        <KhungChon khoaTrang={['1']} tong={1} bat thamSo={{}}>
+          <table>
+            <tbody>
+              <tr>
+                <OChonDong khoa="1" moTa="dòng 1" />
+              </tr>
+            </tbody>
+          </table>
+          <ThanhDaChon nhan="dòng" />
+        </KhungChon>
+        <KanbanBoard cot={COT} the={THE} onMo={() => {}} onChuyen={onChuyen} />
+      </CauHinhBangDs>
+    </DsRoot>
+  )
+}
+
+describe('kéo bằng chuột (MouseSensor)', () => {
+  test('Esc giữa chừng: huỷ kéo, KHÔNG bỏ chọn dòng của bảng khác; body mang data-dang-keo chỉ khi đang kéo', async () => {
+    const user = userEvent.setup()
+    const onChuyen = vi.fn()
+    render(<BangVaChon onChuyen={onChuyen} />)
+    await user.click(screen.getByRole('checkbox', { name: 'Chọn dòng 1' }))
+    const thanh = () => screen.queryByRole('toolbar', { name: 'Thao tác hàng loạt' })
+    expect(thanh()).not.toBeNull()
+    // Cảm biến chuột của dnd-kit huỷ kéo khi Esc nhưng KHÔNG preventDefault — phím trôi tới thanh hàng loạt.
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: the('TK-D1'), coords: { clientX: 100, clientY: 80 } },
+      { coords: { clientX: 380, clientY: 80 } },
+    ])
+    expect(await screen.findByText(/Đã nhấc thẻ TK-D1/)).toBeTruthy()
+    expect(document.body.hasAttribute('data-dang-keo')).toBe(true)
+    await user.keyboard('{Escape}')
+    expect(await screen.findByText(/Đã huỷ kéo\. Thẻ TK-D1 về chỗ cũ/)).toBeTruthy()
+    expect(thanh()).not.toBeNull()
+    expect(document.body.hasAttribute('data-dang-keo')).toBe(false)
+    await user.pointer({ keys: '[/MouseLeft]' })
+    expect(onChuyen).not.toHaveBeenCalled()
+  })
+})
+
 describe('menu "Chuyển sang…" (chuột phải / Shift+F10) cho người không kéo', () => {
   test('menu có mục của thẻ + mọi cột khác; chọn cột → onChuyen', async () => {
     const user = userEvent.setup()
@@ -221,6 +283,24 @@ describe('menu "Chuyển sang…" (chuột phải / Shift+F10) cho người khô
     expect(onChuyen).toHaveBeenCalledWith('TK-D1', 'dong', undefined)
     await waitFor(() => expect(cotCua('TK-D1')).toBe('dong'))
     await waitFor(() => expect(document.activeElement).toBe(the('TK-D1')))
+  })
+
+  test('hai bảng trùng id thẻ: focus theo thẻ ở ĐÚNG bảng vừa chuyển (tìm trong bảng, không cả trang)', async () => {
+    const user = userEvent.setup()
+    // Bảng 1 sẵn có TK-D1 ở "Đang xử lý" — đúng chỗ bảng 2 sắp chuyển tới.
+    render(
+      <>
+        <Bang batDau={THE.map((t) => (t.id === 'TK-D1' ? { ...t, cot: 'xu-ly' } : t))} />
+        <Bang />
+      </>,
+    )
+    const bang2 = screen.getAllByRole('region', { name: 'Mới' })[1].closest<HTMLElement>('[data-slot="kanban-board"]')!
+    fireEvent.contextMenu(within(bang2).getByRole('button', { name: /TK-D1/ }), { clientX: 40, clientY: 60 })
+    const menu = await screen.findByRole('menu')
+    await user.click(within(menu).getByRole('menuitem', { name: 'Đang xử lý' }))
+    const dich = () => within(bang2).getByRole('button', { name: /TK-D1/ })
+    await waitFor(() => expect(dich().closest('[data-cot-id]')?.getAttribute('data-cot-id')).toBe('xu-ly'))
+    await waitFor(() => expect(document.activeElement).toBe(dich()))
   })
 
   test('chọn cột Chờ từ menu → hỏi lý do', async () => {

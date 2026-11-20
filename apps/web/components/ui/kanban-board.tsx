@@ -33,6 +33,7 @@ import { Field, FieldError, FieldLabel } from './field'
 import { cat, khach as lopKhach, LY_DO_CHO, luuY as lopLuuY } from './inline-edit-styles'
 import * as s from './kanban-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
+import { useEscKhiKeo } from './tieu-de-cot'
 import { thongBao } from './toast'
 
 type MauBadge = NonNullable<VariantProps<typeof badgeVariants>['color']>
@@ -106,18 +107,21 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   const theoThe = useRef<{ id: string; cot: string } | null>(null)
   const daRoi = useRef(false)
   const trenRef = useRef<string | null>(null)
+  const bangRef = useRef<HTMLDivElement>(null)
+  useEscKhiKeo(!!keo)
 
+  // Thẻ chỉ đổi cột khi bên gọi đổi `the` → chạy theo `the`; tìm trong CHÍNH bảng này (trang có hai bảng trùng id thẻ).
   useEffect(() => {
     const t = theoThe.current
     if (!t) return
-    const el = document.querySelector<HTMLElement>(
+    const el = bangRef.current?.querySelector<HTMLElement>(
       `[data-cot-id="${CSS.escape(t.cot)}"] [data-the-id="${CSS.escape(t.id)}"]`,
     )
     if (!el) return
     theoThe.current = null
     el.focus({ preventScroll: true })
     el.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
-  })
+  }, [the])
 
   const timThe = (x: UniqueIdentifier | null | undefined) => the.find((t) => t.id === x)
   const timCot = (x: UniqueIdentifier | null | undefined) => cot.find((c) => c.id === x)
@@ -156,7 +160,7 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
-      coordinateGetter: toaDoPhim(cot, trenRef),
+      coordinateGetter: (e, a) => toaDoPhim(cot, trenRef.current)(e, a),
       keyboardCodes: {
         start: [KeyboardCode.Space],
         cancel: [KeyboardCode.Esc, KeyboardCode.Tab],
@@ -172,6 +176,9 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   const xong = () => {
     setKeo(null)
     datTren(null)
+    // Dương tính giả: `xong` chỉ chạy trong onDragEnd/onDragCancel của DndContext (sự kiện kéo), không bao giờ lúc render —
+    // compiler coi mọi callback truyền cho DndContext là có thể gọi lúc render (đặt Date.now thẳng trong onDragCancel vẫn báo).
+    // eslint-disable-next-line react-hooks/purity -- xem dòng trên
     ketThuc.current = Date.now()
   }
 
@@ -225,7 +232,7 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
       }}
       onDragCancel={xong}
     >
-      <div data-slot="kanban-board" className={cn(s.bang, className)}>
+      <div ref={bangRef} data-slot="kanban-board" className={cn(s.bang, className)}>
         {cot.map((c) => {
           const ds = the.filter((t) => t.cot === c.id)
           return (
@@ -283,14 +290,14 @@ const vaCham: CollisionDetection = (a) => {
  * ←/→ khi đang nhấc bằng phím: đặt bóng kéo vào giữa cột kề (dưới đầu cột) — một phím một cột. ↑/↓ chặn cuộn trang,
  * không dời (thứ tự trong cột theo dữ liệu, không kéo đổi được).
  */
-function toaDoPhim(cot: readonly CotKanban[], trenRef: { current: string | null }): KeyboardCoordinateGetter {
+function toaDoPhim(cot: readonly CotKanban[], trenNay: string | null): KeyboardCoordinateGetter {
   return (e, { active, context }) => {
     const ngang = e.code === KeyboardCode.Right || e.code === KeyboardCode.Left
     if (!ngang && e.code !== KeyboardCode.Up && e.code !== KeyboardCode.Down) return
     e.preventDefault()
     const hop = context.collisionRect
     if (!ngang || !hop) return
-    const hien = trenRef.current ?? (context.over?.id as string | undefined) ?? (context.active?.data.current?.cot as string | undefined)
+    const hien = trenNay ?? (context.over?.id as string | undefined) ?? (context.active?.data.current?.cot as string | undefined)
     const i = cot.findIndex((c) => c.id === hien) + (e.code === KeyboardCode.Right ? 1 : -1)
     const r = i >= 0 && i < cot.length ? context.droppableRects.get(cot[i].id) : undefined
     if (!r || !active) return
@@ -349,7 +356,8 @@ function The({
           {...listeners}
           className={s.the}
           onKeyDown={(e: ReactKeyboardEvent<HTMLDivElement>) => {
-            // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — không để Enter mở thẻ / Space cuộn trang.
+            // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — không để Enter mở thẻ / Space cuộn trang. Esc:
+            // `useEscKhiKeo` đã chặn ở document (không tới thanh hàng loạt).
             if (coKeo) {
               if (e.key !== 'Tab' && e.key !== 'Escape') e.preventDefault()
               return
