@@ -1,6 +1,23 @@
-import { Gear } from '@phosphor-icons/react/ssr'
+import { ClockCounterClockwise, Gear } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/tooltip'
+import { BienThe, KhoiHang } from '../_khung/tam'
+
+/* Demo dùng chung cho `KhoiTooltip` (/ds/tron) và `KhoiTooltipHang` (/ds). */
+const ICON = (
+  <Tooltip content="Cài đặt hiển thị">
+    <Button data-so="icon" variant="ghost" size="icon" aria-label="Cài đặt">
+      <Gear aria-hidden="true" />
+    </Button>
+  </Tooltip>
+)
+const EXCEL = (
+  <Tooltip content="Xuất theo bộ lọc đang chọn">
+    <Button data-so="excel" variant="outline" size="sm">
+      Xuất Excel
+    </Button>
+  </Tooltip>
+)
 
 /**
  * #tooltip — tái tạo ds/nguon/components/Tooltip/preview.html (gap 24 + padding 8 0 56 48 = style inline của preview:
@@ -16,17 +33,30 @@ export function KhoiTooltip() {
         <a href="#tooltip">Tooltip</a>
       </h2>
       <div className="flex flex-wrap items-center gap-6 pt-2 pr-0 pb-14 pl-12">
-        <Tooltip content="Cài đặt hiển thị">
-          <Button data-so="icon" variant="ghost" size="icon" aria-label="Cài đặt">
-            <Gear aria-hidden="true" />
-          </Button>
-        </Tooltip>
-        <Tooltip content="Xuất theo bộ lọc đang chọn">
-          <Button data-so="excel" variant="outline" size="sm">
-            Xuất Excel
-          </Button>
-        </Tooltip>
+        {ICON}
+        {EXCEL}
       </div>
     </section>
+  )
+}
+
+/** #tooltip dạng hàng cho /ds — rê chuột / Tab tới nút để thấy tooltip (không ép mở). */
+export function KhoiTooltipHang() {
+  return (
+    <KhoiHang neo="tooltip">
+      <BienThe ten="Nút icon" moTa="Mô tả thêm, không lặp aria-label. Rê chuột / Tab để thấy.">
+        {ICON}
+      </BienThe>
+      <BienThe ten="Nút có chữ" moTa="Giải thích phạm vi thao tác. Rê chuột / Tab để thấy.">
+        {EXCEL}
+      </BienThe>
+      <BienThe ten='side="right"' moTa='Mặc định side="bottom"; đổi khi phía dưới chật (thanh bên).'>
+        <Tooltip side="right" content="Xem các lần sửa đơn">
+          <Button variant="ghost" size="icon" aria-label="Lịch sử">
+            <ClockCounterClockwise aria-hidden="true" />
+          </Button>
+        </Tooltip>
+      </BienThe>
+    </KhoiHang>
   )
 }

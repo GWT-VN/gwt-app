@@ -1,5 +1,66 @@
+import { Fragment, type ReactNode } from 'react'
 import { Alert, AlertActions, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { BienThe, KhoiHang } from '../_khung/tam'
+
+/** Một biến thể: tên hàng (prop thật) + mô tả + demo — dùng chung cho `KhoiAlert` (/ds/tron) và `KhoiAlertHang` (/ds). */
+type Mau = { ten: string; moTa: string; demo: ReactNode }
+
+const MAU: Mau[] = [
+  {
+    ten: 'color="secondary"',
+    moTa: 'Mặc định — ghi chú trung tính.',
+    demo: (
+      <Alert data-so="mac-dinh">
+        <AlertTitle>Bản xem thử</AlertTitle>
+        <AlertDescription>Dữ liệu trên trang là dữ liệu demo.</AlertDescription>
+      </Alert>
+    ),
+  },
+  {
+    ten: 'color="info"',
+    moTa: 'Thông tin về hệ thống, tiến trình.',
+    demo: (
+      <Alert data-so="info" color="info">
+        <AlertTitle>Đang đồng bộ ERP</AlertTitle>
+        <AlertDescription>Số liệu tồn kho cập nhật mỗi 15 phút.</AlertDescription>
+      </Alert>
+    ),
+  },
+  {
+    ten: 'color="success"',
+    moTa: 'Xác nhận thao tác đã xong.',
+    demo: (
+      <Alert data-so="success" color="success">
+        <AlertTitle>Đã lưu</AlertTitle>
+        <AlertDescription>Ticket TK-DEMO-031 chuyển sang &quot;Đang xử lý&quot;.</AlertDescription>
+      </Alert>
+    ),
+  },
+  {
+    ten: 'color="warning" + AlertActions',
+    moTa: 'Cần để ý sớm; nút hành động sát mép phải.',
+    demo: (
+      <Alert data-so="warning" color="warning">
+        <AlertTitle>Sắp hết hạn bảo hành</AlertTitle>
+        <AlertDescription>3 thiết bị hết hạn trong 30 ngày tới.</AlertDescription>
+        <AlertActions>
+          <Button variant="outline" size="sm">Xem</Button>
+        </AlertActions>
+      </Alert>
+    ),
+  },
+  {
+    ten: 'color="danger"',
+    moTa: 'Lỗi chặn thao tác — role="alert", đọc ngay.',
+    demo: (
+      <Alert data-so="danger" color="danger">
+        <AlertTitle>Không lưu được</AlertTitle>
+        <AlertDescription>Bạn không có quyền sửa đơn của chi nhánh khác.</AlertDescription>
+      </Alert>
+    ),
+  },
+]
 
 /**
  * #alert — tái tạo 5 alert của ds/nguon/components/Alert/preview.html (gap 10px = style inline của preview);
@@ -12,30 +73,23 @@ export function KhoiAlert() {
         <a href="#alert">Alert</a>
       </h2>
       <div className="flex flex-col gap-[10px]">
-        <Alert data-so="mac-dinh">
-          <AlertTitle>Bản xem thử</AlertTitle>
-          <AlertDescription>Dữ liệu trên trang là dữ liệu demo.</AlertDescription>
-        </Alert>
-        <Alert data-so="info" color="info">
-          <AlertTitle>Đang đồng bộ ERP</AlertTitle>
-          <AlertDescription>Số liệu tồn kho cập nhật mỗi 15 phút.</AlertDescription>
-        </Alert>
-        <Alert data-so="success" color="success">
-          <AlertTitle>Đã lưu</AlertTitle>
-          <AlertDescription>Ticket TK-DEMO-031 chuyển sang &quot;Đang xử lý&quot;.</AlertDescription>
-        </Alert>
-        <Alert data-so="warning" color="warning">
-          <AlertTitle>Sắp hết hạn bảo hành</AlertTitle>
-          <AlertDescription>3 thiết bị hết hạn trong 30 ngày tới.</AlertDescription>
-          <AlertActions>
-            <Button variant="outline" size="sm">Xem</Button>
-          </AlertActions>
-        </Alert>
-        <Alert data-so="danger" color="danger">
-          <AlertTitle>Không lưu được</AlertTitle>
-          <AlertDescription>Bạn không có quyền sửa đơn của chi nhánh khác.</AlertDescription>
-        </Alert>
+        {MAU.map((m) => (
+          <Fragment key={m.ten}>{m.demo}</Fragment>
+        ))}
       </div>
     </section>
+  )
+}
+
+/** #alert dạng hàng cho /ds — mỗi màu một hàng. */
+export function KhoiAlertHang() {
+  return (
+    <KhoiHang neo="alert">
+      {MAU.map((m) => (
+        <BienThe key={m.ten} ten={m.ten} moTa={m.moTa}>
+          {m.demo}
+        </BienThe>
+      ))}
+    </KhoiHang>
   )
 }
