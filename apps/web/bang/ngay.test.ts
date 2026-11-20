@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isoNgay, khoangPreset } from './ngay'
+import { hienNgay, isoNgay, khoangPreset, ngayTuIso } from './ngay'
 
 // Thứ Tư 2026-08-19, 00:30 giờ máy — giờ sớm chính là chỗ toISOString() hay sai.
 const thuTu = new Date(2026, 7, 19, 0, 30)
@@ -39,5 +39,20 @@ describe('khoangPreset', () => {
   })
   it('lùi qua mốc đầu NĂM vẫn đúng', () => {
     expect(khoangPreset('ngay30', new Date(2026, 0, 10, 8, 0))).toEqual({ tu: '2025-12-11', den: '2026-01-10' })
+  })
+})
+
+describe('ngayTuIso', () => {
+  it("'YYYY-MM-DD' → 00:00 ngày đó theo giờ MÁY (không phải UTC như new Date('2026-11-20'))", () => {
+    const d = ngayTuIso('2026-11-20')
+    expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours()]).toEqual([2026, 10, 20, 0])
+    expect(isoNgay(d)).toBe('2026-11-20')
+  })
+})
+
+describe('hienNgay', () => {
+  it('hiển thị dd/MM/yyyy', () => {
+    expect(hienNgay('2026-11-20')).toBe('20/11/2026')
+    expect(hienNgay('2026-01-05')).toBe('05/01/2026')
   })
 })

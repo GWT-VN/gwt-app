@@ -22,6 +22,21 @@ export function isoNgay(d: Date): string {
 }
 
 /**
+ * 'YYYY-MM-DD' -> Date 00:00 theo giờ MÁY. KHÔNG dùng `new Date('YYYY-MM-DD')`: chuỗi chỉ có ngày bị đọc là UTC →
+ * ở múi giờ âm ra ngày hôm trước.
+ */
+export function ngayTuIso(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
+/** 'YYYY-MM-DD' -> 'dd/MM/yyyy' để hiển thị (chỉ đảo chuỗi, không qua Date). */
+export function hienNgay(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
+
+/**
  * Khoảng [tu, den] của một preset. Tuần bắt đầu THỨ 2.
  *
  * Dùng `new Date(y, m, d - n)` — Date tự dồn tháng/năm — chứ KHÔNG trừ mili-giây
