@@ -1,12 +1,13 @@
 'use client'
 
-import { createContext, useContext, useState, type ComponentProps } from 'react'
+import { createContext, useContext, type ComponentProps } from 'react'
 import { CaretDown, Check } from '@phosphor-icons/react/ssr'
 import { Select as SelectPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { controlOutline } from './control-styles'
 import { useDsPortal } from './ds-root'
 import { menuCheck, menuContent, menuItem, menuSeparator } from './menu-styles'
+import { useMoBangChuot, type MoBangChuot } from './use-mo-bang-chuot'
 
 /**
  * Select — khung shadcn (Radix Select), giá trị từ `.ui-select-trigger` / `.ui-select-value` (trigger) và `.ui-menu*`
@@ -46,18 +47,18 @@ export const selectTrigger = [
 export const selectValue = 'min-w-0 truncate border-none border-current'
 
 /**
- * Mở bằng chuột/chạm → ẩn vòng focus của mục cho tới phím đầu tiên trong nội dung. Radix Select luôn focus() mục đang
- * chọn khi mở, và trigger chặn mousedown nên Chrome tính focus đó là :focus-visible → bấm chuột mở cũng hiện vòng xanh
- * chồng lên nền sáng (preview: mục đang chọn chỉ có nền). Mở bằng phím, hoặc ↑/↓ sau khi mở bằng chuột → vòng hiện.
+ * Mở bằng chuột/chạm → ẩn vòng focus của mục cho tới phím đầu tiên (`use-mo-bang-chuot.ts`). Radix Select luôn focus()
+ * mục đang chọn khi mở, và trigger chặn mousedown nên Chrome tính focus đó là :focus-visible → bấm chuột mở cũng hiện
+ * vòng xanh chồng lên nền sáng (preview: mục đang chọn chỉ có nền). Mở bằng phím, hoặc ↑/↓ sau khi mở bằng chuột → vòng hiện.
  */
-const MoBangChuot = createContext<[boolean, (b: boolean) => void]>([false, () => {}])
+const MoBangChuotCtx = createContext<MoBangChuot>({ chuot: false, onPointerDown() {}, onKeyDown() {} })
 
 export function Select(props: ComponentProps<typeof SelectPrimitive.Root>) {
-  const chuot = useState(false)
+  const chuot = useMoBangChuot()
   return (
-    <MoBangChuot.Provider value={chuot}>
+    <MoBangChuotCtx.Provider value={chuot}>
       <SelectPrimitive.Root data-slot="select" {...props} />
-    </MoBangChuot.Provider>
+    </MoBangChuotCtx.Provider>
   )
 }
 
@@ -76,17 +77,17 @@ export function SelectTrigger({
   onKeyDown,
   ...props
 }: ComponentProps<typeof SelectPrimitive.Trigger>) {
-  const [, setChuot] = useContext(MoBangChuot)
+  const mo = useContext(MoBangChuotCtx)
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(selectTrigger, className)}
       onPointerDown={(e) => {
-        setChuot(true)
+        mo.onPointerDown()
         onPointerDown?.(e)
       }}
       onKeyDown={(e) => {
-        setChuot(false)
+        mo.onKeyDown()
         onKeyDown?.(e)
       }}
       {...props}
@@ -110,7 +111,7 @@ export function SelectContent({
   ...props
 }: ComponentProps<typeof SelectPrimitive.Content>) {
   const container = useDsPortal()
-  const [, setChuot] = useContext(MoBangChuot)
+  const mo = useContext(MoBangChuotCtx)
   if (!container) return null
   return (
     <SelectPrimitive.Portal container={container}>
@@ -121,7 +122,7 @@ export function SelectContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         onKeyDown={(e) => {
-          setChuot(false)
+          mo.onKeyDown()
           onKeyDown?.(e)
         }}
         // Rộng ≥ trigger và ≥ 200 (min-width của `.ui-menu`); trần cao theo chỗ trống Radix tính (còn bị chặn bởi trần
@@ -141,7 +142,7 @@ export function SelectContent({
 
 /** `.ui-menu-item` (menuItem) + ✓ phải (`.ui-check`) khi đang chọn. */
 export function SelectItem({ className, children, ...props }: ComponentProps<typeof SelectPrimitive.Item>) {
-  const [chuot] = useContext(MoBangChuot)
+  const { chuot } = useContext(MoBangChuotCtx)
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
