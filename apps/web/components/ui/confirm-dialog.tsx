@@ -45,8 +45,9 @@ const list = [
  *   mở lại cho dòng khác) xong muộn thì bị bỏ qua — không đóng, không hiện lỗi, không mở khoá hộp mới.
  *   `onXacNhan` đồng bộ (void): không khoá lâu — đóng/mở vẫn do người gọi.
  * - Khi khoá (đang chờ Promise hoặc prop `dangChay`): nút xác nhận spinner, Huỷ disabled, Esc/Huỷ không đóng, ô con
- *   (lý do…) disabled qua `<fieldset>`; nút đang focus bị disabled → focus lên khung hộp (không rơi ra body); mở khoá mà
- *   focus đang ở khung → trả về nút xác nhận.
+ *   (lý do…) disabled qua `<fieldset>`; nút xác nhận loading GIỮ focus (Button loading = aria-disabled, không
+ *   disabled); Huỷ / ô con đang focus bị disabled → focus lên khung hộp (không rơi ra body); mở khoá mà focus đang ở
+ *   khung → trả về nút xác nhận.
  * - `loi`: chỉ để HIỆN (Alert danger trong thân), không điều khiển khoá; ReactNode thoải mái.
  * - `khoaXacNhan`: nút xác nhận disabled (chưa nhập đủ — vd chưa gõ đúng mã, chưa nhập lý do bắt buộc).
  * - `color="danger"`: icon tròn nền/màu danger-soft (tên `color` như Alert/Badge — luật đặt tên prop ở ds/NGUON.md).

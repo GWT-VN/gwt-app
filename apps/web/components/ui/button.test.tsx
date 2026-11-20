@@ -26,7 +26,7 @@ test('outline: viền inset 1px --input; hover viền + nền theo bundle.css', 
   expect(c).toEqual(
     expect.arrayContaining([
       '[box-shadow:inset_0_0_0_1px_var(--input)]',
-      'not-disabled:hover:[box-shadow:inset_0_0_0_1px_var(--color-border-primary-outline-hover)]',
+      'not-disabled:not-aria-disabled:hover:[box-shadow:inset_0_0_0_1px_var(--color-border-primary-outline-hover)]',
       'focus-visible:-outline-offset-1',
       'disabled:not-data-loading:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
       'disabled:not-data-loading:bg-transparent',
@@ -69,8 +69,8 @@ test('link: chữ blue-500 (tối blue-300), h-auto p-0, bo radius-sm, gạch ch
       'h-auto',
       'p-0',
       'rounded-(--radius-sm)',
-      'not-disabled:hover:underline',
-      'not-disabled:hover:underline-offset-[0.1em]',
+      'not-disabled:not-aria-disabled:hover:underline',
+      'not-disabled:not-aria-disabled:hover:underline-offset-[0.1em]',
     ]),
   )
   expect(c).not.toContain('h-(--control-size-md)')
@@ -89,7 +89,7 @@ test('ghost đang bật (pressed/expanded/checked): nền accent thắng :active
   const g = lop(renderToStaticMarkup(<Button variant="ghost">x</Button>))
   const active = g.filter((c) => c.includes('active:'))
   expect(active).toEqual([
-    'not-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
+    'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
   ])
 })
 
@@ -106,10 +106,11 @@ test('type mặc định "button" (không submit nhầm form); type của bên g
   expect(theGoc(a)).not.toContain('type=')
 })
 
-test('loading: disabled + aria-busy + data-loading, có Spinner, chữ vẫn trong DOM (giữ bề rộng)', () => {
+test('loading: aria-disabled (không disabled) + aria-busy + data-loading, có Spinner, chữ vẫn trong DOM (giữ bề rộng)', () => {
   const h = renderToStaticMarkup(<Button loading>Đang lưu</Button>)
   const goc = theGoc(h)
-  expect(goc).toMatch(/ disabled=""/)
+  expect(goc).not.toMatch(/ disabled=""/)
+  expect(goc).toContain('aria-disabled="true"')
   expect(goc).toContain('aria-busy="true"')
   expect(goc).toContain('data-loading=""')
   expect(h).toContain('Đang lưu')

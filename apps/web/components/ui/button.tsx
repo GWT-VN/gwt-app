@@ -1,4 +1,6 @@
-import type { ComponentProps } from 'react'
+'use client'
+
+import type { ComponentProps, MouseEvent } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
 import { cn } from '@/lib/utils'
@@ -9,9 +11,11 @@ import { Spinner } from './spinner'
  * - Thứ tự khoá variants có chủ ý: size → shape → variant, để class của variant (vd link `h-auto p-0`) đứng sau
  *   class của size và thắng qua tailwind-merge; compoundVariants (shape rounded) đứng sau cùng, khớp thứ tự cascade
  *   bundle.css (`[data-shape="rounded"]` khai sau `[data-variant="link"]`).
- * - Hover/active gắn `not-disabled:` (khớp cả <a> khi asChild) → nút disabled/loading không đổi nền.
- * - Kiểu disabled gắn `not-data-loading:`: nút loading vẫn `disabled` (chặn bấm) nhưng giữ màu biến thể như
- *   preview.html (nút "Đang lưu" không xám).
+ * - Hover/active gắn `not-disabled:not-aria-disabled:` (khớp cả <a> khi asChild) → nút disabled/loading không đổi nền.
+ * - Loading (spec §5.1) = `aria-disabled="true"` + `aria-busy="true"`, KHÔNG `disabled`: nút giữ focus suốt lúc chờ
+ *   (disabled làm trình duyệt thả focus ra body), bấm/Enter/Space lần nữa bị chặn (`preventDefault` ở onClick → nút
+ *   submit không gửi lại form, kể cả Enter trong ô của form; `<a>` asChild không điều hướng). Giữ màu biến thể như
+ *   preview.html (nút "Đang lưu" không xám): kiểu disabled gắn `not-data-loading:`.
  * - Viền outline = box-shadow inset 1px (y bundle.css), không dùng border → không đổi kích thước hộp.
  * - Bo pill = --radius-full (9999px) như bundle.css, không dùng `rounded-full` (calc(infinity*1px)) để computed style
  *   khớp số artifact.
@@ -45,40 +49,40 @@ export const buttonVariants = cva(
       variant: {
         default: [
           'bg-primary text-primary-foreground',
-          'not-disabled:hover:bg-(--color-background-primary-solid-hover)',
-          'not-disabled:active:bg-(--color-background-primary-solid-active)',
+          'not-disabled:not-aria-disabled:hover:bg-(--color-background-primary-solid-hover)',
+          'not-disabled:not-aria-disabled:active:bg-(--color-background-primary-solid-active)',
         ],
         secondary: [
           'bg-secondary text-secondary-foreground',
-          'not-disabled:hover:bg-(--color-background-secondary-soft-hover)',
-          'not-disabled:active:bg-(--color-background-secondary-soft-active)',
+          'not-disabled:not-aria-disabled:hover:bg-(--color-background-secondary-soft-hover)',
+          'not-disabled:not-aria-disabled:active:bg-(--color-background-secondary-soft-active)',
         ],
         outline: [
           'bg-transparent text-foreground [box-shadow:inset_0_0_0_1px_var(--input)]',
-          'not-disabled:hover:bg-(--color-background-primary-outline-hover) not-disabled:hover:text-accent-foreground',
-          'not-disabled:hover:[box-shadow:inset_0_0_0_1px_var(--color-border-primary-outline-hover)]',
-          'not-disabled:active:bg-(--color-background-primary-outline-active)',
+          'not-disabled:not-aria-disabled:hover:bg-(--color-background-primary-outline-hover) not-disabled:not-aria-disabled:hover:text-accent-foreground',
+          'not-disabled:not-aria-disabled:hover:[box-shadow:inset_0_0_0_1px_var(--color-border-primary-outline-hover)]',
+          'not-disabled:not-aria-disabled:active:bg-(--color-background-primary-outline-active)',
           'focus-visible:-outline-offset-1',
           'disabled:not-data-loading:bg-transparent',
           'disabled:not-data-loading:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
         ],
         ghost: [
           'bg-transparent text-foreground',
-          'not-disabled:hover:bg-accent not-disabled:hover:text-accent-foreground',
+          'not-disabled:not-aria-disabled:hover:bg-accent not-disabled:not-aria-disabled:hover:text-accent-foreground',
           // Đang bật (pressed/expanded/checked) thì nền accent thắng :active — bundle.css khai rule đó sau :active.
-          'not-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
+          'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
           'aria-pressed:bg-accent aria-checked:bg-accent aria-expanded:bg-accent',
           'focus-visible:-outline-offset-1 disabled:not-data-loading:bg-transparent',
         ],
         destructive: [
           'bg-destructive text-destructive-foreground',
-          'not-disabled:hover:bg-(--color-background-danger-solid-hover)',
-          'not-disabled:active:bg-(--color-background-danger-solid-hover)',
+          'not-disabled:not-aria-disabled:hover:bg-(--color-background-danger-solid-hover)',
+          'not-disabled:not-aria-disabled:active:bg-(--color-background-danger-solid-hover)',
           'focus-visible:outline-(--color-ring-danger)',
         ],
         link: [
           'bg-transparent text-(--blue-500) in-data-[theme=dark]:text-(--blue-300) h-auto p-0 rounded-(--radius-sm)',
-          'not-disabled:hover:underline not-disabled:hover:underline-offset-[0.1em]',
+          'not-disabled:not-aria-disabled:hover:underline not-disabled:not-aria-disabled:hover:underline-offset-[0.1em]',
         ],
       },
     },
@@ -92,6 +96,9 @@ export const buttonVariants = cva(
   },
 )
 
+/** Loading: chặn bấm lặp — preventDefault để nút submit không gửi lại form, `<a>` asChild không điều hướng. */
+const chanBam = (e: MouseEvent<HTMLElement>) => e.preventDefault()
+
 export function Button({
   className,
   variant = 'default',
@@ -101,6 +108,7 @@ export function Button({
   loading = false,
   disabled,
   type,
+  onClick,
   children,
   ...props
 }: ComponentProps<'button'> & VariantProps<typeof buttonVariants> & { asChild?: boolean; loading?: boolean }) {
@@ -113,7 +121,11 @@ export function Button({
       data-shape={shape}
       data-loading={loading ? '' : undefined}
       aria-busy={loading || undefined}
-      disabled={disabled || loading}
+      aria-disabled={loading || undefined}
+      disabled={disabled}
+      // File 'use client': handler nội bộ (chanBam) không được đi qua ranh giới server → client (khối /ds server render
+      // `<Button loading>` từng 500 "Event handlers cannot be passed to Client Component props").
+      onClick={loading ? chanBam : onClick}
       // Mặc định "button": nút DS nằm trong <form> không submit nhầm. asChild (vd <a>) không mang type.
       type={asChild ? type : (type ?? 'button')}
       className={cn(buttonVariants({ variant, size, shape, className }))}

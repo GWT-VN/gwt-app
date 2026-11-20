@@ -10,7 +10,7 @@
   "chuaDo": [
     ":active (nhấn giữ) — chưa đo ở biến thể nào",
     "ghost aria-pressed / aria-expanded / aria-checked (nền accent khi đang bật) — preview không có nút ở trạng thái này",
-    "loading + hover — nút loading của preview KHÔNG disabled nên hover đổi nền; DS loading là disabled nên giữ nền. Đo bên nào cũng không ra kết luận đúng",
+    "loading + hover — nút loading của preview không mang trạng thái chặn nên hover đổi nền; DS loading là aria-disabled (giữ focus, chặn bấm) nên hover giữ nền (not-aria-disabled). Đo bên nào cũng không ra kết luận đúng; hành vi chặn bấm/giữ focus: test jsdom components/ui/button.dom.test.tsx",
     "link disabled (cả sáng/tối) — preview không có",
     "asChild (vd <a>) — preview không có; kiểu disabled/aria-disabled cho asChild chưa làm (ghi trong spec, việc lát 2)"
   ],

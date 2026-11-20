@@ -78,7 +78,8 @@ test('đang lưu: Lưu loading + khoá cả 2 nút; lỗi máy chủ → Alert d
   await u.type(oTen(f), 'Bảo dưỡng định kỳ')
   await u.click(nut(f, 'Lưu'))
   expect(container.querySelectorAll('[aria-invalid="true"]').length).toBe(0)
-  expect(nut(f, 'Lưu').disabled).toBe(true)
+  expect(nut(f, 'Lưu').getAttribute('aria-disabled')).toBe('true')
+  expect(document.activeElement).toBe(nut(f, 'Lưu'))
   expect(nut(f, 'Lưu').getAttribute('aria-busy')).toBe('true')
   expect(nut(f, 'Huỷ').disabled).toBe(true)
 
@@ -88,7 +89,7 @@ test('đang lưu: Lưu loading + khoá cả 2 nút; lỗi máy chủ → Alert d
   const alert = within(f).getByRole('alert')
   expect(f.firstElementChild).toBe(alert)
   expect(oTen(f).value).toBe('Bảo dưỡng định kỳ')
-  expect(nut(f, 'Lưu').disabled).toBe(false)
+  expect(nut(f, 'Lưu').getAttribute('aria-disabled')).toBeNull()
   expect(nut(f, 'Huỷ').disabled).toBe(false)
 
   await u.click(nut(f, 'Lưu'))
