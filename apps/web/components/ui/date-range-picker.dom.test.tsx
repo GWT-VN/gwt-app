@@ -32,7 +32,7 @@ afterEach(() => vi.useRealTimers())
 
 type K = { tu: string; den: string } | null
 
-function Khoang(props: { dau?: K; onDoi?: (v: K) => void }) {
+function Khoang(props: { dau?: K; onDoi?: (v: K) => void; min?: string; max?: string; required?: boolean }) {
   const [v, setV] = useState<K>(props.dau ?? null)
   return (
     <>
@@ -40,6 +40,9 @@ function Khoang(props: { dau?: K; onDoi?: (v: K) => void }) {
       <DateRangePicker
         id="khoang"
         value={v}
+        min={props.min}
+        max={props.max}
+        required={props.required}
         onValueChange={(x) => {
           setV(x)
           props.onDoi?.(x)
@@ -260,4 +263,47 @@ test('trong Dialog: Esc lần 1 chỉ đóng bảng (Dialog còn), focus về tr
   expect(document.activeElement).toBe(t)
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+})
+
+test('nhãn ô ngày đọc vai trong khoảng: ngày bắt đầu / trong khoảng đã chọn / ngày kết thúc', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Khoang dau={{ tu: '2026-11-01', den: '2026-11-18' }} />
+    </DsRoot>,
+  )
+  await user.click(trigger())
+  await screen.findByRole('dialog')
+  expect(o(/^01\/11\/2026/).getAttribute('aria-label')).toBe('01/11/2026, ngày bắt đầu')
+  expect(o(/^10\/11\/2026/).getAttribute('aria-label')).toBe('10/11/2026, trong khoảng đã chọn')
+  expect(o(/^18\/11\/2026/).getAttribute('aria-label')).toBe('18/11/2026, ngày kết thúc')
+  expect(o(/^20\/11\/2026/).getAttribute('aria-label')).toBe('20/11/2026, hôm nay')
+})
+
+test('min/max: tháng mở kẹp trong khoảng (không lùi qua tháng của min), ngày ngoài khoảng chặn, mốc ngoài khoảng tắt', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Khoang min="2026-11-10" max="2027-02-10" />
+    </DsRoot>,
+  )
+  await user.click(trigger())
+  await screen.findByRole('dialog')
+  // hôm nay 20/11 → tháng phải 11, tháng trái 10 — nhưng min 10/11 → lịch bắt đầu từ tháng 11
+  expect(screen.queryByText('Tháng 10, 2026')).toBeNull()
+  expect(screen.getByText('Tháng 11, 2026')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Tháng trước' }).getAttribute('aria-disabled')).toBe('true')
+  const chan = o(/^09\/11\/2026/) as HTMLButtonElement
+  expect(chan.disabled || chan.getAttribute('aria-disabled') === 'true').toBe(true)
+  expect(nut('Tháng này').disabled).toBe(true)
+  expect(nut('Tuần này').disabled).toBe(false)
+})
+
+test('required → aria-required trên trigger', () => {
+  render(
+    <DsRoot>
+      <Khoang required />
+    </DsRoot>,
+  )
+  expect(trigger().getAttribute('aria-required')).toBe('true')
 })

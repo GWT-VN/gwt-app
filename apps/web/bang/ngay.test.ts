@@ -56,3 +56,12 @@ describe('hienNgay', () => {
     expect(hienNgay('2026-01-05')).toBe('05/01/2026')
   })
 })
+
+describe('đầu vào dài hơn YYYY-MM-DD (timestamp cột DB)', () => {
+  it('chỉ lấy 10 ký tự đầu — không ra "20T00:00/11/2026"', () => {
+    expect(hienNgay('2026-11-20T00:00')).toBe('20/11/2026')
+    expect(hienNgay('2026-11-20 08:15:00+07')).toBe('20/11/2026')
+    const d = ngayTuIso('2026-11-20T00:00')
+    expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours()]).toEqual([2026, 10, 20, 0])
+  })
+})

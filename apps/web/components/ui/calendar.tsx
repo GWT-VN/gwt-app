@@ -27,6 +27,22 @@ import { buttonVariants } from './button'
 
 const thangNam = (d: Date) => `Tháng ${d.getMonth() + 1}, ${d.getFullYear()}`
 
+/**
+ * Đuôi nhãn đọc của ô ngày (thay đuôi "selected" của labelDayButton gốc react-day-picker): focus nằm trên `<button>`,
+ * còn `aria-selected` ở `td` → trình đọc màn hình chỉ biết ngày đang chọn qua nhãn nút. Khoảng đủ 2 đầu: "ngày bắt đầu"
+ * / "ngày kết thúc" / "trong khoảng đã chọn" (cùng logic `range_middle` của data-selected bên dưới); còn lại "đã chọn".
+ */
+const nhanTrangThai = (m: Record<string, boolean>) => [
+  ...(m.today ? ['hôm nay'] : []),
+  ...(m.range_start || m.range_end
+    ? [...(m.range_start ? ['ngày bắt đầu'] : []), ...(m.range_end ? ['ngày kết thúc'] : [])]
+    : m.range_middle
+      ? ['trong khoảng đã chọn']
+      : m.selected
+        ? ['đã chọn']
+        : []),
+]
+
 /** Tên thứ ngắn: T2…T7, CN (getDay: 0 = CN). */
 const thuNgan = (d: Date) => (d.getDay() === 0 ? 'CN' : `T${d.getDay() + 1}`)
 
@@ -104,7 +120,7 @@ export function Calendar({
       className={cn('border-none border-current', className)}
       formatters={{ formatCaption: thangNam, formatWeekdayName: thuNgan, ...formatters }}
       labels={{
-        labelDayButton: (d, m) => `${hienNgay(isoNgay(d))}${m.today ? ', hôm nay' : ''}`,
+        labelDayButton: (d, m) => [hienNgay(isoNgay(d)), ...nhanTrangThai(m)].join(', '),
         labelGrid: thangNam,
         labelPrevious: () => 'Tháng trước',
         labelNext: () => 'Tháng sau',

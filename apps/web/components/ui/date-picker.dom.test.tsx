@@ -31,7 +31,14 @@ beforeEach(() => {
 })
 afterEach(() => vi.useRealTimers())
 
-function NgayGiao(props: { dau?: string | null; min?: string; onDoi?: (v: string | null) => void; invalid?: boolean }) {
+function NgayGiao(props: {
+  dau?: string | null
+  min?: string
+  max?: string
+  onDoi?: (v: string | null) => void
+  invalid?: boolean
+  required?: boolean
+}) {
   const [v, setV] = useState<string | null>(props.dau ?? null)
   return (
     <>
@@ -40,6 +47,8 @@ function NgayGiao(props: { dau?: string | null; min?: string; onDoi?: (v: string
         id="ngay-giao"
         value={v}
         min={props.min}
+        max={props.max}
+        required={props.required}
         aria-invalid={props.invalid}
         onValueChange={(x) => {
           setV(x)
@@ -231,4 +240,84 @@ test('DatePicker trong Dialog: Esc lần 1 chỉ đóng lịch (Dialog còn), fo
   expect(document.activeElement).toBe(nut)
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+})
+
+test('ngày sau max bị chặn; "Hôm nay" tắt khi hôm nay ngoài khoảng', async () => {
+  const user = userEvent.setup()
+  const onDoi = vi.fn()
+  render(
+    <DsRoot>
+      <NgayGiao max="2026-11-15" dau="2026-11-10" onDoi={onDoi} />
+    </DsRoot>,
+  )
+  await user.click(trigger())
+  await screen.findByRole('dialog')
+  const chan = o(/^16\/11\/2026/) as HTMLButtonElement
+  expect(chan.disabled || chan.getAttribute('aria-disabled') === 'true').toBe(true)
+  await user.click(chan)
+  expect(onDoi).not.toHaveBeenCalled()
+  expect((o(/^15\/11\/2026/) as HTMLButtonElement).disabled).toBe(false)
+  expect((screen.getByRole('button', { name: 'Hôm nay' }) as HTMLButtonElement).disabled).toBe(true)
+})
+
+test('min ở tháng sau (hôm nay ngoài khoảng): mở ra tháng của min, không lùi được về trước, focus ngày min', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <NgayGiao min="2027-01-10" />
+    </DsRoot>,
+  )
+  trigger().focus()
+  await user.keyboard('{Enter}')
+  await screen.findByRole('dialog')
+  expect(screen.getByText('Tháng 1, 2027')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Tháng trước' }).getAttribute('aria-disabled')).toBe('true')
+  await waitFor(() => expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^10\/01\/2027/))
+})
+
+test('bàn phím: ↓ +1 tuần, ↑ −1 tuần, PageUp −1 tháng, Home đầu tuần (T2), End cuối tuần (CN)', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <NgayGiao dau="2026-11-18" />
+    </DsRoot>,
+  )
+  trigger().focus()
+  await user.keyboard('{Enter}')
+  await screen.findByRole('dialog')
+  const nhan = () => document.activeElement?.getAttribute('aria-label') ?? ''
+  await waitFor(() => expect(nhan()).toMatch(/^18\/11\/2026/))
+  await user.keyboard('{ArrowDown}')
+  expect(nhan()).toMatch(/^25\/11\/2026/)
+  await user.keyboard('{ArrowUp}{ArrowUp}')
+  expect(nhan()).toMatch(/^11\/11\/2026/)
+  await user.keyboard('{Home}')
+  expect(nhan()).toMatch(/^09\/11\/2026/)
+  await user.keyboard('{End}')
+  expect(nhan()).toMatch(/^15\/11\/2026/)
+  await user.keyboard('{PageUp}')
+  await waitFor(() => expect(nhan()).toMatch(/^15\/10\/2026/))
+  expect(screen.getByText('Tháng 10, 2026')).toBeTruthy()
+})
+
+test('nhãn ô ngày đọc trạng thái: "đã chọn" (aria-selected nằm ở td, focus ở nút)', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <NgayGiao dau="2026-11-20" />
+    </DsRoot>,
+  )
+  await user.click(trigger())
+  await screen.findByRole('dialog')
+  expect(o(/^20\/11\/2026/).getAttribute('aria-label')).toBe('20/11/2026, hôm nay, đã chọn')
+  expect(o(/^18\/11\/2026/).getAttribute('aria-label')).toBe('18/11/2026')
+})
+
+test('required → aria-required trên trigger (ô bắt buộc trong FormLayout)', () => {
+  render(
+    <DsRoot>
+      <NgayGiao required />
+    </DsRoot>,
+  )
+  expect(trigger().getAttribute('aria-required')).toBe('true')
 })

@@ -24,15 +24,17 @@ export function isoNgay(d: Date): string {
 /**
  * 'YYYY-MM-DD' -> Date 00:00 theo giờ MÁY. KHÔNG dùng `new Date('YYYY-MM-DD')`: chuỗi chỉ có ngày bị đọc là UTC →
  * ở múi giờ âm ra ngày hôm trước.
+ * Chuỗi dài hơn (timestamp 'YYYY-MM-DDTHH:mm…') chỉ lấy 10 ký tự đầu — CẮT, không đổi múi giờ: timestamp UTC ('…Z')
+ * phải đổi sang giờ VN trước khi đưa vào.
  */
 export function ngayTuIso(iso: string): Date {
-  const [y, m, d] = iso.split('-').map(Number)
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number)
   return new Date(y, m - 1, d)
 }
 
-/** 'YYYY-MM-DD' -> 'dd/MM/yyyy' để hiển thị (chỉ đảo chuỗi, không qua Date). */
+/** 'YYYY-MM-DD' -> 'dd/MM/yyyy' để hiển thị (chỉ đảo chuỗi, không qua Date). Chuỗi dài hơn: lấy 10 ký tự đầu như `ngayTuIso`. */
 export function hienNgay(iso: string): string {
-  const [y, m, d] = iso.split('-')
+  const [y, m, d] = iso.slice(0, 10).split('-')
   return `${d}/${m}/${y}`
 }
 

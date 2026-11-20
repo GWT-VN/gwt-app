@@ -26,6 +26,10 @@ export const calendarPop = cn(
 export const calendarFoot =
   'mt-[12px] flex items-center justify-between gap-3 pt-[16px] border-none border-current [box-shadow:inset_0_1px_0_var(--alpha-08)] max-[640px]:flex-wrap'
 
+/** 'YYYY-MM-DD' kẹp vào [min, max] (so chuỗi ISO = so ngày). DateRangePicker dùng lại. */
+export const kepNgay = (iso: string, min?: string, max?: string) =>
+  min && iso < min ? min : max && iso > max ? max : iso
+
 /** `.ui-cal-foot .ui-btn[data-variant=ghost]`: gạch chân, cách chữ 0.15em. */
 export const calendarFootClear = 'underline underline-offset-[0.15em]'
 
@@ -40,7 +44,8 @@ export const calendarFootClear = 'underline underline-offset-[0.15em]'
  *   trigger. Esc đóng pop; trong Dialog chỉ đóng pop (DismissableLayer lớp trên cùng).
  * - Mở bằng chuột: vòng focus của ô ngày ẩn tới phím đầu tiên (`useMoBangChuot`) — preview mở bằng chuột không có vòng.
  * - `min`/`max` (`YYYY-MM-DD`, tính cả 2 đầu): ngày ngoài khoảng gạch ngang, không chọn được; "Hôm nay" tắt nếu hôm nay
- *   ngoài khoảng.
+ *   ngoài khoảng; tháng mở kẹp vào khoảng, ‹ › không đi ra ngoài tháng của min/max.
+ * - `required` / `aria-required` → `aria-required` trên trigger.
  */
 export function DatePicker({
   value,
@@ -50,6 +55,8 @@ export function DatePicker({
   placeholder = 'Chọn ngày',
   disabled,
   id,
+  required,
+  'aria-required': ariaRequired,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedby,
 }: {
@@ -60,6 +67,9 @@ export function DatePicker({
   placeholder?: string
   disabled?: boolean
   id?: string
+  /** Ô bắt buộc → `aria-required` trên trigger (nút không nhận `required` gốc). */
+  required?: boolean
+  'aria-required'?: boolean
   'aria-invalid'?: boolean
   'aria-describedby'?: string
 }) {
@@ -78,6 +88,7 @@ export function DatePicker({
           type="button"
           id={id}
           disabled={disabled}
+          aria-required={required || ariaRequired || undefined}
           aria-invalid={ariaInvalid || undefined}
           aria-describedby={ariaDescribedby}
           data-placeholder={value ? undefined : ''}
@@ -110,7 +121,10 @@ export function DatePicker({
           required
           autoFocus
           selected={value ? ngayTuIso(value) : undefined}
-          defaultMonth={ngayTuIso(value ?? homNay)}
+          // Tháng mở kẹp vào [min, max]: hôm nay ngoài khoảng thì mở tháng toàn ô bị chặn, focus không còn chỗ đứng.
+          defaultMonth={ngayTuIso(kepNgay(value ?? homNay, min, max))}
+          startMonth={min ? ngayTuIso(min) : undefined}
+          endMonth={max ? ngayTuIso(max) : undefined}
           disabled={chan}
           onSelect={(d) => chon(isoNgay(d))}
         />

@@ -6,7 +6,7 @@ import { hienNgay, isoNgay, khoangPreset, ngayTuIso, PRESETS } from '@/bang/ngay
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Calendar } from './calendar'
-import { calendarFoot, calendarFootClear, calendarPop } from './date-picker'
+import { calendarFoot, calendarFootClear, calendarPop, kepNgay } from './date-picker'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { selectTrigger, selectValue } from './select'
 import { useMoBangChuot } from './use-mo-bang-chuot'
@@ -99,7 +99,7 @@ export function DateRangePanel({
   const hep = useHep()
   const [nhap, setNhap] = useState<Nhap>(value ?? {})
   const [re, setRe] = useState<string | null>(null)
-  const [thangPhai, setThangPhai] = useState(() => dauThang(value?.den ?? homNay))
+  const [thangPhai, setThangPhai] = useState(() => dauThang(kepNgay(value?.den ?? homNay, min, max)))
   const du = nhap.tu && nhap.den ? (nhap as KhoangNgay) : null
   const dangChon = nhap.tu && !nhap.den ? 'den' : 'tu'
   const xem = nhap.tu && !nhap.den && re && re > nhap.tu ? re : undefined
@@ -144,6 +144,9 @@ export function DateRangePanel({
           mode="range"
           autoFocus={autoFocus}
           today={ngayTuIso(homNay)}
+          // react-day-picker kẹp tháng hiển thị vào [startMonth, endMonth] (kể cả `month` điều khiển, đủ chỗ 2 tháng).
+          startMonth={min ? ngayTuIso(min) : undefined}
+          endMonth={max ? ngayTuIso(max) : undefined}
           numberOfMonths={hep ? 1 : 2}
           month={hep ? thangPhai : congThang(thangPhai, -1)}
           onMonthChange={(m) => setThangPhai(hep ? m : congThang(m, 1))}
@@ -212,7 +215,9 @@ export function DateRangePanel({
  *   `calendarPop` (≤ 640 rộng 100vw − 16). Mở: focus ngày đầu đang chọn, không có thì hôm nay.
  * - Giá trị CHỈ đổi khi Áp dụng (đóng + focus trigger). Huỷ / Esc / bấm ngoài = bỏ nháp, giữ giá trị cũ. Trong Dialog,
  *   Esc chỉ đóng bảng.
- * - `min`/`max` ('YYYY-MM-DD', tính cả 2 đầu): ngày ngoài khoảng gạch ngang, mốc nhanh ngoài khoảng tắt.
+ * - `min`/`max` ('YYYY-MM-DD', tính cả 2 đầu): ngày ngoài khoảng gạch ngang, mốc nhanh ngoài khoảng tắt,
+ *   tháng mở kẹp vào khoảng.
+ * - `required` / `aria-required` → `aria-required` trên trigger.
  */
 export function DateRangePicker({
   value,
@@ -222,6 +227,8 @@ export function DateRangePicker({
   placeholder = 'Chọn khoảng ngày',
   disabled,
   id,
+  required,
+  'aria-required': ariaRequired,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedby,
 }: {
@@ -232,6 +239,9 @@ export function DateRangePicker({
   placeholder?: string
   disabled?: boolean
   id?: string
+  /** Ô bắt buộc → `aria-required` trên trigger. */
+  required?: boolean
+  'aria-required'?: boolean
   'aria-invalid'?: boolean
   'aria-describedby'?: string
 }) {
@@ -244,6 +254,7 @@ export function DateRangePicker({
           type="button"
           id={id}
           disabled={disabled}
+          aria-required={required || ariaRequired || undefined}
           aria-invalid={ariaInvalid || undefined}
           aria-describedby={ariaDescribedby}
           data-placeholder={value ? undefined : ''}
