@@ -15,8 +15,10 @@ import {
 
 /**
  * #dialog — tái tạo ds/nguon/components/Dialog/preview.html: "Xoá đơn DH-DEMO-0001?" + ô "Lý do xoá", footer Huỷ
- * (outline, nhận focus khi mở — nút an toàn) + Xoá đơn (destructive; bấm → spinner, khoá cả hai nút, 1,2 giây sau đóng
- * như preview). Preview vẽ hộp tĩnh trong một khung 328px; DS mở thật giữa khung nhìn qua nút.
+ * (outline, `data-autofocus` → nhận focus khi mở — nút an toàn) + Xoá đơn (destructive; bấm → spinner, khoá cả hai nút,
+ * 1,2 giây sau đóng như preview). Preview vẽ hộp tĩnh trong một khung 328px; DS mở thật giữa khung nhìn qua nút.
+ * Màn thật: việc đang chạy / có thể lỗi (xoá, gọi máy chủ) → dùng ConfirmDialog (khoá theo Promise, Esc không đóng khi
+ * đang chạy, lỗi ngay trong hộp). Spinner + hẹn giờ ở đây chỉ để tái tạo preview.
  * Ô nhập: CHƯA có Input DS (lát 3) → `<label>`/`<input>` gốc mang giá trị `.ui-label` / `.ui-input` / `.ui-field` của
  * bundle.css CHỈ trong khối demo này — đừng chép sang màn thật. `data-so` = khoá so khớp (ds/so-khop/dialog.json).
  */
@@ -71,7 +73,7 @@ export function KhoiDialog() {
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button data-so="huy" variant="outline" autoFocus disabled={dangXoa}>
+                <Button data-so="huy" variant="outline" data-autofocus disabled={dangXoa}>
                   Huỷ
                 </Button>
               </DialogClose>

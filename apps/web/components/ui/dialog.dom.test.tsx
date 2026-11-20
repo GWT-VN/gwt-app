@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './dialog'
-import { footer, panel } from './dialog-styles'
+import { footer, overlay, panel } from './dialog-styles'
 
 vi.mock('next/font/google', () => ({
   Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
@@ -36,8 +36,8 @@ function Mau() {
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
-              {/* Nút an toàn nhận focus khi mở (README artifact): autoFocus — Radix FocusScope giữ phần tử đã có focus. */}
-              <Button variant="outline" autoFocus>
+              {/* Nút an toàn nhận focus khi mở (README artifact): data-autofocus (use-nut-mo.ts, qua onOpenAutoFocus). */}
+              <Button variant="outline" data-autofocus>
                 Huỷ
               </Button>
             </DialogClose>
@@ -153,4 +153,36 @@ test('footer ≤640: selector "nút rộng hết" khớp CẢ HAI nút trên DOM
   const f = hop.querySelector('[data-slot="dialog-footer"]')!
   expect(f.children).toHaveLength(2)
   expect(f.querySelectorAll(`:scope > ${sel!.replaceAll('_', ' ')}`)).toHaveLength(2)
+})
+
+test('thang z (ds/NGUON.md): overlay + khung Dialog đều z-70 — dưới tooltip 80 / menu 90', async () => {
+  expect(overlay).toMatch(/(^| )z-70( |$)/)
+  expect(panel).toMatch(/(^| )z-70( |$)/)
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(trigger())
+  const hop = await screen.findByRole('dialog')
+  expect(hop.className).toMatch(/(^| )z-70( |$)/)
+  expect(document.querySelector('[data-slot="dialog-overlay"]')!.className).toMatch(/(^| )z-70( |$)/)
+})
+
+test('data-autofocus trên nút trong hộp thắng focus mặc định (ô nhập đầu)', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Mở</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Tiêu đề</DialogTitle>
+          <input aria-label="Ô đầu" />
+          <Button data-autofocus>An toàn</Button>
+        </DialogContent>
+      </Dialog>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  await screen.findByRole('dialog')
+  await waitFor(() => expect(document.activeElement?.textContent).toBe('An toàn'))
 })

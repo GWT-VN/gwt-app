@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { Button } from './button'
 import { DsRoot } from './ds-root'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
@@ -11,7 +11,22 @@ vi.mock('next/font/google', () => ({
   Inter: (o: { variable: string }) => ({ variable: `gia-lap${o.variable}`, className: 'gia-lap-inter', style: {} }),
 }))
 
-const ngu = (ms: number) => new Promise((r) => setTimeout(r, ms))
+/**
+ * Đồng hồ giả cho test chạm ngưỡng 300ms (đồng hồ thật trên máy chậm/CI dễ lệch ngưỡng). `delay: null`: user-event không
+ * hẹn giờ giữa các thao tác. KHÔNG `shouldAdvanceTime` (đo thật: thời gian thật trôi ~40ms lúc chạy làm tooltip hiện ở
+ * "290ms") → test dùng nó không gọi waitFor/findBy. `xong()`: asyncWrapper của Testing Library chờ một setTimeout(0)
+ * sau mỗi thao tác user-event (chỉ tự đẩy dưới jest) → đẩy 0ms để thao tác kết thúc.
+ */
+function dongHoGia() {
+  vi.useFakeTimers()
+  return userEvent.setup({ delay: null })
+}
+async function xong(p: Promise<void>) {
+  await vi.advanceTimersByTimeAsync(0)
+  await p
+}
+const toi = (ms: number) => act(async () => void vi.advanceTimersByTime(ms))
+afterEach(() => vi.useRealTimers())
 
 function Mau({ expanded }: { expanded?: boolean }) {
   return (
@@ -37,12 +52,13 @@ test('Tab tới nút → tooltip hiện đúng chữ, nằm TRONG vùng [data-ds
 })
 
 test('rê chuột → hiện sau delay 300ms, không hiện ngay', async () => {
-  const user = userEvent.setup()
+  const user = dongHoGia()
   render(<Mau />)
-  await user.hover(screen.getByRole('button', { name: 'Cài đặt' }))
-  await ngu(150)
+  await xong(user.hover(screen.getByRole('button', { name: 'Cài đặt' })))
+  await toi(290)
   expect(screen.queryByRole('tooltip')).toBeNull()
-  expect((await screen.findByRole('tooltip')).textContent).toBe('Cài đặt hiển thị')
+  await toi(20)
+  expect(screen.getByRole('tooltip').textContent).toBe('Cài đặt hiển thị')
 })
 
 test('Esc đóng tooltip', async () => {
@@ -55,11 +71,11 @@ test('Esc đóng tooltip', async () => {
 })
 
 test('nút đang aria-expanded="true" (đang mở menu) → hover lẫn focus phím đều không hiện tooltip', async () => {
-  const user = userEvent.setup()
+  const user = dongHoGia()
   render(<Mau expanded />)
-  await user.tab()
-  await user.hover(screen.getByRole('button', { name: 'Cài đặt' }))
-  await ngu(450)
+  await xong(user.tab())
+  await xong(user.hover(screen.getByRole('button', { name: 'Cài đặt' })))
+  await toi(1000)
   expect(screen.queryByRole('tooltip')).toBeNull()
 })
 
@@ -68,8 +84,9 @@ test('focus phím rồi trang cuộn (Tab tới nút ngoài khung nhìn → trì
   render(<Mau />)
   await user.tab()
   await screen.findByRole('tooltip')
+  vi.useFakeTimers({ shouldAdvanceTime: true })
   fireEvent.scroll(document)
-  await ngu(50)
+  await toi(50)
   expect(screen.queryByRole('tooltip')).not.toBeNull()
   // Esc vẫn đóng được khi đang focus phím.
   await user.keyboard('{Escape}')

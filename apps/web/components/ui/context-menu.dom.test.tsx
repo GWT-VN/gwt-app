@@ -238,3 +238,14 @@ test('trigger disabled: Shift+F10 / phím Menu không preventDefault, không m�
   }
   expect(screen.queryByRole('menu')).toBeNull()
 })
+
+test('menu dài: cuộn BÊN TRONG khung menu (role=menu) → menu vẫn mở; khung có trần cao + cuộn dọc như .b-noi', async () => {
+  render(<Mau />)
+  fireEvent.contextMenu(dong())
+  const menu = await screen.findByRole('menu')
+  expect(menu.className).toContain('max-h-[min(420px,calc(100vh-16px))]')
+  expect(menu.className).toContain('overflow-y-auto')
+  fireEvent.scroll(menu)
+  await new Promise((r) => setTimeout(r, 30))
+  expect(screen.queryByRole('menu')).toBe(menu)
+})

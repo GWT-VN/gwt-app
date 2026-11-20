@@ -217,3 +217,12 @@ test('item disabled: onClick của bên gọi không chạy; asChild <a href> b�
   expect(location.hash).toBe('')
   expect(screen.queryByRole('menu')).not.toBeNull()
 })
+
+test('menu dài ở khung nhìn thấp: khung menu có trần cao min(420px, 100vh−16) + cuộn dọc (.b-noi bundle.css)', async () => {
+  const user = userEvent.setup()
+  render(<Mau />)
+  await user.click(screen.getByRole('button', { name: 'Thao tác với đơn' }))
+  const menu = await screen.findByRole('menu')
+  expect(menu.className).toContain('max-h-[min(420px,calc(100vh-16px))]')
+  expect(menu.className).toContain('overflow-y-auto')
+})

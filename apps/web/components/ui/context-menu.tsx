@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ComponentProps, type KeyboardEvent } from 'react'
+import { createContext, useContext, useEffect, useId, useState, type ComponentProps, type KeyboardEvent } from 'react'
 import { ContextMenu as ContextMenuPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { useDsPortal } from './ds-root'
@@ -17,7 +17,11 @@ import { itemDisabled, menuContent, menuItem, menuItemDestructive, menuLabel, me
  * - Không modal (khác mặc định Radix): đóng khi Esc, bấm ra ngoài, CUỘN (y artifact) — modal thì Radix khoá cuộn; chuột
  *   phải sang dòng khác mở luôn menu của dòng đó.
  * - `disabled` trên Trigger: không mở bằng gì (cả phím). `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`). Không sub-menu/checkbox/radio: artifact không có.
+ * - Dòng mang `id` (DS tự đặt nếu không truyền) và khung menu mang `data-trigger-id` trỏ về nó → mục menu mở Dialog /
+ *   ConfirmDialog thì hộp đóng xong focus về DÒNG (use-nut-mo.ts), không rơi body (mục menu đã bị gỡ).
  */
+const IdDong = createContext<string | undefined>(undefined)
+
 export function ContextMenu({
   open: openProp,
   onOpenChange,
@@ -42,7 +46,12 @@ export function ContextMenu({
     window.addEventListener('scroll', dong, { capture: true, passive: true })
     return () => window.removeEventListener('scroll', dong, { capture: true })
   }, [open, onOpenChange])
-  return <ContextMenuPrimitive.Root data-slot="context-menu" open={open} onOpenChange={doi} modal={modal} {...props} />
+  const id = useId()
+  return (
+    <IdDong.Provider value={id}>
+      <ContextMenuPrimitive.Root data-slot="context-menu" open={open} onOpenChange={doi} modal={modal} {...props} />
+    </IdDong.Provider>
+  )
 }
 
 /** Phần tử giữ menu trình duyệt: ô nhập, hoặc menu khác (vd DropdownMenu của ô trong dòng — portal vẫn nổi bọt React). */
@@ -58,8 +67,10 @@ export function ContextMenuTrigger({
   onKeyDown,
   ...props
 }: ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
+  const id = useContext(IdDong)
   return (
     <ContextMenuPrimitive.Trigger
+      id={id}
       data-slot="context-menu-trigger"
       className={cn('data-[state=open]:bg-(--alpha-05)', className)}
       onContextMenuCapture={(e) => {
@@ -117,11 +128,13 @@ export function ContextMenuContent({
   ...props
 }: ComponentProps<typeof ContextMenuPrimitive.Content>) {
   const container = useDsPortal()
+  const idDong = useContext(IdDong)
   if (!container) return null
   return (
     <ContextMenuPrimitive.Portal container={container}>
       <ContextMenuPrimitive.Content
         data-slot="context-menu-content"
+        data-trigger-id={idDong}
         side={side}
         className={cn(
           menuContent,

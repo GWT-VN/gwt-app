@@ -41,14 +41,18 @@ const list = [
  *   lần vẽ lại) tới khi Promise xong → bấm hai lần chỉ gọi một lần. Resolve → hộp tự đóng (`onOpenChange(false)`),
  *   focus về nút đã mở. Reject (hoặc ném lỗi đồng bộ) → mở khoá, hộp ở lại, Alert `loi ?? 'Không thực hiện được — thử
  *   lại.'`; lỗi đã được bắt (không thành unhandled rejection). Kiểm hợp lệ: `khoaXacNhan` hoặc throw/reject.
+ *   Mỗi lần mở là một LƯỢT mới: khoá/lỗi được xoá; Promise của lượt trước (người gọi ép `open=false` khi đang chờ rồi
+ *   mở lại cho dòng khác) xong muộn thì bị bỏ qua — không đóng, không hiện lỗi, không mở khoá hộp mới.
  *   `onXacNhan` đồng bộ (void): không khoá lâu — đóng/mở vẫn do người gọi.
  * - Khi khoá (đang chờ Promise hoặc prop `dangChay`): nút xác nhận spinner, Huỷ disabled, Esc/Huỷ không đóng, ô con
  *   (lý do…) disabled qua `<fieldset>`; nút đang focus bị disabled → focus lên khung hộp (không rơi ra body); mở khoá mà
  *   focus đang ở khung → trả về nút xác nhận.
  * - `loi`: chỉ để HIỆN (Alert danger trong thân), không điều khiển khoá; ReactNode thoải mái.
  * - `khoaXacNhan`: nút xác nhận disabled (chưa nhập đủ — vd chưa gõ đúng mã, chưa nhập lý do bắt buộc).
+ * - `color="danger"`: icon tròn nền/màu danger-soft (tên `color` như Alert/Badge — luật đặt tên prop ở ds/NGUON.md).
  * - aria-describedby: mô tả; không có mô tả thì danh sách hậu quả.
- * - Đóng xong focus về phần tử đã mở hộp (hộp điều khiển bằng `open`, không có Trigger của Radix).
+ * - Đóng xong focus về phần tử đã mở hộp — AlertDialogContent lo qua use-nut-mo.ts (mở từ mục menu → về nút/dòng đã
+ *   mở menu; mount sẵn `open` cũng đúng).
  */
 export function ConfirmDialog({
   open,
@@ -57,7 +61,7 @@ export function ConfirmDialog({
   moTa,
   hauQua,
   icon: bieuTuong,
-  mau,
+  color,
   nutXacNhan,
   nutHuy = 'Huỷ',
   pha = false,
@@ -73,7 +77,7 @@ export function ConfirmDialog({
   moTa?: ReactNode
   hauQua?: ReactNode[]
   icon?: ReactNode
-  mau?: 'danger'
+  color?: 'danger'
   nutXacNhan: string
   nutHuy?: string
   pha?: boolean
@@ -90,17 +94,22 @@ export function ConfirmDialog({
   const chan = useRef(false)
   const [cho, setCho] = useState(false) // đang chờ Promise của onXacNhan
   const [thatBai, setThatBai] = useState(false)
-  // Nút đã mở hộp: ghi ở cạnh open false→true NGAY trong render — trước khi `autoFocus` của con (lúc commit) hay
-  // FocusScope kịp dời focus. State dẫn xuất, không setState trong effect.
+  // Lượt mở: tăng mỗi lần mở; Promise mang số lượt lúc bấm, lệch lượt hiện tại = của hộp cũ → bỏ qua.
+  const luot = useRef(0)
+  // Cạnh open false→true: xoá khoá/lỗi của lượt trước NGAY trong render (state dẫn xuất, không setState trong effect).
   const [moTruoc, setMoTruoc] = useState(open)
-  const [nutMo, setNutMo] = useState<HTMLElement | null>(null)
   if (open !== moTruoc) {
     setMoTruoc(open)
     if (open) {
-      setNutMo(document.activeElement instanceof HTMLElement ? document.activeElement : null)
+      setCho(false)
       setThatBai(false)
     }
   }
+  useLayoutEffect(() => {
+    if (!open) return
+    luot.current++
+    chan.current = false
+  }, [open])
   const khoa = dangChay || cho
 
   // Khoá: nút đang focus vừa bị disabled → trình duyệt thả focus ra body (FocusScope của Radix không bắt lại) → đưa
@@ -117,7 +126,9 @@ export function ConfirmDialog({
     if (khoa || chan.current) return
     chan.current = true
     setThatBai(false)
+    const lan = luot.current
     const loiRoi = () => {
+      if (lan !== luot.current) return
       chan.current = false
       setCho(false)
       setThatBai(true)
@@ -132,6 +143,7 @@ export function ConfirmDialog({
     if (r && typeof (r as PromiseLike<unknown>).then === 'function') {
       setCho(true)
       ;(r as PromiseLike<unknown>).then(() => {
+        if (lan !== luot.current) return
         chan.current = false
         setCho(false)
         onOpenChange(false)
@@ -156,17 +168,13 @@ export function ConfirmDialog({
             dich.focus({ preventScroll: true })
           } // không → Radix focus nút Huỷ
         }}
-        onCloseAutoFocus={(e) => {
-          e.preventDefault()
-          nutMo?.focus({ preventScroll: true })
-        }}
       >
         {bieuTuong && (
           <div
             data-slot="confirm-dialog-icon"
-            data-color={mau}
+            data-color={color}
             aria-hidden="true"
-            className={cn(icon, mau === 'danger' && iconDanger)}
+            className={cn(icon, color === 'danger' && iconDanger)}
           >
             {bieuTuong}
           </div>

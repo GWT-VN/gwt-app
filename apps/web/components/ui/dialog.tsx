@@ -7,15 +7,19 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { useDsPortal } from './ds-root'
 import { body, closeBtn, desc, footer, overlay, panel, title } from './dialog-styles'
+import { useNutMo } from './use-nut-mo'
 
 /**
  * Dialog — khung shadcn (Radix Dialog), giá trị từ `.ui-overlay` / `.ui-dialog*` của ds/nguon/bundle.css qua
  * dialog-styles.ts.
  * - Overlay + hộp portal vào ô của DsRoot (`useDsPortal`); chưa có ô thì không render gì (ra document.body là mất token).
- * - Radix lo: bẫy Tab trong hộp, Esc / bấm overlay đóng, trả focus về trigger, khoá cuộn nền, aria-labelledby /
- *   aria-describedby theo DialogTitle / DialogDescription.
+ * - Radix lo: bẫy Tab trong hộp, Esc / bấm overlay đóng, khoá cuộn nền, aria-labelledby / aria-describedby theo
+ *   DialogTitle / DialogDescription.
  * - Focus khi mở: Radix focus phần tử focus được ĐẦU TIÊN (thường là ô nhập). README artifact muốn focus nút AN TOÀN
- *   (Huỷ) → đặt `autoFocus` lên nút đó (React focus nó lúc mount, FocusScope của Radix giữ nguyên).
+ *   (Huỷ) → đặt `data-autofocus` lên nút đó (use-nut-mo.ts, qua onOpenAutoFocus của Radix). `autoFocus` của React cũng
+ *   chạy nhưng Radix bỏ qua onOpenAutoFocus khi focus đã nằm trong hộp — dùng `data-autofocus` cho thống nhất.
+ * - Focus khi đóng: về phần tử đã MỞ hộp (use-nut-mo.ts) — cả khi điều khiển bằng `open` không có DialogTrigger, mở từ
+ *   mục menu (về nút/dòng đã mở menu), hay mount sẵn mở; phần tử đó đã mất thì để Radix lo (Trigger nếu có).
  * - LUÔN có `DialogTitle` (thiếu → hộp không có aria-labelledby, trình đọc màn hình không đọc được tên hộp).
  *   `DialogDescription` tuỳ chọn: Radix Dialog 1.3 (gói radix-ui 1.8) chỉ gắn aria-describedby khi có Description và
  *   không còn cảnh báo dev → KHÔNG cần `aria-describedby={undefined}` như shadcn dặn cho bản Radix cũ (đã đọc mã
@@ -46,7 +50,7 @@ export function DialogContent({
   return (
     <DialogPrimitive.Portal container={container}>
       <DialogPrimitive.Overlay data-slot="dialog-overlay" className={overlay} />
-      <DialogPrimitive.Content data-slot="dialog-content" className={cn(panel, className)} {...props}>
+      <DialogPanel data-slot="dialog-content" className={cn(panel, className)} {...props}>
         {children}
         {showClose && (
           <DialogPrimitive.Close asChild>
@@ -55,9 +59,14 @@ export function DialogContent({
             </Button>
           </DialogPrimitive.Close>
         )}
-      </DialogPrimitive.Content>
+      </DialogPanel>
     </DialogPrimitive.Portal>
   )
+}
+
+/** Con trực tiếp của Portal → chỉ mount khi mở (xem useNutMo). Không export. */
+function DialogPanel(props: ComponentProps<typeof DialogPrimitive.Content>) {
+  return <DialogPrimitive.Content {...props} {...useNutMo(props)} />
 }
 
 export function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {

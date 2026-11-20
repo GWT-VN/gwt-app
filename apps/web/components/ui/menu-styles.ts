@@ -9,9 +9,12 @@
  * `.ui-menu`: min 200, padding --menu-gutter (6), bo --radius-xl (12), nền popover, shadow + hairline, chữ 14/20.
  * z-90: menu nổi trên mọi lớp — bundle.css `.b-noi` (menu thả) và `.b-chuotphai` (menu chuột phải) đều `z-index: 90`
  * (trên tooltip 80). Radix Popper chép z-index của content lên lớp bọc `position: fixed` → z có tác dụng thật.
+ * Trần cao: `.b-noi` (bundle.css ~729) `max-height: min(420px, calc(100vh - 16px)); overflow-y: auto` — menu dài ở khung
+ * nhìn thấp cuộn bên trong thay vì tràn khỏi màn. ContextMenu chỉ đóng khi cuộn NGOÀI `[role=menu]` (context-menu.tsx).
  */
 export const menuContent = [
   'z-90 min-w-[200px] p-(--menu-gutter) rounded-(--radius-xl) border-none border-current outline-none',
+  'max-h-[min(420px,calc(100vh-16px))] overflow-y-auto',
   'bg-popover text-popover-foreground [box-shadow:var(--shadow),var(--shadow-hairline)] text-[14px] leading-[20px]',
 ].join(' ')
 

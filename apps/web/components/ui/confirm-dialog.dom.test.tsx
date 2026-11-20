@@ -226,7 +226,7 @@ test('hauQua → ul.ui-dialog-list (mục li), icon tròn aria-hidden data-color
   const { hop } = await mo({
     hauQua: ['Phiếu biến mất khỏi báo cáo.', 'Số dư quỹ tăng lại.'],
     icon: <svg data-testid="icon" />,
-    mau: 'danger',
+    color: 'danger',
   })
   const ul = hop.querySelector('[data-slot="confirm-dialog-list"]')!
   expect(ul.tagName).toBe('UL')
@@ -245,4 +245,88 @@ test('footer ≤640: selector "nút rộng hết" của dialog-styles khớp C�
   expect(sel, 'footer phải có biến thể [&>…]:w-full').toBeTruthy()
   const f = hop.querySelector('[data-slot="alert-dialog-footer"]')!
   expect(f.querySelectorAll(`:scope > ${sel!.replaceAll('_', ' ')}`)).toHaveLength(2)
+})
+
+test('Promise cũ không đụng hộp mở lại (Important 2): người gọi ép đóng khi đang chờ, mở cho dòng khác → không khoá; Promise cũ resolve/reject → hộp mới vẫn mở, không lỗi', async () => {
+  const cu = hua()
+
+  const onOpenChange = vi.fn()
+  function Hai() {
+    const [dong, setDong] = useState<string | null>(null)
+    return (
+      <DsRoot>
+        <Button onClick={() => setDong('PC-DEMO-0001')}>Xoá 1</Button>
+        <Button onClick={() => setDong('PC-DEMO-0002')}>Xoá 2</Button>
+        <Button onClick={() => setDong(null)}>Ép đóng</Button>
+        <ConfirmDialog
+          open={dong !== null}
+          onOpenChange={(o) => {
+            onOpenChange(o)
+            if (!o) setDong(null)
+          }}
+          tieuDe={`Xoá phiếu ${dong}?`}
+          nutXacNhan="Xoá phiếu"
+          onXacNhan={() => (dong === 'PC-DEMO-0001' ? cu.p : new Promise(() => {}))}
+        />
+      </DsRoot>
+    )
+  }
+  const user = userEvent.setup()
+  render(<Hai />)
+  await user.click(screen.getByRole('button', { name: 'Xoá 1' }))
+  await screen.findByRole('alertdialog')
+  await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
+  expect(screen.getByRole('button', { name: 'Xoá phiếu' }).getAttribute('aria-busy')).toBe('true')
+  // Người gọi ép đóng (vd chuyển trang con) trong lúc Promise còn chờ — overlay chặn chuột + aria-hidden nền nên bấm thẳng .click().
+  await act(async () => screen.getByText('Ép đóng').click())
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  await user.click(screen.getByRole('button', { name: 'Xoá 2' }))
+  const hop = await screen.findByRole('alertdialog')
+  expect(hop.textContent).toContain('PC-DEMO-0002')
+  const xn = screen.getByRole('button', { name: 'Xoá phiếu' })
+  expect(xn.getAttribute('aria-busy')).toBeNull()
+  expect((screen.getByRole('button', { name: 'Huỷ' }) as HTMLButtonElement).disabled).toBe(false)
+  onOpenChange.mockClear()
+  await act(async () => cu.ok())
+  expect(onOpenChange).not.toHaveBeenCalled()
+  expect(screen.getByRole('alertdialog')).toBe(hop)
+})
+
+test('Promise cũ reject sau khi mở lại → không hiện lỗi trên hộp mới', async () => {
+  const cu = hua()
+  function Hai() {
+    const [mo, setMo] = useState(false)
+    const [lan, setLan] = useState(0)
+    return (
+      <DsRoot>
+        <Button onClick={() => (setLan((l) => l + 1), setMo(true))}>Mở</Button>
+        <Button onClick={() => setMo(false)}>Ép đóng</Button>
+        <ConfirmDialog
+          open={mo}
+          onOpenChange={setMo}
+          tieuDe="Xoá phiếu?"
+          nutXacNhan="Xoá phiếu"
+          onXacNhan={() => (lan === 1 ? cu.p : undefined)}
+        />
+      </DsRoot>
+    )
+  }
+  const user = userEvent.setup()
+  render(<Hai />)
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  await screen.findByRole('alertdialog')
+  await user.click(screen.getByRole('button', { name: 'Xoá phiếu' }))
+  await act(async () => screen.getByText('Ép đóng').click())
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  await screen.findByRole('alertdialog')
+  await act(async () => cu.loi(new Error('cũ')))
+  expect(screen.queryByRole('alert')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Xoá phiếu' }).getAttribute('aria-busy')).toBeNull()
+})
+
+test('thang z (ds/NGUON.md): overlay + khung AlertDialog (nền của ConfirmDialog) đều z-70', async () => {
+  const { hop } = await mo()
+  expect(hop.className).toMatch(/(^| )z-70( |$)/)
+  expect(document.querySelector('[data-slot="alert-dialog-overlay"]')!.className).toMatch(/(^| )z-70( |$)/)
 })

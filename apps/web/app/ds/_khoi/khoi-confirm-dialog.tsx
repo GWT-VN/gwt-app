@@ -93,7 +93,7 @@ export function KhoiConfirmDialog() {
         khoaXacNhan={!lyDo.trim()}
         pha
         icon={<Trash />}
-        mau="danger"
+        color="danger"
         tieuDe="Xoá phiếu chi PC-2611-018?"
         moTa="Không hoàn tác được. Sẽ xảy ra:"
         hauQua={[
@@ -132,7 +132,7 @@ export function KhoiConfirmDialog() {
         }}
         pha
         icon={<GitMerge />}
-        mau="danger"
+        color="danger"
         tieuDe="Gộp “Nguyễn Văn An” vào khách KH-00198?"
         moTa="Ticket, máy, lịch bảo trì của KH-00231 chuyển sang KH-00198, rồi KH-00231 bị xoá. Không tách lại được."
         nutXacNhan="Gộp khách"

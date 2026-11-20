@@ -75,7 +75,24 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   hiện, vẫn focus được (↑/↓, gõ chữ đầu dừng ở nó), không kích hoạt; KHÔNG truyền `disabled` cho Radix (Radix loại khỏi
   bàn phím) mà dùng `itemDisabled()`. Lý do chặn ghi ngay trong chữ ("Chuyển kho (không có quyền)"). Nền sáng chỉ theo
   `data-highlighted` (một mục), không theo `:hover`. Menu chọn cột / tuỳ chọn nhiều: giữ menu mở khi tick
-  (`onSelect={(e) => e.preventDefault()}` trên CheckboxItem).
+  (`onSelect={(e) => e.preventDefault()}` trên CheckboxItem). Khung menu có trần cao `min(420px, 100vh − 16px)` + cuộn
+  bên trong (`.b-noi`, trong `menuContent`); ContextMenu chỉ đóng khi cuộn NGOÀI `[role=menu]`.
+- **Tên prop:** primitive (khung shadcn/Radix: `Dialog*`, `Sheet*`, `DropdownMenu*`, `Button`…) giữ tên tiếng Anh của
+  shadcn/Radix (`open`, `onOpenChange`, `variant`, `size`, `disabled`, `asChild`); component GHÉP nghiệp vụ của DS (vd
+  `ConfirmDialog`) dùng tên tiếng Việt cho phần nghiệp vụ (`tieuDe`, `hauQua`, `nutXacNhan`, `onXacNhan`…). Riêng màu
+  luôn là **`color`** (`Alert`, `Badge`, `ConfirmDialog` — không `mau`), giá trị theo tên token (`danger`…).
+- **Focus trong overlay (Dialog, Sheet, AlertDialog/ConfirmDialog):**
+  - *Focus ban đầu:* Dialog → nút AN TOÀN (Huỷ) mang `data-autofocus` (qua `onOpenAutoFocus` của Radix; `autoFocus` của
+    React làm Radix bỏ qua `onOpenAutoFocus` → không dùng). Sheet → mặc định nút ✕ (phần tử focus được đầu tiên); màn
+    cần ô lọc đầu nhận focus thì `data-autofocus` lên ô đó (hoặc `onOpenAutoFocus`). ConfirmDialog → `pha` thì nút Huỷ,
+    không `pha` thì nút xác nhận; con mang `data-autofocus` (ô gõ mã) thắng cả hai.
+  - *Trả focus khi đóng:* hook chung `components/ui/use-nut-mo.ts` (DialogContent/SheetContent/AlertDialogContent đã gắn
+    sẵn — màn KHÔNG tự viết `onCloseAutoFocus`): về phần tử đã MỞ overlay, kể cả hộp điều khiển bằng `open` không có
+    Trigger, hộp mount sẵn mở, hộp mở từ mục menu (về nút ⋯ / dòng đã mở menu — mục menu đã bị gỡ khỏi DOM). Phần tử đó
+    đã mất → để Radix lo (Trigger nếu có), không bao giờ focus node chết.
+  - *Sheet bộ lọc + form:* `<form id>` bọc THÂN (`SheetBody`), nút Áp dụng trong `SheetFooter` dùng thuộc tính
+    `form="<id>"` — không bọc cả panel bằng form (header/footer là con trực tiếp của panel flex cột). Nút ✕ nằm cuối
+    `SheetHeader` → mọi Sheet phải có `SheetHeader`.
 - **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"

@@ -5,11 +5,13 @@ import { AlertDialog as AlertDialogPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { useDsPortal } from './ds-root'
 import { body, desc, footer, overlay, panel, title } from './dialog-styles'
+import { useNutMo } from './use-nut-mo'
 
 /**
  * AlertDialog — khung shadcn (Radix AlertDialog), cùng kiểu với Dialog qua dialog-styles.ts. Khác Dialog:
  * - role="alertdialog"; bấm overlay KHÔNG đóng (Radix chặn); không nút ✕ — chỉ đóng bằng Huỷ / Esc / hành động.
- * - Mở: Radix focus `AlertDialogCancel` (nút an toàn). Muốn khác → `onOpenAutoFocus` (ConfirmDialog làm việc này).
+ * - Mở: Radix focus `AlertDialogCancel` (nút an toàn). Muốn khác → `data-autofocus` trên phần tử con, hoặc
+ *   `onOpenAutoFocus` (ConfirmDialog làm việc này). Đóng: focus về phần tử đã mở hộp (use-nut-mo.ts, như Dialog).
  * - Portal vào ô của DsRoot (`useDsPortal`); chưa có ô thì không render.
  * - `AlertDialogAction` ĐÓNG hộp ngay khi bấm (Radix Close) — việc chạy bất đồng bộ dùng nút thường + ConfirmDialog.
  * - Luôn có `AlertDialogTitle` (thiếu → hộp không có tên đọc được). Mô tả tuỳ chọn: Radix 1.3 chỉ gắn aria-describedby
@@ -30,9 +32,14 @@ export function AlertDialogContent({ className, ...props }: ComponentProps<typeo
   return (
     <AlertDialogPrimitive.Portal container={container}>
       <AlertDialogPrimitive.Overlay data-slot="alert-dialog-overlay" className={overlay} />
-      <AlertDialogPrimitive.Content data-slot="alert-dialog-content" className={cn(panel, className)} {...props} />
+      <AlertDialogPanel data-slot="alert-dialog-content" className={cn(panel, className)} {...props} />
     </AlertDialogPrimitive.Portal>
   )
+}
+
+/** Con trực tiếp của Portal → chỉ mount khi mở (xem useNutMo). Không export. */
+function AlertDialogPanel(props: ComponentProps<typeof AlertDialogPrimitive.Content>) {
+  return <AlertDialogPrimitive.Content {...props} {...useNutMo(props)} />
 }
 
 export function AlertDialogTitle({ className, ...props }: ComponentProps<typeof AlertDialogPrimitive.Title>) {
