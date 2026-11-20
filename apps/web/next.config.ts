@@ -15,7 +15,9 @@ const nextConfig: NextConfig = {
   // Vẫn cần mở bằng 127.0.0.1: cookie không phân biệt CỔNG, nên một cookie hỏng ở
   // `localhost` khoá chết mọi dev server của mọi phiên (xem lỗi 25, backlog nền tảng);
   // `127.0.0.1` là host khác nên thoát được mà không phải xoá cookie của phiên khác.
-  allowedDevOrigins: ['127.0.0.1'],
+  // 100.93.1.35 = máy này trên Tailscale: CEO xem dev từ máy khác qua địa chỉ đó; thiếu nó thì trang hiện nhưng
+  // không hydrate (menu/tab/hộp thoại chết) — đo 20/11/2026.
+  allowedDevOrigins: ['127.0.0.1', '100.93.1.35'],
 
   // Khu Marketing dọn vào khu Wiki (28/08/2026). Giữ đường cũ sống vĩnh viễn: link
   // /marketing đã nằm trong chat, tài liệu và dấu trang của nhân viên từ hôm 28/08.
