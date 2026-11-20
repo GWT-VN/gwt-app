@@ -163,7 +163,7 @@
   - `components/ui/input-affix.dom.test.tsx`
   - `lib/dinh-dang-so.ts` + `lib/dinh-dang-so.test.ts`
   - `app/ds/_khoi/khoi-input-affix.tsx`
-  - `ds/so-khop/input-affix.json`
+  - `ds/so-khop/inputaffix.json`
 
 **Interfaces — Consumes:** `controlOutlineWithin` (Task 2).
 
@@ -393,7 +393,7 @@ Combobox(props: {
   - `components/ui/calendar.tsx`, `components/ui/date-picker.tsx`
   - `components/ui/date-picker.dom.test.tsx`
   - `app/ds/_khoi/khoi-date-picker.tsx`
-  - `ds/so-khop/date-picker.json`
+  - `ds/so-khop/datepicker.json`
 - Modify:
   - `bang/ngay.ts` (+ test) thêm `ngayTuIso(iso: string): Date` (giờ máy, `new Date(y, m-1, d)`) và `hienNgay(iso: string): string` (`dd/MM/yyyy`);
 
@@ -455,7 +455,7 @@ DatePicker(props: {
 - Create:
   - `components/ui/file-upload.tsx`, `components/ui/file-upload.dom.test.tsx`
   - `app/ds/_khoi/khoi-file-upload.tsx`
-  - `ds/so-khop/file-upload.json`
+  - `ds/so-khop/fileupload.json`
 
 **Interfaces — Consumes:** `Button`, `Tooltip` (lát 1–2), `FieldDescription` (Task 2).
 
@@ -516,7 +516,7 @@ FileDrop(props: {
 - Create:
   - `components/ui/date-range-picker.tsx`, `components/ui/date-range-picker.dom.test.tsx`
   - `app/ds/_khoi/khoi-date-range-picker.tsx`
-  - `ds/so-khop/date-range-picker.json`
+  - `ds/so-khop/daterangepicker.json`
 
 **Interfaces — Consumes:**
 - `Calendar`, `ngayTuIso`, `hienNgay` (Task 8);
@@ -570,7 +570,7 @@ DateRangePicker(props: {
 - Create:
   - `components/ui/form-layout.tsx`, `components/ui/form-layout.dom.test.tsx`
   - `app/ds/_khoi/khoi-form-layout.tsx`
-  - `ds/so-khop/form-layout.json`
+  - `ds/so-khop/formlayout.json`
 
 **Interfaces — Consumes:** mọi component Task 2–10; `Alert` (lát 2); `Button` `loading`.
 
