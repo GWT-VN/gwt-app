@@ -1,0 +1,513 @@
+{
+  "khung": {
+    "artifact": [
+      "body > .ds-muc"
+    ],
+    "ds": [
+      "#list-view > div"
+    ]
+  },
+  "chuaDo": [
+    "Menu tiêu đề gộp \"Ticket\" (Sắp xếp ưu tiên / thứ tự tạo + Lọc ưu tiên, loại lỗi — không mục sắp theo loại lỗi), menu Hạn / Chủ, menu ô InlineEdit, ContextMenu dòng (chuột phải / Shift+F10): preview không vẽ overlay nào → hành vi đo bằng test jsdom components/ui/list-view.dom.test.tsx; vị trí/che khuất đo bằng elementFromPoint trên ảnh tự kiểm /ds#list-view (menu đo số ở cổng DropdownMenu / ContextMenu / InlineEdit)",
+    "Nhóm theo (tiêu đề nhóm = nhãn + số lượng) và dòng đang xem (`dangMo`, nền alpha-06): preview không có — test jsdom + ảnh /ds#list-view",
+    "Enter mở, bấm ô không mở, bấm chỗ trống / mã mở: test jsdom (cổng không đo hành vi)",
+    "Mốc container: Tailwind `@max-[860px]` = width < 860 (nguồn max-width: 860 = ≤ 860) — lệch đúng 1px ở 860; preview đo ở 1100 / 640 / 375 nên không lộ",
+    "Vạch kẻ ẩn khi DÒNG KẾ đang rê (`:has(+ dòng:hover)`): cổng chỉ rê chính dòng — kiểm bằng mắt ở /ds#list-view",
+    "Focus phím trong ô sửa (vòng ring của InlineEdit) đo ở cổng InlineEdit; ở đây chỉ đo focus chính dòng (`dong-focus`)"
+  ],
+  "khoa": [
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-muc:nth-child(1) > .ds-nhan",
+      "ds": "#list-view [data-so=\"rong\"] > p"
+    },
+    {
+      "khoa": "bang",
+      "artifact": ".ds-muc:nth-child(1) .b-ds",
+      "ds": "#list-view [data-so=\"rong\"] [role=\"table\"]"
+    },
+    {
+      "khoa": "dau",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"]"
+    },
+    {
+      "khoa": "th-gop",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau > [role=\"columnheader\"]:nth-child(1)",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"] > :nth-child(1) > [role=\"columnheader\"]",
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        }
+      ],
+      "lyDo": {
+        "nut.width": "Preview vẽ cả mũi menu (caret ẩn 12 + khoảng 4) khi cột đang sắp. DS theo `TieuDeCot` (Table): chỉ vẽ mũi menu khi CHƯA có dấu sắp/lọc — dấu đó đã báo cột có menu → nút hẹp hơn 16px (đo 176 → 160.5)."
+      }
+    },
+    {
+      "khoa": "th-viec",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau > [role=\"columnheader\"]:nth-child(2)",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"] > [data-cot=\"viec\"]"
+    },
+    {
+      "khoa": "th-tt",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau > [role=\"columnheader\"]:nth-child(3)",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"] > [data-cot=\"tt\"]"
+    },
+    {
+      "khoa": "th-han",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau > [role=\"columnheader\"]:nth-child(4)",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"] > :nth-child(4) > [role=\"columnheader\"]",
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        }
+      ]
+    },
+    {
+      "khoa": "th-chu",
+      "artifact": ".ds-muc:nth-child(1) .b-ds-dau > [role=\"columnheader\"]:nth-child(5)",
+      "ds": "#list-view [data-so=\"rong\"] [data-slot=\"list-view-header\"] > :nth-child(5) > [role=\"columnheader\"]"
+    },
+    {
+      "khoa": "dong",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"]"
+    },
+    {
+      "khoa": "dong-ke",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"]",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      }
+    },
+    {
+      "khoa": "o-ticket",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] > .b-ticket",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"ticket\"]"
+    },
+    {
+      "khoa": "nhan-dau",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-nhan-dau",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"]"
+    },
+    {
+      "khoa": "uu",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :first-child .ui-badge",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :first-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "loi",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :last-child .ui-badge",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :last-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "ma",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-mo-ticket",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-ma\"]",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-ma",
+          "ds": "span"
+        }
+      ]
+    },
+    {
+      "khoa": "khach",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-ticket > .b-osua-wrap > .b-osua",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"ticket\"] > [data-slot=\"inline-edit\"] > button"
+    },
+    {
+      "khoa": "o-viec",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] > .b-viec-o",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"viec\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "viec",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-viec-o .b-osua",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"viec\"] button"
+    },
+    {
+      "khoa": "o-tt",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] > .b-ds-tt",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"tt\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "tt",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-ds-tt .ui-badge",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"tt\"] [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "o-han",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] > .b-phai",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"han\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "han",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-phai > .b-osua",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"han\"] button",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-han",
+          "ds": "[data-so=\"han-chu\"]"
+        }
+      ],
+      "lyDo": {
+        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
+      }
+    },
+    {
+      "khoa": "o-chu",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] > .b-ds-chu",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"chu\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "chu",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"] .b-ds-chu .ui-avatar",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"chu\"] [data-slot=\"avatar\"]"
+    },
+    {
+      "khoa": "dau-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"]"
+    },
+    {
+      "khoa": "th-gop-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau > [role=\"columnheader\"]:nth-child(1)",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"] > :nth-child(1) > [role=\"columnheader\"]",
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        }
+      ],
+      "lyDo": {
+        "nut.width": "Preview vẽ cả mũi menu (caret ẩn 12 + khoảng 4) khi cột đang sắp. DS theo `TieuDeCot` (Table): chỉ vẽ mũi menu khi CHƯA có dấu sắp/lọc — dấu đó đã báo cột có menu → nút hẹp hơn 16px (đo 176 → 160.5).",
+        "width": "Preview ≤ 860 giữ rãnh 40 của cột Chủ đã ẩn (`grid-template-columns: minmax(0,1fr) 140px 88px 40px`) → 52px trống cuối dòng. DS bỏ rãnh của cột ẩn (`--lv-cot-hep`) → ô Ticket rộng thêm 52 cho tên khách (README: \"ẩn … để tên khách đủ chỗ\")."
+      }
+    },
+    {
+      "khoa": "th-viec-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau > [role=\"columnheader\"]:nth-child(2)",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"] > [data-cot=\"viec\"]"
+    },
+    {
+      "khoa": "th-tt-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau > [role=\"columnheader\"]:nth-child(3)",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"] > [data-cot=\"tt\"]"
+    },
+    {
+      "khoa": "th-han-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau > [role=\"columnheader\"]:nth-child(4)",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"] > :nth-child(4) > [role=\"columnheader\"]",
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        }
+      ]
+    },
+    {
+      "khoa": "th-chu-hep",
+      "artifact": ".ds-muc:nth-child(2) .b-ds-dau > [role=\"columnheader\"]:nth-child(5)",
+      "ds": "#list-view [data-so=\"hep\"] [data-slot=\"list-view-header\"] > :nth-child(5) > [role=\"columnheader\"]"
+    },
+    {
+      "khoa": "dong-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"]"
+    },
+    {
+      "khoa": "dong-ke-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"]",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      }
+    },
+    {
+      "khoa": "o-ticket-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] > .b-ticket",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"ticket\"]",
+      "lyDo": {
+        "width": "Preview ≤ 860 giữ rãnh 40 của cột Chủ đã ẩn (`grid-template-columns: minmax(0,1fr) 140px 88px 40px`) → 52px trống cuối dòng. DS bỏ rãnh của cột ẩn (`--lv-cot-hep`) → ô Ticket rộng thêm 52 cho tên khách (README: \"ẩn … để tên khách đủ chỗ\")."
+      }
+    },
+    {
+      "khoa": "nhan-dau-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-nhan-dau",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"]",
+      "lyDo": {
+        "width": "Preview ≤ 860 ẩn chính Badge loại lỗi nhưng giữ vỏ `.b-osua-wrap` rỗng → khung nhãn còn khoảng 6 thừa (66 = 60 + 6). DS ẩn cả vỏ (`NhanDau`: chỉ giữ nhãn đầu) → 60."
+      }
+    },
+    {
+      "khoa": "uu-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :first-child .ui-badge",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :first-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "loi-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :last-child .ui-badge",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :last-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "ma-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-mo-ticket",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-ma\"]",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-ma",
+          "ds": "span"
+        }
+      ]
+    },
+    {
+      "khoa": "khach-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-ticket > .b-osua-wrap > .b-osua",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"ticket\"] > [data-slot=\"inline-edit\"] > button"
+    },
+    {
+      "khoa": "o-viec-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] > .b-viec-o",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"viec\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "viec-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-viec-o .b-osua",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"viec\"] button"
+    },
+    {
+      "khoa": "o-tt-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] > .b-ds-tt",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"tt\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "tt-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-ds-tt .ui-badge",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"tt\"] [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "o-han-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] > .b-phai",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"han\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "han-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-phai > .b-osua",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"han\"] button",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-han",
+          "ds": "[data-so=\"han-chu\"]"
+        }
+      ],
+      "lyDo": {
+        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
+      }
+    },
+    {
+      "khoa": "o-chu-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] > .b-ds-chu",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"chu\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "chu-hep",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-045\"] .b-ds-chu .ui-avatar",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"chu\"] [data-slot=\"avatar\"]"
+    },
+    {
+      "khoa": "dau-dt",
+      "artifact": ".ds-muc:nth-child(3) .b-ds-dau",
+      "ds": "#list-view [data-so=\"dt\"] [data-slot=\"list-view-header\"]"
+    },
+    {
+      "khoa": "dong-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"]"
+    },
+    {
+      "khoa": "dong-ke-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"]",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      }
+    },
+    {
+      "khoa": "o-ticket-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] > .b-ticket",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"ticket\"]"
+    },
+    {
+      "khoa": "nhan-dau-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-nhan-dau",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"]",
+      "lyDo": {
+        "width": "Preview ≤ 860 ẩn chính Badge loại lỗi nhưng giữ vỏ `.b-osua-wrap` rỗng → khung nhãn còn khoảng 6 thừa (66 = 60 + 6). DS ẩn cả vỏ (`NhanDau`: chỉ giữ nhãn đầu) → 60."
+      }
+    },
+    {
+      "khoa": "uu-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :first-child .ui-badge",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :first-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "loi-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-nhan-dau > :last-child .ui-badge",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-nhan\"] > :last-child [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "ma-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-mo-ticket",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-slot=\"list-view-ma\"]",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-ma",
+          "ds": "span"
+        }
+      ]
+    },
+    {
+      "khoa": "khach-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-ticket > .b-osua-wrap > .b-osua",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"ticket\"] > [data-slot=\"inline-edit\"] > button"
+    },
+    {
+      "khoa": "o-viec-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] > .b-viec-o",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"viec\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "viec-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-viec-o .b-osua",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"viec\"] button"
+    },
+    {
+      "khoa": "o-tt-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] > .b-ds-tt",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"tt\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "tt-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-ds-tt .ui-badge",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"tt\"] [data-slot=\"badge\"]"
+    },
+    {
+      "khoa": "o-han-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] > .b-phai",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"han\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "han-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-phai > .b-osua",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"han\"] button",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": ".b-han",
+          "ds": "[data-so=\"han-chu\"]"
+        }
+      ],
+      "lyDo": {
+        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
+      }
+    },
+    {
+      "khoa": "o-chu-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] > .b-ds-chu",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] > [data-cot=\"chu\"]",
+      "lyDo": {
+        "gap": "Ô DS chung một lớp `gap: 10px` (`.b-ticket`, ô nhiều con); ô này chỉ có MỘT con (ô sửa) → khoảng cách không vẽ ra. Preview mỗi ô một lớp riêng (`.b-viec-o`/`.b-ds-tt`/`.b-phai` normal, `.b-ds-chu` 6)."
+      }
+    },
+    {
+      "khoa": "chu-dt",
+      "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-ds-chu .ui-avatar",
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"chu\"] [data-slot=\"avatar\"]"
+    },
+    {
+      "khoa": "dong-hover",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-042\"]",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-042\"]",
+      "trangThai": [
+        "hover"
+      ],
+      "lyDo": {
+        "backgroundColor": "Preview gắn sẵn `.is-hover` lên dòng 2 → trạng thái \"thường\" của preview là đang rê (nền alpha-05). DS trạng thái thường không nền; khi rê thật (`hover.*`) khớp."
+      }
+    },
+    {
+      "khoa": "dong-hover-ke",
+      "artifact": ".ds-muc:nth-child(2) [data-ma=\"TK-2611-042\"]",
+      "ds": "#list-view [data-so=\"hep\"] [data-khoa=\"TK-2611-042\"]",
+      "trangThai": [
+        "hover"
+      ],
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "lyDo": {
+        "hover.opacity": "Preview chỉ gắn class `.is-hover` (tĩnh) — rule ẩn vạch kẻ `.b-ds-hang:is(:hover, :focus-within)::after { opacity: 0 }` của chính bundle.css KHÔNG chạy với class. DS rê THẬT → rule đó chạy (vạch kẻ ẩn, không nền lồng vạch) = đúng hành vi nguồn."
+      }
+    },
+    {
+      "khoa": "dong-focus",
+      "artifact": ".ds-muc:nth-child(1) [data-ma=\"TK-2611-045\"]",
+      "ds": "#list-view [data-so=\"rong\"] [data-khoa=\"TK-2611-045\"]",
+      "trangThai": [
+        "focus"
+      ],
+      "artifactThat": true
+    }
+  ]
+}
