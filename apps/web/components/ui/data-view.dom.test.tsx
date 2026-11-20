@@ -3,8 +3,18 @@ import { useState } from 'react'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => '/ds',
+  useSearchParams: () => new URLSearchParams(),
+}))
+
+import { CauHinhBangDs } from './bang-ds'
+import { KhungChon, OChonDong, ThanhDaChon } from '@/bang'
 import { buttonVariants } from './button-variants'
-import { CaiDatHienThi, DataViewToolbar, type CotCaiDat } from './data-view-toolbar'
+import { CaiDatHienThi, DataViewToolbar } from './data-view-toolbar'
+import type { CotBang } from './use-cot-bang'
 import type { DangXem } from './data-view-styles'
 import { DsRoot } from './ds-root'
 import { SavedView } from './saved-view'
@@ -15,12 +25,12 @@ import { XemNhanh } from './xem-nhanh'
 
 afterEach(() => vi.restoreAllMocks())
 
-const COT: CotCaiDat[] = [
-  { id: 'uu', ten: 'Ưu tiên', kieu: 'sap' },
-  { id: 'loai', ten: 'Loại lỗi', kieu: 'loc' },
-  { id: 'ma', ten: 'Mã', khoa: true, kieu: 'sap' },
-  { id: 'khach', ten: 'Khách' },
-  { id: 'han', ten: 'Hạn', kieu: 'sap' },
+const COT: CotBang[] = [
+  { id: 'uu', ten: 'Ưu tiên', kieu: 'sap', rong: 88, nghia: { tang: 'Thấp lên cao', giam: 'Cao xuống thấp' } },
+  { id: 'loai', ten: 'Loại lỗi', kieu: 'loc', rong: 120 },
+  { id: 'ma', ten: 'Mã', khoa: true, kieu: 'sap', rong: 96, nghia: { tang: 'Cũ trước', giam: 'Mới trước' } },
+  { id: 'khach', ten: 'Khách', kieu: 'thuong', rong: 200 },
+  { id: 'han', ten: 'Hạn', kieu: 'sap', rong: 100, nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
 ]
 
 /** Màn demo: dạng xem + xem nhanh + cột ẩn giữ ở state cha; tab tự giữ (uncontrolled) — đổi dạng xem không được đụng. */
@@ -136,20 +146,23 @@ test('⚙ Cột hiển thị: tick bỏ ẩn/hiện cột, cột khoá (Mã) t�
   expect(onCotAn).toHaveBeenLastCalledWith(['khach', 'han'])
 })
 
-test('⚙ Sắp xếp chỉ liệt kê cột kieu "sap"; bấm cột đang sắp → đảo chiều', async () => {
+test('⚙ Sắp xếp: chỉ cột kieu "sap", mỗi cột hai lựa chọn nói NGHĨA bằng lời (không "tăng dần/giảm dần")', async () => {
   const user = userEvent.setup()
   const onSapXep = vi.fn()
   render(<Man onSapXep={onSapXep} />)
   await user.click(screen.getByRole('button', { name: 'Cài đặt hiển thị' }))
   const pop = await screen.findByRole('dialog', { name: 'Cài đặt hiển thị' })
   await user.click(within(pop).getByRole('button', { name: /Sắp xếp/ }))
-  const ten = within(pop)
-    .getAllByRole('button')
-    .filter((b) => b.hasAttribute('aria-pressed'))
-    .map((b) => b.textContent)
-  expect(ten).toEqual(['Ưu tiên tăng dần', 'Mã', 'Hạn'])
-  await user.click(within(pop).getByRole('button', { name: /Ưu tiên/ }))
-  expect(onSapXep).toHaveBeenCalledWith({ cot: 'uu', tang: false })
+  const nhom = within(pop).getAllByRole('group')
+  expect(nhom.map((g) => g.getAttribute('aria-label'))).toEqual(['Ưu tiên', 'Mã', 'Hạn'])
+  const uu = within(nhom[0])
+  expect(uu.getByRole('button', { name: 'Thấp lên cao' }).getAttribute('aria-pressed')).toBe('true')
+  expect(uu.getByRole('button', { name: 'Cao xuống thấp' }).getAttribute('aria-pressed')).toBe('false')
+  expect(pop.textContent).not.toMatch(/tăng dần|giảm dần/i)
+  await user.click(uu.getByRole('button', { name: 'Cao xuống thấp' }))
+  expect(onSapXep).toHaveBeenLastCalledWith({ cot: 'uu', tang: false })
+  await user.click(within(nhom[2]).getByRole('button', { name: 'Gần hạn nhất trước' }))
+  expect(onSapXep).toHaveBeenLastCalledWith({ cot: 'han', tang: true })
 })
 
 test('⚙ Bố cục: chọn dạng → đổi dạng xem, về trang gốc', async () => {
@@ -284,4 +297,39 @@ test('XemNhanh: không có thẻ → không render khung, không nghe phím', as
   expect(screen.queryByRole('complementary')).toBeNull()
   await user.keyboard('{ArrowDown}')
   expect(onSau).not.toHaveBeenCalled()
+})
+
+function NhanhTrongBang() {
+  const [the, setThe] = useState<{ ma: string } | null>({ ma: 'T-1' })
+  return (
+    <DsRoot>
+      <CauHinhBangDs>
+        <KhungChon khoaTrang={['T-1', 'T-2']} tong={2} bat thamSo={{}} layTatCaKhoa={async () => ['T-1', 'T-2']}>
+          <ThanhDaChon nhan="ticket" />
+          <XemNhanh the={the} onDong={() => setThe(null)}>
+            <table>
+              <tbody>
+                <tr>
+                  <OChonDong khoa="T-1" />
+                </tr>
+              </tbody>
+            </table>
+          </XemNhanh>
+        </KhungChon>
+      </CauHinhBangDs>
+    </DsRoot>
+  )
+}
+
+test('XemNhanh trong bảng có chọn dòng (escBoChon): Esc chỉ đóng thẻ, lựa chọn còn; Esc lần nữa mới bỏ chọn', async () => {
+  const user = userEvent.setup()
+  render(<NhanhTrongBang />)
+  await user.click(screen.getByRole('checkbox', { name: 'Chọn T-1' }))
+  const thanh = () => screen.queryByRole('toolbar', { name: 'Thao tác hàng loạt' })
+  expect(thanh()).not.toBeNull()
+  await user.keyboard('{Escape}')
+  expect(screen.queryByRole('complementary')).toBeNull()
+  expect(thanh()).not.toBeNull()
+  await user.keyboard('{Escape}')
+  expect(thanh()).toBeNull()
 })

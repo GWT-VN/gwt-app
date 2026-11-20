@@ -4,7 +4,8 @@ import { Suspense, useState } from 'react'
 import { BoLocChon, OTimKiem } from '@/bang'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { Button } from '@/components/ui/button'
-import { CaiDatHienThi, CongCuXem, DataViewToolbar, type CotCaiDat } from '@/components/ui/data-view-toolbar'
+import { CaiDatHienThi, CongCuXem, DataViewToolbar } from '@/components/ui/data-view-toolbar'
+import type { CotBang } from '@/components/ui/use-cot-bang'
 import type { DangXem } from '@/components/ui/data-view-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { thongBao } from '@/components/ui/toast'
@@ -24,19 +25,19 @@ const TAB = [
   { v: 'dong', ten: 'Đã đóng', so: 3 },
   { v: 'tat-ca', ten: 'Tất cả', so: 22 },
 ]
-const COT: CotCaiDat[] = [
-  { id: 'uu', ten: 'Ưu tiên', kieu: 'sap' },
-  { id: 'loai', ten: 'Loại lỗi', kieu: 'loc' },
-  { id: 'ma', ten: 'Mã', kieu: 'sap', khoa: true },
-  { id: 'khach', ten: 'Khách' },
-  { id: 'may', ten: 'Máy · serial' },
-  { id: 'tt', ten: 'Trạng thái', kieu: 'loc' },
-  { id: 'viec', ten: 'Việc tiếp theo' },
-  { id: 'lam', ten: 'Người làm' },
-  { id: 'han', ten: 'Hạn', kieu: 'sap' },
-  { id: 'chu', ten: 'Chủ', kieu: 'loc' },
-  { id: 'mo', ten: 'Mở', kieu: 'sap' },
-  { id: 'nguon', ten: 'Nguồn' },
+const COT: CotBang[] = [
+  { id: 'uu', ten: 'Ưu tiên', kieu: 'sap', rong: 88, nghia: { tang: 'Gấp nhất trước', giam: 'Ít gấp nhất trước' } },
+  { id: 'loai', ten: 'Loại lỗi', kieu: 'loc', rong: 140 },
+  { id: 'ma', ten: 'Mã', kieu: 'sap', rong: 96, khoa: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới nhất trước' } },
+  { id: 'khach', ten: 'Khách', kieu: 'loc', rong: 200 },
+  { id: 'may', ten: 'Máy · serial', kieu: 'thuong', rong: 160 },
+  { id: 'tt', ten: 'Trạng thái', kieu: 'loc', rong: 120 },
+  { id: 'viec', ten: 'Việc tiếp theo', kieu: 'thuong', rong: 200 },
+  { id: 'lam', ten: 'Người làm', kieu: 'loc', rong: 120 },
+  { id: 'han', ten: 'Hạn', kieu: 'sap', rong: 100, nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
+  { id: 'chu', ten: 'Chủ', kieu: 'loc', rong: 120 },
+  { id: 'mo', ten: 'Mở', kieu: 'sap', rong: 72, nghia: { tang: 'Mở ít ngày nhất trước', giam: 'Mở lâu nhất trước' } },
+  { id: 'nguon', ten: 'Nguồn', kieu: 'loc', rong: 100 },
 ]
 const AN = ['may', 'lam', 'mo', 'nguon']
 const NHOM = [
@@ -215,7 +216,7 @@ export function KhoiDataViewToolbarHang() {
       </BienThe>
       <BienThe
         ten="Cài đặt hiển thị"
-        moTa="Bấm nút bánh răng: Bố cục, Cột hiển thị, Lọc, Sắp xếp, Nhóm theo — mỗi dòng mở trang con có nút ← quay lại. Sắp xếp chỉ có cột có thứ tự. Điện thoại: hiện như tấm đáy."
+        moTa="Bấm nút bánh răng: Bố cục, Cột hiển thị, Lọc, Sắp xếp, Nhóm theo — mỗi dòng mở trang con có nút ← quay lại. Sắp xếp chỉ có cột có thứ tự, mỗi lựa chọn nói nghĩa bằng lời. Điện thoại: hiện như tấm đáy."
       >
         <CongCu />
       </BienThe>

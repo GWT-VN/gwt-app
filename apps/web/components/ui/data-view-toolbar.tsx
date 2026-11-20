@@ -2,9 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import {
-  ArrowDown,
   ArrowLeft,
-  ArrowUp,
   CaretRight,
   Check,
   Export,
@@ -55,6 +53,7 @@ import { menuLabel, menuSeparator } from './menu-styles'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
 import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
 import { Tooltip } from './tooltip'
+import type { CotBang } from './use-cot-bang'
 
 export { DANG_XEM, type DangXem }
 
@@ -174,8 +173,6 @@ export function DataViewToolbar({
 
 // ======================= ⚙ Cài đặt hiển thị =======================
 
-/** Cột cho ⚙ — cùng hình với cột của Table (`kieu: 'sap' | 'loc'` của menu tiêu đề cột). `khoa`: luôn hiện (cột Mã). */
-export type CotCaiDat = { id: string; ten: string; kieu?: 'sap' | 'loc'; khoa?: boolean }
 type Trang = '' | 'bocuc' | 'cot' | 'loc' | 'sap' | 'nhom'
 
 const NHO = '(max-width: 767px)' // `@media (max-width: 767px)` của nguồn: ⚙ thành sheet đáy
@@ -229,7 +226,7 @@ function MucChon({ chon, onClick, children, dau }: { chon: boolean; onClick: () 
  *   hiện tại + ›; dưới: Sao chép link view · Lưu view của tôi · Lưu view chung · Xuất Excel. Mục không có hàm thì ẩn.
  * - Trang con có ← "Quay lại": vào trang con → focus ←; ← → về gốc, focus về đúng mục đã mở. State trang nằm trong
  *   Popover (không lồng DropdownMenu sâu). Đóng (Esc / ✕ / bấm ngoài / chọn hành động) → về gốc, focus về ⚙ (Radix).
- * - "Sắp xếp" chỉ liệt kê cột `kieu: 'sap'`; bấm cột đang sắp → đảo chiều.
+ * - "Sắp xếp" chỉ liệt kê cột `kieu: 'sap'`, mỗi cột hai lựa chọn nói nghĩa bằng lời (`nghia.tang` / `nghia.giam`).
  * - ≤ 767 khung nhìn: sheet đáy cách mép 8, trần 70vh, z 60.
  * - Không phải `role="menu"`: Popover = hộp thoại không modal (Tab đi qua từng mục), mục chọn một là nút `aria-pressed`.
  */
@@ -250,7 +247,8 @@ export function CaiDatHienThi({
 }: {
   dangXem: DangXem
   onDoiXem: (v: DangXem) => void
-  cot?: CotCaiDat[]
+  /** Cột của Table (`CotBang`, use-cot-bang.ts): `khoa` luôn hiện; `kieu: 'sap'` vào trang Sắp xếp với `nghia`. */
+  cot?: CotBang[]
   /** id cột đang ẩn. */
   cotAn?: string[]
   onCotAn?: (an: string[]) => void
@@ -303,7 +301,7 @@ export function CaiDatHienThi({
   }
 
   const hien = cot.filter((c) => !cotAn.includes(c.id))
-  const cotSap = cot.filter((c) => c.kieu === 'sap')
+  const cotSap = cot.filter((c): c is Extract<CotBang, { kieu: 'sap' }> => c.kieu === 'sap')
   const tenXem = DANG_XEM.find((x) => x.id === dangXem)?.ten
   const IXem = ICON_XEM[dangXem]
 
@@ -435,28 +433,24 @@ export function CaiDatHienThi({
         {trang === 'sap' && (
           <>
             {dau('Sắp xếp')}
-            <div className={menuLabel}>Chỉ cột có thứ tự hoặc số lượng</div>
-            {cotSap.map((c) => {
-              const on = sapXep?.cot === c.id
-              const M = sapXep?.tang ? ArrowUp : ArrowDown
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  aria-pressed={on}
-                  className={cdMuc}
-                  onClick={() => onSapXep?.({ cot: c.id, tang: on ? !sapXep?.tang : true })}
-                >
+            {/* Như menu TieuDeCot: mỗi cột có thứ tự hai lựa chọn nói NGHĨA (`nghia.tang` / `nghia.giam`) — spec §5.3, không
+                ghi "Tăng dần/Giảm dần". Tên cột là nhãn nhóm. */}
+            {cotSap.map((c) => (
+              <div key={c.id} role="group" aria-label={c.ten} className="border-none border-current">
+                <div aria-hidden="true" className={menuLabel}>
                   {c.ten}
-                  {on && (
-                    <>
-                      <span className="sr-only"> {sapXep?.tang ? 'tăng dần' : 'giảm dần'}</span>
-                      <M aria-hidden="true" className={cdTick} />
-                    </>
-                  )}
-                </button>
-              )
-            })}
+                </div>
+                {(['tang', 'giam'] as const).map((ch) => (
+                  <MucChon
+                    key={ch}
+                    chon={sapXep?.cot === c.id && sapXep.tang === (ch === 'tang')}
+                    onClick={() => onSapXep?.({ cot: c.id, tang: ch === 'tang' })}
+                  >
+                    {c.nghia[ch]}
+                  </MucChon>
+                ))}
+              </div>
+            ))}
           </>
         )}
         {trang === 'nhom' && nhom && (

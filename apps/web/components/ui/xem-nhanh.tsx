@@ -6,8 +6,15 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { xnDau, xnKhung, xnMa, xnNoiDungNhuong, xnThan, xnThe } from './data-view-styles'
 
-/** Phím thuộc ô gõ / menu / hộp đang mở — không lật bản ghi (prototype: input, textarea, [role=menu]). */
-const BO_QUA = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="listbox"], [role="dialog"]'
+/**
+ * Phím thuộc ô gõ / menu / hộp đang mở — không lật bản ghi (prototype: input, textarea, [role=menu]). Ô chọn dòng
+ * (checkbox / radio) KHÔNG tính là ô gõ: đang đứng ở ô chọn dòng vẫn Esc đóng thẻ được (cùng ngoại lệ với ThanhDaChon).
+ */
+const BO_QUA =
+  'input:not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable=""], [contenteditable="true"], [role="menu"], [role="listbox"], [role="dialog"]'
+/** Nghe ở pha capture nên chạy TRƯỚC widget đang focus: ↑/↓ trong widget tự dùng mũi tên thì nhường cho widget. */
+const BO_QUA_MUI =
+  '[role="radiogroup"], [role="tablist"], [role="toolbar"], [role="grid"], [role="tree"], [role="slider"], [role="spinbutton"], [role="combobox"], [role="menubar"]'
 
 /**
  * XemNhanh — khung "thẻ xem nhanh" bên phải màn dữ liệu (README DataViewToolbar: bật nút xem nhanh → bấm bản ghi mở thẻ
@@ -15,8 +22,9 @@ const BO_QUA = 'input, textarea, select, [contenteditable="true"], [role="menu"]
  * dung NHƯỜNG chỗ (≥ 768 lề phải 456) — thẻ không che bảng. < 768: thẻ phủ kín khung.
  * - Đầu thẻ: mã · dòng phụ · ‹ › (bản ghi trước / sau) · ✕. Thân = `the.noiDung`; trống → chú "chưa chốt" (nội dung thẻ
  *   từng màn tự dựng từ DS: Alert · PropertyList · Timeline — chưa chốt chung).
- * - Phím khi thẻ mở: ↑/k trước, ↓/j sau, Esc đóng. Bỏ qua khi đang gõ trong ô / trong menu / hộp, có Ctrl/⌘/Alt (Ctrl+K…),
- *   hoặc phím đã bị xử lý (`defaultPrevented` — ←→ của Tabs/ToggleGroup, Esc đóng popover của Radix).
+ * - Phím khi thẻ mở: ↑/k trước, ↓/j sau, Esc đóng — nghe ở document pha capture và `preventDefault` phím đã dùng (Esc
+ *   đóng thẻ không bỏ luôn lựa chọn dòng của ThanhDaChon). Bỏ qua khi đang gõ trong ô / trong menu / hộp, bộ gõ đang ghép
+ *   chữ, có Ctrl/⌘/Alt (Ctrl+K…), hoặc phím đã bị xử lý trước (`defaultPrevented`).
  * - Không tự giữ state: bên gọi giữ bản ghi đang xem (thường là tham số URL) và truyền `the`.
  */
 export function XemNhanh({
@@ -43,10 +51,14 @@ export function XemNhanh({
   useEffect(() => {
     if (!mo) return
     const k = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return
+      if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return
       if ((e.target as Element | null)?.closest?.(BO_QUA)) return
       const h = ham.current
-      if (e.key === 'Escape') h.onDong()
+      if (e.key === 'Escape') {
+        // preventDefault: Esc này đã dùng để đóng thẻ — ThanhDaChon (escBoChon) bỏ qua phím đã xử lý, lựa chọn dòng còn.
+        e.preventDefault()
+        h.onDong()
+      } else if ((e.target as Element | null)?.closest?.(BO_QUA_MUI)) return
       else if ((e.key === 'ArrowDown' || e.key === 'j') && h.onSau) {
         e.preventDefault()
         h.onSau()
@@ -55,8 +67,10 @@ export function XemNhanh({
         h.onTruoc()
       }
     }
-    window.addEventListener('keydown', k)
-    return () => window.removeEventListener('keydown', k)
+    // document pha CAPTURE: chạy trước ThanhDaChon (document, pha nổi) và trước handler của phần tử đang focus; lớp Radix
+    // đang mở (popover, menu) thì phím nằm trong [role=dialog|menu] → bỏ qua ở trên.
+    document.addEventListener('keydown', k, true)
+    return () => document.removeEventListener('keydown', k, true)
   }, [mo])
 
   return (
