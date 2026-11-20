@@ -7,6 +7,7 @@ import { KhungDs, layTheme } from '../_khung/khung-ds'
 import { Md } from '../_khung/md'
 import { chiaMuc, docNguon } from '../_khung/readme'
 import { TrangTaiLieu } from '../_khung/tai-lieu'
+import { Muc, Tam, ThanMuc } from '../_khung/tam'
 import { duongDan, TRANG, type Theme } from '../_khung/trang'
 import { TrangBoGoc } from '../_nen/bo-goc'
 import { TrangBong } from '../_nen/bong'
@@ -53,27 +54,34 @@ export default async function DsTrang({
 /** Tổng quan: phần mở đầu README dự án + thẻ dẫn tới từng trang. */
 function TongQuan({ theme }: { theme: Theme }) {
   return (
-    <article>
-      <h1 className={`m-0 mb-4 ${CHU.h1}`}>Design system v2</h1>
-      <Md md={chiaMuc(docNguon('README.md')).dau} />
-      <ul className="m-0 mt-8 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
-        {TRANG.filter((t) => t.slug !== 'tong-quan').map(({ slug, ten, icon: Icon, moTa }) => (
-          <li key={slug} className="flex">
-            <Link
-              href={duongDan(slug, theme)}
-              className="flex w-full flex-col gap-1 rounded-xl border border-(--border) p-4 hover:bg-(--alpha-04) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              <span className={`flex items-center gap-2 ${CHU.h3}`}>
-                <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-                {ten}
-              </span>
-              <span className={`text-muted-foreground ${CHU.sm}`}>
-                {slug === 'components' ? `Đã dựng ${SO_DA_DUNG}/${KHOI.length} component` : moTa}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </article>
+    <Tam tieuDe="Design system v2">
+      <Muc>
+        <ThanMuc className="[&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0">
+          <Md md={chiaMuc(docNguon('README.md')).dau} />
+        </ThanMuc>
+      </Muc>
+      <Muc tieuDe="Các mục">
+        <ThanMuc>
+          <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {TRANG.filter((t) => t.slug !== 'tong-quan').map(({ slug, ten, icon: Icon, moTa }) => (
+              <li key={slug} className="flex">
+                <Link
+                  href={duongDan(slug, theme)}
+                  className="flex w-full flex-col gap-1 rounded-xl border border-(--border) p-4 hover:bg-(--alpha-04) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  <span className={`flex items-center gap-2 ${CHU.h3}`}>
+                    <Icon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                    {ten}
+                  </span>
+                  <span className={`text-muted-foreground ${CHU.sm}`}>
+                    {slug === 'components' ? `Đã dựng ${SO_DA_DUNG}/${KHOI.length} component` : moTa}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </ThanMuc>
+      </Muc>
+    </Tam>
   )
 }

@@ -27,10 +27,10 @@ export function KhungDs({ theme, trang, children }: { theme: Theme; trang: strin
       <aside className="sticky top-0 hidden h-screen overflow-y-auto border-r border-(--sidebar-border) bg-(--sidebar) px-2 py-3 md:block">
         <MucLuc {...p} coDau />
       </aside>
-      <div className="min-w-0">
+      <div className="min-w-0 bg-(--sidebar)">
         <ThanhDiDong {...p} />
         {/* Thanh trên dính ở màn hẹp cao ~49px → neo `#id` chừa 64 để tiêu đề không nằm dưới thanh. */}
-        <main id="noi-dung" className="px-4 py-6 max-md:[&_[id]]:scroll-mt-16 md:px-8 md:py-8">
+        <main id="noi-dung" className="px-3 py-4 max-md:[&_[id]]:scroll-mt-16 md:px-6 md:py-6">
           {children}
         </main>
       </div>

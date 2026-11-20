@@ -1,10 +1,22 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { boDau } from '@/bang/timkiem'
 
 /** Đọc file chép nguyên byte từ artifact trong ds/nguon/ (cwd = apps/web cả lúc dev lẫn lúc test). */
 export function docNguon(rel: string): string {
   return readFileSync(path.join(process.cwd(), 'ds/nguon', rel), 'utf8')
+}
+
+/** README component của artifact (`components/<Ten>/README.md`); chưa có file → null. */
+export function readmeComponent(ten: string): string | null {
+  const rel = `components/${ten}/README.md`
+  return existsSync(path.join(process.cwd(), 'ds/nguon', rel)) ? docNguon(rel) : null
+}
+
+/** Dòng mô tả một câu: dòng chữ đầu của README, bỏ dấu markdown `**` và backtick. */
+export function motDong(md: string): string {
+  const dong = md.split('\n').find((d) => d.trim()) ?? ''
+  return dong.replace(/\*\*|`/g, '').trim()
 }
 
 /** Chia README theo tiêu đề `## `: `dau` = phần trước tiêu đề đầu tiên; `muc` = tiêu đề → thân (bỏ dòng tiêu đề). */

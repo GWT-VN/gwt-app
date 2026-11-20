@@ -1,32 +1,41 @@
 import { KhungDs, layTheme } from './_khung/khung-ds'
-import { CHU } from './_khung/chu'
 import { KHOI, SO_DA_DUNG } from './_khung/khoi'
+import { motDong, readmeComponent } from './_khung/readme'
+import { Muc, Tam, ThanMuc } from './_khung/tam'
 import { HuongDan } from './_khung/tai-lieu'
 
 /**
- * /ds — trang Components: mỗi component một khối có #neo (link `#neo` đã gửi CEO giữ nguyên) + "Hướng dẫn dùng" từ
- * README artifact. Danh sách khối ở `_khung/khoi.ts`. Bản không cột trái cho so khớp: /ds/tron. `?theme=dark` cho tối.
+ * Khối `_khoi/*` giữ nguyên (cổng so khớp đo trên /ds/tron): ở đây ẩn `h2` riêng của khối — tiêu đề + mô tả nằm ở hàng
+ * tiêu đề `Muc`. `id` vẫn ở `section` của khối → neo `#<neo>` cuộn tới thân, nên chừa trên đủ cao cho hàng tiêu đề
+ * (≈ 68 + padding 20 → 112; màn hẹp thêm thanh trên 49 → 160).
+ */
+const BOC_KHOI = '[&>section>h2]:hidden [&>section[id]]:scroll-mt-28 max-md:[&>section[id]]:scroll-mt-40'
+
+/**
+ * /ds — trang Components: mỗi component một `Muc` (tiêu đề + một dòng mô tả từ README artifact, thân = khối demo,
+ * hàng cuối "Hướng dẫn dùng"). Link `#neo` cũ giữ nguyên. Bản không khung cho so khớp: /ds/tron. `?theme=dark` cho tối.
  */
 export default async function DsPage({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
   const theme = await layTheme(searchParams)
   return (
     <KhungDs theme={theme} trang="components">
-      <h1 className={`m-0 ${CHU.h1}`}>Components</h1>
-      <p className={`mt-2 mb-8 text-muted-foreground ${CHU.sm}`}>
-        Đã dựng {SO_DA_DUNG}/{KHOI.length} component. Mục mờ ở cột trái = chưa dựng (lát sau).
-      </p>
-      {/* Neo tiêu đề khối (`h2 > a` ở mọi _khoi): vòng focus DS như Button, thay outline mặc định trình duyệt. */}
-      <div className="flex flex-col gap-12 [&_h2>a]:rounded-sm [&_h2>a]:focus-visible:outline-2 [&_h2>a]:focus-visible:outline-offset-2 [&_h2>a]:focus-visible:outline-ring">
-        {KHOI.map(
-          ({ neo, ten, Khoi }) =>
-            Khoi && (
-              <div key={neo}>
+      <Tam
+        tieuDe="Components"
+        moTa={`Đã dựng ${SO_DA_DUNG}/${KHOI.length} component. Mục mờ ở cột trái = chưa dựng (lát sau).`}
+      >
+        {KHOI.map(({ neo, ten, Khoi }) => {
+          if (!Khoi) return null
+          const md = readmeComponent(ten)
+          return (
+            <Muc key={neo} neo={neo} tieuDe={ten} moTa={md ? motDong(md) : undefined}>
+              <ThanMuc className={BOC_KHOI}>
                 <Khoi />
-                <HuongDan ten={ten} />
-              </div>
-            ),
-        )}
-      </div>
+              </ThanMuc>
+              <HuongDan ten={ten} />
+            </Muc>
+          )
+        })}
+      </Tam>
     </KhungDs>
   )
 }
