@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"Inter", "Inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Sheet-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1386/1420 khớp** · 34 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
+**1400/1420 khớp** · 20 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 8 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -31,10 +31,3 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | panel | height | 408px | 900px | sang 1440, sang 390, toi 1440, toi 390 | Preview vẽ sheet TĨNH trong khung minh hoạ cao 408px (preview.html dòng 2: `position:relative;height:408px`, `.ui-overlay`/`.ui-sheet` absolute bám khung đó). DS bám KHUNG NHÌN (fixed, top 0 → bottom 0) → cao 900 = khung nhìn đo. README artifact: sheet cao hết màn. |
 | panel | zIndex | auto | 70 | sang 1440, sang 390, toi 1440, toi 390 | Preview vẽ sheet tĩnh (position absolute, không z-index → auto). Sheet thật là hộp modal như Dialog (artifact: top layer của `<dialog>`, trên mọi lớp trang). DS dùng Radix Portal → z-70 cho overlay + panel theo thang z một chỗ ở ds/NGUON.md (dialog/overlay 70: trên mọi lớp trang, dưới tooltip 80 / menu 90). |
 | body | height | 260px | 752px | sang 1440, sang 390, toi 1440, toi 390 | Hệ quả của `panel` height: thân `flex: 1` lấp phần còn lại giữa header và footer — preview 408 − header − footer = 260, DS 900 − header − footer = 752. Header/footer cao khớp (đo ở khoá header/footer). |
-| panel | width | 384px | 390px | sang 390, toi 390 | ≤640 DS rộng 100% (README artifact "mobile 100%", Review Focus #5 kế hoạch lát 2; mốc `@media (max-width: 640px)` như Dialog). bundle `.ui-sheet` chỉ có `width: min(384px, 100%)` → ở khung 390 preview ra 384 (hở 6px overlay bên trái). Lệch có chủ đích: lấy README/kế hoạch, không lấy số 384 ở khổ 390. |
-| header | width | 384px | 390px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
-| title | width | 312px | 318px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
-| desc | width | 312px | 318px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
-| body | width | 384px | 390px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
-| truong | width | 344px | 350px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
-| footer | width | 384px | 390px | sang 390, toi 390 | Hệ quả của `panel` width@390 (DS 390, preview 384): cùng padding/công thức, ruột rộng hơn đúng 6px. |
