@@ -7,15 +7,15 @@ import { FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field'
 import { menuContent } from '@/components/ui/menu-styles'
 import { cn } from '@/lib/utils'
 
-// Dữ liệu demo (chép từ preview): mã là số thứ tự, KHÔNG phải mã hành chính.
+// Dữ liệu demo: 34 đơn vị hành chính cấp tỉnh từ 1/7/2025 theo Nghị quyết 202/2025/QH15 của Quốc hội (12/6/2025),
+// Điều 1: khoản 1–23 (23 đơn vị hình thành sau sắp xếp) + khoản 24 (11 đơn vị không sắp xếp). Đối chiếu 20/11/2026:
+// toàn văn trên luatvietnam.vn (402728) + pbgdpl.cantho.gov.vn. Thứ tự: 6 thành phố rồi 28 tỉnh theo ABC.
+// Mã là số thứ tự, KHÔNG phải mã hành chính. (Danh mục địa chỉ thật của app vẫn là lib/tinh.ts — CEO chốt giữ tên cũ.)
 const TINH: MucChon[] = [
-  'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'An Giang', 'Bà Rịa - Vũng Tàu', 'Bắc Giang', 'Bắc Kạn',
-  'Bạc Liêu', 'Bắc Ninh', 'Bến Tre', 'Bình Định', 'Bình Dương', 'Bình Phước', 'Bình Thuận', 'Cà Mau', 'Cao Bằng',
-  'Đắk Lắk', 'Đắk Nông', 'Điện Biên', 'Đồng Nai', 'Đồng Tháp', 'Gia Lai', 'Hà Giang', 'Hà Nam', 'Hà Tĩnh', 'Hải Dương',
-  'Hậu Giang', 'Hoà Bình', 'Hưng Yên', 'Khánh Hoà', 'Kiên Giang', 'Kon Tum', 'Lai Châu', 'Lâm Đồng', 'Lạng Sơn', 'Lào Cai',
-  'Long An', 'Nam Định', 'Nghệ An', 'Ninh Bình', 'Ninh Thuận', 'Phú Thọ', 'Phú Yên', 'Quảng Bình', 'Quảng Nam',
-  'Quảng Ngãi', 'Quảng Ninh', 'Quảng Trị', 'Sóc Trăng', 'Sơn La', 'Tây Ninh', 'Thái Bình', 'Thái Nguyên', 'Thanh Hoá',
-  'Thừa Thiên Huế', 'Tiền Giang', 'Trà Vinh', 'Tuyên Quang', 'Vĩnh Long', 'Vĩnh Phúc', 'Yên Bái',
+  'Hà Nội', 'Hồ Chí Minh', 'Hải Phòng', 'Đà Nẵng', 'Cần Thơ', 'Huế',
+  'An Giang', 'Bắc Ninh', 'Cà Mau', 'Cao Bằng', 'Đắk Lắk', 'Điện Biên', 'Đồng Nai', 'Đồng Tháp', 'Gia Lai', 'Hà Tĩnh',
+  'Hưng Yên', 'Khánh Hòa', 'Lai Châu', 'Lâm Đồng', 'Lạng Sơn', 'Lào Cai', 'Nghệ An', 'Ninh Bình', 'Phú Thọ',
+  'Quảng Ngãi', 'Quảng Ninh', 'Quảng Trị', 'Sơn La', 'Tây Ninh', 'Thái Nguyên', 'Thanh Hóa', 'Tuyên Quang', 'Vĩnh Long',
 ].map((nhan, i) => ({ gt: String(i + 1).padStart(2, '0'), nhan }))
 
 /** Tìm xa giả: không bao giờ trả lời → giữ trạng thái "Đang tìm…" (demo). Cấp module → tham chiếu cố định cho useTimXa. */
@@ -26,7 +26,7 @@ const matTinh = cn(menuContent, 'z-auto')
 
 /**
  * #combobox — tái tạo ds/nguon/components/Combobox/preview.html: lưới tự xếp cột tối thiểu 260, gap 16, căn trên.
- * Cột 1 "Tỉnh/thành" (63 mục demo, hiện tối đa 8 như preview): preview vẽ pop mở TĨNH dưới nút; ở đây bấm nút thật mới
+ * Cột 1 "Tỉnh/thành" (34 tỉnh/thành hiện hành, hiện tối đa 8 như preview): preview vẽ pop mở TĨNH dưới nút; ở đây bấm nút thật mới
  * mở (pop nổi trong portal). Cột 2: ba trạng thái vẽ tĩnh bằng chính thân pop (`ComboboxPanel`) — rỗng ("zzz"), tìm xa
  * chưa đủ ký tự ("n"), tìm xa đang tìm ("nguyen", `tim` treo). Cột dọc gap 8 = `.ui-stack`; nhãn cột 2 là legend (không
  * ăn gap của fieldset) nên tự cách 8. Khoá so khớp: ds/so-khop/combobox.json.
