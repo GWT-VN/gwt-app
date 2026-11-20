@@ -140,7 +140,7 @@
       ],
       "lyDo": {
         "zIndex": "Preview vẽ `.ui-menu.ui-cal-pop` tĩnh, không có lớp nổi → z-index auto. Lịch nổi THẬT của artifact là `.b-noi.ui-cal-pop` (bundle.css .b-noi: position fixed, z-index 90); DS dùng z-90 chung của menuContent (thang z ds/NGUON.md) — như khoá content của so khớp Select.",
-        "height@390": "0,5px làm tròn: khổ ≤ 640 ô ngày rộng (374 − 32) / 7 = 48,857px, vuông. Artifact xếp bằng CSS grid (row-gap 2), DS bằng table (border-spacing 2, giữ ngữ nghĩa lưới của react-day-picker) — Chrome làm tròn chiều cao hàng bảng khác hàng lưới khi kích thước lẻ. Khổ 1440 (ô 44 nguyên) khớp."
+        "height": "Trần cao theo chỗ trống (review lát 3, I3): calendarPop có max-height = --radix-popover-content-available-height (khoảng trigger → mép khung nhìn trừ 8) + cuộn trong pop, để khổ 390 nút giữa màn lịch không tràn mất chân. Trang đo cao 900, trigger nằm giữa trang → pop chỉ còn 422px, cuộn bên trong; preview vẽ `.ui-cal-pop` tĩnh trọn chiều cao (440 / 550; 390: 461 / 504). Đo Chrome 390×844 nút giữa màn: pop 442→836, cuộn tới đáy thấy nút chân. Ô ngày, đệm, bo, chữ vẫn so ở các khoá khác; khối mẫu mở sẵn (lich-mau / bang) không nằm trong Popover nên vẫn cao trọn."
       }
     },
     {
