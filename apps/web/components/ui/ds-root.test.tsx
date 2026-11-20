@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import { cn } from '@/lib/utils'
 import { DsRoot } from './ds-root'
 

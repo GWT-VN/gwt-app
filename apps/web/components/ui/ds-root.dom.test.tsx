@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { render, screen, waitFor } from '@testing-library/react'
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import { DsRoot, useDsPortal } from './ds-root'
 
 // Probe ghi lại mọi giá trị useDsPortal() qua các lần render: lần đầu null (ref chưa gắn), sau mount phải là ô portal.

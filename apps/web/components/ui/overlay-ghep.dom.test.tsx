@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import { Button } from './button'
 import { ConfirmDialog } from './confirm-dialog'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './context-menu'

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import { hienKhoang, kepNgay } from '@/bang/ngay'
 import { kichThuocDoc, kiemTep } from '@/lib/tep'
 import * as nut from './button'

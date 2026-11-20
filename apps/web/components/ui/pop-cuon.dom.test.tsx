@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import type { MucChon } from '@/bang'
 import { Combobox } from './combobox'
 import { DatePicker } from './date-picker'
