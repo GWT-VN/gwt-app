@@ -1,5 +1,16 @@
 import { expect, test } from 'vitest'
-import { docBuoc, docThamSo, hopGop, kiemCauHinh, maThoat, phanLoai, timLyDo, truocTrongThuTuTab } from './so-khop.mjs'
+import {
+  docBuoc,
+  docThamSo,
+  hopGop,
+  kiemCauHinh,
+  locThuocTinh,
+  maThoat,
+  moTaBoDo,
+  phanLoai,
+  timLyDo,
+  truocTrongThuTuTab,
+} from './so-khop.mjs'
 
 test('docThamSo: không --url thì dùng mặc định localhost:3401', () => {
   expect(docThamSo(['Button'])).toEqual({ comp: 'Button', url: 'http://localhost:3401' })
@@ -159,4 +170,45 @@ test('truocTrongThuTuTab: tabIndex dương đi trước (tăng dần, cùng số
 })
 test('truocTrongThuTuTab: đích ngoài danh sách → lỗi (không đoán)', () => {
   expect(() => truocTrongThuTuTab([{ tabIndex: 0 }], 5)).toThrow(/đích/)
+})
+
+const doDu = {
+  width: '18px', fontFamily: 'Inter', fontSize: '14px', fontWeight: '400', lineHeight: '20px', letterSpacing: 'normal',
+  fontFeatureSettings: 'normal', textDecorationLine: 'none', color: 'rgb(13 13 13)', backgroundColor: 'rgb(255 255 255)',
+  borderTopStyle: 'none', borderTopColor: 'rgb(13 13 13)', borderBottomStyle: 'solid', borderBottomColor: 'rgb(1 2 3)',
+  outlineStyle: 'none', outlineColor: 'rgb(13 13 13)',
+}
+test('locThuocTinh: không khai gì → giữ nguyên', () => {
+  expect(locThuocTinh(doDu, {})).toEqual(doDu)
+})
+test('locThuocTinh boChu: bỏ thuộc tính chữ + color; màu viền/outline kiểu none → "không vẽ", kiểu khác giữ nguyên', () => {
+  const r = locThuocTinh(doDu, { boChu: true })!
+  for (const p of ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFeatureSettings', 'textDecorationLine', 'color'])
+    expect(r).not.toHaveProperty(p)
+  expect(r.width).toBe('18px')
+  expect(r.backgroundColor).toBe('rgb(255 255 255)')
+  expect(r.borderTopColor).toBe('không vẽ')
+  expect(r.borderBottomColor).toBe('rgb(1 2 3)')
+  expect(r.outlineColor).toBe('không vẽ')
+  expect(locThuocTinh({ ...doDu, outlineStyle: 'solid' }, { boChu: true })!.outlineColor).toBe('rgb(13 13 13)')
+})
+test('locThuocTinh props: chỉ giữ đúng danh sách khai; null (thiếu phần tử) giữ null', () => {
+  expect(locThuocTinh(doDu, { props: ['width', 'color'] })).toEqual({ width: '18px', color: 'rgb(13 13 13)' })
+  expect(locThuocTinh(null, { boChu: true })).toBeNull()
+})
+test('kiemCauHinh: props phải là mảng con của bộ thuộc tính đo; boChu phải là boolean', () => {
+  const cfg = (k: object) => ({ khung: { artifact: '.a', ds: '#b' }, khoa: [{ khoa: 'x', artifact: '.a', ds: '#b', ...k }] })
+  expect(() => kiemCauHinh(cfg({ props: ['width', 'color'] }))).not.toThrow()
+  expect(() => kiemCauHinh(cfg({ boChu: true }))).not.toThrow()
+  expect(() => kiemCauHinh(cfg({ props: [] }))).toThrow(/props/)
+  expect(() => kiemCauHinh(cfg({ props: ['khongCo'] }))).toThrow(/props/)
+  expect(() => kiemCauHinh(cfg({ boChu: 'co' }))).toThrow(/boChu/)
+})
+test('moTaBoDo: mỗi khoá boChu / props thành một dòng "chưa đo" nêu rõ bỏ gì', () => {
+  const d = moTaBoDo({ khoa: [{ khoa: 'bat', boChu: true }, { khoa: 'nen' }, { khoa: 'cham', props: ['width', 'height'] }] })
+  expect(d).toHaveLength(2)
+  expect(d[0]).toMatch(/bat/)
+  expect(d[0]).toMatch(/fontFamily/)
+  expect(d[1]).toMatch(/cham/)
+  expect(d[1]).toMatch(/width, height/)
 })

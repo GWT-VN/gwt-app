@@ -32,6 +32,14 @@
  *     "[data-ds-portal] > *"]`); selector không khớp gì → mã 2. `anhTuongTac.buoc` chạy sau lần nạp lại cuối, ngay trước
  *     khi chụp (bên DS; bên artifact chỉ khi `anhTuongTac.artifactThat`) → ảnh DS có overlay ĐANG MỞ như preview.
  *
+ * Lọc thuộc tính (mỗi khoá, tuỳ chọn):
+ *   `boChu: true` — phần tử KHÔNG vẽ chữ (ô Switch/Checkbox/Radio: nguồn `<input>`, DS `<button>`): bỏ fontFamily,
+ *     fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color; màu viền trên/dưới
+ *     và outline chỉ so khi kiểu tương ứng khác `none` (none → ghi "không vẽ" cả hai bên — màu đó là currentColor, không
+ *     hiện ra). Kiểu viền/outline vẫn so.
+ *   `props: [...]` — chỉ so đúng các thuộc tính khai (tập con của bộ đo); áp trước `boChu`.
+ *   Mỗi khoá có lọc tự thành một dòng "Chưa đo" trong <C>.md (`moTaBoDo`) → con số khớp không tự nói là đã đo hết.
+ *
  * Ghi ds/so-khop/<C>.md. Thoát mã 1 nếu: còn lệch chưa có `lyDo`; THIẾU PHẦN TỬ ở bất kỳ bên nào hoặc NGOÀI VÙNG DS (không lyDo
  * nào miễn được, không tính vào tổng); hoặc có `lyDo` thừa (không còn khớp dòng lệch nào). Mã 2 = lỗi chạy (Button.md bị ghi đè
  * bằng ghi chú lỗi). Khoá lyDo = chữ ở cột "thuộc tính" (vd `hover.backgroundColor`), thêm `@toi`, `@390`, `@toi 390`
@@ -161,6 +169,37 @@ export function truocTrongThuTuTab(ds, dich) {
   return k === 0 ? -1 : thuTu[k - 1]
 }
 
+/** Thuộc tính chữ bỏ khi `boChu` (phần tử không vẽ chữ). */
+const CHU = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFeatureSettings', 'textDecorationLine', 'color']
+/** Màu đi theo currentColor khi kiểu là none → không hiện ra; `boChu` so màu chỉ khi kiểu khác none. */
+const MAU_THEO_KIEU = [['borderTopColor', 'borderTopStyle'], ['borderBottomColor', 'borderBottomStyle'], ['outlineColor', 'outlineStyle']]
+
+/**
+ * Lọc số đo một phần tử theo khoá config: `props` (chỉ giữ danh sách khai) rồi `boChu` (bỏ thuộc tính chữ; màu
+ * viền/outline kiểu none → "không vẽ"). Không khai gì → trả nguyên. `so` null (thiếu phần tử) → null.
+ * @param {Record<string, string> | null} so
+ * @param {{ props?: string[], boChu?: boolean }} k
+ */
+export function locThuocTinh(so, { props, boChu } = {}) {
+  if (!so) return so
+  let r = props ? Object.fromEntries(props.filter((p) => p in so).map((p) => [p, so[p]])) : { ...so }
+  if (boChu) {
+    for (const [mau, kieu] of MAU_THEO_KIEU) if (mau in r && so[kieu] === 'none') r[mau] = 'không vẽ'
+    r = Object.fromEntries(Object.entries(r).filter(([p]) => !CHU.includes(p)))
+  }
+  return r
+}
+
+/** Dòng "Chưa đo" cho mỗi khoá có `props` / `boChu` — in vào <C>.md cùng `chuaDo`. */
+export function moTaBoDo(cfg) {
+  return (cfg.khoa ?? []).flatMap((k) => {
+    const phan = []
+    if (k.props) phan.push(`chỉ đo ${k.props.join(', ')}`)
+    if (k.boChu) phan.push(`bỏ thuộc tính chữ (${CHU.join(', ')}) và màu viền/outline khi kiểu none — phần tử không vẽ chữ`)
+    return phan.length ? [`Khoá \`${k.khoa}\`: ${phan.join('; ')} (lọc trong config).`] : []
+  })
+}
+
 /** Hộp chung (x, y, w, h) của các hộp; bỏ hộp 0×0 (vd ô portal rỗng). Không còn hộp nào → lỗi. */
 export function hopGop(hops) {
   const co = hops.filter((h) => h.w > 0 || h.h > 0)
@@ -178,6 +217,9 @@ export function kiemCauHinh(cfg) {
       throw new Error(`khung.${ben} phải là selector hoặc mảng selector không rỗng: ${JSON.stringify(kh)}`)
   }
   for (const k of cfg.khoa) {
+    if (k.props !== undefined && (!Array.isArray(k.props) || !k.props.length || k.props.some((p) => !PROPS.includes(p))))
+      throw new Error(`khoá ${k.khoa}: props phải là mảng không rỗng, mỗi mục thuộc bộ đo (${PROPS.join(', ')}): ${JSON.stringify(k.props)}`)
+    if (k.boChu !== undefined && typeof k.boChu !== 'boolean') throw new Error(`khoá ${k.khoa}: boChu phải là true/false`)
     for (const ben of k.artifactThat ? ['artifact', 'ds'] : ['ds']) docBuoc(k.buoc, ben)
     if (k.buoc?.length && k.trangThai?.includes('focus'))
       throw new Error(`khoá ${k.khoa}: buoc + trangThai focus không đi cùng (focus kiểu cũ blur rồi Tab từ đầu trang → đóng overlay vừa mở) — thêm bước { "tab": "<sel>" } vào buoc và đo thành khoá riêng`)
@@ -434,7 +476,7 @@ async function main() {
             if (buoc.length) { ban = true; await chayBuoc(buoc, ben, `${k.khoa} (${ben} ${o})`); await ngu(350) }
             const doK = async (tt) => {
               const nhan = tt ? `${k.khoa}:${tt}` : k.khoa
-              so[ben][nhan] = await chay(cdp, `__sk.do(${S(sel)}, ${S(PROPS)}, ${S(k.pseudo?.[ben] ?? null)})`)
+              so[ben][nhan] = locThuocTinh(await chay(cdp, `__sk.do(${S(sel)}, ${S(PROPS)}, ${S(k.pseudo?.[ben] ?? null)})`), k)
               if (ben === 'ds') vung[nhan] = await chay(cdp, `__sk.vung(${S(sel)})`)
               for (const c of k.con ?? []) {
                 const v = await chay(cdp, `__sk.do(${S(`${sel} ${c[ben]}`)}, ${S(c.props ?? ['width', 'height'])})`)
@@ -546,7 +588,7 @@ async function main() {
     const chuaLyDo = lech.filter((r) => !r.lyDo).length
     const coLyDo = lech.length - chuaLyDo
     const q = (s) => String(s).replaceAll('|', '\\|')
-    const chuaDo = cfg.chuaDo ?? []
+    const chuaDo = [...(cfg.chuaDo ?? []), ...moTaBoDo(cfg)]
     const md = [
       `# So khớp ${comp} — artifact ↔ /ds`,
       '',
