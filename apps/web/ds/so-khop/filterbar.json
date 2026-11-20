@@ -4,7 +4,7 @@
     "ds": "#filter-bar > div"
   },
   "chuaDo": [
-    "Nút \"Lưu bộ lọc\" (mở SavedView — Task 8) chưa cắm ở khối: ThanhDangLoc có khe `phai` cho nó, cụm phải chỉ đo nút Xoá lọc",
+    "Nút \"Lưu bộ lọc\" (SavedView — Task 8) cắm ở khe `phai`: chỉ đo bề rộng cụm phải; nút + popover đo ở so khớp SavedView",
     "Thứ tự hiện: DOM của bang/ đặt số dòng TRƯỚC chip sắp xếp; GIAO_DIEN_DS dùng `order` (CSS) để chip sắp xếp hiện trước như preview — getComputedStyle không đo vị trí, so bằng ảnh",
     "Nút × của chip là link `<a>` (bang/ dựng URL bỏ điều kiện, điều hướng thật) thay cho `<button>` của preview",
     "Bỏ đúng một chip, Xoá lọc về đường dẫn trần, số dòng aria-live, vùng có tên: test jsdom components/ui/bang-ds.dom.test.tsx",
@@ -148,10 +148,7 @@
     {
       "khoa": "cuoi",
       "artifact": ".ui-filterbar-end",
-      "ds": "#filter-bar [role=\"region\"] > span",
-      "lyDo": {
-        "width": "Preview có 2 nút (Lưu bộ lọc 118.5 + gap 4 + Xoá lọc 77); khối DS chưa cắm Lưu bộ lọc (SavedView — Task 8, khe `phai`) → chỉ còn Xoá lọc 77."
-      }
+      "ds": "#filter-bar [role=\"region\"] > span"
     },
     {
       "khoa": "xoa",

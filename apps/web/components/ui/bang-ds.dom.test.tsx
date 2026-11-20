@@ -15,16 +15,19 @@ vi.mock('next/navigation', () => ({
 import {
   BoLocChon,
   CauHinhBang,
+  GIAO_DIEN_MAC_DINH,
   hrefBoLoc,
   KhungChon,
   LocNgay,
   OChonDong,
   OChonTatCa,
+  OTimKiem,
   PhanTrang,
   ThanhDaChon,
   ThanhDangLoc,
 } from '@/bang'
 import { CauHinhBangDs } from './bang-ds'
+import { GIAO_DIEN_DS } from './bang-styles'
 import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { DsRoot } from './ds-root'
@@ -391,5 +394,27 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     esc()
     expect(thanh()).not.toBeNull()
     expect(within(thanh()!).getByRole('button', { name: 'Bỏ chọn' }).textContent).toBe('Bỏ chọn')
+  })
+})
+
+describe('OTimKiem — ô tìm', () => {
+  test('type="search" có tên đọc: mặc định = placeholder (màn cũ không đổi tên), truyền aria-label thì dùng nó', () => {
+    const cu = render(<OTimKiem placeholder="Gõ tên, SĐT, mã…" />)
+    const o = screen.getByRole('searchbox', { name: 'Gõ tên, SĐT, mã…' })
+    expect(o.getAttribute('type')).toBe('search')
+    cu.unmount()
+    render(
+      <Ds>
+        <OTimKiem placeholder="Gõ mã ticket…" aria-label="Tìm ticket" />
+      </Ds>,
+    )
+    expect(screen.getByRole('searchbox', { name: 'Tìm ticket' }).getAttribute('placeholder')).toBe('Gõ mã ticket…')
+  })
+
+  test('cả hai bộ giao diện tắt nút × gốc của trình duyệt (đã có nút Xoá từ khoá riêng) và vẻ ô tìm gốc (Safari)', () => {
+    for (const gd of [GIAO_DIEN_MAC_DINH, GIAO_DIEN_DS]) {
+      expect(gd.oTimKiem_input).toContain('[&::-webkit-search-cancel-button]:appearance-none')
+      expect(gd.oTimKiem_input.split(' ')).toContain('appearance-none')
+    }
   })
 })

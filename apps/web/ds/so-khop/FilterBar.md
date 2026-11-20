@@ -11,11 +11,11 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/FilterBar-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1312/1352 khớp** · 40 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
+**1316/1352 khớp** · 36 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
-- Nút "Lưu bộ lọc" (mở SavedView — Task 8) chưa cắm ở khối: ThanhDangLoc có khe `phai` cho nó, cụm phải chỉ đo nút Xoá lọc
+- Nút "Lưu bộ lọc" (SavedView — Task 8) cắm ở khe `phai`: chỉ đo bề rộng cụm phải; nút + popover đo ở so khớp SavedView
 - Thứ tự hiện: DOM của bang/ đặt số dòng TRƯỚC chip sắp xếp; GIAO_DIEN_DS dùng `order` (CSS) để chip sắp xếp hiện trước như preview — getComputedStyle không đo vị trí, so bằng ảnh
 - Nút × của chip là link `<a>` (bang/ dựng URL bỏ điều kiện, điều hướng thật) thay cho `<button>` của preview
 - Bỏ đúng một chip, Xoá lọc về đường dẫn trần, số dòng aria-live, vùng có tên: test jsdom components/ui/bang-ds.dom.test.tsx
@@ -32,5 +32,4 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | x-focus | fontSize | 13.5px | 12px | sang 1440, sang 390, toi 1440, toi 390 | Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp. |
 | x-focus | lineHeight | normal | 18px | sang 1440, sang 390, toi 1440, toi 390 | Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp. |
 | x-focus | fontFeatureSettings | normal | "cv11", "ss03" | sang 1440, sang 390, toi 1440, toi 390 | Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp. |
-| cuoi | width | 199.5px | 77px | sang 1440, sang 390, toi 1440, toi 390 | Preview có 2 nút (Lưu bộ lọc 118.5 + gap 4 + Xoá lọc 77); khối DS chưa cắm Lưu bộ lọc (SavedView — Task 8, khe `phai`) → chỉ còn Xoá lọc 77. |
 | khung | height | 132px | 136px | sang 390, toi 390 | Preview gắn thêm `.b-filterbar { margin: -4px 0 12px }` của prototype (vị trí hàng trong màn ticket, không thuộc component) → khung ngắn hơn 4px. |

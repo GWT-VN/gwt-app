@@ -11,7 +11,14 @@ import { useCauHinh } from './CauHinh'
  * gõ "hương" xong phải bấm Back 5 lần mới thoát. Đổi lại Back sẽ rời trang chứ
  * không xoá từ khoá — nên đường về là nút "Xoá lọc" ở ThanhDangLoc.
  */
-export function OTimKiem({ placeholder }: { placeholder: string }) {
+export function OTimKiem({
+  placeholder,
+  'aria-label': ten,
+}: {
+  placeholder: string
+  /** Tên đọc của ô. Không truyền → dùng placeholder (như trước: ô chỉ có placeholder làm tên). */
+  'aria-label'?: string
+}) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -41,7 +48,11 @@ export function OTimKiem({ placeholder }: { placeholder: string }) {
 
   return (
     <div className={gd.oTimKiem_khung}>
+      {/* type="search": vai searchbox cho trình đọc màn hình. Nút × gốc của trình duyệt và vẻ ô tìm
+          gốc (Safari) tắt bằng class trong giaoDien — đã có nút Xoá từ khoá riêng, màn cũ không đổi. */}
       <input
+        type="search"
+        aria-label={ten ?? placeholder}
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder={placeholder}

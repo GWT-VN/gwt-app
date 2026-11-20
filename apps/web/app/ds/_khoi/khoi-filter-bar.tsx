@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { BoLocChon, hrefBoLoc, ThanhDangLoc } from '@/bang'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { buttonVariants } from '@/components/ui/button-variants'
+import { SavedView } from '@/components/ui/saved-view'
 import { cn } from '@/lib/utils'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
@@ -55,11 +56,18 @@ export function Nhan({ children }: { children: ReactNode }) {
   return <p className="mb-2 border-none border-current text-[12px] leading-[16px] font-medium text-muted-foreground">{children}</p>
 }
 
+/** Nút "Lưu bộ lọc" (SavedView, Task 8) cho khe `phai` — demo: lưu xong chỉ báo toast, không ghi đâu. */
+const boQua = () => {}
+function LuuLoc({ dieuKien, query }: { dieuKien: { nhan: string; giaTri: string }[]; query: string }) {
+  return <SavedView dieuKien={dieuKien} query={query} khu="CSKH" onLuu={boQua} />
+}
+
 /** Mẫu y preview: lọc "Loại lỗi: Rò rỉ nước" + sắp theo Hạn giảm dần, 5 ticket. */
 function MauTinh() {
   const path = usePathname()
   return (
     <ThanhDangLoc
+      phai={<LuuLoc dieuKien={[{ nhan: 'Loại lỗi', giaTri: 'Rò rỉ nước' }]} query="loai=ro-ri&cot=han&chieu=desc" />}
       dieuKien={[{ nhan: 'Loại lỗi', giaTri: 'Rò rỉ nước', href: hrefBoLoc(path, { loai: 'ro-ri', cot: 'han', chieu: 'desc' }, 'loai') }]}
       hienThi={5}
       tong={5}
@@ -88,6 +96,7 @@ function ThuThat() {
         </Link>
       </div>
       <ThanhDangLoc
+        phai={d.loai ? <LuuLoc dieuKien={[{ nhan: 'Loại lỗi', giaTri: nhanLoai(d.loai) }]} query={sp.toString()} /> : undefined}
         dieuKien={d.loai ? [{ nhan: 'Loại lỗi', giaTri: nhanLoai(d.loai), href: hrefBoLoc(path, tham, 'loai') }] : []}
         hienThi={d.trangRows.length}
         tong={d.tong}
@@ -100,7 +109,7 @@ function ThuThat() {
 
 /**
  * #filter-bar — tái tạo ds/nguon/components/FilterBar/preview.html bằng `ThanhDangLoc` + `ChipSapXep` THẬT của bang/
- * với giao diện DS (`CauHinhBangDs`). Preview có thêm nút "Lưu bộ lọc" (mở SavedView — Task 8 cắm vào khe `phai`).
+ * với giao diện DS (`CauHinhBangDs`); nút "Lưu bộ lọc" = SavedView (Task 8) cắm vào khe `phai`.
  */
 export function KhoiFilterBar() {
   return (

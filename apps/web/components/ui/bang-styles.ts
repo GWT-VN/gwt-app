@@ -78,7 +78,8 @@ const ghostTrenThanh = [
 export const GIAO_DIEN_DS: GiaoDienBang = {
   // Ô tìm (`.ui-input` + nút xoá dạng chip-x bên phải)
   oTimKiem_khung: cn(kv, 'relative'),
-  oTimKiem_input: cn(controlOutline, 'pr-9'),
+  // type="search": tắt vẻ ô tìm gốc (Safari) + nút × gốc (đã có nút xoá riêng)
+  oTimKiem_input: cn(controlOutline, 'pr-9 appearance-none [&::-webkit-search-cancel-button]:appearance-none'),
   oTimKiem_nutXoa: cn(chipX, 'absolute right-1.5 top-1/2 ml-0 -translate-y-1/2'),
 
   // FilterBar — `.ui-filterbar`: flex wrap, gap 6/8, cao tối thiểu 28

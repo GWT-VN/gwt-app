@@ -78,8 +78,9 @@ export type GiaoDienBang = {
  */
 export const GIAO_DIEN_MAC_DINH: GiaoDienBang = {
   oTimKiem_khung: 'relative',
+  // appearance-none + ẩn nút × gốc: type="search" không đổi giao diện (đã có nút Xoá từ khoá riêng).
   oTimKiem_input:
-    'w-full rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 pr-10 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-[#0e8c9a] focus:ring-2 focus:ring-[#e2f2f3]',
+    'appearance-none [&::-webkit-search-cancel-button]:appearance-none w-full rounded-[10px] border border-slate-200 bg-white px-4 py-2.5 pr-10 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:border-[#0e8c9a] focus:ring-2 focus:ring-[#e2f2f3]',
   oTimKiem_nutXoa: 'absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900',
 
   dangLoc_khung: 'flex items-center justify-between gap-3 flex-wrap text-sm',
