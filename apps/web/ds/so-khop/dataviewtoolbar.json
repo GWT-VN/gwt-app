@@ -1,0 +1,360 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": [
+      "#data-view-toolbar > div",
+      "[data-ds-portal] [data-slot=\"cai-dat-hien-thi\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "cho": 1500
+      },
+      {
+        "bam": "#data-view-toolbar [data-so=\"muc-congcu\"] button[aria-label=\"Cài đặt hiển thị\"]"
+      },
+      {
+        "cho": 400
+      }
+    ]
+  },
+  "chuaDo": [
+    "Hai menu tĩnh của preview (trang gốc + trang con \"Cột hiển thị\") hiện cùng lúc; DS là Popover mở bằng bấm ⚙ thật (mỗi khoá một lần mở) → ảnh DS chỉ có trang gốc đang mở",
+    "Ô tìm là `OTimKiem` của bang/ (giao diện DS qua CauHinhBangDs): không có type search, không có aria-label riêng (tên đọc lấy từ placeholder) — bang/ thuộc Task 6",
+    "Chữ tooltip DS khác preview (preview lặp aria-label \"Cài đặt hiển thị\"; luật NGUON: tooltip là mô tả thêm) → bề rộng tooltip không so",
+    "Vị trí menu ⚙ (neo mép phải nút, cách 4) và sheet đáy ≤ 767 (cách mép 8, trần 70vh, z 60): Radix Popper đặt toạ độ, getComputedStyle không đo vị trí — xem ảnh 390 + báo cáo Task 8",
+    "Mục trong ⚙ khi rê / focus phím, mục chọn một (Bố cục, Nhóm theo, Sắp xếp) và các trang con Lọc / Sắp xếp / Nhóm theo / Bố cục: preview không vẽ — hành vi ở test jsdom components/ui/data-view.dom.test.tsx",
+    "Trang con có ← + focus về mục đã mở, Sắp xếp chỉ cột kieu \"sap\", đổi dạng xem giữ tab, xem nhanh aria-pressed mặc định tắt: test jsdom components/ui/data-view.dom.test.tsx",
+    "Khung xem nhanh (XemNhanh, `.b-chitiet`): preview DataViewToolbar không vẽ — chỉ ở /ds (hàng \"Thẻ xem nhanh\") và ảnh tự kiểm",
+    "Nút icon ghost (thường / rê / đang bật): đã đo ở so-khop Button; ở đây đo nút ở trạng thái tĩnh"
+  ],
+  "khoa": [
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) > .ds-nhan",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] > p"
+    },
+    {
+      "khoa": "dau",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-dau",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] header"
+    },
+    {
+      "khoa": "tieuDe",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-h1",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] header > h2"
+    },
+    {
+      "khoa": "dem",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-dau > .ui-caption",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] header > span:nth-child(2)",
+      "lyDo": {
+        "width": "Luật DS (kế hoạch lát 4–6, Global Constraints): số đếm tabular-nums — chữ số \"19 / 22\" đều bề ngang nên rộng hơn 3.5px; `.ui-caption` của preview để chữ số tỷ lệ."
+      }
+    },
+    {
+      "khoa": "tim",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-tim",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-search\"]"
+    },
+    {
+      "khoa": "timIcon",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-tim > .ui-icon",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-search\"] > svg",
+      "props": [
+        "width",
+        "height",
+        "color"
+      ]
+    },
+    {
+      "khoa": "timO",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-tim > .ui-input",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-search\"] input",
+      "lyDo": {
+        "paddingRight": "Ô tìm thật là `OTimKiem` của bang/ (GIAO_DIEN_DS `oTimKiem_input`): chừa 36px bên phải cho nút × \"Xoá từ khoá\" hiện khi có chữ — preview là ô trần không có nút xoá."
+      }
+    },
+    {
+      "khoa": "nutChinh",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-dau > .ui-btn",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] header > button"
+    },
+    {
+      "khoa": "thanh",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-thanh",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-toolbar\"] > div:nth-child(2)"
+    },
+    {
+      "khoa": "tabs",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .ui-tabs-list",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [role=\"tablist\"]"
+    },
+    {
+      "khoa": "tabChon",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .ui-tabs-trigger[aria-selected=\"true\"]",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [role=\"tab\"][aria-selected=\"true\"]",
+      "con": [
+        {
+          "ten": "dem",
+          "artifact": "> .ui-tabs-count",
+          "ds": "> [data-slot=\"tabs-count\"]"
+        }
+      ]
+    },
+    {
+      "khoa": "congCu",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-cong-cu",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-tools\"]"
+    },
+    {
+      "khoa": "cai",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-loc-o > .ui-btn",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] button[aria-label=\"Cài đặt hiển thị\"]",
+      "boChu": true,
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "ngan",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-ngan",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"data-view-ngan\"]"
+    },
+    {
+      "khoa": "boCuc",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-bocuc",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [role=\"radiogroup\"]"
+    },
+    {
+      "khoa": "xemThuong",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-bocuc > :nth-child(1)",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [role=\"radiogroup\"] > :nth-child(1)",
+      "boChu": true,
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "xemChon",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-bocuc > [aria-checked=\"true\"]",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [role=\"radio\"][aria-checked=\"true\"]",
+      "boChu": true
+    },
+    {
+      "khoa": "xemNhanh",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-cong-cu > [aria-pressed]",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"toggle\"]",
+      "boChu": true,
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "muc2",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(2) > div:nth-child(2)",
+      "ds": "#data-view-toolbar [data-so=\"muc-congcu\"] > div"
+    },
+    {
+      "khoa": "congCu2",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(2) .b-cong-cu",
+      "ds": "#data-view-toolbar [data-so=\"muc-congcu\"] [data-slot=\"data-view-tools\"]"
+    },
+    {
+      "khoa": "tip",
+      "artifact": ".ds-tinh > .ds-muc:nth-child(2) .ui-tip.is-tip",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "tro": "#data-view-toolbar [data-so=\"muc-congcu\"] button[aria-label=\"Cài đặt hiển thị\"]"
+        },
+        {
+          "cho": 700
+        }
+      ],
+      "props": [
+        "height",
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft",
+        "borderRadius",
+        "fontFamily",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "color",
+        "backgroundColor",
+        "zIndex"
+      ]
+    },
+    {
+      "khoa": "caiDat",
+      "artifact": ".ds-hang > .ds-muc:nth-child(1) > .b-caidat",
+      "ds": "[data-ds-portal] [data-slot=\"cai-dat-hien-thi\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#data-view-toolbar [data-so=\"muc-congcu\"] button[aria-label=\"Cài đặt hiển thị\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "lyDo": {
+        "width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "tieuDe.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "muc.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "ngan.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8)."
+      },
+      "con": [
+        {
+          "ten": "tieuDe",
+          "artifact": "> .b-cd-tieude",
+          "ds": "> div:first-child"
+        },
+        {
+          "ten": "dong",
+          "artifact": "> .b-cd-tieude > .ui-btn",
+          "ds": "> div:first-child > button",
+          "boChu": true
+        },
+        {
+          "ten": "muc",
+          "artifact": "> button:nth-child(2)",
+          "ds": "> [data-trang=\"bocuc\"]"
+        },
+        {
+          "ten": "icon",
+          "artifact": "> button:nth-child(2) > svg:first-child",
+          "ds": "> [data-trang=\"bocuc\"] > svg:first-child",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "giaTri",
+          "artifact": "> button:nth-child(2) > .b-cd-gt",
+          "ds": "> [data-trang=\"bocuc\"] > span"
+        },
+        {
+          "ten": "mui",
+          "artifact": "> button:nth-child(2) > .b-cd-mui",
+          "ds": "> [data-trang=\"bocuc\"] > svg:last-child",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "ngan",
+          "artifact": "> .ui-menu-sep",
+          "ds": "> div:nth-of-type(2)"
+        }
+      ]
+    },
+    {
+      "khoa": "trangCon",
+      "artifact": ".ds-hang > .ds-muc:nth-child(2) > .b-caidat",
+      "ds": "[data-ds-portal] [data-slot=\"cai-dat-hien-thi\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#data-view-toolbar [data-so=\"muc-congcu\"] button[aria-label=\"Cài đặt hiển thị\"]"
+        },
+        {
+          "cho": 400
+        },
+        {
+          "bam": "[data-ds-portal] [data-slot=\"cai-dat-hien-thi\"] [data-trang=\"cot\"]"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "lyDo": {
+        "height@1440": "Preview vẽ menu tĩnh (`.ds-tinh .b-caidat { max-height: none }`) → cao đủ 12 cột (462). DS là pop nổi thật: trần thêm theo chỗ trống dưới nút (`--radix-popover-content-available-height`, luật NGUON) — khung nhìn 900, nút ở giữa trang → còn 422, cuộn bên trong. Không trần thì đáy menu tràn khỏi màn (đo ảnh tự kiểm).",
+        "width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "dau.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "nhan.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "muc.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8).",
+        "mucKhoa.width@390": "Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8)."
+      },
+      "con": [
+        {
+          "ten": "dau",
+          "artifact": "> .b-cd-dau",
+          "ds": "> div:first-child"
+        },
+        {
+          "ten": "lui",
+          "artifact": "> .b-cd-dau > .ui-btn",
+          "ds": "> div:first-child > button",
+          "boChu": true
+        },
+        {
+          "ten": "nhan",
+          "artifact": "> .ui-menu-label",
+          "ds": "> div:nth-child(2)"
+        },
+        {
+          "ten": "muc",
+          "artifact": "> label:nth-of-type(1)",
+          "ds": "> label:nth-of-type(1)"
+        },
+        {
+          "ten": "o",
+          "artifact": "> label:nth-of-type(1) > .ui-checkbox",
+          "ds": "> label:nth-of-type(1) > button",
+          "boChu": true
+        },
+        {
+          "ten": "mucKhoa",
+          "artifact": "> label:nth-of-type(3)",
+          "ds": "> label:nth-of-type(3)"
+        }
+      ]
+    }
+  ]
+}

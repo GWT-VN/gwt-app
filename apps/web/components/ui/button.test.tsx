@@ -85,11 +85,11 @@ test('ghost: nền accent khi aria-pressed/checked/expanded; destructive: vòng 
   expect(d).not.toContain('focus-visible:outline-ring')
 })
 
-test('ghost đang bật (pressed/expanded/checked): nền accent thắng :active như bundle.css', () => {
+test('ghost đang bật (pressed/expanded/checked/data-state=on): nền accent thắng :active như bundle.css', () => {
   const g = lop(renderToStaticMarkup(<Button variant="ghost">x</Button>))
   const active = g.filter((c) => c.includes('active:'))
   expect(active).toEqual([
-    'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
+    'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:not-data-[state=on]:active:bg-(--color-background-primary-ghost-active)',
   ])
 })
 

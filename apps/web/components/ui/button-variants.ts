@@ -65,8 +65,10 @@ export const buttonVariants = cva(
           'bg-transparent text-foreground',
           'not-disabled:not-aria-disabled:hover:bg-accent not-disabled:not-aria-disabled:hover:text-accent-foreground',
           // Đang bật (pressed/expanded/checked) thì nền accent thắng :active — bundle.css khai rule đó sau :active.
-          'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--color-background-primary-ghost-active)',
-          'aria-pressed:bg-accent aria-checked:bg-accent aria-expanded:bg-accent',
+          // `data-state=on`: Toggle / ToggleGroupItem (toggle-group.tsx) — README DataViewToolbar "đang chọn/bật/mở: nền
+          // accent". Bọc trong Tooltip thì Trigger asChild đè data-state ("closed") → aria-* mới là tín hiệu chắc chắn.
+          'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:not-data-[state=on]:active:bg-(--color-background-primary-ghost-active)',
+          'aria-pressed:bg-accent aria-checked:bg-accent aria-expanded:bg-accent data-[state=on]:bg-accent',
           'focus-visible:-outline-offset-1 disabled:not-data-loading:bg-transparent',
         ],
         destructive: [

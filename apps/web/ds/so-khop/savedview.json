@@ -1,0 +1,184 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": [
+      "#saved-view > div",
+      "[data-ds-portal] [data-slot=\"saved-view\"]"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "cho": 1500
+      },
+      {
+        "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+      },
+      {
+        "cho": 400
+      }
+    ]
+  },
+  "chuaDo": [
+    "Preview vẽ popover tĩnh, không có nút \"Lưu bộ lọc\"; DS mở bằng bấm nút đó trên FilterBar thật (khe `phai` của ThanhDangLoc) — nút là Button ghost sm (đo ở so-khop Button / FilterBar)",
+    "Vị trí (neo mép phải nút, cách 4): Radix Popper đặt toạ độ, getComputedStyle không đo — xem ảnh",
+    "Câu lỗi tên trống (\"Đặt tên để tìm lại trong sidebar.\") + ô aria-invalid: preview không vẽ trạng thái lỗi — FieldError đã đo ở so-khop Input; hành vi ở test jsdom components/ui/data-view.dom.test.tsx",
+    "Focus sẵn ô tên, Enter lưu (không khi đang ghép chữ), lưu → onLuu + toast, Huỷ/Esc đóng: test jsdom components/ui/data-view.dom.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": ".ui-saveview",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ `.ui-menu.ui-saveview` tĩnh, không lớp nổi → auto. Popover thật của prototype là `.b-noi` (z-index 90, thang z NGUON \"menu 90\"); DS dùng z-90 của menuContent/Popover như DropdownMenu."
+      }
+    },
+    {
+      "khoa": "tieuDe",
+      "artifact": ".ui-saveview-title",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"] h2",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ]
+    },
+    {
+      "khoa": "tomTat",
+      "artifact": ".ui-saveview-sum",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"] form > div:nth-of-type(1)",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "con": [
+        {
+          "ten": "chip",
+          "artifact": "> .ui-chip",
+          "ds": "> span"
+        },
+        {
+          "ten": "giaTri",
+          "artifact": "> .ui-chip > strong",
+          "ds": "> span > strong",
+          "props": [
+            "fontWeight",
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "truong",
+      "artifact": ".ui-saveview .ui-field",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"] [data-slot=\"field\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "con": [
+        {
+          "ten": "nhan",
+          "artifact": "> .ui-label",
+          "ds": "> label"
+        },
+        {
+          "ten": "o",
+          "artifact": "> .ui-input",
+          "ds": "> input"
+        }
+      ]
+    },
+    {
+      "khoa": "chiaSe",
+      "artifact": ".ui-saveview .ui-checkbox-label",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"] [data-slot=\"choice-label\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "boChu": true
+        },
+        {
+          "ten": "moTa",
+          "artifact": ".ui-choice-desc",
+          "ds": "[data-slot=\"choice-description\"]"
+        }
+      ]
+    },
+    {
+      "khoa": "chan",
+      "artifact": ".ui-saveview-foot",
+      "ds": "[data-ds-portal] [data-slot=\"saved-view\"] form > div:last-child",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#saved-view button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "con": [
+        {
+          "ten": "huy",
+          "artifact": "> .ui-btn:nth-child(1)",
+          "ds": "> button:nth-child(1)"
+        },
+        {
+          "ten": "luu",
+          "artifact": "> .ui-btn:nth-child(2)",
+          "ds": "> button:nth-child(2)"
+        }
+      ]
+    }
+  ]
+}
