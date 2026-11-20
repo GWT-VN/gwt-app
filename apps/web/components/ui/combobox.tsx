@@ -164,6 +164,7 @@ export function ComboboxPanel({
   searchPlaceholder = 'Gõ mã hoặc tên…',
   max = 30,
   defaultSearch = '',
+  tinh = false,
   className,
 }: {
   value: string | null
@@ -173,6 +174,13 @@ export function ComboboxPanel({
   searchPlaceholder?: string
   max?: number
   defaultSearch?: string
+  /**
+   * Mặt vẽ tĩnh NẰM SẴN trên trang (khối /ds): cùng DOM/class nhưng phần tử thường — không cmdk, `inert` (không focus,
+   * không thêm combobox/listbox thường trực vào cây a11y), ô tìm chỉ đọc. ⚠️ cmdk 1.1.1 gọi `scrollIntoView({ block:
+   * 'nearest' })` lên mục sáng lúc mount / đổi mục → mặt cmdk sống giữa trang kéo CẢ CỬA SỔ tới nó (cùng bẫy
+   * CommandPanel/RecordPicker, review đợt 2 M9). Pop thật (Combobox mở) không dùng `tinh`.
+   */
+  tinh?: boolean
   className?: string
 }) {
   // `go` = chữ trong ô (kể cả đang ghép dở); `q` = chữ dùng để lọc/tìm — chỉ cập nhật khi bộ gõ ghép xong.
@@ -215,6 +223,86 @@ export function ComboboxPanel({
     ghiChu = tong >= max ? `${ds.length} kết quả đầu — gõ thêm để thu hẹp` : `${tong} kết quả`
   else ghiChu = tong > ds.length ? `Đang hiện ${ds.length} / ${tong} mục — gõ thêm để thu hẹp` : `${tong} mục`
 
+  // `.ui-menu-search`: cao 32, padding 0 8, gap 8, tràn mép menu (margin −6 −6 6 = --menu-gutter), gạch dưới 1px
+  // border; focus trong ô → gạch alpha-50.
+  const hangTim = (o: ReactNode) => (
+    <div
+      data-slot="combobox-search"
+      className={cn(
+        'flex items-center gap-2 h-(--control-size-md) px-2 -mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)',
+        // Chỉ cạnh dưới có viền (cạnh khác none, màu currentColor như `border: 0` của nguồn).
+        'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
+        '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
+      )}
+    >
+      <MagnifyingGlass aria-hidden="true" />
+      {o}
+    </div>
+  )
+  const lopO = cn(
+    'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
+    'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
+  )
+  // `.ui-menu-list`: cao tối đa 240 (bundle.css gõ 240px), cuộn, thanh cuộn alpha-30.
+  const lopDs =
+    'max-h-[240px] overflow-y-auto [scrollbar-color:var(--alpha-30)_transparent] border-none border-current outline-none'
+  // cmdk đánh dấu mục đang sáng bằng data-selected (không phải data-highlighted của Radix).
+  const lopMuc = cn(menuItem, 'data-[selected=true]:bg-(--menu-item-bg)')
+  const noiDung = (m: MucChon) => (
+    <>
+      {m.nhan !== m.gt && (
+        // `.ui-menu-item .ui-code`: mono 12, muted, rộng tối thiểu 24 (bundle.css gõ 24px); số thẳng cột.
+        <span className="min-w-[24px] shrink-0 font-mono text-[12px] tabular-nums text-muted-foreground">{m.gt}</span>
+      )}
+      <span className="min-w-0 truncate">{m.nhan}</span>
+      {m.phu && <span className="min-w-0 truncate text-[12px] text-muted-foreground">{m.phu}</span>}
+      {m.gt === value && (
+        <>
+          <span className="sr-only">(đang chọn)</span>
+          <Check aria-hidden="true" className={menuCheck} />
+        </>
+      )}
+    </>
+  )
+  // `.ui-menu-note` / `.ui-menu-empty` (cùng số đo): padding 6 8, 12/18, muted. Đang tìm: spinner cách chữ 8.
+  const ghiChuO = (
+    <div
+      aria-live={tinh ? undefined : 'polite'}
+      data-slot="combobox-note"
+      className={cn(
+        'px-2 py-1.5 border-none border-current text-[12px] leading-[18px] text-muted-foreground',
+        !options && !xa.loi && !xa.thieuKyTu && xa.dangTim && 'flex items-center gap-2',
+      )}
+    >
+      {ghiChu}
+    </div>
+  )
+
+  if (tinh)
+    return (
+      <div cmdk-root="" inert className={className}>
+        {hangTim(<input readOnly tabIndex={-1} value={go} aria-label="Tìm theo mã hoặc tên" placeholder={searchPlaceholder} className={lopO} />)}
+        <div cmdk-list="" role="listbox" aria-label="Kết quả" className={lopDs}>
+          <div cmdk-list-sizer="">
+            {ds.map((m) => (
+              <div
+                key={m.gt}
+                cmdk-item=""
+                role="option"
+                aria-selected={m.gt === sangThat}
+                data-selected={m.gt === sangThat}
+                data-checked={m.gt === value || undefined}
+                className={lopMuc}
+              >
+                {noiDung(m)}
+              </div>
+            ))}
+          </div>
+        </div>
+        {ghiChuO}
+      </div>
+    )
+
   return (
     <CommandPrimitive
       ref={gocRef}
@@ -229,18 +317,7 @@ export function ComboboxPanel({
         if (ghep.current && e.key === 'Enter') e.preventDefault()
       }}
     >
-      {/* `.ui-menu-search`: cao 32, padding 0 8, gap 8, tràn mép menu (margin −6 −6 6 = --menu-gutter), gạch dưới 1px
-          border; focus trong ô → gạch alpha-50. */}
-      <div
-        data-slot="combobox-search"
-        className={cn(
-          'flex items-center gap-2 h-(--control-size-md) px-2 -mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)',
-          // Chỉ cạnh dưới có viền (cạnh khác none, màu currentColor như `border: 0` của nguồn).
-          'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
-          '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
-        )}
-      >
-        <MagnifyingGlass aria-hidden="true" />
+      {hangTim(
         <CommandPrimitive.Input
           value={go}
           onValueChange={(v) => {
@@ -255,55 +332,23 @@ export function ComboboxPanel({
             setQ(e.currentTarget.value)
           }}
           placeholder={searchPlaceholder}
-          className={cn(
-            'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
-            'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
-          )}
-        />
-      </div>
-      {/* `.ui-menu-list`: cao tối đa 240 (bundle.css gõ 240px), cuộn, thanh cuộn alpha-30. */}
-      <CommandPrimitive.List
-        label="Kết quả"
-        className="max-h-[240px] overflow-y-auto [scrollbar-color:var(--alpha-30)_transparent] border-none border-current outline-none"
-      >
-        {ds.map((m) => {
-          const chon = m.gt === value
-          return (
-            <CommandPrimitive.Item
-              key={m.gt}
-              value={m.gt}
-              onSelect={() => onSelect(m)}
-              data-checked={chon || undefined}
-              // cmdk đánh dấu mục đang sáng bằng data-selected (không phải data-highlighted của Radix).
-              className={cn(menuItem, 'data-[selected=true]:bg-(--menu-item-bg)')}
-            >
-              {m.nhan !== m.gt && (
-                // `.ui-menu-item .ui-code`: mono 12, muted, rộng tối thiểu 24 (bundle.css gõ 24px); số thẳng cột.
-                <span className="min-w-[24px] shrink-0 font-mono text-[12px] tabular-nums text-muted-foreground">{m.gt}</span>
-              )}
-              <span className="min-w-0 truncate">{m.nhan}</span>
-              {m.phu && <span className="min-w-0 truncate text-[12px] text-muted-foreground">{m.phu}</span>}
-              {chon && (
-                <>
-                  <span className="sr-only">(đang chọn)</span>
-                  <Check aria-hidden="true" className={menuCheck} />
-                </>
-              )}
-            </CommandPrimitive.Item>
-          )
-        })}
+          className={lopO}
+        />,
+      )}
+      <CommandPrimitive.List label="Kết quả" className={lopDs}>
+        {ds.map((m) => (
+          <CommandPrimitive.Item
+            key={m.gt}
+            value={m.gt}
+            onSelect={() => onSelect(m)}
+            data-checked={m.gt === value || undefined}
+            className={lopMuc}
+          >
+            {noiDung(m)}
+          </CommandPrimitive.Item>
+        ))}
       </CommandPrimitive.List>
-      {/* `.ui-menu-note` / `.ui-menu-empty` (cùng số đo): padding 6 8, 12/18, muted. Đang tìm: spinner cách chữ 8. */}
-      <div
-        aria-live="polite"
-        data-slot="combobox-note"
-        className={cn(
-          'px-2 py-1.5 border-none border-current text-[12px] leading-[18px] text-muted-foreground',
-          !options && !xa.loi && !xa.thieuKyTu && xa.dangTim && 'flex items-center gap-2',
-        )}
-      >
-        {ghiChu}
-      </div>
+      {ghiChuO}
     </CommandPrimitive>
   )
 }

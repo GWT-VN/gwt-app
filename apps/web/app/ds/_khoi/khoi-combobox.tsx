@@ -30,7 +30,7 @@ const timGia = (q: string) =>
 /** Mặt `.ui-menu` nằm tĩnh trong cột (không nổi): bỏ z của lớp menu. */
 const matTinh = cn(menuContent, 'z-auto')
 
-/** Ba trạng thái vẽ tĩnh bằng thân pop — dùng chung khối cũ (một cột) và bản hàng (mỗi trạng thái một hàng). */
+/** Ba trạng thái vẽ tĩnh bằng thân pop (`tinh`: không cmdk sống — không cuộn trang, không listbox thường trực) — dùng chung khối cũ (một cột) và bản hàng (mỗi trạng thái một hàng). */
 const TRANG_THAI: { ten: string; moTa: string; options?: MucChon[]; tim?: typeof timTreo; defaultSearch: string }[] = [
   { ten: 'Không có kết quả', moTa: 'Gõ không khớp mục nào — danh sách báo rõ, không để trống trơn.', options: TINH, defaultSearch: 'zzz' },
   { ten: 'Tìm trên máy chủ: gõ thêm', moTa: 'Chưa đủ 2 ký tự — chưa tìm, nhắc gõ thêm.', tim: timTreo, defaultSearch: 'n' },
@@ -39,7 +39,7 @@ const TRANG_THAI: { ten: string; moTa: string; options?: MucChon[]; tim?: typeof
 
 function PanelTrangThai({ options, tim, defaultSearch }: (typeof TRANG_THAI)[number]) {
   return (
-    <ComboboxPanel className={matTinh} value={null} onSelect={() => {}} options={options} tim={tim} defaultSearch={defaultSearch} />
+    <ComboboxPanel tinh className={matTinh} value={null} onSelect={() => {}} options={options} tim={tim} defaultSearch={defaultSearch} />
   )
 }
 

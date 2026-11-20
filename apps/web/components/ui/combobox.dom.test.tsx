@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import type { MucChon } from '@/bang'
-import { Combobox } from './combobox'
+import { Combobox, ComboboxPanel } from './combobox'
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { DsRoot } from './ds-root'
 
@@ -290,5 +290,34 @@ test('tìm xa: kết quả chạm trần max → "N kết quả đầu — gõ t
     expect(screen.getByText('5 kết quả đầu — gõ thêm để thu hẹp').getAttribute('aria-live')).toBe('polite')
   } finally {
     vi.useRealTimers()
+  }
+})
+
+test('ComboboxPanel tinh (mặt nằm sẵn trên trang): KHÔNG scrollIntoView (cmdk 1.1.1 kéo cả cửa sổ tới mục sáng), inert, không listbox sống, ô tìm chỉ đọc', () => {
+  const cuon = vi.fn()
+  const goc = Element.prototype.scrollIntoView
+  Element.prototype.scrollIntoView = cuon
+  try {
+    const { container } = render(
+      <DsRoot>
+        <ComboboxPanel tinh value="04" options={TINH} defaultSearch="ha" onSelect={() => {}} />
+      </DsRoot>,
+    )
+    expect(cuon).not.toHaveBeenCalled()
+    const mat = container.querySelector('[cmdk-root]')!
+    expect(mat.hasAttribute('inert')).toBe(true)
+    expect(container.querySelectorAll('[role="listbox"]:not([inert] *)')).toHaveLength(0)
+    const o = mat.querySelector('input')!
+    expect(o.readOnly).toBe(true)
+    expect(o.tabIndex).toBe(-1)
+    expect(o.value).toBe('ha')
+    // cùng nội dung bản sống: lọc theo chữ, mục đầu sáng, mục đang chọn ✓, ghi chú
+    const muc = [...mat.querySelectorAll('[cmdk-item]')]
+    expect(muc.map((m) => m.textContent)).toEqual(['01Hà Nội', '04Hải Phòng(đang chọn)'])
+    expect(muc[0].getAttribute('data-selected')).toBe('true')
+    expect(muc[1].getAttribute('data-checked')).toBe('true')
+    expect(mat.querySelector('[data-slot="combobox-note"]')?.textContent).toBe('2 mục')
+  } finally {
+    Element.prototype.scrollIntoView = goc
   }
 })
