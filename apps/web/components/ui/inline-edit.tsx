@@ -10,8 +10,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react'
-import { ArrowLeft, CaretDown, CaretRight, Check, PencilSimple, WarningCircle } from '@phosphor-icons/react/ssr'
-import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
+import { ArrowLeft, CaretDown, CaretRight, PencilSimple, WarningCircle } from '@phosphor-icons/react/ssr'
 import { isoNgay, ngayTuIso } from '@/bang/ngay'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { cn } from '@/lib/utils'
@@ -20,7 +19,15 @@ import { Badge, BadgeCaret, type badgeVariants } from './badge'
 import { Calendar } from './calendar'
 import { calendarPop } from './calendar-styles'
 import { ComboboxPanel } from './combobox'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from './dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu'
 import { Input } from './input'
 import {
   cat,
@@ -37,7 +44,7 @@ import {
   oSuaWrap,
   recordPickerKhung,
 } from './inline-edit-styles'
-import { menuCheck, menuContent, menuItem } from './menu-styles'
+import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { RecordPicker, type BanGhi } from './record-picker'
 import { thongBao } from './toast'
@@ -111,7 +118,7 @@ function NeoO({ children }: { children: ReactNode }) {
   )
 }
 
-/** Mục radio của menu ô (Radix RadioItem + kiểu `.ui-menu-item`; ✓ bên phải khi đang chọn — `.b-tick` 16 trong `.b-noi`). */
+/** Mục radio của menu ô = `DropdownMenuRadioItem` DS (✓ bên phải khi đang chọn — `.b-tick` 16 trong `.b-noi`). */
 function MucRadio({
   value,
   children,
@@ -125,14 +132,9 @@ function MucRadio({
   onSelect(e: Event): void
 }) {
   return (
-    <DropdownMenuPrimitive.RadioItem value={value} onSelect={onSelect} className={menuItem}>
+    <DropdownMenuRadioItem value={value} onSelect={onSelect} indicator={phai}>
       {children}
-      {phai ?? (
-        <DropdownMenuPrimitive.ItemIndicator asChild>
-          <Check aria-hidden="true" className={menuCheck} />
-        </DropdownMenuPrimitive.ItemIndicator>
-      )}
-    </DropdownMenuPrimitive.RadioItem>
+    </DropdownMenuRadioItem>
   )
 }
 
@@ -184,13 +186,13 @@ export function OSuaNhan<T extends string>({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className={cn(rong && 'min-w-[240px]')}>
-          <DropdownMenuPrimitive.RadioGroup value={gt}>
+          <DropdownMenuRadioGroup value={gt}>
             {muc.map((m) => (
               <MucRadio key={m.gt} value={m.gt} onSelect={() => luu(m.gt)}>
                 {m.nhan}
               </MucRadio>
             ))}
-          </DropdownMenuPrimitive.RadioGroup>
+          </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </NeoO>
@@ -297,16 +299,16 @@ export function OSuaTrangThai({
                 Quay lại
               </DropdownMenuItem>
               <DropdownMenuLabel>{tim(buoc2)?.nhan ?? buoc2} vì…</DropdownMenuLabel>
-              <DropdownMenuPrimitive.RadioGroup value={gt.tt === buoc2 && gt.lyDo ? gt.lyDo : ''}>
+              <DropdownMenuRadioGroup value={gt.tt === buoc2 && gt.lyDo ? gt.lyDo : ''}>
                 {lyDo.map((l) => (
                   <MucRadio key={l} value={l} onSelect={() => luu({ tt: buoc2, lyDo: l })}>
                     {tim(buoc2)?.nhan ?? buoc2} {l}
                   </MucRadio>
                 ))}
-              </DropdownMenuPrimitive.RadioGroup>
+              </DropdownMenuRadioGroup>
             </>
           ) : (
-            <DropdownMenuPrimitive.RadioGroup value={gt.tt}>
+            <DropdownMenuRadioGroup value={gt.tt}>
               {muc.map((m) => (
                 <MucRadio
                   key={m.gt}
@@ -331,7 +333,7 @@ export function OSuaTrangThai({
                   </span>
                 </MucRadio>
               ))}
-            </DropdownMenuPrimitive.RadioGroup>
+            </DropdownMenuRadioGroup>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

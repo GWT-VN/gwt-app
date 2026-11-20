@@ -25,8 +25,7 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
-import { ArrowDown, ArrowUp, CaretDown, Check, Funnel } from '@phosphor-icons/react/ssr'
-import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
+import { ArrowDown, ArrowUp, CaretDown, Funnel } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Badge, BadgeDot } from './badge'
 import { useDsPortal } from './ds-root'
@@ -36,10 +35,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu'
-import { menuCheck, menuItem } from './menu-styles'
 import { KeoCtx, useOKeo } from './table'
 import * as s from './table-styles'
 import { toiThieu, type BenTha, type CotBang } from './use-cot-bang'
@@ -95,21 +95,19 @@ export function TieuDeCot<C extends CotBang>(props: PropsTieuDeCot<C>) {
 }
 
 type Keo = {
-  nodeRef: (el: HTMLElement | null) => void
-  handleRef: (el: HTMLElement | null) => void
+  datO: (el: HTMLElement | null) => void
+  datTay: (el: HTMLElement | null) => void
   onPointerDown?: PointerEventHandler
   onKeyDown: (e: ReactKeyboardEvent) => void
   moTa?: string
   dangKeo: boolean
-  ketThuc: { current: number }
 }
 
 function TieuDeKeo(p: PropsTieuDeCot) {
-  const ctx = useContext(KeoCtx)!
   const so = useSortable({ id: p.cot.id, disabled: { draggable: !!p.cot.khoa, droppable: false } })
   const keo: Keo = {
-    nodeRef: so.setNodeRef,
-    handleRef: so.setActivatorNodeRef,
+    datO: so.setNodeRef,
+    datTay: so.setActivatorNodeRef,
     onPointerDown: so.listeners?.onPointerDown as PointerEventHandler | undefined,
     onKeyDown: (e) => {
       // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — chặn Radix mở menu bằng Space/Enter/↓ khi thả.
@@ -123,16 +121,19 @@ function TieuDeKeo(p: PropsTieuDeCot) {
     },
     moTa: p.cot.khoa ? undefined : so.attributes['aria-describedby'],
     dangKeo: !!so.active,
-    ketThuc: ctx.ketThuc,
   }
   return <ODau p={p} keo={keo} />
 }
 
 function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
+  // Tách sẵn: luật react-hooks/refs coi cả object `keo` là ref vì một trường của nó gắn vào `ref=`.
+  const coKeo = !!keo
+  const { datO, datTay, onPointerDown: nhanKeo, onKeyDown: phimKeo, moTa, dangKeo } = keo ?? {}
   const { cot, sap, loc, coDan, viTri = 0, menuPhai, la = 'th', className } = p
   const [mo, setMo] = useState(false)
   const bd = useRef<{ x: number; w: number } | null>(null)
   const oKeo = useOKeo(cot.id)
+  const ketThuc = useContext(KeoCtx)?.ketThuc
   const Tag = la
   const soLoc = loc?.daChon.length ?? 0
   const coMenu = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
@@ -170,26 +171,26 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            ref={keo?.handleRef}
+            ref={datTay}
             className={nutLop}
             data-on={nghia || soLoc ? '' : undefined}
-            aria-describedby={keo?.moTa}
-            onKeyDown={keo?.onKeyDown}
+            aria-describedby={moTa}
+            onKeyDown={phimKeo}
             // Trong KeoCot: nhấn chuột là bắt đầu KÉO — menu mở khi nhả (click), không mở lúc nhấn như Radix mặc định
             // (menu modal mở giữa lúc kéo). Giao cho cảm biến kéo TRƯỚC rồi mới preventDefault (chặn Radix): dnd-kit bỏ
             // qua sự kiện đã bị preventDefault (đo bằng chuột CDP thật). Click ngay sau khi thả / lúc đang nhấc → bỏ qua.
             onPointerDown={
-              keo
+              coKeo
                 ? (e) => {
-                    keo.onPointerDown?.(e)
+                    nhanKeo?.(e)
                     e.preventDefault()
                   }
                 : undefined
             }
             onClick={
-              keo
+              coKeo
                 ? () => {
-                    if (keo.dangKeo || Date.now() - keo.ketThuc.current < 300) return
+                    if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
                     setMo((m) => !m)
                   }
                 : undefined
@@ -208,16 +209,13 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           {cot.kieu === 'sap' && sap && (
             <>
               <DropdownMenuLabel>Sắp xếp</DropdownMenuLabel>
-              <DropdownMenuPrimitive.RadioGroup value={sap.chieu ?? ''} onValueChange={(v) => sap.onDoi(v as Chieu)}>
+              <DropdownMenuRadioGroup value={sap.chieu ?? ''} onValueChange={(v) => sap.onDoi(v as Chieu)}>
                 {(['tang', 'giam'] as const).map((ch) => (
-                  <DropdownMenuPrimitive.RadioItem key={ch} value={ch} className={menuItem}>
+                  <DropdownMenuRadioItem key={ch} value={ch}>
                     {cot.nghia[ch]}
-                    <DropdownMenuPrimitive.ItemIndicator asChild>
-                      <Check aria-hidden="true" className={menuCheck} />
-                    </DropdownMenuPrimitive.ItemIndicator>
-                  </DropdownMenuPrimitive.RadioItem>
+                  </DropdownMenuRadioItem>
                 ))}
-              </DropdownMenuPrimitive.RadioGroup>
+              </DropdownMenuRadioGroup>
               {sap.chieu && (
                 <>
                   <DropdownMenuSeparator />
@@ -258,16 +256,16 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
         </DropdownMenuContent>
       </DropdownMenu>
     )
-  } else if (keo && !cot.khoa) {
+  } else if (coKeo && !cot.khoa) {
     // Cột không menu: nhãn là tay cầm bàn phím (role button của dnd-kit) — không có gì khác để focus.
     noiDung = (
       <span
-        ref={keo.handleRef}
+        ref={datTay}
         role="button"
         tabIndex={0}
         aria-roledescription="cột kéo được"
-        aria-describedby={keo.moTa}
-        onKeyDown={keo.onKeyDown}
+        aria-describedby={moTa}
+        onKeyDown={phimKeo}
         className={nutLop}
       >
         {nhan}
@@ -279,15 +277,15 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
 
   return (
     <Tag
-      ref={keo?.nodeRef}
+      ref={datO}
       data-slot="table-head"
       data-cot={cot.id}
       role={la === 'div' ? 'columnheader' : undefined}
       aria-sort={ariaSort}
       {...oKeo}
-      className={cn(s.th, keo && !cot.khoa && s.thKeo, s.oKeo, cot.phai && s.phai, className)}
+      className={cn(s.th, coKeo && !cot.khoa && s.thKeo, s.oKeo, cot.phai && s.phai, className)}
       style={{ zIndex: Math.max(3, 20 - viTri) }}
-      onPointerDown={keo?.onPointerDown}
+      onPointerDown={nhanKeo}
     >
       {noiDung}
       {coDan && (

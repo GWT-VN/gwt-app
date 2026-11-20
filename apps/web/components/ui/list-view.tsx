@@ -1,8 +1,7 @@
 'use client'
 
 import { Fragment, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
-import { ArrowDown, ArrowUp, Check, Funnel } from '@phosphor-icons/react/ssr'
-import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
+import { ArrowDown, ArrowUp, Funnel } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Badge, BadgeDot } from './badge'
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from './context-menu'
@@ -12,11 +11,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import * as l from './list-view-styles'
-import { menuCheck, menuItem } from './menu-styles'
 import * as s from './table-styles'
 import { TieuDeCot, type MucLoc, type PropsTieuDeCot } from './tieu-de-cot'
 import type { NghiaSap } from './use-cot-bang'
@@ -234,7 +234,7 @@ export function TieuDeGop({ ten, sap, loc = [] }: PropsTieuDeGop) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" aria-labelledby={undefined} aria-label={`Sắp xếp và lọc ${tenNho}`} className="w-[240px]">
           <DropdownMenuLabel>Sắp xếp</DropdownMenuLabel>
-          <DropdownMenuPrimitive.RadioGroup
+          <DropdownMenuRadioGroup
             value={dang && chieu ? `${dang.id}:${chieu}` : ''}
             onValueChange={(v) => {
               const [id, ch] = v.split(':')
@@ -243,15 +243,12 @@ export function TieuDeGop({ ten, sap, loc = [] }: PropsTieuDeGop) {
           >
             {sap.khoa.flatMap((k) =>
               (['tang', 'giam'] as const).map((ch) => (
-                <DropdownMenuPrimitive.RadioItem key={`${k.id}:${ch}`} value={`${k.id}:${ch}`} className={menuItem}>
+                <DropdownMenuRadioItem key={`${k.id}:${ch}`} value={`${k.id}:${ch}`}>
                   {k.ten} · {k.nghia[ch].toLowerCase()}
-                  <DropdownMenuPrimitive.ItemIndicator asChild>
-                    <Check aria-hidden="true" className={menuCheck} />
-                  </DropdownMenuPrimitive.ItemIndicator>
-                </DropdownMenuPrimitive.RadioItem>
+                </DropdownMenuRadioItem>
               )),
             )}
-          </DropdownMenuPrimitive.RadioGroup>
+          </DropdownMenuRadioGroup>
           {dang && <DropdownMenuItem onSelect={() => sap.onDoi(null)}>Bỏ sắp xếp</DropdownMenuItem>}
           {loc.map((g) => (
             <Fragment key={g.id}>

@@ -29,7 +29,6 @@ import {
 import { CHON_BANG, cotDem, ma as lopMa } from '@/components/ui/table-styles'
 import { KeoCot, TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
-import { cn } from '@/lib/utils'
 import { BienThe, KhoiHang } from '../_khung/tam'
 import { Nhan } from './khoi-filter-bar'
 

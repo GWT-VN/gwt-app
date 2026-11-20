@@ -11,6 +11,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
@@ -221,4 +223,50 @@ test('menu dài ở khung nhìn thấp: khung menu có trần cao min(420px, 100
   const menu = await screen.findByRole('menu')
   expect(menu.className).toContain('max-h-[min(420px,calc(100vh-16px))]')
   expect(menu.className).toContain('overflow-y-auto')
+})
+
+// RadioGroup / RadioItem (menu chọn một — tiêu đề cột Table, ô InlineEdit): ✓ bên phải mục đang chọn; mục chặn quyền
+// theo APG — vẫn focus được, chọn không đổi giá trị, menu không đóng.
+function MauRadio({ onDoi }: { onDoi: (v: string) => void }) {
+  const [v, setV] = useState('tang')
+  return (
+    <DsRoot>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button>Sắp</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuRadioGroup value={v} onValueChange={(x) => (setV(x), onDoi(x))}>
+            <DropdownMenuRadioItem value="tang">Gấp trước</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="giam">Ít gấp trước</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="khoa" disabled>
+              Theo người làm (không có quyền)
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </DsRoot>
+  )
+}
+
+test('RadioItem: aria-checked + ✓ ở mục đang chọn; chọn mục khác đổi giá trị; mục chặn quyền focus được, không đổi, không đóng', async () => {
+  const user = userEvent.setup()
+  const onDoi = vi.fn()
+  render(<MauRadio onDoi={onDoi} />)
+  await user.click(screen.getByRole('button', { name: 'Sắp' }))
+  const tang = await screen.findByRole('menuitemradio', { name: 'Gấp trước' })
+  expect(tang.getAttribute('aria-checked')).toBe('true')
+  expect(tang.querySelector('svg')).not.toBeNull()
+  expect(screen.getByRole('menuitemradio', { name: 'Ít gấp trước' }).querySelector('svg')).toBeNull()
+  const khoa = screen.getByRole('menuitemradio', { name: 'Theo người làm (không có quyền)' })
+  expect(khoa.getAttribute('aria-disabled')).toBe('true')
+  expect(khoa.getAttribute('aria-checked')).toBe('false')
+  // ↑ từ mục đầu vòng xuống mục chặn quyền: vẫn dừng ở nó (APG)
+  await user.keyboard('{ArrowUp}')
+  await waitFor(() => expect(document.activeElement).toBe(khoa))
+  await user.keyboard('{Enter}')
+  expect(onDoi).not.toHaveBeenCalled()
+  expect(screen.getByRole('menu')).toBeTruthy()
+  await user.click(screen.getByRole('menuitemradio', { name: 'Ít gấp trước' }))
+  expect(onDoi).toHaveBeenLastCalledWith('giam')
 })

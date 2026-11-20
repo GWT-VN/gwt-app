@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useId, type ComponentProps } from 'react'
+import { createContext, useContext, useId, type ComponentProps, type ReactNode } from 'react'
 import { Check } from '@phosphor-icons/react/ssr'
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
@@ -22,7 +22,8 @@ import {
  * - `disabled` trên Item/CheckboxItem theo APG (không phải nghĩa Radix): item VẪN HIỆN và VẪN FOCUS được (↑/↓, gõ chữ
  *   đầu dừng ở nó) nhưng không kích hoạt — onSelect/onCheckedChange không chạy, menu không đóng. Ghi lý do ngay trong
  *   chữ ("Chuyển kho (không có quyền)") để trình đọc màn hình đọc kèm. Xem `itemDisabled` trong menu-styles.ts.
- * - Không animation, không sub-menu, không radio: artifact không định nghĩa.
+ * - Không animation, không sub-menu (artifact không định nghĩa). RadioGroup/RadioItem: menu chọn một của tiêu đề cột Table
+ *   và ô InlineEdit (README Table/InlineEdit).
  */
 /** Nút mở mang `data-ds-menu-trigger`, khung menu mang `data-trigger-id` cùng giá trị → mục menu mở Dialog/ConfirmDialog
  * thì hộp đóng xong focus về nút (use-nut-mo.ts). Không dựa `aria-labelledby` của Radix: nút `asChild` có `id` riêng
@@ -112,6 +113,68 @@ export function DropdownMenuCheckboxItem({
         <Check aria-hidden="true" className={menuCheck} />
       </DropdownMenuPrimitive.ItemIndicator>
     </DropdownMenuPrimitive.CheckboxItem>
+  )
+}
+
+/** Giá trị đang chọn của RadioGroup — mục chặn quyền (không phải RadioItem của Radix) tự đọc `aria-checked`. */
+const GiaTriRadio = createContext<string | undefined>(undefined)
+
+/** Nhóm chọn một (vd menu sắp của tiêu đề cột, menu ô InlineEdit). */
+export function DropdownMenuRadioGroup({ value, ...props }: ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
+  return (
+    <GiaTriRadio.Provider value={value}>
+      <DropdownMenuPrimitive.RadioGroup data-slot="dropdown-menu-radio-group" value={value} {...props} />
+    </GiaTriRadio.Provider>
+  )
+}
+
+/**
+ * Mục chọn một: ✓ bên phải mục đang chọn, không chừa chỗ khi chưa chọn — như CheckboxItem / `.b-tick` trong `.b-noi`.
+ * `indicator` thay ✓ (vd ▸ của mục mở bước 2 — luôn hiện).
+ * `disabled` theo APG (luật menu NGUON): vẫn hiện + focus được, không chọn, menu không đóng. Radix RadioItem gọi
+ * `onValueChange` của nhóm BẤT KỂ preventDefault → mục chặn quyền vẽ bằng Item thường mang `role="menuitemradio"` +
+ * `aria-checked` đọc từ nhóm.
+ */
+export function DropdownMenuRadioItem({
+  className,
+  children,
+  disabled,
+  onSelect,
+  indicator,
+  value,
+  ...props
+}: ComponentProps<typeof DropdownMenuPrimitive.RadioItem> & { indicator?: ReactNode }) {
+  const dangChon = useContext(GiaTriRadio) === value
+  if (disabled)
+    return (
+      <DropdownMenuPrimitive.Item
+        data-slot="dropdown-menu-radio-item"
+        role="menuitemradio"
+        aria-checked={dangChon}
+        data-state={dangChon ? 'checked' : 'unchecked'}
+        className={cn(menuItem, className)}
+        {...props}
+        {...itemDisabled(true)}
+      >
+        {children}
+        {indicator ?? (dangChon && <Check aria-hidden="true" className={menuCheck} />)}
+      </DropdownMenuPrimitive.Item>
+    )
+  return (
+    <DropdownMenuPrimitive.RadioItem
+      data-slot="dropdown-menu-radio-item"
+      value={value}
+      className={cn(menuItem, className)}
+      onSelect={onSelect}
+      {...props}
+    >
+      {children}
+      {indicator ?? (
+        <DropdownMenuPrimitive.ItemIndicator asChild>
+          <Check aria-hidden="true" className={menuCheck} />
+        </DropdownMenuPrimitive.ItemIndicator>
+      )}
+    </DropdownMenuPrimitive.RadioItem>
   )
 }
 
