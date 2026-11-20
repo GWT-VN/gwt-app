@@ -72,7 +72,7 @@ test('RadioGroup: Tab vào nhóm focus mục đang chọn, ↓ đổi lựa ch�
       <Nhom />
     </>,
   )
-  const ck = screen.getByRole('radio', { name: /Chuyển khoản/ })
+  const ck = screen.getByRole('radio', { name: 'Chuyển khoản' })
   const tm = screen.getByRole('radio', { name: 'Tiền mặt' })
   screen.getByText('trước').focus()
   await userEvent.tab()
@@ -129,4 +129,28 @@ test('RadioGroup orientation="horizontal" (asChild lên FieldSet): fieldset xế
   await waitFor(() => expect(document.activeElement).toBe(thuong))
   await userEvent.keyboard('{/ArrowDown}')
   expect(thuong.getAttribute('aria-checked')).toBe('true')
+})
+
+test('ChoiceDescription: tên đọc của ô chỉ là chữ nhãn, mô tả nằm trong description (nối sau aria-describedby sẵn có)', () => {
+  render(
+    <>
+      <Nhom />
+      <ChoiceLabel>
+        <Checkbox aria-describedby="ds-cb-loi" />
+        <span>
+          Gửi hoá đơn<ChoiceDescription>Gửi qua email khách (demo).</ChoiceDescription>
+        </span>
+      </ChoiceLabel>
+      <p id="ds-cb-loi">Cần xác nhận.</p>
+    </>,
+  )
+  screen.getByRole('radio', { name: 'Chuyển khoản', description: 'Đối soát tự động theo sao kê.' })
+  const tm = screen.getByRole('radio', { name: 'Tiền mặt' })
+  expect(tm.hasAttribute('aria-describedby')).toBe(false)
+  screen.getByRole('checkbox', { name: 'Gửi hoá đơn', description: 'Cần xác nhận. Gửi qua email khách (demo).' })
+})
+
+test('RadioGroup asChild FieldSet: nhóm lấy tên từ legend', () => {
+  render(<Nhom />)
+  expect(screen.getByRole('radiogroup', { name: 'Hình thức thanh toán' }).tagName).toBe('FIELDSET')
 })
