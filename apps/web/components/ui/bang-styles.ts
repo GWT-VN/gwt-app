@@ -138,6 +138,8 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   // xuống dòng, bo 2xl, đệm 8/6/6/16, chỉ mờ dần.
   chon_thanh: cn(
     kv,
+    // Dấu (không phải Tailwind): Toast đọc bằng `:has()` trên gốc vùng DS để đẩy lên trên thanh (toast-styles.ts).
+    'ds-thanh-hang-loat',
     'fixed bottom-6 left-1/2 z-55 -translate-x-1/2 flex items-center gap-0.5 max-w-[calc(100vw-32px)]',
     'py-1 pr-1 pl-4 rounded-(--radius-full) [box-shadow:var(--shadow-400)]',
     'bg-(--color-background-primary-solid) text-(--color-text-primary-solid) text-[14px] leading-[20px] font-normal',

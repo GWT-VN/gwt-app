@@ -6,6 +6,19 @@ import { cn } from '@/lib/utils'
 export const Z_TOAST = 56
 /** `.ui-toast { bottom: 72px }` — trên thanh thao tác hàng loạt. */
 export const CACH_DAY = 72
+/** Dấu của BulkActionBar (`chon_thanh` trong bang-styles.ts) — thanh đang hiện thì toast đẩy lên. */
+export const THANH_HANG_LOAT = 'ds-thanh-hang-loat'
+/**
+ * Lớp của toaster Sonner (`<ol>`): thanh thao tác hàng loạt đang hiện trong vùng DS → đáy 124, ≤767 lên 236 (nguồn
+ * `.b-hangloat ~ .ui-toast`, mốc `@media (max-width: 767px)` của bundle.css; thanh điện thoại cao tới ~96px, 2–3 dòng).
+ * Chỉ CSS (`:has` trên gốc `[data-ds=v2]`), không JS. Sonner đặt `--offset-bottom` / `--mobile-offset-bottom` (≤600) inline
+ * → cần `!`. Viết nguyên văn để Tailwind quét được.
+ */
+export const toasterLop = [
+  'in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--offset-bottom:124px]!',
+  'in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--mobile-offset-bottom:236px]!',
+  'max-[767px]:in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--offset-bottom:236px]!',
+].join(' ')
 /** Thành công tự tắt sau 5 giây (README Toast). */
 export const THOI_GIAN_XONG = 5000
 

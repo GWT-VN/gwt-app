@@ -17,6 +17,7 @@ import {
   toastTienDo,
   toastTienDoChay,
   toastVien,
+  toasterLop,
 } from './toast-styles'
 
 /**
@@ -26,6 +27,7 @@ import {
  * - z 56 (thang z NGUON.md, dưới Dialog 70): Sonner gốc đặt `z-index: 999999999` trên `[data-sonner-toaster]` → ghi
  *   đè bằng style của toaster (inline thắng stylesheet Sonner chèn lúc chạy).
  * - Đáy giữa cách đáy 72 ở mọi khổ (Sonner điện thoại mặc định 16 → `mobileOffset`); bề ngang toaster = khung − 32.
+ *   BulkActionBar đang hiện → 124 (≤767: 236), qua `toasterLop`.
  * - Sonner tự lo: chồng nhiều toast, dừng hẹn giờ khi rê chuột, vuốt để tắt, Alt+T tới vùng thông báo.
  */
 export function Toaster() {
@@ -35,6 +37,7 @@ export function Toaster() {
       offset={{ bottom: CACH_DAY }}
       mobileOffset={{ bottom: CACH_DAY }}
       containerAriaLabel="Thông báo"
+      className={toasterLop}
       style={{ zIndex: Z_TOAST, '--width': 'calc(100% - 32px)' } as CSSProperties}
     />
   )

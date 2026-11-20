@@ -23,7 +23,7 @@
     "Tự tắt 5 giây (thành công), lỗi không tự tắt, Hoàn tác/Thử lại đóng toast, đổi đang chạy → xong cùng id, đọc màn hình (R12: xong/đang chạy KHÔNG role riêng — đọc qua `section aria-live=polite` của Sonner; lỗi `role=alert`), progressbar aria-valuenow, focus phím dừng hẹn giờ + trả focus khi gỡ: test jsdom components/ui/toast.dom.test.tsx",
     "Nhiều toast chồng nhau (Sonner: tối đa 3, rê chuột thì xoè): preview không có — không đo",
     "Hover/focus nút Hoàn tác/Thử lại/✕: nguồn không khai trạng thái (không hover, focus mặc định trình duyệt); DS thêm vòng focus `ring` — không đo",
-    "Thanh thao tác hàng loạt đang hiện (nguồn `.b-hangloat ~ .ui-toast` đẩy toast lên 124 / điện thoại 236): chưa làm — chờ BulkActionBar (Task 6)",
+    "Thanh thao tác hàng loạt đang hiện (nguồn `.b-hangloat ~ .ui-toast` đẩy toast lên 124 / ≤767 lên 236): DS dùng `:has(.ds-thanh-hang-loat)` trên gốc vùng DS (toast-styles.ts `toasterLop`). Preview Toast không có thanh — đo bằng script Chrome trên /ds#bulk-action-bar (getBoundingClientRect: đáy toast 124 @1440 / 236 @390, không chồng thanh; bỏ chọn → 72)",
     "Bề ngang phần chạy của thanh tiến độ (`--p`): khối DS chạy 20 → 100% theo thời gian, chỉ đo cao/màu/bo của phần chạy"
   ],
   "khoa": [

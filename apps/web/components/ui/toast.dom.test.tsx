@@ -204,3 +204,20 @@ test('Enter trên Hoàn tác → toast gỡ, focus về phần tử trước khi
   expect(screen.queryByText('Đã chuyển TK-2611-051', { exact: false })).toBeNull()
   expect(document.activeElement).toBe(nutTrang)
 })
+
+test('thanh thao tác hàng loạt đang hiện → toaster đẩy lên (124, ≤767: 236) qua :has trên gốc vùng DS', async () => {
+  const { GIAO_DIEN_DS } = await import('./bang-styles')
+  const { THANH_HANG_LOAT } = await import('./toast-styles')
+  expect(THANH_HANG_LOAT).toBe('ds-thanh-hang-loat')
+  expect(GIAO_DIEN_DS.chon_thanh.split(' ')).toContain(THANH_HANG_LOAT)
+  render(<Mau />)
+  act(() => {
+    thongBao.xong('Đã gán 3 ticket')
+  })
+  await screen.findByText('Đã gán 3 ticket', { exact: false })
+  const ol = document.querySelector('[data-sonner-toaster]')!
+  const lop = ol.className.split(' ')
+  expect(lop).toContain('in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--offset-bottom:124px]!')
+  expect(lop).toContain('in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--mobile-offset-bottom:236px]!')
+  expect(lop).toContain('max-[767px]:in-[[data-ds=v2]:has(.ds-thanh-hang-loat)]:[--offset-bottom:236px]!')
+})
