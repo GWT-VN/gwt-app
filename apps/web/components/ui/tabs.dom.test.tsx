@@ -3,7 +3,8 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DsRoot } from './ds-root'
-import { Tabs, TabsContent, TabsCount, TabsList, TabsTrigger, tinhThuGon } from './tabs'
+import { tinhThuGon } from '@/lib/tabs-thu-gon'
+import { Tabs, TabsContent, TabsCount, TabsList, TabsTrigger } from './tabs'
 
 function Segmented() {
   return (
