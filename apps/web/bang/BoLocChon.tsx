@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useGiaoDien } from './CauHinh'
+import { useCauHinh } from './CauHinh'
 
 /**
  * Ô chọn lọc theo MỘT tham số URL (vd sản phẩm, tình trạng bảo hành, loại lỗi).
@@ -9,6 +9,9 @@ import { useGiaoDien } from './CauHinh'
  * nguyên mọi tham số khác.
  *
  * Dùng useSearchParams -> nơi gọi phải nằm trong <Suspense>.
+ *
+ * Bộ giao diện bơm `OChon` (CauHinhBang) → dùng ô chọn đó thay `<select>`; cùng một
+ * đường đổi URL. Không bơm → `<select>` như cũ.
  */
 export function BoLocChon({
   param,
@@ -24,10 +27,23 @@ export function BoLocChon({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const gd = useGiaoDien()
+  const { giaoDien: gd, OChon } = useCauHinh()
 
   const dangChon = searchParams.get(param) ?? ''
   const nhanDangChon = tuyChon.find((t) => t.giaTri === dangChon)?.nhan ?? `${nhan}: Tất cả`
+
+  function di(giaTri: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (giaTri) params.set(param, giaTri)
+    else params.delete(param)
+    params.delete('trang')
+    const qs = params.toString()
+    router.push(qs ? `${pathname}?${qs}` : pathname)
+  }
+
+  if (OChon) {
+    return <OChon value={dangChon} onValueChange={di} muc={tuyChon} nhanTatCa={`${nhan}: Tất cả`} aria-label={nhan} />
+  }
 
   return (
     // Bọc relative để tự vẽ mũi tên. Mũi tên MẶC ĐỊNH của trình duyệt
@@ -38,14 +54,7 @@ export function BoLocChon({
       <select
         value={dangChon}
         title={nhanDangChon}
-        onChange={(e) => {
-          const params = new URLSearchParams(searchParams.toString())
-          if (e.target.value) params.set(param, e.target.value)
-          else params.delete(param)
-          params.delete('trang')
-          const qs = params.toString()
-          router.push(qs ? `${pathname}?${qs}` : pathname)
-        }}
+        onChange={(e) => di(e.target.value)}
         // w-48 CỐ ĐỊNH, không để trình duyệt tự co giãn: select tự động rộng bằng
         // option DÀI NHẤT -> ô "Sản phẩm" từng phình ra 382px trong khi ô "Bảo hành"
         // chỉ 173px, chữ dính mép trái còn mũi tên bị đẩy ra tận mép phải, chính giữa

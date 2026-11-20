@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
-import { useGiaoDien } from './CauHinh'
+import { useCauHinh } from './CauHinh'
 
 /**
  * Gõ tới đâu lọc tới đó, hoãn 300ms để không bắn truy vấn mỗi phím.
@@ -17,7 +17,7 @@ export function OTimKiem({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams()
   const [q, setQ] = useState(searchParams.get('q') ?? '')
   const [, batDau] = useTransition()
-  const gd = useGiaoDien()
+  const { giaoDien: gd, bieuTuong } = useCauHinh()
 
   useEffect(() => {
     // 🐛 Đã từng gây lỗi "bấm Sau → không sang trang được": searchParams nằm trong
@@ -54,7 +54,7 @@ export function OTimKiem({ placeholder }: { placeholder: string }) {
           aria-label="Xoá từ khoá"
           className={gd.oTimKiem_nutXoa}
         >
-          ×
+          {bieuTuong.boLoc ?? '×'}
         </button>
       )}
     </div>

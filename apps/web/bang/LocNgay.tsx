@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { useCauHinh } from './CauHinh'
 import { PRESETS, khoangPreset } from './ngay'
 
 /**
@@ -29,6 +30,7 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
   const tu = sp.get('ngtu') ?? ''
   const den = sp.get('ngden') ?? ''
   const [che, setChe] = useState<Che>(suyChe(tu, den))
+  const { OChon } = useCauHinh()
 
   function di(ntu: string, nden: string) {
     const p = new URLSearchParams(sp.toString())
@@ -47,12 +49,22 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
   const oNgay = 'rounded-lg border px-3 py-2 text-sm text-slate-900 bg-white'
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <select value={che} onChange={(e) => doiChe(e.target.value as Che)}
-        className="rounded-lg border px-3 py-2 text-sm bg-white text-slate-700">
-        {(Object.keys(NHAN_CHE) as Che[]).map((c) => (
-          <option key={c} value={c}>{nhan} · {NHAN_CHE[c]}</option>
-        ))}
-      </select>
+      {/* Bộ giao diện bơm OChon (CauHinhBang) → dùng ô chọn đó; không thì <select> như cũ. */}
+      {OChon ? (
+        <OChon
+          value={che}
+          onValueChange={(v) => doiChe(v as Che)}
+          muc={(Object.keys(NHAN_CHE) as Che[]).map((c) => ({ giaTri: c, nhan: `${nhan} · ${NHAN_CHE[c]}` }))}
+          aria-label={`${nhan}: cách lọc`}
+        />
+      ) : (
+        <select value={che} onChange={(e) => doiChe(e.target.value as Che)}
+          className="rounded-lg border px-3 py-2 text-sm bg-white text-slate-700">
+          {(Object.keys(NHAN_CHE) as Che[]).map((c) => (
+            <option key={c} value={c}>{nhan} · {NHAN_CHE[c]}</option>
+          ))}
+        </select>
+      )}
 
       {che === 'dung' && (
         <input type="date" value={tu} onChange={(e) => di(e.target.value, e.target.value)} className={oNgay} />

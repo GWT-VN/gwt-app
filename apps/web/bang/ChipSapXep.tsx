@@ -30,7 +30,7 @@ export function ChipSapXep({
   /** Ràng buộc luôn áp trước cột này, vd "Khẩn luôn lên đầu" ở trang Ticket. */
   ghiChu?: string
 }) {
-  const { giaoDien: gd, tenCot, nghiaSapXep } = useCauHinh()
+  const { giaoDien: gd, tenCot, nghiaSapXep, bieuTuong } = useCauHinh()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -51,7 +51,9 @@ export function ChipSapXep({
     <span
       className={`${gd.sapXep_chip} ${macDinh ? gd.sapXep_chipTron : gd.sapXep_chipCoNutGo}`}
     >
-      <span aria-hidden className={gd.sapXep_muiTen}>{tang ? '↑' : '↓'}</span>
+      <span aria-hidden className={gd.sapXep_muiTen}>
+        {tang ? (bieuTuong.len ?? '↑') : (bieuTuong.xuong ?? '↓')}
+      </span>
       <span>
         Sắp xếp: <strong>{ten}</strong> · {nghia}
         {ghiChu && <span className={gd.sapXep_ghiChu}> · {ghiChu}</span>}
@@ -63,7 +65,7 @@ export function ChipSapXep({
           title="Bỏ sắp xếp, về thứ tự mặc định"
           className={gd.sapXep_nutGo}
         >
-          ×
+          {bieuTuong.boLoc ?? '×'}
         </Link>
       )}
     </span>

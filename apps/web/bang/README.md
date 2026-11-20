@@ -36,6 +36,20 @@ tiếp**, đều lấy qua `useGiaoDien()`.
 
 Dùng CSS thường thay Tailwind cũng được — thay bằng tên lớp của bạn, cấu trúc thẻ không đổi.
 
+### Bộ giao diện khác (vd Design System) — bơm thêm qua `CauHinhBang`
+
+Ngoài `giaoDien`, `CauHinhBang` nhận thêm bốn khe. **Không truyền khe nào → mọi thứ y như cũ** (màn cũ không đổi).
+
+| Khe | Kiểu | Làm gì |
+|---|---|---|
+| `OChon` | component nhận `value`, `onValueChange`, `muc`, `nhanTatCa?`, `aria-label` | thay `<select>` của `BoLocChon` và ô chế độ của `LocNgay`; giá trị rỗng = "Tất cả" |
+| `bieuTuong` | `{ boLoc, boChon, len, xuong, truoc, sau }` (ReactNode) | icon thay chữ ×, ↑/↓, ← Trước / Sau →, "Bỏ chọn"; nút còn icon thì mang `aria-label` |
+| `GoiY` | component nhận `noiDung`, `children` | tooltip quanh nút icon (chữ là mô tả THÊM, không lặp tên nút) |
+| `escBoChon` | boolean | Esc bỏ hết lựa chọn dòng (nhường Esc cho ô đang gõ, bộ gõ đang ghép chữ, menu/hộp đang mở) |
+
+App này: `CauHinhBangDs` trong `components/ui/bang-ds.tsx` bơm đủ bốn khe + `GIAO_DIEN_DS`
+(`components/ui/bang-styles.ts`). Gói không import gì từ đó — chỉ nhận qua props.
+
 ---
 
 ## Nối vào project
@@ -106,6 +120,8 @@ export async function timMay(q: string, tuyChon: TuyChonDanhSach = {}): Promise<
 <OTimKiem placeholder="Gõ tên, SĐT, mã…" />          {/* bọc <Suspense> */}
 <BoLocChon param="sp" nhan="Sản phẩm" tuyChon={...} />
 <ThanhDangLoc dieuKien={[...]} hienThi={rows.length} tong={tong} nhan="máy" sapXep={sapXep} />
+{/* href bỏ RIÊNG một chip: hrefBoLoc('/may', thamSo, 'sp') — giữ điều kiện khác + sắp xếp, bỏ `trang` */}
+{/* phai={<NutLuuLoc />} — nút thêm cạnh "Xoá lọc" (vd Lưu bộ lọc) */}
 
 <KhungChon khoaTrang={rows.map(r => r.serial)} tong={tong} bat={laAdmin}
            thamSo={{ q, sp, cot, chieu }}      {/* KHÔNG chứa `trang` */}
@@ -126,6 +142,7 @@ export async function timMay(q: string, tuyChon: TuyChonDanhSach = {}): Promise<
 </KhungChon>
 
 <PhanTrang trang={trang} soTrang={soTrang} />        {/* bọc <Suspense> */}
+{/* thêm tong={tong} moiTrang={50} nhan="máy" → hiện "1–50 trên 472 máy" ở đầu */}
 ```
 
 ### 4. Chọn tất cả khớp bộ lọc
@@ -181,6 +198,7 @@ trang mà mời chọn 1.891 dòng là mời chọn thứ không nhìn thấy đ
 
 ## Còn thiếu gì
 
-- Chưa có test cho phần React (chỉ có test hàm thuần ở `timkiem.test.ts`).
+- Test phần React nằm ngoài gói (`components/ui/bang-ds.dom.test.tsx` — khe DS + hành vi chọn/lọc/phân trang);
+  trong gói chỉ có test hàm thuần (`timkiem.test.ts`, `ngay.test.ts`).
 - `BoLocChon` mới hỗ trợ chọn một giá trị, chưa chọn nhiều.
 - Chưa có bản không-Next (phụ thuộc `next/navigation`).

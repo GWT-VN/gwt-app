@@ -1,0 +1,30 @@
+# So khớp BulkActionBar — artifact ↔ /ds
+
+Sinh bởi `node ds/so-khop.mjs BulkActionBar --url http://127.0.0.1:3401` (cwd `apps/web`; mặc định `--url http://localhost:3401`, máy
+Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1`). Không sửa tay.
+
+- Artifact: `ds/nguon/tokens.css` + `bundle.css` + `components/BulkActionBar/preview.html` (xem `ds/NGUON.md`) ↔ `/ds`.
+- Theme sáng/tối × khổ 1440/390 (CDP `Emulation.setDeviceMetricsOverride`). Đo 32 thuộc tính/phần tử: width, height, paddingTop, paddingRight, paddingBottom, paddingLeft, gap, borderRadius, borderTopWidth, borderTopStyle, borderTopColor, borderBottomWidth, borderBottomStyle, borderBottomColor, fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color, backgroundColor, boxShadow, opacity, cursor, outlineColor, outlineStyle, outlineWidth, outlineOffset, zIndex, flexDirection.
+- **Giới hạn:** px làm tròn 0.5 → lệch < 0.25px không thấy được. Màu chuẩn hoá về sRGB số thực (kênh 2 số lẻ, alpha 3 số lẻ).
+- Trạng thái: artifact ép class `.is-hover`/`.is-focus` như preview, trừ khoá có `artifactThat` thì artifact cũng tương tác thật (không khoá nào); DS di chuột thật (`Input.dispatchMouseEvent`, kiểm `:hover`) / phím Tab thật (kiểm `:focus-visible`).
+- Mở bằng tương tác thật (`buoc`, CDP `Input.*`, mỗi khoá trên trang nạp lại mới): thanh: bam #bulk-action-bar [data-so="a"] th input → cho 300 · dem: bam #bulk-action-bar [data-so="a"] th input → cho 300 · moi: bam #bulk-action-bar [data-so="a"] th input → cho 300 · vach: bam #bulk-action-bar [data-so="a"] th input → cho 300 · vach-sau: bam #bulk-action-bar [data-so="a"] th input → cho 300 · thao-tac: bam #bulk-action-bar [data-so="a"] th input → cho 300 · thao-tac-hover (cả artifact): bam {"artifact":".ds-muc:nth-child(1) > .ds-nhan","ds":"#bulk-action-bar [data-so=\"a\"] th input"} → cho 300 → tro {"artifact":".ds-muc:nth-child(1) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn","ds":"#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div > button:nth-child(1)"} → cho 200 · xuat: bam #bulk-action-bar [data-so="a"] th input → cho 300 · dong: bam #bulk-action-bar [data-so="a"] th input → cho 300 · dong-hover (cả artifact): bam {"artifact":".ds-muc:nth-child(1) > .ds-nhan","ds":"#bulk-action-bar [data-so=\"a\"] th input"} → cho 300 → tro {"artifact":".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-close","ds":"#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > button[aria-label=\"Bỏ chọn\"]"} → cho 300 · thanh-b: bam #bulk-action-bar [data-so="b"] th input → cho 300 → bam #bulk-action-bar [data-so="b"] [role="toolbar"] > button:nth-child(2) → cho 500 · dem-b: bam #bulk-action-bar [data-so="b"] th input → cho 300 → bam #bulk-action-bar [data-so="b"] [role="toolbar"] > button:nth-child(2) → cho 500. Vùng `[data-ds="v2"]`: luôn kiểm cho mọi phần tử DS. Ảnh mở bằng `anhTuongTac.buoc`: bam #bulk-action-bar [data-so="a"] th input → cho 300 → bam #bulk-action-bar [data-so="b"] th input → cho 300 → bam #bulk-action-bar [data-so="b"] [role="toolbar"] > button:nth-child(2) → cho 500. Pseudo: vach {"ds":"::before"} · vach-sau {"ds":"::after"}.
+- Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
+- Ảnh: `ds/so-khop/anh/BulkActionBar-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
+
+**1562/1572 khớp** · 10 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
+
+**Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
+
+- Vị trí nổi (fixed, giữa đáy, cách 24, ≤640 sát hai mép 16) và hiện trượt lên 180ms (starting-style) — khối trần đặt thanh TĨNH như preview; thanh nổi thật ở /ds#bulk-action-bar, đo bằng ảnh 1440/390 (không tràn ngang, mọi nút trong khung nhìn)
+- Vạch ngăn là ::before/::after của khu thao tác (display: contents) thay cho span `.ui-bulkbar-sep` — đo qua `pseudo`
+- Chọn hết trang → mời chọn toàn bộ, sang trang khác vẫn nói ra, Esc / Bỏ chọn xoá hết (nhường Esc cho ô gõ, bộ gõ, menu), đổi lọc → bỏ chọn, role toolbar + aria-live: test jsdom components/ui/bang-ds.dom.test.tsx
+- Ô chọn dòng (`<input>` gốc mang class `.ui-checkbox` chép sang Tailwind) chưa có khoá đo riêng — preview BulkActionBar không vẽ bảng; so bằng ảnh
+- Tooltip nút ✕: preview "Bỏ chọn (Esc)" lặp tên nút; DS "Bỏ hết, kể cả trang khác (Esc)" (mô tả THÊM — luật tooltip NGUON), không đo
+
+| khoá | thuộc tính | artifact | ds | ở | lý do |
+|---|---|---|---|---|---|
+| thanh | width | 730px | 730.5px | sang 1440, toi 1440 | Lệch 0.5px do làm tròn bề rộng chữ (nút/chữ con đều khớp từng khoá) — dưới ngưỡng thấy được. |
+| thanh-b | width | 649px | 698.5px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
+| dem-b | width | 256.5px | 306.5px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
+| thanh-b | height | 72px | 84px | sang 390, toi 390 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. Ở 390 DS cho câu số xuống dòng (bundle giữ nowrap — chữ dài của bang/ đẩy nút ✕ xuống hàng dưới, đo ảnh 20/11) → thêm 1 dòng 20 → 84 so với 72. |
+| dem-b | height | 20px | 40px | sang 390, toi 390 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. Ở 390 câu xuống 2 dòng (whitespace normal ≤640) → 40 so với 20. |

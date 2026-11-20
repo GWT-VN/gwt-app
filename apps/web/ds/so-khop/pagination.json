@@ -1,0 +1,161 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#pagination > div"
+  },
+  "chuaDo": [
+    "Nút còn dùng được là link `<a>` (PhanTrang của bang/ dựng URL giữ mọi tham số, chỉ đổi `trang`) thay cho `<button>` của preview; nút tắt là `<button disabled>` như preview",
+    "Lề trên 12 của `.ui-table-foot` (margin không nằm trong bộ đo) — DS có `mt-3`, so bằng ảnh",
+    "Chữ tooltip: preview lặp tên nút (\"Trang sau\"); DS ghi trang đích (\"Tới trang 2\") — luật NGUON: tooltip là mô tả THÊM, không lặp aria-label (Radix gắn aria-describedby → đọc hai lần)",
+    "1 trang → không render, nút tắt `disabled` (không ẩn), giữ tham số URL khác, khoảng \"16–19 trên 19\", aria-current: test jsdom components/ui/bang-ds.dom.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": "body > div",
+      "ds": "#pagination > div",
+      "lyDo": {
+        "height": "Hai chân bảng, mỗi cái preview cao thêm 8 do `.b-chantrang { padding-bottom: 8px }` của prototype (không thuộc component) → 2 × 8 = 16."
+      }
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-muc:nth-child(1) > .ds-nhan",
+      "ds": "#pagination [data-so=\"dau\"] > p"
+    },
+    {
+      "khoa": "chan",
+      "artifact": ".ds-muc:nth-child(1) > nav",
+      "ds": "#pagination [data-so=\"dau\"] > nav",
+      "lyDo": {
+        "height": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm. Cao 28 + 8 = 36.",
+        "paddingRight": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm.",
+        "paddingBottom": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm.",
+        "paddingLeft": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm."
+      }
+    },
+    {
+      "khoa": "khoang",
+      "artifact": ".ds-muc:nth-child(1) > nav > span:first-child",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:first-child"
+    },
+    {
+      "khoa": "cum",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2)"
+    },
+    {
+      "khoa": "nut-tat",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:first-child",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > button",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "trang",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination-page",
+      "ds": "#pagination [data-so=\"dau\"] [aria-current=\"page\"]"
+    },
+    {
+      "khoa": "nut",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "nut-hover",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+            "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "nut-focus",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+      "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tab": {
+            "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+            "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "goi-y",
+      "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+      "pseudo": {
+        "artifact": "::after"
+      },
+      "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
+            "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a"
+          }
+        },
+        {
+          "cho": 500
+        }
+      ],
+      "lyDo": {
+        "width": "Chữ khác: preview \"Trang sau\" (lặp tên nút), DS \"Tới trang 2\" (mô tả THÊM — luật tooltip NGUON). Đệm, chữ, màu, bo khớp.",
+        "cursor": "::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal → auto (như so khớp Tooltip)."
+      }
+    },
+    {
+      "khoa": "chan-cuoi",
+      "artifact": ".ds-muc:nth-child(2) > nav",
+      "ds": "#pagination [data-so=\"cuoi\"] > nav",
+      "lyDo": {
+        "height": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm. Cao 28 + 8 = 36.",
+        "paddingRight": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm.",
+        "paddingBottom": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm.",
+        "paddingLeft": "Preview gắn thêm `.b-chantrang { padding: 0 2px 8px }` của prototype (chân bảng trong màn ticket, không thuộc component) — `.ui-table-foot` gốc không đệm."
+      }
+    },
+    {
+      "khoa": "nut-tat-cuoi",
+      "artifact": ".ds-muc:nth-child(2) .ui-pagination > button:last-child",
+      "ds": "#pagination [data-so=\"cuoi\"] > nav > span:nth-child(2) > button"
+    }
+  ]
+}

@@ -4,7 +4,10 @@
  */
 
 // Cấu hình — nơi đổi giao diện và nhãn cột
-export { CauHinhBang, useCauHinh, useGiaoDien, useTenCot, type CauHinh, type NghiaChieu } from './CauHinh'
+export {
+  CauHinhBang, useCauHinh, useGiaoDien, useTenCot, BocGoiY,
+  type CauHinh, type NghiaChieu, type PropsOChon, type BieuTuong, type PropsGoiY,
+} from './CauHinh'
 export { GIAO_DIEN_MAC_DINH, type GiaoDienBang } from './giaoDien'
 
 // Kiểu dùng chung
@@ -13,6 +16,7 @@ export type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc, SapXep } from './kieu'
 // Hàm thuần — không đụng DB, không đụng React
 export { boDau, chuanHoaTuKhoa, antoanChoOr, mauDauTu, sapXepHopLe, dieuKienTungTu, locMucChon } from './timkiem'
 export { isoNgay, khoangPreset, PRESETS, type MaPreset } from './ngay'
+export { hrefBoLoc } from './url'
 
 // Lấy toàn bộ khoá khớp bộ lọc (chọn tất cả)
 export { gomKhoa, MOI_LO, TOI_DA_CHON_MAC_DINH } from './gomKhoa'

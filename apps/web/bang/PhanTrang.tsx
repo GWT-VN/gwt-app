@@ -2,18 +2,35 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useGiaoDien } from './CauHinh'
+import type { ReactNode } from 'react'
+import { BocGoiY, useCauHinh } from './CauHinh'
 
 /**
  * Nút "Trước"/"Sau" + "Trang X / Y". Giữ nguyên mọi tham số khác trên URL
- * (q, state, tt, bh…), chỉ đổi `trang`. Ẩn hẳn khi chỉ có 1 trang.
+ * (q, state, tt, bh…), chỉ đổi `trang`. Ẩn hẳn khi chỉ có 1 trang. Nút đầu/cuối
+ * TẮT (disabled) chứ không ẩn — giữ vị trí, không nhảy.
+ *
+ * `tong` (tuỳ chọn): hiện thêm "1–50 trên 472 <nhan>" ở đầu (`moiTrang` mặc định 50,
+ * khớp hàm liệt kê; truyền đúng số mỗi trang nếu trang dùng số khác).
  *
  * Dùng useSearchParams -> component gọi PhanTrang phải nằm trong <Suspense>.
  */
-export function PhanTrang({ trang, soTrang }: { trang: number; soTrang: number }) {
+export function PhanTrang({
+  trang,
+  soTrang,
+  tong,
+  moiTrang = 50,
+  nhan = 'dòng',
+}: {
+  trang: number
+  soTrang: number
+  tong?: number
+  moiTrang?: number
+  nhan?: string
+}) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const gd = useGiaoDien()
+  const { giaoDien: gd, bieuTuong } = useCauHinh()
 
   if (soTrang <= 1) return null
 
@@ -25,26 +42,40 @@ export function PhanTrang({ trang, soTrang }: { trang: number; soTrang: number }
     return qs ? `${pathname}?${qs}` : pathname
   }
 
-  const coTruoc = trang > 1
-  const coSau = trang < soTrang
+  function nut(den: number, co: boolean, ten: string, chu: ReactNode) {
+    if (!co) {
+      return (
+        <button type="button" disabled aria-label={ten} className={gd.phanTrang_nutTat}>
+          {chu}
+        </button>
+      )
+    }
+    return (
+      <BocGoiY noiDung={`Tới trang ${den}`}>
+        <Link href={hrefTrang(den)} aria-label={ten} className={gd.phanTrang_nut}>
+          {chu}
+        </Link>
+      </BocGoiY>
+    )
+  }
+
+  const dau = (trang - 1) * moiTrang + 1
+  const cuoi = tong == null ? 0 : Math.min(trang * moiTrang, tong)
 
   return (
-    <div className={gd.phanTrang_khung}>
-      {coTruoc ? (
-        <Link href={hrefTrang(trang - 1)} className={gd.phanTrang_nut}>
-          ← Trước
-        </Link>
-      ) : (
-        <span className={gd.phanTrang_nutTat}>← Trước</span>
+    <nav className={gd.phanTrang_khung} aria-label="Phân trang">
+      {tong != null && (
+        <span className={gd.phanTrang_khoang}>
+          {dau}–{cuoi} trên {tong} {nhan}
+        </span>
       )}
-      <span className={gd.phanTrang_chuSo}>Trang {trang} / {soTrang}</span>
-      {coSau ? (
-        <Link href={hrefTrang(trang + 1)} className={gd.phanTrang_nut}>
-          Sau →
-        </Link>
-      ) : (
-        <span className={gd.phanTrang_nutTat}>Sau →</span>
-      )}
-    </div>
+      <span className={gd.phanTrang_cum}>
+        {nut(trang - 1, trang > 1, 'Trang trước', bieuTuong.truoc ?? '← Trước')}
+        <span className={gd.phanTrang_chuSo} aria-current="page">
+          Trang {trang} / {soTrang}
+        </span>
+        {nut(trang + 1, trang < soTrang, 'Trang sau', bieuTuong.sau ?? 'Sau →')}
+      </span>
+    </nav>
   )
 }

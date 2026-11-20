@@ -32,7 +32,7 @@ export function TieuDeCotSapXep({
   /** true nếu đây là cột sắp xếp mặc định của trang lúc URL CHƯA có ?cot=. */
   dangMacDinh?: boolean
 }) {
-  const { giaoDien: gd, tenCot, nghiaSapXep } = useCauHinh()
+  const { giaoDien: gd, tenCot, nghiaSapXep, bieuTuong } = useCauHinh()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -71,7 +71,7 @@ export function TieuDeCotSapXep({
       >
         {nhan}
         <span className={dangChonCotNay ? gd.tieuDe_muiTenDangSap : gd.tieuDe_muiTenThuong}>
-          {dangChonCotNay ? (chieuHienTai === 'asc' ? '▲' : '▼') : '↕'}
+          {dangChonCotNay ? (chieuHienTai === 'asc' ? (bieuTuong.len ?? '▲') : (bieuTuong.xuong ?? '▼')) : '↕'}
         </span>
       </Link>
     </th>

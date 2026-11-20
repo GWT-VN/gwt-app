@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useRef, useState, useTransition, type ReactNode } from 'react'
-import { useGiaoDien } from './CauHinh'
+import { BocGoiY, useCauHinh, useGiaoDien } from './CauHinh'
 import type { ThamSoLoc } from './kieu'
 
 /**
@@ -240,8 +240,26 @@ export function OChonDong({ khoa, moTa }: { khoa: string; moTa?: string }) {
  */
 export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; children?: ReactNode }) {
   const c = useBoiCanh('ThanhDaChon')
-  const gd = useGiaoDien()
+  const { giaoDien: gd, bieuTuong, escBoChon } = useCauHinh()
   const soDong = c.daChon.size
+  const { xoaHet } = c
+
+  // Esc = bỏ HẾT (bật qua CauHinhBang `escBoChon`). Nhường Esc cho thứ đang dùng nó: bộ gõ
+  // đang ghép chữ, ô đang gõ chữ, menu/hộp/danh sách đang mở (Radix đóng nó ở pha capture,
+  // nút còn trong DOM lúc sự kiện tới đây).
+  useEffect(() => {
+    if (!escBoChon || soDong === 0) return
+    const k = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.isComposing || e.defaultPrevented) return
+      const t = e.target as Element | null
+      if (t?.closest?.('input:not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable=""], [contenteditable="true"]')) return
+      if (document.querySelector('[role=menu], [role=dialog], [role=alertdialog], [role=listbox]')) return
+      xoaHet()
+    }
+    document.addEventListener('keydown', k)
+    return () => document.removeEventListener('keydown', k)
+  }, [escBoChon, soDong, xoaHet])
+
   if (!c.bat || soDong === 0) return null
 
   const soTrenTrang = c.khoaTrang.filter((k) => c.daChon.has(k)).length
@@ -256,8 +274,8 @@ export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; child
   const chamTran = c.daLayToanBo && soDong < c.tong
 
   return (
-    <div className={gd.chon_thanh}>
-      <span>
+    <div className={gd.chon_thanh} role="toolbar" aria-label="Thao tác hàng loạt">
+      <span className={gd.chon_thanhSo} aria-live="polite">
         Đã chọn <strong>{soDong}</strong> {nhan}
         {vuotTrang && <span className={gd.chon_thanhPhuChu}> (gồm cả dòng ở trang khác)</span>}
       </span>
@@ -281,13 +299,17 @@ export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; child
 
       {/* xoaHet chứ KHÔNG doiTatCa(false): sau khi "chọn tất cả 472", bỏ chọn mà
           chỉ xoá trong phạm vi trang thì còn sót 422 dòng đang chọn ngoài tầm mắt. */}
-      <button
-        type="button"
-        onClick={c.xoaHet}
-        className={gd.chon_nutBoChon}
-      >
-        Bỏ chọn
-      </button>
+      {bieuTuong.boChon ? (
+        <BocGoiY noiDung={escBoChon ? 'Bỏ hết, kể cả trang khác (Esc)' : 'Bỏ hết, kể cả trang khác'}>
+          <button type="button" onClick={xoaHet} aria-label="Bỏ chọn" className={gd.chon_nutBoChon}>
+            {bieuTuong.boChon}
+          </button>
+        </BocGoiY>
+      ) : (
+        <button type="button" onClick={xoaHet} className={gd.chon_nutBoChon}>
+          Bỏ chọn
+        </button>
+      )}
 
       {c.loi && <span className={gd.chon_loi}>{c.loi}</span>}
 

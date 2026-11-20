@@ -1,0 +1,162 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#filter-bar > div"
+  },
+  "chuaDo": [
+    "Nút \"Lưu bộ lọc\" (mở SavedView — Task 8) chưa cắm ở khối: ThanhDangLoc có khe `phai` cho nó, cụm phải chỉ đo nút Xoá lọc",
+    "Thứ tự hiện: DOM của bang/ đặt số dòng TRƯỚC chip sắp xếp; GIAO_DIEN_DS dùng `order` (CSS) để chip sắp xếp hiện trước như preview — getComputedStyle không đo vị trí, so bằng ảnh",
+    "Nút × của chip là link `<a>` (bang/ dựng URL bỏ điều kiện, điều hướng thật) thay cho `<button>` của preview",
+    "Bỏ đúng một chip, Xoá lọc về đường dẫn trần, số dòng aria-live, vùng có tên: test jsdom components/ui/bang-ds.dom.test.tsx",
+    "README: không có điều kiện thì ẩn cả hàng — ThanhDangLoc của bang/ luôn hiện số dòng; màn tự quyết ẩn; chip sắp xếp ẩn khi mặc định = màn không truyền `sapXep` (ChipSapXep vẫn hiện chip không × nếu được truyền `macDinh`)"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": "body > div",
+      "ds": "#filter-bar > div",
+      "lyDo": {
+        "height": "Preview gắn thêm `.b-filterbar { margin: -4px 0 12px }` của prototype (vị trí hàng trong màn ticket, không thuộc component) → khung ngắn hơn 4px."
+      }
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-nhan",
+      "ds": "#filter-bar p"
+    },
+    {
+      "khoa": "hang",
+      "artifact": ".ui-filterbar",
+      "ds": "#filter-bar [role=\"region\"]"
+    },
+    {
+      "khoa": "chip",
+      "artifact": ".ui-filterbar > .ui-chip:nth-child(1)",
+      "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(1)",
+      "con": [
+        {
+          "ten": "chu",
+          "artifact": "> span",
+          "ds": "> span"
+        },
+        {
+          "ten": "giaTri",
+          "artifact": "> span > strong",
+          "ds": "> span > strong",
+          "props": [
+            "fontWeight",
+            "color",
+            "fontSize",
+            "lineHeight"
+          ]
+        },
+        {
+          "ten": "x",
+          "artifact": "> .ui-chip-x",
+          "ds": "> a"
+        },
+        {
+          "ten": "xIcon",
+          "artifact": "> .ui-chip-x > svg",
+          "ds": "> a > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "x-hover",
+      "artifact": ".ui-filterbar > .ui-chip:nth-child(1) > .ui-chip-x",
+      "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(1) > a",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": ".ui-filterbar > .ui-chip:nth-child(1) > .ui-chip-x",
+            "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(1) > a"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "fontFamily": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "fontSize": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "lineHeight": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "fontFeatureSettings": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp."
+      }
+    },
+    {
+      "khoa": "x-focus",
+      "artifact": ".ui-filterbar > .ui-chip:nth-child(1) > .ui-chip-x",
+      "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(1) > a",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tab": {
+            "artifact": ".ui-filterbar > .ui-chip:nth-child(1) > .ui-chip-x",
+            "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(1) > a"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "fontFamily": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "fontSize": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "lineHeight": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp.",
+        "fontFeatureSettings": "Nút chỉ có icon, không vẽ chữ: preview là <button> trần (font UA Arial 13.33px, line-height normal, không cv11/ss03); DS là link <a> kế thừa chữ của chip (Inter 12/18). Hộp 20×20 và icon 12px khớp."
+      }
+    },
+    {
+      "khoa": "chip-sap",
+      "artifact": ".ui-filterbar > .ui-chip:nth-child(2)",
+      "ds": "#filter-bar [role=\"region\"] > div > span:nth-child(3)",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> span:first-child > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "chu",
+          "artifact": "> span",
+          "ds": "> span:nth-child(2)"
+        },
+        {
+          "ten": "x",
+          "artifact": "> .ui-chip-x",
+          "ds": "> a"
+        }
+      ]
+    },
+    {
+      "khoa": "dem",
+      "artifact": ".ui-filterbar-count",
+      "ds": "#filter-bar [role=\"region\"] [aria-live]"
+    },
+    {
+      "khoa": "cuoi",
+      "artifact": ".ui-filterbar-end",
+      "ds": "#filter-bar [role=\"region\"] > span",
+      "lyDo": {
+        "width": "Preview có 2 nút (Lưu bộ lọc 118.5 + gap 4 + Xoá lọc 77); khối DS chưa cắm Lưu bộ lọc (SavedView — Task 8, khe `phai`) → chỉ còn Xoá lọc 77."
+      }
+    },
+    {
+      "khoa": "xoa",
+      "artifact": ".ui-filterbar-end > .ui-btn",
+      "ds": "#filter-bar [role=\"region\"] > span > a"
+    }
+  ]
+}

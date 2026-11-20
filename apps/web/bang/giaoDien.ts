@@ -23,6 +23,7 @@ export type GiaoDienBang = {
   dangLoc_nutGoChip: string
   dangLoc_soDong: string
   dangLoc_nutXoaLoc: string
+  dangLoc_cuoi: string            // cụm bên phải: nút thêm (`phai`) + Xoá lọc
 
   // Chip "đang sắp xếp"
   sapXep_chip: string
@@ -45,6 +46,8 @@ export type GiaoDienBang = {
   phanTrang_nut: string
   phanTrang_nutTat: string
   phanTrang_chuSo: string
+  phanTrang_khoang: string        // "1–15 trên 19 …" — chỉ hiện khi truyền `tong`
+  phanTrang_cum: string           // bọc ‹ Trang X / Y ›
 
   // Ô lọc dạng chọn
   boLoc_khung: string
@@ -57,6 +60,7 @@ export type GiaoDienBang = {
   chon_oTd: string
   chon_checkbox: string
   chon_thanh: string
+  chon_thanhSo: string            // "Đã chọn N …"
   chon_thanhPhuChu: string
   chon_thanhCanhBao: string
   chon_nutChonToanBo: string
@@ -89,6 +93,7 @@ export const GIAO_DIEN_MAC_DINH: GiaoDienBang = {
     'flex-none grid place-items-center w-4 h-4 rounded-full leading-none text-[#0a6771]/60 hover:bg-[#bfe2e5] hover:text-[#0a6771]',
   dangLoc_soDong: 'text-slate-500',
   dangLoc_nutXoaLoc: 'text-slate-600 underline hover:text-slate-900 flex-none',
+  dangLoc_cuoi: 'flex flex-none items-center gap-2',
 
   sapXep_chip:
     'inline-flex items-center gap-1.5 py-1 rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-xs font-medium',
@@ -111,6 +116,9 @@ export const GIAO_DIEN_MAC_DINH: GiaoDienBang = {
     'rounded-[9px] border border-slate-200 bg-white text-slate-700 px-3 py-1.5 shadow-sm hover:border-slate-300 hover:bg-slate-50',
   phanTrang_nutTat: 'rounded-[9px] border border-slate-200 bg-white text-slate-300 px-3 py-1.5',
   phanTrang_chuSo: 'text-slate-500 tabular-nums',
+  phanTrang_khoang: 'text-slate-500 tabular-nums',
+  // contents: cụm không sinh hộp → ba phần tử vẫn là con flex của khung như trước khi có cụm.
+  phanTrang_cum: 'contents',
 
   boLoc_khung: 'relative inline-flex max-w-full',
   // appearance-none + tự vẽ mũi tên: mũi tên mặc định của trình duyệt nằm ngoài
@@ -125,6 +133,7 @@ export const GIAO_DIEN_MAC_DINH: GiaoDienBang = {
   chon_checkbox: 'align-middle accent-[#0e8c9a]',
   chon_thanh:
     'flex items-center gap-x-3 gap-y-1 flex-wrap rounded-[10px] border border-[#0c2a2e] bg-[#0c2a2e] px-3 py-2 text-sm text-white',
+  chon_thanhSo: '',
   chon_thanhPhuChu: 'text-teal-100/70',
   chon_thanhCanhBao: 'text-amber-300',
   chon_nutChonToanBo:

@@ -1,0 +1,280 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#bulk-action-bar > div"
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+      },
+      {
+        "cho": 300
+      },
+      {
+        "bam": "#bulk-action-bar [data-so=\"b\"] th input"
+      },
+      {
+        "cho": 300
+      },
+      {
+        "bam": "#bulk-action-bar [data-so=\"b\"] [role=\"toolbar\"] > button:nth-child(2)"
+      },
+      {
+        "cho": 500
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí nổi (fixed, giữa đáy, cách 24, ≤640 sát hai mép 16) và hiện trượt lên 180ms (starting-style) — khối trần đặt thanh TĨNH như preview; thanh nổi thật ở /ds#bulk-action-bar, đo bằng ảnh 1440/390 (không tràn ngang, mọi nút trong khung nhìn)",
+    "Vạch ngăn là ::before/::after của khu thao tác (display: contents) thay cho span `.ui-bulkbar-sep` — đo qua `pseudo`",
+    "Chọn hết trang → mời chọn toàn bộ, sang trang khác vẫn nói ra, Esc / Bỏ chọn xoá hết (nhường Esc cho ô gõ, bộ gõ, menu), đổi lọc → bỏ chọn, role toolbar + aria-live: test jsdom components/ui/bang-ds.dom.test.tsx",
+    "Ô chọn dòng (`<input>` gốc mang class `.ui-checkbox` chép sang Tailwind) chưa có khoá đo riêng — preview BulkActionBar không vẽ bảng; so bằng ảnh",
+    "Tooltip nút ✕: preview \"Bỏ chọn (Esc)\" lặp tên nút; DS \"Bỏ hết, kể cả trang khác (Esc)\" (mô tả THÊM — luật tooltip NGUON), không đo"
+  ],
+  "khoa": [
+    {
+      "khoa": "thanh",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"]",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Lệch 0.5px do làm tròn bề rộng chữ (nút/chữ con đều khớp từng khoá) — dưới ngưỡng thấy được."
+      }
+    },
+    {
+      "khoa": "dem",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-count",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > span:first-child",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "so",
+          "artifact": "> strong",
+          "ds": "> strong",
+          "props": [
+            "fontWeight",
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "moi",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-btn[data-variant=\"link\"]",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > button:nth-child(2)",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "vach",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-sep",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "pseudo": {
+        "ds": "::before"
+      }
+    },
+    {
+      "khoa": "vach-sau",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-sep ~ .ui-bulkbar-sep",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "pseudo": {
+        "ds": "::after"
+      }
+    },
+    {
+      "khoa": "thao-tac",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div > button:nth-child(1)",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "thao-tac-hover",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div > button:nth-child(1)",
+      "buoc": [
+        {
+          "bam": {
+            "artifact": ".ds-muc:nth-child(1) > .ds-nhan",
+            "ds": "#bulk-action-bar [data-so=\"a\"] th input"
+          }
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn",
+            "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div > button:nth-child(1)"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "xuat",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-btn[data-variant=\"ghost\"][data-size=\"sm\"]",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > div > button:nth-child(3)",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "dong",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-close",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > button[aria-label=\"Bỏ chọn\"]",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"a\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "dong-hover",
+      "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-close",
+      "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > button[aria-label=\"Bỏ chọn\"]",
+      "buoc": [
+        {
+          "bam": {
+            "artifact": ".ds-muc:nth-child(1) > .ds-nhan",
+            "ds": "#bulk-action-bar [data-so=\"a\"] th input"
+          }
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(1) > .ui-bulkbar > .ui-bulkbar-close",
+            "ds": "#bulk-action-bar [data-so=\"a\"] [role=\"toolbar\"] > button[aria-label=\"Bỏ chọn\"]"
+          }
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "thanh-b",
+      "artifact": ".ds-muc:nth-child(2) > .ui-bulkbar",
+      "ds": "#bulk-action-bar [data-so=\"b\"] [role=\"toolbar\"]",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"b\"] th input"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "#bulk-action-bar [data-so=\"b\"] [role=\"toolbar\"] > button:nth-child(2)"
+        },
+        {
+          "cho": 500
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px.",
+        "height@390": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px. Ở 390 DS cho câu số xuống dòng (bundle giữ nowrap — chữ dài của bang/ đẩy nút ✕ xuống hàng dưới, đo ảnh 20/11) → thêm 1 dòng 20 → 84 so với 72."
+      }
+    },
+    {
+      "khoa": "dem-b",
+      "artifact": ".ds-muc:nth-child(2) > .ui-bulkbar > .ui-bulkbar-count",
+      "ds": "#bulk-action-bar [data-so=\"b\"] [role=\"toolbar\"] > span:first-child",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"b\"] th input"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "#bulk-action-bar [data-so=\"b\"] [role=\"toolbar\"] > button:nth-child(2)"
+        },
+        {
+          "cho": 500
+        }
+      ],
+      "con": [
+        {
+          "ten": "phu",
+          "artifact": "> .ui-bulkbar-sub",
+          "ds": "> span"
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px.",
+        "height@390": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px. Ở 390 câu xuống 2 dòng (whitespace normal ≤640) → 40 so với 20."
+      }
+    }
+  ]
+}

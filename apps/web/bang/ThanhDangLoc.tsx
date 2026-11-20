@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { ChipSapXep } from './ChipSapXep'
-import { useGiaoDien } from './CauHinh'
+import { useCauHinh } from './CauHinh'
 
 /**
  * Thanh trạng thái "đang lọc": chip điều kiện đang bật + số dòng đang thấy
@@ -19,6 +19,9 @@ import { useGiaoDien } from './CauHinh'
  * `nhan`: danh từ cho số đếm (mặc định "kết quả") — mỗi trang danh sách có
  * một danh từ khác nhau (máy, ticket, khách cần dọn, nhóm lỗi…), giữ đúng
  * giọng văn cũ thay vì đổi hết về "kết quả" chung chung.
+ *
+ * `phai`: nút thêm ở cụm bên phải, cạnh "Xoá lọc" (vd "Lưu bộ lọc"). Link bỏ một
+ * điều kiện: dựng bằng hrefBoLoc() (bang/url.ts).
  */
 export function ThanhDangLoc({
   dieuKien,
@@ -26,6 +29,7 @@ export function ThanhDangLoc({
   tong,
   nhan = 'kết quả',
   sapXep,
+  phai,
 }: {
   // `href`: link BỎ RIÊNG điều kiện này (giữ mọi điều kiện khác) — cho phép
   // gỡ từng bộ lọc một khi trang có NHIỀU điều kiện cùng lúc (q + sp + bh…).
@@ -38,14 +42,15 @@ export function ThanhDangLoc({
   // Cột/chiều MÁY CHỦ đã chốt (KetQuaTrang.sapXep), không phải giá trị trên URL —
   // xem chú thích trong ChipSapXep. Trang không sắp xếp được thì bỏ trống.
   sapXep?: { cot: string; tang: boolean; macDinh: boolean; ghiChu?: string }
+  phai?: ReactNode
 }) {
-  const gd = useGiaoDien()
+  const { giaoDien: gd, bieuTuong } = useCauHinh()
   const pathname = usePathname()
   const dangLoc = dieuKien.length > 0
   const dong = hienThi < tong ? `Hiện ${hienThi} trên ${tong} ${nhan}` : `${tong} ${nhan}`
 
   return (
-    <div className={gd.dangLoc_khung}>
+    <div className={gd.dangLoc_khung} role="region" aria-label="Điều kiện đang áp dụng">
       <div className={gd.dangLoc_nhomChip}>
         {dieuKien.map((d) => (
           // Đệm hai bên phải CÂN MẮT. Trước đây px-2 dùng chung cho cả chip, còn dấu ×
@@ -68,12 +73,12 @@ export function ThanhDangLoc({
                 aria-label={`Bỏ lọc ${d.nhan}`}
                 className={gd.dangLoc_nutGoChip}
               >
-                ×
+                {bieuTuong.boLoc ?? '×'}
               </Link>
             )}
           </span>
         ))}
-        <span className={gd.dangLoc_soDong}>{dong}</span>
+        <span className={gd.dangLoc_soDong} aria-live="polite">{dong}</span>
         {/* ChipSapXep dùng useSearchParams (dựng link bỏ sắp xếp) -> phải có
             Suspense, không thì next build vỡ. Bọc ở đây thay vì bắt 4 trang gọi
             ThanhDangLoc phải nhớ bọc. */}
@@ -85,10 +90,15 @@ export function ThanhDangLoc({
           </Suspense>
         )}
       </div>
-      {dangLoc && (
-        <Link href={pathname} className={gd.dangLoc_nutXoaLoc}>
-          Xoá lọc
-        </Link>
+      {(dangLoc || phai) && (
+        <span className={gd.dangLoc_cuoi}>
+          {phai}
+          {dangLoc && (
+            <Link href={pathname} className={gd.dangLoc_nutXoaLoc}>
+              Xoá lọc
+            </Link>
+          )}
+        </span>
       )}
     </div>
   )
