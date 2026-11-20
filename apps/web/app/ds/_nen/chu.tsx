@@ -1,5 +1,7 @@
 import { HO_CHU, NHOM_CHU, type KieuChu } from './du-lieu'
-import { BangToken, MoTa, MucNen, TrangNen, type Hang } from './khung-trang'
+import { Muc, Tam } from '../_khung/tam'
+import { BangToken, type Hang } from '../_khung/bang'
+import { MoTa } from './o-token'
 
 // Mẫu dùng `font: var(--text-…)` + `font-feature-settings: inherit`: shorthand `font:` tự xoá cv11/ss03, dòng sau lấy lại
 // từ DsRoot (y cách bundle.css bản 29 làm cho 20 rule shorthand).
@@ -28,7 +30,7 @@ const MAU_TINH_NANG = '“Bảo hành” a, g, 1, 4, 7 — tài khoản'
 
 export function TrangChu() {
   return (
-    <TrangNen
+    <Tam
       tieuDe="Chữ"
       moTa="Inter chính chủ (rsms v4.1, tự host qua next/font/local, gắn ở DsRoot) với cv11 + ss03 bật cho cả vùng DS. Cỡ chủ đạo của app nội bộ là text-sm 14/20; heading 3xl–5xl không dùng trong app. Mẫu vẽ bằng chính biến --text-* của ds/tokens.css."
       muc={[
@@ -38,7 +40,7 @@ export function TrangChu() {
         ...NHOM_CHU.map((n) => ({ id: `chu-${n.ten.toLowerCase()}`, ten: n.ten })),
       ]}
     >
-      <MucNen
+      <Muc
         id="ho-chu"
         tieuDe="Họ chữ"
         moTa="font-mono chỉ cho khối code/log. Mã đơn, serial, SKU, SĐT, tiền dùng Inter + tabular-nums, không dùng mono."
@@ -61,8 +63,8 @@ export function TrangChu() {
             bien: h.bien,
           }))}
         />
-      </MucNen>
-      <MucNen
+      </Muc>
+      <Muc
         id="tinh-nang"
         tieuDe="cv11 · ss03"
         moTa="DsRoot bật font-feature-settings cv11 (chữ a một tầng) và ss03 (dấu câu tròn); component không bao giờ reset — CEO chốt 19/11. Dòng Tắt chỉ để so."
@@ -84,8 +86,8 @@ export function TrangChu() {
             },
           ]}
         />
-      </MucNen>
-      <MucNen id="so" tieuDe="Số" moTa="Số liệu trong bảng và KPI: tabular-nums, căn phải — chữ số thẳng cột.">
+      </Muc>
+      <Muc id="so" tieuDe="Số" moTa="Số liệu trong bảng và KPI: tabular-nums, căn phải — chữ số thẳng cột.">
         <BangToken
           ten="Số"
           cot={['Mẫu']}
@@ -105,12 +107,12 @@ export function TrangChu() {
             ],
           }))}
         />
-      </MucNen>
+      </Muc>
       {NHOM_CHU.map((n) => (
-        <MucNen key={n.ten} id={`chu-${n.ten.toLowerCase()}`} tieuDe={`${n.ten} · ${n.kieu.length}`}>
+        <Muc key={n.ten} id={`chu-${n.ten.toLowerCase()}`} tieuDe={`${n.ten} · ${n.kieu.length}`}>
           <BangToken ten={n.ten} cot={['Mẫu', 'Thông số']} rong={170} doRong={['w-1/4', undefined, 'w-36']} hang={n.kieu.map(hangKieu)} />
-        </MucNen>
+        </Muc>
       ))}
-    </TrangNen>
+    </Tam>
   )
 }

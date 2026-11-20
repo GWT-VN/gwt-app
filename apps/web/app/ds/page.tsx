@@ -27,7 +27,7 @@ export default async function DsPage({ searchParams }: { searchParams: Promise<{
           if (!Khoi) return null
           const md = readmeComponent(ten)
           return (
-            <Muc key={neo} neo={neo} tieuDe={ten} moTa={md ? motDong(md) : undefined}>
+            <Muc key={neo} neo={neo} tieuDe={ten} moTa={md ? <span className="block truncate">{motDong(md)}</span> : undefined}>
               <ThanMuc className={BOC_KHOI}>
                 <Khoi />
               </ThanMuc>

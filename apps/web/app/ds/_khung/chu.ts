@@ -1,12 +1,12 @@
 /**
- * Kiểu chữ token (`--text-*` của tokens.css). Shorthand `font:` xoá font-feature-settings → kèm `inherit` để giữ
- * cv11/ss03 của DsRoot (như bundle.css bản 29).
+ * Kiểu chữ token: lớp `.ds-*` của ds/tokens.css (khai lẻ từng thuộc tính → giữ cv11/ss03 của DsRoot; nằm ở layer base nên
+ * utility như `font-medium` đè được). Tiêu đề trang = heading-xl như trang Colors của artifact.
  */
 export const CHU = {
-  h1: '[font:var(--text-heading-lg)] [font-feature-settings:inherit]',
-  h2: '[font:var(--text-heading-md)] [font-feature-settings:inherit]',
-  h3: '[font:var(--text-heading-xs)] [font-feature-settings:inherit]',
-  md: '[font:var(--text-text-md)] [font-feature-settings:inherit]',
-  sm: '[font:var(--text-text-sm)] [font-feature-settings:inherit]',
-  xs: '[font:var(--text-text-xs)] [font-feature-settings:inherit]',
+  h1: 'ds-heading-xl',
+  h2: 'ds-heading-md',
+  h3: 'ds-heading-xs',
+  md: 'ds-text-md',
+  sm: 'ds-text-sm',
+  xs: 'ds-text-xs',
 }

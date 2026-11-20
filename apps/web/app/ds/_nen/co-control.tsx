@@ -1,14 +1,16 @@
 import { Gear } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { CO_CONTROL, GHI_CHU } from './du-lieu'
-import { BangToken, MucNen, TrangNen, hangToken } from './khung-trang'
+import { Muc, Tam } from '../_khung/tam'
+import { BangToken } from '../_khung/bang'
+import { hangToken } from './o-token'
 
 export function TrangCoControl() {
   const cao = CO_CONTROL.filter((t) => t.ten.startsWith('control-size-'))
   const icon = CO_CONTROL.filter((t) => t.ten.startsWith('control-icon-size-'))
   return (
-    <TrangNen tieuDe="Cỡ control" moTa={GHI_CHU.coControl}>
-      <MucNen id="chieu-cao" tieuDe={`Chiều cao control · ${cao.length}`} moTa="Ô mẫu cao đúng bằng biến. Vùng chạm mobile tối thiểu control-size-2xl.">
+    <Tam tieuDe="Cỡ control" moTa={GHI_CHU.coControl}>
+      <Muc id="chieu-cao" tieuDe={`Chiều cao control · ${cao.length}`} moTa="Ô mẫu cao đúng bằng biến. Vùng chạm mobile tối thiểu control-size-2xl.">
         <BangToken
           ten="Chiều cao control"
           cot={['Mẫu', 'Giá trị']}
@@ -22,15 +24,15 @@ export function TrangCoControl() {
             ),
           )}
         />
-      </MucNen>
-      <MucNen id="icon" tieuDe={`Cỡ icon trong control · ${icon.length}`} moTa="Button dùng md 18px; Input, Menu, Sidebar dùng sm 16px.">
+      </Muc>
+      <Muc id="icon" tieuDe={`Cỡ icon trong control · ${icon.length}`} moTa="Button dùng md 18px; Input, Menu, Sidebar dùng sm 16px.">
         <BangToken
           ten="Cỡ icon trong control"
           cot={['Mẫu', 'Giá trị']}
           hang={icon.map((t) => hangToken(t, <Gear aria-hidden="true" style={{ width: `var(${t.bien})`, height: `var(${t.bien})` }} />))}
         />
-      </MucNen>
-      <MucNen id="button" tieuDe="Áp vào Button" moTa="Button thật của DS ở từng cỡ.">
+      </Muc>
+      <Muc id="button" tieuDe="Áp vào Button" moTa="Button thật của DS ở từng cỡ.">
         <BangToken
           ten="Áp vào Button"
           cot={['Mẫu', 'Chiều cao']}
@@ -54,7 +56,7 @@ export function TrangCoControl() {
             ],
           }))}
         />
-      </MucNen>
-    </TrangNen>
+      </Muc>
+    </Tam>
   )
 }

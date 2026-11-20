@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { CARO, NHOM_MAU, SO_MAU, hienMau, type Token } from './du-lieu'
-import { BangToken, MucNen, TrangNen, type Hang } from './khung-trang'
+import { Muc, Tam, ThanMuc } from '../_khung/tam'
+import { BangToken, type Hang } from '../_khung/bang'
 
 const NGUONG = 4.5
 
@@ -55,7 +56,7 @@ function hangMau(t: Token): Hang {
 /** Trang Màu: semantic shadcn → thang OpenAI → color-* theo vai, mọi màu trong tokens.json (test: du-lieu.test.ts). */
 export function TrangMau() {
   return (
-    <TrangNen
+    <Tam
       tieuDe="Màu"
       moTa={
         <>
@@ -72,19 +73,21 @@ export function TrangMau() {
       ]}
     >
       {NHOM_MAU.map((n) => (
-        <MucNen key={n.id} id={n.id} tieuDe={`${n.ten} · ${n.mau.length}`}>
+        <Muc key={n.id} id={n.id} tieuDe={`${n.ten} · ${n.mau.length}`}>
           <BangToken ten={n.ten} cot={['Sáng', 'Tối']} rong={170} hang={n.mau.map(hangMau)} />
-        </MucNen>
+        </Muc>
       ))}
-      <MucNen id="tuong-phan" tieuDe="Tương phản dưới WCAG — chấp nhận có chủ đích">
-        <Alert color="warning">
-          <AlertTitle>Giữ y màu nguồn ChatGPT, không “sửa giùm” trong tokens.css</AlertTitle>
-          <AlertDescription>
-            4 cặp dưới ngưỡng WCAG được CEO chấp nhận (19/11): chữ danger ở theme tối, viền input, viền Checkbox, chữ Badge
-            soft. Số đo từng cặp ở trang Độ tương phản.
-          </AlertDescription>
-        </Alert>
-      </MucNen>
-    </TrangNen>
+      <Muc id="tuong-phan" tieuDe="Tương phản dưới WCAG — chấp nhận có chủ đích">
+        <ThanMuc>
+          <Alert color="warning">
+            <AlertTitle>Giữ y màu nguồn ChatGPT, không “sửa giùm” trong tokens.css</AlertTitle>
+            <AlertDescription>
+              4 cặp dưới ngưỡng WCAG được CEO chấp nhận (19/11): chữ danger ở theme tối, viền input, viền Checkbox, chữ Badge
+              soft. Số đo từng cặp ở trang Độ tương phản.
+            </AlertDescription>
+          </Alert>
+        </ThanMuc>
+      </Muc>
+    </Tam>
   )
 }

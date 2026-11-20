@@ -1,5 +1,7 @@
 import { BOI_SPACING, DON_VI, GHI_CHU, KHOANG_CACH } from './du-lieu'
-import { BangToken, MucNen, TrangNen, hangToken } from './khung-trang'
+import { Muc, Tam } from '../_khung/tam'
+import { BangToken } from '../_khung/bang'
+import { hangToken } from './o-token'
 
 // Thanh mẫu: bề rộng = chính biến/biểu thức CSS; nền info nhạt để thấy rõ ở cả hai theme.
 const THANH =
@@ -9,8 +11,8 @@ export function TrangKhoangCach() {
   const goc = KHOANG_CACH.find((t) => t.ten === 'spacing')!
   const conLai = KHOANG_CACH.filter((t) => t !== goc)
   return (
-    <TrangNen tieuDe="Khoảng cách" moTa={GHI_CHU.khoangCach}>
-      <MucNen
+    <Tam tieuDe="Khoảng cách" moTa={GHI_CHU.khoangCach}>
+      <Muc
         id="don-vi"
         tieuDe="Đơn vị gốc"
         moTa={`Mọi padding/gap/margin là bội số của --spacing (${DON_VI}px). Trong vùng DS, p-3, gap-1.5… của Tailwind ăn theo đơn vị này. Hay dùng: 4, 6, 8, 12, 16, 20.`}
@@ -33,14 +35,14 @@ export function TrangKhoangCach() {
             })),
           ]}
         />
-      </MucNen>
-      <MucNen id="token" tieuDe={`Token khoảng cách · ${conLai.length}`} moTa="Padding cố định của control và khung (Menu, Alert, Dialog).">
+      </Muc>
+      <Muc id="token" tieuDe={`Token khoảng cách · ${conLai.length}`} moTa="Padding cố định của control và khung (Menu, Alert, Dialog).">
         <BangToken
           ten="Token khoảng cách"
           cot={['Mẫu', 'Giá trị']}
           hang={conLai.map((t) => hangToken(t, <span className={THANH} style={{ width: `var(${t.bien})` }} />))}
         />
-      </MucNen>
-    </TrangNen>
+      </Muc>
+    </Tam>
   )
 }

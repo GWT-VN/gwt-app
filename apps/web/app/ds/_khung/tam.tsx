@@ -1,25 +1,46 @@
 import type { ReactNode } from 'react'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { CHU } from './chu'
 
 /**
  * Khung trình bày trang /ds (kiểu trang Colors của artifact) — server component, chỉ token:
  *
- *   <Tam tieuDe="Màu" moTa="…">                 tấm lớn: bo radius-4xl 24, viền `border`; khe giữa các mục = nền `muted`
- *     <Muc tieuDe="Nền" hanhDong={…}>           mục trắng: hàng tiêu đề (16 medium) + các hàng, kẻ ngang 1px `border`
- *       <Hang ten="default">demo</Hang>         hàng: cột tên 192 (48 × spacing) + các ô giãn đều, kẻ dọc 1px
- *       <Hang ten="background" o={[a, b]} />    nhiều ô (vd Light | Dark)
+ *   <Tam tieuDe="Màu" moTa="…" muc={[…]}>        tấm lớn: bo radius-4xl 24, viền `border`; khe giữa các mục = nền `muted`
+ *     <Muc id="nen" tieuDe="Nền" moTa="…" hanhDong={…}>   mục trắng: hàng tiêu đề (16 medium) + các con, kẻ ngang 1px
+ *       <BangToken … />                                bảng Tên | cột… (bang.tsx) — cột thẳng hàng giữa các mục
+ *       <ThanMuc>văn bản, demo tự do</ThanMuc>
  *     </Muc>
  *   </Tam>
  *
- * < 768: hàng xếp dọc (tên trên, ô dưới). `Muc` không `tieuDe` = mục chỉ có thân (văn bản). `id` của Muc là neo #.
+ * `Muc` không `tieuDe` = mục chỉ có thân. `id` của Muc là neo #.
  */
-export function Tam({ tieuDe, moTa, children }: { tieuDe: ReactNode; moTa?: ReactNode; children: ReactNode }) {
+export function Tam({
+  tieuDe,
+  moTa,
+  muc,
+  children,
+}: {
+  tieuDe: ReactNode
+  moTa?: ReactNode
+  /** Mục lục trong trang (link `#id` tới các Muc). */
+  muc?: { id: string; ten: string }[]
+  children: ReactNode
+}) {
   return (
     <article className="flex flex-col gap-2 overflow-hidden rounded-(--radius-4xl) border border-(--border) bg-muted">
       <header className="bg-background px-5 pt-6 pb-5 md:px-8 md:pt-8">
         <h1 className={`m-0 ${CHU.h1}`}>{tieuDe}</h1>
         {moTa && <div className={`mt-2 max-w-[72ch] text-muted-foreground ${CHU.sm}`}>{moTa}</div>}
+        {muc && (
+          <nav aria-label="Trong trang này" className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            {muc.map((m) => (
+              <Button key={m.id} asChild variant="link" size="sm">
+                <a href={`#${m.id}`}>{m.ten}</a>
+              </Button>
+            ))}
+          </nav>
+        )}
       </header>
       {children}
     </article>
@@ -61,7 +82,7 @@ export function Muc({
                 tieuDe
               )}
             </h2>
-            {moTa && <p className={`m-0 truncate text-muted-foreground ${CHU.sm}`}>{moTa}</p>}
+            {moTa && <div className={`max-w-[72ch] text-muted-foreground ${CHU.sm}`}>{moTa}</div>}
           </div>
           {hanhDong && <div className="flex shrink-0 items-center gap-2">{hanhDong}</div>}
         </div>
@@ -74,19 +95,4 @@ export function Muc({
 /** Thân mục dạng văn bản / demo tự do (một ô, không cột tên). */
 export function ThanMuc({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn('py-5', LE, className)}>{children}</div>
-}
-
-/** Một hàng: cột tên (192) + `o` (mỗi phần tử một ô) hoặc `children` (một ô). */
-export function Hang({ ten, o, children }: { ten: ReactNode; o?: ReactNode[]; children?: ReactNode }) {
-  const cac = o ?? [children]
-  return (
-    <div className="flex flex-col divide-(--border) max-md:divide-y md:flex-row md:divide-x">
-      <div className={`flex items-center py-3 md:w-48 md:shrink-0 ${LE} md:pr-4 ${CHU.sm} text-muted-foreground`}>{ten}</div>
-      {cac.map((x, i) => (
-        <div key={i} className="flex min-w-0 flex-1 items-center px-5 py-3 md:px-4">
-          {x}
-        </div>
-      ))}
-    </div>
-  )
 }
