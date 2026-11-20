@@ -1,0 +1,21 @@
+<!-- @dsCard group="Form" height=300 subtitle="≤ 10 mục · trigger 32px + nội dung kiểu Menu" -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:start">
+  <div class="ui-stack">
+    <span class="ui-label" id="s1l">Kênh bán (mở)</span>
+    <button class="ui-select-trigger" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="s1l s1v"><span class="ui-select-value" id="s1v">Showroom</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="ui-menu" role="listbox" aria-labelledby="s1l">
+      <div class="ui-menu-item" role="option" aria-selected="false">Online</div>
+      <div class="ui-menu-item" role="option" aria-selected="true" data-highlighted>Showroom<svg class="ui-icon ui-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="ui-menu-item" role="option" aria-selected="false">Đại lý</div>
+      <div class="ui-menu-item" role="option" aria-disabled="true">Sàn TMĐT (chưa mở)</div>
+    </div>
+  </div>
+  <div class="ui-stack">
+    <span class="ui-label">Trạng thái trigger</span>
+    <button class="ui-select-trigger" data-placeholder><span class="ui-select-value">Chọn tình trạng hàng</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <button class="ui-select-trigger is-hover"><span class="ui-select-value">Hover</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <button class="ui-select-trigger" aria-invalid="true" aria-describedby="s3e"><span class="ui-select-value">Lỗi</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <span class="ui-error" id="s3e">Bắt buộc chọn tình trạng.</span>
+    <button class="ui-select-trigger" disabled><span class="ui-select-value">Disabled</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+  </div>
+</div>

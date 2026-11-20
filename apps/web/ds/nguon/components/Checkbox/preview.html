@@ -1,0 +1,15 @@
+<!-- @dsCard group="Form" height=150 subtitle="18px · bo 4px · chọn = gray-900" -->
+<div class="ui-row" style="gap:20px;align-items:flex-start">
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox"> Chưa chọn</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" checked> Đã chọn</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" id="cbInd"> Chọn một phần</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox is-hover"> Hover</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox is-focus"> Focus</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" disabled> Disabled</label>
+  <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" disabled checked> Disabled đã chọn</label>
+  <span class="ui-stack" style="gap:4px">
+    <label class="ui-checkbox-label"><input type="checkbox" class="ui-checkbox" aria-invalid="true" aria-describedby="cbe"> Tôi đã kiểm tra số serial</label>
+    <span class="ui-error" id="cbe" style="padding-left:26px">Cần xác nhận trước khi lưu.</span>
+  </span>
+</div>
+<script>document.getElementById('cbInd').indeterminate = true;</script>

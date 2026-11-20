@@ -13,6 +13,17 @@ import { KhoiDropdownMenu } from './_khoi/khoi-dropdown-menu'
 import { KhoiKbd } from './_khoi/khoi-kbd'
 import { KhoiSheet } from './_khoi/khoi-sheet'
 import { KhoiTooltip } from './_khoi/khoi-tooltip'
+import { KhoiInput } from './_khoi/khoi-input'
+import { KhoiInputAffix } from './_khoi/khoi-input-affix'
+import { KhoiCheckbox } from './_khoi/khoi-checkbox'
+import { KhoiRadio } from './_khoi/khoi-radio'
+import { KhoiSwitch } from './_khoi/khoi-switch'
+import { KhoiSelect } from './_khoi/khoi-select'
+import { KhoiCombobox } from './_khoi/khoi-combobox'
+import { KhoiDatePicker } from './_khoi/khoi-date-picker'
+import { KhoiDateRangePicker } from './_khoi/khoi-date-range-picker'
+import { KhoiFileUpload } from './_khoi/khoi-file-upload'
+import { KhoiFormLayout } from './_khoi/khoi-form-layout'
 
 type Khoi = { neo: string; ten: string; Khoi?: ComponentType }
 const k = (ten: string, Khoi?: ComponentType): Khoi => ({
@@ -46,7 +57,19 @@ const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   {
     ten: 'Form',
     lat: 3,
-    khoi: ['Input', 'InputAffix', 'Checkbox', 'Radio', 'Switch', 'Select', 'Combobox', 'DatePicker', 'DateRangePicker', 'FileUpload', 'FormLayout'].map((t) => k(t)),
+    khoi: [
+      k('Input', KhoiInput),
+      k('InputAffix', KhoiInputAffix),
+      k('Checkbox', KhoiCheckbox),
+      k('Radio', KhoiRadio),
+      k('Switch', KhoiSwitch),
+      k('Select', KhoiSelect),
+      k('Combobox', KhoiCombobox),
+      k('DatePicker', KhoiDatePicker),
+      k('DateRangePicker', KhoiDateRangePicker),
+      k('FileUpload', KhoiFileUpload),
+      k('FormLayout', KhoiFormLayout),
+    ],
   },
   { ten: 'Điều hướng', lat: 4, khoi: ['Tabs', 'Sidebar'].map((t) => k(t)) },
   {

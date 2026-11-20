@@ -1,0 +1,57 @@
+<!-- @dsCard group="Form" height=380 subtitle="> 10 mục bắt buộc gõ để tìm · không dấu · mã lẫn tên · báo khi cắt bớt" -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start">
+  <div class="ui-stack">
+    <span class="ui-label" id="cbl">Tỉnh/thành (gõ thử: "ha", "dn", "12")</span>
+    <button class="ui-select-trigger" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="cbl cbv"><span class="ui-select-value" id="cbv">Hà Nội</span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
+    <div class="ui-menu">
+      <div class="ui-menu-search">
+        <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="cbq" role="combobox" aria-expanded="true" aria-controls="cbList" aria-autocomplete="list" placeholder="Gõ mã hoặc tên…" autocomplete="off">
+      </div>
+      <div class="ui-menu-list" id="cbList" role="listbox" aria-labelledby="cbl"></div>
+      <div class="ui-menu-note" id="cbNote" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="ui-stack">
+    <span class="ui-label">Rỗng · Tìm xa (OChonTimXa)</span>
+    <div class="ui-menu">
+      <div class="ui-menu-search"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input value="zzz" aria-label="Tìm" readonly></div>
+      <div class="ui-menu-empty">Không có mục nào khớp "zzz".</div>
+    </div>
+    <div class="ui-menu">
+      <div class="ui-menu-search"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input value="n" aria-label="Tìm khách" readonly></div>
+      <div class="ui-menu-empty">Gõ thêm — cần ít nhất 2 ký tự để tìm.</div>
+    </div>
+    <div class="ui-menu">
+      <div class="ui-menu-search"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input value="nguyen" aria-label="Tìm khách" readonly></div>
+      <div class="ui-menu-empty" style="display:flex;align-items:center;gap:8px"><span class="ui-spinner" aria-hidden="true"></span>Đang tìm…</div>
+    </div>
+  </div>
+</div>
+<script>
+  // Danh sách dài giả lập: > 10 mục phải có ô tìm. Dữ liệu demo — mã là số thứ tự, không phải mã hành chính.
+  const TINH = ['Hà Nội','Hồ Chí Minh','Đà Nẵng','Hải Phòng','Cần Thơ','An Giang','Bà Rịa - Vũng Tàu','Bắc Giang','Bắc Kạn','Bạc Liêu','Bắc Ninh','Bến Tre','Bình Định','Bình Dương','Bình Phước','Bình Thuận','Cà Mau','Cao Bằng','Đắk Lắk','Đắk Nông','Điện Biên','Đồng Nai','Đồng Tháp','Gia Lai','Hà Giang','Hà Nam','Hà Tĩnh','Hải Dương','Hậu Giang','Hoà Bình','Hưng Yên','Khánh Hoà','Kiên Giang','Kon Tum','Lai Châu','Lâm Đồng','Lạng Sơn','Lào Cai','Long An','Nam Định','Nghệ An','Ninh Bình','Ninh Thuận','Phú Thọ','Phú Yên','Quảng Bình','Quảng Nam','Quảng Ngãi','Quảng Ninh','Quảng Trị','Sóc Trăng','Sơn La','Tây Ninh','Thái Bình','Thái Nguyên','Thanh Hoá','Thừa Thiên Huế','Tiền Giang','Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái'].map((t, i) => ({ ma: String(i + 1).padStart(2, '0'), ten: t }));
+  const bo = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+  const tat = (s) => bo(s).split(/[\s-]+/).map((w) => w[0]).join('');
+  const MAX = 8, list = document.getElementById('cbList'), note = document.getElementById('cbNote'), q = document.getElementById('cbq');
+  let chon = '01';
+  function ve() {
+    const k = bo(q.value.trim());
+    const hit = TINH.filter((t) => !k || bo(t.ten).includes(k) || t.ma.includes(k) || tat(t.ten).startsWith(k));
+    list.innerHTML = '';
+    hit.slice(0, MAX).forEach((t, i) => {
+      const el = document.createElement('div');
+      el.className = 'ui-menu-item'; el.setAttribute('role', 'option'); el.id = 'o' + t.ma;
+      el.setAttribute('aria-selected', String(t.ma === chon));
+      if (i === 0) el.dataset.highlighted = '';
+      el.innerHTML = '<span class="ui-code">' + t.ma + '</span><span></span>' + (t.ma === chon ? '<svg class="ui-icon ui-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>' : '');
+      el.children[1].textContent = t.ten;
+      el.onclick = () => { chon = t.ma; document.getElementById('cbv').textContent = t.ten; ve(); };
+      list.appendChild(el);
+    });
+    if (!hit.length) { list.innerHTML = '<div class="ui-menu-empty">Không có mục nào khớp.</div>'; note.textContent = ''; return; }
+    note.textContent = hit.length > MAX ? 'Đang hiện ' + MAX + ' / ' + hit.length + ' mục — gõ thêm để thu hẹp' : hit.length + ' mục';
+  }
+  q.addEventListener('input', ve);
+  ve();
+</script>

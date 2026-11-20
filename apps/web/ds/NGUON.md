@@ -33,6 +33,17 @@ không preview.html nào đổi.
 | `nguon/components/Dialog/preview.html` (bản 31) | `727c5eba30eb50a884300e4337a6b32d1b39b418505e58bb01f6c41bcfe8b2b7` |
 | `nguon/components/ConfirmDialog/preview.html` (bản 31) | `4a13f54f975888e58984a84209e7bd65bcae842af2df36ba589025f3972fd7ec` |
 | `nguon/components/Sheet/preview.html` (bản 31) | `421eac8dd26abecbc212a6beb5931a73a8403cceb5f290377eaa644d5d90a24f` |
+| `nguon/components/Input/preview.html` (bản 37) | `58c864a5daead487b4c5a404f79a3e944577652a119132af9b562b92ad9ed2e9` |
+| `nguon/components/InputAffix/preview.html` (bản 37) | `d451f0bae471985a97b34340556fe1453c8a807994e32855004e172172464793` |
+| `nguon/components/Checkbox/preview.html` (bản 37) | `e374b6579be84531451f724c2cea980b60c5a6d50537f03f3d92c8738dfabd10` |
+| `nguon/components/Radio/preview.html` (bản 37) | `c345332155acc101844d432bd8486ae12547134fd848c050742b2ec5e47a8743` |
+| `nguon/components/Switch/preview.html` (bản 37) | `e8489c3891fa016ee5def8f7d49c7079508b38d601d6a6f48739339602c166d5` |
+| `nguon/components/Select/preview.html` (bản 37) | `2db038aae769479a473a9f1151863bcf190d9147dfc9756b1892517858fbb4a6` |
+| `nguon/components/Combobox/preview.html` (bản 37) | `cf5167b27d78c3b0399a7a1dbc4f45142a982c80b5c9cbb7d98ab4c1e8f74856` |
+| `nguon/components/DatePicker/preview.html` (bản 37) | `fc39754c75bb053fc7ce95a921278209a217f256fec23c6f3a5f081bbe7c1212` |
+| `nguon/components/DateRangePicker/preview.html` (bản 37) | `4af2927ade5a4a0ce7ab6bfc13442f427d2ffbaebe527d61b3859b6cebb29a04` |
+| `nguon/components/FileUpload/preview.html` (bản 37) | `20fb1d1ad2ddb757e4bf8b01e7f96fd3571ad56dff9f11020242a56e8a3643ab` |
+| `nguon/components/FormLayout/preview.html` (bản 37) | `9b10b2fec50fabda5418c14c6765bd3c921624a87c30c79670ce85e29c0621f0` |
 
 `.gitattributes` trong thư mục này ép LF để sha256 trên khớp ở mọi máy (repo bật `core.autocrlf`).
 
@@ -109,7 +120,7 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 - **Test hành vi (focus, Esc, bàn phím):** file `*.dom.test.tsx` mở đầu `// @vitest-environment jsdom` + Testing
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"
-  className="scroll-mt-6">` + `<h2>` link `#<neo>`), rồi gắn `Khoi` vào mục tương ứng trong mảng `KHOI` của
+  className="scroll-mt-6">` + `<h2>` link `#<neo>`), rồi gắn `Khoi` vào mục tương ứng trong mảng `NHOM` (gắn `Khoi` vào mục của nhóm) của
   `app/ds/page.tsx` (mục lục tự thành link; chưa gắn = chữ mờ "chưa dựng").
 
 - **Tailwind quét cả file test và file .md trong apps/web:** chuỗi trông như class (vd variant tuỳ biến có ngoặc nhọn bên trong) trong `*.test.tsx` hay `ds/*.md` cũng được sinh CSS — chuỗi hỏng làm dev server 500 (gặp 20/11). Trong test/tài liệu viết mô tả bằng lời, đừng dán class có ngoặc nhọn/chỗ trống; lỡ dính thì sửa chuỗi rồi `touch ds/tokens.css` để Tailwind quét lại.

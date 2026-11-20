@@ -1,0 +1,34 @@
+<!-- @dsCard group="Form" height=300 subtitle="Input · Label · Textarea · lỗi · disabled" -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+  <div class="ui-field">
+    <label class="ui-label" for="i1">Tên khách hàng <span class="req" aria-hidden="true">*</span></label>
+    <input class="ui-input" id="i1" placeholder="VD: Công ty Demo A" aria-describedby="i1h">
+    <span class="ui-help" id="i1h">Dữ liệu minh hoạ (demo).</span>
+  </div>
+  <div class="ui-field">
+    <label class="ui-label" for="i2">Tìm kiếm</label>
+    <div class="ui-input-wrap">
+      <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="ui-input" id="i2" type="search" placeholder="Mã hoặc tên, không cần dấu">
+    </div>
+  </div>
+  <div class="ui-field">
+    <label class="ui-label" for="i3">Hover / Focus</label>
+    <input class="ui-input is-hover" id="i3" value="Viền hover (alpha-25)">
+    <input class="ui-input is-focus" value="Viền focus (alpha-50)" aria-label="Focus">
+  </div>
+  <div class="ui-field">
+    <label class="ui-label" for="i4">Số điện thoại</label>
+    <input class="ui-input" id="i4" value="09x" aria-invalid="true" aria-describedby="i4e">
+    <span class="ui-error" id="i4e">Số điện thoại phải có 10 chữ số.</span>
+  </div>
+  <div class="ui-field">
+    <label class="ui-label" for="i5">Mã đơn</label>
+    <input class="ui-input" id="i5" value="DH-DEMO-0001" disabled>
+    <span class="ui-help">Tự sinh, không sửa được.</span>
+  </div>
+  <div class="ui-field">
+    <label class="ui-label" for="i6">Ghi chú</label>
+    <textarea class="ui-textarea" id="i6" placeholder="Nội dung trao đổi với khách…"></textarea>
+  </div>
+</div>
