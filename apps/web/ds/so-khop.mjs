@@ -13,8 +13,14 @@
  * Overlay (lát 2):
  *   `buoc` (mỗi khoá): [{bam|chuotPhai|tro|tab: sel} | {phim: Tab|Escape|ArrowDown|Shift+F10} | {cho: ms}] — tương tác
  *     thật bằng CDP `Input.*` ngay trước khi đo khoá đó, ở bên DS (và bên artifact nếu `artifactThat`; sel là chuỗi hoặc
- *     `{ artifact, ds }`). `tab` = nhấn Tab thật từ chỗ focus hiện tại tới đúng phần tử (kiểm `:focus-visible`, không
- *     blur trước — dùng để đo focus TRONG overlay đang mở). Khoá có `buoc` đo trên trang NẠP LẠI MỚI; khoá sau nó cũng
+ *     `{ artifact, ds }`). `tab` = nhấn Tab thật tới đúng phần tử (kiểm `:focus-visible`):
+ *     - chưa có gì focus (trang vừa nạp) → JS focus phần tử đứng NGAY TRƯỚC đích theo thứ tự Tab (`truocTrongThuTuTab`;
+ *       đích là phần tử đầu tiên → bỏ focus về body) rồi MỘT phím Tab thật → `:focus-visible` là của bàn phím thật, không
+ *       phụ thuộc trang /ds dài bao nhiêu (trước đây Tab từ đầu trang, trần 200 lần → gãy khi mục lục/khối dài thêm);
+ *     - đang có focus (vd trong overlay vừa mở bằng `bam`) → Tab tiếp từ đó, không nhảy (phần tử đứng trước có thể nằm
+ *       ngoài overlay — focus ra ngoài là menu đóng / bẫy focus kéo về). Dùng để đo focus TRONG overlay đang mở.
+ *     Một phím chưa tới (radio cùng nhóm, thứ tự lạ) → Tab tiếp, trần 200. `trangThai: focus` và `anhTuongTac.focus` đi
+ *     cùng đường nhảy (blur trước). Khoá có `buoc` đo trên trang NẠP LẠI MỚI; khoá sau nó cũng
  *     nạp lại → không rò trạng thái. Trước mỗi bước chuột chờ tới ~1,5 giây cho phần tử có, có hộp và không bị che tại
  *     tâm (Radix Popper đặt nội dung ngoài khung tới khi định vị xong); hết giờ → lỗi chạy (mã 2). `buoc` + `trangThai:
  *     focus` cùng khoá bị từ chối lúc đọc config (focus kiểu cũ blur + Tab từ đầu trang → đóng overlay) — dùng `{tab}`.
@@ -139,6 +145,22 @@ export function phanLoai({ a, d, vung }) {
   return Object.keys(a).every((p) => a[p] === d[p]) ? 'khop' : 'lech'
 }
 
+/**
+ * Chỉ số (trong `ds`, thứ tự DOM) của phần tử đứng NGAY TRƯỚC `ds[dich]` theo thứ tự Tab của HTML: tabIndex dương trước
+ * (tăng dần, cùng số giữ thứ tự DOM), rồi tabIndex 0 theo DOM. `dich` đứng đầu → -1. `ds` chỉ gồm phần tử Tab tới được
+ * (lọc ở trang). Tự đủ, không dùng biến ngoài: được nhúng vào trang qua `toString()` (TRO_GIUP).
+ * @param {{ tabIndex: number }[]} ds
+ * @param {number} dich
+ */
+export function truocTrongThuTuTab(ds, dich) {
+  if (!(dich >= 0 && dich < ds.length)) throw new Error('đích không nằm trong danh sách phần tử Tab tới được: ' + dich)
+  const thuTu = ds.map((x, i) => i).filter((i) => ds[i].tabIndex > 0).sort((a, b) => ds[a].tabIndex - ds[b].tabIndex || a - b)
+    .concat(ds.map((x, i) => i).filter((i) => ds[i].tabIndex === 0))
+  const k = thuTu.indexOf(dich)
+  if (k < 0) throw new Error('đích có tabIndex âm, Tab không tới được: ' + dich)
+  return k === 0 ? -1 : thuTu[k - 1]
+}
+
 /** Hộp chung (x, y, w, h) của các hộp; bỏ hộp 0×0 (vd ô portal rỗng). Không còn hộp nào → lỗi. */
 export function hopGop(hops) {
   const co = hops.filter((h) => h.w > 0 || h.h > 0)
@@ -252,7 +274,20 @@ const TRO_GIUP = `window.__sk = (() => {
     for (const sel of sels) { const els = [...document.querySelectorAll(sel)]; if (!els.length) return { thieu: sel }
       for (const el of els) { const r = el.getBoundingClientRect(); hops.push({ x: r.x, y: r.y, w: r.width, h: r.height }) } }
     return { hops } }
-  return { do: doEl, hop, la, vung, diem, khung }
+  // Bước tab: focus phần tử đứng ngay trước đích theo thứ tự Tab (đích đầu tiên → blur về body). Phần tử Tab tới được:
+  // tabIndex >= 0, không :disabled, không trong [inert], đang hiển thị; radio cùng name chỉ tính ô đang chọn (nhóm có ô
+  // chọn) như trình duyệt. Trả 'ok' hoặc chuỗi lỗi.
+  const truoc = ${truocTrongThuTuTab.toString()}
+  const denTruoc = (sel) => { const dich = document.querySelector(sel); if (!dich) return 'không thấy phần tử'
+    const CHON = 'a[href],area[href],button,input,select,textarea,summary,iframe,audio[controls],video[controls],[contenteditable],[tabindex]'
+    const ds = [...document.querySelectorAll(CHON)].filter((el) => el.tabIndex >= 0 && !el.matches(':disabled')
+      && !el.closest('[inert]') && el.checkVisibility({ visibilityProperty: true })
+      && !(el.type === 'radio' && el.name && !el.checked && document.querySelector('input[type=radio][name="' + CSS.escape(el.name) + '"]:checked')))
+    const i = ds.indexOf(dich); if (i < 0) return 'đích không Tab tới được (tabIndex âm / tắt / ẩn)'
+    const j = truoc(ds, i)
+    if (j < 0) document.activeElement?.blur(); else ds[j].focus({ preventScroll: true })
+    return 'ok' }
+  return { do: doEl, hop, la, vung, diem, khung, denTruoc }
 })(); true`
 
 async function main() {
@@ -301,9 +336,14 @@ async function main() {
       for (const type of ['keyDown', 'keyUp'])
         await cdp.send('Input.dispatchKeyEvent', { type, key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
     }
-    // tuDau: blur rồi Tab từ đầu trang (trangThai focus); false: Tab tiếp từ focus hiện tại (bước `tab`, trong overlay).
+    // tuDau: blur trước (trangThai focus, ảnh). Rồi: chưa có gì focus → nhảy tới phần tử ngay trước đích theo thứ tự Tab
+    // (`__sk.denTruoc`) + Tab thật; đang focus (trong overlay) → Tab tiếp từ đó. Chưa tới thì Tab tiếp, trần 200.
     const tabToi = async (sel, tuDau = true) => {
       if (tuDau) await chay(cdp, 'document.activeElement?.blur(), true')
+      if (await chay(cdp, '!document.activeElement || document.activeElement === document.body')) {
+        const r = await chay(cdp, `__sk.denTruoc(${S(sel)})`)
+        if (r !== 'ok') throw new Error(`Tab tới ${sel}: ${r}`)
+      }
       for (let i = 0; i < 200; i++) {
         await phim()
         if (await chay(cdp, `document.activeElement === document.querySelector(${S(sel)})`)) {

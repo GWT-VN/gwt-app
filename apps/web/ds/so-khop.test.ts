@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { docBuoc, docThamSo, hopGop, kiemCauHinh, maThoat, phanLoai, timLyDo } from './so-khop.mjs'
+import { docBuoc, docThamSo, hopGop, kiemCauHinh, maThoat, phanLoai, timLyDo, truocTrongThuTuTab } from './so-khop.mjs'
 
 test('docThamSo: không --url thì dùng mặc định localhost:3401', () => {
   expect(docThamSo(['Button'])).toEqual({ comp: 'Button', url: 'http://localhost:3401' })
@@ -140,4 +140,23 @@ test('kiemCauHinh: anhTuongTac.buoc kiểm như buoc (bên artifact chỉ khi an
   expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { buoc: [{ bam: '#t' }] } }))).not.toThrow()
   expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { buoc: [{ nhay: '#t' }] } }))).toThrow(/bước lạ/)
   expect(() => kiemCauHinh(cfgMau({ anhTuongTac: { artifactThat: true, buoc: [{ bam: { ds: '#t' } }] } }))).toThrow(/bên artifact/)
+})
+
+test('truocTrongThuTuTab: phần tử đứng ngay trước đích theo thứ tự Tab (tabIndex 0 theo DOM); đích đầu tiên → -1', () => {
+  const ds = [{ tabIndex: 0 }, { tabIndex: 0 }, { tabIndex: 0 }]
+  expect(truocTrongThuTuTab(ds, 2)).toBe(1)
+  expect(truocTrongThuTuTab(ds, 1)).toBe(0)
+  expect(truocTrongThuTuTab(ds, 0)).toBe(-1)
+})
+test('truocTrongThuTuTab: tabIndex dương đi trước (tăng dần, cùng số giữ thứ tự DOM), rồi mới tới tabIndex 0', () => {
+  // thứ tự Tab: 3 (ti 1) → 1 (ti 2) → 4 (ti 2) → 0 → 2
+  const ds = [{ tabIndex: 0 }, { tabIndex: 2 }, { tabIndex: 0 }, { tabIndex: 1 }, { tabIndex: 2 }]
+  expect(truocTrongThuTuTab(ds, 3)).toBe(-1)
+  expect(truocTrongThuTuTab(ds, 1)).toBe(3)
+  expect(truocTrongThuTuTab(ds, 4)).toBe(1)
+  expect(truocTrongThuTuTab(ds, 0)).toBe(4)
+  expect(truocTrongThuTuTab(ds, 2)).toBe(0)
+})
+test('truocTrongThuTuTab: đích ngoài danh sách → lỗi (không đoán)', () => {
+  expect(() => truocTrongThuTuTab([{ tabIndex: 0 }], 5)).toThrow(/đích/)
 })
