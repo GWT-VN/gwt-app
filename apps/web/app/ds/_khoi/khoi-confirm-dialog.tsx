@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { GitMerge, Trash } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Field, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /**
@@ -12,23 +15,9 @@ import { BienThe, KhoiHang } from '../_khung/tam'
  * focus "Quay lại"; lần bấm đầu giả lập LỖI để xem Alert trong hộp, lần sau xoá được) · Gộp khách (gõ đúng mã mới mở
  * khoá nút đỏ). `onXacNhan` trả Promise 1,2 giây: đang chờ → spinner, khoá Esc/Huỷ/ô nhập; resolve → hộp tự đóng.
  * Dữ liệu mẫu giả (prototype).
- * Ô nhập: CHƯA có Input/Textarea DS (lát 3) → `<label>`/`<textarea>`/`<input>` gốc mang giá trị `.ui-field` /
- * `.ui-label` / `.ui-textarea` / `.ui-input` của bundle.css CHỈ trong khối demo này — đừng chép sang màn thật.
+ * Ô lý do / ô gõ mã = Field + FieldLabel + Textarea / Input DS.
  * `data-so` = khoá so khớp (ds/so-khop/confirmdialog.json).
  */
-const o = [
-  'w-full rounded-(--radius-md) border-0 bg-transparent px-(--control-gutter-md)',
-  'text-[14px] leading-[20px] font-normal text-(--color-text) outline-none',
-  '[box-shadow:inset_0_0_0_1px_var(--input)] placeholder:text-(--color-text-tertiary)',
-  'transition-[box-shadow,background-color,color] duration-150 ease-[ease]',
-  'hover:[box-shadow:inset_0_0_0_1px_var(--alpha-25)] in-data-[theme=dark]:hover:[box-shadow:inset_0_0_0_1px_var(--alpha-30)]',
-  'focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)] in-data-[theme=dark]:focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
-  // `.ui-input:disabled` / `.ui-textarea:disabled` (khoá khi đang chạy)
-  'disabled:cursor-not-allowed disabled:bg-(--color-background-disabled) disabled:text-(--color-text-disabled)',
-  'disabled:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
-].join(' ')
-const truong = 'flex min-w-0 flex-col gap-1.5 border-none border-current'
-const nhan = 'text-[14px] leading-[20px] font-medium text-foreground'
 
 /** Mở/đóng + `onXacNhan` trả Promise xong sau 1,2 giây; `thanhCong()` false → reject (giả lập lỗi). */
 function useMau(thanhCong: () => boolean = () => true) {
@@ -101,24 +90,19 @@ function MauXoa() {
         nutHuy="Quay lại"
         nutXacNhan="Xoá phiếu"
       >
-        <div data-so="truong" className={truong}>
-          <label htmlFor="cd-ly-do" className={nhan}>
-            Lý do xoá{' '}
-            <span className="text-(--color-text-danger)" aria-hidden="true">
-              *
-            </span>
-          </label>
-          {/* `.ui-textarea`: cao tối thiểu 80, padding 6 dọc, kéo giãn dọc */}
-          <textarea
+        <Field data-so="truong">
+          <FieldLabel htmlFor="cd-ly-do" required>
+            Lý do xoá
+          </FieldLabel>
+          <Textarea
             id="cd-ly-do"
             rows={2}
             required
             value={lyDo}
             onChange={(e) => setLyDo(e.target.value)}
             placeholder="VD: nhập trùng với PC-2611-017"
-            className={`${o} min-h-20 resize-y py-1.5`}
           />
-        </div>
+        </Field>
       </ConfirmDialog>
     </>
   )
@@ -147,20 +131,19 @@ function MauGop() {
         nutXacNhan="Gộp khách"
         khoaXacNhan={ma.trim() !== 'KH-00231'}
       >
-        <div className={truong}>
-          <label htmlFor="cd-ma" className={nhan}>
+        <Field>
+          <FieldLabel htmlFor="cd-ma">
             Gõ <b>KH-00231</b> để xác nhận
-          </label>
-          <input
+          </FieldLabel>
+          <Input
             id="cd-ma"
             data-autofocus
             autoComplete="off"
             spellCheck={false}
             value={ma}
             onChange={(e) => setMa(e.target.value)}
-            className={`${o} h-(--control-size-md)`}
           />
-        </div>
+        </Field>
       </ConfirmDialog>
     </>
   )

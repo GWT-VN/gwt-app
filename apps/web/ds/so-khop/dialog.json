@@ -30,7 +30,7 @@
     "Cuộn khi hộp cao hơn khung nhìn (max-height 100dvh − 32, overflow-y auto): nội dung preview ngắn, không đo",
     "Focus khi mở vào nút an toàn Huỷ, Tab/Shift+Tab vòng trong hộp, Esc / ✕ / bấm overlay đóng + trả focus về trigger, aria-labelledby/aria-describedby, overlay + hộp trong ô portal của vùng DS: test jsdom components/ui/dialog.dom.test.tsx, không đo ở đây",
     "Đang xoá (Xoá đơn có spinner, Huỷ khoá, 1,2 giây sau đóng) và lỗi server trong hộp (Alert danger, không đóng): preview chỉ có spinner sau khi bấm — không đo; khoá khi đang chạy + lỗi trong hộp thuộc ConfirmDialog (Task 9)",
-    "Ô \"Lý do xoá\": Input DS — lát 3. Khối demo dùng <label>/<input> gốc mang giá trị `.ui-label`/`.ui-input` — không khoá so khớp (chỉ đo thân `.ui-dialog-body.ui-field`: cột, gap 6)",
+    "Ô \"Lý do xoá\" = FieldLabel + Input DS (khoá `nhan`, `o` ở trạng thái thường). Hover/focus/lỗi/tắt của ô: đã đo ở so khớp Input",
     "Icon ✕: preview vẽ tay bằng nét (path M18 6 6 18M6 6l12 12), DS dùng Phosphor X regular (path tô) — chỉ đo hộp + màu; hình nét so bằng mắt",
     "Nút Huỷ / Xoá đơn / ✕ ở trạng thái hover/focus/active: đã đo ở so-khop Button"
   ],
@@ -122,6 +122,44 @@
       "khoa": "body",
       "artifact": ".ui-dialog-body",
       "ds": "[data-ds-portal] [data-slot=\"dialog-body\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".ui-dialog-body > .ui-label",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-body\"] > [data-slot=\"field-label\"]",
+      "buoc": [
+        {
+          "bam": "#dialog [data-so=\"mo\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "o",
+      "artifact": ".ui-dialog-body > .ui-input",
+      "ds": "[data-ds-portal] [data-slot=\"dialog-body\"] > [data-slot=\"input\"]",
       "buoc": [
         {
           "bam": "#dialog [data-so=\"mo\"]"

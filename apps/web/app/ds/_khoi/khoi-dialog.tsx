@@ -12,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /** Nút + hộp "Xoá đơn" — dùng chung khối cũ và hàng biến thể. `so` = khoá so khớp của nút (chỉ khối cũ). */
@@ -41,23 +43,10 @@ function HopXoaDon({ so, tieuDe }: { so?: string; tieuDe: ReactNode }) {
         <DialogDescription>
           Đơn và lịch sử xử lý sẽ bị xoá vĩnh viễn. Thao tác này không hoàn tác được.
         </DialogDescription>
-        {/* `.ui-dialog-body.ui-field`: cột, gap 6 */}
+        {/* `.ui-dialog-body.ui-field` (preview gắn cả hai class lên một thẻ): thân chính là khung trường — cột, gap 6 */}
         <DialogBody className="flex min-w-0 flex-col gap-1.5">
-          <label htmlFor="dialog-ly-do" className="text-[14px] leading-[20px] font-medium text-foreground">
-            Lý do xoá
-          </label>
-          <input
-            id="dialog-ly-do"
-            placeholder="VD: tạo trùng"
-            className={[
-              'h-(--control-size-md) w-full rounded-(--radius-md) border-0 bg-transparent px-(--control-gutter-md)',
-              'text-[14px] leading-[20px] font-normal text-(--color-text) outline-none',
-              '[box-shadow:inset_0_0_0_1px_var(--input)] placeholder:text-(--color-text-tertiary)',
-              'transition-[box-shadow,background-color,color] duration-150 ease-[ease]',
-              'hover:[box-shadow:inset_0_0_0_1px_var(--alpha-25)] in-data-[theme=dark]:hover:[box-shadow:inset_0_0_0_1px_var(--alpha-30)]',
-              'focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)] in-data-[theme=dark]:focus:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
-            ].join(' ')}
-          />
+          <FieldLabel htmlFor="dialog-ly-do">Lý do xoá</FieldLabel>
+          <Input id="dialog-ly-do" placeholder="VD: tạo trùng" />
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
@@ -91,8 +80,7 @@ function HopXoaDon({ so, tieuDe }: { so?: string; tieuDe: ReactNode }) {
  * 1,2 giây sau đóng như preview). Preview vẽ hộp tĩnh trong một khung 328px; DS mở thật giữa khung nhìn qua nút.
  * Màn thật: việc đang chạy / có thể lỗi (xoá, gọi máy chủ) → dùng ConfirmDialog (khoá theo Promise, Esc không đóng khi
  * đang chạy, lỗi ngay trong hộp). Spinner + hẹn giờ ở đây chỉ để tái tạo preview.
- * Ô nhập: CHƯA có Input DS (lát 3) → `<label>`/`<input>` gốc mang giá trị `.ui-label` / `.ui-input` / `.ui-field` của
- * bundle.css CHỈ trong khối demo này — đừng chép sang màn thật. `data-so` = khoá so khớp (ds/so-khop/dialog.json).
+ * Ô "Lý do xoá" = FieldLabel + Input DS. `data-so` = khoá so khớp (ds/so-khop/dialog.json).
  */
 export function KhoiDialog() {
   return (

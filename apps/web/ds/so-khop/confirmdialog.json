@@ -30,8 +30,8 @@
     "Focus khi mở (thường → nút chính; pha → Huỷ/Quay lại; ô `data-autofocus`/`autoFocus` thắng), Esc/Huỷ đóng + focus về nút mở, overlay không đóng, khoá theo Promise của onXacNhan (bấm 2 lần gọi 1 lần; resolve tự đóng; reject mở khoá + Alert lỗi mặc định; void không kẹt khoá), prop dangChay, ô con khoá qua fieldset, focus lên khung khi khoá / về nút xác nhận khi mở khoá, khoaXacNhan, aria-labelledby/describedby (không mô tả → danh sách), portal trong vùng DS: test jsdom components/ui/confirm-dialog.dom.test.tsx, không đo ở đây",
     "Đang chạy (spinner trên nút xác nhận, Huỷ khoá) và lỗi trong hộp (Alert danger): preview không có hai trạng thái này — không đo; Spinner đo ở so khớp Button (loading), Alert danger ở so khớp Alert",
     "aria-describedby: preview mẫu Xoá trỏ vào danh sách hậu quả; DS trỏ vào mô tả (README: describedby = description) — danh sách vẫn đọc được khi duyệt hộp",
-    "Ô \"Lý do xoá\" (textarea) và ô gõ mã (input): Input/Textarea DS — lát 3. Khối demo dùng control gốc mang giá trị `.ui-textarea`/`.ui-input` — chỉ đo khung `.ui-field` mẫu Xoá (cột, gap 6), không khoá control",
-    "Nhiều ô trong thân (`.ui-dialog-body > .ui-field + .ui-field` cách 12): preview không có mẫu nhiều ô — chưa dựng (người gọi tự xếp tới khi có Field DS, lát 3)",
+    "Ô \"Lý do xoá\" (Textarea) và ô gõ mã (Input) = Field + FieldLabel DS (khoá `xoa-nhan`, `xoa-o`, `gop-nhan`, `gop-o`). Hover/focus/lỗi/tắt của ô: đã đo ở so khớp Input",
+    "Nhiều ô trong thân (`.ui-dialog-body > .ui-field + .ui-field` cách 12): preview không có mẫu nhiều ô, demo DS chỉ một Field mỗi hộp — không đo",
     "Nút Huỷ / xác nhận ở trạng thái hover/focus/active/disabled: đã đo ở so khớp Button"
   ],
   "khoa": [
@@ -336,6 +336,50 @@
       }
     },
     {
+      "khoa": "xoa-nhan",
+      "artifact": ".ds-muc:nth-child(2) .ui-dialog-body .ui-label",
+      "ds": "[data-ds-portal] [data-so=\"truong\"] > [data-slot=\"field-label\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "xoa-o",
+      "artifact": ".ds-muc:nth-child(2) .ui-textarea",
+      "ds": "[data-ds-portal] [data-so=\"truong\"] > [data-slot=\"textarea\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
       "khoa": "xoa-footer",
       "artifact": ".ds-muc:nth-child(2) .ui-dialog-footer",
       "ds": "[data-ds-portal] [data-slot=\"alert-dialog-footer\"]",
@@ -525,6 +569,51 @@
       ],
       "lyDo": {
         "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-nhan",
+      "artifact": ".ds-muc:nth-child(3) .ui-dialog-body .ui-label",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-body\"] [data-slot=\"field-label\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc."
+      }
+    },
+    {
+      "khoa": "gop-o",
+      "artifact": ".ds-muc:nth-child(3) .ui-input",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-body\"] [data-slot=\"input\"]",
+      "buoc": [
+        {
+          "bam": "#confirm-dialog [data-so=\"mo-gop\"]"
+        },
+        {
+          "cho": 250
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"alert-dialog-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "width@390": "Hệ quả của `panel` width@390: preview tĩnh hộp 326 (100% − 32 của khung `.ds-tinh` 358) → ruột 326 − 2×20 = 286; DS hộp 358 (khung nhìn − 32) → ruột 318. Cùng công thức padding 20, chỉ khác bề ngang gốc.",
+        "boxShadow": "Ô gõ mã mang `data-autofocus` ở CẢ HAI bên; preview vẽ hộp tĩnh (`<dialog open>`, không showModal) nên ô không được focus, DS mở hộp thật → ConfirmDialog đưa focus vào ô (luật focus overlay, ds/NGUON.md) → viền inset đậm alpha-50 = kiểu focus của Input (`.ui-input:focus`, đã đo ở so khớp Input). Viền thường alpha-16/25 khớp ở các ô không focus (`xoa-o`, Dialog `o`)."
       }
     },
     {

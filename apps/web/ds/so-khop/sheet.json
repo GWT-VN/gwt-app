@@ -29,7 +29,7 @@
     "Chuyển động: bundle.css KHÔNG định nghĩa animation cho `.ui-sheet` (Dialog có `ui-dialog-len`, Sheet không) → DS không trượt vào. Muốn trượt = quyết định mới (thêm vào artifact trước)",
     "Esc / ✕ / bấm overlay đóng + trả focus về trigger, Tab không rời sheet, ✕ nằm cuối header (DOM header → ✕ → thân như preview), role dialog + aria-labelledby/describedby, overlay + panel trong ô portal vùng DS: test jsdom components/ui/sheet.dom.test.tsx, không đo ở đây",
     "Chỉ cạnh PHẢI: artifact chỉ định nghĩa `.ui-sheet` phải; trái/trên/dưới chưa dựng",
-    "Ô \"Kênh bán\" (select), hai ô ngày, ba checkbox: Select/Input/Checkbox DS — lát 3. Khối demo dùng control GỐC mang giá trị `.ui-select-trigger`/`.ui-input`/`.ui-checkbox` — không khoá so khớp (chỉ đo khung `.ui-field` đầu: cột, gap 6). Preview dùng `<button class=\"ui-select-trigger\">`, demo dùng `<select>` gốc",
+    "Kênh bán = Select DS (khoá `kenh-nhan`, `kenh`); mở/chọn/hover của Select: đã đo ở so khớp Select. Ngày tạo: preview vẽ HAI ô `<input type=date>` gốc (Từ/Đến), DS dùng MỘT DateRangePicker (luật ngày dùng DatePicker/DateRangePicker) — khác cấu trúc có chủ đích, không khoá; DateRangePicker đo ở so khớp của nó. Tình trạng = FieldSet + FieldLegend + ChoiceLabel/Checkbox DS (preview `.ui-stack` + `span.ui-label`) — Checkbox đo ở so khớp Checkbox, không khoá ở đây",
     "Icon ✕: preview vẽ tay bằng nét, DS dùng Phosphor X regular — chỉ đo hộp + màu; hình nét so bằng mắt",
     "Nút Xoá lọc / Áp dụng / ✕ ở trạng thái hover/focus/active: đã đo ở so khớp Button"
   ],
@@ -194,6 +194,47 @@
       "khoa": "truong",
       "artifact": ".ui-sheet-body > .ui-field:first-child",
       "ds": "[data-ds-portal] [data-so=\"truong\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ]
+    },
+    {
+      "khoa": "kenh-nhan",
+      "artifact": ".ui-sheet-body > .ui-field:first-child > .ui-label",
+      "ds": "[data-ds-portal] [data-so=\"truong\"] > [data-slot=\"field-label\"]",
+      "buoc": [
+        {
+          "bam": "#sheet [data-so=\"mo\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": "[data-ds-portal] [data-slot=\"sheet-title\"]"
+        },
+        {
+          "cho": 100
+        }
+      ],
+      "lyDo": {
+        "cursor": "Preview gắn tên ô bằng `<span class=\"ui-label\">` + `aria-labelledby` (cursor auto); DS dùng FieldLabel = `<label for>` trỏ trigger Select (bấm nhãn focus ô, tên đọc chuẩn) — UA đặt label cursor default. Kiểu chữ/màu nhãn khớp; Dialog (preview cũng dùng label) khớp cursor."
+      }
+    },
+    {
+      "khoa": "kenh",
+      "artifact": ".ui-sheet-body .ui-select-trigger",
+      "ds": "[data-ds-portal] [data-so=\"kenh\"]",
       "buoc": [
         {
           "bam": "#sheet [data-so=\"mo\"]"
