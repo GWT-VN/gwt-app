@@ -32,14 +32,24 @@ test('loading: aria-disabled + aria-busy, KHÔNG disabled (focus được)', () 
   expect(b.getAttribute('aria-busy')).toBe('true')
 })
 
-test('bấm Lưu bằng phím → focus vẫn ở nút suốt lúc loading', async () => {
+// jsdom KHÔNG thả focus khi nút thành disabled (Chrome thì có) → "Enter rồi focus còn ở nút" không phân biệt được
+// loading đúng hay sai ở đây. Thứ phân biệt được: nút loading vẫn trong thứ tự Tab (disabled thì bị bỏ qua — ca đối
+// chứng). Focus còn ở nút sau Enter đo trên Chrome thật (CDP) 20/11: loading giữ focus, disabled rơi về body.
+test('loading vẫn trong thứ tự Tab (bàn phím tới được, trình đọc màn hình nghe "đang bận"); disabled thì bị bỏ qua', async () => {
   const u = userEvent.setup()
-  render(<FormLuu onGui={() => {}} />)
-  const b = screen.getByRole('button', { name: 'Lưu' })
-  b.focus()
-  await u.keyboard('{Enter}')
-  expect(b.getAttribute('aria-busy')).toBe('true')
-  expect(document.activeElement).toBe(b)
+  render(
+    <>
+      <input aria-label="Trước" />
+      <Button loading>Lưu</Button>
+      <Button disabled>Xoá</Button>
+      <input aria-label="Sau" />
+    </>,
+  )
+  screen.getByLabelText('Trước').focus()
+  await u.tab()
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Lưu' }))
+  await u.tab()
+  expect(document.activeElement).toBe(screen.getByLabelText('Sau'))
 })
 
 test('bấm lần 2 trong lúc loading không gọi onClick', async () => {
