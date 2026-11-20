@@ -1,0 +1,295 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#date-range-picker > div",
+      "[data-ds-portal] > *"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#ds-drp"
+      },
+      {
+        "cho": 300
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí pop (cách trigger 4, căn mép trái, Radix Popper tự lật/dời, chừa mép 8) — preview vẽ bảng tĩnh; so bằng mắt trên ảnh",
+    "Hình icon: preview vẽ path CalendarBlank/‹ › riêng, DS dùng Phosphor — chỉ đo hộp + màu; hình so bằng mắt",
+    "Xem trước dải khi rê (data-preview): preview tĩnh không có trạng thái rê — test jsdom date-range-picker.dom.test.tsx + ảnh tự chụp",
+    "Hành vi: bấm đầu/cuối, bấm trước ngày đầu làm lại ngày đầu, ô Từ/Đến, mốc nhanh (Tuần này lúc 00:30 giờ VN), Áp dụng mới đổi giá trị, Huỷ/Esc giữ giá trị cũ, Esc trong Dialog chỉ đóng bảng, Áp dụng tắt khi mới 1 đầu: test jsdom components/ui/date-range-picker.dom.test.tsx",
+    "Ô ngày thường / hôm nay / bị chặn / rê / focus: dùng chung Calendar — đã đo ở so khớp DatePicker"
+  ],
+  "khoa": [
+    {
+      "khoa": "trigger",
+      "artifact": "#r1",
+      "ds": "#ds-drp",
+      "trangThai": [
+        "hover",
+        "focus"
+      ],
+      "artifactThat": true,
+      "con": [
+        {
+          "ten": "value",
+          "artifact": "> .ui-select-value",
+          "ds": "> [data-slot=\"select-value\"]",
+          "props": [
+            "width",
+            "color",
+            "fontWeight",
+            "fontSize",
+            "lineHeight"
+          ]
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "gia-tri",
+      "artifact": "p.ui-caption",
+      "ds": "#date-range-picker [data-so=\"gia-tri\"]"
+    },
+    {
+      "khoa": "pop",
+      "artifact": ".ui-cal-pop",
+      "ds": "[data-ds-portal] [role=\"dialog\"]",
+      "buoc": [
+        {
+          "bam": "#ds-drp"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ `.ui-menu.ui-cal-pop` tĩnh, không có lớp nổi → z-index auto. Bảng nổi THẬT của artifact là `.b-noi.ui-cal-pop` (bundle.css .b-noi: position fixed, z-index 90); DS dùng z-90 chung của menuContent (thang z ds/NGUON.md) — như khoá pop của so khớp DatePicker.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "bang",
+      "artifact": ".ui-cal-pop",
+      "ds": "#date-range-picker [data-so=\"bang\"]",
+      "lyDo": {
+        "zIndex": "Bảng mẫu mở sẵn dùng chung mặt calendarPop (z-90 cho bảng nổi thật, xem khoá pop); preview `.ui-cal-pop` tĩnh z-index auto. Khối tĩnh trong trang không chồng lớp nào nên z không đổi hình.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "dau-bang",
+      "artifact": ".ui-cal-top",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"]"
+    },
+    {
+      "khoa": "so-ngay",
+      "artifact": ".ui-cal-top-title",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] [aria-live]"
+    },
+    {
+      "khoa": "chu-thich",
+      "artifact": ".ui-cal-top .ui-caption",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] > div:first-child > span"
+    },
+    {
+      "khoa": "o-khoang",
+      "artifact": ".ui-cal-fields",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"]"
+    },
+    {
+      "khoa": "o-tu",
+      "artifact": ".ui-cal-field[aria-pressed=\"true\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"] > button:first-child",
+      "con": [
+        {
+          "ten": "nhan",
+          "artifact": "> span:first-child",
+          "ds": "> span:first-child"
+        },
+        {
+          "ten": "gia-tri",
+          "artifact": "> span:last-child",
+          "ds": "> span:last-child"
+        }
+      ]
+    },
+    {
+      "khoa": "o-den",
+      "artifact": ".ui-cal-field[aria-pressed=\"false\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"] > button:last-child",
+      "con": [
+        {
+          "ten": "nhan",
+          "artifact": "> span:first-child",
+          "ds": "> span:first-child"
+        },
+        {
+          "ten": "gia-tri",
+          "artifact": "> span:last-child",
+          "ds": "> span:last-child"
+        }
+      ]
+    },
+    {
+      "khoa": "o-focus",
+      "artifact": ".ui-cal-field[aria-pressed=\"false\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"] > button:last-child",
+      "buoc": [
+        {
+          "tab": {
+            "artifact": ".ui-cal-field[aria-pressed=\"false\"]",
+            "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"] > button:last-child"
+          }
+        }
+      ],
+      "props": [
+        "outlineColor",
+        "outlineStyle",
+        "outlineWidth",
+        "outlineOffset"
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "thang-truoc",
+      "artifact": ".ui-cal-head > .ui-btn",
+      "ds": "#date-range-picker [data-so=\"bang\"] nav > button:first-child"
+    },
+    {
+      "khoa": "tieu-de-thang",
+      "artifact": ".ui-cal-title",
+      "ds": "#date-range-picker [data-so=\"bang\"] [role=\"status\"]",
+      "lyDo": {
+        "width@390": "Khổ 390: preview tĩnh vẫn 2 tháng nên tiêu đề đầu tiên là \"Tháng 10, 2026\"; DS 1 tháng (tháng chứa ngày cuối) nên tiêu đề đầu là \"Tháng 11, 2026\" — chữ khác, hộp khác. Cỡ/đậm/màu chữ khớp; khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "ngay-dau",
+      "artifact": ".ui-cal-day[data-range=\"start\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-day=\"2026-11-01\"] > button",
+      "lyDo": {
+        "paddingTop": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingRight": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingBottom": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "ngay-dau-hinh",
+      "artifact": ".ui-cal-day[data-range=\"start\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-day=\"2026-11-01\"] > button",
+      "pseudo": {
+        "artifact": "::before",
+        "ds": "::before"
+      },
+      "lyDo": {
+        "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "ngay-giua",
+      "artifact": ".ui-cal-day[data-iso=\"2026-11-10\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-day=\"2026-11-10\"] > button",
+      "lyDo": {
+        "paddingTop": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingRight": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingBottom": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "ngay-cuoi",
+      "artifact": ".ui-cal-day[data-range=\"end\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-day=\"2026-11-18\"] > button",
+      "lyDo": {
+        "paddingTop": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingRight": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingBottom": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
+        "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "ngay-cuoi-hinh",
+      "artifact": ".ui-cal-day[data-range=\"end\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-day=\"2026-11-18\"] > button",
+      "pseudo": {
+        "artifact": "::before",
+        "ds": "::before"
+      },
+      "lyDo": {
+        "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
+        "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
+      }
+    },
+    {
+      "khoa": "moc",
+      "artifact": ".ui-cal-presets",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"moc\"]"
+    },
+    {
+      "khoa": "moc-thuong",
+      "artifact": ".ui-cal-presets > .ui-btn[aria-pressed=\"false\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"moc\"] > button:first-child",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "moc-chon",
+      "artifact": ".ui-cal-presets > .ui-btn[aria-pressed=\"true\"]",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"moc\"] > button:nth-child(3)",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "chan",
+      "artifact": ".ui-cal-foot",
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"chan\"]",
+      "con": [
+        {
+          "ten": "xoa",
+          "artifact": "> .ui-btn[data-variant=\"ghost\"]",
+          "ds": "> button:first-child"
+        },
+        {
+          "ten": "nhom",
+          "artifact": "> .ui-row",
+          "ds": "> span"
+        },
+        {
+          "ten": "huy",
+          "artifact": "> .ui-row > .ui-btn[data-variant=\"outline\"]",
+          "ds": "> span > button:first-child"
+        },
+        {
+          "ten": "ap-dung",
+          "artifact": "> .ui-row > .ui-btn:last-child",
+          "ds": "> span > button:last-child"
+        }
+      ]
+    }
+  ]
+}

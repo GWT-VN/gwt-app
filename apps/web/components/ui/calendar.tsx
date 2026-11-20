@@ -53,20 +53,34 @@ export const calendarDay = [
   'aria-disabled:font-normal aria-disabled:text-(--color-text-disabled) aria-disabled:line-through aria-disabled:cursor-not-allowed',
   // ≤ 640 (`.ui-cal-pop .ui-cal-day`): ô giãn đủ ngang, vuông.
   'max-[640px]:w-full max-[640px]:h-auto max-[640px]:aspect-square',
+  // Dải khoảng (`.ui-cal-day[data-range]`, DateRangePicker): ô vuông (vòng focus vuông theo), hình tròn ::before giữ
+  // nguyên. Giữa dải nền alpha-05; đầu/cuối nửa dải phía trong (gradient 50%); đầu = cuối (khoảng 1 ngày) không dải.
+  // Xem trước (`[data-preview]`): ô đang rê khi mới có ngày đầu → viền tròn 1.5 foreground như rê.
+  'data-range-start:rounded-none data-range-middle:rounded-none data-range-end:rounded-none',
+  'data-range-middle:bg-(--alpha-05)',
+  '[&[data-range-start]:not([data-range-end])]:bg-[linear-gradient(to_right,transparent_50%,var(--alpha-05)_50%)]',
+  '[&[data-range-end]:not([data-range-start])]:bg-[linear-gradient(to_left,transparent_50%,var(--alpha-05)_50%)]',
+  'data-preview:before:[box-shadow:inset_0_0_0_1.5px_var(--foreground)]',
 ].join(' ')
 
 /** Nút ‹ › (`.ui-cal-head .ui-btn[data-size=icon-sm]`): Button ghost icon-sm bo tròn, nằm 2 mép dòng tiêu đề. */
 const nutThang = cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 'pointer-events-auto rounded-(--radius-full)')
 
+/**
+ * Cờ dải: `range_*` của react-day-picker (mode="range", chỉ khi đủ 2 đầu) HOẶC `preview_*` — modifier tự đặt của người
+ * gọi cho dải xem trước lúc rê (DateRangePicker). Giữa dải (`range_middle`) KHÔNG mang `data-selected`: react-day-picker
+ * coi cả khoảng là "selected" (aria-selected trên td), nhưng hình tròn đặc chỉ ở 2 đầu (bundle `.ui-cal-day[data-range="mid"]`).
+ */
 function CalendarDayButton({ modifiers, className, ...props }: ComponentProps<typeof DayButton>) {
   return (
     <DayButton
       modifiers={modifiers}
       data-today={modifiers.today || undefined}
-      data-selected={modifiers.selected || undefined}
-      data-range-start={modifiers.range_start || undefined}
-      data-range-middle={modifiers.range_middle || undefined}
-      data-range-end={modifiers.range_end || undefined}
+      data-selected={(modifiers.selected && !modifiers.range_middle) || undefined}
+      data-range-start={modifiers.range_start || modifiers.preview_start || undefined}
+      data-range-middle={modifiers.range_middle || modifiers.preview_middle || undefined}
+      data-range-end={modifiers.range_end || modifiers.preview_end || undefined}
+      data-preview={modifiers.preview_end || undefined}
       className={cn(calendarDay, className)}
       {...props}
     />
