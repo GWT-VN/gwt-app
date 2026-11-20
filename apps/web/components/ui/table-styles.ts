@@ -1,0 +1,120 @@
+// File THƯỜNG (không 'use client'): chuỗi class — server component đọc được.
+import type { GiaoDienBang } from '@/bang/giaoDien'
+import { cn } from '@/lib/utils'
+
+/**
+ * Kiểu Table — chép từ `.b-bang*` / `.b-th-*` / `.b-co` / `.b-keo-bong` / `.ui-th-sort` của ds/nguon/bundle.css (khối
+ * "B. Bảng" của prototype, đúng bảng Token trong README Table) + `.ui-table-wrap` cho khung có viền (khối trạng thái).
+ * `layout="fixed"` = `.b-bang-c` (sửa tại ô: `table-layout: fixed` + colgroup, đệm ngang 6, ô cắt tràn).
+ * Mọi phần tử tắt viền preflight của app (`0 solid var(--border)`) rồi mới khai viền cần có.
+ */
+const kv = 'border-none border-current'
+
+/** `.b-bang-khung`: tự cuộn hai chiều (header sticky dính trong khung), thanh cuộn ẩn — vẫn cuộn bằng chuột/phím. */
+export const tableWrap = cn(kv, 'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
+/** `.ui-table-wrap`: viền 1px border, bo radius-xl, nền card (khối trạng thái của preview). */
+export const tableWrapVien = 'border border-solid border-(--border) rounded-(--radius-xl) bg-card'
+
+/** `.b-bang`: 100%, viền tách 0, chữ 14 (line-height kế thừa 20 của DsRoot). */
+export const table = cn(kv, 'w-full border-separate border-spacing-0 text-[14px]')
+/** `.b-bang-c`. */
+export const tableFixed = 'table-fixed'
+
+/** `.b-bang th`: dính đầu, z 2, cao 36, đệm ngang 10, nền background, kẻ dưới alpha-08, chữ 12/18 400 muted, trái. */
+export const th = cn(
+  'sticky top-0 z-2 h-(--control-size-lg) px-2.5 bg-background',
+  // Chỉ cạnh dưới: kiểu none·none·solid (cạnh khác không vẽ, giữ currentColor như nguồn) — không dùng border-solid chung.
+  'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-08)',
+  'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
+  // `.b-bang-c th`: đệm ngang 6.
+  'in-data-[layout=fixed]:px-1.5',
+)
+/** `.b-bang td`: cao 44, đệm ngang 10, kẻ dưới alpha-05, không xuống dòng, tối đa 280 (`.b-bang-c`: đệm 6, không trần, cắt). */
+export const td = cn(
+  'h-(--control-size-2xl) px-2.5 max-w-[280px] align-middle whitespace-nowrap',
+  'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-05)',
+  'in-data-[layout=fixed]:px-1.5 in-data-[layout=fixed]:max-w-none in-data-[layout=fixed]:overflow-hidden',
+  // `.b-bang-c tbody .ui-badge`: badge trong ô cao 22 (= avatar) → mọi phần tử trong dòng thẳng hàng.
+  'in-data-[layout=fixed]:[&_[data-slot=badge]]:h-(--control-size-3xs)',
+)
+/** `.b-bang tbody tr:hover td` alpha-02 · `tr[data-chon] td` info-soft-alpha (dự phòng alpha-05). */
+export const tr = cn(
+  'not-data-[state=selected]:hover:[&>td]:bg-(--alpha-02)',
+  'data-[state=selected]:[&>td]:bg-(--color-background-info-soft-alpha,var(--alpha-05))',
+)
+export const tfootTd = 'bg-muted font-semibold border-t border-solid border-(--border) border-b-0'
+/** `.b-phai`. */
+export const phai = 'text-right'
+/** `.b-ma`: mã 12/18 tabular, color-text-tertiary (font-sans, không mono). */
+export const ma = cn(kv, 'text-[12px] leading-[18px] tabular-nums text-(--color-text-tertiary) whitespace-nowrap')
+
+/** `.b-cot-chon`: ô chọn rộng 36, đệm trái 16. */
+export const cotChon = 'w-9 pl-4!'
+/** `.b-cot-dem`: cột đệm cuối ăn chỗ thừa (khung hẹp thì về 0) — cột thật giữ đúng độ rộng đã kéo. */
+export const cotDem = 'p-0!'
+
+/**
+ * Ô tiêu đề kéo được (`.b-th-keo` + `.b-th-keo .ui-th-sort` + `:has([aria-expanded=true])`): MỘT lớp hover — cả ô sáng
+ * alpha-04 trên nền background, chữ foreground; nút menu phủ kín ô, không nền riêng. Con trỏ grab (đang kéo: grabbing).
+ * Đang kéo (`data-keo`): nền alpha-05, nội dung mờ 40%. Vạch thả (`data-tren`): 2px ring trong ô, trái/phải.
+ */
+export const thKeo = cn(
+  'cursor-grab active:cursor-grabbing [transition:background-color_120ms_ease]',
+  'hover:[background:linear-gradient(var(--alpha-04),var(--alpha-04)),var(--background)] hover:text-foreground',
+  'has-[[aria-expanded=true]]:[background:linear-gradient(var(--alpha-04),var(--alpha-04)),var(--background)]',
+  'has-[[aria-expanded=true]]:text-foreground',
+)
+/** Ô (th + td) của cột đang kéo + vạch thả — áp chung cho thead và tbody (vạch chạy suốt chiều cao bảng). */
+export const oKeo = cn(
+  'data-keo:[background:linear-gradient(var(--alpha-05),var(--alpha-05)),var(--background)] data-keo:[&>*]:opacity-40',
+  'data-[tren=trai]:[box-shadow:inset_2px_0_0_var(--ring)] data-[tren=phai]:[box-shadow:inset_-2px_0_0_var(--ring)]',
+)
+
+/**
+ * `.ui-th-sort` trong ô kéo được: flex 1, cao 36, không đệm/bo/nền, chữ kế thừa ô, khoảng 4, icon 12. Đang sắp/lọc
+ * (`data-on`) + đang mở: chữ foreground, sắp/lọc thêm 500. Focus: vòng 2px ring LÙI VÀO −2 (nguồn +2 — nút cao bằng ô,
+ * vòng ngoài bị khung cuộn cắt mép trên; NGUON: vùng overflow cắt vòng focus con).
+ */
+export const thSort = cn(
+  kv,
+  // w-full: <button> không tự giãn như div — `.b-loc-o` (flex, rộng 100%) + `flex: 1` của nguồn = phủ kín ô.
+  'flex w-full min-w-0 items-center gap-1 h-(--control-size-lg) m-0 p-0 rounded-none bg-transparent',
+  'font-[inherit] text-inherit whitespace-nowrap cursor-[inherit] [outline:none]',
+  'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground data-on:font-medium',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
+  '[&_svg]:size-3 [&_svg]:shrink-0',
+  // `.b-th-an`: mũi tên mở menu ẩn, hiện 50% khi rê ô.
+  '[&_[data-an]]:opacity-0 in-[th:hover]:[&_[data-an]]:opacity-50 in-[[role=columnheader]:hover]:[&_[data-an]]:opacity-50',
+)
+/** Cột căn phải: chữ dồn phải trong nút phủ kín ô. */
+export const thSortPhai = 'justify-end'
+/** `.b-th-loc`: phễu + số giá trị đang lọc, 12/18 color-text-info tabular, icon 11. */
+export const thLoc = cn(
+  kv,
+  'inline-flex items-center gap-px text-[12px] leading-[18px] text-(--color-text-info) tabular-nums [&_svg]:size-[11px]!',
+)
+
+/**
+ * `.b-co`: tay co dãn — vùng bấm 16 vắt qua mép phải ô (phải −8), cao suốt ô, z 3, con trỏ col-resize. Vạch 2px ring
+ * (cách trên/dưới 6, bo 1) hiện khi rê / đang kéo / focus phím.
+ */
+export const tayCo = cn(
+  kv,
+  'absolute top-0 -right-2 bottom-0 z-3 w-4 cursor-col-resize touch-none [outline:none]',
+  "after:content-[''] after:absolute after:top-1.5 after:bottom-1.5 after:left-[7px] after:w-0.5 after:rounded-[1px]",
+  'after:border-none after:border-current after:bg-transparent after:[transition:background-color_120ms_ease]',
+  'hover:after:bg-(--ring) active:after:bg-(--ring) focus-visible:after:bg-(--ring)',
+)
+
+/** `.b-keo-bong`: thẻ nhỏ tên cột đi theo chuột — cao 28, đệm 10, bo radius-md, nền background, hairline + shadow-300. */
+export const keoBong = cn(
+  kv,
+  'inline-flex items-center h-(--control-size-sm) px-2.5 rounded-(--radius-md) bg-background text-foreground',
+  '[box-shadow:var(--shadow-hairline),var(--shadow-300)] text-[12px] leading-[18px] font-medium whitespace-nowrap cursor-grabbing',
+)
+
+/** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
+export const CHON_BANG: Partial<GiaoDienBang> = {
+  chon_oTh: cn(th, cotChon),
+  chon_oTd: cn(td, cotChon),
+}

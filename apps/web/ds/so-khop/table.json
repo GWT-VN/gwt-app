@@ -1,0 +1,504 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#table > div"
+    ]
+  },
+  "chuaDo": [
+    "Kéo đổi chỗ THẬT (chuột + bàn phím Space/←→/Space/Esc, câu đọc tiếng Việt, cột nguồn mờ + vạch thả theo nửa ô) — cổng không có bước kéo/Space/←; khối \"keo\" vẽ TĨNH trạng thái đang kéo (đo được nền mờ + vạch), hành vi đo bằng test jsdom components/ui/table.dom.test.tsx",
+    "Bóng kéo `.b-keo-bong` (preview đặt ngoài khung nhìn top −200, không đo được) — DS là DragOverlay z 90, so bằng mắt khi kéo ở /ds#table",
+    "Co dãn: kéo chuột / ←→ 8px / tối thiểu 56 / nhấp đúp về mặc định — test jsdom; vạch ring khi rê mép đo qua `tay-co-vach` (::after) ở trạng thái thường",
+    "Dòng đã chọn (nền info-soft): preview không có dòng chọn — test jsdom (data-state=\"selected\" + class nền) + ảnh /ds#table",
+    "aria-sort, menu lọc giữ mở khi tick, cột lọc khai sắp bị chặn (tsc + lỗi chạy), 4 trạng thái: test jsdom",
+    "Rỗng thật (EmptyState kiểu \"that\" + nút tạo): preview không có khối này — ảnh /ds#table",
+    "Bảng 390: preview không có khổ hẹp riêng — cổng đo 390 như 1440; trang không tràn ngang (bảng cuộn trong khung) kiểm bằng scrollWidth ở ảnh tự kiểm",
+    "Mũi menu (caret) ở tiêu đề: preview vẽ cả khi cột đang sắp (Ưu tiên: ↑ + caret, nút tràn ô 76 → svg co còn 7.5). DS chỉ vẽ caret khi CHƯA có dấu sắp/lọc (dấu đó đã báo có menu) → chữ không bị cắt ở cột hẹp; so bằng ảnh"
+  ],
+  "khoa": [
+    {
+      "khoa": "nhan",
+      "artifact": ".ds-muc:nth-child(1) > .ds-nhan",
+      "ds": "#table [data-so=\"bang\"] > p"
+    },
+    {
+      "khoa": "khung-bang",
+      "artifact": ".ds-muc:nth-child(1) .b-bang-khung",
+      "ds": "#table [data-so=\"bang\"] [data-slot=\"table-wrap\"]",
+      "lyDo": {
+        "width": "Preview `.b-bang-khung { margin-inline: -8px }` (lề trang của prototype `.b-trang`) → rộng hơn khung chứa 16px. DS `TableWrap` không lề âm: thuộc bố cục màn, không thuộc component."
+      }
+    },
+    {
+      "khoa": "bang",
+      "artifact": ".ds-muc:nth-child(1) table",
+      "ds": "#table [data-so=\"bang\"] table",
+      "lyDo": {
+        "width@1440": "Preview `.b-bang-khung { margin-inline: -8px }` (lề trang của prototype `.b-trang`) → rộng hơn khung chứa 16px. DS `TableWrap` không lề âm: thuộc bố cục màn, không thuộc component. Bảng 100% khung."
+      }
+    },
+    {
+      "khoa": "th-chon",
+      "artifact": ".ds-muc:nth-child(1) thead th.b-cot-chon",
+      "ds": "#table [data-so=\"bang\"] thead th:first-child",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> input",
+          "ds": "> input",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "borderTopColor"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
+      }
+    },
+    {
+      "khoa": "th-sap-hover",
+      "artifact": ".ds-muc:nth-child(1) thead th:nth-child(2)",
+      "ds": "#table [data-so=\"bang\"] thead th:nth-child(2)",
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        },
+        {
+          "ten": "mui",
+          "artifact": ".ui-th-sort > svg:first-of-type",
+          "ds": "button > svg:first-of-type",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "opacity"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "hover.width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "nut.width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "hover.nut.width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "color": "Preview gắn sẵn `.is-hover` lên ô Ưu tiên → trạng thái \"thường\" của preview là đang rê (chữ foreground). DS trạng thái thường muted; khi rê thật (`hover.*`) khớp.",
+        "outlineColor": "Preview gắn sẵn `.is-hover` lên ô Ưu tiên → trạng thái \"thường\" của preview là đang rê (chữ foreground). DS trạng thái thường muted; khi rê thật (`hover.*`) khớp. (outline-color = currentColor, outline không vẽ).",
+        "zIndex": "Prototype `BangCot` gắn inline `zIndex: 2 + số cột − vị trí` (ô trước nằm trên ô sau → nửa phải tay co dãn vắt qua mép không bị ô kế đè); preview tĩnh mất style inline nên là 2. DS `20 − vị trí` (≥ 3), vẫn dưới menu 90.",
+        "hover.zIndex": "Prototype `BangCot` gắn inline `zIndex: 2 + số cột − vị trí` (ô trước nằm trên ô sau → nửa phải tay co dãn vắt qua mép không bị ô kế đè); preview tĩnh mất style inline nên là 2. DS `20 − vị trí` (≥ 3), vẫn dưới menu 90.",
+        "mui.width@390": "Preview: nút tràn (chữ + mũi tên + mũi menu 74 > ô 64) nên svg co lại 7.5; DS icon `shrink-0` 12, chữ cắt \"…\" (min-w-0 + truncate).",
+        "hover.mui.width@390": "Như `mui.width@390`.",
+        "borderTopColor": "Như `color`: viền trên kiểu none (không vẽ) mang currentColor — preview đang `.is-hover` (foreground), DS thường (muted)."
+      }
+    },
+    {
+      "khoa": "th",
+      "artifact": ".ds-muc:nth-child(1) thead th:nth-child(3)",
+      "ds": "#table [data-so=\"bang\"] thead th:nth-child(3)",
+      "con": [
+        {
+          "ten": "nut",
+          "artifact": ".ui-th-sort",
+          "ds": "button"
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "nut.width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "zIndex": "Prototype `BangCot` gắn inline `zIndex: 2 + số cột − vị trí` (ô trước nằm trên ô sau → nửa phải tay co dãn vắt qua mép không bị ô kế đè); preview tĩnh mất style inline nên là 2. DS `20 − vị trí` (≥ 3), vẫn dưới menu 90."
+      }
+    },
+    {
+      "khoa": "tay-co",
+      "artifact": ".ds-muc:nth-child(1) thead th:nth-child(3) .b-co",
+      "ds": "#table [data-so=\"bang\"] thead th:nth-child(3) [role=\"separator\"]"
+    },
+    {
+      "khoa": "tay-co-vach",
+      "artifact": ".ds-muc:nth-child(1) thead th:nth-child(3) .b-co",
+      "ds": "#table [data-so=\"bang\"] thead th:nth-child(3) [role=\"separator\"]",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      }
+    },
+    {
+      "khoa": "td-chon",
+      "artifact": ".ds-muc:nth-child(1) tbody tr:first-child td:first-child",
+      "ds": "#table [data-so=\"bang\"] tbody tr:first-child td:first-child",
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
+      }
+    },
+    {
+      "khoa": "td",
+      "artifact": ".ds-muc:nth-child(1) tbody tr:first-child td:nth-child(2)",
+      "ds": "#table [data-so=\"bang\"] tbody tr:first-child td:nth-child(2)",
+      "con": [
+        {
+          "ten": "badge",
+          "artifact": ".ui-badge",
+          "ds": "[data-slot=\"badge\"]"
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
+      }
+    },
+    {
+      "khoa": "td-hover",
+      "artifact": ".ds-muc:nth-child(1) tbody tr:nth-child(2) td:nth-child(5)",
+      "ds": "#table [data-so=\"bang\"] tbody tr:nth-child(2) td:nth-child(5)",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "props": [
+        "backgroundColor"
+      ]
+    },
+    {
+      "khoa": "ma",
+      "artifact": ".ds-muc:nth-child(1) tbody tr:first-child .b-ma",
+      "ds": "#table [data-so=\"bang\"] tbody tr:first-child td:nth-child(4) > span",
+      "lyDo": {
+        "width": "Ô Mã của preview là nút mở ticket (`.b-mo-ticket`, flex → `.b-ma` là flex item có hộp, con trỏ pointer). Mở bản ghi thuộc DataView/ListView (Task 8/12); DS Table vẽ mã là chữ (`span` inline, `table-styles.ma`) — cỡ chữ/màu/tabular khớp.",
+        "height": "Ô Mã của preview là nút mở ticket (`.b-mo-ticket`, flex → `.b-ma` là flex item có hộp, con trỏ pointer). Mở bản ghi thuộc DataView/ListView (Task 8/12); DS Table vẽ mã là chữ (`span` inline, `table-styles.ma`) — cỡ chữ/màu/tabular khớp.",
+        "cursor": "Ô Mã của preview là nút mở ticket (`.b-mo-ticket`, flex → `.b-ma` là flex item có hộp, con trỏ pointer). Mở bản ghi thuộc DataView/ListView (Task 8/12); DS Table vẽ mã là chữ (`span` inline, `table-styles.ma`) — cỡ chữ/màu/tabular khớp."
+      }
+    },
+    {
+      "khoa": "avatar",
+      "artifact": ".ds-muc:nth-child(1) tbody tr:first-child .ui-avatar",
+      "ds": "#table [data-so=\"bang\"] tbody tr:first-child [data-slot=\"avatar\"]",
+      "lyDo": {
+        "cursor": "Avatar preview nằm trong nút sửa tại ô (`.b-osua`, InlineEdit — Task 10) → con trỏ pointer; DS Table vẽ avatar trần."
+      }
+    },
+    {
+      "khoa": "th-keo",
+      "artifact": ".ds-muc:nth-child(3) th[data-keo]",
+      "ds": "#table [data-so=\"keo\"] th[data-keo]",
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "zIndex": "Prototype `BangCot` gắn inline `zIndex: 2 + số cột − vị trí` (ô trước nằm trên ô sau → nửa phải tay co dãn vắt qua mép không bị ô kế đè); preview tĩnh mất style inline nên là 2. DS `20 − vị trí` (≥ 3), vẫn dưới menu 90."
+      }
+    },
+    {
+      "khoa": "th-tren",
+      "artifact": ".ds-muc:nth-child(3) th[data-tren]",
+      "ds": "#table [data-so=\"keo\"] th[data-tren]",
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
+        "zIndex": "Prototype `BangCot` gắn inline `zIndex: 2 + số cột − vị trí` (ô trước nằm trên ô sau → nửa phải tay co dãn vắt qua mép không bị ô kế đè); preview tĩnh mất style inline nên là 2. DS `20 − vị trí` (≥ 3), vẫn dưới menu 90."
+      }
+    },
+    {
+      "khoa": "td-keo",
+      "artifact": ".ds-muc:nth-child(3) td[data-keo]",
+      "ds": "#table [data-so=\"keo\"] td[data-keo]",
+      "con": [
+        {
+          "ten": "noi-dung",
+          "artifact": "> *",
+          "ds": "> *",
+          "props": [
+            "opacity"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
+      }
+    },
+    {
+      "khoa": "td-tren",
+      "artifact": ".ds-muc:nth-child(3) td[data-tren]",
+      "ds": "#table [data-so=\"keo\"] td[data-tren]",
+      "lyDo": {
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
+      }
+    },
+    {
+      "khoa": "tai",
+      "artifact": ".ds-muc:nth-child(4) .ui-table-wrap[aria-busy]",
+      "ds": "#table [data-so=\"trang-thai\"] [aria-busy=\"true\"]",
+      "lyDo": {
+        "height": "EmptyState DS (Task 2) luôn vẽ ô biểu tượng 40px + lề 8 (README EmptyState: mỗi lý do trống một icon); `.ui-empty` trong khối trạng thái preview Table không icon → cao hơn 52. Ô đang tải cùng hàng lưới giãn theo ô rỗng. Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy."
+      }
+    },
+    {
+      "khoa": "tai-th",
+      "artifact": ".ds-muc:nth-child(4) [aria-busy] th:first-child",
+      "ds": "#table [data-so=\"trang-thai\"] [aria-busy=\"true\"] th:first-child",
+      "lyDo": {
+        "width": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "paddingRight": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "paddingLeft": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "borderBottomColor": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "fontWeight": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "backgroundColor": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "zIndex": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy."
+      }
+    },
+    {
+      "khoa": "tai-td",
+      "artifact": ".ds-muc:nth-child(4) [aria-busy] tbody tr:first-child td:first-child",
+      "ds": "#table [data-so=\"trang-thai\"] [aria-busy=\"true\"] tbody tr:first-child td:first-child",
+      "con": [
+        {
+          "ten": "skeleton",
+          "artifact": ".ui-skeleton",
+          "ds": "[data-slot=\"skeleton\"]",
+          "props": [
+            "height",
+            "borderRadius",
+            "backgroundColor"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "height": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "paddingRight": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "paddingLeft": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy.",
+        "borderBottomColor": "Khối trạng thái của preview vẽ bằng `.ui-table` gốc (đầu cột nền surface-secondary 600 đệm 12, dòng 40 kẻ `--border`); DS dùng MỘT kiểu bảng cho mọi trạng thái = `.b-bang` theo bảng Token README Table (đầu cột nền background 400 đệm 10 kẻ alpha-08, dòng 44 kẻ alpha-05) → khung đang tải trùng khung bảng thật, dữ liệu về không nhảy."
+      }
+    },
+    {
+      "khoa": "rong-khung",
+      "artifact": ".ds-muc:nth-child(4) .ui-table-wrap:not([aria-busy])",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"table-wrap\"]:not([aria-busy])",
+      "lyDo": {
+        "height": "EmptyState DS (Task 2) luôn vẽ ô biểu tượng 40px + lề 8 (README EmptyState: mỗi lý do trống một icon); `.ui-empty` trong khối trạng thái preview Table không icon → cao hơn 52. Ô đang tải cùng hàng lưới giãn theo ô rỗng."
+      }
+    },
+    {
+      "khoa": "rong",
+      "artifact": ".ds-muc:nth-child(4) .ui-empty",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-state\"]",
+      "lyDo": {
+        "height": "EmptyState DS (Task 2) luôn vẽ ô biểu tượng 40px + lề 8 (README EmptyState: mỗi lý do trống một icon); `.ui-empty` trong khối trạng thái preview Table không icon → cao hơn 52. Ô đang tải cùng hàng lưới giãn theo ô rỗng."
+      }
+    },
+    {
+      "khoa": "rong-tieu-de",
+      "artifact": ".ds-muc:nth-child(4) .ui-empty-title",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-title\"]"
+    },
+    {
+      "khoa": "rong-mo-ta",
+      "artifact": ".ds-muc:nth-child(4) .ui-empty-desc",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-desc\"]"
+    },
+    {
+      "khoa": "rong-nut",
+      "artifact": ".ds-muc:nth-child(4) .ui-empty .ui-btn",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-actions\"] button"
+    },
+    {
+      "khoa": "loi",
+      "artifact": ".ds-muc:nth-child(4) .ui-alert",
+      "ds": "#table [data-so=\"trang-thai\"] [role=\"alert\"]"
+    },
+    {
+      "khoa": "loi-tieu-de",
+      "artifact": ".ds-muc:nth-child(4) .ui-alert-title",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"alert-title\"]",
+      "lyDo": {
+        "borderTopStyle": "AlertTitle (Alert, lát 2 — không thuộc Task 7) là div không tắt viền preflight (`0 solid`): rộng 0, không vẽ.",
+        "borderTopColor": "AlertTitle (Alert, lát 2 — không thuộc Task 7) là div không tắt viền preflight (`0 solid`): rộng 0, không vẽ.",
+        "borderBottomStyle": "AlertTitle (Alert, lát 2 — không thuộc Task 7) là div không tắt viền preflight (`0 solid`): rộng 0, không vẽ.",
+        "borderBottomColor": "AlertTitle (Alert, lát 2 — không thuộc Task 7) là div không tắt viền preflight (`0 solid`): rộng 0, không vẽ."
+      }
+    },
+    {
+      "khoa": "loi-nut",
+      "artifact": ".ds-muc:nth-child(4) .ui-alert .ui-btn",
+      "ds": "#table [data-so=\"trang-thai\"] [role=\"alert\"] button"
+    },
+    {
+      "khoa": "menu-loc",
+      "artifact": ".ds-muc:nth-child(2) .ui-stack:nth-child(1) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#table [data-so=\"bang\"] thead th:nth-child(3) button"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "[data-ds-portal] [role=\"menu\"] > :nth-child(2)"
+        },
+        {
+          "cho": 150
+        },
+        {
+          "bam": "[data-ds-portal] [role=\"menu\"] > :nth-child(3)"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "nhan",
+          "artifact": "> .ui-menu-label",
+          "ds": "> :first-child"
+        },
+        {
+          "ten": "tag",
+          "artifact": "> :nth-child(2)",
+          "ds": "> :nth-child(2)"
+        },
+        {
+          "ten": "tag-badge",
+          "artifact": "> :nth-child(2) .ui-badge",
+          "ds": "> :nth-child(2) [data-slot=\"badge\"]"
+        },
+        {
+          "ten": "tag-cham",
+          "artifact": "> :nth-child(2) .ui-dot",
+          "ds": "> :nth-child(2) [data-slot=\"badge-dot\"]",
+          "props": [
+            "width",
+            "height",
+            "backgroundColor",
+            "borderRadius"
+          ]
+        },
+        {
+          "ten": "tag-tick",
+          "artifact": "> :nth-child(2) > svg",
+          "ds": "> :nth-child(2) > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "bo-loc",
+          "artifact": "> :last-child",
+          "ds": "> :last-child"
+        }
+      ],
+      "lyDo": {
+        "height": "Dữ liệu demo có 5 tag loại lỗi (thêm \"App\") — preview 4 → thêm một mục 32px. Menu liệt kê ĐÚNG tag có trong dữ liệu (README).",
+        "zIndex": "Preview vẽ `.ui-menu` tĩnh, không lớp nổi → auto. Menu thả thật của artifact `.b-noi` z 90 (bundle.css) = DS menu-styles.ts (như dropdownmenu.json)."
+      }
+    },
+    {
+      "khoa": "th-dang-loc",
+      "artifact": ".ds-muc:nth-child(2) .ui-stack:nth-child(1) .ui-th-sort",
+      "ds": "#table [data-so=\"bang\"] thead th:nth-child(3) button",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#table [data-so=\"bang\"] thead th:nth-child(3) button"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "[data-ds-portal] [role=\"menu\"] > :nth-child(2)"
+        },
+        {
+          "cho": 150
+        },
+        {
+          "bam": "[data-ds-portal] [role=\"menu\"] > :nth-child(3)"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "pheu",
+          "artifact": ".b-th-loc",
+          "ds": "> span:nth-child(2)"
+        },
+        {
+          "ten": "pheu-icon",
+          "artifact": ".b-th-loc > svg",
+          "ds": "> span:nth-child(2) > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được). Rộng theo chữ + phễu.",
+        "height": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được).",
+        "borderRadius": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được).",
+        "fontSize": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được).",
+        "lineHeight": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được).",
+        "cursor": "Preview vẽ nút tiêu đề ĐỨNG RIÊNG (`.b-loc-o` ngoài `<th>`): `.ui-th-sort` gốc cao 28, chữ 14/20, bo 4, con trỏ pointer. DS đo nút thật trong ô tiêu đề (`.b-th-keo .ui-th-sort`: cao 36 phủ kín ô, chữ 12/18 của ô, bo 0, con trỏ grab của ô kéo được).",
+        "fontWeight": "Preview quên `data-on` trên nút Loại lỗi đang lọc 2 giá trị (nút Hạn đang sắp có); quy tắc `.ui-th-sort[data-on]` (đang sắp/lọc → 500) — DS áp cho cả lọc."
+      }
+    },
+    {
+      "khoa": "menu-sap",
+      "artifact": ".ds-muc:nth-child(2) .ui-stack:nth-child(2) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#table [data-so=\"bang\"] thead th:nth-child(8) button"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "[data-ds-portal] [role=\"menu\"] [role=\"menuitemradio\"]"
+        },
+        {
+          "cho": 300
+        },
+        {
+          "bam": "#table [data-so=\"bang\"] thead th:nth-child(8) button"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "muc",
+          "artifact": "> :nth-child(2)",
+          "ds": "[role=\"menuitemradio\"]"
+        },
+        {
+          "ten": "muc-tick",
+          "artifact": "> :nth-child(2) > svg",
+          "ds": "[role=\"menuitemradio\"] > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ `.ui-menu` tĩnh, không lớp nổi → auto. Menu thả thật của artifact `.b-noi` z 90 (bundle.css) = DS menu-styles.ts (như dropdownmenu.json)."
+      }
+    }
+  ]
+}
