@@ -33,12 +33,14 @@ import { Spinner } from './spinner'
  *   thêm để thu hẹp", không cắt → "M mục"; rỗng / chưa đủ ký tự / đang tìm / lỗi (câu lỗi `tim` ném ra) theo README.
  *
  * Tên: `FieldLabel htmlFor` trỏ `id`, hoặc `aria-labelledby` / `aria-label`; lỗi → `aria-invalid` + `aria-describedby`.
+ * Pop là `role="dialog"` của Radix (chứa ô tìm combobox + listbox), tên lấy từ `aria-labelledby` / `aria-label` của trigger.
  */
 export function Combobox({
   value,
   onValueChange,
   options,
   tim,
+  mucDangChon,
   placeholder = 'Chọn…',
   searchPlaceholder,
   max,
@@ -50,8 +52,16 @@ export function Combobox({
   onValueChange(v: string | null): void
   /** Danh sách đã nạp ở client (lọc tại chỗ). Truyền `options` HOẶC `tim`. */
   options?: MucChon[]
-  /** Tìm xa (gọi server); ném lỗi thì pop hiện câu lỗi. */
+  /**
+   * Tìm xa (gọi server); ném lỗi thì pop hiện câu lỗi. `max` nên bằng trần dòng của RPC: trả về ≥ `max` mục là chạm
+   * trần → ghi chú "N kết quả đầu — gõ thêm để thu hẹp" (có thể còn mục khác ngoài N).
+   */
   tim?: (q: string) => Promise<MucChon[]>
+  /**
+   * Mục ứng với `value` khi danh sách KHÔNG có sẵn ở client (chế độ `tim`, vd form sửa mở với mã khách đã lưu) → trigger
+   * hiện `nhan` thay vì mã thô. Chỉ dùng khi `mucDangChon.gt === value`; lệch thì hiện `value`. Chế độ `options` không cần.
+   */
+  mucDangChon?: MucChon
   placeholder?: string
   searchPlaceholder?: string
   /** Số mục hiện tối đa (mặc định 30); cắt thì ghi chú nói rõ. */
@@ -67,7 +77,10 @@ export function Combobox({
   const nutRef = useRef<HTMLButtonElement>(null)
   // Tìm xa: mục vừa chọn không nằm trong `options` → nhớ để trigger hiện tên thay vì mã.
   const [nho, setNho] = useState<MucChon | null>(null)
-  const dang = value ? (options?.find((m) => m.gt === value) ?? (nho?.gt === value ? nho : null)) : null
+  const dang = value
+    ? (options?.find((m) => m.gt === value) ?? [mucDangChon, nho].find((m) => m?.gt === value) ?? null)
+    : null
+  const ten = value ? (dang?.nhan ?? value) : null
   const coXoa = !!value && !disabled
 
   return (
@@ -79,7 +92,6 @@ export function Combobox({
             type="button"
             id={id}
             disabled={disabled}
-            aria-haspopup="listbox"
             data-slot="combobox-trigger"
             data-placeholder={value ? undefined : ''}
             // cn: selectTrigger chứa cả font-normal (controlOutline) lẫn font-medium — twMerge giữ 500 như Select.
@@ -87,7 +99,7 @@ export function Combobox({
             {...aria}
           >
             <span data-slot="select-value" className={selectValue}>
-              {value ? (dang?.nhan ?? value) : placeholder}
+              {ten ?? placeholder}
             </span>
             {/* Chừa chỗ cho nút ✕ (nằm ngoài <button> — không lồng nút trong nút). */}
             {coXoa && <span aria-hidden className="ml-auto size-5 shrink-0" />}
@@ -97,7 +109,7 @@ export function Combobox({
         {coXoa && (
           <button
             type="button"
-            aria-label="Bỏ chọn"
+            aria-label={`Bỏ chọn ${ten}`}
             onClick={() => {
               onValueChange(null)
               nutRef.current?.focus()
@@ -116,6 +128,8 @@ export function Combobox({
       </div>
       <PopoverContent
         data-slot="combobox-content"
+        aria-labelledby={aria['aria-labelledby']}
+        aria-label={aria['aria-labelledby'] ? undefined : (aria['aria-label'] ?? 'Danh sách chọn')}
         className={cn(
           menuContent,
           'min-w-[max(200px,var(--radix-popover-trigger-width))] max-w-[calc(100vw-16px)]',
@@ -199,6 +213,10 @@ export function ComboboxPanel({
   else if (!options && xa.thieuKyTu) ghiChu = `Gõ thêm — cần ít nhất ${TOI_THIEU_KY_TU} ký tự để tìm.`
   else if (!options && xa.dangTim) ghiChu = <><Spinner />Đang tìm…</>
   else if (!ds.length) ghiChu = tu ? `Không có mục nào khớp "${tu}".` : 'Không có mục nào.'
+  else if (!options)
+    // Tìm xa: RPC có trần dòng → không biết tổng thật; "20 mục" dễ hiểu sai là chỉ có 20. Chạm trần `max` → nói rõ là
+    // N kết quả ĐẦU; chưa chạm → đó là toàn bộ kết quả.
+    ghiChu = tong >= max ? `${ds.length} kết quả đầu — gõ thêm để thu hẹp` : `${tong} kết quả`
   else ghiChu = tong > ds.length ? `Đang hiện ${ds.length} / ${tong} mục — gõ thêm để thu hẹp` : `${tong} mục`
 
   return (

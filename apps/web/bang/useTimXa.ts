@@ -29,8 +29,12 @@ export function useTimXa(
 
   useEffect(() => {
     const s = q.trim()
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- xoá kết quả khi ô tìm quá ngắn; giữ nguyên hành vi cũ
-    if (s.length < TOI_THIEU_KY_TU) { setDs([]); setDangTim(false); setLoi(null); return }
+    if (s.length < TOI_THIEU_KY_TU) {
+      // Huỷ lượt đang bay: không tăng `luot` thì câu trả lời của lượt trước về sau vẫn ghi đè ds/loi đã xoá.
+      luot.current++
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- xoá kết quả khi ô tìm quá ngắn; giữ nguyên hành vi cũ
+      setDs([]); setDangTim(false); setLoi(null); return
+    }
 
     const cua = ++luot.current
     setDangTim(true)

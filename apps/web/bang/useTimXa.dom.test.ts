@@ -49,3 +49,21 @@ test('tim ném lỗi → loi = câu lỗi, ds rỗng', async () => {
   await act(async () => { await vi.advanceTimersByTimeAsync(250) })
   expect(result.current).toEqual({ ds: [], dangTim: false, loi: 'Mất kết nối', thieuKyTu: false })
 })
+
+test('xoá xuống dưới 2 ký tự trong lúc câu trả lời đang bay → câu trả lời về muộn bị bỏ (ds rỗng, không lỗi)', async () => {
+  let xong: (v: MucChon[]) => void = () => {}
+  let hong: (e: Error) => void = () => {}
+  const tim = vi.fn(() => new Promise<MucChon[]>((ok, ko) => { xong = ok; hong = ko }))
+  const { result, rerender } = renderHook(({ q }) => useTimXa(tim, q), { initialProps: { q: 'ngu' } })
+  await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+  expect(tim).toHaveBeenCalledTimes(1)
+  rerender({ q: 'n' })
+  await act(async () => { xong([muc('Ngũ Hành Sơn')]) })
+  expect(result.current).toEqual({ ds: [], dangTim: false, loi: null, thieuKyTu: true })
+  // Lỗi về muộn cũng bỏ.
+  rerender({ q: 'ngu' })
+  await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+  rerender({ q: '' })
+  await act(async () => { hong(new Error('Mất kết nối')) })
+  expect(result.current).toEqual({ ds: [], dangTim: false, loi: null, thieuKyTu: true })
+})

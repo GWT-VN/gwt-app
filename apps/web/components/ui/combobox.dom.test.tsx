@@ -182,11 +182,11 @@ test('nút ✕ trong trigger bỏ chọn → onValueChange(null), placeholder hi
       <ChonTinh onDoi={onDoi} />
     </DsRoot>,
   )
-  await user.click(screen.getByRole('button', { name: 'Bỏ chọn' }))
+  await user.click(screen.getByRole('button', { name: 'Bỏ chọn Hà Nội' }))
   expect(onDoi).toHaveBeenLastCalledWith(null)
   expect(trigger().hasAttribute('data-placeholder')).toBe(true)
   expect(trigger().textContent).toContain('Chọn…')
-  expect(screen.queryByRole('button', { name: 'Bỏ chọn' })).toBeNull()
+  expect(screen.queryByRole('button', { name: /^Bỏ chọn/ })).toBeNull()
   expect(screen.queryByRole('listbox')).toBeNull()
 })
 
@@ -202,7 +202,7 @@ test('aria-invalid trên trigger; disabled → không mở, không có ✕', asy
   const tat = screen.getByRole('button', { name: 'Tắt' })
   await user.click(tat)
   expect(screen.queryByRole('listbox')).toBeNull()
-  expect(screen.queryByRole('button', { name: 'Bỏ chọn' })).toBeNull()
+  expect(screen.queryByRole('button', { name: /^Bỏ chọn/ })).toBeNull()
 })
 
 test('tìm xa: chưa đủ ký tự → câu "Gõ thêm"; đang tìm → "Đang tìm…"; về → mục, chọn được; lỗi → câu lỗi tim ném ra', async () => {
@@ -227,7 +227,7 @@ test('tìm xa: chưa đủ ký tự → câu "Gõ thêm"; đang tìm → "Đang 
     expect(tim).toHaveBeenCalledWith('ng')
     await act(async () => { xong([{ gt: 'KH01', nhan: 'Nguyễn Văn A (demo)', phu: '090xxx' }]) })
     await waitFor(() => expect(muc()).toHaveLength(1))
-    expect(note.textContent).toBe('1 mục')
+    expect(note.textContent).toBe('1 kết quả')
     await user.keyboard('{Backspace}{Backspace}loi')
     await act(async () => { await vi.advanceTimersByTimeAsync(250) })
     await waitFor(() => expect(note.textContent).toBe('Mất kết nối'))
@@ -237,6 +237,60 @@ test('tìm xa: chưa đủ ký tự → câu "Gõ thêm"; đang tìm → "Đang 
     await waitFor(() => expect(muc()).toHaveLength(1))
     await user.keyboard('{Enter}')
     expect(onDoi).toHaveBeenLastCalledWith('KH01')
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
+test('pop là dialog CÓ tên (không đè aria-haspopup thành listbox); tên lấy từ aria-label của trigger', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <ChonTinh />
+    </DsRoot>,
+  )
+  expect(trigger().getAttribute('aria-haspopup')).toBe('dialog')
+  await user.click(trigger())
+  expect(await screen.findByRole('dialog', { name: 'Tỉnh/thành' })).toBeTruthy()
+})
+
+test('tìm xa + value có sẵn (form sửa): mucDangChon cho trigger hiện tên thay vì mã thô', () => {
+  const tim = vi.fn(async () => [])
+  render(
+    <DsRoot>
+      <Combobox
+        aria-label="Khách"
+        value="KH01"
+        mucDangChon={{ gt: 'KH01', nhan: 'Nguyễn Văn A (demo)' }}
+        onValueChange={() => {}}
+        tim={tim}
+      />
+      <Combobox aria-label="Khách lệch" value="KH02" mucDangChon={{ gt: 'KH01', nhan: 'Sai' }} onValueChange={() => {}} tim={tim} />
+    </DsRoot>,
+  )
+  const nut = screen.getByRole('button', { name: 'Khách' })
+  expect(nut.textContent).toContain('Nguyễn Văn A (demo)')
+  expect(nut.textContent).not.toContain('KH01')
+  expect(screen.getByRole('button', { name: 'Bỏ chọn Nguyễn Văn A (demo)' })).toBeTruthy()
+  // mucDangChon không khớp value → không bịa tên, hiện mã.
+  expect(screen.getByRole('button', { name: 'Khách lệch' }).textContent).toContain('KH02')
+})
+
+test('tìm xa: kết quả chạm trần max → "N kết quả đầu — gõ thêm để thu hẹp"', async () => {
+  const user = userEvent.setup({ advanceTimers: (ms) => vi.advanceTimersByTime(ms) })
+  vi.useFakeTimers({ shouldAdvanceTime: true })
+  try {
+    const tim = vi.fn(async () => TINH.slice(0, 5))
+    render(
+      <DsRoot>
+        <Combobox aria-label="Khách" value={null} onValueChange={() => {}} tim={tim} max={5} />
+      </DsRoot>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Khách' }))
+    await user.keyboard('ng')
+    await act(async () => { await vi.advanceTimersByTimeAsync(250) })
+    await waitFor(() => expect(muc()).toHaveLength(5))
+    expect(screen.getByText('5 kết quả đầu — gõ thêm để thu hẹp').getAttribute('aria-live')).toBe('polite')
   } finally {
     vi.useRealTimers()
   }
