@@ -28,11 +28,16 @@ thêm quyết định đã chốt (Inter chính chủ, Button loading, ô tiền
 trigger, DatePicker/DateRangePicker trần cao pop + kẹp tháng, mô tả Checkbox/Radio `aria-describedby`); preview Combobox
 đổi sang 34 tỉnh/thành (NQ 202/2025/QH15) và bỏ khớp chữ cái đầu.
 
+Bản 40 (CEO duyệt 20/11 — DS thiếu Card thì build vào DS trước; bản 41 chỉ đổi index `lastChange`): thêm component Card
+(`Card/preview.html` + README) và 7 rule phần Card ngay sau `.ui-card-pad` trong `bundle.css` (`ui-card-header`/`-title`/
+`-desc`/`-action`/`-content`/`-footer`); `.ui-card`, `.ui-card-pad` giữ nguyên → `bundle.css` lấy **bản 40**. Preview nhóm
+`Data display` (nhóm tiếng Anh như các preview khác; /ds xếp Card ở nhóm Nền).
+
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` (bản 38) | `73241bf9b79dd8394cec094350603868080d0025fa6bc26e6b20cf6087b225a9` |
+| `nguon/bundle.css` (bản 40) | `4eeee1568c263c6327dd82f3f82d776d3fe1062a504f72d451226a2c1cc77853` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
@@ -54,12 +59,14 @@ trigger, DatePicker/DateRangePicker trần cao pop + kẹp tháng, mô tả Chec
 | `nguon/components/DatePicker/preview.html` (bản 37) | `fc39754c75bb053fc7ce95a921278209a217f256fec23c6f3a5f081bbe7c1212` |
 | `nguon/components/DateRangePicker/preview.html` (bản 37) | `4af2927ade5a4a0ce7ab6bfc13442f427d2ffbaebe527d61b3859b6cebb29a04` |
 | `nguon/components/FileUpload/preview.html` (bản 37) | `20fb1d1ad2ddb757e4bf8b01e7f96fd3571ad56dff9f11020242a56e8a3643ab` |
+| `nguon/components/Card/preview.html` (bản 40) | `258137b798b64bf96f637b14dc11dc24cabcdad256928c466a190e3eaae85f86` |
 | `nguon/components/FormLayout/preview.html` (bản 37) | `9b10b2fec50fabda5418c14c6765bd3c921624a87c30c79670ce85e29c0621f0` |
 | `nguon/README.md` (bản 38) | `8ec35c76deebd58a5d22e8ed2ceb9967ab9e0891e973dd0094a7bd2343be84f3` |
 | `nguon/components/Alert/README.md` (bản 37) | `6c43cfce0fe38d1142ec6b2b9dba9d6cd303246d2b6eea2ccf405a66e2b1eae5` |
 | `nguon/components/Avatar/README.md` (bản 37) | `1c96c7dc37ca072574340859677e57acdab3e9db5a9b4224d981eac458c2b7fa` |
 | `nguon/components/Badge/README.md` (bản 37) | `8d46db52bed6a44d72998f9dd9c179ad8634ebd1131d451ebad9eebdc4ef2db0` |
 | `nguon/components/Button/README.md` (bản 38) | `7c4d765de3fe02a32f24018c9ed1e64ce9842e98ddb66c3e55feae9e477e918b` |
+| `nguon/components/Card/README.md` (bản 40) | `601e90af3c906d2f8071fc5e2b82ce38c172566ae14c0ea5cb1d271f17b986db` |
 | `nguon/components/Checkbox/README.md` (bản 38) | `0f34e20be1686968560d4e29e8b509eabc42e3135d16608bbab7b385b247996f` |
 | `nguon/components/Combobox/README.md` (bản 38) | `495c777aa0daf6f6f30c041a406f219a5a584386f02b15f83773a169089e0810` |
 | `nguon/components/ConfirmDialog/README.md` (bản 37) | `248bf80fa9b9de0b996faaa33ac2b2f267839a9553eaf902d363f01857b3318b` |

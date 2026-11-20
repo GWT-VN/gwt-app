@@ -393,6 +393,14 @@ body {
 /* ---------- Card (bề mặt chung) ---------- */
 .ui-card { border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); color: var(--card-foreground); }
 .ui-card-pad { padding: 16px; }
+/* Phần của Card (shadcn Card — bản 40, 20/11): đệm nằm ở .ui-card-pad, phần không đệm riêng; phần đứng sau phần tử khác cách trên 16 (= đệm). Header lưới: action cột 2 phủ dòng tiêu đề + mô tả, sát phải. Tiêu đề heading-xs như .ui-form-title; mô tả như .ui-dialog-desc; chân nút dồn phải cách 8 như .ui-form-footer */
+.ui-card-header { display: grid; grid-auto-rows: min-content; align-items: start; column-gap: 16px; }
+.ui-card-header:has(> .ui-card-action) { grid-template-columns: 1fr auto; }
+.ui-card-title { font-size: 16px; line-height: 24px; font-weight: 600; }
+.ui-card-desc { margin: 4px 0 0; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.ui-card-action { grid-column: 2; grid-row: 1 / span 2; align-self: start; justify-self: end; }
+.ui-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.ui-card-header:not(:first-child), .ui-card-content:not(:first-child), .ui-card-footer:not(:first-child) { margin-top: 16px; }
 .ui-kpi-label { font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
 .ui-kpi-value { font-size: 24px; line-height: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }   /* heading-lg */
 
