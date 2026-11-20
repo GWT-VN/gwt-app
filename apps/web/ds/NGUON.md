@@ -132,6 +132,41 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 - **bundle.css lỗi đặc hiệu theme tối:** `[data-theme=dark] X:hover` (0,3,0) thắng `:disabled`/`:focus` (0,2,0) → ô
   tắt/đang focus vẫn đổi viền khi rê ở tối. DS KHÔNG chép lỗi này (ghi `lyDo`), gom đề xuất đồng bộ ngược artifact.
 
+
+### Luật thêm từ lát 3 (Form)
+
+- **Tên config so khớp** = tên component viết thường, KHÔNG gạch nối (`fileupload.json`, `daterangepicker.json`).
+- **Preview gắn sẵn class `is-hover`/`is-focus`** → khoá đo trạng thái dùng `buoc` (rê / tab thật), không dùng
+  `trangThai`. Phần tử không vẽ chữ (nguồn `<input>`, DS `<button>`: Switch, Checkbox, Radio) dùng `boChu: true`;
+  cần hẹp hơn dùng `props`. Phần tử ẩn nhìn (input file 1px) đo qua `con` với `props` rút gọn.
+- **Radix RovingFocus** (RadioGroup, sau này Tabs/ToggleGroup): item `tabIndex=-1` tới khi nhóm nhận focus → bước `tab`
+  không nhảy thẳng tới được; bấm phần tử ngay trước rồi Tab thật, ghi `chuaDo`.
+- **Đo sau khi đổi trạng thái bằng script phải chờ hết transition** (đa số 150ms), không thì đọc ra giá trị đầu.
+- **Bo tròn:** dùng biến `--radius-full` (9999px của nguồn); utility tròn mặc định của Tailwind 4 ra `calc(infinity)`.
+- **Preflight của app gắn viền cho cả `::before`/`::after`** → pseudo tự vẽ phải tắt viền như phần tử thường. Viền một
+  cạnh trên div: tắt viền chung rồi viết riêng cạnh cần, không dùng utility viền cạnh kèm kiểu solid (làm cạnh khác
+  thành solid).
+- **Khối `/ds` là server component:** con đi qua ranh giới server → client thành phần tử lười → KHÔNG `cloneElement`
+  lên children trong primitive (SSR 500). Hàng/khung truyền id cho con qua context (SwitchRow, ChoiceLabel). Không truyền
+  hàm (`onClick`…) từ khối server vào client component.
+- **Trạng thái chọn/bật tách hover theo `data-state`:** biến thể hover kèm `enabled:` có đặc hiệu cao hơn
+  biến thể theo data-state và đè mất màu "bật".
+- **Overlay focus thẳng vào phần tử bên trong khi mở** (Select, Calendar): mở bằng chuột Chrome vẫn tính là
+  `:focus-visible` → dùng hook `use-mo-bang-chuot.ts` (gỡ khi có phím đầu tiên).
+- **react-day-picker 10:** `stopPropagation` phím trong lưới → handler phím khung bọc dùng capture; `mode="range"` đánh
+  dấu cả khoảng là selected → loại `range_middle` khỏi `data-selected`; `aria-selected` nằm ở `td` còn focus ở nút →
+  `labelDayButton` tự viết phải đọc trạng thái ("đã chọn", "ngày bắt đầu"…).
+- **cmdk 1.1.1:** mục sáng chỉ tính lại khi chữ ô tìm đổi → phải kiểm soát `value` (mục sáng) và tự gắn lại
+  `aria-activedescendant` (xem `combobox.tsx`). Áp cho CommandPalette lát 6.
+- **`selectTrigger` đã gộp sẵn qua `cn`** — dùng thô được; trigger có icon đầu thì giá trị `flex-1`.
+- **Form:** `FormLayout` mặc định `noValidate`; lưu lỗi = `flushSync` bật cờ đã gửi rồi `focusLoiDau(form)`; câu trạng
+  thái chân form `aria-live="polite"`. Vùng live phải có sẵn trước khi nội dung đổi; chữ cần được đọc lại thì đổi key.
+- **Test:** jsdom không có jest-dom (dùng `getAttribute`/`textContent`); test có DsRoot/Tooltip phải mock
+  `next/font/google`; tên/mô tả a11y kiểm bằng `getByRole(…, { name, description })`, KHÔNG import `dom-accessibility-api`
+  (tsc TS7016). Repo không có config prettier → không chạy prettier. Test giờ VN: đặt `process.env.TZ` trong
+  `vi.hoisted` (mẫu `date-picker.dom.test.tsx`).
+- **Ô tiền `OTien`:** chỉ khi DÁN mới hiểu 1–2 chữ số sau dấu cuối là phần lẻ (làm tròn); khi gõ chỉ lấy chữ số.
+
 ## Tương phản — chấp nhận có chủ đích
 
 Giữ y màu nguồn ChatGPT; 4 cặp dưới WCAG (danger chữ tối 3.52, viền input 1.42/2.28, viền Checkbox 1.6, chữ Badge
