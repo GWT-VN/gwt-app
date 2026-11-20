@@ -79,21 +79,45 @@ function viTriSauChuSo(chu: string, n: number) {
 }
 
 /**
- * OTien — ô tiền VND (component ghép): gõ chỉ nhận chữ số, tự chèn dấu chấm hàng nghìn vi-VN, lưu SỐ nguyên; ô trống
- * = `null` (khác 0). Không `type="number"` (mất dấu chấm, con lăn chuột đổi số). Con trỏ giữ sau đúng số chữ số đứng
- * trước nó khi định dạng lại (chèn giữa số không nhảy về cuối); Backspace/Delete sát dấu chấm nhảy qua dấu để xoá chữ số.
+ * OTien — ô tiền VND (component ghép): số tiền KHÔNG ÂM — cần số âm (điều chỉnh, hoàn tiền) thì dùng component khác, đừng
+ * mở rộng ô này. Gõ chỉ nhận chữ số, tự chèn dấu chấm hàng nghìn vi-VN, lưu SỐ nguyên; ô trống = `null` (khác 0).
+ * Không `type="number"` (mất dấu chấm, con lăn chuột đổi số).
+ * - Gõ: chỉ lấy chữ số. Con trỏ giữ sau đúng số chữ số đứng trước nó khi định dạng lại (chèn giữa số, gõ chữ cái giữa
+ *   số không nhảy về cuối).
+ * - Xoá sát dấu chấm (Backspace sau dấu, Delete trước dấu): trình duyệt chỉ xoá dấu → ô xoá luôn chữ số kề bên. Đọc
+ *   theo `inputType` của sự kiện input (deleteContentBackward/Forward), không theo phím → chạy cả trên Android Gboard
+ *   (phím xoá có key `Unidentified`).
+ * - Dán: đọc cả khối bằng `docSo` (lib/dinh-dang-so.ts) — phần lẻ 1–2 chữ số cuối làm tròn ("1.250.000,00" → 1250000,
+ *   "12,5" → 13), dấu âm bị bỏ ("-500.000" → 500000, vẫn báo `onValueChange` như thường). Dán chuỗi không có chữ số: bỏ.
+ *   Kéo-thả chữ vào ô đi đường gõ (chỉ lấy chữ số).
+ * - Quá `Number.MAX_SAFE_INTEGER` (~9 triệu tỷ): bỏ lần gõ/dán đó, giữ giá trị cũ.
+ * - `value` không nguyên (đọc từ cột numeric, vd 1250.5) → hiển thị làm tròn, gõ tiếp không ra số rác.
+ * - Chủ ý: xoá chữ số đầu của "1.000" còn "0" (con trỏ trước số 0), gõ tiếp 2 → "20" — ô không tự xoá số 0 còn lại.
  */
 export function OTien({
   value,
   onValueChange,
   donVi = '₫',
-  onKeyDown,
   ...props
 }: {
   value: number | null
   onValueChange(v: number | null): void
   donVi?: string
 } & Omit<ComponentProps<'input'>, 'value' | 'defaultValue' | 'onChange' | 'type'>) {
+  const cu = value == null ? '' : String(Math.round(value))
+  /** Ghi chuỗi chữ số mới vào ô: định dạng + con trỏ sau chữ số thứ `truoc`, báo giá trị nếu đổi. */
+  const ghi = (el: HTMLInputElement, chuSo: string, truoc: number) => {
+    const v = chuSo ? Number(chuSo) : null
+    // ponytail: quá 2^53 thì bỏ (React trả lại giá trị cũ); cần số lớn hơn thì đổi sang bigint/chuỗi.
+    if (v !== null && v > Number.MAX_SAFE_INTEGER) return
+    // Ghi chuỗi đã định dạng + con trỏ NGAY tại đây: React thấy DOM đã đúng giá trị mới nên không ghi đè (ghi đè là
+    // con trỏ nhảy về cuối). Gõ chữ cái → cùng số → ô trả về như cũ, không gọi onValueChange.
+    const chu = v == null ? '' : dinhDangSo(v)
+    el.value = chu
+    const i = viTriSauChuSo(chu, truoc)
+    el.setSelectionRange(i, i)
+    if (v !== value) onValueChange(v)
+  }
   return (
     <InputGroup>
       <InputGroupInput
@@ -102,29 +126,28 @@ export function OTien({
         autoComplete="off"
         {...props}
         type="text"
-        value={value == null ? '' : dinhDangSo(value)}
-        onKeyDown={(e) => {
+        value={cu && dinhDangSo(Number(cu))}
+        onPaste={(e) => {
+          props.onPaste?.(e)
+          if (e.defaultPrevented) return
+          e.preventDefault()
+          const n = docSo(e.clipboardData.getData('text'))
+          if (n === null) return
           const el = e.currentTarget
-          const c = el.selectionStart ?? 0
-          if (c === el.selectionEnd) {
-            if (e.key === 'Backspace' && el.value[c - 1] === '.') el.setSelectionRange(c - 1, c - 1)
-            if (e.key === 'Delete' && el.value[c] === '.') el.setSelectionRange(c + 1, c + 1)
-          }
-          onKeyDown?.(e)
+          const dau = el.selectionStart ?? el.value.length
+          const truoc = el.value.slice(0, dau).replace(/\D/g, '') + n
+          ghi(el, (truoc + el.value.slice(el.selectionEnd ?? dau)).replace(/\D/g, ''), truoc.length)
         }}
         onChange={(e) => {
           const el = e.currentTarget
-          const truoc = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, '').length
-          const v = docSo(el.value)
-          // ponytail: quá 2^53 thì bỏ phím (React trả lại giá trị cũ); cần số lớn hơn thì đổi sang bigint/chuỗi.
-          if (v !== null && v > Number.MAX_SAFE_INTEGER) return
-          // Ghi chuỗi đã định dạng + con trỏ NGAY tại đây: React thấy DOM đã đúng giá trị mới nên không ghi đè (ghi đè
-          // là con trỏ nhảy về cuối). Gõ chữ cái → cùng số → ô trả về như cũ, không gọi onValueChange.
-          const chu = v == null ? '' : dinhDangSo(v)
-          el.value = chu
-          const i = viTriSauChuSo(chu, truoc)
-          el.setSelectionRange(i, i)
-          if (v !== value) onValueChange(v)
+          let chuSo = el.value.replace(/\D/g, '')
+          let truoc = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, '').length
+          // Phím xoá chỉ ăn mất dấu chấm (chữ số không đổi) → xoá chữ số kề bên theo chiều xoá.
+          const kieu = (e.nativeEvent as InputEvent).inputType
+          if (chuSo === cu && kieu === 'deleteContentBackward' && truoc > 0) truoc--
+          if (chuSo === cu && (kieu === 'deleteContentBackward' || kieu === 'deleteContentForward'))
+            chuSo = chuSo.slice(0, truoc) + chuSo.slice(truoc + 1)
+          ghi(el, chuSo, truoc)
         }}
       />
       <InputGroupAddon>{donVi}</InputGroupAddon>

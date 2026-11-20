@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { useState } from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { InputGroup, InputGroupAddon, InputGroupInput, OTien } from './input-affix'
@@ -68,6 +68,64 @@ test('Backspace ngay sau dấu chấm xoá chữ số đứng trước dấu, kh
   await userEvent.type(o(), '{Backspace}', { initialSelectionStart: 2, initialSelectionEnd: 2 })
   expect(o().value).toBe('250.000')
   expect(o().selectionStart).toBe(0)
+})
+
+test.each([
+  ['1.250.000,00', 1250000, '1.250.000'],
+  ['1,250,000.00', 1250000, '1.250.000'],
+  ['12,5', 13, '13'],
+  ['-500.000', 500000, '500.000'],
+])('dán "%s" vào ô trống → %d (phần lẻ làm tròn, dấu âm bỏ)', async (dan, so, hien) => {
+  const doi = vi.fn()
+  render(<Mau onDoi={doi} />)
+  await userEvent.click(o())
+  await userEvent.paste(dan)
+  expect(o().value).toBe(hien)
+  expect(doi).toHaveBeenLastCalledWith(so)
+})
+
+test('vượt MAX_SAFE_INTEGER → bỏ (dán lẫn gõ), giá trị giữ nguyên', async () => {
+  const doi = vi.fn()
+  render(<Mau dau={900719925474099} onDoi={doi} />)
+  await userEvent.click(o())
+  await userEvent.paste('99999999999999999')
+  await userEvent.type(o(), '9')
+  expect(o().value).toBe('900.719.925.474.099')
+  expect(doi).not.toHaveBeenCalled()
+})
+
+test('gõ chữ cái giữa số: con trỏ giữ nguyên chỗ', async () => {
+  render(<Mau dau={125000} />)
+  await userEvent.type(o(), 'a', { initialSelectionStart: 2, initialSelectionEnd: 2 })
+  expect(o().value).toBe('125.000')
+  expect(o().selectionStart).toBe(2)
+})
+
+test('Delete ngay trước dấu chấm xoá chữ số đứng sau dấu', async () => {
+  render(<Mau dau={1250000} />)
+  // "1|.250.000"
+  await userEvent.type(o(), '{Delete}', { initialSelectionStart: 1, initialSelectionEnd: 1 })
+  expect(o().value).toBe('150.000')
+  expect(o().selectionStart).toBe(1)
+})
+
+test('xoá ngay sau dấu chấm khi phím không nhận ra (Android Gboard: key Unidentified) vẫn ăn vào chữ số', async () => {
+  render(<Mau dau={1250000} />)
+  // Mô phỏng Android: keydown không mang key Backspace → trình duyệt xoá luôn dấu chấm ở "1.|250.000", chỉ báo
+  // input deleteContentBackward.
+  const el = o()
+  el.focus()
+  // Ghi qua setter gốc (bỏ qua bộ theo dõi giá trị của React) như trình duyệt thật đổi ô.
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, '1250.000')
+  el.setSelectionRange(1, 1)
+  fireEvent.input(el, { inputType: 'deleteContentBackward' })
+  expect(o().value).toBe('250.000')
+  expect(o().selectionStart).toBe(0)
+})
+
+test('value không nguyên (1250.5 từ cột numeric) → hiển thị làm tròn 1.251', () => {
+  render(<OTien aria-label="Đơn giá" value={1250.5} onValueChange={() => {}} />)
+  expect(o().value).toBe('1.251')
 })
 
 test('OTien: inputMode numeric, căn phải, đơn vị ₫ aria-hidden; donVi đổi được', () => {
