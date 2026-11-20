@@ -418,8 +418,8 @@ async function main() {
       }
     }
 
-    const thuDs = await fetch(`${url}/ds`).catch((e) => ({ ok: false, status: e.cause?.code ?? e.message }))
-    if (!thuDs.ok) throw new Error(`không mở được ${url}/ds (${thuDs.status}) — dev server đã chạy chưa? (máy này dùng --url http://127.0.0.1:3401)`)
+    const thuDs = await fetch(`${url}/ds/tron`).catch((e) => ({ ok: false, status: e.cause?.code ?? e.message }))
+    if (!thuDs.ok) throw new Error(`không mở được ${url}/ds/tron (${thuDs.status}) — dev server đã chạy chưa? (máy này dùng --url http://127.0.0.1:3401)`)
     // Font: @font-face Inter + giá trị token --font-sans trên gốc [data-ds] của /ds (một lần).
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: KHO[0], height: CAO, deviceScaleFactor: 1, mobile: false })
     await di(`${url}/ds`)
@@ -466,7 +466,7 @@ async function main() {
         const so = { artifact: {}, ds: {} } // so[ben][nhan] = { prop: giá trị } | null
         const vung = {} // vung[nhan] = phần tử DS nằm trong [data-ds="v2"]? (luôn đo)
         for (const ben of ['artifact', 'ds']) {
-          const nap = async () => { await di(ben === 'artifact' ? trangA : `${url}/ds?theme=${theme}`); await chuot(w - 1, CAO - 1) }
+          const nap = async () => { await di(ben === 'artifact' ? trangA : `${url}/ds/tron?theme=${theme}`); await chuot(w - 1, CAO - 1) }
           await nap()
           let ban = false // trang đã bị `buoc` đổi trạng thái → khoá kế tiếp (và ảnh) phải nạp lại
           for (const k of cfg.khoa) {
