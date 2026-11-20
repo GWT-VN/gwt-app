@@ -25,10 +25,9 @@
   },
   "chuaDo": [
     "Vị trí: preview vẽ sheet tĩnh bám mép phải khung 408px; DS bám mép phải KHUNG NHÌN (fixed, top/right/bottom 0). Không đo left/top; so vị trí bằng mắt trên ảnh",
-    "Viền DƯỚI header (1px --border): bộ đo chỉ có borderTop* → đo tay bằng getComputedStyle (borderBottom 1px solid, trên 0 none) — ghi trong task-10-report; viền TRÊN footer đã đo ở khoá footer",
     "Cuộn thân khi nội dung dài hơn khung (flex 1, overflow-y auto) trong khi header/footer đứng yên: nội dung preview ngắn, không đo; khung cột + lớp cuộn chứng minh bằng test jsdom components/ui/sheet.dom.test.tsx",
     "Chuyển động: bundle.css KHÔNG định nghĩa animation cho `.ui-sheet` (Dialog có `ui-dialog-len`, Sheet không) → DS không trượt vào. Muốn trượt = quyết định mới (thêm vào artifact trước)",
-    "Esc / ✕ / bấm overlay đóng + trả focus về trigger, Tab không rời sheet, ✕ đứng ngay sau header trong DOM như preview, role dialog + aria-labelledby/describedby, overlay + panel trong ô portal vùng DS: test jsdom components/ui/sheet.dom.test.tsx, không đo ở đây",
+    "Esc / ✕ / bấm overlay đóng + trả focus về trigger, Tab không rời sheet, ✕ nằm cuối header (DOM header → ✕ → thân như preview), role dialog + aria-labelledby/describedby, overlay + panel trong ô portal vùng DS: test jsdom components/ui/sheet.dom.test.tsx, không đo ở đây",
     "Chỉ cạnh PHẢI: artifact chỉ định nghĩa `.ui-sheet` phải; trái/trên/dưới chưa dựng",
     "Ô \"Kênh bán\" (select), hai ô ngày, ba checkbox: Select/Input/Checkbox DS — lát 3. Khối demo dùng control GỐC mang giá trị `.ui-select-trigger`/`.ui-input`/`.ui-checkbox` — không khoá so khớp (chỉ đo khung `.ui-field` đầu: cột, gap 6). Preview dùng `<button class=\"ui-select-trigger\">`, demo dùng `<select>` gốc",
     "Icon ✕: preview vẽ tay bằng nét, DS dùng Phosphor X regular — chỉ đo hộp + màu; hình nét so bằng mắt",

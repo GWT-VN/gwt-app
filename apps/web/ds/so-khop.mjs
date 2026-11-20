@@ -51,6 +51,8 @@ const KHO = [1440, 390]
 const CAO = 900
 const PROPS = ['width', 'height', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'gap',
   'borderRadius', 'borderTopWidth', 'borderTopStyle', 'borderTopColor',
+  // viền DƯỚI: vạch ngăn header Sheet (và các header/separator sau) chỉ có cạnh dưới — viền trên không lộ.
+  'borderBottomWidth', 'borderBottomStyle', 'borderBottomColor',
   'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFeatureSettings', 'textDecorationLine',
   'color', 'backgroundColor', 'boxShadow', 'opacity', 'cursor',
   'outlineColor', 'outlineStyle', 'outlineWidth', 'outlineOffset',
