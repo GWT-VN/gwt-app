@@ -1,4 +1,23 @@
 import { Switch, SwitchRow } from '@/components/ui/switch'
+import { BienThe, KhoiHang } from '../_khung/tam'
+
+/** 3 hàng cài đặt — dùng chung cho KhoiSwitch (so khớp, /ds/tron) và KhoiSwitchHang (/ds). */
+function NhomCaiDat() {
+  return (
+    // border-none border-current: div ăn preflight `0 solid var(--border)` của app; div preview không viền.
+    <div className="flex max-w-[520px] flex-col gap-4 border-none border-current">
+      <SwitchRow data-so="hang-1" nhan="Báo người phụ trách ngay khi lưu" moTa="Tắt nếu chỉ lưu nháp.">
+        <Switch data-so="bat" defaultChecked />
+      </SwitchRow>
+      <SwitchRow data-so="hang-2" nhan="Gửi email tóm tắt hằng ngày">
+        <Switch data-so="tat" />
+      </SwitchRow>
+      <SwitchRow data-so="hang-3" nhan="Đồng bộ kho (quản trị khoá)">
+        <Switch data-so="khoa" defaultChecked disabled />
+      </SwitchRow>
+    </div>
+  )
+}
 
 /**
  * #switch — tái tạo ds/nguon/components/Switch/preview.html: cột gap 16 rộng tối đa 520 (style inline của preview),
@@ -11,18 +30,27 @@ export function KhoiSwitch() {
       <h2 className="mb-4 [font:var(--text-heading-xs)]">
         <a href="#switch">Switch</a>
       </h2>
-      {/* border-none border-current: div ăn preflight `0 solid var(--border)` của app; div preview không viền. */}
-      <div className="flex max-w-[520px] flex-col gap-4 border-none border-current">
-        <SwitchRow data-so="hang-1" nhan="Báo người phụ trách ngay khi lưu" moTa="Tắt nếu chỉ lưu nháp.">
-          <Switch data-so="bat" defaultChecked />
-        </SwitchRow>
-        <SwitchRow data-so="hang-2" nhan="Gửi email tóm tắt hằng ngày">
-          <Switch data-so="tat" />
-        </SwitchRow>
-        <SwitchRow data-so="hang-3" nhan="Đồng bộ kho (quản trị khoá)">
-          <Switch data-so="khoa" defaultChecked disabled />
-        </SwitchRow>
-      </div>
+      <NhomCaiDat />
     </section>
+  )
+}
+
+/** #switch dạng hàng (/ds): 3 trạng thái của công tắc trần + khuôn hàng cài đặt đầy đủ. */
+export function KhoiSwitchHang() {
+  return (
+    <KhoiHang neo="switch">
+      <BienThe ten="Bật" moTa="Có hiệu lực ngay, không cần bấm Lưu. Rê chuột / Tab để thấy.">
+        <Switch defaultChecked aria-label="Công tắc bật (demo)" />
+      </BienThe>
+      <BienThe ten="Tắt">
+        <Switch aria-label="Công tắc tắt (demo)" />
+      </BienThe>
+      <BienThe ten="Khoá" moTa="Bị khoá bởi quyền/cấu hình — ghi lý do ở nhãn.">
+        <Switch defaultChecked disabled aria-label="Công tắc khoá (demo)" />
+      </BienThe>
+      <BienThe ten="Hàng cài đặt" moTa="Nhãn + mô tả bên trái, công tắc bên phải; bấm cả hàng.">
+        <NhomCaiDat />
+      </BienThe>
+    </KhoiHang>
   )
 }
