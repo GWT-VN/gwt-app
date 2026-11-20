@@ -42,6 +42,7 @@ export function Skeleton({
  */
 export function VungDoc({ chu }: { chu: string }) {
   const [hien, setHien] = useState('')
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- cố ý hai nhịp: vùng live gắn RỖNG trước, nhịp sau mới điền chữ (xem trên)
   useEffect(() => setHien(chu), [chu])
   return (
     <span role="status" data-slot="vung-doc" className="sr-only">

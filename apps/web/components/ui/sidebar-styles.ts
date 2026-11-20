@@ -124,8 +124,11 @@ export const top = [
 ].join(' ')
 
 
-/** `.pD-noidung`: phần còn lại, tự cuộn, không thanh cuộn. */
-export const noiDung = 'flex-1 overflow-y-auto border-none border-current [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+/**
+ * `.pD-noidung`: phần còn lại, tự cuộn, không thanh cuộn. Thêm `relative` (nguồn không có): khối cuộn làm khối chứa →
+ * phần tử absolute / `sr-only` trong nội dung màn cuộn theo vùng cuộn, không tràn ra trang.
+ */
+export const noiDung = 'relative flex-1 overflow-y-auto border-none border-current [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
 
 /**
  * `.pF-dock`: tròn 48 góc phải dưới cách 24 (≤767: 16), z 46, nền primary, bóng shadow + hairline, icon 20; hover

@@ -136,3 +136,35 @@ test('thuGon khi hẹp: tab thừa vào menu "Thêm"; chọn từ menu → tab �
   expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['Đang mở', 'Tất cả'])
   await waitFor(() => expect(document.activeElement).toBe(tab('Tất cả')))
 })
+
+test('thuGon: số đếm của tab đang ẩn đổi → mục trong menu "Thêm" hiện số MỚI', async () => {
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    if (this.getAttribute('role') === 'tab') return 100
+    if (this.dataset.slot === 'tabs-them') return 80
+    return 0
+  })
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    return this.dataset.slot === 'tabs-khung' ? 300 : 0
+  })
+  const Dem = ({ n }: { n: number }) => (
+    <DsRoot>
+      <Tabs defaultValue="mo">
+        <TabsList variant="pill" thuGon aria-label="Nhóm ticket">
+          <TabsTrigger value="mo">Đang mở</TabsTrigger>
+          <TabsTrigger value="toi">Của tôi</TabsTrigger>
+          <TabsTrigger value="qua-han">
+            Quá hạn <TabsCount color="danger">{n}</TabsCount>
+          </TabsTrigger>
+          <TabsTrigger value="tat-ca">Tất cả</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </DsRoot>
+  )
+  const u = userEvent.setup()
+  const { rerender } = render(<Dem n={2} />)
+  await waitFor(() => expect(screen.getAllByRole('tab').length).toBe(2))
+  rerender(<Dem n={5} />)
+  await u.click(screen.getByRole('button', { name: 'Thêm' }))
+  const muc = await screen.findByRole('menuitem', { name: /^Quá hạn/ })
+  expect(muc.textContent).toBe('Quá hạn 5')
+})

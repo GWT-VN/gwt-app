@@ -412,3 +412,34 @@ test('OSuaNguoi gọn (ô < 112px): chỉ avatar, tên đọc qua mô tả; Esc 
   expect(document.activeElement).toBe(o)
   expect(onLuu).not.toHaveBeenCalled()
 })
+
+test('OSuaNguoi tìm phía server: chọn A rồi B, Hoàn tác của B → ô hiện TÊN của A (không phải mã)', async () => {
+  const user = userEvent.setup()
+  const onLuu = vi.fn()
+  const tim = async (q: string) => NGUOI.filter((m) => m.nhan.toLowerCase().includes(q.toLowerCase()))
+  render(
+    <Dong>
+      <OSuaNguoi ma="TK-1" truong="người làm" value="NV01" tim={tim} mucDangChon={NGUOI[0]} onLuu={onLuu} />
+    </Dong>,
+  )
+  const o = nut('Sửa người làm TK-1')
+  const chon = async (go: string, ten: string) => {
+    await user.click(o)
+    await screen.findByRole('combobox')
+    await user.keyboard(go)
+    await user.click(await screen.findByRole('option', { name: new RegExp(ten) }))
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
+  }
+  await chon('kiều', 'Kiều Trang')
+  await waitFor(() => expect(xong).toHaveBeenCalledTimes(1))
+  expect(xong.mock.calls[0][0]).toBe('TK-1: người làm → Kiều Trang')
+  await chon('như', 'Như')
+  await waitFor(() => expect(xong).toHaveBeenCalledTimes(2))
+  expect(xong.mock.calls[1][0]).toBe('TK-1: người làm → Như')
+  expect(o.textContent).toContain('Như')
+  await act(async () => {
+    await xong.mock.calls[1][1]!.hoanTac!()
+  })
+  expect(onLuu).toHaveBeenLastCalledWith('NV03')
+  expect(o.textContent).toContain('Kiều Trang')
+})

@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { Checkbox } from './checkbox'
 import {
   maTranChon,
@@ -62,9 +62,12 @@ export function NotificationMatrix({
   const [bao, setBao] = useState('Bấm là lưu — không có nút Lưu.')
   const khu = [...new Set(loai.map((l) => l.khu))]
 
-  // Giá trị mới nhất (props có thể chưa kịp render lại giữa hai lần bấm, và hoàn tác chạy sau await).
+  // Giá trị mới nhất (props có thể chưa kịp render lại giữa hai lần bấm, và hoàn tác chạy sau await). Chỉ nhận prop
+  // khi prop ĐỔI — gán trong render thì lượt render riêng (setBao sau await) ghi đè bằng prop cũ, mất ô vừa bấm.
   const moiNhat = useRef(giaTri)
-  moiNhat.current = giaTri
+  useLayoutEffect(() => {
+    moiNhat.current = giaTri
+  }, [giaTri])
   const doi = (g: GiaTriMaTran) => {
     moiNhat.current = g
     onDoi(g)

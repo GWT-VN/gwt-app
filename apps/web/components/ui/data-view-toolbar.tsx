@@ -295,8 +295,9 @@ export function CaiDatHienThi({
     setTrang(t)
   }
   const ve = () => setTrang('')
-  const lam = (f?: () => void) => () => {
-    f?.()
+  // Gọi trong handler (không dựng sẵn closure lúc render): doiMo ghi ref `vuaMo` → Compiler cấm gọi hàm chứa nó khi render.
+  const lam = (f: () => void) => {
+    f()
     doiMo(false)
   }
 
@@ -376,13 +377,13 @@ export function CaiDatHienThi({
                 onClick={() => vao('nhom')}
               />
             )}
-            {onSaoChepLink && <MucCd I={LinkSimple} ten="Sao chép link view" onClick={lam(onSaoChepLink)} />}
+            {onSaoChepLink && <MucCd I={LinkSimple} ten="Sao chép link view" onClick={() => lam(onSaoChepLink)} />}
             {(onLuuView || onXuatExcel) && <div className={menuSeparator} />}
-            {onLuuView && <MucCd I={FloppyDisk} ten="Lưu thành view của tôi" onClick={lam(() => onLuuView(false))} />}
+            {onLuuView && <MucCd I={FloppyDisk} ten="Lưu thành view của tôi" onClick={() => lam(() => onLuuView(false))} />}
             {onLuuView && luuChung && (
-              <MucCd I={FloppyDisk} ten="Lưu view chung" gt="quản lý" onClick={lam(() => onLuuView(true))} />
+              <MucCd I={FloppyDisk} ten="Lưu view chung" gt="quản lý" onClick={() => lam(() => onLuuView(true))} />
             )}
-            {onXuatExcel && <MucCd I={Export} ten="Xuất Excel theo bộ lọc" onClick={lam(onXuatExcel)} />}
+            {onXuatExcel && <MucCd I={Export} ten="Xuất Excel theo bộ lọc" onClick={() => lam(onXuatExcel)} />}
           </>
         )}
         {trang === 'bocuc' && (

@@ -145,6 +145,8 @@ export function NotificationCenter({
   const [tab, setTab] = useState<'tat' | 'chua'>('tat')
   const [giu, setGiu] = useState<string[]>([])
   const [moi, setMoi] = useState('')
+  // Mốc "bây giờ" chụp lúc MỞ hộp (danh sách chỉ hiện khi mở) — không gọi Date.now() trong render (hàm không thuần).
+  const [luc, setLuc] = useState(() => Date.now())
   const da = useRef<Set<string> | null>(null)
   const chuong = useRef<HTMLButtonElement>(null)
   const hop = useRef<HTMLDivElement>(null)
@@ -152,7 +154,7 @@ export function NotificationCenter({
   const id = useId()
 
   const chua = thongBao.filter((t) => !t.doc)
-  const bay = bayGio ? Date.parse(bayGio) : Date.now()
+  const bay = bayGio ? Date.parse(bayGio) : luc
   const hien = tab === 'tat' ? thongBao : thongBao.filter((t) => !t.doc || giu.includes(t.id))
 
   // Thông báo mới đến: id chưa từng thấy + chưa đọc → đọc câu của cái mới nhất. Lần nạp đầu chỉ ghi nhớ.
@@ -187,7 +189,10 @@ export function NotificationCenter({
         modal={false}
         open={mo}
         onOpenChange={(m) => {
-          if (m) doiTab(tab)
+          if (m) {
+            doiTab(tab)
+            setLuc(Date.now())
+          }
           setMo(m)
         }}
       >

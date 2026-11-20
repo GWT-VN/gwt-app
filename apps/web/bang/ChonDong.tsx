@@ -47,18 +47,33 @@ type BoiCanh = {
   daLayToanBo: boolean
   /** Câu cho vùng đọc (aria-live) luôn có sẵn trong khung — ThanhDaChon đặt. */
   datCauDoc: (cau: string) => void
+}
+
+/**
+ * Ref đi context RIÊNG: React Compiler coi cả object chứa ref là ref → mọi trường khác của BoiCanh đọc trong render
+ * bị báo `react-hooks/refs`. Giá trị ổn định (tạo một lần) nên context này không làm ai render lại.
+ */
+type RefChon = {
   /** Ô "chọn hết trang" (OChonTatCa) — đích trả focus khi thanh biến mất. */
   oTatCa: RefObject<HTMLInputElement | null>
   khung: RefObject<HTMLDivElement | null>
+  /** OChonTatCa gắn ô của nó vào `oTatCa` (callback ref — truyền thẳng `ref={oTatCa}` lại làm Compiler coi object là ref). */
+  ganOTatCa: (el: HTMLInputElement | null) => void
 }
 
 const Ctx = createContext<BoiCanh | null>(null)
+const CtxRef = createContext<RefChon | null>(null)
 
 /** Tên bắt đầu bằng `use` là bắt buộc — quy tắc hook của React/ESLint. */
 function useBoiCanh(ten: string): BoiCanh {
   const c = useContext(Ctx)
   if (!c) throw new Error(`<${ten}> phải nằm trong <KhungChon>.`)
   return c
+}
+
+/** Gọi SAU useBoiCanh (đã ném lỗi rõ tên nếu thiếu KhungChon) → ở đây chắc chắn có. */
+function useRefChon(): RefChon {
+  return useContext(CtxRef)!
 }
 
 export function KhungChon({
@@ -89,6 +104,13 @@ export function KhungChon({
   const [cauDoc, datCauDoc] = useState('')
   const oTatCa = useRef<HTMLInputElement>(null)
   const khung = useRef<HTMLDivElement>(null)
+  const [refChon] = useState<RefChon>(() => ({
+    oTatCa,
+    khung,
+    ganOTatCa: (el) => {
+      oTatCa.current = el
+    },
+  }))
   const [daLayToanBo, setDaLayToanBo] = useState(false)
   const [loi, setLoi] = useState<string | null>(null)
   const [dangLay, batDau] = useTransition()
@@ -156,17 +178,19 @@ export function KhungChon({
     <Ctx.Provider
       value={{
         bat, daChon, khoaTrang, tong, dangLay, loi,
-        doiMot, doiTatCa, xoaHet, chonToanBo, daLayToanBo, datCauDoc, oTatCa, khung,
+        doiMot, doiTatCa, xoaHet, chonToanBo, daLayToanBo, datCauDoc,
       }}
     >
-      <div ref={khung} className={gd.chon_khung}>
-        {/* Vùng đọc LUÔN có (kể cả 0 dòng chọn): vùng live sinh cùng lúc với nội dung thì
-            câu đầu không được đọc. Đặt ĐẦU khung: sr-only là absolute nên không đổi bố cục. */}
-        <span className={gd.chon_vungDoc} aria-live="polite" aria-atomic="true">
-          {cauDoc}
-        </span>
-        {children}
-      </div>
+      <CtxRef.Provider value={refChon}>
+        <div ref={khung} className={gd.chon_khung}>
+          {/* Vùng đọc LUÔN có (kể cả 0 dòng chọn): vùng live sinh cùng lúc với nội dung thì
+              câu đầu không được đọc. Đặt ĐẦU khung: sr-only là absolute nên không đổi bố cục. */}
+          <span className={gd.chon_vungDoc} aria-live="polite" aria-atomic="true">
+            {cauDoc}
+          </span>
+          {children}
+        </div>
+      </CtxRef.Provider>
     </Ctx.Provider>
   )
 }
@@ -191,7 +215,8 @@ export function useDaChon() {
 export function OChonTatCa({ nhan = 'dòng' }: { nhan?: string }) {
   const c = useBoiCanh('OChonTatCa')
   const gd = useGiaoDien()
-  const ref = c.oTatCa
+  const { ganOTatCa } = useRefChon()
+  const ref = useRef<HTMLInputElement>(null)
   const tongTrang = c.khoaTrang.length
   const soChon = c.khoaTrang.filter((k) => c.daChon.has(k)).length
   const het = tongTrang > 0 && soChon === tongTrang
@@ -199,14 +224,17 @@ export function OChonTatCa({ nhan = 'dòng' }: { nhan?: string }) {
   // "Chọn một phần" không set được bằng thuộc tính JSX, phải gán qua DOM.
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = soChon > 0 && soChon < tongTrang
-  }, [ref, soChon, tongTrang])
+  }, [soChon, tongTrang])
 
   if (!c.bat) return null
 
   return (
     <th className={gd.chon_oTh}>
       <input
-        ref={ref}
+        ref={(el) => {
+          ref.current = el
+          ganOTatCa(el)
+        }}
         type="checkbox"
         checked={het}
         disabled={tongTrang === 0}
@@ -259,6 +287,7 @@ export function OChonDong({ khoa, moTa }: { khoa: string; moTa?: string }) {
 export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; children?: ReactNode }) {
   const c = useBoiCanh('ThanhDaChon')
   const { giaoDien: gd, bieuTuong, escBoChon } = useCauHinh()
+  const refChon = useRefChon()
   const soDong = c.bat ? c.daChon.size : 0
   const thanh = useRef<HTMLDivElement>(null)
   const [nutDung, setNutDung] = useState(0)
@@ -298,12 +327,14 @@ export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; child
   function boChon() {
     const dang = document.activeElement
     if (!dang || dang === document.body || thanh.current?.contains(dang)) {
-      const o = c.oTatCa.current
+      const o = refChon.oTatCa.current
+      const kh = refChon.khung.current
       if (o && !o.disabled) o.focus()
-      else if (c.khung.current) {
+      else if (kh) {
         // Vòng focus để bộ giao diện / trình duyệt vẽ (focus-visible) — không tắt: WCAG 2.4.7.
-        c.khung.current.tabIndex = -1
-        c.khung.current.focus()
+        // setAttribute thay vì gán `tabIndex`: Compiler cấm gán thuộc tính lên giá trị lấy từ hook (context).
+        kh.setAttribute('tabindex', '-1')
+        kh.focus()
       }
     }
     c.xoaHet()

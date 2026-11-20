@@ -83,21 +83,23 @@ function useLacQuan<T>(value: T, onLuu: Luu<T>, ma: string, truong: string, xong
     setGoc(value)
     setGt(value)
   }
-  async function ghi(moi: T, cu: T, hoanTac: boolean): Promise<void> {
+  // `chu` = câu toast tính LÚC CHỌN (closure của lượt render đó) — `null` khi hoàn tác (không báo lại).
+  async function ghi(moi: T, cu: T, chu: string | null): Promise<void> {
     setGt(moi)
     try {
       await onLuu(moi)
     } catch (e) {
       setGt(cu)
-      thongBao.loi(`${ma}: chưa lưu được ${truong} — ${chuLoi(e)}`, { thuLai: () => void ghi(moi, cu, hoanTac) })
+      thongBao.loi(`${ma}: chưa lưu được ${truong} — ${chuLoi(e)}`, { thuLai: () => void ghi(moi, cu, chu) })
       return
     }
-    if (!hoanTac) thongBao.xong(xong(moi), { hoanTac: () => ghi(cu, moi, true) })
+    if (chu !== null) thongBao.xong(chu, { hoanTac: () => ghi(cu, moi, null) })
   }
   return {
     gt,
-    luu: (moi: T) => {
-      if (!bang(moi, gt)) void ghi(moi, gt, false)
+    /** `chu` — câu toast khi bên gọi biết tên mà state chưa kịp có (vd mục vừa chọn từ `tim`); mặc định `xong(moi)`. */
+    luu: (moi: T, chu?: string) => {
+      if (!bang(moi, gt)) void ghi(moi, gt, chu ?? xong(moi))
     },
   }
 }
@@ -555,12 +557,14 @@ export function OSuaNguoi({
   max?: number
   chuaGiao?: string
 }) {
-  const nho = useRef<MucChon | null>(null)
+  // Mọi mục đã chọn trong phiên (chế độ `tim`: không có danh sách ở client) — Hoàn tác / Thử lại về mục CŨ vẫn hiện tên.
+  const [nho, setNho] = useState<ReadonlyMap<string, MucChon>>(() => new Map())
   const tenCua = (v: string | null) =>
     v === null
       ? chuaGiao
-      : (options?.find((m) => m.gt === v) ?? [mucDangChon, nho.current].find((m) => m?.gt === v))?.nhan ?? v
-  const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => `${ma}: ${truong} → ${tenCua(v)}`)
+      : (options?.find((m) => m.gt === v) ?? (mucDangChon?.gt === v ? mucDangChon : nho.get(v)))?.nhan ?? v
+  const cau = (ten: string) => `${ma}: ${truong} → ${ten}`
+  const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => cau(tenCua(v)))
   const id = useId()
   const [mo, setMo] = useState(false)
   const ten = tenCua(gt)
@@ -612,8 +616,8 @@ export function OSuaNguoi({
             max={max}
             searchPlaceholder="Gõ tên hoặc mã…"
             onSelect={(m) => {
-              nho.current = m
-              luu(m.gt)
+              setNho((n) => new Map(n).set(m.gt, m))
+              luu(m.gt, cau(m.nhan))
               setMo(false)
             }}
           />

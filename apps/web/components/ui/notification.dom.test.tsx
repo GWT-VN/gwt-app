@@ -343,3 +343,21 @@ test('ma trận: bấm nhanh hai ô, ô đầu lưu lỗi → CHỈ ô đầu tr
   await waitFor(() => expect(a().getAttribute('aria-checked')).toBe('true'))
   expect(b().getAttribute('aria-checked')).toBe('false')
 })
+
+test('ma trận: bên gọi chưa kịp render lại giá trị mới, lượt render riêng (báo "Đã lưu") không làm ô vừa bấm bị đè', async () => {
+  // Bên gọi chưa áp onDoi (giaTri giữ nguyên). Lần bấm thứ hai phải dựng trên giá trị MỚI NHẤT (đã gồm ô đầu),
+  // kể cả khi ma trận đã render lại vì dòng trạng thái "Đã lưu: …" (ref không được ghi đè bằng prop cũ lúc render).
+  const u = userEvent.setup()
+  const onDoi = vi.fn()
+  render(
+    <DsRoot>
+      <NotificationMatrix loai={LOAI} kenh={KENH} giaTri={GT} onDoi={onDoi} onLuu={() => Promise.resolve()} />
+    </DsRoot>,
+  )
+  await u.click(screen.getByRole('checkbox', { name: 'Trong app Được giao việc' }))
+  await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Đã lưu: tắt Trong app — Được giao việc'))
+  await u.click(screen.getByRole('checkbox', { name: 'Trong app Quá hạn' }))
+  const cuoi = onDoi.mock.lastCall![0] as GiaTriMaTran
+  expect(cuoi.quahan.app).toEqual({ bat: false })
+  expect(cuoi.giao.app).toEqual({ bat: false })
+})

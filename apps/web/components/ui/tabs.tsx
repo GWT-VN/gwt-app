@@ -41,7 +41,11 @@ type Kieu = 'segmented' | 'pill'
 type NhanTab = { children: ReactNode; disabled?: boolean }
 
 const GiaTri = createContext<{ value?: string; doi: (v: string) => void }>({ doi: () => {} })
-const KieuTabs = createContext<{ variant: Kieu; an?: ReadonlySet<string>; nhan?: Map<string, NhanTab> }>({
+const KieuTabs = createContext<{
+  variant: Kieu
+  an?: ReadonlySet<string>
+  dangKy?: (value: string, n: NhanTab) => void
+}>({
   variant: 'segmented',
 })
 
@@ -108,7 +112,13 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
   const them = useRef<HTMLButtonElement>(null)
   const rong = useRef(new Map<string, number>())
   const rongThem = useRef(0)
+  // Nhãn mọi tab (TabsTrigger ghi trong layout effect). Menu "Thêm" KHÔNG đọc ref này lúc render (chậm một nhịp: số
+  // đếm của tab ẩn đổi → menu vẫn số cũ) mà chụp lại thành state lúc menu MỞ — khi đó mọi trigger đã ghi xong.
   const nhan = useRef(new Map<string, NhanTab>())
+  const dangKy = useCallback((x: string, n: NhanTab) => {
+    nhan.current.set(x, n)
+  }, [])
+  const [nhanMenu, setNhanMenu] = useState<ReadonlyMap<string, NhanTab>>(() => new Map())
   const canFocus = useRef<string | null>(null)
   const [an, setAn] = useState<string[]>([])
   const [tran, setTran] = useState(false)
@@ -149,11 +159,11 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
 
   const anSet = new Set(an)
   return (
-    <KieuTabs.Provider value={{ variant: 'pill', an: anSet, nhan: nhan.current }}>
+    <KieuTabs.Provider value={{ variant: 'pill', an: anSet, dangKy }}>
       <div ref={khung} data-slot="tabs-khung" data-tran={tran || undefined} onScroll={do_} className={tabsKhung}>
         {list(ds)}
         {thuGon && (
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(mo) => mo && setNhanMenu(new Map(nhan.current))}>
             <DropdownMenuTrigger asChild>
               <button ref={them} type="button" data-slot="tabs-them" hidden={an.length === 0} className={tabsTriggerPill}>
                 Thêm
@@ -170,7 +180,7 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
               }}
             >
               {an.map((x) => {
-                const n = nhan.current.get(x)
+                const n = nhanMenu.get(x)
                 return (
                   <DropdownMenuItem
                     key={x}
@@ -199,10 +209,10 @@ export function TabsTrigger({
   children,
   ...props
 }: ComponentProps<typeof TabsPrimitive.Trigger>) {
-  const { variant, an, nhan } = useContext(KieuTabs)
+  const { variant, an, dangKy } = useContext(KieuTabs)
   // Nhãn cho menu "Thêm" (tab đang ẩn vẫn mount, chỉ `hidden`).
   useLayoutEffect(() => {
-    nhan?.set(value, { children, disabled })
+    dangKy?.(value, { children, disabled })
   })
   return (
     <TabsPrimitive.Trigger
