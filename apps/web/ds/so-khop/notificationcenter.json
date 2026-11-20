@@ -1,0 +1,783 @@
+{
+  "khung": {
+    "artifact": ".ds-muc:nth-child(1)",
+    "ds": [
+      "#notification-center > div",
+      "[data-ds-portal] > *"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#notification-center button[aria-haspopup=\"dialog\"]"
+      },
+      {
+        "cho": 400
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí hộp (Popover cách chuông 4, căn mép, chừa mép khung nhìn 8) — preview vẽ hộp TĨNH trong trang; so bằng mắt trên ảnh",
+    "Bàn phím + a11y (mở → focus tab đang chọn; Esc/Tab ra ngoài → đóng, focus về chuông/phần tử kế sau; ←/→ Home/End; giữ dòng vừa đọc ở tab Chưa đọc; Đọc hết chỉ loại đang hiện; thông báo mới role=status; nhóm ngày giờ VN lúc 00:30): test components/ui/notification.dom.test.tsx",
+    "Tooltip \"Cấu hình\" (ui-tip) của nút ⚙ không dựng: tên nút \"Cấu hình thông báo\" đã đủ — tooltip lặp chữ thì trình đọc đọc hai lần (luật NGUON). Nút chuông cũng vậy (đo ở Count)",
+    "Hình icon Phosphor: chỉ đo hộp + màu",
+    "Hộp rỗng (EmptyState \"Đã đọc hết\"/\"Chưa có thông báo\"): preview không có — xem hàng \"Không có thông báo\" trên /ds (ảnh)",
+    "Mục 2 của preview (tab Chưa đọc sau \"Đọc hết\": nút tắt, dòng vừa đọc ở yên chỗ): bấm tab trong hộp ở khổ 390 làm hộp lật trên/dưới chuông theo mỗi lần cuộn của cổng (hộp 560 cao hơn chỗ trống) → không đo được ổn định; hành vi kiểm ở test jsdom, nút tắt ghost đã so ở Button"
+  ],
+  "khoa": [
+    {
+      "khoa": "hop",
+      "artifact": ".ds-muc:nth-child(1) .ui-notif",
+      "ds": "[data-ds-portal] [data-slot=\"notif\"]",
+      "buoc": [
+        {
+          "bam": "#notification-center button[aria-haspopup=\"dialog\"]"
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "props": [
+        "width",
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft",
+        "gap",
+        "borderRadius",
+        "borderTopWidth",
+        "borderTopStyle",
+        "borderBottomWidth",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "color",
+        "backgroundColor",
+        "boxShadow",
+        "opacity"
+      ],
+      "con": [
+        {
+          "ten": "khung",
+          "artifact": ".ui-notif-khung",
+          "ds": "> div",
+          "props": [
+            "width",
+            "height"
+          ]
+        },
+        {
+          "ten": "dau",
+          "artifact": ".ui-notif-head",
+          "ds": "> div > div:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "tieu-de",
+          "artifact": ".ui-notif-title",
+          "ds": "h2",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "doc-het",
+          "artifact": ".ui-notif-head > button[data-size=\"sm\"]",
+          "ds": "button[data-size=\"sm\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "cau-hinh",
+          "artifact": ".ui-notif-head > button[data-size=\"icon-sm\"]",
+          "ds": "> div > div:nth-child(2) > button[data-size=\"icon-sm\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "tabs",
+          "artifact": ".ui-notif-tabs",
+          "ds": "[data-slot=\"tabs-list\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "tab-1",
+          "artifact": ".ui-notif-tabs [role=\"tab\"]:nth-child(1)",
+          "ds": "[role=\"tab\"]:nth-child(1)",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "tab-2",
+          "artifact": ".ui-notif-tabs [role=\"tab\"]:nth-child(2)",
+          "ds": "[role=\"tab\"]:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "so",
+          "artifact": ".ui-tabs-count",
+          "ds": "[data-slot=\"tabs-count\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "danh-sach",
+          "artifact": ".ui-notif-list",
+          "ds": "[data-slot=\"notif-list\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "nhom",
+          "artifact": ".ui-notif-list > div:nth-child(1) .ui-menu-label",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) h3",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "ul",
+          "artifact": ".ui-notif-list > div:nth-child(1) ul",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) ul",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "dong-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1)",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1)",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "nut-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-main",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-main\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "icon-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-icon",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-icon\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "chu-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-text",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-text\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "ten-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-text > b",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-text\"] > b",
+          "props": [
+            "fontWeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "gio-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-meta",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-meta\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "danh-dau-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-mark",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-mark\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "cham-1",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-dot",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-mark\"] > span",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "icon-nhac",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(2) .ui-notif-icon",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(2) [data-slot=\"notif-icon\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "trich",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(2) .ui-notif-quote",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(2) [data-slot=\"notif-quote\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "icon-gap",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(3) .ui-notif-icon",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(3) [data-slot=\"notif-icon\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "dong-doc",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(4)",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(4)",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "chu-doc",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(4) .ui-notif-text",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(4) [data-slot=\"notif-text\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "danh-dau-doc",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(4) .ui-notif-mark",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(4) [data-slot=\"notif-mark\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        },
+        {
+          "ten": "vong-doc",
+          "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(4) .ui-notif-mark > svg",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(4) [data-slot=\"notif-mark\"] > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "nhom-qua",
+          "artifact": ".ui-notif-list > div:nth-child(2) .ui-menu-label",
+          "ds": "[data-slot=\"notif-list\"] > div:nth-child(2) h3",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingRight",
+            "paddingBottom",
+            "paddingLeft",
+            "gap",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderBottomWidth",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color",
+            "backgroundColor",
+            "boxShadow",
+            "opacity"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "dong-ro",
+      "artifact": ".ui-notif-list > div:nth-child(1) li:nth-child(4)",
+      "ds": "[data-ds-portal] [data-slot=\"notif\"] [data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(4)",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "bam": {
+            "artifact": ".ds-muc:nth-child(1) .ui-notif-title",
+            "ds": "#notification-center button[aria-haspopup=\"dialog\"]"
+          }
+        },
+        {
+          "cho": 400
+        }
+      ],
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "danh-dau",
+          "artifact": " .ui-notif-mark",
+          "ds": " [data-slot=\"notif-mark\"]",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "backgroundColor",
+            "opacity"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "nut-focus",
+      "artifact": ".ds-muc:nth-child(1) .ui-notif .ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-main",
+      "ds": "[data-ds-portal] [data-slot=\"notif\"] [data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-main\"]",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "bam": {
+            "artifact": ".ds-muc:nth-child(1) .ui-notif-title",
+            "ds": "#notification-center button[aria-haspopup=\"dialog\"]"
+          }
+        },
+        {
+          "cho": 400
+        },
+        {
+          "tab": {
+            "artifact": ".ds-muc:nth-child(1) .ui-notif .ui-notif-list > div:nth-child(1) li:nth-child(1) .ui-notif-main",
+            "ds": "[data-ds-portal] [data-slot=\"notif\"] [data-slot=\"notif-list\"] > div:nth-child(1) li:nth-child(1) [data-slot=\"notif-main\"]"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "props": [
+        "outlineColor",
+        "outlineStyle",
+        "outlineWidth",
+        "outlineOffset",
+        "backgroundColor"
+      ]
+    }
+  ]
+}

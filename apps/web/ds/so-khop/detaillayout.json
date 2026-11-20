@@ -1,0 +1,79 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#detail-layout > div"
+  },
+  "chuaDo": [
+    "Giá trị sửa tại chỗ trong cột thuộc tính (ô trạng thái/ưu tiên/người/việc/hạn của preview là InlineEdit, Task 10): khối DS hiện giá trị TĨNH (Badge, Avatar + tên, chữ, link) — chỉ đo hộp nhóm dl/tiêu đề nhóm, không đo phần tử bên trong dd (đã so ở PropertyList)",
+    "Timeline, Composer bên trong cột chính: đã so riêng ở Timeline/Composer — ở đây chỉ đo hộp ngoài (rộng theo cột)",
+    "Cột thuộc tính dính top 16 khi cuộn trang dài: đo `position`/`top` không có trong bộ đo — kiểm bằng class (test detail-layout.test.tsx) + ảnh",
+    "Thứ tự DOM (nội dung trước, thuộc tính sau) và `order: -1` ở ≤960: test detail-layout.test.tsx; vị trí thật đo ở ảnh 390 (thuộc tính nằm trên)"
+  ],
+  "khoa": [
+    {
+      "khoa": "luoi",
+      "artifact": ".ui-detail",
+      "ds": "#detail-layout [data-slot=\"detail-layout\"]",
+      "con": [
+        {
+          "ten": "main",
+          "artifact": "> .ui-detail-main",
+          "ds": "> [data-slot=\"detail-main\"]",
+          "props": [
+            "width",
+            "height",
+            "gap",
+            "paddingTop",
+            "paddingLeft"
+          ]
+        },
+        {
+          "ten": "aside",
+          "artifact": "> .ui-detail-aside",
+          "ds": "> [data-slot=\"detail-aside\"]",
+          "props": [
+            "width",
+            "height",
+            "paddingTop",
+            "paddingLeft"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "tieu-de",
+      "artifact": ".ui-detail-heading",
+      "ds": "#detail-layout [data-so=\"tieu-de\"]"
+    },
+    {
+      "khoa": "nhom-1",
+      "artifact": ".ui-detail-aside > h3:nth-of-type(1)",
+      "ds": "#detail-layout [data-slot=\"detail-aside\"] > h3:nth-of-type(1)"
+    },
+    {
+      "khoa": "nhom-2",
+      "artifact": ".ui-detail-aside > h3:nth-of-type(2)",
+      "ds": "#detail-layout [data-slot=\"detail-aside\"] > h3:nth-of-type(2)"
+    },
+    {
+      "khoa": "dl-1",
+      "artifact": ".ui-detail-aside > dl:nth-of-type(1)",
+      "ds": "#detail-layout [data-slot=\"detail-aside\"] > dl:nth-of-type(1)"
+    },
+    {
+      "khoa": "dl-2",
+      "artifact": ".ui-detail-aside > dl:nth-of-type(2)",
+      "ds": "#detail-layout [data-slot=\"detail-aside\"] > dl:nth-of-type(2)"
+    },
+    {
+      "khoa": "timeline",
+      "artifact": ".ui-detail-main ol.ui-timeline",
+      "ds": "#detail-layout [data-slot=\"detail-main\"] ol",
+      "props": [
+        "width",
+        "height",
+        "paddingLeft"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "khung": { "artifact": ".ds-tinh", "ds": "#notification-matrix > div" },
+  "chuaDo": [
+    "Bấm là lưu, câu role=\"status\" \"Đã lưu: …\" / lưu lỗi trả ô về cũ, Select kênh tắt khi bỏ tick, tên đọc ô = kênh + loại + mô tả \"Gửi cho\", caption ẩn, scope col/row/rowgroup: test components/ui/notification.dom.test.tsx",
+    "Menu chọn kênh Discord (Select DS mở): preview không vẽ menu mở — đã so ở Select",
+    "Cột tên ghim trái khi cuộn ngang (390): vị trí dính không có trong bộ đo — kiểm bằng ảnh 390 (cuộn ngang khung bảng)",
+    "Bảng dựng thẳng bằng class `.ui-table` chép trong notif-styles.ts: component Table (Task 7) chưa có lúc dựng — đổi sang Table khi nó vào"
+  ],
+  "khoa": [
+    { "khoa": "khung", "artifact": ".ui-table-wrap", "ds": "#notification-matrix [data-slot=\"notif-matrix-khung\"]" },
+    { "khoa": "bang", "artifact": "table.ui-notif-matrix", "ds": "#notification-matrix table" },
+    { "khoa": "th-ten", "artifact": "thead th:nth-child(1)", "ds": "#notification-matrix thead th:nth-child(1)" },
+    { "khoa": "th-kenh", "artifact": "thead th:nth-child(3)", "ds": "#notification-matrix thead th:nth-child(3)" },
+    {
+      "khoa": "khu",
+      "artifact": "tbody:nth-of-type(1) th[scope=\"rowgroup\"]",
+      "ds": "#notification-matrix tbody:nth-of-type(1) th[scope=\"rowgroup\"]",
+      "con": [{ "ten": "ten", "artifact": "> span", "ds": "> span", "props": ["width", "height", "fontSize", "fontWeight", "color"] }]
+    },
+    {
+      "khoa": "loai",
+      "artifact": "tbody:nth-of-type(1) tr:nth-child(2) th",
+      "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) th",
+      "trangThai": ["hover"],
+      "artifactThat": true,
+      "con": [
+        { "ten": "gui", "artifact": ".ui-notif-matrix-gui", "ds": "> span:nth-child(2)", "props": ["width", "height", "fontSize", "lineHeight", "color"] }
+      ]
+    },
+    {
+      "khoa": "o",
+      "artifact": "tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2)",
+      "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2)",
+      "trangThai": ["hover"],
+      "artifactThat": true,
+      "con": [
+        { "ten": "khung-o", "artifact": "> .ui-notif-matrix-o", "ds": "> span", "props": ["width", "height", "gap"] }
+      ]
+    },
+    {
+      "khoa": "checkbox",
+      "artifact": "tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2) .ui-checkbox",
+      "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2) button[role=\"checkbox\"]",
+      "boChu": true
+    },
+    {
+      "khoa": "khong-ap-dung",
+      "artifact": "tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(4) .ui-notif-matrix-na",
+      "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(4) > span[aria-hidden]"
+    },
+    {
+      "khoa": "chon-tat",
+      "artifact": "tbody:nth-of-type(1) tr:nth-child(4) .ui-select-trigger",
+      "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(4) [data-slot=\"select-trigger\"]"
+    },
+    {
+      "khoa": "chon",
+      "artifact": "tbody:nth-of-type(2) tr:nth-child(2) .ui-select-trigger",
+      "ds": "#notification-matrix tbody:nth-of-type(2) tr:nth-child(2) [data-slot=\"select-trigger\"]"
+    },
+    { "khoa": "luu", "artifact": ".ds-tinh > p.ui-caption", "ds": "#notification-matrix [role=\"status\"]" }
+  ]
+}
