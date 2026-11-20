@@ -1,0 +1,152 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#record-picker > div"
+  },
+  "chuaDo": [
+    "Tên khách: DS dùng tên giả có chữ \"Demo\" (R11), preview dùng tên khác → bề ngang dòng tên khác chữ; khoá con `ten` chỉ đo cỡ/đậm/màu/cao, không đo rộng",
+    "Dòng đếm: preview ghi \"22 khách\" nhưng vẽ 4 dòng; DS vẽ đúng 4 khách nên ghi \"4 khách\" — chỉ khác chữ, hộp cùng cỡ",
+    "Mục đang SÁNG (cmdk, ↑/↓) nền alpha-08 và mục đang CHỌN nền alpha-04 + ✓: preview không vẽ — đo bằng ảnh /ds#record-picker (hàng \"Mới mở\" có khách đang chọn) + test jsdom",
+    "Không khớp (\"Không thấy khách …\"), tìm xa (gõ thêm / đang tìm / lỗi), Enter chọn dòng đầu, bộ gõ đang ghép chữ, SĐT chỉ 4 số cuối: test jsdom components/ui/record-picker.dom.test.tsx",
+    "Pop nổi thật (mở từ ô khách, portal, z 90, rộng 400 / tối đa 100vw − 32): đo bằng ảnh + elementFromPoint trong báo cáo Task 10; preview vẽ bảng tĩnh",
+    "Hình icon: preview là path Phosphor kính lúp / WarningCircle / Plus; DS cùng bộ Phosphor — chỉ đo hộp + màu"
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": ".b-noi-kh",
+      "ds": "#record-picker [data-so=\"khung\"]",
+      "lyDo": {
+        "zIndex": "Preview vẽ `.b-noi` tĩnh (`.ds-tinh .b-noi { position: static !important }`) nhưng vẫn mang z-index 90 của lớp menu nổi. Mặt tĩnh DS bỏ z (`z-auto`, như mặt tĩnh Combobox) vì không nổi; pop THẬT mở từ ô khách dùng z-90 chung của menuContent (thang z ds/NGUON.md)."
+      }
+    },
+    {
+      "khoa": "search",
+      "artifact": ".b-noi-kh .ui-menu-search",
+      "ds": "#record-picker [data-so=\"khung\"] [data-slot=\"record-picker-search\"]",
+      "con": [
+        {
+          "ten": "input",
+          "artifact": "> input",
+          "ds": "> input"
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "dem",
+      "artifact": ".b-kh-dem",
+      "ds": "#record-picker [data-so=\"khung\"] [data-slot=\"record-picker-dem\"]"
+    },
+    {
+      "khoa": "ds",
+      "artifact": ".b-kh-ds",
+      "ds": "#record-picker [data-so=\"khung\"] [data-slot=\"record-picker-ds\"]"
+    },
+    {
+      "khoa": "muc",
+      "artifact": ".b-kh-muc:nth-child(2)",
+      "ds": "#record-picker [data-so=\"khung\"] [cmdk-item]:nth-child(2)",
+      "con": [
+        {
+          "ten": "dong1",
+          "artifact": "> .b-kh-dong1",
+          "ds": "> span:nth-child(1)",
+          "props": [
+            "width",
+            "height",
+            "gap"
+          ]
+        },
+        {
+          "ten": "ten",
+          "artifact": ".b-kh-ten",
+          "ds": "[data-slot=\"record-picker-ten\"]",
+          "props": [
+            "height",
+            "fontSize",
+            "fontWeight",
+            "lineHeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "mo",
+          "artifact": ".b-kh-mo",
+          "ds": "> span:nth-child(1) > span:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "color"
+          ]
+        },
+        {
+          "ten": "dong2",
+          "artifact": "> .b-kh-dong2:nth-child(2)",
+          "ds": "> span:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "dong3",
+          "artifact": "> .b-kh-dong2:nth-child(3)",
+          "ds": "> span:nth-child(3)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "luuy",
+      "artifact": ".b-kh-muc:nth-child(4) .b-kh-luuy",
+      "ds": "#record-picker [data-so=\"khung\"] [cmdk-item]:nth-child(4) [aria-label=\"Có lưu ý\"]",
+      "props": [
+        "width",
+        "height",
+        "color"
+      ]
+    },
+    {
+      "khoa": "sep",
+      "artifact": ".b-noi-kh .ui-menu-sep",
+      "ds": "#record-picker [data-so=\"khung\"] [data-slot=\"record-picker-sep\"]"
+    },
+    {
+      "khoa": "tao",
+      "artifact": ".b-noi-kh .b-kh > .ui-menu-item:last-child",
+      "ds": "#record-picker [data-so=\"khung\"] [data-slot=\"record-picker-tao\"]",
+      "con": [
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    }
+  ]
+}

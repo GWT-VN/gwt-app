@@ -1,0 +1,384 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#inline-edit > div",
+      "[data-ds-portal] > *"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "cho": 1500
+      },
+      {
+        "bam": "#inline-edit [data-so=\"o-tt\"] button"
+      },
+      {
+        "cho": 300
+      }
+    ]
+  },
+  "chuaDo": [
+    "Hai menu tĩnh của preview (trạng thái, loại lỗi) đo trên menu MỞ THẬT từ ô (bấm CDP) — vị trí menu (bám ô, lật khi thiếu chỗ, chừa mép 8) so bằng ảnh + elementFromPoint trong báo cáo Task 10, không đo top/left",
+    "Hàng Hover của preview gắn sẵn .is-hover; DS đo hover bằng chuột CDP thật trên hàng Thường (khoá có trangThai hover). Hàng Hover bên DS chỉ giữ bố cục lưới",
+    "Vòng focus phím của ô (2px ring): preview không có trạng thái focus — chưa đo, test jsdom + ảnh",
+    "Bước 2 \"Chờ vì…\" (lý do chờ), ô hạn (lịch), ô người có tìm, toast Hoàn tác / lỗi trả giá trị cũ, chặn nổi bọt lên dòng, bộ gõ đang ghép chữ: preview không có — test jsdom components/ui/inline-edit.dom.test.tsx",
+    "Mục đang chọn nền alpha-04 (README InlineEdit) — bundle.css không có rule cho menuitemradio đang chọn (chỉ ✓) → DS theo bundle.css: chỉ ✓",
+    "Hình icon: preview là path Phosphor CaretDown/Check/WarningCircle/ArrowCounterClockwise; DS dùng cùng bộ Phosphor — chỉ đo hộp + màu"
+  ],
+  "khoa": [
+    {
+      "khoa": "luoi",
+      "artifact": ".ds-cuon > div",
+      "ds": "#inline-edit [data-so=\"luoi\"]"
+    },
+    {
+      "khoa": "caption",
+      "artifact": ".ds-cuon > div > .ui-caption:first-child",
+      "ds": "#inline-edit [data-so=\"luoi\"] > span:first-child"
+    },
+    {
+      "khoa": "o-uu",
+      "artifact": ".ds-cuon > div > span:nth-child(2) > .b-osua",
+      "ds": "#inline-edit [data-so=\"o-uu\"] button",
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "badge",
+          "artifact": "> .ui-badge",
+          "ds": "[data-slot=\"badge\"]",
+          "props": [
+            "width",
+            "height",
+            "boxShadow",
+            "backgroundColor",
+            "color",
+            "borderRadius"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "o-loi",
+      "artifact": ".ds-cuon > div > span:nth-child(3) > .b-osua",
+      "ds": "#inline-edit [data-so=\"o-loi\"] button",
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "badge",
+          "artifact": "> .ui-badge",
+          "ds": "[data-slot=\"badge\"]",
+          "props": [
+            "width",
+            "height",
+            "boxShadow",
+            "backgroundColor",
+            "color"
+          ]
+        },
+        {
+          "ten": "cham",
+          "artifact": ".ui-dot",
+          "ds": "[data-slot=\"badge-dot\"]",
+          "props": [
+            "width",
+            "height",
+            "backgroundColor"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "o-tt",
+      "artifact": ".ds-cuon > div > span:nth-child(4) > .b-osua",
+      "ds": "#inline-edit [data-so=\"o-tt\"] button",
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "badge",
+          "artifact": "> .ui-badge",
+          "ds": "[data-slot=\"badge\"]",
+          "props": [
+            "width",
+            "height",
+            "boxShadow",
+            "backgroundColor",
+            "color",
+            "gap",
+            "paddingLeft",
+            "paddingRight"
+          ]
+        },
+        {
+          "ten": "caret",
+          "artifact": ".ui-caret",
+          "ds": "[data-slot=\"badge-caret\"]",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "opacity"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "o-chu",
+      "artifact": ".ds-cuon > div > span:nth-child(5) > .b-osua",
+      "ds": "#inline-edit [data-so=\"o-chu\"] button",
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "avatar",
+          "artifact": ".ui-avatar",
+          "ds": "[data-slot=\"avatar\"]",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "backgroundColor",
+            "fontSize",
+            "fontWeight"
+          ]
+        },
+        {
+          "ten": "vong",
+          "artifact": "> .b-av-o",
+          "ds": "[data-slot=\"avatar\"]",
+          "props": [
+            "boxShadow",
+            "borderRadius"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "o-khach",
+      "artifact": ".ds-cuon > div > span:nth-child(6) > .b-osua",
+      "ds": "#inline-edit [data-so=\"o-khach\"] button",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "con": [
+        {
+          "ten": "ten",
+          "artifact": ".b-cat",
+          "ds": "[data-so=\"ten-khach\"]",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "fontWeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "luuy",
+          "artifact": ".b-luuy",
+          "ds": "[data-so=\"luu-y\"]",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "luuy-icon",
+          "artifact": ".b-luuy > svg",
+          "ds": "[data-so=\"luu-y\"] > svg",
+          "props": [
+            "width",
+            "height"
+          ]
+        },
+        {
+          "ten": "hoilai",
+          "artifact": ".b-hoilai",
+          "ds": "[data-so=\"hoi-lai\"]",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "fontSize",
+            "fontWeight",
+            "gap"
+          ]
+        },
+        {
+          "ten": "hoilai-icon",
+          "artifact": ".b-hoilai > svg",
+          "ds": "[data-so=\"hoi-lai\"] > svg",
+          "props": [
+            "width",
+            "height"
+          ]
+        },
+        {
+          "ten": "mui",
+          "artifact": "> .b-osua-mui",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "opacity"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "DS sửa lỗi cắt chữ của nguồn: `.b-osua` có lề âm −6 hai bên nhưng `max-width: 100%` → trong neo co theo nội dung (`.b-loc-o` inline-flex) hộp nút bị chặn ở bề rộng neo = hộp lề, thiếu đúng 12px → tên khách bị cắt … dù còn chỗ (preview cắt \"Khách sạn Sen Vàng\" ở 126.5px, đủ chữ là 138.5px). DS đặt trần rộng 100% + 12px (inline-edit-styles.ts `oSua`) → nút rộng hơn 12px, tên hiện đủ. Đề xuất đồng bộ ngược vào bundle.css.",
+        "hover.width": "Như dòng width (trần rộng 100% + 12 bù lề âm).",
+        "ten.width": "Như dòng width: tên đủ chữ 138.5 thay vì bị cắt 126.5.",
+        "hover.ten.width": "Như dòng ten.width."
+      }
+    },
+    {
+      "khoa": "o-nhap",
+      "artifact": ".b-osua-input",
+      "ds": "#inline-edit [data-so=\"o-nhap\"]"
+    },
+    {
+      "khoa": "menu-tt",
+      "artifact": ".ds-hang > .ds-muc:nth-child(1) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#inline-edit [data-so=\"o-tt\"] button"
+        },
+        {
+          "cho": 800
+        }
+      ],
+      "lyDo": {
+        "width": "Preview: menu tĩnh nằm trong `.ds-muc` (con của hàng flex `.ds-hang`) nên giãn theo nhãn mục dài phía trên (\"Menu trạng thái (mục đầu đang hover, mục đang chọn có ✓)\") = 348.5px. Menu thật ôm nội dung, tối thiểu 200 (`.ui-menu` min-width) — mục dài nhất \"Chờ KH xác nhận\" chưa tới 200."
+      }
+    },
+    {
+      "khoa": "menu-tt-muc",
+      "artifact": ".ds-hang > .ds-muc:nth-child(1) .ui-menu-item:nth-child(2)",
+      "ds": "[data-ds-portal] [role=\"menuitemradio\"]:nth-child(2)",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#inline-edit [data-so=\"o-tt\"] button"
+        },
+        {
+          "cho": 800
+        }
+      ],
+      "trangThai": [
+        "hover"
+      ],
+      "con": [
+        {
+          "ten": "chip",
+          "artifact": "> .ui-badge",
+          "ds": "[data-slot=\"badge\"]",
+          "props": [
+            "width",
+            "height",
+            "backgroundColor",
+            "color",
+            "fontSize",
+            "fontWeight"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width": "Mục giãn theo bề ngang menu: preview 348.5 − 2 × 6 = 336.5 (menu giãn theo nhãn mục, xem khoá menu-tt); menu thật 200 − 12 = 188.",
+        "hover.width": "Như dòng width (menu preview giãn theo nhãn mục)."
+      }
+    },
+    {
+      "khoa": "menu-tt-tick",
+      "artifact": ".ds-hang > .ds-muc:nth-child(1) .ui-menu-item:nth-child(1) > .b-tick",
+      "ds": "[data-ds-portal] [role=\"menuitemradio\"][aria-checked=\"true\"] > svg",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#inline-edit [data-so=\"o-tt\"] button"
+        },
+        {
+          "cho": 800
+        }
+      ],
+      "props": [
+        "width",
+        "height",
+        "color"
+      ]
+    },
+    {
+      "khoa": "menu-loi",
+      "artifact": ".ds-hang > .ds-muc:nth-child(2) > .ui-menu",
+      "ds": "[data-ds-portal] [role=\"menu\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#inline-edit [data-so=\"o-loi\"] button"
+        },
+        {
+          "cho": 800
+        }
+      ]
+    },
+    {
+      "khoa": "menu-loi-muc",
+      "artifact": ".ds-hang > .ds-muc:nth-child(2) .ui-menu-item:nth-child(1)",
+      "ds": "[data-ds-portal] [role=\"menuitemradio\"]:nth-child(1)",
+      "buoc": [
+        {
+          "cho": 1500
+        },
+        {
+          "bam": "#inline-edit [data-so=\"o-loi\"] button"
+        },
+        {
+          "cho": 800
+        }
+      ],
+      "con": [
+        {
+          "ten": "badge",
+          "artifact": "> .ui-badge",
+          "ds": "[data-slot=\"badge\"]",
+          "props": [
+            "width",
+            "height",
+            "boxShadow",
+            "color"
+          ]
+        },
+        {
+          "ten": "cham",
+          "artifact": ".ui-dot",
+          "ds": "[data-slot=\"badge-dot\"]",
+          "props": [
+            "width",
+            "height",
+            "backgroundColor"
+          ]
+        }
+      ]
+    }
+  ]
+}

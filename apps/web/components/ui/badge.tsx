@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
+import { CaretDown } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 
 /**
@@ -90,6 +91,27 @@ export function BadgeDot({ color, className }: { color?: keyof typeof NEN_CHAM; 
       data-slot="badge-dot"
       data-color={color}
       className={cn('size-1.5 shrink-0 rounded-(--radius-full)', color ? NEN_CHAM[color] : 'bg-current', className)}
+    />
+  )
+}
+
+/**
+ * Mũi tên ▾ trong Badge bấm được để đổi giá trị (ô trạng thái InlineEdit) — `.ui-badge .ui-caret` (bundle.css bản 40):
+ * 10px, lề phải −2, cùng màu chữ badge, mờ 60% → 100% khi nút/role=button bọc ngoài đang rê hoặc đang mở
+ * (`aria-expanded="true"`). Icon Phosphor CaretDown nét `bold` như preview InlineEdit. Đặt làm con CUỐI của `<Badge>`.
+ * Không phải 'use client' (icon bản ssr) → dùng được ở server component.
+ */
+export function BadgeCaret({ className }: { className?: string }) {
+  return (
+    <CaretDown
+      weight="bold"
+      aria-hidden="true"
+      data-slot="badge-caret"
+      className={cn(
+        'size-2.5 -mr-0.5 shrink-0 opacity-60',
+        'in-[:is(button,[role=button]):is(:hover,[aria-expanded=true])]:opacity-100',
+        className,
+      )}
     />
   )
 }
