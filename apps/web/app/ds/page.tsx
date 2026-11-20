@@ -1,4 +1,5 @@
 import { KhungDs, layTheme } from './_khung/khung-ds'
+import { HANG } from './_khung/hang'
 import { KHOI, SO_DA_DUNG } from './_khung/khoi'
 import { motDong, readmeComponent } from './_khung/readme'
 import { Muc, Tam, ThanMuc } from './_khung/tam'
@@ -25,12 +26,17 @@ export default async function DsPage({ searchParams }: { searchParams: Promise<{
       >
         {KHOI.map(({ neo, ten, Khoi }) => {
           if (!Khoi) return null
+          const Hang = HANG[neo]
           const md = readmeComponent(ten)
           return (
             <Muc key={neo} neo={neo} tieuDe={ten} moTa={md ? <span className="block truncate">{motDong(md)}</span> : undefined}>
-              <ThanMuc className={BOC_KHOI}>
-                <Khoi />
-              </ThanMuc>
+              {Hang ? (
+                <Hang />
+              ) : (
+                <ThanMuc className={BOC_KHOI}>
+                  <Khoi />
+                </ThanMuc>
+              )}
               <HuongDan ten={ten} />
             </Muc>
           )

@@ -98,3 +98,38 @@ export function Muc({
 export function ThanMuc({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn('py-5', LE, className)}>{children}</div>
 }
+
+/**
+ * Trang Components dạng HÀNG (CEO 20/11 — "phân ra cho dễ nhìn", kiểu bảng trang Colors): mỗi biến thể/trạng thái một
+ * hàng, cột trái = tên (+ mô tả ngắn), cột phải = demo. ≤ 768: cột tên nằm trên demo.
+ *
+ *   export function KhoiButtonHang() {
+ *     return (
+ *       <KhoiHang neo="button">
+ *         <BienThe ten="default" moTa="Hành động chính">…demo…</BienThe>
+ *       </KhoiHang>
+ *     )
+ *   }
+ *
+ * `KhoiHang` mang `id` neo (#button) như section của khối cũ. Khối cũ `Khoi<Ten>` giữ nguyên cho /ds/tron (cổng so khớp
+ * đo bố cục y preview artifact) — hai bản dùng chung phần demo trong cùng file khối, không chép tay.
+ */
+export function KhoiHang({ neo, children }: { neo: string; children: ReactNode }) {
+  return (
+    <section id={neo} className="scroll-mt-28 divide-y divide-(--border) max-md:scroll-mt-40">
+      {children}
+    </section>
+  )
+}
+
+export function BienThe({ ten, moTa, children }: { ten: ReactNode; moTa?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)]">
+      <div className={`flex flex-col gap-0.5 pt-4 md:border-r md:border-(--border) md:py-4 ${LE} md:pr-4`}>
+        <span className={`${CHU.sm} font-medium`}>{ten}</span>
+        {moTa && <span className={`${CHU.xs} text-muted-foreground`}>{moTa}</span>}
+      </div>
+      <div className="min-w-0 px-5 py-4 md:px-6">{children}</div>
+    </div>
+  )
+}
