@@ -6,8 +6,9 @@ import { CHU } from './chu'
 /**
  * Khung trình bày trang /ds (kiểu trang Colors của artifact) — server component, chỉ token:
  *
- *   <Tam tieuDe="Màu" moTa="…" muc={[…]}>        tấm lớn: bo radius-4xl 24, viền `border`; khe giữa các mục = nền `muted`
- *     <Muc id="nen" tieuDe="Nền" moTa="…" hanhDong={…}>   mục trắng: hàng tiêu đề (16 medium) + các con, kẻ ngang 1px
+ *   <Tam tieuDe="Màu" moTa="…" muc={[…]}>        đầu trang = một tấm riêng; các mục xếp dưới, cách nhau 16
+ *     <Muc id="nen" tieuDe="Nền" moTa="…" hanhDong={…}>   mỗi mục = MỘT TẤM RIÊNG (bo radius-2xl, viền `border`) — CEO 20/11:
+ *                                                     tách hẳn từng tấm, không dùng dải xám dày để ngăn
  *       <BangToken … />                                bảng Tên | cột… (bang.tsx) — cột thẳng hàng giữa các mục
  *       <ThanMuc>văn bản, demo tự do</ThanMuc>
  *     </Muc>
@@ -28,8 +29,8 @@ export function Tam({
   children: ReactNode
 }) {
   return (
-    <article className="flex flex-col gap-2 overflow-hidden rounded-(--radius-4xl) border border-(--border) bg-muted">
-      <header className="bg-background px-5 pt-6 pb-5 md:px-8 md:pt-8">
+    <article className="flex flex-col gap-4">
+      <header className="rounded-(--radius-2xl) border border-(--border) bg-background px-5 pt-6 pb-5 md:px-8 md:pt-8">
         <h1 className={`m-0 ${CHU.h1}`}>{tieuDe}</h1>
         {moTa && <div className={`mt-2 max-w-[72ch] text-muted-foreground ${CHU.sm}`}>{moTa}</div>}
         {muc && (
@@ -69,7 +70,7 @@ export function Muc({
   children: ReactNode
 }) {
   return (
-    <section id={id} className={cn('scroll-mt-6 bg-background', className)}>
+    <section id={id} className={cn('scroll-mt-6 overflow-hidden rounded-(--radius-2xl) border border-(--border) bg-background', className)}>
       {tieuDe && (
         <div className={`flex min-h-14 items-center justify-between gap-4 py-3 ${LE}`}>
           <div className="min-w-0">
