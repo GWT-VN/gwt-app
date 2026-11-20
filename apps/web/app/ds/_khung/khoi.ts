@@ -35,11 +35,14 @@ import { KHOI_T10 } from './dk-t10'
 import { KHOI_T11 } from './dk-t11'
 import { KHOI_T12 } from './dk-t12'
 import { KHOI_T13 } from './dk-t13'
+import { KHOI_L7_3 } from './dk-l7-3'
+import { KHOI_L7_4 } from './dk-l7-4'
 import type { NhomMuc } from './trang'
 
 /** Khối lát 4–6: mỗi task một file `dk-t<N>.ts` (nhiều agent sửa song song không đụng nhau). */
 const MOI: Record<string, ComponentType> = {
   ...KHOI_T1, ...KHOI_T2, ...KHOI_T3, ...KHOI_T4, ...KHOI_T5, ...KHOI_T6, ...KHOI_T7, ...KHOI_T8, ...KHOI_T9, ...KHOI_T10, ...KHOI_T11, ...KHOI_T12, ...KHOI_T13,
+  ...KHOI_L7_3, ...KHOI_L7_4,
 }
 const m = (ten: string) => k(ten, MOI[ten])
 
@@ -84,6 +87,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
       k('Select', KhoiSelect),
       k('Combobox', KhoiCombobox),
       k('DatePicker', KhoiDatePicker),
+      m('DateTimePicker'),
       k('DateRangePicker', KhoiDateRangePicker),
       k('FileUpload', KhoiFileUpload),
       k('FormLayout', KhoiFormLayout),
@@ -99,6 +103,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   { ten: 'Phản hồi', lat: 5, khoi: ['EmptyState', 'Skeleton', 'Banner', 'Toast'].map(m) },
   { ten: 'Toàn app', lat: 6, khoi: ['CommandPalette', 'StatCard'].map(m) },
   { ten: 'Thông báo', lat: 6, khoi: ['Count', 'NotificationCenter', 'NotificationMatrix'].map(m) },
+  { ten: 'Mẫu ghép', lat: 7, khoi: ['MenuThuocTinh'].map(m) },
 ]
 export const KHOI = NHOM.flatMap((n) => n.khoi)
 export const SO_DA_DUNG = KHOI.filter((x) => x.Khoi).length

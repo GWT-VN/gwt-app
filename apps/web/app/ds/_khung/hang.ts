@@ -17,11 +17,13 @@ import { HANG_T10 } from './dk-t10'
 import { HANG_T11 } from './dk-t11'
 import { HANG_T12 } from './dk-t12'
 import { HANG_T13 } from './dk-t13'
+import { HANG_L7_3 } from './dk-l7-3'
+import { HANG_L7_4 } from './dk-l7-4'
 
 /**
  * neo → bản hàng biến thể của khối (KhoiHang/BienThe trong `tam.tsx`). Có thì /ds dùng; không thì /ds dùng khối cũ.
  * /ds/tron (cổng so khớp) LUÔN dùng khối cũ. Tách 5 file theo nhóm để nhiều người sửa song song không đụng nhau.
  */
 export const HANG: Record<string, ComponentType> = { ...HANG_NEN, ...HANG_OVERLAY, ...HANG_FORM_A, ...HANG_FORM_B, ...HANG_CARD,
-  ...HANG_T1, ...HANG_T2, ...HANG_T3, ...HANG_T4, ...HANG_T5, ...HANG_T6, ...HANG_T7, ...HANG_T8, ...HANG_T9, ...HANG_T10, ...HANG_T11, ...HANG_T12, ...HANG_T13,
+  ...HANG_T1, ...HANG_T2, ...HANG_T3, ...HANG_T4, ...HANG_T5, ...HANG_T6, ...HANG_T7, ...HANG_T8, ...HANG_T9, ...HANG_T10, ...HANG_T11, ...HANG_T12, ...HANG_T13, ...HANG_L7_3, ...HANG_L7_4,
 }
