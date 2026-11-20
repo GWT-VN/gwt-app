@@ -14,16 +14,40 @@ import { Input } from '@/components/ui/input'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { ChonHanA } from './bien-the-a'
+import { ChonHanA2 } from './bien-the-a2'
+import { ChonHanA3 } from './bien-the-a3'
+import { ChonHanA4 } from './bien-the-a4'
+import { ChonHanA5 } from './bien-the-a5'
 import { ChonHanB } from './bien-the-b'
 import { ChonHanC } from './bien-the-c'
 import { congNgay, ghepIso, GIO_MAC_DINH, hienThu, homNay, type PropsHan } from './gio'
 
-export type MaBienThe = 'A' | 'B' | 'C'
+export type MaBienThe = 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'B' | 'C'
 const BIEN_THE: Record<MaBienThe, { ten: string; cach: string; C: ComponentType<PropsHan> }> = {
-  A: {
-    ten: 'A — giờ nằm trong pop lịch',
-    cach: 'Bấm ô Hạn → pop: mốc nhanh, lịch tháng, dòng "Giờ" gõ được (1730, 9…) + gợi ý mỗi 30 phút, Xoá / Xong.',
+  A1: {
+    ten: 'A1 — gốc: giờ trong pop lịch',
+    cach: 'Bấm ô Hạn → pop: mốc nhanh, lịch tháng, dòng "Giờ" gõ được (1730, 9…) + gợi ý mỗi 30 phút, Xoá / Xong. Giữ nguyên để so (màn thấp phải cuộn mới tới ô Giờ).',
     C: ChonHanA,
+  },
+  A2: {
+    ten: 'A2 — lịch + cột giờ',
+    cach: 'Chọn ngày ở lịch trái, bấm một giờ ở cột phải (07:00–21:00, mỗi 30 phút) là lưu và đóng. Phút lẻ: gõ vào ô đầu cột rồi Enter.',
+    C: ChonHanA2,
+  },
+  A3: {
+    ten: 'A3 — chip giờ dưới lịch',
+    cach: 'Chọn ngày (pop vẫn mở, 17:30 đang sáng), rồi bấm chip giờ là lưu và đóng. Giờ lạ: gõ ô "Giờ khác" rồi Enter. Không có nút Xong.',
+    C: ChonHanA3,
+  },
+  A4: {
+    ten: 'A4 — hai ô gõ đầu pop',
+    cach: 'Mở pop là đang ở ô ngày: gõ 25/11 (hoặc "mai"), Tab sang ô giờ gõ 1430, Enter là lưu và đóng. Lịch dưới đi theo ô ngày và ngược lại.',
+    C: ChonHanA4,
+  },
+  A5: {
+    ten: 'A5 — mốc nhanh bên trái + lịch',
+    cach: 'Cột trái là các mốc kèm kết quả (Mai sáng · T7 09:00…), bấm là lưu và đóng. Cần ngày khác thì chọn lịch + gõ giờ bên phải, rồi Xong.',
+    C: ChonHanA5,
   },
   B: {
     ten: 'B — hai ô riêng: ngày + giờ',
@@ -36,13 +60,16 @@ const BIEN_THE: Record<MaBienThe, { ten: string; cach: string; C: ComponentType<
     C: ChonHanC,
   },
 }
-const THU_TU: MaBienThe[] = ['A', 'B', 'C']
+/** Thanh đáy + ←/→ chỉ xoay họ A; B, C mở bằng URL. */
+const THU_TU: MaBienThe[] = ['A1', 'A2', 'A3', 'A4', 'A5']
 
 type Dong = { ma: string; khach: string; viec: string; han: string | null }
 
 function dongDau(): Dong[] {
   const nay = homNay()
   return [
+    // Hạn đã qua: lịch tắt ngày cũ nhưng ngày của chính hạn này vẫn hiện được.
+    { ma: 'TK-1023', khach: 'Công ty Demo Hoà Bình', viec: 'Quá hạn — chờ báo giá lõi', han: ghepIso(congNgay(nay, -2), '10:00') },
     { ma: 'TK-1024', khach: 'Công ty Demo An Phát', viec: 'Máy lọc báo lỗi E3', han: ghepIso(nay, GIO_MAC_DINH) },
     { ma: 'TK-1025', khach: 'Công ty Demo Bình Minh', viec: 'Thay lõi định kỳ', han: ghepIso(congNgay(nay, 1), '09:00') },
     { ma: 'TK-1026', khach: 'Công ty Demo Cát Tường', viec: 'Lắp đặt máy mới', han: null },
@@ -92,7 +119,8 @@ export function TrangChonGio({ variant }: { variant: MaBienThe }) {
   const duong = usePathname()
 
   const sang = (buoc: number) => {
-    const moi = THU_TU[(THU_TU.indexOf(variant) + buoc + 3) % 3]
+    const i = THU_TU.indexOf(variant)
+    const moi = THU_TU[i < 0 ? (buoc > 0 ? 0 : THU_TU.length - 1) : (i + buoc + THU_TU.length) % THU_TU.length]
     const q = new URLSearchParams(window.location.search)
     q.set('variant', moi)
     router.replace(`${duong}?${q}${window.location.hash}`, { scroll: false })
@@ -117,9 +145,9 @@ export function TrangChonGio({ variant }: { variant: MaBienThe }) {
             <Badge color="warning">Prototype vứt đi</Badge>
             <Badge color="info">Phương án {variant}</Badge>
           </div>
-          <h1 className="m-0 ds-heading-lg">Chọn hạn có giờ — 3 phương án</h1>
+          <h1 className="m-0 ds-heading-lg">Chọn hạn có giờ — họ A (giờ trong pop lịch)</h1>
           <p className="m-0 max-w-[72ch] ds-text-sm text-muted-foreground">
-            Cùng một hạn xử lý, ba cách chọn. Đổi phương án bằng thanh dưới đáy hoặc phím <Kbd>←</Kbd> <Kbd>→</Kbd>. Giá trị lưu
+            Cùng một hạn xử lý, năm biến thể của hướng A. Ngày đã qua bị tắt trong lịch (hạn cũ đã qua vẫn hiện). Đổi phương án bằng thanh dưới đáy hoặc phím <Kbd>←</Kbd> <Kbd>→</Kbd>. Giá trị lưu
             là chuỗi ISO có múi <code className="font-mono">+07:00</code>, giờ 24h, gõ được phút lẻ (14:45).
           </p>
           <p className="m-0 ds-text-sm font-medium text-(--color-text-warning)">

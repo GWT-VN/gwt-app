@@ -23,8 +23,26 @@ export function congNgay(iso: string, n: number) {
 }
 export const homNay = () => isoNgay(new Date())
 
+/** Cột giờ A2: 07:00 → 21:00 mỗi 30 phút. */
+export const GIO_COT = GOI_Y_GIO.slice(14, 43)
+
+/** Lịch: tắt ngày trước hôm nay, TRỪ ngày của hạn đang có (hạn cũ đã qua vẫn hiện + chọn lại được). */
+export const chanQua = (nay: string, giu: string | null) => (d: Date) => {
+  const s = isoNgay(d)
+  return s < nay && s !== giu
+}
+
 const THU = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
 export const tenThu = (ngay: string) => THU[ngayTuIso(ngay).getDay()]
+
+/** T2…T7, CN. */
+export const thuNgan = (ngay: string) => {
+  const t = ngayTuIso(ngay).getDay()
+  return t === 0 ? 'CN' : `T${t + 1}`
+}
+/** Kết quả mốc (A5): hôm nay → "17:30"; trong 6 ngày → "T7 09:00"; xa hơn → "27/11 17:30". */
+export const hienMoc = (iso: string, nay: string) =>
+  ngayCua(iso) === nay ? gioCua(iso) : ngayCua(iso) <= congNgay(nay, 6) ? `${thuNgan(ngayCua(iso))} ${gioCua(iso)}` : hienGon(iso)
 
 /** "21/11/2026 · 17:30" */
 export const hienDay = (iso: string) => `${hienNgay(iso)} · ${gioCua(iso)}`
@@ -147,6 +165,11 @@ export function tuKiem() {
     ['14:4', null], ['25', null], ['abc', null],
   ]
   sai.push(...gio.filter(([v, r]) => docGio(v) !== r).map(([v, r]) => `docGio ${v}: ${docGio(v)} ≠ ${r}`))
+  const moc: [string, string][] = [
+    ['2026-11-20T17:30:00+07:00', '17:30'], ['2026-11-21T09:00:00+07:00', 'T7 09:00'],
+    ['2026-11-23T09:00:00+07:00', 'T2 09:00'], ['2026-11-27T17:30:00+07:00', '27/11 17:30'],
+  ]
+  sai.push(...moc.filter(([v, r]) => hienMoc(v, '2026-11-20') !== r).map(([v, r]) => `hienMoc ${v}: ${hienMoc(v, '2026-11-20')} ≠ ${r}`))
   return sai
 }
 

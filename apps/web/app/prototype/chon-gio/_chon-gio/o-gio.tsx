@@ -20,6 +20,8 @@ export function OGio({
   id,
   gon,
   className,
+  goiY = true,
+  placeholder,
   ...aria
 }: {
   value: string | null
@@ -27,6 +29,9 @@ export function OGio({
   id?: string
   gon?: boolean
   className?: string
+  /** false = không bật danh sách gợi ý (A2 đã có cột giờ cạnh bên). */
+  goiY?: boolean
+  placeholder?: string
   'aria-label'?: string
   'aria-describedby'?: string
 }) {
@@ -36,7 +41,8 @@ export function OGio({
     setGoc(value)
     setChu(value ?? '')
   }
-  const [mo, setMo] = useState(false)
+  const [moGoc, setMo] = useState(false)
+  const mo = goiY && moGoc
   const doc = docGio(chu)
   const ds = doc && !GOI_Y_GIO.includes(doc) ? [doc, ...GOI_Y_GIO] : GOI_Y_GIO
   const macDinh = Math.max(0, ds.indexOf(doc ?? value ?? GIO_MAC_DINH))
@@ -95,7 +101,7 @@ export function OGio({
     'aria-invalid': sai || undefined,
     inputMode: 'numeric' as const,
     autoComplete: 'off',
-    placeholder: gon ? '--:--' : 'Giờ',
+    placeholder: placeholder ?? (gon ? '--:--' : 'Giờ'),
     value: chu,
     onChange: (e: ChangeEvent<HTMLInputElement>) => {
       vuaFocus.current = false

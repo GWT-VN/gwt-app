@@ -1,6 +1,6 @@
 'use client'
 
-// PROTOTYPE vứt đi — A: giờ nằm TRONG pop lịch (mốc nhanh · lịch tháng · dòng Giờ · Xoá / Xong).
+// PROTOTYPE vứt đi — A1 (gốc): giờ nằm TRONG pop lịch (mốc nhanh · lịch tháng · dòng Giờ · Xoá / Xong).
 import { useId, useState } from 'react'
 import { CalendarBlank, CaretDown } from '@phosphor-icons/react/ssr'
 import { isoNgay, ngayTuIso } from '@/bang/ngay'
@@ -13,7 +13,7 @@ import { FieldLabel } from '@/components/ui/field'
 import { oSua, oSuaMui } from '@/components/ui/inline-edit-styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useMoBangChuot } from '@/components/ui/use-mo-bang-chuot'
-import { congNgay, ghepIso, GIO_MAC_DINH, gioCua, hienDay, hienGon, homNay, ngayCua, thuToi, type PropsHan } from './gio'
+import { chanQua, congNgay, ghepIso, GIO_MAC_DINH, gioCua, hienDay, hienGon, homNay, ngayCua, thuToi, type PropsHan } from './gio'
 import { OGio } from './o-gio'
 
 export function ChonHanA({ value, onValueChange, id, gon, ma }: PropsHan) {
@@ -80,6 +80,7 @@ export function ChonHanA({ value, onValueChange, id, gon, ma }: PropsHan) {
           autoFocus
           selected={value ? ngayTuIso(ngayCua(value)) : undefined}
           defaultMonth={ngayTuIso(value ? ngayCua(value) : nay)}
+          disabled={chanQua(nay, value ? ngayCua(value) : null)}
           onSelect={(d) => dat(isoNgay(d))}
         />
         <div className="mt-3 flex items-center gap-3 border-none border-current">
