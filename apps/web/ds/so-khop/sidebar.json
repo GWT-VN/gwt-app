@@ -1,0 +1,282 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#sidebar > div"
+  },
+  "chuaDo": [
+    "Hover / focus (icon khu, item, gần đây, Xem thêm, nút đầu panel, nút Bắp), tooltip icon khu và menu \"Tất cả khu\": KHÔNG đo ở cổng này vì ở 390 thanh trái nguồn nằm ngoài khung (translateX -100%) → không rê / Tab thật được, mà khoá cổng chạy cả hai khổ. Đã đo 1440 bằng bản sao cổng chỉ chạy khổ 1440 (cùng mã đo, CDP thật cả hai bên, task 9 lát 4–6): 1087/1156 khớp, 69 lệch đều có lý do — padding UA nút nguồn; tooltip: z 80 của Tooltip DS (thang NGUON ghi tip thanh bên 60), font-feature-settings/cursor của pseudo, theme tối nguồn nền gray-900 #ededed + chữ #fff (tương phản ~1.2:1, lỗi nguồn) → DS dùng Tooltip DS; menu: rộng 256.5 của preview tĩnh (giãn theo nhãn cột) vs 220, z 30 vs 90 (thang menu).",
+    "Khoảng cách tooltip ↔ icon: nguồn 8px, Tooltip DS cố định 6px (không có prop sideOffset) — đo getBoundingClientRect trong ảnh tự kiểm task 9; mở: thêm sideOffset cho components/ui/tooltip.tsx.",
+    "Ngăn kéo điện thoại ĐANG MỞ (Sheet trái): preview không có trạng thái mở; mở bằng bấm thật trong ảnh tự kiểm 390 + test jsdom (Esc đóng, focus về nút). Khung đóng ở 390 đo ở trên (bản ẩn ngoài mép trái như nguồn).",
+    "Vùng nội dung .pD-main, thanh trên .pD-top (chỉ ≤767) và thẻ Bắp (.pF-pop của prototype, chưa có trong bundle.css): preview Sidebar không vẽ → không có cặp đo."
+  ],
+  "khoa": [
+    {
+      "khoa": "khung",
+      "artifact": ".pD",
+      "ds": "#sidebar [data-slot=khung-app]",
+      "props": [
+        "backgroundColor"
+      ],
+      "lyDo": {
+        "backgroundColor@390": "Preview gắn style nội tuyến background:var(--muted) lên .pD (đè rule ≤767 của bundle.css: nền background). DS theo rule CSS: ≤767 thanh trái thành ngăn kéo, nền khung = background."
+      }
+    },
+    {
+      "khoa": "rail",
+      "artifact": ".pD-rail",
+      "ds": "#sidebar [data-slot=khung-rail]"
+    },
+    {
+      "khoa": "logo",
+      "artifact": ".pD-logo",
+      "ds": "#sidebar [data-slot=khung-logo]"
+    },
+    {
+      "khoa": "icon",
+      "artifact": ".pD-icon[aria-label=\"Việc\"]",
+      "ds": "#sidebar [data-slot=khu-icon][data-khu=viec]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "boChu": true,
+      "lyDo": {
+        "paddingTop": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingRight": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingBottom": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingLeft": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0)."
+      }
+    },
+    {
+      "khoa": "icon-chon",
+      "artifact": ".pD-icon[aria-current]",
+      "ds": "#sidebar [data-slot=khu-icon][aria-current]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "boChu": true,
+      "lyDo": {
+        "paddingTop": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingRight": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingBottom": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingLeft": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0)."
+      }
+    },
+    {
+      "khoa": "cham-gap",
+      "artifact": ".pD-icon[aria-label=\"Việc\"] .pD-cham",
+      "ds": "#sidebar [data-khu=viec] [data-slot=khu-gap]",
+      "boChu": true
+    },
+    {
+      "khoa": "ngan",
+      "artifact": ".pD-ngan",
+      "ds": "#sidebar [data-slot=khung-ngan]"
+    },
+    {
+      "khoa": "tat-ca",
+      "artifact": ".pD-icon[aria-label=\"Tất cả khu\"]",
+      "ds": "#sidebar [data-slot=khu-tat-ca]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "boChu": true,
+      "lyDo": {
+        "paddingTop": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingRight": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingBottom": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingLeft": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0)."
+      }
+    },
+    {
+      "khoa": "quan-tri",
+      "artifact": ".pD-icon[aria-label=\"Quản trị\"]",
+      "ds": "#sidebar [data-slot=khu-quan-tri]",
+      "boChu": true,
+      "lyDo": {
+        "paddingTop": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingRight": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingBottom": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingLeft": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0)."
+      }
+    },
+    {
+      "khoa": "avatar",
+      "artifact": ".pD-avatar",
+      "ds": "#sidebar [data-slot=khung-avatar]",
+      "lyDo": {
+        "backgroundColor": "DS dùng Avatar của DS (bản 35, CEO chốt 20/11: nền alpha-08, chữ muted-foreground đạt AA) thay .p-avatar của prototype (nền secondary, chữ secondary-foreground).",
+        "color": "DS dùng Avatar của DS (bản 35, CEO chốt 20/11: nền alpha-08, chữ muted-foreground đạt AA) thay .p-avatar của prototype (nền secondary, chữ secondary-foreground).",
+        "borderTopColor": "DS dùng Avatar của DS (bản 35, CEO chốt 20/11: nền alpha-08, chữ muted-foreground đạt AA) thay .p-avatar của prototype (nền secondary, chữ secondary-foreground).",
+        "borderBottomColor": "DS dùng Avatar của DS (bản 35, CEO chốt 20/11: nền alpha-08, chữ muted-foreground đạt AA) thay .p-avatar của prototype (nền secondary, chữ secondary-foreground).",
+        "outlineColor": "DS dùng Avatar của DS (bản 35, CEO chốt 20/11: nền alpha-08, chữ muted-foreground đạt AA) thay .p-avatar của prototype (nền secondary, chữ secondary-foreground)."
+      }
+    },
+    {
+      "khoa": "panel",
+      "artifact": ".pD-panel",
+      "ds": "#sidebar [data-slot=khung-panel]"
+    },
+    {
+      "khoa": "dau",
+      "artifact": ".pD-dau",
+      "ds": "#sidebar [data-slot=khung-dau]"
+    },
+    {
+      "khoa": "tieu-de",
+      "artifact": ".pD-tieude",
+      "ds": "#sidebar [data-slot=khung-tieu-de]"
+    },
+    {
+      "khoa": "cham-khu",
+      "artifact": ".pD-tieude .p-cham",
+      "ds": "#sidebar [data-slot=khung-cham]"
+    },
+    {
+      "khoa": "nut-dau",
+      "artifact": ".pD-dau .ui-btn[aria-label=\"Thông báo\"]",
+      "ds": "#sidebar [data-so=nut-dau]"
+    },
+    {
+      "khoa": "cuon",
+      "artifact": ".pD-cuon",
+      "ds": "#sidebar [data-slot=khung-cuon]"
+    },
+    {
+      "khoa": "tao",
+      "artifact": ".pD-cuon > .ui-sidebar-item",
+      "ds": "#sidebar [data-slot=khung-tao]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "item",
+      "artifact": ".pD-cuon > .pD-nhom:first-of-type > .ui-sidebar-item:nth-child(3)",
+      "ds": "#sidebar [data-muc=khach]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "item-dang-o",
+      "artifact": ".ui-sidebar-item[aria-current=page]",
+      "ds": "#sidebar [data-slot=khung-muc][aria-current=page]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "dem",
+      "artifact": ".pD-so",
+      "ds": "#sidebar [data-slot=khung-dem]"
+    },
+    {
+      "khoa": "nhan",
+      "artifact": ".pD-nhan",
+      "ds": "#sidebar [data-slot=khung-nhan]"
+    },
+    {
+      "khoa": "gan-day",
+      "artifact": ".pD-gan",
+      "ds": "#sidebar [data-muc=g1]"
+    },
+    {
+      "khoa": "xem-them",
+      "artifact": ".pD-xemthem",
+      "ds": "#sidebar [data-slot=khung-xem-them]",
+      "lyDo": {
+        "fontFamily": "Nguồn quên font: inherit cho .pD-xemthem → chữ Arial của trình duyệt (cỡ 14 thì có khai), line-height normal; DS dùng Inter 14/20 như mọi chữ panel → chữ rộng hơn 3px.",
+        "lineHeight": "Nguồn quên font: inherit cho .pD-xemthem → chữ Arial của trình duyệt (cỡ 14 thì có khai), line-height normal; DS dùng Inter 14/20 như mọi chữ panel → chữ rộng hơn 3px.",
+        "fontFeatureSettings": "Nguồn quên font: inherit cho .pD-xemthem → chữ Arial của trình duyệt (cỡ 14 thì có khai), line-height normal; DS dùng Inter 14/20 như mọi chữ panel → chữ rộng hơn 3px.",
+        "width": "Nguồn quên font: inherit cho .pD-xemthem → chữ Arial của trình duyệt (cỡ 14 thì có khai), line-height normal; DS dùng Inter 14/20 như mọi chữ panel → chữ rộng hơn 3px."
+      }
+    },
+    {
+      "khoa": "dock",
+      "artifact": ".pF-dock",
+      "ds": "#sidebar [data-slot=khung-dock]",
+      "con": [
+        {
+          "ten": "svg",
+          "artifact": "svg",
+          "ds": "svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "boChu": true,
+      "lyDo": {
+        "paddingTop": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingRight": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingBottom": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0).",
+        "paddingLeft": "Nguồn không reset nút (thiếu font: inherit / padding 0 trên .pD-icon, .pF-dock) → trình duyệt tự đặt Arial 13.5px, padding 1px 6px. Nút chỉ icon, ô cố định + căn giữa lưới → không đổi hình; DS theo preflight (Inter, padding 0)."
+      }
+    },
+    {
+      "khoa": "dock-so",
+      "artifact": ".pF-dock-so",
+      "ds": "#sidebar [data-slot=khung-dock-so]",
+      "lyDo": {
+        "fontFamily": "Số nằm trong nút .pF-dock không reset font → kế thừa Arial của trình duyệt; DS dùng Inter (cv11/ss03) như mọi chữ.",
+        "fontFeatureSettings": "Số nằm trong nút .pF-dock không reset font → kế thừa Arial của trình duyệt; DS dùng Inter (cv11/ss03) như mọi chữ."
+      }
+    }
+  ]
+}
