@@ -292,3 +292,20 @@ test('Composer: đính tệp → chip có nút bỏ; chỉ có tệp cũng gửi
   expect(onGui).toHaveBeenCalledWith('', [a])
   expect(screen.queryByText('bien-ban-demo.pdf')).toBeNull()
 })
+
+test('Timeline: lúc không hợp lệ → không sập, hiện chữ gốc + "không rõ giờ", nhóm vào "Không rõ ngày"', () => {
+  render(<Timeline muc={[{ id: 'x', ai: 'Hiền', loai: 'ghi chú', luc: 'abc' }, MUC[4]]} homNay="2026-11-18" />)
+  const gio = document.querySelector('time')!
+  expect(gio.textContent).toBe('không rõ giờ')
+  expect(gio.getAttribute('title')).toBe('abc')
+  expect(gio.hasAttribute('datetime')).toBe(false)
+  expect([...document.querySelectorAll('[data-slot="timeline-day"]')].map((x) => x.textContent)).toEqual(['Không rõ ngày', 'Hôm nay'])
+})
+
+test('Timeline: hai tệp cùng tên không cảnh báo key trùng, hiện đủ hai chip', () => {
+  const loi = vi.spyOn(console, 'error').mockImplementation(() => {})
+  render(<Timeline muc={[{ ...MUC[4], tep: [{ ten: 'anh.jpg' }, { ten: 'anh.jpg' }] }]} homNay="2026-11-18" />)
+  expect(screen.getAllByText('anh.jpg').length).toBe(2)
+  expect(loi.mock.calls.some((c) => String(c[0]).includes('same key'))).toBe(false)
+  loi.mockRestore()
+})

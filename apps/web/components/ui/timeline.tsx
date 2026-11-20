@@ -37,13 +37,17 @@ export type MucTimeline = {
 
 // ponytail: giờ VN cố định UTC+7 (không đổi giờ mùa hè) → cộng 7 giờ rồi đọc phần UTC; cần múi khác thì đổi sang Intl.
 const VN = 7 * 3600e3
-const tachVN = (luc: string) => new Date(Date.parse(luc) + VN).toISOString()
+/** ISO giờ VN, hoặc '' khi `luc` không đọc được (dữ liệu hỏng không được làm sập cả trang). */
+const tachVN = (luc: string) => {
+  const t = Date.parse(luc)
+  return Number.isNaN(t) ? '' : new Date(t + VN).toISOString()
+}
 const homNayVN = () => new Date(Date.now() + VN).toISOString().slice(0, 10)
 const THU = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
 const thuNgay = (iso: string) => `${THU[new Date(`${iso}T00:00:00Z`).getUTCDay()]}, ${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 const homQua = (iso: string) => new Date(Date.parse(`${iso}T00:00:00Z`) - 864e5).toISOString().slice(0, 10)
 const tenNgay = (iso: string, homNay: string) =>
-  iso === homNay ? 'Hôm nay' : iso === homQua(homNay) ? 'Hôm qua' : thuNgay(iso)
+  !iso ? 'Không rõ ngày' : iso === homNay ? 'Hôm nay' : iso === homQua(homNay) ? 'Hôm qua' : thuNgay(iso)
 
 /** Nhãn ngày (`li`), thụt thẳng chữ nội dung. */
 export function TimelineDay({ children }: { children: ReactNode }) {
@@ -84,9 +88,13 @@ export function TimelineItem({
       <div className={timelineHead}>
         <b>{ai}</b>
         <span>{loai}</span>
-        <time dateTime={luc} title={`${thuNgay(ngay)}/${ngay.slice(0, 4)} · ${gio}`}>
-          {gio}
-        </time>
+        {vn ? (
+          <time dateTime={luc} title={`${thuNgay(ngay)}/${ngay.slice(0, 4)} · ${gio}`}>
+            {gio}
+          </time>
+        ) : (
+          <time title={luc}>không rõ giờ</time>
+        )}
       </div>
       {children && (
         <div data-slot="timeline-body" className={timelineBody}>
@@ -95,7 +103,7 @@ export function TimelineItem({
       )}
       {tep && tep.length > 0 && (
         <div className={timelineFiles}>
-          {tep.map((t) => {
+          {tep.map((t, i) => {
             const noi = (
               <>
                 <Paperclip aria-hidden="true" />
@@ -103,11 +111,11 @@ export function TimelineItem({
               </>
             )
             return t.href ? (
-              <a key={t.ten} href={t.href} className={chip}>
+              <a key={`${i}-${t.ten}`} href={t.href} className={chip}>
                 {noi}
               </a>
             ) : (
-              <span key={t.ten} className={chip}>
+              <span key={`${i}-${t.ten}`} className={chip}>
                 {noi}
               </span>
             )
