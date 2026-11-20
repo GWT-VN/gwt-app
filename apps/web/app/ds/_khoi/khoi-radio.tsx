@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ChoiceDescription, ChoiceLabel } from '@/components/ui/checkbox'
+import { ChoiceLabel } from '@/components/ui/checkbox'
 import { FieldError, FieldLegend, FieldSet } from '@/components/ui/field'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -31,11 +31,8 @@ export function KhoiRadio() {
           <RadioGroup asChild defaultValue="ck">
             <FieldSet data-so="doc">
               <FieldLegend data-so="legend">Hình thức thanh toán</FieldLegend>
-              <ChoiceLabel>
+              <ChoiceLabel nhan="Chuyển khoản" moTa="Đối soát tự động theo sao kê.">
                 <RadioGroupItem value="ck" />
-                <span className="border-none border-current">
-                  Chuyển khoản<ChoiceDescription data-so="mo-ta">Đối soát tự động theo sao kê.</ChoiceDescription>
-                </span>
               </ChoiceLabel>
               <ChoiceLabel>
                 <RadioGroupItem value="tm" />

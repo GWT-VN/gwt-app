@@ -54,6 +54,18 @@ test('tên đọc được = nhãn (không lẫn mô tả); mô tả qua aria-de
   expect(sw).toBeTruthy()
 })
 
+test('aria-describedby: của người gọi (câu lỗi) TRƯỚC, mô tả của hàng SAU — cùng thứ tự với Checkbox/Radio', () => {
+  render(
+    <>
+      <SwitchRow nhan="Tự gửi" moTa="Gửi lúc 7:00.">
+        <Switch aria-describedby="sw-loi" />
+      </SwitchRow>
+      <p id="sw-loi">Cần email người nhận.</p>
+    </>,
+  )
+  screen.getByRole('switch', { name: 'Tự gửi', description: 'Cần email người nhận. Gửi lúc 7:00.' })
+})
+
 test('không mô tả → không gắn aria-describedby', () => {
   render(<Hang />)
   expect(screen.getByRole('switch').hasAttribute('aria-describedby')).toBe(false)

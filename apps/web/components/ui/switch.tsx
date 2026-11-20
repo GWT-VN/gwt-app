@@ -23,7 +23,8 @@ export function Switch({
   ...props
 }: ComponentProps<typeof SwitchPrimitive.Root>) {
   const hang = useContext(HangCtx)
-  const moTa = [hang?.idMoTa, describedBy].filter(Boolean).join(' ')
+  // Của người gọi (câu lỗi) TRƯỚC, mô tả của hàng SAU — cùng thứ tự với Checkbox/Radio (useNhanChon).
+  const moTa = [describedBy, hang?.idMoTa].filter(Boolean).join(' ')
   return (
     <SwitchPrimitive.Root
       data-slot="switch"

@@ -77,7 +77,7 @@
     {
       "khoa": "mo-ta",
       "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1) .ui-choice-desc",
-      "ds": "#radio [data-so=\"mo-ta\"]"
+      "ds": "#radio [data-slot=\"choice-description\"]"
     },
     {
       "khoa": "cham-chon",

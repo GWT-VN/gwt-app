@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useId, useState, type ComponentProps } from 'react'
+import { createContext, useContext, useId, type ComponentProps, type ReactNode } from 'react'
 import { Checkbox as CheckboxPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 
@@ -35,10 +35,11 @@ export const oChon = [
  * nguồn và gạch "một phần" ra xám (đã so ảnh 20/11).
  */
 export function Checkbox({ className, ...props }: ComponentProps<typeof CheckboxPrimitive.Root>) {
-  const moTa = useMoTaChon(props['aria-describedby'])
+  const nhan = useNhanChon(props['aria-describedby'])
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
+      aria-labelledby={nhan.idNhan}
       className={cn(
         oChon,
         'rounded-(--radius-xs) [transition:border-color_150ms_ease,background-color_150ms_ease]',
@@ -57,30 +58,54 @@ export function Checkbox({ className, ...props }: ComponentProps<typeof Checkbox
         className,
       )}
       {...props}
-      aria-describedby={moTa}
+      aria-describedby={nhan.moTa}
     />
   )
 }
 
-/** ChoiceLabel ↔ ChoiceDescription ↔ ô: mô tả đăng ký id lên nhãn bao ngoài, ô đọc id đó (context, không cloneElement —
- * con qua ranh giới server → client là phần tử lười, như SwitchRow). Ngoài ChoiceLabel → null, không làm gì. */
-const NhanCtx = createContext<{ idMoTa?: string; datMoTa: (id?: string) => void } | null>(null)
+const khongVien = 'border-none border-current'
 
-/** `aria-describedby` của ô = describedby truyền vào (vd câu lỗi) + id mô tả của ChoiceLabel bao ngoài (nếu có). */
-export function useMoTaChon(rieng?: string) {
-  const idMoTa = useContext(NhanCtx)?.idMoTa
-  return [rieng, idMoTa].filter(Boolean).join(' ') || undefined
+/** Id nhãn + mô tả của ChoiceLabel bao ngoài (context, không cloneElement — con đi qua ranh giới server → client là phần
+ * tử lười, như SwitchRow). Ngoài ChoiceLabel / ChoiceLabel không có `nhan` → không gắn gì. */
+const NhanCtx = createContext<{ idNhan?: string; idMoTa?: string } | null>(null)
+
+/**
+ * Ô (Checkbox / RadioGroupItem) đọc ChoiceLabel bao ngoài: `idNhan` → `aria-labelledby` (đặt TRƯỚC props → prop
+ * `aria-labelledby` của người gọi thắng); `moTa` = `aria-describedby` của người gọi (vd câu lỗi) TRƯỚC + id mô tả của hàng
+ * SAU — cùng thứ tự với Switch/SwitchRow.
+ */
+export function useNhanChon(rieng?: string) {
+  const c = useContext(NhanCtx)
+  return { idNhan: c?.idNhan, moTa: [rieng, c?.idMoTa].filter(Boolean).join(' ') || undefined }
 }
 
 /**
  * ChoiceLabel — `.ui-checkbox-label`: nhãn BỌC ô (Checkbox / RadioGroupItem) + chữ, inline-flex căn đầu, cách 8, chữ
  * 14/20, con trỏ tay; có ô tắt bên trong → chữ color-text-disabled, not-allowed. Bấm chữ = bấm ô (label kích hoạt
- * button con). Có ChoiceDescription bên trong → mô tả nối vào `aria-describedby` của ô, tên đọc chỉ còn chữ nhãn.
+ * button con). Hai cách dùng:
+ * - Chữ thường làm con (`<ChoiceLabel><Checkbox /> Đã chọn</ChoiceLabel>`): tên đọc = chữ trong nhãn.
+ * - Có dòng mô tả → khuôn SwitchRow: `<ChoiceLabel nhan="Chuyển khoản" moTa="Đối soát…"><RadioGroupItem …/></ChoiceLabel>`.
+ *   Ô mang `aria-labelledby` = span nhãn (tên sạch, không lẫn mô tả) + `aria-describedby` = span mô tả (`.ui-choice-desc`:
+ *   block 12/18 muted-foreground, KHÔNG aria-hidden → con trỏ ảo duyệt trang vẫn đọc). DOM y preview: span bọc (nhãn
+ *   inline + mô tả block); không có mô tả thì span nhãn đứng thẳng sau ô.
  */
-export function ChoiceLabel({ className, ...props }: ComponentProps<'label'>) {
-  const [idMoTa, datMoTa] = useState<string>()
+export function ChoiceLabel({
+  nhan,
+  moTa,
+  className,
+  children,
+  ...props
+}: ComponentProps<'label'> & { nhan?: ReactNode; moTa?: ReactNode }) {
+  const id = useId()
+  const idNhan = nhan != null ? `${id}-nhan` : undefined
+  const idMoTa = nhan != null && moTa != null ? `${id}-mota` : undefined
+  const nhanEl = (
+    <span id={idNhan} className={khongVien}>
+      {nhan}
+    </span>
+  )
   return (
-    <NhanCtx.Provider value={{ idMoTa, datMoTa }}>
+    <NhanCtx.Provider value={{ idNhan, idMoTa }}>
       <label
         data-slot="choice-label"
         className={cn(
@@ -89,33 +114,24 @@ export function ChoiceLabel({ className, ...props }: ComponentProps<'label'>) {
           className,
         )}
         {...props}
-      />
+      >
+        {children}
+        {nhan != null &&
+          (idMoTa ? (
+            <span className={khongVien}>
+              {nhanEl}
+              <span
+                id={idMoTa}
+                data-slot="choice-description"
+                className={cn(khongVien, 'block text-[12px] leading-[18px] text-muted-foreground')}
+              >
+                {moTa}
+              </span>
+            </span>
+          ) : (
+            nhanEl
+          ))}
+      </label>
     </NhanCtx.Provider>
-  )
-}
-
-/**
- * ChoiceDescription — `.ui-choice-desc`: dòng mô tả dưới chữ nhãn, block 12/18 muted-foreground.
- * Nằm trong nhãn bọc → để nguyên thì tên đọc của ô gồm luôn câu mô tả. Nên: `aria-hidden` (ra khỏi tên — tính tên từ
- * nhãn bỏ nút ẩn) + id đăng ký lên ChoiceLabel → ô trỏ `aria-describedby` tới nó (nút ẩn được trỏ thẳng vẫn tính vào
- * mô tả). Trình đọc màn hình đọc mô tả khi focus ô; con trỏ ảo duyệt trang bỏ qua dòng này (đã nghe qua ô).
- */
-export function ChoiceDescription({ className, id, ...props }: ComponentProps<'span'>) {
-  const tuSinh = useId()
-  const idMoTa = id ?? tuSinh
-  const datMoTa = useContext(NhanCtx)?.datMoTa
-  useEffect(() => {
-    if (!datMoTa) return
-    datMoTa(idMoTa)
-    return () => datMoTa(undefined)
-  }, [datMoTa, idMoTa])
-  return (
-    <span
-      data-slot="choice-description"
-      id={idMoTa}
-      aria-hidden="true"
-      className={cn('block border-none border-current text-[12px] leading-[18px] text-muted-foreground', className)}
-      {...props}
-    />
   )
 }

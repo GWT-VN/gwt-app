@@ -2,7 +2,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test } from 'vitest'
-import { Checkbox, ChoiceDescription, ChoiceLabel } from './checkbox'
+import { Checkbox, ChoiceLabel } from './checkbox'
 import { FieldError, FieldLegend, FieldSet } from './field'
 import { RadioGroup, RadioGroupItem } from './radio-group'
 
@@ -45,11 +45,8 @@ function Nhom({ loi = false }: { loi?: boolean }) {
     <RadioGroup asChild defaultValue="ck">
       <FieldSet aria-describedby={loi ? 'ds-tt-e' : undefined}>
         <FieldLegend>Hình thức thanh toán</FieldLegend>
-        <ChoiceLabel>
+        <ChoiceLabel nhan="Chuyển khoản" moTa="Đối soát tự động theo sao kê.">
           <RadioGroupItem value="ck" aria-invalid={loi || undefined} />
-          <span>
-            Chuyển khoản<ChoiceDescription>Đối soát tự động theo sao kê.</ChoiceDescription>
-          </span>
         </ChoiceLabel>
         <ChoiceLabel>
           <RadioGroupItem value="the" disabled />
@@ -131,23 +128,24 @@ test('RadioGroup orientation="horizontal" (asChild lên FieldSet): fieldset xế
   expect(thuong.getAttribute('aria-checked')).toBe('true')
 })
 
-test('ChoiceDescription: tên đọc của ô chỉ là chữ nhãn, mô tả nằm trong description (nối sau aria-describedby sẵn có)', () => {
+test('ChoiceLabel nhan + moTa (khuôn SwitchRow): tên = span nhãn, mô tả = aria-describedby [của người gọi trước, mô tả sau]; mô tả KHÔNG aria-hidden', () => {
   render(
     <>
       <Nhom />
-      <ChoiceLabel>
+      <ChoiceLabel nhan="Gửi hoá đơn" moTa="Gửi qua email khách (demo).">
         <Checkbox aria-describedby="ds-cb-loi" />
-        <span>
-          Gửi hoá đơn<ChoiceDescription>Gửi qua email khách (demo).</ChoiceDescription>
-        </span>
       </ChoiceLabel>
       <p id="ds-cb-loi">Cần xác nhận.</p>
     </>,
   )
-  screen.getByRole('radio', { name: 'Chuyển khoản', description: 'Đối soát tự động theo sao kê.' })
+  const ck = screen.getByRole('radio', { name: 'Chuyển khoản', description: 'Đối soát tự động theo sao kê.' })
   const tm = screen.getByRole('radio', { name: 'Tiền mặt' })
   expect(tm.hasAttribute('aria-describedby')).toBe(false)
   screen.getByRole('checkbox', { name: 'Gửi hoá đơn', description: 'Cần xác nhận. Gửi qua email khách (demo).' })
+  // Con trỏ ảo duyệt trang vẫn đọc dòng mô tả (không aria-hidden); bấm chữ mô tả vẫn chọn ô (nằm trong label).
+  const moTa = screen.getByText('Đối soát tự động theo sao kê.')
+  expect(moTa.closest('[aria-hidden]')).toBeNull()
+  expect(moTa.closest('label')).toBe(ck.closest('label'))
 })
 
 test('RadioGroup asChild FieldSet: nhóm lấy tên từ legend', () => {

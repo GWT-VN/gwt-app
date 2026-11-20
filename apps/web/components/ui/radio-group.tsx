@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react'
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
-import { oChon, useMoTaChon } from './checkbox'
+import { oChon, useNhanChon } from './checkbox'
 
 /**
  * RadioGroup — Radix RadioGroup (Tab vào nhóm focus mục đang chọn, mũi tên đổi lựa chọn, bỏ qua mục tắt). Chọn đúng 1
@@ -37,10 +37,11 @@ export function RadioGroup({ className, orientation, ...props }: ComponentProps<
  * prefers-reduced-motion). Tắt: chấm gray-300; theme tối nền trong suốt. Nhãn: bọc trong `ChoiceLabel`.
  */
 export function RadioGroupItem({ className, ...props }: ComponentProps<typeof RadioGroupPrimitive.Item>) {
-  const moTa = useMoTaChon(props['aria-describedby'])
+  const nhan = useNhanChon(props['aria-describedby'])
   return (
     <RadioGroupPrimitive.Item
       data-slot="radio-group-item"
+      aria-labelledby={nhan.idNhan}
       className={cn(
         oChon,
         'rounded-(--radius-full) transition-[border-color] duration-150 ease-[ease]',
@@ -53,7 +54,7 @@ export function RadioGroupItem({ className, ...props }: ComponentProps<typeof Ra
         className,
       )}
       {...props}
-      aria-describedby={moTa}
+      aria-describedby={nhan.moTa}
     />
   )
 }
