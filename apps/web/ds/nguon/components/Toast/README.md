@@ -19,6 +19,6 @@ Thông báo ngắn sau một thao tác — **18/11/2026**, bổ sung **lỗi** v
 | Tiến độ | `ui-progress` | rộng 72px, nền màu chữ 20%, phần chạy màu chữ |
 | Chuyển động | | trượt lên 180ms; tắt khi giảm chuyển động |
 
-**a11y:** `role="status"` `aria-live="polite"` (lỗi: `role="alert"`); thanh tiến độ `role="progressbar"` có `aria-valuenow`.
+**a11y:** thành công / đang chạy đọc qua vùng `aria-live="polite"` của toaster (Sonner) — không gắn thêm `role="status"` (lồng hai vùng là đọc hai lần); lỗi `role="alert"`; thanh tiến độ `role="progressbar"` có `aria-valuenow`. Rê chuột **hoặc focus phím** vào toast thì dừng hẹn giờ (WCAG 2.2.1); toast bị gỡ khi đang chứa focus → focus về phần tử trước đó. Thanh thao tác hàng loạt đang hiện → toast tự lên 124px (≤767px: 236px).
 **Code:** `sonner` (shadcn Sonner) — `toast.success(chu, { action: { label: 'Hoàn tác', onClick }, duration: 5000 })`, `toast.error(..., { duration: Infinity })`, `toast.loading(...)` → `toast.success(..., { id })`; giao diện chỉnh theo bảng trên.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/phanhoi` (`apps/web/app/prototype/phanhoi/_ph/PhanHoiDemo.tsx`); CSS ở khối `BỔ SUNG DS PHẢN HỒI` cuối `khung/_proto/ui.css`.

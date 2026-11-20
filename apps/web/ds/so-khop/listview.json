@@ -168,10 +168,7 @@
           "artifact": ".b-han",
           "ds": "[data-so=\"han-chu\"]"
         }
-      ],
-      "lyDo": {
-        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
-      }
+      ]
     },
     {
       "khoa": "o-chu",
@@ -335,10 +332,7 @@
           "artifact": ".b-han",
           "ds": "[data-so=\"han-chu\"]"
         }
-      ],
-      "lyDo": {
-        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
-      }
+      ]
     },
     {
       "khoa": "o-chu-hep",
@@ -456,10 +450,7 @@
           "artifact": ".b-han",
           "ds": "[data-so=\"han-chu\"]"
         }
-      ],
-      "lyDo": {
-        "width": "Preview ô hạn là span `.b-osua` có `<input type=date>` phủ: khung 50.5 hẹp hơn chữ 34.5 + đệm 6/22 → chữ tràn vào đệm phải, lệch 12px so với nhãn \"Hạn\" ở đầu cột. DS dùng `OSuaHan` (InlineEdit, Task 10): nút đệm 6/22 chừa chỗ ▾ khi rê → rộng 6 + chữ + 22 = 62.5, chữ thẳng mép nhãn đầu cột."
-      }
+      ]
     },
     {
       "khoa": "o-chu-dt",

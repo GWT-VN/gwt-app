@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/InlineEdit-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**2812/2840 khớp** · 28 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 7 mục CHƯA ĐO
+**2828/2840 khớp** · 12 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -19,16 +19,11 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Hàng Hover của preview gắn sẵn .is-hover; DS đo hover bằng chuột CDP thật trên hàng Thường (khoá có trangThai hover). Hàng Hover bên DS chỉ giữ bố cục lưới
 - Vòng focus phím của ô (2px ring): preview không có trạng thái focus — chưa đo, test jsdom + ảnh
 - Bước 2 "Chờ vì…" (lý do chờ), ô hạn (lịch), ô người có tìm, toast Hoàn tác / lỗi trả giá trị cũ, chặn nổi bọt lên dòng, bộ gõ đang ghép chữ: preview không có — test jsdom components/ui/inline-edit.dom.test.tsx
-- Mục đang chọn nền alpha-04 (README InlineEdit) — bundle.css không có rule cho menuitemradio đang chọn (chỉ ✓) → DS theo bundle.css: chỉ ✓
 - Hình icon: preview là path Phosphor CaretDown/Check/WarningCircle/ArrowCounterClockwise; DS dùng cùng bộ Phosphor — chỉ đo hộp + màu
 - Khoá `menu-tt-tick`: chỉ đo width, height, color (lọc trong config).
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|
-| o-khach | width | 204px | 216px | sang 1440, sang 390, toi 1440, toi 390 | DS sửa lỗi cắt chữ của nguồn: `.b-osua` có lề âm −6 hai bên nhưng `max-width: 100%` → trong neo co theo nội dung (`.b-loc-o` inline-flex) hộp nút bị chặn ở bề rộng neo = hộp lề, thiếu đúng 12px → tên khách bị cắt … dù còn chỗ (preview cắt "Khách sạn Sen Vàng" ở 126.5px, đủ chữ là 138.5px). DS đặt trần rộng 100% + 12px (inline-edit-styles.ts `oSua`) → nút rộng hơn 12px, tên hiện đủ. Đề xuất đồng bộ ngược vào bundle.css. |
-| o-khach | ten.width | 126.5px | 138.5px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng width: tên đủ chữ 138.5 thay vì bị cắt 126.5. |
-| o-khach | hover.width | 204px | 216px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng width (trần rộng 100% + 12 bù lề âm). |
-| o-khach | hover.ten.width | 126.5px | 138.5px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng ten.width. |
 | menu-tt | width | 348.5px | 200px | sang 1440, sang 390, toi 1440, toi 390 | Preview: menu tĩnh nằm trong `.ds-muc` (con của hàng flex `.ds-hang`) nên giãn theo nhãn mục dài phía trên ("Menu trạng thái (mục đầu đang hover, mục đang chọn có ✓)") = 348.5px. Menu thật ôm nội dung, tối thiểu 200 (`.ui-menu` min-width) — mục dài nhất "Chờ KH xác nhận" chưa tới 200. |
 | menu-tt-muc | width | 336.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Mục giãn theo bề ngang menu: preview 348.5 − 2 × 6 = 336.5 (menu giãn theo nhãn mục, xem khoá menu-tt); menu thật 200 − 12 = 188. |
 | menu-tt-muc | hover.width | 336.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng width (menu preview giãn theo nhãn mục). |

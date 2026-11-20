@@ -11,9 +11,9 @@ Sửa tại chỗ: bấm vào nội dung ô bất kỳ của dòng là sửa nga
 | Khách | `RecordPicker` | bảng chọn đủ thông tin phân biệt |
 
 ## Hover — một lớp
-- Ô dạng nhãn/avatar: **không** nền xám ô, **không** mũi tên đè; hover tô viền nhẹ trên chính nhãn (`0 0 0 2px alpha-08`; nhãn loại lỗi: viền trong `alpha-20` + nền `alpha-04`).
+- Ô dạng nhãn/avatar: **không** nền xám ô, **không** mũi tên đè; hover tô viền nhẹ trên chính nhãn (`0 0 0 2px alpha-08`; nhãn loại lỗi: viền trong `alpha-25` + nền `alpha-04`).
 - Ô chữ/người: nền `alpha-05` bo `radius-md` + mũi tên ▾ 12px hiện ở phải khi hover.
-- Menu chọn: DS `DropdownMenu` (hover `alpha-08`), mục đang chọn nền `alpha-04` + ✓.
+- Menu chọn: DS `DropdownMenu` (hover `alpha-08`), mục đang chọn có ✓ (không nền riêng — như `bundle.css`).
 - Nhãn dùng DS `Badge`: ưu tiên (P1 `solid danger` · P2 `warning` · P3 mặc định · P4 `outline`), loại lỗi (`outline` + `ui-dot` màu theo nhóm), trạng thái (`soft` theo nghĩa + `ui-caret`).
 
 ## Hành vi

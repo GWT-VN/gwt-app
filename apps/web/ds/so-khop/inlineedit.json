@@ -24,7 +24,6 @@
     "Hàng Hover của preview gắn sẵn .is-hover; DS đo hover bằng chuột CDP thật trên hàng Thường (khoá có trangThai hover). Hàng Hover bên DS chỉ giữ bố cục lưới",
     "Vòng focus phím của ô (2px ring): preview không có trạng thái focus — chưa đo, test jsdom + ảnh",
     "Bước 2 \"Chờ vì…\" (lý do chờ), ô hạn (lịch), ô người có tìm, toast Hoàn tác / lỗi trả giá trị cũ, chặn nổi bọt lên dòng, bộ gõ đang ghép chữ: preview không có — test jsdom components/ui/inline-edit.dom.test.tsx",
-    "Mục đang chọn nền alpha-04 (README InlineEdit) — bundle.css không có rule cho menuitemradio đang chọn (chỉ ✓) → DS theo bundle.css: chỉ ✓",
     "Hình icon: preview là path Phosphor CaretDown/Check/WarningCircle/ArrowCounterClockwise; DS dùng cùng bộ Phosphor — chỉ đo hộp + màu"
   ],
   "khoa": [
@@ -234,13 +233,7 @@
             "opacity"
           ]
         }
-      ],
-      "lyDo": {
-        "width": "DS sửa lỗi cắt chữ của nguồn: `.b-osua` có lề âm −6 hai bên nhưng `max-width: 100%` → trong neo co theo nội dung (`.b-loc-o` inline-flex) hộp nút bị chặn ở bề rộng neo = hộp lề, thiếu đúng 12px → tên khách bị cắt … dù còn chỗ (preview cắt \"Khách sạn Sen Vàng\" ở 126.5px, đủ chữ là 138.5px). DS đặt trần rộng 100% + 12px (inline-edit-styles.ts `oSua`) → nút rộng hơn 12px, tên hiện đủ. Đề xuất đồng bộ ngược vào bundle.css.",
-        "hover.width": "Như dòng width (trần rộng 100% + 12 bù lề âm).",
-        "ten.width": "Như dòng width: tên đủ chữ 138.5 thay vì bị cắt 126.5.",
-        "hover.ten.width": "Như dòng ten.width."
-      }
+      ]
     },
     {
       "khoa": "o-nhap",

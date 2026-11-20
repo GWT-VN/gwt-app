@@ -762,7 +762,7 @@ body {
 .b-mo { color: var(--color-text-tertiary); }
 .b-so { font-size: 12px; line-height: 18px; font-variant-numeric: tabular-nums; color: var(--muted-foreground); white-space: nowrap; }
 .b-phai { text-align: right; justify-self: end; }
-.b-khach { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.b-khach { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; }
 .b-luuy, .b-hoilai { flex-shrink: 0; display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .b-luuy { color: var(--color-text-danger); }
 .b-luuy svg { width: 15px; height: 15px; }
@@ -881,7 +881,7 @@ body {
 .b-bang-c td > .b-osua-wrap > .b-osua { min-width: 0; }
 .b-bang-c .b-osua-chu { max-width: 100%; }
 .b-osua-wrap { max-width: 100%; }
-.b-osua { position: relative; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 30px; margin: 0 -6px; padding: 2px 22px 2px 6px; border: 0; border-radius: var(--radius-md); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.b-osua { position: relative; display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% + 12px); min-height: 30px; margin: 0 -6px; padding: 2px 22px 2px 6px; border: 0; border-radius: var(--radius-md); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .b-osua:hover, .b-osua[aria-expanded="true"] { background: var(--alpha-05); }
 .b-osua-mui { position: absolute; right: 6px; width: 12px; height: 12px; color: var(--color-text-tertiary); opacity: 0; }
 .b-osua:hover .b-osua-mui, .b-osua[aria-expanded="true"] .b-osua-mui, .b-osua:focus-visible .b-osua-mui { opacity: 1; }
@@ -1031,6 +1031,7 @@ body {
 /* ---------- Breadcrumb ---------- */
 .ui-breadcrumb { display: flex; align-items: center; gap: 6px; min-width: 0; margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
 .ui-breadcrumb > li { display: flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; }
+.ui-breadcrumb > li:not(:last-child) { flex-shrink: 0; } /* chỉ mục cuối co lại — mục trước co thì chữ hai mục đè nhau ở chỗ hẹp (DS lát 5) */
 .ui-breadcrumb > li + li::before { content: "/"; color: var(--color-text-tertiary); }
 .ui-breadcrumb a { color: inherit; text-decoration: none; border-radius: var(--radius-sm); }
 .ui-breadcrumb a:hover { color: var(--foreground); }

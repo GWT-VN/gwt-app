@@ -2,7 +2,7 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 
 ## Cấu tạo một dòng (ticket)
 `[Ưu tiên][Loại lỗi]  mã  Tên khách (!lưu ý ↻hỏi lại)` · `Việc tiếp theo` · `Trạng thái ▾` · `Hạn` · `Chủ (avatar)`
-- Nhãn đầu dòng theo thứ tự **Ưu tiên → Loại lỗi** (DS `Badge`, xem `InlineEdit`), khung nhãn rộng cố định 162px để tên khách thẳng cột.
+- Nhãn đầu dòng theo thứ tự **Ưu tiên → Loại lỗi** (DS `Badge`, xem `InlineEdit`), khung nhãn rộng cố định 190px (ưu tiên 60 + 6 + nhóm lỗi dài nhất "Chất lượng nước" 123) để mã + tên khách thẳng cột.
 - Không icon đầu dòng, không nút ⋯ cuối dòng (thao tác bằng chuột phải — `ContextMenu`).
 
 ## Thông số
@@ -12,7 +12,7 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 | Dòng | `radius-xl` | cao ≥ 50px, padding 4/16; kẻ dưới `alpha-05` (ẩn khi dòng kề đang hover) |
 | Hover / focus | | nền `alpha-05` bo 12px; focus phím: inset 2px `ring` |
 | Đầu cột | `text-xs` | 12/18 `muted-foreground`; bấm mở menu theo bản chất cột (xem `Table`). Đầu cột gộp "Ticket" ghi rõ đang sắp theo gì ("· ưu tiên gấp trước"); menu của nó: Sắp xếp (ưu tiên / thứ tự tạo) + Lọc (ưu tiên, **loại lỗi theo tag**) — loại lỗi không bao giờ là khoá sắp xếp |
-| Nhãn trong dòng | DS `Badge` | cao 22px = phần tử cao nhất (avatar); ưu tiên cùng rộng 30px; loại lỗi lấp phần còn lại của khung 162px |
+| Nhãn trong dòng | DS `Badge` | cao 22px = phần tử cao nhất (avatar); ưu tiên rộng tối thiểu 60px; loại lỗi lấp phần còn lại của khung 190px |
 | Lề trang | | `36px clamp(24px,6vw,112px) 112px`, tối đa 1584px — **dùng chung mọi dạng xem** |
 
 ## Responsive (container query trên vùng trang)

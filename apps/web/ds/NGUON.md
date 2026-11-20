@@ -2,7 +2,7 @@
 
 Artifact **"GWT — OpenAI + shadcn"**, **bản 26** — https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr
 
-File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy **bản 40** (20/11; bản 40 thêm `.ui-card-*` cho Card; bản 38 sửa lỗi đặc hiệu theme tối; bản 37 thêm lề tiêu đề Dialog/Sheet; bản 36 chỉ đổi index; bản 29 của 19/11 đã thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), 10 `preview.html` của lát 2 lấy **bản 31** (19/11) trừ Tooltip và ContextMenu lấy **bản 33** (20/11); 11 `preview.html` + README của lát 3 (Form) lấy **bản 37** (20/11), trừ `Combobox/preview.html` + README gốc và README Button/InputAffix/Combobox/DatePicker/DateRangePicker/Checkbox/Radio lấy **bản 38** (20/11). Chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF. Không sửa tay.
+File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy **bản 43** (20/11; bản 43 đồng bộ ngược từ code lát 4–6: Breadcrumb mục trước không co, `.b-osua` trần `calc(100% + 12px)`, `.b-khach` trần 100%; bản 40 thêm `.ui-card-*` cho Card; bản 38 sửa lỗi đặc hiệu theme tối; bản 37 thêm lề tiêu đề Dialog/Sheet; bản 36 chỉ đổi index; bản 29 của 19/11 đã thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), 10 `preview.html` của lát 2 lấy **bản 31** (19/11) trừ Tooltip và ContextMenu lấy **bản 33** (20/11); 11 `preview.html` + README của lát 3 (Form) lấy **bản 37** (20/11), trừ `Combobox/preview.html` + README gốc và README Button/InputAffix/Combobox/DatePicker/DateRangePicker/Checkbox/Radio lấy **bản 38** (20/11). Chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF. Không sửa tay.
 
 Bản 33–34 đồng bộ ngược 5 điểm từ code lát 2 vào artifact: tooltip line-height 16 (cả tooltip sidebar); mục menu disabled ở theme tối không sáng nền khi trỏ; aria-label của preview Tooltip không lặp `data-tip`; icon ContextMenu 16px màu muted; `.b-noi .ui-menu-item` khớp menu-styles.
 
@@ -35,13 +35,13 @@ Bản 40 (CEO duyệt 20/11 — DS thiếu Card thì build vào DS trước; b�
 
 Lát 4–6 (20/11): `preview.html` + README của 27 component còn lại (Tabs … NotificationMatrix) lấy **bản 41**, chép bằng
 `cp`. Riêng `Table` và `ListView` (README + preview) artifact lưu CRLF → repo lưu LF (`.gitattributes`); bảng dưới ghi sha
-bản repo, kèm sha bản artifact. `bundle.css` vẫn bản 40 (bản 41 không đổi CSS).
+bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đổi CSS); README Toast/InlineEdit/ListView lấy bản 43 (đồng bộ ngược, ListView chuyển LF).
 
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` (bản 40) | `4eeee1568c263c6327dd82f3f82d776d3fe1062a504f72d451226a2c1cc77853` |
+| `nguon/bundle.css` (bản 43) | `fc8772720df2990466ff1f67e2f5a1ada18c617da65bc53c4bfa17d5bebea673` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
@@ -106,11 +106,11 @@ bản repo, kèm sha bản artifact. `bundle.css` vẫn bản 40 (bản 41 khôn
 | `nguon/components/SavedView/preview.html` (bản 41) | `b8177b69bad36c8f6abcc5dbd776af6fb6b216ad05464dc5ed032837a61ef46d` |
 | `nguon/components/SavedView/README.md` (bản 41) | `d2233c740dfd0d37000e705820c8802981672c3473764bfa2293e69ebcc0b0d7` |
 | `nguon/components/ListView/preview.html` (bản 41) | `a1e126b4c73922e2ca3f80ccd4fe20fe6c8137174657ae0c7ed786402945c3e8` artifact lưu CRLF — sha bản artifact `b9eeae18bbc196ddf8df7780a8f1d7adb311e04163dd2c647456394e6790e226` |
-| `nguon/components/ListView/README.md` (bản 41) | `ba5c6f079085ee41375979cad8b8974fcb37beb936843f7db72d93dc1d05a3a7` artifact lưu CRLF — sha bản artifact `24184667cab1ce78df083d8b8f66a4fedfbfb4c09da93b698e9e24a119830c2e` |
+| `nguon/components/ListView/README.md` (bản 43) | `e9e5085215dae296762753ec9717b3b913587c637879cd1ee4ff7c71cd5e447f` |
 | `nguon/components/KanbanBoard/preview.html` (bản 41) | `28fc265ff8924d72a2d1d55c640a7c99346e7587e7f5d0e7216de1a28a651dee` |
 | `nguon/components/KanbanBoard/README.md` (bản 41) | `b6c8cd2707763ea66f18a01d32d0538aa6b7fcfb12083fd3d34008adbeaa8866` |
 | `nguon/components/InlineEdit/preview.html` (bản 41) | `9a54a662853fb188b8170e3bcba12ec9082c785cc03bbc958f69d3dd264e145a` |
-| `nguon/components/InlineEdit/README.md` (bản 41) | `e3899870bcac80387710b7f32cc6bb7fc674c16bdd4922c711a6a858f7d27403` |
+| `nguon/components/InlineEdit/README.md` (bản 43) | `a17f4814b6f1bcbaf011ef0be0de999096ed8cfa6395b0282cb983f2476e0c91` |
 | `nguon/components/RecordPicker/preview.html` (bản 41) | `9da530eec012176824334d76ea4799a6ecb8fc924bbe6c4c5af9920381589546` |
 | `nguon/components/RecordPicker/README.md` (bản 41) | `e43ff951d073162fa4bca5549d0313c1e0e77339d1b888488601f7737fea0ea6` |
 | `nguon/components/Breadcrumb/preview.html` (bản 41) | `d62b871ac5ec426bc7f014fb19d1b43c446fbbd5b12e8dee0a50722c4c2134c2` |
@@ -132,7 +132,7 @@ bản repo, kèm sha bản artifact. `bundle.css` vẫn bản 40 (bản 41 khôn
 | `nguon/components/Banner/preview.html` (bản 41) | `0d43637e844bc0682d6a14bcbbfe8a6dcceda697a6b56d726aad3910ee73a2d0` |
 | `nguon/components/Banner/README.md` (bản 41) | `b9cf08dd20fd7c6929dd9552a9197756b43fa593545883a0f743f373d00a02ab` |
 | `nguon/components/Toast/preview.html` (bản 41) | `2caffb6a72b41b291e39e44394cc6bea97d74ab1f6b344fa29d794c072402d01` |
-| `nguon/components/Toast/README.md` (bản 41) | `ce3c9028ec2a37c7038884b7ffb4a73a7cc91351b5bef3b014fa74ecd845b6e3` |
+| `nguon/components/Toast/README.md` (bản 43) | `af747404df89ac6754896e5a6826e6a0b313e72c1c563cd7f9cbf4d3d44d8ad7` |
 | `nguon/components/CommandPalette/preview.html` (bản 41) | `a80fb0952a5b284cf270d81b21ab3c98387fc357ff7df514faea6fa3fa510e1a` |
 | `nguon/components/CommandPalette/README.md` (bản 41) | `3d46952b3830b86c4c3c0f5337f9f3e3292aec8dddda8b708e56604c821bcfba` |
 | `nguon/components/StatCard/preview.html` (bản 41) | `bda59316b9f847e45ccc0a2186c46dc2009762382412de182e4c2fe85a9b3fcc` |
