@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { FileDrop, FileItem, FileList, kiemTep } from '@/components/ui/file-upload'
+import { FileDrop, FileItem, FileList } from '@/components/ui/file-upload'
+import { kiemTep } from '@/lib/tep'
 
 const ACCEPT = 'image/*,.pdf,.xlsx,.docx'
 const TOI_DA_MB = 10

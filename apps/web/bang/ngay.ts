@@ -63,3 +63,13 @@ export function khoangPreset(ma: MaPreset, homNay: Date): { tu: string; den: str
       return { tu: isoNgay(new Date(y, m, d - 30)), den }
   }
 }
+
+/** 'YYYY-MM-DD' kẹp vào [min, max] (so chuỗi ISO = so ngày). DateRangePicker dùng lại. */
+export const kepNgay = (iso: string, min?: string, max?: string) =>
+  min && iso < min ? min : max && iso > max ? max : iso
+
+/** Khoảng ngày 'YYYY-MM-DD' (tính cả 2 đầu) — giá trị của DateRangePicker. */
+export type KhoangNgay = { tu: string; den: string }
+
+/** "01/11/2026 – 18/11/2026"; khoảng 1 ngày chỉ hiện 1 ngày. */
+export const hienKhoang = (k: KhoangNgay) => (k.tu === k.den ? hienNgay(k.tu) : `${hienNgay(k.tu)} – ${hienNgay(k.den)}`)

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Field, FieldDescription, FieldError, FieldLabel, FieldLegend, FieldMeta, FieldSet } from '@/components/ui/field'
-import { FileDrop, FileItem, FileList, kiemTep } from '@/components/ui/file-upload'
+import { FileDrop, FileItem, FileList } from '@/components/ui/file-upload'
 import {
   focusLoiDau,
   FormFooter,
@@ -23,6 +23,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch, SwitchRow } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { kiemTep } from '@/lib/tep'
 
 /** Loại việc (demo) — 4 mục ≤ 10 → Select (CHUAN-FILTER). */
 const LOAI = [

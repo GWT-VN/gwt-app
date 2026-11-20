@@ -4,10 +4,12 @@ import { createContext, useContext, type ComponentProps } from 'react'
 import { CaretDown, Check } from '@phosphor-icons/react/ssr'
 import { Select as SelectPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
-import { controlOutline } from './control-styles'
+import { selectTrigger, selectValue } from './control-styles'
 import { useDsPortal } from './ds-root'
 import { menuCheck, menuContent, menuItem, menuSeparator } from './menu-styles'
 import { useMoBangChuot, type MoBangChuot } from './use-mo-bang-chuot'
+
+export { selectTrigger, selectValue }
 
 /**
  * Select — khung shadcn (Radix Select), giá trị từ `.ui-select-trigger` / `.ui-select-value` (trigger) và `.ui-menu*`
@@ -26,28 +28,6 @@ import { useMoBangChuot, type MoBangChuot } from './use-mo-bang-chuot'
  *   focus mục chặn): Radix Select không có `onSelect` để chặn mà giữ focus, nên không ép. Ghi lý do ngay trong chữ
  *   ("Sàn TMĐT (chưa mở)").
  */
-
-/**
- * `.ui-select-trigger` — chuỗi class xuất ra để Combobox / DatePicker / DateRangePicker dùng lại trên nút của chúng.
- * Nút dùng lại tự gắn: `data-placeholder` khi chưa có giá trị, span chữ mang `data-slot="select-value"` + `selectValue`,
- * `aria-expanded` khi mở (viền alpha-50), icon là `<svg>` con trực tiếp (16, muted-foreground).
- * Thứ tự (biến thể Tailwind 4 xếp aria-* trước data-*): đang mở KHÔNG đè lỗi (`not-aria-invalid`) — y bundle.css, nơi
- * `[aria-invalid]` khai sau `[aria-expanded]` cùng đặc hiệu; tắt thì không mở được.
- * GỘP SẴN qua `cn` một lần ở cấp module: `controlOutline` mang `font-normal` (ô nhập 400), trigger cần `font-medium` —
- * nối chuỗi thô thì cả hai cùng có mặt và CSS biên dịch cho 400 thắng (cùng đặc hiệu, normal xếp sau medium). Nút dùng lại
- * gắn thô `className={selectTrigger}` vẫn ra 500 (lỗi đã bắt thật ở Combobox, DatePicker).
- */
-export const selectTrigger = cn(
-  controlOutline,
-  'inline-flex items-center justify-between gap-2 font-medium cursor-pointer text-left',
-  'aria-expanded:not-aria-invalid:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
-  '[&[data-placeholder]_[data-slot=select-value]]:font-normal',
-  '[&[data-placeholder]_[data-slot=select-value]]:text-(--color-text-tertiary)',
-  '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
-)
-
-/** `.ui-select-value`: một dòng, cắt bằng dấu ba chấm. */
-export const selectValue = 'min-w-0 truncate border-none border-current'
 
 /**
  * Mở bằng chuột/chạm → ẩn vòng focus của mục cho tới phím đầu tiên (`use-mo-bang-chuot.ts`). Radix Select luôn focus()

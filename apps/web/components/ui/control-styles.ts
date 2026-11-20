@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils'
+
 /**
  * Viền ô nhập dùng chung (Input, Textarea, InputAffix, Select, DatePicker…) — chép từ khối `.ui-input` / `.ui-textarea` /
  * `.ui-select-trigger` / `.ui-input-affix` của ds/nguon/bundle.css ("Label / Input / Textarea (OpenAI Input.module.css)").
@@ -66,3 +68,25 @@ export const controlOutlineWithin = [
   'has-[>input:disabled]:cursor-not-allowed has-[>input:disabled]:bg-(--color-background-disabled)',
   'has-[>input:disabled]:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
 ].join(' ')
+
+/**
+ * `.ui-select-trigger` — chuỗi class xuất ra để Combobox / DatePicker / DateRangePicker dùng lại trên nút của chúng.
+ * Nút dùng lại tự gắn: `data-placeholder` khi chưa có giá trị, span chữ mang `data-slot="select-value"` + `selectValue`,
+ * `aria-expanded` khi mở (viền alpha-50), icon là `<svg>` con trực tiếp (16, muted-foreground).
+ * Thứ tự (biến thể Tailwind 4 xếp aria-* trước data-*): đang mở KHÔNG đè lỗi (`not-aria-invalid`) — y bundle.css, nơi
+ * `[aria-invalid]` khai sau `[aria-expanded]` cùng đặc hiệu; tắt thì không mở được.
+ * GỘP SẴN qua `cn` một lần ở cấp module: `controlOutline` mang `font-normal` (ô nhập 400), trigger cần `font-medium` —
+ * nối chuỗi thô thì cả hai cùng có mặt và CSS biên dịch cho 400 thắng (cùng đặc hiệu, normal xếp sau medium). Nút dùng lại
+ * gắn thô `className={selectTrigger}` vẫn ra 500 (lỗi đã bắt thật ở Combobox, DatePicker).
+ */
+export const selectTrigger = cn(
+  controlOutline,
+  'inline-flex items-center justify-between gap-2 font-medium cursor-pointer text-left',
+  'aria-expanded:not-aria-invalid:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
+  '[&[data-placeholder]_[data-slot=select-value]]:font-normal',
+  '[&[data-placeholder]_[data-slot=select-value]]:text-(--color-text-tertiary)',
+  '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
+)
+
+/** `.ui-select-value`: một dòng, cắt bằng dấu ba chấm. */
+export const selectValue = 'min-w-0 truncate border-none border-current'

@@ -9,7 +9,7 @@ import { TOI_THIEU_KY_TU, useTimXa } from '@/bang/useTimXa'
 import { cn } from '@/lib/utils'
 import { menuCheck, menuContent, menuItem } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { selectTrigger, selectValue } from './select'
+import { selectTrigger, selectValue } from './control-styles'
 import { Spinner } from './spinner'
 
 /**

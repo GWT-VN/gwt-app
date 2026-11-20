@@ -2,16 +2,17 @@
 
 import { useState, useSyncExternalStore } from 'react'
 import { CalendarBlank } from '@phosphor-icons/react/ssr'
-import { hienNgay, isoNgay, khoangPreset, ngayTuIso, PRESETS } from '@/bang/ngay'
+import { hienKhoang, hienNgay, isoNgay, kepNgay, khoangPreset, ngayTuIso, PRESETS, type KhoangNgay } from '@/bang/ngay'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Calendar } from './calendar'
-import { calendarFoot, calendarFootClear, calendarPop, kepNgay } from './date-picker'
+import { calendarFoot, calendarFootClear, calendarPop } from './calendar-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { selectTrigger, selectValue } from './select'
+import { selectTrigger, selectValue } from './control-styles'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 
-export type KhoangNgay = { tu: string; den: string }
+export { hienKhoang, type KhoangNgay }
+
 type Nhap = { tu?: string; den?: string }
 
 /** Khổ điện thoại (`@media (max-width: 640px)` của bundle) — đọc qua useSyncExternalStore; máy chủ/jsdom = khổ rộng. */
@@ -32,9 +33,6 @@ const dauThang = (iso: string) => {
 const congThang = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1)
 /** Số ngày tính cả 2 đầu. Math.round: an toàn cả ở múi giờ có đổi giờ (ngày 23/25 giờ). */
 const soNgay = (k: KhoangNgay) => Math.round((ngayTuIso(k.den).getTime() - ngayTuIso(k.tu).getTime()) / 864e5) + 1
-/** "01/11/2026 – 18/11/2026"; khoảng 1 ngày chỉ hiện 1 ngày. */
-export const hienKhoang = (k: KhoangNgay) => (k.tu === k.den ? hienNgay(k.tu) : `${hienNgay(k.tu)} – ${hienNgay(k.den)}`)
-
 /**
  * `.ui-cal-field`: ô Từ ngày / Đến ngày của đầu bảng — padding 6 12, bo --radius-lg, chữ 14/20 400 trái; nhãn 10/14 600
  * in hoa giãn 0.04em; trống → giá trị tertiary. Ô sau kẻ trái 1px input (`.ui-cal-field + .ui-cal-field`). Đang chọn

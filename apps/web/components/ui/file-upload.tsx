@@ -2,9 +2,12 @@
 
 import { useId, useState, type ComponentProps, type DragEvent, type ReactNode } from 'react'
 import { FileText, Image as ImageIcon, UploadSimple, X } from '@phosphor-icons/react/ssr'
+import { kichThuocDoc, kiemTep } from '@/lib/tep'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Tooltip } from './tooltip'
+
+export { kichThuocDoc, kiemTep }
 
 /**
  * FileUpload — giá trị chép từ `.ui-drop*`, `.ui-file*`, `.ui-progress` của ds/nguon/bundle.css; hành vi theo README
@@ -12,73 +15,13 @@ import { Tooltip } from './tooltip'
  * + `<input type="file">` thật. Ba mảnh rời để màn tự giữ danh sách tệp + tiến độ tải (Supabase Storage):
  * - `FileDrop`: vùng thả (`<label>` bọc input ẩn nhìn, vẫn Tab được; Enter/Space mở hộp chọn). Trả MỌI tệp qua
  *   `onChonTep` — không lọc ngầm; màn gọi `kiemTep` cho từng tệp rồi hiện lỗi trên dòng.
- * - `kiemTep`: câu lỗi nói cách sửa, hoặc `null`.
+ * - `kiemTep` (`lib/tep.ts`, file thường — gọi được ở server action): câu lỗi nói cách sửa, hoặc `null`.
  * - `FileList` + `FileItem`: dòng tệp gồm ô 32, tên/phụ, nút. (`FileList` trùng tên kiểu DOM toàn cục — file nào import
  *   nó mà cần kiểu DOM thì viết `globalThis.FileList`.)
  */
 
 /** div/span/ul/li ăn preflight `0 solid var(--border)` của app; artifact không viền (kiểu none, màu currentColor). */
 const khongVien = 'border-none border-current'
-
-const MB = 1024 * 1024
-const so1 = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 })
-
-/** "242 KB", "2,3 MB" — KB làm tròn, tối thiểu 1; MB một số lẻ dấu phẩy (vi-VN). */
-export function kichThuocDoc(byte: number): string {
-  return byte < MB ? `${Math.max(1, Math.round(byte / 1024))} KB` : `${so1.format(byte / MB)} MB`
-}
-
-/** Tên đọc được của từng mẫu `accept` (câu lỗi sai loại) — cả đuôi lẫn MIME đầy đủ. Mẫu lạ → `tenMau`. */
-const TEN_LOAI: Record<string, string> = {
-  'image/*': 'ảnh',
-  'video/*': 'video',
-  'audio/*': 'âm thanh',
-  '.pdf': 'PDF',
-  'application/pdf': 'PDF',
-  '.xlsx': 'Excel',
-  '.xls': 'Excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel',
-  'application/vnd.ms-excel': 'Excel',
-  '.csv': 'CSV',
-  'text/csv': 'CSV',
-  '.docx': 'Word',
-  '.doc': 'Word',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word',
-  'application/msword': 'Word',
-  '.pptx': 'PowerPoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint',
-  '.zip': 'ZIP',
-  'application/zip': 'ZIP',
-}
-
-/** Mẫu ngoài bảng: `.duoi` → DUOI; MIME → phần sau dấu gạch chéo bỏ tiền tố x-/vnd., viết hoa (`image/png` → "ảnh PNG"). */
-function tenMau(m: string) {
-  if (TEN_LOAI[m]) return TEN_LOAI[m]
-  if (!m.includes('/')) return m.replace(/^\./, '').toUpperCase()
-  const [loai, phu] = m.split('/')
-  const ten = phu.replace(/^(x-|vnd\.)/, '').toUpperCase()
-  const nhom = TEN_LOAI[`${loai}/*`]
-  return nhom ? `${nhom} ${ten}` : ten
-}
-
-/** Một mẫu `accept` khớp tệp? `.duoi` theo tên (không phân biệt hoa thường), `loai/*` theo đầu MIME, còn lại MIME đúng. */
-function khopMau(tep: File, mau: string) {
-  if (mau.startsWith('.')) return tep.name.toLowerCase().endsWith(mau)
-  if (mau.endsWith('/*')) return tep.type.toLowerCase().startsWith(mau.slice(0, -1))
-  return tep.type.toLowerCase() === mau
-}
-
-/**
- * Kiểm một tệp trước khi tải. Loại trước dung lượng (tệp sai loại thì nén lại cũng vô ích).
- * Trả câu lỗi nói cách sửa ("Quá 10 MB — nén lại hoặc chọn tệp khác", "Chỉ nhận ảnh, PDF, Excel, Word"), hợp lệ → null.
- */
-export function kiemTep(tep: File, { accept, toiDaMB }: { accept?: string; toiDaMB: number }): string | null {
-  const mau = (accept ?? '').split(',').map((m) => m.trim().toLowerCase()).filter(Boolean)
-  if (mau.length && !mau.some((m) => khopMau(tep, m)))
-    return `Chỉ nhận ${[...new Set(mau.map(tenMau))].join(', ')}`
-  if (tep.size > toiDaMB * MB) return `Quá ${toiDaMB} MB — nén lại hoặc chọn tệp khác`
-  return null
-}
 
 /**
  * Vùng thả `.ui-drop`: viền đứt alpha-25, padding 20/16, bo radius-lg, cột căn giữa gap 4.

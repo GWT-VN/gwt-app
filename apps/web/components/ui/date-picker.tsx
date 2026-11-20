@@ -2,36 +2,16 @@
 
 import { useState } from 'react'
 import { CalendarBlank } from '@phosphor-icons/react/ssr'
-import { hienNgay, isoNgay, ngayTuIso } from '@/bang/ngay'
+import { hienNgay, isoNgay, kepNgay, ngayTuIso } from '@/bang/ngay'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Calendar } from './calendar'
-import { menuContent } from './menu-styles'
+import { calendarFoot, calendarFootClear, calendarPop } from './calendar-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { selectTrigger, selectValue } from './select'
+import { selectTrigger, selectValue } from './control-styles'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 
-/**
- * `.ui-menu.ui-cal-pop` (+ `.b-noi.ui-cal-pop`): mặt Menu (nền popover, shadow + hairline, z-90) nhưng rộng theo lịch,
- * padding 20/24, bo --radius-4xl 24; trần cao 100vh − 16 (lịch cao hơn menu thường, không cắt chân). Khổ ≤ 640: rộng
- * 100vw − 16, padding 16. Xuất ra cho DateRangePicker và khối /ds dùng lại.
- */
-export const calendarPop = cn(
-  menuContent,
-  'min-w-0 w-max px-[24px] py-[20px] rounded-(--radius-4xl) max-h-[calc(100vh-16px)]',
-  'max-[640px]:w-[calc(100vw-16px)] max-[640px]:max-w-[calc(100vw-16px)] max-[640px]:p-[16px]',
-)
-
-/** `.ui-cal-foot`: kẻ trên alpha-08, cách lịch 12 (preview gõ margin-top 12), đệm trên 16; trái "Xoá ngày", phải nút chính. */
-export const calendarFoot =
-  'mt-[12px] flex items-center justify-between gap-3 pt-[16px] border-none border-current [box-shadow:inset_0_1px_0_var(--alpha-08)] max-[640px]:flex-wrap'
-
-/** 'YYYY-MM-DD' kẹp vào [min, max] (so chuỗi ISO = so ngày). DateRangePicker dùng lại. */
-export const kepNgay = (iso: string, min?: string, max?: string) =>
-  min && iso < min ? min : max && iso > max ? max : iso
-
-/** `.ui-cal-foot .ui-btn[data-variant=ghost]`: gạch chân, cách chữ 0.15em. */
-export const calendarFootClear = 'underline underline-offset-[0.15em]'
+export { calendarFoot, calendarFootClear, calendarPop, kepNgay }
 
 /**
  * DatePicker — chọn MỘT ngày, kiểu Airbnb (README DatePicker). Lưu `YYYY-MM-DD` (`isoNgay`, giờ máy — không

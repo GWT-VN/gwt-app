@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { calendarPop } from '@/components/ui/date-picker'
-import { DateRangePanel, DateRangePicker, type KhoangNgay } from '@/components/ui/date-range-picker'
+import type { KhoangNgay } from '@/bang/ngay'
+import { calendarPop } from '@/components/ui/calendar-styles'
+import { DateRangePanel, DateRangePicker } from '@/components/ui/date-range-picker'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 
