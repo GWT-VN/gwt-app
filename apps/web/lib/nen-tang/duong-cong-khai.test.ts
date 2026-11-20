@@ -13,6 +13,12 @@ test('/ds công khai chỉ ngoài production', () => {
   expect(laDuongCongKhai('/ds/button', 'production')).toBe(false)
 })
 
+test('/prototype công khai chỉ ngoài production, khớp đúng đoạn', () => {
+  expect(laDuongCongKhai('/prototype/chon-gio', 'development')).toBe(true)
+  expect(laDuongCongKhai('/prototype/chon-gio', 'production')).toBe(false)
+  expect(laDuongCongKhai('/prototypex', 'development')).toBe(false)
+})
+
 test('đường khác không công khai; /ds chỉ khớp đúng đoạn (không khớp /dsx)', () => {
   expect(laDuongCongKhai('/ticket', 'development')).toBe(false)
   expect(laDuongCongKhai('/dsx', 'development')).toBe(false)
