@@ -52,11 +52,14 @@ function Nhan({ children }: { children: ReactNode }) {
   return <p className="mb-2 border-none border-current text-[12px] leading-[16px] font-medium text-muted-foreground">{children}</p>
 }
 
-/** Mặt hộp nằm tĩnh trên trang (preview vẽ `<dialog open>` relative): bọc `hop`, không fixed/z. */
+/**
+ * Mặt hộp nằm tĩnh trên trang (preview vẽ `<dialog open>` relative): bọc `hop`, không fixed/z. `tinh`: vẽ không cmdk,
+ * `inert` — cmdk sống cuộn cả trang tới mục sáng lúc mount (bẫy ghi ở CommandPanel).
+ */
 function MatTinh({ chu, so }: { chu: string; so: string }) {
   return (
-    <div data-so={so} role="group" aria-label={`Tìm toàn cục (mẫu "${chu}")`} className={cn(hop, 'relative')}>
-      <CommandPanel nhom={NHOM} onChon={boQua} onHoiBap={boQua} phamVi={PHAM_VI} defaultSearch={chu} />
+    <div data-so={so} className={cn(hop, 'relative')}>
+      <CommandPanel tinh nhom={NHOM} onChon={boQua} onHoiBap={boQua} phamVi={PHAM_VI} defaultSearch={chu} />
     </div>
   )
 }

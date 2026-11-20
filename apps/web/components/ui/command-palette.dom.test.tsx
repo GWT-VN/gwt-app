@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
-import { CommandPalette, PhimMoLenh, usePhimMoLenh, type NhomLenh } from './command-palette'
+import { CommandPalette, CommandPanel, PhimMoLenh, usePhimMoLenh, type NhomLenh } from './command-palette'
 import { DsRoot } from './ds-root'
 
 // Dữ liệu demo — tên giả, SĐT giả.
@@ -150,6 +150,24 @@ test('bộ gõ đang ghép chữ: Enter / ↑↓ không chọn, không dời; gh
   await user.keyboard('{ArrowDown}{Enter}')
   expect(onChon).toHaveBeenCalledWith('KH-902')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+})
+
+test('mặt tĩnh (tinh): vẽ đủ kết quả nhưng KHÔNG cuộn trang khi mount, không focus được, không vào cây a11y', async () => {
+  const cuon = vi.spyOn(Element.prototype, 'scrollIntoView')
+  const { container } = render(
+    <DsRoot>
+      <CommandPanel tinh nhom={NHOM} onChon={() => {}} onHoiBap={() => {}} defaultSearch="sen vang" />
+    </DsRoot>,
+  )
+  await new Promise((r) => setTimeout(r, 50)) // cmdk cuộn mục sáng trong effect sau mount
+  expect(cuon).not.toHaveBeenCalled()
+  const goc = container.querySelector('[data-slot="command-panel"]')!
+  expect(goc.hasAttribute('inert')).toBe(true)
+  const dong = [...goc.querySelectorAll('[cmdk-item]')]
+  expect(dong).toHaveLength(3) // ticket + khách + Hỏi Bắp
+  expect(dong[0].getAttribute('aria-selected')).toBe('true')
+  expect([...dong[1].querySelectorAll('mark')].map((m) => m.textContent)).toContain('Sen Vàng')
+  expect(goc.querySelector('input')?.value).toBe('sen vang')
 })
 
 test('Esc đóng, focus về nút mở', async () => {

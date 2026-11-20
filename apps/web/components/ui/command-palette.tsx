@@ -95,7 +95,13 @@ type PropsThan = {
 
 /**
  * Thân CommandPalette (ô gõ + vùng trạng thái + danh sách + chân) — CommandPalette dùng bên trong hộp. Xuất ra cho chỗ cần
- * mặt NẰM SẴN trên trang (khối /ds vẽ tĩnh): tự bọc `hop` của command-styles.ts qua `className`.
+ * mặt NẰM SẴN trên trang (khối /ds vẽ tĩnh): truyền `tinh` và tự bọc `hop` của command-styles.ts qua `className`.
+ *
+ * ⚠️ Bẫy (review đợt 1, 20/11): cmdk 1.1.1 gọi `scrollIntoView({ block: 'nearest' })` lên mục sáng lúc MOUNT và mỗi lần
+ * mục sáng đổi → một mặt cmdk sống nằm giữa trang kéo CẢ CỬA SỔ tới nó (đo: nạp /ds#pagination, sau hydrate trang bị kéo
+ * tới khối CommandPalette). Vì thế mặt nằm sẵn PHẢI dùng `tinh`: vẽ cùng DOM/class nhưng bằng phần tử thường (không cmdk,
+ * không cuộn), `inert` (không focus, không vào cây a11y — không thêm combobox/listbox/status thường trực vào trang), ô gõ
+ * chỉ đọc. Thuộc tính `cmdk-*` vẫn gắn để dùng chung kiểu (`danhSach`) và khoá so khớp.
  */
 export function CommandPanel({
   nhom,
@@ -104,8 +110,9 @@ export function CommandPanel({
   phamVi,
   placeholder = 'Tìm SĐT, tên khách, serial, mã đơn, mã ticket…',
   defaultSearch = '',
+  tinh = false,
   className,
-}: PropsThan & { className?: string }) {
+}: PropsThan & { className?: string; /** Mặt vẽ tĩnh (không cmdk, `inert`) — xem bẫy ở trên. */ tinh?: boolean }) {
   // `go` = chữ trong ô (kể cả đang ghép dở); `q` = chữ dùng để lọc — chỉ cập nhật khi bộ gõ ghép xong (như Combobox).
   const [go, setGo] = useState(defaultSearch)
   const [q, setQ] = useState(defaultSearch)
@@ -124,14 +131,42 @@ export function CommandPanel({
     .filter((g) => g.hien.length)
   const tong = ket.reduce((t, g) => t + g.tong, 0)
   const coBap = !!tu && !!onHoiBap
-  const cacGiaTri = [...ket.flatMap((g) => g.hien.map((m) => `${g.gi}:${m.id}`)), ...(coBap ? [BAP] : [])]
+
+  // Nhóm → dòng đã dựng sẵn nội dung; hai cách vẽ (cmdk sống / tĩnh) dùng chung.
+  type Dong = { value: string; icon: ReactNode; ten: ReactNode; phu: ReactNode; chon(): void }
+  const cacNhom: { key: string; heading: ReactNode; dong: Dong[] }[] = ket.map((g) => {
+    const Icon = g.icon
+    return {
+      key: String(g.gi),
+      heading: (
+        <>
+          {g.ten}
+          {g.tong > g.hien.length && <span className={s.dem}> · {g.hien.length}/{g.tong}</span>}
+        </>
+      ),
+      dong: g.hien.map((m) => ({
+        value: `${g.gi}:${m.id}`,
+        icon: Icon && <Icon aria-hidden="true" />,
+        ten: danhDau(m.ten, k),
+        phu: m.phu && danhDau(m.phu, k),
+        chon: () => onChon(m),
+      })),
+    }
+  })
+  if (coBap)
+    cacNhom.push({
+      key: BAP,
+      heading: 'Nhờ Bắp',
+      dong: [{ value: BAP, icon: <Sparkle aria-hidden="true" />, ten: <>Hỏi Bắp: “<mark>{tu}</mark>”</>, phu: null, chon: () => onHoiBap!(tu) }],
+    })
+  const cacGiaTri = cacNhom.flatMap((g) => g.dong.map((d) => d.value))
   // Mục sáng do ta giữ (NGUON: cmdk 1.1.1 chỉ tính lại khi chữ đổi). Không còn trong danh sách → mục đầu.
   const sangThat = cacGiaTri.includes(sang) ? sang : (cacGiaTri[0] ?? '')
 
   // cmdk 1.1.1 chỉ gắn aria-activedescendant khi mục sáng đổi bằng ↑/↓ → gắn lại từ `data-value` (mẫu combobox.tsx).
   useLayoutEffect(() => {
     const g = gocRef.current
-    if (!g) return
+    if (!g || tinh) return
     const id = [...g.querySelectorAll('[cmdk-item]')].find((el) => el.getAttribute('data-value') === sangThat)?.id
     for (const el of g.querySelectorAll('[cmdk-input], [cmdk-list]')) {
       if (id) el.setAttribute('aria-activedescendant', id)
@@ -139,20 +174,90 @@ export function CommandPanel({
     }
   })
 
-  const dongMuc = (value: string, icon: ReactNode, tenMuc: ReactNode, phuMuc: ReactNode, chon: () => void) => (
-    <CommandPrimitive.Item key={value} value={value} onSelect={chon} className={s.dong}>
-      {icon}
+  const noiDung = (d: Dong) => (
+    <>
+      {d.icon}
       <span className={s.chu}>
-        <span className={s.ten}>{tenMuc}</span>
-        {phuMuc && <span className={s.phu}>{phuMuc}</span>}
+        <span className={s.ten}>{d.ten}</span>
+        {d.phu && <span className={s.phu}>{d.phu}</span>}
       </span>
-      {value === sangThat && <Kbd aria-hidden="true">↵</Kbd>}
-    </CommandPrimitive.Item>
+      {d.value === sangThat && <Kbd aria-hidden="true">↵</Kbd>}
+    </>
   )
+  const hangGo = (o: ReactNode) => (
+    <div data-slot="command-input" className={s.hangGo}>
+      <MagnifyingGlass aria-hidden="true" />
+      {o}
+      <Kbd className={s.phimEsc}>Esc</Kbd>
+    </div>
+  )
+  const giua = (
+    <>
+      {/* Đọc số kết quả mỗi lần gõ (aria-activedescendant có thể giữ nguyên id mục đầu nên không tự đọc lại). */}
+      <div role="status" className="sr-only">
+        {tu ? (tong ? `${tong} kết quả` : `Không thấy “${tu}”`) : ''}
+      </div>
+      {tu && !tong && (
+        <div data-slot="command-empty" className={s.rong}>
+          Không thấy “{tu}”{phamVi ? ` trong ${phamVi}` : ''}. Thử bỏ bớt chữ{onHoiBap ? ', hoặc hỏi Bắp' : ''}.
+        </div>
+      )}
+    </>
+  )
+  const chan = (
+    <div data-slot="command-foot" aria-hidden="true" className={s.chan}>
+      <span>
+        <Kbd>↑</Kbd>
+        <Kbd>↓</Kbd> chọn
+      </span>
+      <span>
+        <Kbd>↵</Kbd> mở
+      </span>
+      <span>
+        <Kbd>Esc</Kbd> đóng
+      </span>
+      <span>Tìm không cần gõ dấu</span>
+    </div>
+  )
+
+  if (tinh)
+    return (
+      <div data-slot="command-panel" inert cmdk-root="" className={cn(s.goc, className)}>
+        {hangGo(<input readOnly tabIndex={-1} value={go} aria-label="Tìm toàn cục" placeholder={placeholder} className={s.oGo} />)}
+        {giua}
+        <div cmdk-list="" role="listbox" aria-label="Kết quả" className={s.danhSach}>
+          <div cmdk-list-sizer="">
+            {cacNhom.map((g) => (
+              <div key={g.key} cmdk-group="" role="presentation">
+                <div cmdk-group-heading="" aria-hidden="true">
+                  {g.heading}
+                </div>
+                <div cmdk-group-items="" role="group">
+                  {g.dong.map((d) => (
+                    <div
+                      key={d.value}
+                      cmdk-item=""
+                      role="option"
+                      aria-selected={d.value === sangThat}
+                      data-selected={d.value === sangThat}
+                      className={s.dong}
+                    >
+                      {noiDung(d)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {chan}
+      </div>
+    )
 
   return (
     <CommandPrimitive
       ref={gocRef}
+      data-slot="command-panel"
       value={sangThat}
       onValueChange={setSang}
       shouldFilter={false}
@@ -165,8 +270,7 @@ export function CommandPanel({
         if (ghep.current && (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) e.preventDefault()
       }}
     >
-      <div data-slot="command-input" className={s.hangGo}>
-        <MagnifyingGlass aria-hidden="true" />
+      {hangGo(
         <CommandPrimitive.Input
           value={go}
           onValueChange={(v) => {
@@ -184,58 +288,21 @@ export function CommandPanel({
           placeholder={placeholder}
           spellCheck={false}
           className={s.oGo}
-        />
-        <Kbd className={s.phimEsc}>Esc</Kbd>
-      </div>
-      {/* Đọc số kết quả mỗi lần gõ (aria-activedescendant có thể giữ nguyên id mục đầu nên không tự đọc lại). */}
-      <div role="status" className="sr-only">
-        {tu ? (tong ? `${tong} kết quả` : `Không thấy “${tu}”`) : ''}
-      </div>
-      {tu && !tong && (
-        <div data-slot="command-empty" className={s.rong}>
-          Không thấy “{tu}”{phamVi ? ` trong ${phamVi}` : ''}. Thử bỏ bớt chữ{onHoiBap ? ', hoặc hỏi Bắp' : ''}.
-        </div>
+        />,
       )}
+      {giua}
       <CommandPrimitive.List label="Kết quả" className={s.danhSach}>
-        {ket.map((g) => {
-          const Icon = g.icon
-          return (
-            <CommandPrimitive.Group
-              key={g.gi}
-              heading={
-                <>
-                  {g.ten}
-                  {g.tong > g.hien.length && <span className={s.dem}> · {g.hien.length}/{g.tong}</span>}
-                </>
-              }
-            >
-              {g.hien.map((m) =>
-                dongMuc(`${g.gi}:${m.id}`, Icon && <Icon aria-hidden="true" />, danhDau(m.ten, k), m.phu && danhDau(m.phu, k), () =>
-                  onChon(m),
-                ),
-              )}
-            </CommandPrimitive.Group>
-          )
-        })}
-        {coBap && (
-          <CommandPrimitive.Group heading="Nhờ Bắp">
-            {dongMuc(BAP, <Sparkle aria-hidden="true" />, <>Hỏi Bắp: “<mark>{tu}</mark>”</>, null, () => onHoiBap!(tu))}
+        {cacNhom.map((g) => (
+          <CommandPrimitive.Group key={g.key} heading={g.heading}>
+            {g.dong.map((d) => (
+              <CommandPrimitive.Item key={d.value} value={d.value} onSelect={d.chon} className={s.dong}>
+                {noiDung(d)}
+              </CommandPrimitive.Item>
+            ))}
           </CommandPrimitive.Group>
-        )}
+        ))}
       </CommandPrimitive.List>
-      <div data-slot="command-foot" aria-hidden="true" className={s.chan}>
-        <span>
-          <Kbd>↑</Kbd>
-          <Kbd>↓</Kbd> chọn
-        </span>
-        <span>
-          <Kbd>↵</Kbd> mở
-        </span>
-        <span>
-          <Kbd>Esc</Kbd> đóng
-        </span>
-        <span>Tìm không cần gõ dấu</span>
-      </div>
+      {chan}
     </CommandPrimitive>
   )
 }
