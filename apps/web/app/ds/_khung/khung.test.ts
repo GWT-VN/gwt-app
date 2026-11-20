@@ -52,5 +52,5 @@ test('mỗi mục README dự án thuộc đúng một trang chữ của /ds', (
 test('motDong: dòng chữ đầu, bỏ đậm và backtick; README component có/không', () => {
   expect(motDong('\nshadcn `Button` mặc áo **OpenAI**.\n\nThân')).toBe('shadcn Button mặc áo OpenAI.')
   expect(motDong(readmeComponent('Button') ?? '')).toMatch(/^shadcn Button/)
-  expect(readmeComponent('Table')).toBeNull()
+  expect(readmeComponent('KhongCoComponentNay')).toBeNull()
 })
