@@ -48,10 +48,9 @@ export function OTimKiem({
 
   return (
     <div className={gd.oTimKiem_khung}>
-      {/* type="search": vai searchbox cho trình đọc màn hình. Nút × gốc của trình duyệt và vẻ ô tìm
-          gốc (Safari) tắt bằng class trong giaoDien — đã có nút Xoá từ khoá riêng, màn cũ không đổi. */}
+      {/* KHÔNG type="search": Chrome/Safari tự xoá chữ khi bấm Esc → onChange → xoá `q` khỏi URL,
+          đổi hành vi màn cũ (người điều phối chốt 20/11). Tên đọc qua aria-label là đủ. */}
       <input
-        type="search"
         aria-label={ten ?? placeholder}
         value={q}
         onChange={(e) => setQ(e.target.value)}

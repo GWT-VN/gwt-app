@@ -301,8 +301,8 @@ export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; child
       const o = c.oTatCa.current
       if (o && !o.disabled) o.focus()
       else if (c.khung.current) {
+        // Vòng focus để bộ giao diện / trình duyệt vẽ (focus-visible) — không tắt: WCAG 2.4.7.
         c.khung.current.tabIndex = -1
-        c.khung.current.style.outline = 'none'
         c.khung.current.focus()
       }
     }
@@ -325,8 +325,11 @@ export function ThanhDaChon({ nhan = 'dòng', children }: { nhan?: string; child
       if (t?.closest?.('input:not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable=""], [contenteditable="true"]')) return
       boChonMoi.current()
     }
-    document.addEventListener('keydown', k)
-    return () => document.removeEventListener('keydown', k)
+    // Nghe ở WINDOW (pha nổi, chặng cuối): mọi listener trên document — Radix (capture) và cả listener
+    // gắn SAU listener này như KeyboardSensor của dnd-kit (huỷ kéo cột/thẻ bằng Esc) — đã chạy và
+    // preventDefault xong. Nghe ở document thì listener gắn trước chạy trước, cướp Esc của dnd-kit.
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
   }, [escBoChon, soDong])
 
   // Toolbar theo APG: một điểm Tab, ←/→/Home/End đi giữa các nút theo thứ tự HIỆN (bộ giao

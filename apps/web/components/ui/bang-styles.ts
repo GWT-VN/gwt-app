@@ -78,8 +78,7 @@ const ghostTrenThanh = [
 export const GIAO_DIEN_DS: GiaoDienBang = {
   // Ô tìm (`.ui-input` + nút xoá dạng chip-x bên phải)
   oTimKiem_khung: cn(kv, 'relative'),
-  // type="search": tắt vẻ ô tìm gốc (Safari) + nút × gốc (đã có nút xoá riêng)
-  oTimKiem_input: cn(controlOutline, 'pr-9 appearance-none [&::-webkit-search-cancel-button]:appearance-none'),
+  oTimKiem_input: cn(controlOutline, 'pr-9'),
   oTimKiem_nutXoa: cn(chipX, 'absolute right-1.5 top-1/2 ml-0 -translate-y-1/2'),
 
   // FilterBar — `.ui-filterbar`: flex wrap, gap 6/8, cao tối thiểu 28
@@ -129,7 +128,8 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   boLoc_muiTen: 'pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground',
 
   // Chọn dòng + BulkActionBar
-  chon_khung: cn(kv, 'flex flex-col gap-4'),
+  // Khung nhận focus khi thanh hàng loạt biến mất mà trang không có ô "chọn hết trang" → vòng ring thấy được (WCAG 2.4.7).
+  chon_khung: cn(kv, 'flex flex-col gap-4 rounded-(--radius-md) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ring)'),
   chon_oTh: cn(th, 'w-10 pr-0'),
   chon_oTd: cn(kv, 'h-(--control-size-xl) w-10 pl-(--control-gutter-md) pr-0 border-b border-solid border-(--border)'),
   chon_checkbox: oTick,

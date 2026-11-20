@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
@@ -27,7 +27,6 @@ import {
   ThanhDangLoc,
 } from '@/bang'
 import { CauHinhBangDs } from './bang-ds'
-import { GIAO_DIEN_DS } from './bang-styles'
 import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { DsRoot } from './ds-root'
@@ -249,7 +248,15 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
   }
   const thanh = () => screen.queryByRole('toolbar', { name: 'Thao tác hàng loạt' })
   const vungDoc = () => document.querySelector('[aria-live="polite"][aria-atomic="true"]')
-  const esc = (el: Element = document.body, o: KeyboardEventInit = {}) => fireEvent.keyDown(el, { key: 'Escape', ...o })
+  // Esc được xét sau khi sự kiện đi hết listener (setTimeout) → chờ một nhịp rồi mới kiểm.
+  const esc = async (el: Element = document.body, o: KeyboardEventInit = {}) => {
+    const ev = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true, ...o })
+    act(() => {
+      el.dispatchEvent(ev)
+    })
+    await act(() => new Promise((r) => setTimeout(r, 10)))
+    return ev
+  }
   const oTatCa = () => screen.getByRole('checkbox', { name: 'Chọn 15 ticket trên trang này' })
 
   test('chọn hết trang → mời chọn toàn bộ; bấm → 19 (gồm cả trang khác); sang trang 2 vẫn nói ra', async () => {
@@ -308,25 +315,44 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Chọn T-101' }))
     await user.click(within(thanh()!).getByRole('button', { name: 'Bỏ chọn' }))
     expect(document.activeElement).not.toBe(document.body)
-    expect(document.activeElement?.contains(container.querySelector('table'))).toBe(true)
+    const khung = document.activeElement as HTMLElement
+    expect(khung.contains(container.querySelector('table'))).toBe(true)
+    // Vòng focus không bị tắt (WCAG 2.4.7): không outline none trên phần tử; DS vẽ vòng ring khi focus-visible.
+    expect(khung.style.outline).toBe('')
+    expect(khung.className).toContain('focus-visible:outline-(--ring)')
+    // Bộ mặc định: không tắt outline → vòng focus gốc của trình duyệt.
+    expect(GIAO_DIEN_MAC_DINH.chon_khung).not.toMatch(/outline-none/)
   })
 
   test('Esc bỏ hết — trừ khi đang gõ trong ô chữ hoặc đang ghép chữ (bộ gõ); listbox/menu TĨNH trong DOM không chặn', async () => {
     const user = userEvent.setup()
     render(<Bang />)
     await user.click(oTatCa())
-    esc(screen.getByRole('textbox', { name: 'Ô gõ' }))
+    await esc(screen.getByRole('textbox', { name: 'Ô gõ' }))
     expect(thanh()).not.toBeNull()
-    esc(document.body, { isComposing: true })
+    await esc(document.body, { isComposing: true })
     expect(thanh()).not.toBeNull()
     // Listbox thường trực (Combobox, bảng lệnh tĩnh) — trước đây chặn Esc vĩnh viễn.
     const tinh = document.createElement('div')
     tinh.setAttribute('role', 'listbox')
     document.body.append(tinh)
-    esc(oTatCa())
+    await esc(oTatCa())
     expect(thanh()).toBeNull()
     expect(document.activeElement).toBe(oTatCa())
     tinh.remove()
+  })
+
+  test('listener đăng ký SAU (vd dnd-kit huỷ kéo bằng Esc) preventDefault → Esc là của nó, lựa chọn còn', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    await user.click(oTatCa())
+    const nhan = (e: KeyboardEvent) => e.key === 'Escape' && e.preventDefault()
+    document.addEventListener('keydown', nhan)
+    await esc(oTatCa())
+    document.removeEventListener('keydown', nhan)
+    expect(thanh()).not.toBeNull()
+    await esc(oTatCa())
+    expect(thanh()).toBeNull()
   })
 
   test('Esc trong thanh → bỏ hết, focus về ô "chọn hết trang"', async () => {
@@ -336,7 +362,7 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     const xuat = within(thanh()!).getByRole('button', { name: 'Xuất Excel' })
     xuat.focus()
     await user.keyboard('{Escape}')
-    expect(thanh()).toBeNull()
+    await waitFor(() => expect(thanh()).toBeNull())
     expect(document.activeElement).toBe(oTatCa())
   })
 
@@ -350,7 +376,7 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
     expect(thanh()!.textContent).toContain('Đã chọn 15 ticket')
     await user.keyboard('{Escape}')
-    expect(thanh()).toBeNull()
+    await waitFor(() => expect(thanh()).toBeNull())
   })
 
   test('toolbar APG: một điểm Tab; ←/→ đi giữa các nút (vòng), Home/End về đầu/cuối', async () => {
@@ -391,30 +417,24 @@ describe('BulkActionBar — KhungChon + ThanhDaChon (Review Focus 2)', () => {
     const user = userEvent.setup()
     render(<Bang ds={false} />)
     await user.click(screen.getByRole('checkbox', { name: 'Chọn T-101' }))
-    esc()
+    await esc()
     expect(thanh()).not.toBeNull()
     expect(within(thanh()!).getByRole('button', { name: 'Bỏ chọn' }).textContent).toBe('Bỏ chọn')
   })
 })
 
 describe('OTimKiem — ô tìm', () => {
-  test('type="search" có tên đọc: mặc định = placeholder (màn cũ không đổi tên), truyền aria-label thì dùng nó', () => {
+  test('có tên đọc: mặc định = placeholder (màn cũ không đổi tên), truyền aria-label thì dùng nó; KHÔNG type="search"', () => {
     const cu = render(<OTimKiem placeholder="Gõ tên, SĐT, mã…" />)
-    const o = screen.getByRole('searchbox', { name: 'Gõ tên, SĐT, mã…' })
-    expect(o.getAttribute('type')).toBe('search')
+    const o = screen.getByRole('textbox', { name: 'Gõ tên, SĐT, mã…' })
+    // type="search" làm trình duyệt tự xoá chữ khi Esc → xoá `q` trên URL (đổi hành vi màn cũ).
+    expect(o.getAttribute('type')).not.toBe('search')
     cu.unmount()
     render(
       <Ds>
         <OTimKiem placeholder="Gõ mã ticket…" aria-label="Tìm ticket" />
       </Ds>,
     )
-    expect(screen.getByRole('searchbox', { name: 'Tìm ticket' }).getAttribute('placeholder')).toBe('Gõ mã ticket…')
-  })
-
-  test('cả hai bộ giao diện tắt nút × gốc của trình duyệt (đã có nút Xoá từ khoá riêng) và vẻ ô tìm gốc (Safari)', () => {
-    for (const gd of [GIAO_DIEN_MAC_DINH, GIAO_DIEN_DS]) {
-      expect(gd.oTimKiem_input).toContain('[&::-webkit-search-cancel-button]:appearance-none')
-      expect(gd.oTimKiem_input.split(' ')).toContain('appearance-none')
-    }
+    expect(screen.getByRole('textbox', { name: 'Tìm ticket' }).getAttribute('placeholder')).toBe('Gõ mã ticket…')
   })
 })
