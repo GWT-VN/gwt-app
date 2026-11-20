@@ -17,7 +17,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 
 - Kiểm khi bấm Lưu / rời ô đã sửa, không đỏ lúc mới mở, lưu lỗi focus ô lỗi đầu (focusLoiDau), đang lưu khoá 2 nút, lỗi máy chủ → Alert danger đầu form giữ dữ liệu: preview tĩnh không có hành vi — test jsdom components/ui/form-layout.dom.test.tsx
 - Alert lỗi máy chủ đầu form: preview không có — kiểu Alert danger đo ở so-khop Alert
-- Thẻ bọc (.ui-card.ui-card-pad): DS chưa có component Card, khối dựng tạm bằng class để trình bày — đo ở khoá the-1/the-2 cho khớp khung, không phải component
+- Thẻ bọc (.ui-card.ui-card-pad) = component Card DS: khoá the-1/the-2 đo khung thẻ; các phần của Card (header, action, chân) đo ở so-khop Card
 - Ô con trong lưới (Input, Select, DatePicker, OTien, Radio, Checkbox, Textarea, FileDrop, Switch): kiểu riêng đo ở so-khop của từng component; ở đây chỉ đo ô lưới (rộng/cao/vị trí 2 cột ↔ 1 cột) và 3 ô lỗi của form 2
 - Danh sách tệp đã chọn trong form: preview trống, không có dòng tệp — dòng tệp đo ở so-khop FileUpload
 
