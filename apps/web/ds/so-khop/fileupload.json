@@ -1,0 +1,288 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#file-upload > div"
+  },
+  "chuaDo": [
+    "Đang kéo tệp vào (data-over: viền liền ring, nền info-soft-alpha, chữ \"Thả tệp vào đây\"): preview không có trạng thái này, so-khop không giả lập kéo thả — test jsdom components/ui/file-upload.dom.test.tsx + kéo thử tay trên /ds",
+    "Chọn tệp qua hộp chọn, thả không lọc ngầm, kiemTep (loại trước dung lượng), kichThuocDoc, nút Thử lại: test jsdom components/ui/file-upload.dom.test.tsx",
+    "Vùng thả lỗi (aria-invalid viền red-500): có trong bundle.css nhưng preview không có, FileDrop chưa nhận prop lỗi",
+    "Ô xem trước có ảnh thật (img cover): preview không có — khối demo không tạo URL xem trước",
+    "Nút Bỏ: hover/focus của Button ghost icon-sm đo ở so-khop Button; chữ tooltip \"Bỏ tệp\" đo ở so-khop Tooltip",
+    "Input file ẩn nhìn (1×1, opacity 0): chỉ đo rộng/cao/opacity/cursor (con \"input\" của drop/tat) — font, viền, màu chữ của nó không lộ ra mắt (UA mặc định bên artifact ≠ preflight app bên DS)"
+  ],
+  "khoa": [
+    {
+      "khoa": "stack",
+      "artifact": "body > div > .ui-stack",
+      "ds": "#file-upload > div > div:first-child"
+    },
+    {
+      "khoa": "drop",
+      "artifact": "label[for=\"u1\"]",
+      "ds": "#file-upload [data-slot=\"file-drop\"]:not([aria-disabled])",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "con": [
+        {
+          "ten": "input",
+          "artifact": "> input",
+          "ds": "> input",
+          "props": [
+            "width",
+            "height",
+            "opacity",
+            "cursor"
+          ]
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color",
+            "paddingBottom"
+          ]
+        },
+        {
+          "ten": "tieu-de",
+          "artifact": "> .ui-drop-title",
+          "ds": "> span:nth-of-type(1)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "fontWeight",
+            "color"
+          ]
+        },
+        {
+          "ten": "u",
+          "artifact": "> .ui-drop-title > u",
+          "ds": "> span:nth-of-type(1) > u",
+          "props": [
+            "textDecorationLine",
+            "color"
+          ]
+        },
+        {
+          "ten": "goi-y",
+          "artifact": "> .ui-help",
+          "ds": "> span:nth-of-type(2)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "fontWeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "drop-focus",
+      "artifact": "label[for=\"u1\"]",
+      "ds": "#file-upload [data-slot=\"file-drop\"]:not([aria-disabled])",
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tab": {
+            "artifact": "#u1",
+            "ds": "#ds-tep"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "list",
+      "artifact": ".ui-file-list",
+      "ds": "#file-upload [data-slot=\"file-list\"]"
+    },
+    {
+      "khoa": "dong-xong",
+      "artifact": ".ui-file[data-state=\"done\"]",
+      "ds": "#file-upload [data-slot=\"file-item\"][data-state=\"done\"]",
+      "con": [
+        {
+          "ten": "thumb",
+          "artifact": "> .ui-file-thumb",
+          "ds": "> [data-slot=\"file-thumb\"]",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color"
+          ]
+        },
+        {
+          "ten": "thumb-icon",
+          "artifact": "> .ui-file-thumb > svg",
+          "ds": "> [data-slot=\"file-thumb\"] > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "ten",
+          "artifact": ".ui-file-name",
+          "ds": "[data-slot=\"file-name\"]",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "fontWeight",
+            "color",
+            "textOverflow",
+            "whiteSpace"
+          ]
+        },
+        {
+          "ten": "phu",
+          "artifact": ".ui-file-meta",
+          "ds": "[data-slot=\"file-meta\"]",
+          "props": [
+            "fontSize",
+            "lineHeight",
+            "color",
+            "fontVariantNumeric"
+          ]
+        },
+        {
+          "ten": "nut-bo",
+          "artifact": "> .ui-btn",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "borderRadius",
+            "backgroundColor",
+            "color"
+          ]
+        },
+        {
+          "ten": "nut-bo-icon",
+          "artifact": "> .ui-btn > svg",
+          "ds": "> button > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "dong-dang-tai",
+      "artifact": ".ui-file[data-state=\"uploading\"]",
+      "ds": "#file-upload [data-slot=\"file-item\"][data-state=\"uploading\"]",
+      "con": [
+        {
+          "ten": "thumb-icon",
+          "artifact": "> .ui-file-thumb > svg",
+          "ds": "> [data-slot=\"file-thumb\"] > svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        },
+        {
+          "ten": "phu",
+          "artifact": ".ui-file-meta",
+          "ds": "[data-slot=\"file-meta\"]",
+          "props": [
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "tien-do",
+      "artifact": ".ui-progress",
+      "ds": "#file-upload [data-slot=\"file-progress\"]"
+    },
+    {
+      "khoa": "tien-do-thanh",
+      "artifact": ".ui-progress > span",
+      "ds": "#file-upload [data-slot=\"file-progress\"] > span"
+    },
+    {
+      "khoa": "dong-loi",
+      "artifact": ".ui-file[data-state=\"error\"]",
+      "ds": "#file-upload [data-slot=\"file-item\"][data-state=\"error\"]",
+      "con": [
+        {
+          "ten": "phu",
+          "artifact": ".ui-file-meta",
+          "ds": "[data-slot=\"file-meta\"]",
+          "props": [
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "tat",
+      "artifact": "label[for=\"u2\"]",
+      "ds": "#file-upload [data-slot=\"file-drop\"][aria-disabled]",
+      "trangThai": [
+        "hover"
+      ],
+      "artifactThat": true,
+      "con": [
+        {
+          "ten": "input",
+          "artifact": "> input",
+          "ds": "> input",
+          "props": [
+            "width",
+            "height",
+            "opacity",
+            "cursor"
+          ]
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "color"
+          ]
+        },
+        {
+          "ten": "tieu-de",
+          "artifact": "> .ui-drop-title",
+          "ds": "> span:nth-of-type(1)",
+          "props": [
+            "color"
+          ]
+        },
+        {
+          "ten": "goi-y",
+          "artifact": "> .ui-help",
+          "ds": "> span:nth-of-type(2)",
+          "props": [
+            "color"
+          ]
+        }
+      ]
+    }
+  ]
+}
