@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { DsRoot } from '@/components/ui/ds-root'
+import { Toaster } from '@/components/ui/toast'
 import { NHOM_MUC } from './khoi'
 import { MucLuc, ThanhDiDong } from './muc-luc'
 import type { Theme } from './trang'
@@ -34,6 +35,8 @@ export function KhungDs({ theme, trang, children }: { theme: Theme; trang: strin
           {children}
         </main>
       </div>
+      {/* Một Toaster mỗi trang, trong vùng DS (Sonner không portal) — thongBao.* ở mọi khối hiện ở đây. */}
+      <Toaster />
     </DsRoot>
   )
 }
