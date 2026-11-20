@@ -269,6 +269,7 @@ body {
 .ui-dialog-body { margin-top: 16px; }
 .ui-dialog-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 .ui-dialog-close { position: absolute; top: 19px; right: 19px; } /* tâm ✕ trên tâm dòng tiêu đề: dialog-padding 20 + (line-height tiêu đề 26 − control-size-sm 28) / 2 = 19; phải = trên cho cân góc (Dialog + Sheet) — CEO chốt 20/11 */
+.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px; } /* chừa chỗ ✕: mép trái ✕ cách mép hộp 19 + 28 = 47; tiêu đề (trong padding 20) chừa 36 = 9 × --spacing → mép phải chữ cách mép hộp 56, cách ✕ 9px (≥ 8; đúng 8 cần 35 — lệch thang 4). Chỉ hộp CÓ ✕ — ConfirmDialog/AlertDialog không ✕ giữ trọn bề ngang — CEO chốt 20/11 */
 .ui-sheet {
   position: absolute; top: 0; right: 0; bottom: 0;
   display: flex; flex-direction: column;
@@ -276,7 +277,7 @@ body {
   background: var(--popover); color: var(--popover-foreground);
   box-shadow: var(--shadow-400), var(--shadow-hairline);
 }
-.ui-sheet-header { padding: var(--dialog-padding); padding-right: 52px; border-bottom: 1px solid var(--border); }
+.ui-sheet-header { padding: var(--dialog-padding); padding-right: 56px; border-bottom: 1px solid var(--border); } /* phải 56 = 14 × --spacing chừa ✕ (luôn có ở Sheet): mép phải chữ cách ✕ (47) 9px như Dialog; 52 cũ chỉ còn 5px từ khi ✕ dời về 19 — CEO chốt 20/11 */
 .ui-sheet-body { flex: 1; overflow-y: auto; padding: var(--dialog-padding); display: flex; flex-direction: column; gap: 16px; }
 .ui-sheet-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px var(--dialog-padding); border-top: 1px solid var(--border); }
 @media (max-width: 640px) { .ui-sheet { width: 100%; } } /* điện thoại: rộng hết, không hở dải overlay (README "mobile 100%") — CEO chốt 20/11 */
