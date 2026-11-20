@@ -125,7 +125,8 @@ export function KhoiHang({ neo, children }: { neo: string; children: ReactNode }
 export function BienThe({ ten, moTa, children }: { ten: ReactNode; moTa?: ReactNode; children: ReactNode }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)]">
-      <div className={`flex flex-col gap-0.5 pt-4 md:border-r md:border-(--border) md:py-4 ${LE} md:pr-4`}>
+      {/* md: dòng tên đặt giữa hàng control đầu tiên (đệm 16 + (32 − 20) / 2 = 22) để thẳng tâm nút/ô 32px. */}
+      <div className={`flex flex-col gap-0.5 pt-4 md:border-r md:border-(--border) md:pt-5.5 md:pb-4 ${LE} md:pr-4`}>
         <span className={`${CHU.sm} font-medium`}>{ten}</span>
         {moTa && <span className={`${CHU.xs} text-muted-foreground`}>{moTa}</span>}
       </div>
