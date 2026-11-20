@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { CalendarBlank } from '@phosphor-icons/react/ssr'
 import { hienNgay, isoNgay, ngayTuIso } from '@/bang/ngay'
+import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { calendarFoot } from '@/components/ui/calendar-styles'
 import { Input } from '@/components/ui/input'
@@ -85,16 +86,28 @@ export function ChonHanA4({ value, onValueChange, id, gon, ma }: PropsHan) {
           dat(isoNgay(d))
         }}
       />
-      {value && (
-        <div className={calendarFoot}>
+      {/* CEO 20/11: thêm nút xác nhận ở góc phải chân pop. Vẫn lưu ngay khi đổi (như A1) — "Xong" chốt nốt ô ngày đang gõ dở rồi đóng. */}
+      <div className={calendarFoot}>
+        {value ? (
           <NutXoa
             onClick={() => {
               onValueChange(null)
               setMo(false)
             }}
           />
-        </div>
-      )}
+        ) : (
+          <span />
+        )}
+        <Button
+          size="sm"
+          onClick={() => {
+            if (hopLe && hopLe !== ngay) dat(hopLe)
+            setMo(false)
+          }}
+        >
+          Xong
+        </Button>
+      </div>
     </VoHan>
   )
 }
