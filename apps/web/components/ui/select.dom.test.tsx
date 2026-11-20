@@ -163,6 +163,12 @@ test('aria-invalid trên trigger giữ nguyên; placeholder → data-placeholder
   expect(ph.textContent).toContain('Chọn tình trạng hàng')
 })
 
+test('selectTrigger đã gộp sẵn: gắn thô (không qua cn) vẫn chỉ một độ đậm gốc là medium', () => {
+  const lop = selectTrigger.split(' ')
+  expect(lop).toContain('font-medium')
+  expect(lop).not.toContain('font-normal')
+})
+
 test('selectTrigger xuất ra là chuỗi class dùng lại được, SelectTrigger mang nó', () => {
   render(
     <DsRoot>
