@@ -1,0 +1,121 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#command-palette > div:last-child",
+      "[data-ds-portal] > *"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      { "cho": 1500 },
+      { "bam": "#command-palette [data-so=\"mo\"]" },
+      { "cho": 300 }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí hộp nổi (fixed, cách đỉnh 12vh, giữa ngang; ≤640 sát mép 8px): so khớp chỉ đo hộp/màu, không đo top/left — preview vẽ hai hộp tĩnh relative. Đo bằng getBoundingClientRect trên ảnh tự kiểm (báo cáo Task 5)",
+    "Chân + Kbd Esc ẩn ≤640 (display none): bộ đo không có thuộc tính display — kiểm bằng ảnh 390 + getComputedStyle trong báo cáo Task 5",
+    "Nền mờ (đen 30%, tối 50%): preview dùng `<dialog open>` không modal → không có ::backdrop để đo. DS dùng chung `overlay` của dialog-styles.ts (đã đo ở so khớp Dialog)",
+    "Hiện 160ms (`ui-dialog-len`; DS transition + @starting-style), giảm chuyển động → không: đo sau khi hiện xong (cho 300ms)",
+    "Hình icon: preview là path Phosphor kính lúp/Ticket/User/Cpu/Sparkle tô; DS dùng cùng bộ Phosphor — chỉ đo hộp + màu",
+    "Bàn phím (Ctrl K / ⌘K theo nền tảng, ↑/↓ vòng, Enter mở, Esc đóng + focus về nút mở), bộ gõ đang ghép chữ, khớp không dấu + SĐT, cắt 5 dòng/nhóm + 5/7, câu không thấy ngoài listbox, vùng role=status: test jsdom components/ui/command-palette.dom.test.tsx",
+    "Thứ tự nhóm theo dạng chữ gõ (prototype: gõ số → khách/đơn trước, \"TK…\" → ticket trước): DS giữ thứ tự `nhom` bên gọi truyền vào — bên gọi tự sắp nếu cần"
+  ],
+  "khoa": [
+    {
+      "khoa": "luoi",
+      "artifact": "body > div",
+      "ds": "#command-palette > div:last-child"
+    },
+    {
+      "khoa": "hop",
+      "artifact": ".ds-muc:nth-child(1) > dialog.ui-command",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"]"
+    },
+    {
+      "khoa": "hang-go",
+      "artifact": ".ds-muc:nth-child(1) .ui-command-input",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [data-slot=\"command-input\"]",
+      "con": [
+        { "ten": "input", "artifact": "> input", "ds": "> input" },
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "esc", "artifact": "> kbd", "ds": "> kbd" }
+      ]
+    },
+    {
+      "khoa": "list",
+      "artifact": ".ds-muc:nth-child(1) .ui-command-list",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [cmdk-list]"
+    },
+    {
+      "khoa": "nhan-nhom",
+      "artifact": ".ds-muc:nth-child(1) .ui-menu-label",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [cmdk-group-heading]"
+    },
+    {
+      "khoa": "dong-sang",
+      "artifact": ".ds-muc:nth-child(1) .ui-command-item[aria-selected=\"true\"]",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [cmdk-item][aria-selected=\"true\"]",
+      "con": [
+        { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },
+        { "ten": "ten", "artifact": ".ui-command-ten", "ds": "> span > span:first-child" },
+        { "ten": "phu", "artifact": ".ui-command-phu", "ds": "> span > span:last-child" },
+        { "ten": "mark", "artifact": "mark", "ds": "mark" },
+        { "ten": "enter", "artifact": "> kbd", "ds": "> kbd" }
+      ]
+    },
+    {
+      "khoa": "dong",
+      "artifact": ".ds-muc:nth-child(1) [role=\"group\"]:nth-child(2) .ui-command-item",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [cmdk-group]:nth-child(2) [cmdk-item]",
+      "con": [
+        { "ten": "phu", "artifact": ".ui-command-phu", "ds": "> span > span:last-child" }
+      ]
+    },
+    {
+      "khoa": "chan",
+      "artifact": ".ds-muc:nth-child(1) .ui-command-foot",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [data-slot=\"command-foot\"]",
+      "con": [
+        { "ten": "cum", "artifact": "> span:first-child", "ds": "> span:first-child" },
+        { "ten": "kbd", "artifact": "> span:first-child > kbd", "ds": "> span:first-child > kbd" },
+        { "ten": "phai", "artifact": "> span:last-child", "ds": "> span:last-child" }
+      ]
+    },
+    {
+      "khoa": "rong",
+      "artifact": ".ui-command-rong",
+      "ds": "#command-palette [data-so=\"khong-thay\"] [data-slot=\"command-empty\"]"
+    },
+    {
+      "khoa": "hop-noi",
+      "artifact": ".ds-muc:nth-child(1) > dialog.ui-command",
+      "ds": "[data-ds-portal] [data-slot=\"command-palette\"]",
+      "buoc": [
+        { "cho": 1500 },
+        { "bam": "#command-palette [data-so=\"mo\"]" },
+        { "cho": 300 }
+      ],
+      "lyDo": {
+        "width@1440": "Cùng công thức min(640px, 100% − 32px) nhưng khác khối chứa: preview vẽ hộp tĩnh relative trong cột `.ds-tinh` rộng 640 → 640 − 32 = 608; hộp nổi DS fixed theo KHUNG NHÌN 1440 → min(640, 1408) = 640 (đúng hộp nổi thật của artifact: `dialog.ui-command` fixed). Hộp tĩnh DS (khoá `hop`) khớp 608.",
+        "width@390": "≤640 cùng công thức 100% − 16px, khác khối chứa: preview tĩnh trong cột 358 (390 − padding 16 × 2) → 342; hộp nổi DS fixed theo khung nhìn 390 → 374 (sát mép 8px hai bên — đo getBoundingClientRect: trái 8, phải 8, đỉnh 8). Hộp tĩnh DS (khoá `hop`) khớp 342.",
+        "zIndex": "Preview vẽ `<dialog open>` tĩnh (không showModal, không z-index → auto). Hộp thật của artifact là `dialog.ui-command` mở bằng showModal → top layer. DS dùng Radix Portal (không top layer) → z-70 = lớp dialog của thang z ds/NGUON.md (như so khớp Dialog)."
+      }
+    },
+    {
+      "khoa": "go-noi",
+      "artifact": ".ds-muc:nth-child(1) .ui-command-input > input",
+      "ds": "[data-ds-portal] [data-slot=\"command-palette\"] input",
+      "buoc": [
+        { "cho": 1500 },
+        { "bam": "#command-palette [data-so=\"mo\"]" },
+        { "cho": 300 }
+      ],
+      "lyDo": {
+        "width@1440": "Theo bề rộng hộp (khoá hop-noi: preview tĩnh 608, DS nổi 640) − đệm hàng gõ 16 + 12 − kính lúp 16 − Esc 28.5 − 2 × gap 10 → 515.5 / 547.5. Ô gõ tĩnh DS (khoá hang-go) khớp.",
+        "width@390": "Theo bề rộng hộp (khoá hop-noi: preview tĩnh 342, DS nổi 374); Esc ẩn ≤640 → 342 − 28 − 16 − 10 = 288 / 374 → 320. Ô gõ tĩnh DS (khoá hang-go) khớp."
+      }
+    }
+  ]
+}
