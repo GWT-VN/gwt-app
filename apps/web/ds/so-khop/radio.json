@@ -1,0 +1,517 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#radio > div"
+  },
+  "anhTuongTac": {
+    "hover": "#radio [data-so=\"doc\"] > label:nth-of-type(2) > button"
+  },
+  "chuaDo": [
+    "Preview không có mục hover/focus ép sẵn: hover (Tiền mặt) và focus đo bằng tương tác THẬT ở CẢ HAI bên. Focus: Radix để mọi item tabIndex −1 tới khi nhóm nhận focus (fieldset là điểm dừng Tab rồi chuyển vào mục đang chọn) → bước tab không nhảy thẳng tới item được; bên DS bấm ô Checkbox cuối của khối #checkbox (khối liền trước trên /ds — đổi thứ tự khối thì sửa bước này) rồi Tab thật (link tiêu đề #radio → fieldset → mục Chuyển khoản); bên artifact bấm nhãn khung rồi Tab (radio gốc tự là điểm dừng)",
+    "Vòng đo qua con `o` với thuộc tính của HỘP; font/màu chữ của vòng không đo (input nguồn mang font UA, vòng DS là button không chữ) — nhãn bọc ngoài đo đủ 32 thuộc tính",
+    "Chấm chọn: kích thước/bo/màu đo bằng pseudo ::after (cham-*); transform scale 0 → 1 trong 120ms và tắt chuyển động khi prefers-reduced-motion không nằm trong bộ thuộc tính đo — cùng chuỗi CSS với nguồn",
+    "Hover lên vòng ĐÃ chọn ở theme tối: bundle.css đổi viền sang gray-600 (rule tối 0,3,0 thắng :checked 0,2,0), DS giữ viền primary-solid như theme sáng — preview không có ca này",
+    "Tab vào nhóm focus mục đang chọn, mũi tên đổi lựa chọn + bỏ qua mục tắt, bấm chữ nhãn chọn, aria-invalid + aria-describedby nhóm: test jsdom components/ui/checkbox-radio.dom.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "hang",
+      "artifact": "body > div",
+      "ds": "#radio [data-so=\"hang\"]"
+    },
+    {
+      "khoa": "muc",
+      "artifact": "body > div > .ds-muc:nth-child(1)",
+      "ds": "#radio [data-so=\"hang\"] > div:nth-child(1)"
+    },
+    {
+      "khoa": "muc-nhan",
+      "artifact": "body > div > .ds-muc:nth-child(1) > .ds-nhan",
+      "ds": "#radio [data-so=\"hang\"] > div:nth-child(1) > div:first-child"
+    },
+    {
+      "khoa": "doc",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset",
+      "ds": "#radio [data-so=\"doc\"]"
+    },
+    {
+      "khoa": "legend",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > legend",
+      "ds": "#radio [data-so=\"legend\"]"
+    },
+    {
+      "khoa": "chon",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "mo-ta",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1) .ui-choice-desc",
+      "ds": "#radio [data-so=\"mo-ta\"]"
+    },
+    {
+      "khoa": "cham-chon",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1) > .ui-radio",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1) > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "chua",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(2)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "cham-chua",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(2) > .ui-radio",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2) > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "hover",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(2)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(2) > .ui-radio",
+            "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2) > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "focus",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction",
+            "outlineColor"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "bam": {
+            "artifact": "body > div > .ds-muc:nth-child(1) > .ds-nhan",
+            "ds": "#checkbox [data-so=\"loi\"] > button"
+          }
+        },
+        {
+          "tab": {
+            "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1) > .ui-radio",
+            "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1) > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "tat",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(3)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "cham-tat",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(3) > .ui-radio",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3) > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "tat-hover",
+      "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(3)",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(3) > .ui-radio",
+            "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3) > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "ngang",
+      "artifact": "body > div > .ds-muc:nth-child(2) > fieldset",
+      "ds": "#radio [data-so=\"ngang\"]"
+    },
+    {
+      "khoa": "ngang-legend",
+      "artifact": "body > div > .ds-muc:nth-child(2) > fieldset > legend",
+      "ds": "#radio [data-so=\"ngang\"] > legend"
+    },
+    {
+      "khoa": "ngang-1",
+      "artifact": "body > div > .ds-muc:nth-child(2) > fieldset > label:nth-of-type(1)",
+      "ds": "#radio [data-so=\"ngang\"] > label:nth-of-type(1)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "ngang-2",
+      "artifact": "body > div > .ds-muc:nth-child(2) > fieldset > label:nth-of-type(2)",
+      "ds": "#radio [data-so=\"ngang\"] > label:nth-of-type(2)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "loi-nhom",
+      "artifact": "body > div > .ds-muc:nth-child(3) > fieldset",
+      "ds": "#radio [data-so=\"loi-nhom\"]"
+    },
+    {
+      "khoa": "loi-legend",
+      "artifact": "body > div > .ds-muc:nth-child(3) > fieldset > legend",
+      "ds": "#radio [data-so=\"loi-nhom\"] > legend"
+    },
+    {
+      "khoa": "req",
+      "artifact": "body > div > .ds-muc:nth-child(3) > fieldset > legend .req",
+      "ds": "#radio [data-so=\"loi-nhom\"] > legend > [aria-hidden=\"true\"]"
+    },
+    {
+      "khoa": "loi",
+      "artifact": "body > div > .ds-muc:nth-child(3) > fieldset > label:nth-of-type(1)",
+      "ds": "#radio [data-so=\"loi-nhom\"] > label:nth-of-type(1)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "loi-hover",
+      "artifact": "body > div > .ds-muc:nth-child(3) > fieldset > label:nth-of-type(1)",
+      "ds": "#radio [data-so=\"loi-nhom\"] > label:nth-of-type(1)",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-radio",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": "body > div > .ds-muc:nth-child(3) > fieldset > label:nth-of-type(1) > .ui-radio",
+            "ds": "#radio [data-so=\"loi-nhom\"] > label:nth-of-type(1) > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "o.borderTopColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-radio:hover, 0,3,0) thắng .ui-radio[aria-invalid] (0,2,0) → vòng LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact.",
+        "o.borderBottomColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-radio:hover, 0,3,0) thắng .ui-radio[aria-invalid] (0,2,0) → vòng LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact."
+      }
+    },
+    {
+      "khoa": "loi-msg",
+      "artifact": "#p3e",
+      "ds": "#radio [data-so=\"loi-msg\"]"
+    }
+  ]
+}

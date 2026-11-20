@@ -1,0 +1,459 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#checkbox > div"
+  },
+  "anhTuongTac": {
+    "hover": "#checkbox [data-so=\"hover\"] > button",
+    "focus": "#checkbox [data-so=\"focus\"] > button"
+  },
+  "chuaDo": [
+    "Dấu ✓ / – vẽ bằng ::after như nguồn, đo qua khoá chon-dau / mot-phan-dau / tat-chon-dau (pseudo); riêng transform (xoay −45°, nhích −1px) không nằm trong bộ thuộc tính đo — cùng chuỗi CSS với nguồn, so bằng mắt qua ảnh",
+    "Ô đo qua con `o` với thuộc tính của HỘP (kích thước, top, viền, nền, outline, chuyển động); font/màu chữ của ô không đo — input nguồn mang font UA (Arial 13.5) còn ô DS là button không chữ, nhãn bọc ngoài mới mang chữ (đo đủ 32 thuộc tính)",
+    "Hover lên ô ĐÃ chọn / một phần ở theme tối: bundle.css đổi viền sang gray-600 (rule tối 0,3,0 thắng :checked 0,2,0), DS giữ viền gray-900 như theme sáng — preview không có ca này",
+    "Ô vừa lỗi vừa tắt, lỗi + đã chọn: preview không có; DS cho tắt thắng lỗi, lỗi thắng viền chọn (như nguồn theme sáng)",
+    "Bấm chữ nhãn đổi ô, một phần → aria-checked mixed, aria-invalid giữ nguyên: test jsdom components/ui/checkbox-radio.dom.test.tsx"
+  ],
+  "khoa": [
+    {
+      "khoa": "hang",
+      "artifact": "body > div",
+      "ds": "#checkbox [data-so=\"hang\"]"
+    },
+    {
+      "khoa": "chua",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(1)",
+      "ds": "#checkbox [data-so=\"chua\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "chon",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(2)",
+      "ds": "#checkbox [data-so=\"chon\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "mot-phan",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(3)",
+      "ds": "#checkbox [data-so=\"mot-phan\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "hover",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(4)",
+      "ds": "#checkbox [data-so=\"hover\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "buoc": [
+        {
+          "tro": "#checkbox [data-so=\"hover\"] > button"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "focus",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(5)",
+      "ds": "#checkbox [data-so=\"focus\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction",
+            "outlineColor"
+          ]
+        }
+      ],
+      "buoc": [
+        {
+          "tab": "#checkbox [data-so=\"focus\"] > button"
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "tat",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(6)",
+      "ds": "#checkbox [data-so=\"tat\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "tat-hover",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(6)",
+      "ds": "#checkbox [data-so=\"tat\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": "body > div > .ui-checkbox-label:nth-child(6) > .ui-checkbox",
+            "ds": "#checkbox [data-so=\"tat\"] > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ]
+    },
+    {
+      "khoa": "tat-chon",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(7)",
+      "ds": "#checkbox [data-so=\"tat-chon\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "chon-dau",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(2) > .ui-checkbox",
+      "ds": "#checkbox [data-so=\"chon\"] > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "mot-phan-dau",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(3) > .ui-checkbox",
+      "ds": "#checkbox [data-so=\"mot-phan\"] > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "tat-chon-dau",
+      "artifact": "body > div > .ui-checkbox-label:nth-child(7) > .ui-checkbox",
+      "ds": "#checkbox [data-so=\"tat-chon\"] > button",
+      "pseudo": {
+        "artifact": "::after",
+        "ds": "::after"
+      },
+      "boChu": true
+    },
+    {
+      "khoa": "loi-khoi",
+      "artifact": "body > div > .ui-stack",
+      "ds": "#checkbox [data-so=\"loi-khoi\"]"
+    },
+    {
+      "khoa": "loi",
+      "artifact": "body > div > .ui-stack > .ui-checkbox-label",
+      "ds": "#checkbox [data-so=\"loi\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "loi-hover",
+      "artifact": "body > div > .ui-stack > .ui-checkbox-label",
+      "ds": "#checkbox [data-so=\"loi\"]",
+      "con": [
+        {
+          "ten": "o",
+          "artifact": "> .ui-checkbox",
+          "ds": "> button",
+          "props": [
+            "width",
+            "height",
+            "position",
+            "top",
+            "paddingTop",
+            "paddingLeft",
+            "borderRadius",
+            "borderTopWidth",
+            "borderTopStyle",
+            "borderTopColor",
+            "borderBottomColor",
+            "backgroundColor",
+            "boxShadow",
+            "opacity",
+            "cursor",
+            "outlineStyle",
+            "outlineWidth",
+            "outlineOffset",
+            "transitionProperty",
+            "transitionDuration",
+            "transitionTimingFunction"
+          ]
+        }
+      ],
+      "artifactThat": true,
+      "buoc": [
+        {
+          "tro": {
+            "artifact": "body > div > .ui-stack .ui-checkbox",
+            "ds": "#checkbox [data-so=\"loi\"] > button"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "lyDo": {
+        "o.borderTopColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-checkbox:hover, 0,3,0) thắng .ui-checkbox[aria-invalid] (0,2,0) → ô LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact.",
+        "o.borderBottomColor@toi": "Lỗi đặc hiệu của nguồn: rule hover theme tối của bundle.css (data-theme tối + .ui-checkbox:hover, 0,3,0) thắng .ui-checkbox[aria-invalid] (0,2,0) → ô LỖI rê chuột ở tối mất viền đỏ (gray-600), theme sáng thì giữ đỏ. DS giữ viền red-500 ở cả hai theme (lỗi thắng hover như theme sáng) — đề xuất đồng bộ ngược artifact."
+      }
+    },
+    {
+      "khoa": "loi-msg",
+      "artifact": "#cbe",
+      "ds": "#checkbox [data-so=\"loi-msg\"]"
+    }
+  ]
+}
