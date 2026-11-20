@@ -94,60 +94,33 @@ export const notifMark = [
 /** `.ui-notif-mark .ui-dot` info: chấm 8 tròn. */
 export const notifDot = `${kv} block size-2 rounded-(--radius-full) bg-(--color-background-info-solid)`
 
-/* ---------- NotificationMatrix (bảng `.ui-table` + `.ui-notif-matrix`) ---------- */
+/* ---------- NotificationMatrix — phần RIÊNG của ma trận (`.ui-notif-matrix*`), ghép SAU kiểu Table DS qua cn() ---------- */
+// Khung, bảng, ô, kẻ, hover lấy từ Table DS (`table.tsx`: TableWrap vien · Table · TableHead · TableCell). Ở đây chỉ còn
+// thứ của ma trận: cột kênh căn giữa, cột tên ghim trái, hàng nhóm khu, ô Checkbox (+ Select), ô không áp dụng.
 
-/** `.ui-table-wrap`: relative (chữ ẩn trong bảng cuộn ngang không kéo giãn trang 390), cuộn ngang, viền 1 border, bo xl, nền card. */
-export const maTranKhung =
-  'relative w-full overflow-x-auto rounded-(--radius-xl) border border-solid border-(--border) bg-card'
-/** `.ui-table`: rộng hết, viền tách 0, 14/20. */
-export const maTranBang = `${kv} w-full border-separate border-spacing-0 text-[14px] leading-[20px]`
-/**
- * Kẻ dưới 1px `border`, ba cạnh kia KHÔNG viền (kiểu none, màu currentColor như nguồn) — một khai báo `border-style`
- * cho cả bốn cạnh: utility kiểu solid sẽ làm cạnh trên cũng solid (luật NGUON).
- */
-const keDuoi = 'border-current border-b border-b-(--border) [border-style:none_none_solid]'
 /** Hàng cuối của mỗi tbody hết kẻ dưới (`.ui-table tbody tr:last-child td/th`) — thead không áp. */
 const hetKeCuoi = '[tbody>tr:last-child>&]:border-b-0'
-/** Phần chung `.ui-table th`: đệm 0 gutter-md, kẻ dưới, căn trái. */
-const thChung = `${keDuoi} px-(--control-gutter-md) text-left`
+/** `thead th`: cột kênh căn giữa; cột đầu ghim trái trên cả các ô dính khác (z 3 > 2 của TableHead) + kẻ phải inset. */
+export const maTranThCot = 'not-first:text-center first:left-0 first:z-3 first:[box-shadow:inset_-1px_0_0_var(--border)]'
 /**
- * `thead th`: dính trên (z 1), cao control-size-lg, nền surface-secondary, 12/18 600 muted, không xuống dòng; cột kênh căn
- * giữa; cột đầu ghim trái (z 2) + kẻ phải inset.
- */
-export const maTranThCot = [
-  thChung,
-  'sticky top-0 z-1 h-(--control-size-lg) bg-(--color-surface-secondary) whitespace-nowrap',
-  'text-[12px] leading-[18px] font-semibold text-muted-foreground',
-  'not-first:text-center first:left-0 first:z-2 first:[box-shadow:inset_-1px_0_0_var(--border)]',
-].join(' ')
-/**
- * `tbody th[scope=row]`: ghim trái (z 1) nền card + kẻ phải inset; cao theo nội dung, rộng ≥ 180, đệm 8 gutter-md, 14/20 400
- * foreground, xuống dòng được. Rê hàng → nền hover ĐẶC (lớp hover phủ trên card — chữ cuộn bên dưới không lộ).
+ * `tbody th[scope=row]`: ghim TRÁI (không dính đầu như th của header), nền card + kẻ phải inset; cao theo nội dung, rộng
+ * ≥ 180, đệm dọc 8, 14/20 400 foreground, xuống dòng được. Rê hàng → nền hover của Table (alpha-02) phủ trên card, ĐẶC —
+ * chữ cuộn ngang bên dưới không lộ.
  */
 export const maTranThHang = [
-  thChung,
   hetKeCuoi,
-  'sticky left-0 z-1 min-w-[180px] bg-card py-2 [box-shadow:inset_-1px_0_0_var(--border)]',
+  'top-auto left-0 z-1 h-auto min-w-[180px] bg-card py-2 [box-shadow:inset_-1px_0_0_var(--border)]',
   'text-[14px] leading-[20px] font-normal text-foreground whitespace-normal',
-  '[tr:hover>&]:[background:linear-gradient(var(--color-background-primary-outline-hover),var(--color-background-primary-outline-hover)),var(--card)]',
+  '[tr:hover>&]:[background:linear-gradient(var(--alpha-02),var(--alpha-02)),var(--card)]',
 ].join(' ')
 /** `.ui-notif-matrix-gui`: dòng phụ "Gửi cho: …" block 12/18 muted. */
 export const maTranGui = `${kv} block text-[12px] leading-[18px] text-muted-foreground`
-/** `tbody th[scope=rowgroup]`: cao control-size-md, nền muted, 12/18 600 muted, không dính. */
-export const maTranThKhu = [
-  thChung,
-  // z 1 kế thừa từ `.ui-table th` (vô tác dụng khi static — giữ cho computed khớp nguồn)
-  'static z-1 h-(--control-size-md) bg-muted whitespace-nowrap text-[12px] leading-[18px] font-semibold text-muted-foreground',
-].join(' ')
-/** `.ui-notif-matrix-khu th > span`: tên khu dính trái gutter-md khi cuộn ngang. */
-export const maTranTenKhu = `${kv} sticky left-(--control-gutter-md)`
-/** `.ui-table td` + `.ui-notif-matrix td`: cao control-size-xl, đệm 0 gutter-md, kẻ dưới, căn giữa; rê hàng → nền hover. */
-export const maTranO = [
-  keDuoi,
-  hetKeCuoi,
-  'h-(--control-size-xl) px-(--control-gutter-md) text-center whitespace-nowrap',
-  '[tr:hover>&]:bg-(--color-background-primary-outline-hover)',
-].join(' ')
+/** `tbody th[scope=rowgroup]`: không dính, cao control-size-md, nền muted, 12/18 600 muted. */
+export const maTranThKhu = 'static h-(--control-size-md) bg-muted font-semibold'
+/** `.ui-notif-matrix-khu th > span`: tên khu dính trái khi cuộn ngang (lề = đệm ngang ô). */
+export const maTranTenKhu = `${kv} sticky left-2.5`
+/** `.ui-notif-matrix td`: căn giữa; hàng cuối mỗi nhóm hết kẻ dưới. */
+export const maTranO = `text-center ${hetKeCuoi}`
 /** `.ui-notif-matrix-o`: flex căn giữa gap 8 (ô hàng 2 dòng canh giữa dọc, không lệch baseline). */
 export const maTranOChon = `${kv} flex items-center justify-center gap-2`
 /** `.ui-notif-matrix-na`: "—" color-text-tertiary. */

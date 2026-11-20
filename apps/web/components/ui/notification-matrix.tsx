@@ -1,12 +1,10 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Checkbox } from './checkbox'
 import {
-  maTranBang,
   maTranChon,
   maTranGui,
-  maTranKhung,
   maTranLuu,
   maTranNa,
   maTranO,
@@ -17,6 +15,7 @@ import {
   maTranThKhu,
 } from './notif-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from './table'
 
 /** Cột = kênh nhận. `luaChon` → ô có thêm Select chọn kênh (Discord · kênh), tắt khi bỏ tick. */
 export type KenhThongBao = { id: string; ten: string; luaChon?: readonly string[] }
@@ -35,9 +34,10 @@ const datO = (g: GiaTriMaTran, loai: string, kenh: string, o: OThongBao): GiaTri
 
 /**
  * NotificationMatrix — ma trận cấu hình thông báo ở màn Quản trị (README NotificationMatrix): hàng = loại gom theo khu,
- * cột = kênh nhận. Giá trị `.ui-table*` + `.ui-notif-matrix*` của ds/nguon/bundle.css.
+ * cột = kênh nhận. Dựng trên Table DS (`table.tsx`) + phần riêng `.ui-notif-matrix*` của ds/nguon/bundle.css.
  * - Bấm là lưu (không nút Lưu): `onDoi(giaTriMoi)` ngay, rồi `onLuu(thayDoi)`; xong → dòng `role="status"` báo "Đã lưu: …".
- *   `onLuu` trả Promise bị từ chối → ô trả về như cũ (`onDoi(cu)`) + báo "Chưa lưu được: …. Thử lại."
+ *   `onLuu` trả Promise bị từ chối → CHỈ ô đó trả về như cũ (trên giá trị MỚI NHẤT — ô khác bấm trong lúc chờ không bị
+ *   đè; ô đó đã bị đổi tiếp thì để nguyên) + báo "Chưa lưu được: …. Thử lại."
  * - Ô = Checkbox DS, tên đọc = cột + loại (`aria-labelledby`), "Gửi cho: …" qua `aria-describedby`. Cột có `luaChon`:
  *   thêm Select rộng 120 (tên "Kênh Discord cho “…”: #kênh"), tắt khi bỏ tick.
  * - `<caption>` ẩn; `th scope` col / row / rowgroup. Hẹp: cột tên ghim trái, bảng cuộn ngang trong khung.
@@ -62,58 +62,66 @@ export function NotificationMatrix({
   const [bao, setBao] = useState('Bấm là lưu — không có nút Lưu.')
   const khu = [...new Set(loai.map((l) => l.khu))]
 
-  const luu = async (l: LoaiThongBao, k: KenhThongBao, o: OThongBao, chu: string) => {
-    const cu = giaTri
-    onDoi(datO(giaTri, l.id, k.id, o))
+  // Giá trị mới nhất (props có thể chưa kịp render lại giữa hai lần bấm, và hoàn tác chạy sau await).
+  const moiNhat = useRef(giaTri)
+  moiNhat.current = giaTri
+  const doi = (g: GiaTriMaTran) => {
+    moiNhat.current = g
+    onDoi(g)
+  }
+
+  const luu = async (l: LoaiThongBao, k: KenhThongBao, cu: OThongBao, o: OThongBao, chu: string) => {
+    doi(datO(moiNhat.current, l.id, k.id, o))
     try {
       await onLuu?.({ loai: l.id, kenh: k.id, ...o })
       setBao(`Đã lưu: ${chu}`)
     } catch {
-      onDoi(cu)
+      const nay = moiNhat.current[l.id]?.[k.id]
+      if (nay?.bat === o.bat && nay?.chon === o.chon) doi(datO(moiNhat.current, l.id, k.id, cu))
       setBao(`Chưa lưu được: ${chu}. Thử lại.`)
     }
   }
 
   return (
     <div className="border-none border-current">
-      <div data-slot="notif-matrix-khung" className={maTranKhung}>
-        <table data-slot="notif-matrix" className={maTranBang}>
+      <TableWrap vien data-slot="notif-matrix-khung">
+        <Table data-slot="notif-matrix">
           <caption className="sr-only">{caption}</caption>
-          <thead>
-            <tr>
-              <th scope="col" className={maTranThCot}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className={maTranThCot}>
                 Loại thông báo
-              </th>
+              </TableHead>
               {kenh.map((k) => (
-                <th key={k.id} scope="col" id={`${id}-c-${k.id}`} className={maTranThCot}>
+                <TableHead key={k.id} scope="col" id={`${id}-c-${k.id}`} className={maTranThCot}>
                   {k.ten}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
+            </TableRow>
+          </TableHeader>
           {khu.map((ten) => (
-            <tbody key={ten}>
-              <tr>
-                <th scope="rowgroup" colSpan={kenh.length + 1} className={maTranThKhu}>
+            <TableBody key={ten}>
+              <TableRow>
+                <TableHead scope="rowgroup" colSpan={kenh.length + 1} className={maTranThKhu}>
                   <span className={maTranTenKhu}>{ten}</span>
-                </th>
-              </tr>
+                </TableHead>
+              </TableRow>
               {loai
                 .filter((l) => l.khu === ten)
                 .map((l) => (
-                  <tr key={l.id}>
-                    <th scope="row" className={maTranThHang}>
+                  <TableRow key={l.id}>
+                    <TableHead scope="row" className={maTranThHang}>
                       <span id={`${id}-r-${l.id}`} className="border-none border-current">
                         {l.ten}
                       </span>
                       <span id={`${id}-g-${l.id}`} className={maTranGui}>
                         Gửi cho: {l.guiCho}
                       </span>
-                    </th>
+                    </TableHead>
                     {kenh.map((k) => {
                       const o = giaTri[l.id]?.[k.id]
                       return (
-                        <td key={k.id} className={maTranO}>
+                        <TableCell key={k.id} className={maTranO}>
                           {!o ? (
                             <>
                               <span aria-hidden="true" className={maTranNa}>
@@ -128,14 +136,14 @@ export function NotificationMatrix({
                                 aria-labelledby={`${id}-c-${k.id} ${id}-r-${l.id}`}
                                 aria-describedby={`${id}-g-${l.id}`}
                                 onCheckedChange={(v) =>
-                                  luu(l, k, { ...o, bat: v === true }, `${v === true ? 'bật' : 'tắt'} ${k.ten} — ${l.ten}`)
+                                  luu(l, k, o, { ...o, bat: v === true }, `${v === true ? 'bật' : 'tắt'} ${k.ten} — ${l.ten}`)
                                 }
                               />
                               {k.luaChon && (
                                 <Select
                                   value={o.chon}
                                   disabled={!o.bat}
-                                  onValueChange={(v) => v !== o.chon && luu(l, k, { ...o, chon: v }, `${l.ten} gửi vào ${v}`)}
+                                  onValueChange={(v) => v !== o.chon && luu(l, k, o, { ...o, chon: v }, `${l.ten} gửi vào ${v}`)}
                                 >
                                   <SelectTrigger aria-label={`Kênh Discord cho “${l.ten}”: ${o.chon ?? 'chưa chọn'}`} className={maTranChon}>
                                     <SelectValue />
@@ -151,15 +159,15 @@ export function NotificationMatrix({
                               )}
                             </span>
                           )}
-                        </td>
+                        </TableCell>
                       )
                     })}
-                  </tr>
+                  </TableRow>
                 ))}
-            </tbody>
+            </TableBody>
           ))}
-        </table>
-      </div>
+        </Table>
+      </TableWrap>
       <p role="status" className={maTranLuu}>
         {bao}
       </p>

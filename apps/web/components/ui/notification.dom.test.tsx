@@ -325,3 +325,21 @@ test('ma trận: lưu lỗi → trả ô về như cũ, báo "Chưa lưu đượ
   )
   expect(screen.getByRole('checkbox', { name: 'Trong app Được giao việc' }).getAttribute('aria-checked')).toBe('true')
 })
+
+test('ma trận: bấm nhanh hai ô, ô đầu lưu lỗi → CHỈ ô đầu trả về cũ, ô sau giữ giá trị mới', async () => {
+  const u = userEvent.setup()
+  let tuChoiA: (e: Error) => void = () => {}
+  const onLuu = vi.fn((t: ThayDoiThongBao) =>
+    t.loai === 'giao' ? new Promise((_, tc) => (tuChoiA = tc)) : Promise.resolve(),
+  )
+  render(<MaTran onLuu={onLuu} />)
+  const a = () => screen.getByRole('checkbox', { name: 'Trong app Được giao việc' })
+  const b = () => screen.getByRole('checkbox', { name: 'Trong app Quá hạn' })
+  await u.click(a())
+  await u.click(b())
+  expect(a().getAttribute('aria-checked')).toBe('false')
+  expect(b().getAttribute('aria-checked')).toBe('false')
+  await act(async () => tuChoiA(new Error('mạng')))
+  await waitFor(() => expect(a().getAttribute('aria-checked')).toBe('true'))
+  expect(b().getAttribute('aria-checked')).toBe('false')
+})

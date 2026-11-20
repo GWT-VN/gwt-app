@@ -1,41 +1,163 @@
 {
-  "khung": { "artifact": ".ds-tinh", "ds": "#notification-matrix > div" },
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#notification-matrix > div"
+  },
   "chuaDo": [
     "Bấm là lưu, câu role=\"status\" \"Đã lưu: …\" / lưu lỗi trả ô về cũ, Select kênh tắt khi bỏ tick, tên đọc ô = kênh + loại + mô tả \"Gửi cho\", caption ẩn, scope col/row/rowgroup: test components/ui/notification.dom.test.tsx",
     "Menu chọn kênh Discord (Select DS mở): preview không vẽ menu mở — đã so ở Select",
-    "Cột tên ghim trái khi cuộn ngang (390): vị trí dính không có trong bộ đo — kiểm bằng ảnh 390 (cuộn ngang khung bảng)",
-    "Bảng dựng thẳng bằng class `.ui-table` chép trong notif-styles.ts: component Table (Task 7) chưa có lúc dựng — đổi sang Table khi nó vào"
+    "Cột tên ghim trái khi cuộn ngang (390): vị trí dính không có trong bộ đo — kiểm bằng ảnh 390 (cuộn ngang khung bảng)"
   ],
   "khoa": [
-    { "khoa": "khung", "artifact": ".ui-table-wrap", "ds": "#notification-matrix [data-slot=\"notif-matrix-khung\"]" },
-    { "khoa": "bang", "artifact": "table.ui-notif-matrix", "ds": "#notification-matrix table" },
-    { "khoa": "th-ten", "artifact": "thead th:nth-child(1)", "ds": "#notification-matrix thead th:nth-child(1)" },
-    { "khoa": "th-kenh", "artifact": "thead th:nth-child(3)", "ds": "#notification-matrix thead th:nth-child(3)" },
+    {
+      "khoa": "khung",
+      "artifact": ".ui-table-wrap",
+      "ds": "#notification-matrix [data-slot=\"notif-matrix-khung\"]"
+    },
+    {
+      "khoa": "bang",
+      "artifact": "table.ui-notif-matrix",
+      "ds": "#notification-matrix table",
+      "lyDo": {
+        "width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư)."
+      }
+    },
+    {
+      "khoa": "th-ten",
+      "artifact": "thead th:nth-child(1)",
+      "ds": "#notification-matrix thead th:nth-child(1)",
+      "lyDo": {
+        "width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "fontWeight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): chữ tiêu đề cột 400 (`.b-bang th`) thay 600.",
+        "backgroundColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): nền tiêu đề cột `background` (`.b-bang th`) thay `color-surface-secondary`.",
+        "zIndex": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): tiêu đề cột dính z 2 (`.b-bang th`) thay 1; cột tên ghim ở header lên z 3 để vẫn nằm trên các tiêu đề dính khác (nguồn 2 > 1). Hàng nhóm khu không dính (static) — z không tác dụng.",
+        "borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "backgroundColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): nền tiêu đề cột `background` (`.b-bang th`) thay `color-surface-secondary`."
+      }
+    },
+    {
+      "khoa": "th-kenh",
+      "artifact": "thead th:nth-child(3)",
+      "ds": "#notification-matrix thead th:nth-child(3)",
+      "lyDo": {
+        "width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "fontWeight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): chữ tiêu đề cột 400 (`.b-bang th`) thay 600.",
+        "backgroundColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): nền tiêu đề cột `background` (`.b-bang th`) thay `color-surface-secondary`.",
+        "zIndex": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): tiêu đề cột dính z 2 (`.b-bang th`) thay 1; cột tên ghim ở header lên z 3 để vẫn nằm trên các tiêu đề dính khác (nguồn 2 > 1). Hàng nhóm khu không dính (static) — z không tác dụng.",
+        "width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "backgroundColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): nền tiêu đề cột `background` (`.b-bang th`) thay `color-surface-secondary`."
+      }
+    },
     {
       "khoa": "khu",
       "artifact": "tbody:nth-of-type(1) th[scope=\"rowgroup\"]",
       "ds": "#notification-matrix tbody:nth-of-type(1) th[scope=\"rowgroup\"]",
-      "con": [{ "ten": "ten", "artifact": "> span", "ds": "> span", "props": ["width", "height", "fontSize", "fontWeight", "color"] }]
+      "con": [
+        {
+          "ten": "ten",
+          "artifact": "> span",
+          "ds": "> span",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "fontWeight",
+            "color"
+          ]
+        }
+      ],
+      "lyDo": {
+        "paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "zIndex": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): tiêu đề cột dính z 2 (`.b-bang th`) thay 1; cột tên ghim ở header lên z 3 để vẫn nằm trên các tiêu đề dính khác (nguồn 2 > 1). Hàng nhóm khu không dính (static) — z không tác dụng.",
+        "width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`."
+      }
     },
     {
       "khoa": "loai",
       "artifact": "tbody:nth-of-type(1) tr:nth-child(2) th",
       "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) th",
-      "trangThai": ["hover"],
+      "trangThai": [
+        "hover"
+      ],
       "artifactThat": true,
       "con": [
-        { "ten": "gui", "artifact": ".ui-notif-matrix-gui", "ds": "> span:nth-child(2)", "props": ["width", "height", "fontSize", "lineHeight", "color"] }
-      ]
+        {
+          "ten": "gui",
+          "artifact": ".ui-notif-matrix-gui",
+          "ds": "> span:nth-child(2)",
+          "props": [
+            "width",
+            "height",
+            "fontSize",
+            "lineHeight",
+            "color"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "gui.width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "hover.paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "hover.borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "hover.gui.width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "gui.width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.gui.width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`.",
+        "hover.borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới tiêu đề `alpha-08` (`.b-bang`) thay `border`."
+      }
     },
     {
       "khoa": "o",
       "artifact": "tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2)",
       "ds": "#notification-matrix tbody:nth-of-type(1) tr:nth-child(2) td:nth-child(2)",
-      "trangThai": ["hover"],
+      "trangThai": [
+        "hover"
+      ],
       "artifactThat": true,
       "con": [
-        { "ten": "khung-o", "artifact": "> .ui-notif-matrix-o", "ds": "> span", "props": ["width", "height", "gap"] }
-      ]
+        {
+          "ten": "khung-o",
+          "artifact": "> .ui-notif-matrix-o",
+          "ds": "> span",
+          "props": [
+            "width",
+            "height",
+            "gap"
+          ]
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới ô thân `alpha-05` (`.b-bang`) thay `border`.",
+        "hover.width@1440": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.paddingRight": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "hover.paddingLeft": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): đệm ngang ô 10 (`.b-bang th/td`) thay 12 (`control-gutter-md`).",
+        "hover.borderBottomColor@sang": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới ô thân `alpha-05` (`.b-bang`) thay `border`.",
+        "width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "khung-o.width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "hover.khung-o.width@390": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): độ rộng cột chia lại theo đệm ô 10 thay 12 (bảng tự giãn, cột tên lấy phần dư).",
+        "borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới ô thân `alpha-05` (`.b-bang`) thay `border`.",
+        "hover.borderBottomColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): kẻ dưới ô thân `alpha-05` (`.b-bang`) thay `border`.",
+        "hover.backgroundColor@toi": "Table DS (`.b-bang` của prototype, README Table) thay `.ui-table` của preview — ma trận dùng chung bảng DS (vòng review đợt 2, M2): nền rê hàng `alpha-02` (`.b-bang tbody tr:hover td`) thay `color-background-primary-outline-hover` (tối alpha-04; sáng hai giá trị trùng)."
+      }
     },
     {
       "khoa": "checkbox",
@@ -58,6 +180,10 @@
       "artifact": "tbody:nth-of-type(2) tr:nth-child(2) .ui-select-trigger",
       "ds": "#notification-matrix tbody:nth-of-type(2) tr:nth-child(2) [data-slot=\"select-trigger\"]"
     },
-    { "khoa": "luu", "artifact": ".ds-tinh > p.ui-caption", "ds": "#notification-matrix [role=\"status\"]" }
+    {
+      "khoa": "luu",
+      "artifact": ".ds-tinh > p.ui-caption",
+      "ds": "#notification-matrix [role=\"status\"]"
+    }
   ]
 }
