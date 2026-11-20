@@ -34,15 +34,23 @@ function useNeoDangXem(bat: boolean): string {
     const tinh = () => {
       let id = ''
       for (const s of document.querySelectorAll<HTMLElement>('main section[id]')) {
-        if (s.getBoundingClientRect().top > 96) break
+        // Ngưỡng = scroll-margin-top của chính khối (chỗ nhảy #neo dừng lại: 112, màn hẹp 160) + 8 — ngưỡng cứng 96
+        // thấp hơn chỗ dừng → bấm #date-picker lại đánh dấu khối trước nó.
+        if (s.getBoundingClientRect().top > (parseFloat(getComputedStyle(s).scrollMarginTop) || 0) + 8) break
         id = s.id
       }
       setNeo(id)
     }
     tinh()
+    // Mở thẳng /ds#neo: trình duyệt nhảy neo trước khi hydrate, rồi khối phía trên còn đổi cao (font, README) mà không
+    // phát sự kiện scroll → tính lại khi bố cục đổi cao.
+    const ro = new ResizeObserver(tinh)
+    const main = document.querySelector('main')
+    if (main) ro.observe(main)
     window.addEventListener('scroll', tinh, { passive: true })
     window.addEventListener('hashchange', tinh)
     return () => {
+      ro.disconnect()
       window.removeEventListener('scroll', tinh)
       window.removeEventListener('hashchange', tinh)
     }
