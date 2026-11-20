@@ -20,7 +20,7 @@
     "Vị trí: preview vẽ 3 toast TĨNH (`position:static; margin:0`) xếp dọc; DS hiện toast thật — fixed đáy giữa, cách đáy 72 ở cả 1440 và 390, cách mép 16. Không đo left/top ở đây; đo bằng script tự kiểm (getBoundingClientRect: đáy viên thuốc = cao khung − 72, tâm = tâm khung) và ảnh",
     "Lớp z khi Dialog đang mở: toast (56) nằm DƯỚI overlay/hộp (70) — đo bằng elementFromPoint tại tâm toast trong script tự kiểm, không đo được bằng một khoá",
     "Chuyển động: nguồn `ui-toast-len` 180ms translateY(8px); DS dùng transition của Sonner ghi đè còn 180ms cubic-bezier(0.19, 1, 0.22, 1) + `--y` 8px; giảm chuyển động → Sonner `transition:none!important` + DS `motion-reduce`. Đo sau khi hiện xong (cho 500ms), không đo khung hình giữa chừng; giảm chuyển động kiểm bằng script (CDP emulate prefers-reduced-motion) + test jsdom",
-    "Tự tắt 5 giây (thành công), lỗi không tự tắt, Hoàn tác/Thử lại đóng toast, đổi đang chạy → xong cùng id, role status/alert, progressbar aria-valuenow: test jsdom components/ui/toast.dom.test.tsx",
+    "Tự tắt 5 giây (thành công), lỗi không tự tắt, Hoàn tác/Thử lại đóng toast, đổi đang chạy → xong cùng id, đọc màn hình (R12: xong/đang chạy KHÔNG role riêng — đọc qua `section aria-live=polite` của Sonner; lỗi `role=alert`), progressbar aria-valuenow, focus phím dừng hẹn giờ + trả focus khi gỡ: test jsdom components/ui/toast.dom.test.tsx",
     "Nhiều toast chồng nhau (Sonner: tối đa 3, rê chuột thì xoè): preview không có — không đo",
     "Hover/focus nút Hoàn tác/Thử lại/✕: nguồn không khai trạng thái (không hover, focus mặc định trình duyệt); DS thêm vòng focus `ring` — không đo",
     "Thanh thao tác hàng loạt đang hiện (nguồn `.b-hangloat ~ .ui-toast` đẩy toast lên 124 / điện thoại 236): chưa làm — chờ BulkActionBar (Task 6)",

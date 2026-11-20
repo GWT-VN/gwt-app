@@ -1,6 +1,6 @@
 'use client'
 
-import type { CSSProperties, ReactNode } from 'react'
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { Check, WarningCircle, X } from '@phosphor-icons/react'
 import { Toaster as SonnerToaster, toast } from 'sonner'
 import { Spinner } from './spinner'
@@ -43,10 +43,67 @@ export function Toaster() {
 type Loai = 'xong' | 'loi' | 'chay'
 type Nut = { ten: string; lam: () => void }
 
-/** Viên thuốc. role cố định theo loại (xong/chạy: status, lỗi: alert) — không đổi role tại chỗ (trình đọc màn hình hay bỏ qua). */
-function NoiDung({ loai, chu, tienDo, nut, dong }: { loai: Loai; chu: ReactNode; tienDo?: number; nut?: Nut; dong?: () => void }) {
+/**
+ * Viên thuốc. Đọc màn hình (R12 — lệch README có chủ đích: README ghi `role="status"`): `<section aria-live="polite">` của
+ * Sonner đã bọc mọi toast → xong/đang chạy KHÔNG gắn role riêng (gắn thêm = vùng live lồng nhau, dễ đọc hai lần); lỗi
+ * giữ `role="alert"` (khẩn) — vùng live gần nhất của nội dung lỗi là chính alert (Chrome tính live root = alert).
+ *
+ * Focus phím (WCAG 2.2.1, 2.4.3): focus vào toast (li của Sonner hoặc nút) → `giu(true)` dừng hẹn giờ; rời ra ngoài →
+ * `giu(false)` chạy lại đủ thời gian. Toast bị gỡ khi đang chứa focus → trả focus về phần tử đứng trước khi vào toast
+ * (Sonner chỉ tự trả khi toast CUỐI biến mất — còn toast khác thì focus rơi về body).
+ */
+function NoiDung({
+  loai,
+  chu,
+  tienDo,
+  nut,
+  dong,
+  giu,
+}: {
+  loai: Loai
+  chu: ReactNode
+  tienDo?: number
+  nut?: Nut
+  dong?: () => void
+  giu?: (dang: boolean) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const giuRef = useRef(giu)
+  useEffect(() => {
+    giuRef.current = giu
+  })
+  useEffect(() => {
+    const li = ref.current?.closest<HTMLElement>('[data-sonner-toast]')
+    if (!li) return
+    let truoc: HTMLElement | null = null
+    let trong = false
+    const vao = (e: FocusEvent) => {
+      if (trong) return
+      trong = true
+      const t = e.relatedTarget
+      truoc = t instanceof HTMLElement && !li.contains(t) ? t : null
+      giuRef.current?.(true)
+    }
+    const ra = (e: FocusEvent) => {
+      if (li.contains(e.relatedTarget as Node | null)) return
+      // Chrome bắn focusout khi GỠ phần tử đang focus (relatedTarget null) — toast đang gỡ (Sonner gắn data-removed
+      // 200ms trước khi gỡ) thì không tính là rời: giữ `trong` để lúc gỡ trả focus về `truoc`.
+      if (!li.isConnected || li.dataset.removed === 'true') return
+      trong = false
+      giuRef.current?.(false)
+    }
+    li.addEventListener('focusin', vao)
+    li.addEventListener('focusout', ra)
+    return () => {
+      li.removeEventListener('focusin', vao)
+      li.removeEventListener('focusout', ra)
+      // Gỡ khi đang chứa focus → focus đã rơi về body (jsdom không bắn focusout lúc gỡ, Chrome có — xem `ra`).
+      const mat = !document.activeElement || document.activeElement === document.body || !document.activeElement.isConnected
+      if (trong && mat && truoc?.isConnected) truoc.focus({ preventScroll: true })
+    }
+  }, [])
   return (
-    <div data-slot="toast" role={loai === 'loi' ? 'alert' : 'status'} data-color={loai === 'loi' ? 'danger' : undefined} className={toastVien}>
+    <div ref={ref} data-slot="toast" role={loai === 'loi' ? 'alert' : undefined} data-color={loai === 'loi' ? 'danger' : undefined} className={toastVien}>
       {loai === 'chay' ? (
         <Spinner className={toastSpinner} />
       ) : loai === 'loi' ? (
@@ -77,24 +134,33 @@ function NoiDung({ loai, chu, tienDo, nut, dong }: { loai: Loai; chu: ReactNode;
 export type ToastId = string | number
 
 function hien(loai: Loai, chu: ReactNode, o: { id?: ToastId; duration: number; nut?: Nut; tienDo?: number }): ToastId {
-  return toast.custom(
-    (id) => (
-      <NoiDung
-        loai={loai}
-        chu={chu}
-        tienDo={o.tienDo}
-        // Bấm nút hành động = làm xong việc của toast → đóng nó.
-        nut={o.nut && { ten: o.nut.ten, lam: () => (o.nut!.lam(), toast.dismiss(id)) }}
-        dong={loai === 'loi' ? () => toast.dismiss(id) : undefined}
-      />
-    ),
-    { id: o.id, duration: o.duration, className: toastLi },
+  const ve = (id: ToastId) => (
+    <NoiDung
+      loai={loai}
+      chu={chu}
+      tienDo={o.tienDo}
+      // Bấm nút hành động = làm xong việc của toast → đóng nó.
+      nut={o.nut && { ten: o.nut.ten, lam: () => (o.nut!.lam(), toast.dismiss(id)) }}
+      dong={loai === 'loi' ? () => toast.dismiss(id) : undefined}
+      // Chỉ toast tự tắt mới cần dừng hẹn giờ. Sonner không có API dừng → cập nhật cùng id với duration Infinity (Sonner
+      // đặt lại thời gian còn lại theo duration mới), rời ra → duration gốc (đủ 5 giây). Toast đã đóng thì thôi —
+      // `create` cùng id của toast đã đóng sẽ dựng lại toast mới.
+      giu={
+        Number.isFinite(o.duration)
+          ? (dang) => {
+              if (toast.getToasts().some((t) => t.id === id))
+                toast.custom(ve, { id, duration: dang ? Infinity : o.duration, className: toastLi })
+            }
+          : undefined
+      }
+    />
   )
+  return toast.custom(ve, { id: o.id, duration: o.duration, className: toastLi })
 }
 
 /**
  * Thông báo sau thao tác (README Toast). Trả id của toast.
- * - `xong(chu, { hoanTac?, id? })`: ✓, tự tắt 5 giây; `hoanTac` → nút "Hoàn tác" (gọi rồi đóng). `id` của toast
+ * - `xong(chu, { hoanTac?, id? })`: ✓, tự tắt 5 giây (focus phím trong toast → dừng); `hoanTac` → nút "Hoàn tác" (gọi rồi đóng). `id` của toast
  *   `dangChay` → đổi TẠI CHỖ (một toast).
  * - `loi(chu, { thuLai?, id? })`: ✕ đỏ, KHÔNG tự tắt, `role="alert"`, nút "Thử lại" + nút đóng. `id` → đóng toast đó và
  *   mở toast lỗi MỚI (vùng alert được chèn mới mới được đọc ngay).
