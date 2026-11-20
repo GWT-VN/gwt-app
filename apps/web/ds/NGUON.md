@@ -125,6 +125,13 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 
 - **Tailwind quét cả file test và file .md trong apps/web:** chuỗi trông như class (vd variant tuỳ biến có ngoặc nhọn bên trong) trong `*.test.tsx` hay `ds/*.md` cũng được sinh CSS — chuỗi hỏng làm dev server 500 (gặp 20/11). Trong test/tài liệu viết mô tả bằng lời, đừng dán class có ngoặc nhọn/chỗ trống; lỡ dính thì sửa chuỗi rồi `touch ds/tokens.css` để Tailwind quét lại.
 
+- **Thứ tự biến thể Tailwind 4 ≠ thứ tự cascade bundle.css (lát 3):** CSS biên dịch xếp `focus-within` < `hover` (bọc
+  `@media (hover:hover)`) < `focus-visible` < `disabled` < `has-*` < `aria-*`. Trạng thái chồng nhau (tắt + lỗi, focus +
+  hover) phải chặn bằng `not-*`/`enabled:` — không trông vào thứ tự viết class. Mẫu: `control-styles.ts`.
+- **Comment trong `.ts/.tsx` cũng bị Tailwind quét** — tả mẫu class bằng lời, đừng viết dạng ngoặc vuông có dấu ba chấm.
+- **bundle.css lỗi đặc hiệu theme tối:** `[data-theme=dark] X:hover` (0,3,0) thắng `:disabled`/`:focus` (0,2,0) → ô
+  tắt/đang focus vẫn đổi viền khi rê ở tối. DS KHÔNG chép lỗi này (ghi `lyDo`), gom đề xuất đồng bộ ngược artifact.
+
 ## Tương phản — chấp nhận có chủ đích
 
 Giữ y màu nguồn ChatGPT; 4 cặp dưới WCAG (danger chữ tối 3.52, viền input 1.42/2.28, viền Checkbox 1.6, chữ Badge
