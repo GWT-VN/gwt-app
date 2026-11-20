@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { antoanChoOr, boDau, chuanHoaTuKhoa, mauDauTu, sapXepHopLe } from './timkiem'
+import { antoanChoOr, boDau, chuanHoaTuKhoa, locMucChon, mauDauTu, sapXepHopLe } from './timkiem'
 
 describe('boDau', () => {
   it('bỏ dấu tiếng Việt và về chữ thường', () => {
@@ -143,5 +143,41 @@ describe('mauDauTu — khớp theo đầu từ, hết nhiễu Phương/Thương'
   it('dấu chấm là chữ THẬT chứ không phải ký tự đại diện', () => {
     expect(khop('a.b', 'axb')).toBe(false)
     expect(khop('a.b', 'a.b')).toBe(true)
+  })
+})
+
+describe('locMucChon', () => {
+  const TINH = [
+    { gt: '01', nhan: 'Hà Nội' },
+    { gt: '02', nhan: 'Hồ Chí Minh' },
+    { gt: '03', nhan: 'Đà Nẵng', phu: 'miền Trung' },
+    { gt: '10', nhan: 'Bạc Liêu' },
+  ]
+
+  it('khớp không dấu ở cả hai đầu: "ha noi" ra "Hà Nội"', () => {
+    expect(locMucChon(TINH, 'ha noi', 30)).toEqual({ ds: [TINH[0]], tong: 1 })
+    expect(locMucChon(TINH, 'HÀ NỘI', 30).ds).toEqual([TINH[0]])
+  })
+
+  it('khớp theo mã: "01" ra mã 01', () => {
+    expect(locMucChon(TINH, '01', 30).ds).toEqual([TINH[0]])
+  })
+
+  it('khớp theo phu, và "đ" gõ thành "d"', () => {
+    expect(locMucChon(TINH, 'mien trung', 30).ds).toEqual([TINH[2]])
+    expect(locMucChon(TINH, 'da nang', 30).ds).toEqual([TINH[2]])
+  })
+
+  it('từ khoá rỗng/khoảng trắng → cả danh sách', () => {
+    expect(locMucChon(TINH, '  ', 30)).toEqual({ ds: TINH, tong: 4 })
+  })
+
+  it('toiDa cắt danh sách, tong = số mục khớp trước khi cắt', () => {
+    expect(locMucChon(TINH, '', 2)).toEqual({ ds: TINH.slice(0, 2), tong: 4 })
+    expect(locMucChon(TINH, '0', 1)).toEqual({ ds: [TINH[0]], tong: 4 })
+  })
+
+  it('không khớp gì → rỗng, tong 0', () => {
+    expect(locMucChon(TINH, 'zzz', 30)).toEqual({ ds: [], tong: 0 })
   })
 })

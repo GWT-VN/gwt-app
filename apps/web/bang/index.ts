@@ -11,7 +11,7 @@ export { GIAO_DIEN_MAC_DINH, type GiaoDienBang } from './giaoDien'
 export type { KetQuaTrang, TuyChonDanhSach, ThamSoLoc, SapXep } from './kieu'
 
 // Hàm thuần — không đụng DB, không đụng React
-export { boDau, chuanHoaTuKhoa, antoanChoOr, mauDauTu, sapXepHopLe, dieuKienTungTu } from './timkiem'
+export { boDau, chuanHoaTuKhoa, antoanChoOr, mauDauTu, sapXepHopLe, dieuKienTungTu, locMucChon } from './timkiem'
 export { isoNgay, khoangPreset, PRESETS, type MaPreset } from './ngay'
 
 // Lấy toàn bộ khoá khớp bộ lọc (chọn tất cả)
@@ -27,5 +27,6 @@ export { BoLocChon } from './BoLocChon'
 export { BoLocGoiY } from './BoLocGoiY'
 export { OChonGoiY, type MucChon } from './OChonGoiY'
 export { OChonTimXa, TOI_THIEU_KY_TU } from './OChonTimXa'
+export { useTimXa } from './useTimXa'
 export { LocNgay } from './LocNgay'
 export { KhungChon, OChonTatCa, OChonDong, ThanhDaChon, useDaChon } from './ChonDong'

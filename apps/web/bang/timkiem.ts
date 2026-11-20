@@ -115,3 +115,24 @@ export function dieuKienTungTu(
     ].join(',')
   )
 }
+
+/**
+ * Lọc danh sách chọn ĐÃ NẠP Ở CLIENT theo chữ người dùng gõ — khớp không dấu ở cả hai đầu, theo `gt` (mã) LẪN `nhan`
+ * (tên) LẪN `phu`. Dùng chung cho `OChonGoiY`, `BoLocGoiY` và `Combobox` của DS.
+ *
+ * @returns `ds` = tối đa `toiDa` mục khớp đầu tiên (giữ thứ tự gốc); `tong` = số mục khớp TRƯỚC khi cắt — để ô báo
+ * "Đang hiện N / M" thay vì im lặng cắt (người dùng tưởng gõ đúng mà "không có").
+ */
+export function locMucChon<T extends { gt: string; nhan: string; phu?: string }>(
+  tuyChon: T[],
+  q: string,
+  toiDa: number
+): { ds: T[]; tong: number } {
+  const s = boDau(q.trim())
+  const khop = !s
+    ? tuyChon
+    : tuyChon.filter(
+        (t) => boDau(t.gt).includes(s) || boDau(t.nhan).includes(s) || boDau(t.phu ?? '').includes(s)
+      )
+  return { ds: khop.slice(0, toiDa), tong: khop.length }
+}

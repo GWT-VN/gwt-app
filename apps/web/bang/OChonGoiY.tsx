@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { boDau } from './timkiem'
+import { locMucChon } from './timkiem'
 
 /**
  * Ô CHỌN GÕ-ĐỂ-GỢI-Ý cho FORM (giá trị nằm trong state, không phải trên URL).
@@ -46,16 +46,7 @@ export function OChonGoiY({
     return () => document.removeEventListener('mousedown', ngoai)
   }, [])
 
-  const loc = useMemo(() => {
-    const s = boDau(q.trim())
-    const ds = !s
-      ? tuyChon
-      : tuyChon.filter(
-          (t) =>
-            boDau(t.gt).includes(s) || boDau(t.nhan).includes(s) || boDau(t.phu ?? '').includes(s)
-        )
-    return ds.slice(0, toiDa)
-  }, [q, tuyChon, toiDa])
+  const loc = useMemo(() => locMucChon(tuyChon, q, toiDa).ds, [q, tuyChon, toiDa])
 
   const dangChon = tuyChon.find((t) => t.gt === giaTri)
   const o =

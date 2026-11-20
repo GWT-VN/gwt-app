@@ -1,0 +1,219 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": [
+      "#combobox > div",
+      "[data-ds-portal] > *"
+    ]
+  },
+  "anhTuongTac": {
+    "buoc": [
+      {
+        "bam": "#ds-combobox-tinh"
+      },
+      {
+        "cho": 300
+      }
+    ]
+  },
+  "chuaDo": [
+    "Vị trí pop (cách trigger 4px, căn mép trái, Radix Popper tự lật/dời khi sát mép, chừa mép 8) — preview xếp menu tĩnh trong .ui-stack; so bằng mắt trên ảnh",
+    "Hình icon: preview vẽ tay chevron/kính lúp/✓ bằng nét, DS dùng Phosphor CaretUpDown/MagnifyingGlass/Check (path tô) — chỉ đo hộp + màu",
+    "Nút ✕ \"Bỏ chọn\" trong trigger: preview không có (plan Task 7 yêu cầu) — không có cặp để đo",
+    "Gõ tắt chữ đầu (\"dn\" → Đà Nẵng) của script preview: DS lọc bằng locMucChon của bang/ (tách nguyên logic OChonGoiY, không có gõ tắt) — để quyết định riêng",
+    "Bàn phím (↑/↓, Enter, Esc + focus về trigger, Esc trong Dialog chỉ đóng pop), bộ gõ đang ghép chữ, ghi chú cắt bớt, tìm xa (gõ thêm / đang tìm / lỗi / bỏ kết quả về muộn), nút ✕: test jsdom components/ui/combobox.dom.test.tsx + bang/useTimXa.dom.test.ts + bang/timkiem.test.ts"
+  ],
+  "khoa": [
+    {
+      "khoa": "luoi",
+      "artifact": "body > div",
+      "ds": "#combobox > div",
+      "lyDo": {
+        "height@1440": "Preview vẽ pop mở TĨNH ngay dưới nút trong cột 1 (.ui-stack: nhãn 20 + 8 + nút 32 + 8 + menu 314 = 382; menu = padding 6 + ô tìm 32 + list 240 (8 mục × 32, trần 240) + ghi chú 30 + 6); DS chỉ mở pop khi bấm (nổi trong portal) nên cột 1 còn nhãn + nút 60. Lưới cao theo cột cao nhất: artifact 382 (cột 1), DS 266 (cột 2 — khớp cột 2 của artifact: nhãn 20 + 8 + 3 × 74 + 2 × 8).",
+        "height@390": "Preview vẽ pop mở TĨNH ngay dưới nút trong cột 1 (382, xem dòng 1440); DS chỉ mở pop khi bấm nên cột 1 còn 60. Khổ 390 hai cột xếp chồng: artifact 382 + 16 + 266 = 664, DS 60 + 16 + 266 = 342."
+      }
+    },
+    {
+      "khoa": "trigger",
+      "artifact": ".ui-select-trigger",
+      "ds": "#ds-combobox-tinh",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "value",
+          "artifact": "> .ui-select-value",
+          "ds": "> [data-slot=\"select-value\"]",
+          "props": [
+            "color",
+            "fontWeight",
+            "fontSize",
+            "lineHeight"
+          ]
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "content",
+      "artifact": ".ui-menu",
+      "ds": "[data-ds-portal] [data-slot=\"combobox-content\"]",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "lyDo": {
+        "zIndex": "Preview vẽ `.ui-menu` tĩnh trong .ui-stack, không có lớp nổi → z-index auto. Pop nổi THẬT của artifact là `.b-noi` (bundle.css, position fixed, z-index 90); DS dùng z-90 chung của menuContent (thang z ds/NGUON.md) — như khoá content của so khớp Select."
+      }
+    },
+    {
+      "khoa": "search",
+      "artifact": ".ui-menu-search",
+      "ds": "[data-ds-portal] [data-slot=\"combobox-search\"]",
+      "buoc": [
+        {
+          "bam": {
+            "artifact": "#cbq",
+            "ds": "#ds-combobox-tinh"
+          }
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "input",
+          "artifact": "> input",
+          "ds": "> input"
+        },
+        {
+          "ten": "icon",
+          "artifact": "> svg",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ],
+      "artifactThat": true
+    },
+    {
+      "khoa": "list",
+      "artifact": ".ui-menu-list",
+      "ds": "[data-ds-portal] [cmdk-list]",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "item",
+      "artifact": ".ui-menu-item",
+      "ds": "[data-ds-portal] [cmdk-item]",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "con": [
+        {
+          "ten": "code",
+          "artifact": "> .ui-code",
+          "ds": "> span:first-child"
+        },
+        {
+          "ten": "check",
+          "artifact": "> .ui-check",
+          "ds": "> svg",
+          "props": [
+            "width",
+            "height",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "khoa": "item-2",
+      "artifact": ".ui-menu-item:nth-child(2)",
+      "ds": "[data-ds-portal] [cmdk-item]:nth-child(2)",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "note",
+      "artifact": ".ui-menu-note",
+      "ds": "[data-ds-portal] [data-slot=\"combobox-note\"]",
+      "buoc": [
+        {
+          "bam": "#ds-combobox-tinh"
+        },
+        {
+          "cho": 300
+        }
+      ]
+    },
+    {
+      "khoa": "mat-tinh",
+      "artifact": "body > div > .ui-stack:nth-child(2) > .ui-menu",
+      "ds": "#combobox fieldset > div"
+    },
+    {
+      "khoa": "empty",
+      "artifact": ".ui-menu-empty",
+      "ds": "#combobox fieldset [data-slot=\"combobox-note\"]"
+    },
+    {
+      "khoa": "go-them",
+      "artifact": "body > div > .ui-stack:nth-child(2) > .ui-menu:nth-of-type(2) > .ui-menu-empty",
+      "ds": "#combobox fieldset > div:nth-of-type(2) [data-slot=\"combobox-note\"]"
+    },
+    {
+      "khoa": "dang-tim",
+      "artifact": ".ui-menu-empty[style]",
+      "ds": "#combobox fieldset > div:nth-of-type(3) [data-slot=\"combobox-note\"]",
+      "con": [
+        {
+          "ten": "spinner",
+          "artifact": "> .ui-spinner",
+          "ds": "> [data-slot=\"spinner\"]"
+        }
+      ]
+    }
+  ]
+}

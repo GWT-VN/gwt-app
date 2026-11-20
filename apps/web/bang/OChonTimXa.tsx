@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { MucChon } from './OChonGoiY'
+import { TOI_THIEU_KY_TU, useTimXa } from './useTimXa'
 
 /**
  * Ô CHỌN GÕ-ĐỂ-TÌM, danh sách lấy TỪ SERVER.
@@ -13,15 +14,11 @@ import type { MucChon } from './OChonGoiY'
  *
  * Vẫn tuân luật CEO chốt 22/08: quá 10 mục thì phải gõ để tìm.
  *
- * Hai cái bẫy của tìm-xa mà ô này đã xử:
- *  1. Câu trả lời về TRỄ ghi đè câu mới hơn — gõ "ngu" rồi "nguyen", kết quả của
- *     "ngu" về sau thì màn hình hiện sai. Mỗi lượt tìm mang một số thứ tự, về
- *     muộn thì bỏ.
- *  2. Gõ tới đâu gọi tới đó là spam server. Chờ 250ms im phím mới gọi.
+ * Debounce 250ms + bỏ kết quả về muộn nằm ở `useTimXa` (dùng chung với Combobox DS).
  */
 
-/** Dưới ngần này ký tự thì không gọi server — phải khớp với RPC phía dưới. */
-export const TOI_THIEU_KY_TU = 2
+/** Giữ export cũ: hằng sống ở `useTimXa.ts`. */
+export { TOI_THIEU_KY_TU }
 
 export function OChonTimXa({
   tim,
@@ -36,35 +33,10 @@ export function OChonTimXa({
   tuDongMo?: boolean
 }) {
   const [q, setQ] = useState('')
-  const [ds, setDs] = useState<MucChon[]>([])
-  const [dangTim, setDangTim] = useState(false)
-  const [loi, setLoi] = useState<string | null>(null)
+  const { ds, dangTim, loi } = useTimXa(tim, q)
   const oRef = useRef<HTMLInputElement>(null)
-  const luot = useRef(0)
 
   useEffect(() => { if (tuDongMo) oRef.current?.focus() }, [tuDongMo])
-
-  useEffect(() => {
-    const s = q.trim()
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- xoá kết quả khi ô tìm quá ngắn; giữ nguyên hành vi cũ
-    if (s.length < TOI_THIEU_KY_TU) { setDs([]); setDangTim(false); setLoi(null); return }
-
-    const cua = ++luot.current
-    setDangTim(true)
-    const hen = setTimeout(async () => {
-      try {
-        const kq = await tim(s)
-        if (cua !== luot.current) return   // câu trả lời cũ về muộn — bỏ
-        setDs(kq); setLoi(null)
-      } catch (e) {
-        if (cua !== luot.current) return
-        setDs([]); setLoi(e instanceof Error ? e.message : 'Không tìm được')
-      } finally {
-        if (cua === luot.current) setDangTim(false)
-      }
-    }, 250)
-    return () => clearTimeout(hen)
-  }, [q, tim])
 
   const s = q.trim()
 
@@ -97,7 +69,7 @@ export function OChonTimXa({
               <button
                 key={m.gt}
                 type="button"
-                onClick={() => { onChon(m); setQ(''); setDs([]) }}
+                onClick={() => { onChon(m); setQ('') }}
                 className="block w-full px-3 py-2 text-left hover:opacity-80"
                 style={{ fontSize: 13, color: 'var(--ink)' }}
               >

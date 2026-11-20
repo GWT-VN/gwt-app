@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { boDau } from './timkiem'
+import { locMucChon } from './timkiem'
 
 /**
  * Ô lọc GÕ-ĐỂ-GỢI-Ý theo MỘT tham số URL. Dùng thay `BoLocChon` khi danh sách lựa
@@ -43,13 +43,10 @@ export function BoLocGoiY({
     return () => document.removeEventListener('mousedown', ngoai)
   }, [])
 
-  const loc = useMemo(() => {
-    const s = boDau(q.trim())
-    const ds = !s
-      ? tuyChon
-      : tuyChon.filter((t) => boDau(t.giaTri).includes(s) || boDau(t.nhan).includes(s))
-    return ds.slice(0, toiDa)
-  }, [q, tuyChon, toiDa])
+  const loc = useMemo(
+    () => locMucChon(tuyChon.map((t) => ({ ...t, gt: t.giaTri })), q, toiDa).ds,
+    [q, tuyChon, toiDa]
+  )
 
   function di(giaTri: string) {
     const p = new URLSearchParams(sp.toString())
