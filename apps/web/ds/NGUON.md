@@ -33,6 +33,10 @@ Bản 40 (CEO duyệt 20/11 — DS thiếu Card thì build vào DS trước; b�
 `-desc`/`-action`/`-content`/`-footer`); `.ui-card`, `.ui-card-pad` giữ nguyên → `bundle.css` lấy **bản 40**. Preview nhóm
 `Data display` (nhóm tiếng Anh như các preview khác; /ds xếp Card ở nhóm Nền).
 
+Lát 4–6 (20/11): `preview.html` + README của 27 component còn lại (Tabs … NotificationMatrix) lấy **bản 41**, chép bằng
+`cp`. Riêng `Table` và `ListView` (README + preview) artifact lưu CRLF → repo lưu LF (`.gitattributes`); bảng dưới ghi sha
+bản repo, kèm sha bản artifact. `bundle.css` vẫn bản 40 (bản 41 không đổi CSS).
+
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
@@ -85,6 +89,60 @@ Bản 40 (CEO duyệt 20/11 — DS thiếu Card thì build vào DS trước; b�
 | `nguon/components/Sheet/README.md` (bản 37) | `53427ff7e087ffb8fc3232054afb5b598d2c2244d4e55987d79cf07f1be55fbf` |
 | `nguon/components/Switch/README.md` (bản 37) | `36e09dcbec0756dfcbe9ad61cec14f55a3d25c252aab7c3cf232b4a3be0b9c9e` |
 | `nguon/components/Tooltip/README.md` (bản 37) | `73a26e39131dcbba9af30105d1477e5b96c8d62d43c42cc279860f04fe1cb6d2` |
+| `nguon/components/Tabs/preview.html` (bản 41) | `13bb9d529c99dd892d715695f92ba7d2d550ca7fa021f2d5540bd51ffbe61ecc` |
+| `nguon/components/Tabs/README.md` (bản 41) | `a9e763969b67f3320e3d50d36914e46718550624dae5b0af849e5e48df487116` |
+| `nguon/components/Sidebar/preview.html` (bản 41) | `23a6be08adc96178a6239ce70ea8c9f2c5abd802b1cba31cfaba4a58a262f507` |
+| `nguon/components/Sidebar/README.md` (bản 41) | `7b00c637705a4137365b96ac2cc9e3200aa2143c45e46213acdf9af5b716fe78` |
+| `nguon/components/Table/preview.html` (bản 41) | `b66cf227cfa31cc5b1a34f1a026d336876e14546a15af060851b239ccb2e52db` artifact lưu CRLF — sha bản artifact `2a9204b16f3e9b11fcd750d54f227d8cfc86c5f64a184c7f397e65b6b220f056` |
+| `nguon/components/Table/README.md` (bản 41) | `0246872fa10d5b2062df14d91aba1e1aa08a9405e25b602603808cb484f094b9` artifact lưu CRLF — sha bản artifact `6cb78f9e6952c2b9d4ac745aa5c029be9531d8e386073a41df1d159fce2c52b1` |
+| `nguon/components/DataViewToolbar/preview.html` (bản 41) | `c5618b59ccefe0edaa7f41c6e6ce0824337a084fc818233994d0449e85a9a6d0` |
+| `nguon/components/DataViewToolbar/README.md` (bản 41) | `0e88c938e1caf34ff4927de990f92bfac7c7479a73720da39a80bb3459566c16` |
+| `nguon/components/FilterBar/preview.html` (bản 41) | `0d5df10be82277fba749cfa1d4e9097a316fb4f936ca1e43192c29f8f26ba480` |
+| `nguon/components/FilterBar/README.md` (bản 41) | `1a3e19f35d9f779246c3cc84474b3254048b93ebcefce8f0fb239060e0c131e5` |
+| `nguon/components/Pagination/preview.html` (bản 41) | `a37728697de08d3753cc45af5b9a5a4cb9a48ae076b961d894f05f6cf0148976` |
+| `nguon/components/Pagination/README.md` (bản 41) | `59b21916e4677fbd3ec005fede7450d53c71ded9a7a52af8190c4991bf818667` |
+| `nguon/components/BulkActionBar/preview.html` (bản 41) | `5c6c2d2ead8be4d9b79fe5cbf7ff7fbceca282de7a90932b38a9bb938ba88d3a` |
+| `nguon/components/BulkActionBar/README.md` (bản 41) | `2810fdb5a888b8bf66e6019237e58afca53edfbd31fc676c7614c290ca33f9f3` |
+| `nguon/components/SavedView/preview.html` (bản 41) | `b8177b69bad36c8f6abcc5dbd776af6fb6b216ad05464dc5ed032837a61ef46d` |
+| `nguon/components/SavedView/README.md` (bản 41) | `d2233c740dfd0d37000e705820c8802981672c3473764bfa2293e69ebcc0b0d7` |
+| `nguon/components/ListView/preview.html` (bản 41) | `a1e126b4c73922e2ca3f80ccd4fe20fe6c8137174657ae0c7ed786402945c3e8` artifact lưu CRLF — sha bản artifact `b9eeae18bbc196ddf8df7780a8f1d7adb311e04163dd2c647456394e6790e226` |
+| `nguon/components/ListView/README.md` (bản 41) | `ba5c6f079085ee41375979cad8b8974fcb37beb936843f7db72d93dc1d05a3a7` artifact lưu CRLF — sha bản artifact `24184667cab1ce78df083d8b8f66a4fedfbfb4c09da93b698e9e24a119830c2e` |
+| `nguon/components/KanbanBoard/preview.html` (bản 41) | `28fc265ff8924d72a2d1d55c640a7c99346e7587e7f5d0e7216de1a28a651dee` |
+| `nguon/components/KanbanBoard/README.md` (bản 41) | `b6c8cd2707763ea66f18a01d32d0538aa6b7fcfb12083fd3d34008adbeaa8866` |
+| `nguon/components/InlineEdit/preview.html` (bản 41) | `9a54a662853fb188b8170e3bcba12ec9082c785cc03bbc958f69d3dd264e145a` |
+| `nguon/components/InlineEdit/README.md` (bản 41) | `e3899870bcac80387710b7f32cc6bb7fc674c16bdd4922c711a6a858f7d27403` |
+| `nguon/components/RecordPicker/preview.html` (bản 41) | `9da530eec012176824334d76ea4799a6ecb8fc924bbe6c4c5af9920381589546` |
+| `nguon/components/RecordPicker/README.md` (bản 41) | `e43ff951d073162fa4bca5549d0313c1e0e77339d1b888488601f7737fea0ea6` |
+| `nguon/components/Breadcrumb/preview.html` (bản 41) | `d62b871ac5ec426bc7f014fb19d1b43c446fbbd5b12e8dee0a50722c4c2134c2` |
+| `nguon/components/Breadcrumb/README.md` (bản 41) | `1b9acf39572ebf227345ddf07396c6c654ac6ebca52d689e9ed65d67e791e83f` |
+| `nguon/components/PageHeader/preview.html` (bản 41) | `5fcf1361485ed26195a8ba6d96c2a3a6de6f3125d6edb13db06344c8c13b93e4` |
+| `nguon/components/PageHeader/README.md` (bản 41) | `d8966ef5b9e38e19efb33aa02e7ee59661ee17e71e3cddd752c2b033b1268331` |
+| `nguon/components/PropertyList/preview.html` (bản 41) | `3e3a3a6f7eed46d4bb11d572ec8765e43775b22edb803a5ebbda854a8a2a31f8` |
+| `nguon/components/PropertyList/README.md` (bản 41) | `4980000136c54eb556c84de2165c7d0ade50b5c5730083f632ceb4d699f08764` |
+| `nguon/components/Timeline/preview.html` (bản 41) | `8e3e584a280eff95784b56d34b8e5737c18a70a864eb009a68c8f776edea97d8` |
+| `nguon/components/Timeline/README.md` (bản 41) | `69ae0d7d7a4382802139d4f644a18fe80d7b568333e6a6304f4c9fa88f742312` |
+| `nguon/components/Composer/preview.html` (bản 41) | `4d1e97f3c05a20e90f71804a308c5bda8661f9e21fb982e61a765104c86c5378` |
+| `nguon/components/Composer/README.md` (bản 41) | `46ef4e51f6dc8598cfc0c0f43319ef1b002e1a03d876e218bacfb3af0eae876e` |
+| `nguon/components/DetailLayout/preview.html` (bản 41) | `1f4dda3cbd0ccbdf8ce1dc7f6530b9b58ac1a7d64cd282f8c2efb63911da720c` |
+| `nguon/components/DetailLayout/README.md` (bản 41) | `ce041c29ddcb01ab835e9f27cc86f8d9b986790d0e1b2857d3766f6e7a2c6566` |
+| `nguon/components/EmptyState/preview.html` (bản 41) | `56144586beed2fe0df89d5f9ffc95b808c882b2893dfcb8242178d9fc4aba398` |
+| `nguon/components/EmptyState/README.md` (bản 41) | `66bc0c1e7a8b67287b40706df8e5865d464c498ea2d296f0498ff8e1e2b5c6a5` |
+| `nguon/components/Skeleton/preview.html` (bản 41) | `9df0fab4c45917f65789f95c26edb70079d166a8db2e516d8239e885c71b23c4` |
+| `nguon/components/Skeleton/README.md` (bản 41) | `0898bdc79873ec1f51b74758bfeaf065ea3b3e394fadb5f76c008f293a0a0042` |
+| `nguon/components/Banner/preview.html` (bản 41) | `0d43637e844bc0682d6a14bcbbfe8a6dcceda697a6b56d726aad3910ee73a2d0` |
+| `nguon/components/Banner/README.md` (bản 41) | `b9cf08dd20fd7c6929dd9552a9197756b43fa593545883a0f743f373d00a02ab` |
+| `nguon/components/Toast/preview.html` (bản 41) | `2caffb6a72b41b291e39e44394cc6bea97d74ab1f6b344fa29d794c072402d01` |
+| `nguon/components/Toast/README.md` (bản 41) | `ce3c9028ec2a37c7038884b7ffb4a73a7cc91351b5bef3b014fa74ecd845b6e3` |
+| `nguon/components/CommandPalette/preview.html` (bản 41) | `a80fb0952a5b284cf270d81b21ab3c98387fc357ff7df514faea6fa3fa510e1a` |
+| `nguon/components/CommandPalette/README.md` (bản 41) | `3d46952b3830b86c4c3c0f5337f9f3e3292aec8dddda8b708e56604c821bcfba` |
+| `nguon/components/StatCard/preview.html` (bản 41) | `bda59316b9f847e45ccc0a2186c46dc2009762382412de182e4c2fe85a9b3fcc` |
+| `nguon/components/StatCard/README.md` (bản 41) | `8ec97ff78487aae97963f50d71f3f50c67c9bf5ea8e020ac8d38252242207933` |
+| `nguon/components/Count/preview.html` (bản 41) | `125631e5083b09b22c69a4ca1d97b4c91541d65b08ae13470a7955b6b1da1b4b` |
+| `nguon/components/Count/README.md` (bản 41) | `80e45c5ef271fa7ab61a15aa500cca645400c69c18e07c8787aad4f184ab7bf1` |
+| `nguon/components/NotificationCenter/preview.html` (bản 41) | `2fdca387ccbf9d10e3412b4583a95e77594023f12d3ce30fb55eaa4fca049fc4` |
+| `nguon/components/NotificationCenter/README.md` (bản 41) | `4053b199785b51e7eeb75ce4b242210e6f1752b605a2da0e370e5c7cc10efce4` |
+| `nguon/components/NotificationMatrix/preview.html` (bản 41) | `b12f6e872245bfa4c06111a313dc03015f175f2ddd5b72416d76d2f8bea0f1b2` |
+| `nguon/components/NotificationMatrix/README.md` (bản 41) | `cd0af813da77c63ddc98a9059fe92a0442f176dcc122af1348b47685ce44a10c` |
 
 `.gitattributes` trong thư mục này ép LF để sha256 trên khớp ở mọi máy (repo bật `core.autocrlf`).
 
@@ -132,8 +190,10 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   **56** (`.ui-toast`) · tip thanh bên / sheet đáy điện thoại **60** (`.pD-icon` tip, `.b-caidat`) · dialog + overlay
   (Dialog, AlertDialog/ConfirmDialog, Sheet) **70** (`dialog-styles.ts`; artifact dùng top layer của `<dialog>` —
   trên mọi lớp trang) · tooltip **80** (`.ui-tip::after`) · menu **90** (`.b-noi`, `.b-chuotphai`). Tooltip/menu > dialog
-  vì mở được BÊN TRONG hộp. **Toast (lát 5) phải < 70** như artifact (toast nằm dưới hộp đang mở): Sonner tự đặt
-  z-index rất cao trên toaster (gói chưa cài — đo lại khi dựng) → ghi đè về 56, thêm khoá `zIndex` vào so khớp Toast.
+  vì mở được BÊN TRONG hộp. **Toast < 70** như artifact (toast nằm dưới hộp đang mở): Sonner gốc 999999999 → ghi đè 56
+  (đo lát 5), khoá `zIndex` trong so khớp Toast. Lớp cục bộ (lát 4–6, ngoài thang vì chỉ xếp trong khối của mình):
+  thẻ xem nhanh **44** / **50** (`data-view-styles.ts`); khung Sidebar **45** / **46** trong `isolate` + tip thanh bên **60**
+  (`sidebar-styles.ts`); tiêu đề dính của Table **2**, cột ghim ma trận **3**; bóng kéo dnd **90** (lớp menu).
 - **Tooltip trên nút icon:** chữ tooltip là MÔ TẢ thêm, không lặp nguyên `aria-label` của nút — Radix gắn
   `aria-describedby` → trình đọc màn hình đọc hai lần (vd nút "Thao tác" + tooltip "Mở thao tác cho đơn").
 - **Menu (DropdownMenu, ContextMenu — dùng `components/ui/menu-styles.ts`):** item `disabled` theo WAI-ARIA APG — vẫn
@@ -221,6 +281,65 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   radix-ui 1.8.1 — giữ Popover không modal). Focus của nút disabled/loading không tin jsdom.
 - **Font:** Inter CHÍNH CHỦ (`components/ui/fonts/InterVariable.woff2`, rsms v4.1, OFL) qua next/font/local — bản Google
   Fonts cắt mất cv11/ss03. Test: `next/font/local` được mock chung trong `vitest.setup-dom.ts`.
+
+### Luật thêm từ lát 4–6 (Điều hướng, Data view, Trang chi tiết, Phản hồi, Toàn app, Thông báo)
+
+Ruling (20/11): **R8** không TanStack Table — sắp/lọc/phân trang chạy phía server trong `bang/`, trạng thái cột (thứ tự,
+độ rộng, ẩn hiện) là hook `useCotBang`; kéo đổi chỗ cột + Kanban dùng dnd-kit cổ điển (`@dnd-kit/core` 6.3.1,
+`sortable` 10.0.0, `utilities` 3.2.2; `@dnd-kit/react` còn 0.x). **R9** `bang/` vẫn chỉ import `react` + `next/navigation`
+— DS bơm Select vào `BoLocChon`/`LocNgay` qua khe `OChon` của `CauHinh` (`CauHinhBangDs`); không bơm = `<select>` cũ.
+**R10** `<Toaster>` (sonner 2.0.8) đặt TRONG `DsRoot` bởi layout, một cái mỗi trang. **R11** demo không PII, SĐT chỉ
+`•••` + 4 số cuối. **R12** toast xong/đang chạy KHÔNG gắn `role="status"` (vùng `aria-live` của Sonner đã đọc), lỗi giữ
+`role="alert"` — lệch README có chủ đích; toast lỗi còn nằm trong vùng polite của Sonner → có thể bị đọc hai lần trên
+NVDA/JAWS (chưa thử máy đọc thật).
+
+- **Tailwind 4: `outline-none` cùng `focus-visible:outline-2` vẫn ra `outline-style: none` → MẤT vòng focus.** Muốn vòng
+  thì không reset, hoặc `[outline:none]` + `focus-visible:outline-solid`. jsdom không bắt — đo bằng Tab thật trên Chrome.
+- **cmdk sống trên mặt nằm sẵn cuộn CẢ TRANG lúc mount** (`scrollIntoView` mục sáng). Mặt tĩnh của `/ds` dùng prop `tinh`
+  (`CommandPanel`, `RecordPicker`, `ComboboxPanel`): cùng DOM/class, `inert`, không cmdk, ô tìm chỉ đọc. Test spy
+  `Element.prototype.scrollIntoView`.
+- **Esc và lựa chọn dòng:** `bang/ChonDong.tsx` nghe Esc ở `window` pha nổi (chặng cuối) và bỏ qua khi
+  `defaultPrevented`. Mọi lớp xử lý Esc phải `preventDefault`: Radix DismissableLayer tự làm; lớp tự viết nghe `document`
+  pha capture + `preventDefault` (`XemNhanh`); đang kéo (mọi cảm biến dnd-kit) dùng `useEscKhiKeo` (`tieu-de-cot.tsx`,
+  đặt `data-dang-keo` trên body). **Không quét DOM tìm `role=menu/listbox/dialog` để đoán overlay mở** — DS có listbox/menu
+  thường trực; muốn biết lớp Radix đang mở thì chỉ xét `[data-state=open|delayed-open|instant-open]` trong ô portal DS.
+- **dnd-kit + Radix trigger:** dnd-kit bỏ qua `pointerdown` đã `preventDefault` → gọi listener của dnd TRƯỚC rồi mới chặn
+  Radix. dnd-kit tự trả focus khi thả bằng phím, nhưng chuyển qua menu/hộp thoại thì phần tử cũ bị gỡ → tự focus thẻ mới
+  (tìm trong ref của bảng, không `document.querySelector`). Kanban dùng `MouseSensor` (cảm ứng = cuộn ngang qua cột 82%,
+  chuyển thẻ bằng nhấn giữ → "Chuyển sang…"). jsdom: DragOverlay đo con đầu tiên → mock `getBoundingClientRect`.
+- **Tooltip bọc Trigger asChild đè `data-state`** của Toggle/PopoverTrigger → trạng thái bật/mở chỉ tin `aria-pressed` /
+  `aria-checked` / `aria-expanded`. Radix Slot nối `aria-describedby` → tooltip trùng tên nút thì chữ tooltip `aria-hidden`.
+  Trigger asChild đè `data-slot` của Button → chọn Button theo `data-variant`.
+- **Câu trạng thái ("Đang tải…") nằm NGOÀI vùng `aria-busy`** (`VungDoc` ở `skeleton.tsx`); vùng live phải có sẵn trước
+  khi chữ đổi → component client gắn rỗng rồi điền.
+- **`sr-only` / phần tử `absolute` trong vùng `overflow` cuộn cần tổ tiên `relative` BÊN TRONG vùng đó** — thiếu thì cả
+  trang tràn ngang mà không phần tử nhìn thấy nào lộ ra (gặp ở Kanban 390: scrollWidth 887). Đo `documentElement.scrollWidth`
+  ở 390 cho mọi khối có vùng cuộn ngang.
+- **Viền một cạnh:** `[border-style:none_none_solid] border-current border-b-(--border)` (cạnh trái
+  `none_none_none_solid`); `border-solid` làm cạnh khác thành solid. `span` cũng dính preflight → `border-none border-current`.
+  `tr:last-child` dính cả thead → `[tbody>tr:last-child>&]`.
+- **Chrome bắn `focusout` khi gỡ phần tử đang focus, jsdom thì không** → logic "trả focus khi gỡ" phải thử Chrome thật.
+  Radix Popper đo khung 0 trong jsdom → không bật `hideWhenDetached` (pop thành hidden trong test).
+- **React Compiler lint (`react-hooks/*`, CI chạy `npm run lint` trên PR vào main):** không đọc/ghi `ref.current` trong
+  render (đồng bộ ref bằng `useLayoutEffect`); ref không nằm chung object context với state (tách context riêng / callback
+  ref); không gán thuộc tính lên giá trị lấy từ context; `eslint-disable-next-line` chỉ cho dương tính giả, kèm lý do.
+  **Mỗi đợt chạy `npm run lint`**, không chỉ `tsc`.
+- **Gọi `buttonVariants()` trực tiếp phải bọc `cn()`** (gap của base vs size). Class Tailwind không ghép bằng template
+  string (tiền tố biến thể ghép từ biến thì không sinh CSS) — viết nguyên văn.
+- **Sonner:** z gốc 999999999 → ghi đè 56; Sonner không cho đặt role lên `li` → `toast.custom` tự vẽ; dừng hẹn giờ khi focus
+  phím = gọi lại `toast.custom(cùng id, duration Infinity)`; toast tự đẩy lên 124 / 236 (≤767) khi trong vùng DS có
+  `.ds-thanh-hang-loat` (`:has`); test: tua đồng hồ từng nhịp 50ms mỗi nhịp một `act`, `thongBao.dong()` trong `afterEach`.
+- **Table hai vẻ:** `variant="du-lieu"` (mặc định, `.b-bang` của prototype) và `"thuong"` (`.ui-table` — bảng thường như
+  NotificationMatrix). Thanh cuộn trong `TableWrap` ẩn (README Table).
+- **Ngoại lệ Sheet không `SheetHeader`:** ngăn kéo menu Sidebar (điện thoại) — nút "Đóng menu" (`SheetClose`,
+  `data-autofocus`) nằm trong đầu panel, tên hộp là `SheetTitle` sr-only; thêm header + ✕ thành hai nút đóng. Sheet có
+  `side="left"`.
+- **Cổng so khớp:** lỗi chạy (mã 2) ghi đè `<C>.md` đã commit bằng ghi chú lỗi → chạy lại tới thoát 0 rồi `git diff` trước
+  commit; khoá có `buoc` dồn cuối config (mỗi khoá nạp lại trang); /ds nặng → chờ hydrate (phần tử có khoá `__react…`) trước
+  khi bấm, thêm `{ "cho": 800 }` sau bước mở pop; phím Enter qua CDP cần `text: "\r"`; chụp/đo với `mobile: false`; bọc
+  `timeout 1500`. Đo focus item RovingFocus: `bam` item rồi một phím không di chuyển (bấm link `#neo` làm mất focus). Vùng
+  `overflow-x:auto` cắt vòng focus con → đệm + lề âm. `artifactThat` chạy mọi bước ở cả hai bên — bước chỉ DS dùng
+  `{ artifact, ds }`. Mỗi task/agent một thư mục con scratchpad riêng.
 
 ## Tương phản — chấp nhận có chủ đích
 
