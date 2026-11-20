@@ -48,9 +48,11 @@ export const cotRong =
  * Menu chuột phải đang mở (`data-state=open` của ContextMenuTrigger) = `.b-the[data-cp]`: vòng 2px alpha-15 + shadow-100,
  * nền vẫn là nền thẻ (Trigger DS tô alpha-05 cho dòng — thẻ thì không). Focus phím: vòng 2px ring nằm TRONG mép thẻ
  * (offset −2): danh sách cuộn dọc cắt mọi thứ tràn ra ngoài thẻ đầu/cuối.
+ * `relative`: chữ `sr-only` trong thẻ (absolute) lấy thẻ làm khối chứa → bị vùng cuộn ngang của bảng cắt. Thiếu nó, khối
+ * chứa là phần tử định vị ngoài vùng cuộn → các span 1px của cột ngoài khung nhìn làm CẢ TRANG tràn ngang (390: 887px).
  */
 export const the = [
-  'flex flex-col gap-1.5 px-3 py-2.5 [box-shadow:var(--shadow-100)] cursor-grab',
+  'relative flex flex-col gap-1.5 px-3 py-2.5 [box-shadow:var(--shadow-100)] cursor-grab',
   'hover:[box-shadow:var(--shadow-200)] data-keo:opacity-40',
   'data-[state=open]:bg-(--card) data-[state=open]:[box-shadow:0_0_0_2px_var(--alpha-15),var(--shadow-100)]',
   '[&_[data-slot=badge]]:h-(--control-size-3xs)',
