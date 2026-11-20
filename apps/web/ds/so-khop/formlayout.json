@@ -1,0 +1,91 @@
+{
+  "khung": {
+    "artifact": ".ds-tinh",
+    "ds": "#form-layout > div"
+  },
+  "chuaDo": [
+    "Kiểm khi bấm Lưu / rời ô đã sửa, không đỏ lúc mới mở, lưu lỗi focus ô lỗi đầu (focusLoiDau), đang lưu khoá 2 nút, lỗi máy chủ → Alert danger đầu form giữ dữ liệu: preview tĩnh không có hành vi — test jsdom components/ui/form-layout.dom.test.tsx",
+    "Alert lỗi máy chủ đầu form: preview không có — kiểu Alert danger đo ở so-khop Alert",
+    "Thẻ bọc (.ui-card.ui-card-pad): DS chưa có component Card, khối dựng tạm bằng class để trình bày — đo ở khoá the-1/the-2 cho khớp khung, không phải component",
+    "Ô con trong lưới (Input, Select, DatePicker, OTien, Radio, Checkbox, Textarea, FileDrop, Switch): kiểu riêng đo ở so-khop của từng component; ở đây chỉ đo ô lưới (rộng/cao/vị trí 2 cột ↔ 1 cột) và 3 ô lỗi của form 2",
+    "Danh sách tệp đã chọn trong form: preview trống, không có dòng tệp — dòng tệp đo ở so-khop FileUpload"
+  ],
+  "khoa": [
+    { "khoa": "nhan-1", "artifact": ".ds-muc:nth-child(1) > .ds-nhan", "ds": "#form-layout [data-mau=\"1\"] > p" },
+    { "khoa": "the-1", "artifact": ".ds-muc:nth-child(1) > .ui-card", "ds": "#form-layout [data-mau=\"1\"] > [data-so=\"the\"]" },
+    { "khoa": "form-1", "artifact": ".ds-muc:nth-child(1) .ui-form", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"form\"]" },
+    {
+      "khoa": "khoi-1",
+      "artifact": ".ds-muc:nth-child(1) .ui-form-section:nth-child(1)",
+      "ds": "#form-layout [data-mau=\"1\"] [data-so=\"khoi-1\"]",
+      "con": [
+        { "ten": "tieu-de", "artifact": "> .ui-form-title", "ds": "> [data-slot=\"form-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-form-desc", "ds": "> [data-slot=\"form-description\"]" }
+      ]
+    },
+    { "khoa": "luoi-1", "artifact": ".ds-muc:nth-child(1) .ui-form-grid", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"luoi\"]" },
+    { "khoa": "o-ten", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(1)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-ten\"]" },
+    { "khoa": "o-loai", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(2)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-loai\"]" },
+    { "khoa": "o-ngay", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(3)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-ngay\"]" },
+    { "khoa": "o-tien", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(4)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-tien\"]" },
+    { "khoa": "o-muc", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(5)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"muc\"]" },
+    { "khoa": "o-bao", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(6)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"bao\"]" },
+    { "khoa": "o-ghi-chu", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(7)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-ghi-chu\"]" },
+    { "khoa": "o-tep", "artifact": ".ds-muc:nth-child(1) .ui-form-grid > :nth-child(8)", "ds": "#form-layout [data-mau=\"1\"] [data-so=\"f-tep\"]" },
+    {
+      "khoa": "khoi-2",
+      "artifact": ".ds-muc:nth-child(1) .ui-form-section:nth-child(2)",
+      "ds": "#form-layout [data-mau=\"1\"] [data-so=\"khoi-2\"]",
+      "con": [
+        { "ten": "tieu-de", "artifact": "> .ui-form-title", "ds": "> [data-slot=\"form-title\"]" },
+        { "ten": "hang", "artifact": "> .ui-switch-row", "ds": "> [data-slot=\"switch-row\"]", "props": ["width", "height"] }
+      ]
+    },
+    {
+      "khoa": "chan-1",
+      "artifact": ".ds-muc:nth-child(1) .ui-form-footer",
+      "ds": "#form-layout [data-mau=\"1\"] [data-so=\"chan\"]",
+      "con": [
+        { "ten": "trang-thai", "artifact": "> .ui-caption", "ds": "> [data-slot=\"form-status\"]" },
+        { "ten": "huy", "artifact": "> .ui-btn[data-variant=\"outline\"]", "ds": "> [data-so=\"huy\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"] },
+        { "ten": "luu", "artifact": "> .ui-btn:last-child", "ds": "> [data-so=\"luu\"]", "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"] }
+      ]
+    },
+    { "khoa": "the-2", "artifact": ".ds-muc:nth-child(2) > .ui-card", "ds": "#form-layout [data-mau=\"2\"] > [data-so=\"the\"]" },
+    { "khoa": "luoi-2", "artifact": ".ds-muc:nth-child(2) .ui-form-grid", "ds": "#form-layout [data-mau=\"2\"] [data-so=\"luoi\"]" },
+    {
+      "khoa": "o-ten-loi",
+      "artifact": ".ds-muc:nth-child(2) .ui-form-grid > :nth-child(1)",
+      "ds": "#form-layout [data-mau=\"2\"] [data-so=\"f-ten\"]",
+      "con": [
+        { "ten": "o", "artifact": "#f-ten", "ds": "[data-so=\"ten\"]", "props": ["width", "height", "boxShadow", "backgroundColor"] },
+        { "ten": "cau-loi", "artifact": "#f-ten-e", "ds": "[data-so=\"ten-loi\"]" }
+      ]
+    },
+    {
+      "khoa": "o-loai-loi",
+      "artifact": ".ds-muc:nth-child(2) .ui-form-grid > :nth-child(2)",
+      "ds": "#form-layout [data-mau=\"2\"] [data-so=\"f-loai\"]",
+      "con": [
+        { "ten": "nut", "artifact": "#f-loai", "ds": "[data-so=\"loai\"]", "props": ["width", "height", "boxShadow", "backgroundColor"] }
+      ]
+    },
+    {
+      "khoa": "o-ngay-loi",
+      "artifact": ".ds-muc:nth-child(2) .ui-form-grid > :nth-child(3)",
+      "ds": "#form-layout [data-mau=\"2\"] [data-so=\"f-ngay\"]",
+      "con": [
+        { "ten": "nut", "artifact": "#f-ngay", "ds": "#ds-fl2-ngay", "props": ["width", "height", "boxShadow", "backgroundColor"] },
+        { "ten": "cau-loi", "artifact": "> .ui-error", "ds": "[data-so=\"ngay-loi\"]" }
+      ]
+    },
+    {
+      "khoa": "chan-2",
+      "artifact": ".ds-muc:nth-child(2) .ui-form-footer",
+      "ds": "#form-layout [data-mau=\"2\"] [data-so=\"chan\"]",
+      "con": [
+        { "ten": "trang-thai", "artifact": "> .ui-caption", "ds": "> [data-slot=\"form-status\"]" }
+      ]
+    }
+  ]
+}
