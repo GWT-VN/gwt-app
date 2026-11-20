@@ -44,6 +44,29 @@ không preview.html nào đổi.
 | `nguon/components/DateRangePicker/preview.html` (bản 37) | `4af2927ade5a4a0ce7ab6bfc13442f427d2ffbaebe527d61b3859b6cebb29a04` |
 | `nguon/components/FileUpload/preview.html` (bản 37) | `20fb1d1ad2ddb757e4bf8b01e7f96fd3571ad56dff9f11020242a56e8a3643ab` |
 | `nguon/components/FormLayout/preview.html` (bản 37) | `9b10b2fec50fabda5418c14c6765bd3c921624a87c30c79670ce85e29c0621f0` |
+| `nguon/README.md` (bản 37) | `5fb5801ef1f1c216de1d8710301f48b55e81cf0024b501575f99b3b76a5c6504` |
+| `nguon/components/Alert/README.md` (bản 37) | `6c43cfce0fe38d1142ec6b2b9dba9d6cd303246d2b6eea2ccf405a66e2b1eae5` |
+| `nguon/components/Avatar/README.md` (bản 37) | `1c96c7dc37ca072574340859677e57acdab3e9db5a9b4224d981eac458c2b7fa` |
+| `nguon/components/Badge/README.md` (bản 37) | `8d46db52bed6a44d72998f9dd9c179ad8634ebd1131d451ebad9eebdc4ef2db0` |
+| `nguon/components/Button/README.md` (bản 37) | `b2aeefe62b7a8997395d975f85b891dd62c333247e7db5f8ac5c100a446942cf` |
+| `nguon/components/Checkbox/README.md` (bản 37) | `8450d45598fa6c7fc73ba0fdeaa3109a3ff02108353446ffad11f3afceab8c59` |
+| `nguon/components/Combobox/README.md` (bản 37) | `8ca80c46a239716dcd343cc53a34a3eac45287bc9d60380ad83ecb7024e7cfa8` |
+| `nguon/components/ConfirmDialog/README.md` (bản 37) | `248bf80fa9b9de0b996faaa33ac2b2f267839a9553eaf902d363f01857b3318b` |
+| `nguon/components/ContextMenu/README.md` (bản 37) | `088c1cbe787cc7b8733b9ad0e6b76a2bec1af0ea64846bbd80816f1aadd799ad` |
+| `nguon/components/DatePicker/README.md` (bản 37) | `4ae6528d5b5100325b22dbf775e804e1526062a5d00ada493d8092dfdb5fffda` |
+| `nguon/components/DateRangePicker/README.md` (bản 37) | `fdc075c42a1f390d9f953baa5d792b91d3ce7450ab34ea7da3eebac8ae92b3d4` |
+| `nguon/components/Dialog/README.md` (bản 37) | `83ecfd3b3a6183d01b1a425638b3380987c503ed19c952be22b583484b24c9b7` |
+| `nguon/components/DropdownMenu/README.md` (bản 37) | `d47d89bde8bc826d043e035c62a3adc067ed474f047f175f29dbc83428059871` |
+| `nguon/components/FileUpload/README.md` (bản 37) | `e85ea46db97771f580342ca82bc007bf06c356fe3fca6756e6702b73a4878660` |
+| `nguon/components/FormLayout/README.md` (bản 37) | `c7509a2d4f3d5dbbd4a99c2496d738bc6a6558d8379033cfcf5f5d581e632f98` |
+| `nguon/components/Input/README.md` (bản 37) | `b365f1544aea4d76a7286dbe4c8a78dbe7ba7af457c09031366bc965582e27db` |
+| `nguon/components/InputAffix/README.md` (bản 37) | `018cb5c7e6e3a96165790364c6e000d386429513abc3c2d185126c9cd4c6dc57` |
+| `nguon/components/Kbd/README.md` (bản 37) | `7fce49f5b25ab4124497cfefcc8e625f38f2e17296e25ab4313dd4548d2b4014` |
+| `nguon/components/Radio/README.md` (bản 37) | `3fc355574590b9db5e17497fdd1cc3fb4ce1ab3ea75de205c8e700375279be65` |
+| `nguon/components/Select/README.md` (bản 37) | `392e3e868604d2bcdfbcab9f3ed749e3a768659e1d6aa21eec667761dd5e646a` |
+| `nguon/components/Sheet/README.md` (bản 37) | `53427ff7e087ffb8fc3232054afb5b598d2c2244d4e55987d79cf07f1be55fbf` |
+| `nguon/components/Switch/README.md` (bản 37) | `36e09dcbec0756dfcbe9ad61cec14f55a3d25c252aab7c3cf232b4a3be0b9c9e` |
+| `nguon/components/Tooltip/README.md` (bản 37) | `73a26e39131dcbba9af30105d1477e5b96c8d62d43c42cc279860f04fe1cb6d2` |
 
 `.gitattributes` trong thư mục này ép LF để sha256 trên khớp ở mọi máy (repo bật `core.autocrlf`).
 
