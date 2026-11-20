@@ -24,12 +24,14 @@ const vienTheoTheme = [
  * --control-size-md 32, padding 0 --control-gutter-md 12, bo --radius-md 8, chữ 14/20 color-text, nền trong suốt.
  * Hover viền alpha-25 (tối 30) · focus-visible alpha-50, không quầng · aria-invalid red-500 (tối 600) · disabled nền
  * color-background-disabled + viền color-border-disabled + chữ color-text-disabled + not-allowed · placeholder
- * color-text-tertiary.
+ * color-text-tertiary. Chữ ghim 400 (bundle gõ `font: 400 14px/20px`) — Select trigger tự đè 500 ở chỗ của nó.
+ * `enabled:`/`disabled:` chỉ ăn trên phần tử form (input/textarea/button/select): trigger của Select/Combobox/DatePicker
+ * phải là `<button>`, không dùng div role=combobox (div không bao giờ :disabled → tắt không hiện).
  */
 export const controlOutline = [
   'w-full min-w-0 h-(--control-size-md) px-(--control-gutter-md) rounded-(--radius-md)',
   'border-none border-current bg-transparent [outline:none]',
-  'text-[14px] leading-[20px] text-(--color-text) placeholder:text-(--color-text-tertiary)',
+  'text-[14px] leading-[20px] font-normal text-(--color-text) placeholder:text-(--color-text-tertiary)',
   'transition-[box-shadow,background-color,color] duration-150 ease-[ease]',
   ...vienTheoTheme,
   '[box-shadow:inset_0_0_0_1px_var(--input)]',
@@ -45,6 +47,8 @@ export const controlOutline = [
  * (y `.ui-input-affix`): hover theo hover của khung, focus theo focus-within, lỗi khi có con aria-invalid đang bật,
  * tắt khi có con disabled (nền + viền tắt, not-allowed). Con trỏ chữ (`cursor-text`)
  * như bundle.css. Khoảng cách giữa con (gap) do component tự thêm.
+ * Lỗi/tắt chỉ xét ô `input` là CON TRỰC TIẾP (như bundle: has con trực tiếp `.ui-input`) — nút phụ bị tắt lồng trong khung
+ * (vd nút xoá) không làm cả khung thành "tắt".
  */
 export const controlOutlineWithin = [
   'flex w-full min-w-0 items-center h-(--control-size-md) px-(--control-gutter-md) rounded-(--radius-md)',
@@ -53,10 +57,12 @@ export const controlOutlineWithin = [
   'transition-[box-shadow,background-color] duration-150 ease-[ease]',
   ...vienTheoTheme,
   '[box-shadow:inset_0_0_0_1px_var(--input)]',
-  // Tailwind 4 xếp focus-within TRƯỚC hover → hover gắn not-focus-within để khung đang focus giữ alpha-50 khi rê chuột.
-  'hover:not-focus-within:[box-shadow:inset_0_0_0_1px_var(--ctl-hover)]',
+  // Hover chỉ áp cho khung ở trạng thái THƯỜNG — loại hẳn focus, lỗi, tắt bằng not-* thay vì trông vào thứ tự/đặc hiệu:
+  // Tailwind 4 xếp focus-within TRƯỚC hover, và mỗi lớp :not() cộng đặc hiệu nên hover sẽ thắng has tắt (0,3,0 > 0,2,0).
+  // Đo ở so khớp InputAffix 20/11 (lần đo đầu của biến này): bản cũ chỉ có not-focus-within → khung TẮT vẫn đậm viền khi rê.
+  'hover:not-focus-within:not-has-[>input:disabled]:not-has-[>input[aria-invalid=true]]:[box-shadow:inset_0_0_0_1px_var(--ctl-hover)]',
   'focus-within:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
-  'has-[[aria-invalid=true]:enabled]:[box-shadow:inset_0_0_0_1px_var(--ctl-invalid)]',
-  'has-disabled:cursor-not-allowed has-disabled:bg-(--color-background-disabled)',
-  'has-disabled:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
+  'has-[>input[aria-invalid=true]:enabled]:[box-shadow:inset_0_0_0_1px_var(--ctl-invalid)]',
+  'has-[>input:disabled]:cursor-not-allowed has-[>input:disabled]:bg-(--color-background-disabled)',
+  'has-[>input:disabled]:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
 ].join(' ')
