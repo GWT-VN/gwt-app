@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ArrowDown, ArrowRight, ArrowUp, Minus } from '@phosphor-icons/react/ssr'
 import { dinhDangSo } from '@/lib/dinh-dang-so'
 import { cn } from '@/lib/utils'
-import { Skeleton } from './skeleton'
+import { Skeleton, VungDoc } from './skeleton'
 import { choTre, kpiLabel, kpiValue, stat, statDelta, statFoot, statGrid, statLink, statUnit } from './feedback-styles'
 
 /**
@@ -15,7 +15,7 @@ import { choTre, kpiLabel, kpiValue, stat, statDelta, statFoot, statGrid, statLi
  *   câu đủ: "Tăng 3 so với hôm qua, cần chú ý" / "Giảm 1 so với hôm qua, tốt" / "Không đổi so với tuần trước".
  * - `giaTri = null` → "—" + `trong` (lý do, vd "tính năng Đợt 2") — không hiện 0.
  * - `href` → cả thẻ là liên kết (next/link): hover viền đậm, mũi tên chân dịch 2px, focus ring.
- * - `dangTai` → thẻ `role="status"` `aria-busy="true"` "Đang tải: <nhãn>" + khung chờ cùng hình, hiện sau 300ms.
+ * - `dangTai` → thẻ `aria-busy="true"` + khung chờ cùng hình, hiện sau 300ms; câu "Đang tải: <nhãn>" ở `VungDoc` ngoài thẻ.
  */
 type BienDong = {
   /** Có dấu: dương = tăng, âm = giảm, 0 = không đổi. */
@@ -80,13 +80,16 @@ export function StatCard({
   dangTai?: boolean
 }) {
   if (dangTai)
+    // Câu "Đang tải" ở vùng đọc riêng NGOÀI thẻ busy (sr-only = absolute → không chiếm ô lưới của StatGrid).
     return (
-      <div data-slot="stat-card" role="status" aria-busy="true" className={cn(stat, choTre, className)} {...props}>
-        <span className="sr-only">Đang tải: {nhan}</span>
-        <Skeleton width="1/2" />
-        <Skeleton shape="title" width="1/3" />
-        <Skeleton width="2/3" />
-      </div>
+      <>
+        <VungDoc chu={`Đang tải: ${nhan}`} />
+        <div data-slot="stat-card" aria-busy="true" className={cn(stat, choTre, className)} {...props}>
+          <Skeleton width="1/2" />
+          <Skeleton shape="title" width="1/3" />
+          <Skeleton width="2/3" />
+        </div>
+      </>
     )
   const ruot = (
     <>

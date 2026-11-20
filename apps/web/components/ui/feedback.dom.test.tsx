@@ -28,12 +28,15 @@ test('Skeleton: aria-hidden, hình + bề rộng qua data-shape/data-w, tắt nh
   expect(dong.className).toContain('motion-reduce:animate-none')
 })
 
-test('SkeletonDong: vùng role=status aria-busy=true có chữ đọc được, các dòng aria-hidden', () => {
-  render(<SkeletonDong so={3} />)
-  const vung = screen.getByRole('status')
-  expect(vung.getAttribute('aria-busy')).toBe('true')
-  expect(vung.textContent).toBe('Đang tải danh sách')
-  const dong = vung.querySelectorAll('[data-slot="skeleton-row"]')
+test('SkeletonDong: vùng đọc role=status KHÔNG nằm trong vùng aria-busy (không bị hoãn đọc); các dòng chờ aria-busy + aria-hidden', () => {
+  const { container } = render(<SkeletonDong so={3} />)
+  const doc = screen.getByRole('status')
+  expect(doc.textContent).toBe('Đang tải danh sách')
+  expect(doc.hasAttribute('aria-busy')).toBe(false)
+  expect(doc.closest('[aria-busy="true"]')).toBeNull()
+  const ban = container.querySelector('[data-slot="skeleton-dong"]')
+  expect(ban?.getAttribute('aria-busy')).toBe('true')
+  const dong = ban!.querySelectorAll('[data-slot="skeleton-row"]')
   expect(dong).toHaveLength(3)
   for (const d of dong) expect(d.getAttribute('aria-hidden')).toBe('true')
 })
@@ -150,6 +153,34 @@ test('Banner: không có phần tử nào sau → focus về phần tử đứng
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Trước' }))
 })
 
+test('Banner: phần tử kế tiếp bị ẩn / inert / tắt → focus nhảy qua, tới phần tử thấy được', async () => {
+  function CoAn() {
+    const [hien, setHien] = useState(true)
+    return (
+      <div>
+        {hien && <Banner onDong={() => setHien(false)}>x</Banner>}
+        <button type="button" style={{ display: 'none' }}>
+          Ẩn
+        </button>
+        <div hidden>
+          <button type="button">Trong khối hidden</button>
+        </div>
+        <div inert>
+          <button type="button">Trơ</button>
+        </div>
+        <span tabIndex={0} aria-disabled="true" style={{ visibility: 'hidden' }}>
+          Vô hình
+        </span>
+        <button type="button">Thấy được</button>
+      </div>
+    )
+  }
+  const u = userEvent.setup()
+  render(<CoAn />)
+  await u.click(screen.getByRole('button', { name: 'Ẩn thông báo' }))
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Thấy được' }))
+})
+
 // ---------- StatCard ----------
 
 test('StatCard: số vi-VN tabular-nums, biến động có câu đọc đủ ("Tăng 12% so với tháng trước, tốt"), mũi tên aria-hidden', () => {
@@ -203,15 +234,18 @@ test('StatCard: chưa có dữ liệu → "—" + lý do, không hiện 0; khôn
   expect(screen.queryByRole('link')).toBeNull()
 })
 
-test('StatCard dangTai: role=status aria-busy, chữ "Đang tải" đọc được, khung chờ aria-hidden; StatGrid bọc lưới', () => {
-  render(
+test('StatCard dangTai: thẻ aria-busy, câu "Đang tải" ở vùng đọc riêng ngoài vùng busy; khung chờ aria-hidden; StatGrid bọc lưới', () => {
+  const { container } = render(
     <StatGrid>
       <StatCard nhan="Doanh thu" giaTri={null} dangTai />
     </StatGrid>,
   )
-  const the = screen.getByRole('status')
+  const doc = screen.getByRole('status')
+  expect(doc.textContent).toBe('Đang tải: Doanh thu')
+  expect(doc.hasAttribute('aria-busy')).toBe(false)
+  expect(doc.closest('[aria-busy="true"]')).toBeNull()
+  const the = container.querySelector('[data-slot="stat-card"]')!
   expect(the.getAttribute('aria-busy')).toBe('true')
-  expect(the.textContent).toBe('Đang tải: Doanh thu')
   expect(the.querySelectorAll('[data-slot="skeleton"][aria-hidden="true"]')).toHaveLength(3)
   expect(the.parentElement?.getAttribute('data-slot')).toBe('stat-grid')
 })

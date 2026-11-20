@@ -12,7 +12,7 @@ import { banner, bannerMau, bannerText } from './feedback-styles'
  * - `role`: mặc định `status`; danger → `alert`; `role` truyền vào thắng (vd mất kết nối màu warning nhưng cần `alert`).
  * - `hanhDong`: tối đa MỘT nút (`Button size="sm"`). `onDong` có → nút ✕ "Ẩn thông báo" cuối dải.
  * - Đóng: TRƯỚC khi gọi `onDong` (bên gọi gỡ banner), focus dời sang phần tử focus được kế tiếp sau dải (không có thì
- *   phần tử ngay trước) — nút ✕ biến mất không thả focus về body.
+ *   phần tử ngay trước), bỏ qua phần tử ẩn / inert / tắt — nút ✕ biến mất không thả focus về body.
  * - File thường (không 'use client'): server component đặt được Banner tĩnh; `onDong` là hàm → chỉ client truyền được.
  */
 const ICON = {
@@ -24,9 +24,22 @@ const ICON = {
 const FOCUS_DUOC =
   'a[href], button:not(:disabled), input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
+/**
+ * Focus được THẬT: thấy được (không display:none / visibility:hidden, kể cả do tổ tiên), không nằm trong `inert`, không tắt.
+ * `checkVisibility()` (Chrome 105+, Safari 17.4+, Firefox 106+); thiếu (jsdom, trình duyệt cũ) → dò `hidden` + style tính
+ * toán của phần tử và tổ tiên.
+ */
+function focusDuoc(el: HTMLElement): boolean {
+  if (el.closest('[inert]') || el.matches(':disabled')) return false
+  if (typeof el.checkVisibility === 'function') return el.checkVisibility({ visibilityProperty: true })
+  if (el.closest('[hidden]') || getComputedStyle(el).visibility === 'hidden') return false
+  for (let x: Element | null = el; x; x = x.parentElement) if (getComputedStyle(x).display === 'none') return false
+  return true
+}
+
 /** Phần tử focus được kế tiếp SAU `goc` theo thứ tự DOM (ngoài `goc`); không có → phần tử cuối đứng TRƯỚC. */
 function focusKeTiep(goc: Element): HTMLElement | null {
-  const ds = [...document.querySelectorAll<HTMLElement>(FOCUS_DUOC)].filter((el) => !goc.contains(el))
+  const ds = [...document.querySelectorAll<HTMLElement>(FOCUS_DUOC)].filter((el) => !goc.contains(el) && focusDuoc(el))
   const sau = ds.find((el) => goc.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
   return sau ?? ds.filter((el) => goc.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING).at(-1) ?? null
 }

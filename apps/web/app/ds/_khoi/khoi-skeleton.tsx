@@ -36,7 +36,8 @@ function DanhSach() {
       <Button data-so="tai-lai" variant="outline" size="sm" loading={tai} onClick={() => setTai(true)}>
         <ArrowClockwise /> Tải lại
       </Button>
-      <div data-so="vung" aria-busy={tai} className={khongVien}>
+      {/* Không aria-busy ở đây: SkeletonDong tự mang aria-busy trên khối chờ; bọc thêm vùng busy sẽ hoãn câu "Đang tải". */}
+      <div data-so="vung" className={khongVien}>
         {tai ? (
           <SkeletonDong so={DONG.length} nhan="Đang tải danh sách ticket" />
         ) : (

@@ -11,13 +11,14 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/StatCard-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1476/1476 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 4 mục CHƯA ĐO
+**1476/1476 khớp** · 0 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
 - Mũi tên chân thẻ dịch 2px khi rê (transform/translate) và chuyển động 150ms: bộ đo không có thuộc tính transform — xem bằng mắt ở /ds#stat-card
 - Hiện sau 300ms của thẻ đang tải (`@starting-style`): không đo bằng computed style — xem bằng mắt
 - Hình mũi tên: preview là SVG Phosphor nhúng (ArrowUp, ArrowDown, Minus, ArrowRight); DS dùng đúng các icon đó — chỉ đo hộp + màu
+- Thẻ đang tải (s-7): preview đặt role=status + aria-busy + câu sr-only TRÊN CÙNG thẻ; DS tách (review F9) — thẻ chỉ aria-busy, câu đọc ở VungDoc role=status anh em liền trước (sr-only, absolute → không chiếm ô lưới). Vì vậy khối chờ là con 1–3 bên DS, 2–4 bên artifact; ngữ nghĩa kiểm ở components/ui/feedback.dom.test.tsx
 - Câu đọc cho trình đọc màn hình (sr-only) và màu theo nghĩa tốt/xấu: kiểm ở components/ui/feedback.dom.test.tsx; ở đây đo màu chữ số biến động (khoá s-1…s-5, con dam)
 
 Không có dòng lệch.
