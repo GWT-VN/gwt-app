@@ -2,6 +2,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
+import { KhoiFileUpload } from '@/app/ds/_khoi/khoi-file-upload'
+import { DsRoot } from './ds-root'
 import { FileDrop, FileItem, FileList, kichThuocDoc, kiemTep } from './file-upload'
 
 vi.mock('next/font/google', () => ({
@@ -191,4 +193,21 @@ test('FileItem chuyển sang lỗi: chữ phụ là phần tử MỚI (live regi
   rerender(dong({ trangThai: 'loi', loi: 'Mất mạng — thử lại' }))
   expect(phu()).not.toBe(truoc)
   expect(phu().textContent).toBe('Mất mạng — thử lại')
+})
+
+test('FileList rỗng: ẩn nhìn (không ăn gap của cột) nhưng vẫn nằm trong cây a11y — live region có trước tệp đầu', () => {
+  render(<FileList />)
+  const ul = screen.getByRole('list', { name: 'Tệp đã chọn' })
+  expect(ul.className).toContain('empty:sr-only')
+})
+
+test('khối /ds: bỏ hết tệp → danh sách (live region) vẫn còn để tệp sau được đọc', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <KhoiFileUpload />
+    </DsRoot>,
+  )
+  for (const b of screen.getAllByRole('button', { name: /^Bỏ / })) await user.click(b)
+  expect(screen.getByRole('list', { name: 'Tệp đã chọn' }).children.length).toBe(0)
 })

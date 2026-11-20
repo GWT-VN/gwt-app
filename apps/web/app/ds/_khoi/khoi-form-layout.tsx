@@ -282,10 +282,13 @@ export function FormMau({
             </FieldMeta>
           </Field>
           <Field data-so="f-tep" data-span="full">
-            <FieldLabel htmlFor={id('tep')}>Đính kèm</FieldLabel>
+            <FieldLabel id={id('tep-nhan')} htmlFor={id('tep')}>
+              Đính kèm
+            </FieldLabel>
             <div className="flex flex-col gap-2 border-none border-current">
               <FileDrop
                 id={id('tep')}
+                aria-labelledby={id('tep-nhan')}
                 accept={ACCEPT}
                 goiY={`Ảnh, PDF, Excel, Word · tối đa ${TOI_DA_MB} MB mỗi tệp`}
                 onChonTep={(ds) =>
@@ -300,20 +303,18 @@ export function FormMau({
                   ])
                 }
               />
-              {tep.length > 0 && (
-                <FileList>
-                  {tep.map((t) => (
-                    <FileItem
-                      key={t.id}
-                      ten={t.ten}
-                      kichThuoc={t.kichThuoc}
-                      trangThai={t.loi ? 'loi' : 'xong'}
-                      loi={t.loi}
-                      onBo={() => setTep((cu) => cu.filter((x) => x.id !== t.id))}
-                    />
-                  ))}
-                </FileList>
-              )}
+              <FileList>
+                {tep.map((t) => (
+                  <FileItem
+                    key={t.id}
+                    ten={t.ten}
+                    kichThuoc={t.kichThuoc}
+                    trangThai={t.loi ? 'loi' : 'xong'}
+                    loi={t.loi}
+                    onBo={() => setTep((cu) => cu.filter((x) => x.id !== t.id))}
+                  />
+                ))}
+              </FileList>
             </div>
           </Field>
         </FormGrid>

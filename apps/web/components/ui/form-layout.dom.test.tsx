@@ -116,3 +116,20 @@ test('Ngày hẹn (DatePicker): xoá ngày (đã sửa) rồi rời ô → lỗi
   await u.tab()
   expect(ngay.getAttribute('aria-invalid')).toBe('true')
 })
+
+/** Tên theo aria-labelledby (accname bước 2B: thắng `<label for>` lẫn label bọc ngoài) = nối chữ các id theo thứ tự. */
+const tenTheoLabelledby = (el: Element) =>
+  (el.getAttribute('aria-labelledby') ?? '')
+    .split(' ')
+    .filter(Boolean)
+    .map((i) => document.getElementById(i)?.textContent)
+    .join(' ')
+
+test('Đính kèm: tên input tệp = nhãn "Đính kèm" + tiêu đề vùng; danh sách tệp (live region) có sẵn khi còn rỗng', () => {
+  const { container } = render(<FormMau p="t" />)
+  const input = container.querySelector('input[type="file"]')!
+  expect(tenTheoLabelledby(input)).toBe('Đính kèm Kéo thả tệp hoặc chọn từ máy')
+  const ds = within(container).getByRole('list', { name: 'Tệp đã chọn' })
+  expect(ds.children.length).toBe(0)
+  expect(ds.getAttribute('aria-live')).toBe('polite')
+})

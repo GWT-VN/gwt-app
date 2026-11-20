@@ -32,8 +32,10 @@ const khongVien = 'border-none border-current'
  * `goiY` (loại + dung lượng tối đa, vd "Ảnh, PDF · tối đa 10 MB mỗi tệp") hiện kiểu `.ui-help`. Dung lượng tối đa do
  * màn truyền cho `kiemTep`, không phải prop của vùng thả.
  * Nối với form (a11y):
- * - Tên input = `aria-labelledby` (nhãn ngoài, vd FieldLabel "Biên bản bàn giao" có id) + tiêu đề vùng — KHÔNG gồm gợi ý
- *   (label bọc input thì tên mặc định là cả chữ trong label → gợi ý bị đọc hai lần, hai vùng thả cùng tên).
+ * - Tên input = `aria-labelledby` (nhãn ngoài) + tiêu đề vùng — KHÔNG gồm gợi ý (label bọc input thì tên mặc định là cả
+ *   chữ trong label → gợi ý bị đọc hai lần, hai vùng thả cùng tên). **Có FieldLabel thì BẮT BUỘC đặt `id` cho FieldLabel
+ *   và truyền id đó vào `aria-labelledby`:** input luôn mang aria-labelledby (tiêu đề vùng) → nó thắng `<label for>`, nên
+ *   chỉ `htmlFor` thì tên mất nhãn ("Kéo thả tệp…" thay vì "Đính kèm, Kéo thả tệp…").
  * - Mô tả = id gợi ý + `aria-describedby` của người gọi (id FieldError).
  * - `aria-invalid` → input mang aria-invalid, vùng viền red-500 (khối aria-invalid của .ui-drop; đặt qua `data-invalid`
  *   vì aria-invalid trên label vô nghĩa với trình đọc). Tắt thắng lỗi; lỗi thắng viền hover và viền lúc kéo vào (y cascade).
@@ -149,7 +151,8 @@ export function FileDrop({
  * `.ui-file-list`: cột gap 8, không lề/padding/dấu đầu dòng. Đọc là "Tệp đã chọn".
  * Live region polite, chỉ đọc PHẦN THÊM VÀO: dòng tệp mới (tên + câu lỗi "Quá 10 MB" nếu lỗi) và câu lỗi mới của dòng chuyển
  * sang lỗi (FileItem dựng lại phần tử phụ khi đổi trạng thái); % tiến độ đổi chữ tại chỗ nên không bị đọc liên tục.
- * Màn nên render FileList sẵn (kể cả rỗng) để vùng live có trước tệp đầu tiên.
+ * Màn render FileList SẴN (kể cả rỗng) để vùng live có trước tệp đầu tiên. Rỗng → ẩn nhìn (`sr-only`: không chiếm chỗ,
+ * không ăn gap của cột bao ngoài) nhưng vẫn trong cây a11y.
  */
 export function FileList({ className, ...props }: ComponentProps<'ul'>) {
   return (
@@ -158,7 +161,7 @@ export function FileList({ className, ...props }: ComponentProps<'ul'>) {
       aria-label="Tệp đã chọn"
       aria-live="polite"
       aria-relevant="additions"
-      className={cn(khongVien, 'm-0 flex list-none flex-col gap-2 p-0', className)}
+      className={cn(khongVien, 'm-0 flex list-none flex-col gap-2 p-0 empty:sr-only', className)}
       {...props}
     />
   )

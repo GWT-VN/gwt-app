@@ -47,21 +47,19 @@ export function KhoiFileUpload() {
       <div className="max-w-160 border-none border-current">
         <div className="flex flex-col gap-2 border-none border-current">
           <FileDrop id="ds-tep" accept={ACCEPT} onChonTep={them} goiY={GOI_Y} />
-          {ds.length > 0 && (
-            <FileList>
-              {ds.map((d) => (
-                <FileItem
-                  key={d.id}
-                  ten={d.ten}
-                  kichThuoc={d.kichThuoc}
-                  trangThai={d.trangThai}
-                  tienDo={d.tienDo}
-                  loi={d.loi}
-                  onBo={() => setDs((cu) => cu.filter((x) => x.id !== d.id))}
-                />
-              ))}
-            </FileList>
-          )}
+          <FileList>
+            {ds.map((d) => (
+              <FileItem
+                key={d.id}
+                ten={d.ten}
+                kichThuoc={d.kichThuoc}
+                trangThai={d.trangThai}
+                tienDo={d.tienDo}
+                loi={d.loi}
+                onBo={() => setDs((cu) => cu.filter((x) => x.id !== d.id))}
+              />
+            ))}
+          </FileList>
         </div>
         <div className="mt-4 border-none border-current">
           <div className="flex flex-col gap-2 border-none border-current">
