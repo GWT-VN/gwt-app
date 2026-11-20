@@ -144,7 +144,10 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   Library / user-event; polyfill Radix ở `vitest.setup-dom.ts` (chỉ chạy khi có `window`). Test còn lại vẫn môi trường node.
 - **`/ds`:** mỗi component một file `app/ds/_khoi/khoi-<neo>.tsx` (`export function Khoi<Ten>()`, `<section id="<neo>"
   className="scroll-mt-6">` + `<h2>` link `#<neo>`), rồi gắn `Khoi` vào mục của nhóm tương ứng trong mảng `NHOM` của
-  `app/ds/page.tsx` (mục lục tự thành link; chưa gắn = chữ mờ "chưa dựng").
+  `app/ds/_khung/khoi.ts` (mục lục cột trái tự thành link; chưa gắn = chữ mờ "chưa dựng"). `/ds` = trang Components
+  trong khung tài liệu (cột trái, `Tam`/`Muc`); `/ds/[trang]` = trang chữ + 7 trang nền token; `/ds/tron` = khối trần KHÔNG
+  khung — cổng so khớp đo ở đây, đừng thêm khung vào nó. README nguồn ở `ds/nguon/` (Tailwind KHÔNG quét — `@source not`
+  trong `app/globals.css`).
 
 - **Tailwind quét cả file test và file .md trong apps/web:** chuỗi trông như class (vd variant tuỳ biến có ngoặc nhọn bên trong) trong `*.test.tsx` hay `ds/*.md` cũng được sinh CSS — chuỗi hỏng làm dev server 500 (gặp 20/11). Trong test/tài liệu viết mô tả bằng lời, đừng dán class có ngoặc nhọn/chỗ trống; lỡ dính thì sửa chuỗi rồi `touch ds/tokens.css` để Tailwind quét lại.
 
@@ -189,6 +192,16 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   (tsc TS7016). Repo không có config prettier → không chạy prettier. Test giờ VN: đặt `process.env.TZ` trong
   `vi.hoisted` (mẫu `date-picker.dom.test.tsx`).
 - **Ô tiền `OTien`:** chỉ khi DÁN mới hiểu 1–2 chữ số sau dấu cuối là phần lẻ (làm tròn); khi gõ chỉ lấy chữ số.
+
+- **Hằng/hàm thuần KHÔNG đặt trong file `'use client'`** (server component gọi sẽ lỗi "Attempted to call … from the
+  server"): chuỗi class ở `*-styles.ts`/`button-variants.ts`, hàm ở `lib/`/`bang/`; file component re-export.
+- **Trigger mở pop là nút thường** (Combobox, DatePicker, DateRangePicker): tên đọc = nhãn + giá trị qua
+  `use-trigger-chon.ts`. FileDrop có `FieldLabel` → truyền id nhãn vào `aria-labelledby` (thắng `<label for>`).
+- **Pop nổi lấy trần cao theo `--radix-popover-content-available-height`** (có dự phòng) + cuộn trong pop.
+- **Trước khi "sửa" khoá cuộn/focus của Radix: đo bằng Chrome thật có đối chứng** (pop trong Dialog/Sheet cuộn được với
+  radix-ui 1.8.1 — giữ Popover không modal). Focus của nút disabled/loading không tin jsdom.
+- **Font:** Inter CHÍNH CHỦ (`components/ui/fonts/InterVariable.woff2`, rsms v4.1, OFL) qua next/font/local — bản Google
+  Fonts cắt mất cv11/ss03. Test: `next/font/local` được mock chung trong `vitest.setup-dom.ts`.
 
 ## Tương phản — chấp nhận có chủ đích
 
