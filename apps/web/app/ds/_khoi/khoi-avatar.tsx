@@ -45,7 +45,7 @@ export function KhoiAvatar() {
 export function KhoiAvatarHang() {
   return (
     <KhoiHang neo="avatar">
-      <BienThe ten='size="default"' moTa="22px — danh sách, người phụ trách. Chữ cái đầu từ chuCaiDau(tên).">
+      <BienThe ten='size="default"' moTa="22px — danh sách, người phụ trách. Chữ cái đầu lấy tự động từ tên người.">
         <div className="flex flex-wrap items-center gap-3">{MD}</div>
       </BienThe>
       <BienThe ten='size="sm"' moTa="20px — chỗ chật: ô bảng, chip.">

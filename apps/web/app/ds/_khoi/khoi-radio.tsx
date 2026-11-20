@@ -112,7 +112,7 @@ export function KhoiRadio() {
 export function KhoiRadioHang() {
   return (
     <KhoiHang neo="radio">
-      <BienThe ten="Dọc, có mô tả" moTa="Chọn đúng một trong vài lựa chọn; mục tắt ghi lý do. Rê chuột / Tab, ↑↓ để thấy.">
+      <BienThe ten="Dọc, có mô tả" moTa="Chọn đúng một trong vài lựa chọn; mục không chọn được ghi lý do. Rê chuột, bấm Tab rồi ↑↓ để thử.">
         <NhomDoc />
       </BienThe>
       <BienThe ten="Ngang" moTa="≤ 4 lựa chọn ngắn.">

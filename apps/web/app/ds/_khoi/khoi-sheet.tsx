@@ -63,7 +63,7 @@ function SheetLoc() {
               <FieldLabel htmlFor="sheet-kenh">Kênh bán</FieldLabel>
               <Select value={kenh} onValueChange={setKenh}>
                 <SelectTrigger id="sheet-kenh" data-so="kenh">
-                  <SelectValue />
+                  <SelectValue>{KENH.find(([v]) => v === kenh)?.[1]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {KENH.map(([v, ten]) => (
@@ -124,7 +124,7 @@ export function KhoiSheet() {
 export function KhoiSheetHang() {
   return (
     <KhoiHang neo="sheet">
-      <BienThe ten="Bộ lọc nâng cao" moTa="Nhiều trường lọc, mở cạnh phải; ≤ 640 rộng hết màn">
+      <BienThe ten="Bộ lọc nâng cao" moTa="Nhiều trường lọc, mở từ cạnh phải; trên điện thoại rộng hết màn. Nút Xoá lọc = đưa bộ lọc về mặc định.">
         <SheetLoc />
       </BienThe>
     </KhoiHang>

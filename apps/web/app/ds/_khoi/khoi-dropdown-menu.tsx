@@ -72,12 +72,15 @@ const DU = (
   </>
 )
 
-/** Nút ⋯ + menu thao tác đơn. `so` = khoá so khớp của nút (chỉ khối cũ — các hàng có nhiều nút ⋯). */
-function MenuDon({ so, children }: { so?: string; children: ReactNode }) {
+/**
+ * Nút ⋯ + menu thao tác đơn. `so` = khoá so khớp của nút (chỉ khối cũ — các hàng có nhiều nút ⋯). `mau` = tên hàng, ghép
+ * vào tên đọc của nút để nhiều nút ⋯ trên cùng trang không trùng tên.
+ */
+function MenuDon({ so, mau, children }: { so?: string; mau?: string; children: ReactNode }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button data-so={so} variant="outline" size="icon" aria-label="Thao tác với đơn DH-DEMO-0001">
+        <Button data-so={so} variant="outline" size="icon" aria-label={`Thao tác với đơn DH-DEMO-0001${mau ? ` (mẫu: ${mau})` : ''}`}>
           <DotsThree aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
@@ -142,31 +145,31 @@ export function KhoiDropdownMenuHang() {
   return (
     <KhoiHang neo="dropdown-menu">
       <BienThe ten="Nhóm + phím tắt" moTa="Nhãn nhóm ở đầu; phím tắt canh phải, chỉ để gợi nhớ">
-        <MenuDon>
+        <MenuDon mau="nhóm + phím tắt">
           {MUC.nhan}
           {MUC.xem}
           {MUC.sua}
           {MUC.nhanBan}
         </MenuDon>
       </BienThe>
-      <BienThe ten="Mục bị chặn quyền" moTa="Vẫn hiện, vẫn focus được; lý do ghi ngay trong chữ">
-        <MenuDon>
+      <BienThe ten="Mục bị chặn quyền" moTa="Vẫn hiện, vẫn di phím tới được nhưng không bấm được; lý do ghi ngay trong chữ">
+        <MenuDon mau="mục bị chặn quyền">
           {MUC.xem}
           {MUC.chuyenKho}
         </MenuDon>
       </BienThe>
       <BienThe ten="Mục nguy hiểm" moTa="Xoá/huỷ: chữ đỏ, đặt cuối sau đường kẻ">
-        <MenuDon>
+        <MenuDon mau="mục nguy hiểm">
           {MUC.sua}
           <DropdownMenuSeparator />
           {MUC.xoa}
         </MenuDon>
       </BienThe>
-      <BienThe ten="Checkbox item" moTa="Chọn nhiều (vd cột hiển thị), menu giữ mở khi tick">
+      <BienThe ten="Mục có ô tick" moTa="Chọn nhiều (vd cột hiển thị), menu giữ mở khi tick">
         <MenuCot />
       </BienThe>
       <BienThe ten="Menu ⋯ của dòng" moTa="Đủ các kiểu trên trong một menu thao tác">
-        <MenuDon>{DU}</MenuDon>
+        <MenuDon mau="đủ mục">{DU}</MenuDon>
       </BienThe>
     </KhoiHang>
   )

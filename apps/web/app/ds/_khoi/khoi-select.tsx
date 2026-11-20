@@ -19,16 +19,20 @@ const TINH_TRANG = [
 
 /* Demo dùng chung cho KhoiSelect (so khớp, /ds/tron) và KhoiSelectHang (/ds). */
 
+/** Chữ của giá trị đang chọn — truyền thẳng vào SelectValue: Radix chỉ lấy chữ mục khi danh sách đã mở một lần, HTML server rỗng. */
+const chuCua = (ds: readonly (readonly [string, string])[], gt: string | undefined) => ds.find(([g]) => g === gt)?.[1]
+
 function TinhTrang(props: { ten: string; giaTri?: string; so: string; invalid?: boolean; loi?: string; disabled?: boolean }) {
+  const [gt, setGt] = useState(props.giaTri)
   return (
-    <Select defaultValue={props.giaTri} disabled={props.disabled}>
+    <Select value={gt} onValueChange={setGt} disabled={props.disabled}>
       <SelectTrigger
         data-so={props.so}
         aria-label={props.ten}
         aria-invalid={props.invalid || undefined}
         aria-describedby={props.loi}
       >
-        <SelectValue placeholder="Chọn tình trạng hàng" />
+        <SelectValue placeholder="Chọn tình trạng hàng">{chuCua(TINH_TRANG, gt)}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {TINH_TRANG.map(([gt, nhan]) => (
@@ -58,7 +62,7 @@ function KenhBan({ id }: { id: string }) {
       </FieldLabel>
       <Select value={kenh} onValueChange={setKenh}>
         <SelectTrigger data-so="kenh" id={id}>
-          <SelectValue placeholder="Chọn kênh bán" />
+          <SelectValue placeholder="Chọn kênh bán">{chuCua(KENH, kenh)}</SelectValue>
         </SelectTrigger>
         <SelectContent data-so="content">
           {KENH.map(([gt, nhan]) => (
@@ -108,12 +112,12 @@ export function KhoiSelect() {
 export function KhoiSelectHang() {
   return (
     <KhoiHang neo="select">
-      <BienThe ten="Placeholder" moTa="Chưa chọn — chữ mờ nói cần chọn gì.">
+      <BienThe ten="Chưa chọn" moTa="Chữ mờ nói cần chọn gì.">
         <div className="max-w-sm">
           <TinhTrang so="placeholder" ten="Tình trạng hàng (chưa chọn)" />
         </div>
       </BienThe>
-      <BienThe ten="Có giá trị" moTa="Danh sách ngắn (≤ 10 mục), không cần gõ tìm. Rê chuột / Tab để thấy.">
+      <BienThe ten="Có giá trị" moTa="Danh sách ngắn (≤ 10 mục), không cần gõ tìm. Rê chuột / bấm Tab để thấy viền đổi.">
         <div className="max-w-sm">
           <TinhTrang so="hover" ten="Tình trạng hàng (có giá trị)" giaTri="con" />
         </div>

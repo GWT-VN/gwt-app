@@ -16,7 +16,7 @@ function Nhan({ children }: { children: string }) {
 }
 
 /** Ngày cố định của lịch mẫu (demo) — y preview: tháng 11/2026, "hôm nay" 18, đã chọn 21. */
-const HOM_NAY_MAU = '2026-11-18'
+export const HOM_NAY_MAU = '2026-11-18'
 
 /**
  * Lịch mẫu mở sẵn (Calendar + chân, cùng mặt `calendarPop`) — dùng chung khối cũ và bản hàng. ≤ 640 mặt rộng 100vw − 16
@@ -120,25 +120,25 @@ export function KhoiDatePickerHang() {
   const [loi, setLoi] = useState<string | null>(null)
   return (
     <KhoiHang neo="date-picker">
-      <BienThe ten="Trống" moTa="Chưa có ngày — chữ gợi ý, bấm mở lịch ở tháng hiện tại.">
+      <BienThe ten="Trống" moTa="Chưa có ngày — chữ mờ gợi ý; bấm mở lịch ở tháng hiện tại.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dp-trong">Ngày hẹn</FieldLabel>
           <DatePicker id="dsh-dp-trong" value={trong} onValueChange={setTrong} />
         </Field>
       </BienThe>
-      <BienThe ten="Có giá trị" moTa="Form sửa / đã chọn — mở lịch ở đúng tháng, ngày đang chọn sáng.">
+      <BienThe ten="Có giá trị" moTa="Đã chọn, hoặc mở lại bản ghi đã lưu — lịch mở đúng tháng, ngày đang chọn tô đậm.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dp-chon">Ngày giao</FieldLabel>
           <DatePicker id="dsh-dp-chon" value={daChon} onValueChange={setDaChon} />
         </Field>
       </BienThe>
-      <BienThe ten="Giới hạn min / max" moTa="Chỉ cho chọn trong khoảng (vd trong kỳ đang mở) — ngày ngoài khoảng gạch ngang.">
+      <BienThe ten="Giới hạn khoảng ngày" moTa="Chỉ cho chọn trong một khoảng (vd trong kỳ đang mở) — ngày ngoài khoảng bị gạch ngang.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dp-gioi-han">Ngày chứng từ (10–30/11/2026)</FieldLabel>
           <DatePicker id="dsh-dp-gioi-han" value={gioiHan} onValueChange={setGioiHan} min="2026-11-10" max="2026-11-30" />
         </Field>
       </BienThe>
-      <BienThe ten="Lỗi" moTa="Bắt buộc mà còn trống khi lưu — viền đỏ + câu lỗi gắn aria-describedby.">
+      <BienThe ten="Lỗi" moTa="Bắt buộc mà còn trống khi lưu — viền đỏ + câu lỗi; trình đọc màn hình đọc câu lỗi cùng ô.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dp-loi" required>
             Ngày giao
@@ -160,7 +160,7 @@ export function KhoiDatePickerHang() {
           <DatePicker id="dsh-dp-tat" value="2026-11-18" onValueChange={() => {}} disabled />
         </Field>
       </BienThe>
-      <BienThe ten="Lịch mở sẵn" moTa="Mặt pop vẽ tĩnh (demo 11/2026): đã chọn 21, chấm dưới = hôm nay 18, 1–3 bị chặn.">
+      <BienThe ten="Lịch mở sẵn" moTa="Lịch mở sẵn để xem, bấm thử được (demo 11/2026): đã chọn 21, chấm dưới = hôm nay 18, ngày 1–3 bị chặn.">
         <LichMau className="max-[640px]:w-full max-[640px]:max-w-full" />
       </BienThe>
     </KhoiHang>

@@ -44,13 +44,13 @@ export function KhoiTooltip() {
 export function KhoiTooltipHang() {
   return (
     <KhoiHang neo="tooltip">
-      <BienThe ten="Nút icon" moTa="Mô tả thêm, không lặp aria-label. Rê chuột / Tab để thấy.">
+      <BienThe ten="Nút icon" moTa="Chữ mô tả thêm, không lặp lại tên nút. Rê chuột hoặc bấm Tab để thấy.">
         {ICON}
       </BienThe>
-      <BienThe ten="Nút có chữ" moTa="Giải thích phạm vi thao tác. Rê chuột / Tab để thấy.">
+      <BienThe ten="Nút có chữ" moTa="Giải thích phạm vi thao tác. Rê chuột hoặc bấm Tab để thấy.">
         {EXCEL}
       </BienThe>
-      <BienThe ten='side="right"' moTa='Mặc định side="bottom"; đổi khi phía dưới chật (thanh bên).'>
+      <BienThe ten='side="right"' moTa="Mặc định hiện bên dưới; cho hiện bên phải khi phía dưới chật (thanh bên).">
         <Tooltip side="right" content="Xem các lần sửa đơn">
           <Button variant="ghost" size="icon" aria-label="Lịch sử">
             <ClockCounterClockwise aria-hidden="true" />

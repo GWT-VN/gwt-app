@@ -52,7 +52,7 @@ const MAU: Mau[] = [
   },
   {
     ten: 'color="danger"',
-    moTa: 'Lỗi chặn thao tác — role="alert", đọc ngay.',
+    moTa: 'Lỗi chặn thao tác — trình đọc màn hình đọc ngay khi hiện.',
     demo: (
       <Alert data-so="danger" color="danger">
         <AlertTitle>Không lưu được</AlertTitle>

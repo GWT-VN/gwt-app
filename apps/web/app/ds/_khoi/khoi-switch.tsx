@@ -39,13 +39,13 @@ export function KhoiSwitch() {
 export function KhoiSwitchHang() {
   return (
     <KhoiHang neo="switch">
-      <BienThe ten="Bật" moTa="Có hiệu lực ngay, không cần bấm Lưu. Rê chuột / Tab để thấy.">
+      <BienThe ten="Đang bật" moTa="Có hiệu lực ngay, không cần bấm Lưu. Rê chuột / bấm Tab để thấy viền đổi.">
         <Switch defaultChecked aria-label="Công tắc bật (demo)" />
       </BienThe>
-      <BienThe ten="Tắt">
+      <BienThe ten="Đang tắt">
         <Switch aria-label="Công tắc tắt (demo)" />
       </BienThe>
-      <BienThe ten="Khoá" moTa="Bị khoá bởi quyền/cấu hình — ghi lý do ở nhãn.">
+      <BienThe ten="Khoá (không bấm được)" moTa="Bị khoá do thiếu quyền hoặc do cài đặt chung — ghi lý do ở nhãn.">
         <Switch defaultChecked disabled aria-label="Công tắc khoá (demo)" />
       </BienThe>
       <BienThe ten="Hàng cài đặt" moTa="Nhãn + mô tả bên trái, công tắc bên phải; bấm cả hàng.">

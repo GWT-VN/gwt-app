@@ -110,7 +110,7 @@ export function KhoiInput() {
 export function KhoiInputHang() {
   return (
     <KhoiHang neo="input">
-      <BienThe ten="Mặc định" moTa="Ô trống, placeholder gợi ý định dạng; dấu * = bắt buộc.">
+      <BienThe ten="Mặc định" moTa="Ô trống, chữ mờ gợi ý cách nhập; dấu * = bắt buộc.">
         <div className="max-w-sm">
           <TruongTen id="ds-ih-mac-dinh" goiY={false} />
         </div>
@@ -125,12 +125,12 @@ export function KhoiInputHang() {
           <TruongTim id="ds-ih-tim" />
         </div>
       </BienThe>
-      <BienThe ten="Gợi ý" moTa="Dòng mô tả dưới ô, nối bằng aria-describedby.">
+      <BienThe ten="Gợi ý" moTa="Dòng gợi ý dưới ô; trình đọc màn hình đọc kèm khi vào ô.">
         <div className="max-w-sm">
           <TruongTen id="ds-ih-goi-y" />
         </div>
       </BienThe>
-      <BienThe ten="Hover / Focus" moTa="Rê chuột / Tab để thấy viền đậm dần.">
+      <BienThe ten="Rê chuột / Tab" moTa="Rê chuột hoặc bấm Tab để thấy viền đậm dần.">
         <div className="max-w-sm">
           <TruongHover id="ds-ih-hover" />
         </div>

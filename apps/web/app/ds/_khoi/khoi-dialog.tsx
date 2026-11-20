@@ -99,7 +99,7 @@ export function KhoiDialog() {
 export function KhoiDialogHang() {
   return (
     <KhoiHang neo="dialog">
-      <BienThe ten="Hộp nhập ngắn" moTa="Một câu hỏi + một ô nhập; focus mở vào nút an toàn Huỷ">
+      <BienThe ten="Hộp nhập ngắn" moTa="Một câu hỏi + một ô nhập; mở ra con trỏ đứng sẵn ở nút an toàn Huỷ">
         <HopXoaDon tieuDe="Xoá đơn DH-DEMO-0001?" />
       </BienThe>
       <BienThe ten="Tiêu đề dài" moTa="Tiêu đề xuống dòng, chừa lề phải cho nút ✕">

@@ -168,7 +168,7 @@ export function KhoiConfirmDialog() {
 export function KhoiConfirmDialogHang() {
   return (
     <KhoiHang neo="confirm-dialog">
-      <BienThe ten="Thường" moTa="Việc hoàn tác được — focus nút xác nhận, chạy xong tự đóng">
+      <BienThe ten="Thường" moTa="Việc hoàn tác được — con trỏ đứng sẵn ở nút xác nhận, chạy xong tự đóng">
         <MauDong />
       </BienThe>
       <BienThe ten="Phá + hậu quả" moTa="Không hoàn tác: kê hậu quả, bắt nhập lý do; lần đầu báo lỗi trong hộp">

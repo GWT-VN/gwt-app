@@ -29,14 +29,15 @@ const O = {
       <Checkbox /> Focus
     </ChoiceLabel>
   ),
-  tat: (
+  /* Chữ preview "Disabled" giữ cho khối cũ (cổng so khớp đo); bản hàng truyền chữ thường. */
+  tat: (nhan = 'Disabled') => (
     <ChoiceLabel data-so="tat">
-      <Checkbox disabled /> Disabled
+      <Checkbox disabled /> {nhan}
     </ChoiceLabel>
   ),
-  tatChon: (
+  tatChon: (nhan = 'Disabled đã chọn') => (
     <ChoiceLabel data-so="tat-chon">
-      <Checkbox disabled defaultChecked /> Disabled đã chọn
+      <Checkbox disabled defaultChecked /> {nhan}
     </ChoiceLabel>
   ),
 }
@@ -75,8 +76,8 @@ export function KhoiCheckbox() {
         {O.motPhan}
         {O.hover}
         {O.focus}
-        {O.tat}
-        {O.tatChon}
+        {O.tat()}
+        {O.tatChon()}
         <Loi id="ds-cb-loi" />
       </div>
     </section>
@@ -94,16 +95,16 @@ export function KhoiCheckboxHang() {
       <BienThe ten="Một phần" moTa="Ô cha khi chỉ một số ô con được chọn (chọn tất cả trong bảng).">
         {O.motPhan}
       </BienThe>
-      <BienThe ten="Hover / Focus" moTa="Rê chuột / Tab để thấy.">
+      <BienThe ten="Rê chuột / Tab" moTa="Rê chuột hoặc bấm Tab để thấy viền đổi.">
         <div className="flex flex-wrap gap-5">
           {O.hover}
           {O.focus}
         </div>
       </BienThe>
-      <BienThe ten="Tắt" moTa="Không đổi được (thiếu quyền, phụ thuộc ô khác).">
+      <BienThe ten="Không bấm được" moTa="Không đổi được (thiếu quyền, phụ thuộc ô khác).">
         <div className="flex flex-wrap gap-5">
-          {O.tat}
-          {O.tatChon}
+          {O.tat('Không bấm được')}
+          {O.tatChon('Không bấm được, đã chọn')}
         </div>
       </BienThe>
       <BienThe ten="Lỗi" moTa="Bắt buộc tick trước khi lưu; câu lỗi thẳng chữ nhãn.">

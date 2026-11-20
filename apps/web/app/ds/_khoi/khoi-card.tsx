@@ -117,10 +117,10 @@ export function KhoiCardHang() {
       <BienThe ten="Cơ bản" moTa="Tiêu đề + mô tả + nội dung. Viền tách khỏi trang, không bóng.">
         <div className="max-w-140 border-none border-current">{CO_BAN}</div>
       </BienThe>
-      <BienThe ten="Có hành động" moTa="CardAction: nút ở góc phải header, phủ dòng tiêu đề + mô tả.">
+      <BienThe ten="Có hành động" moTa="Nút ở góc phải phần đầu thẻ, ngang hàng tiêu đề + mô tả.">
         <div className="max-w-140 border-none border-current">{HANH_DONG}</div>
       </BienThe>
-      <BienThe ten="Có chân nút" moTa="CardFooter: nút dồn phải, cách 8 — phụ (outline) trước, chính sau.">
+      <BienThe ten="Có chân nút" moTa="Chân thẻ: nút dồn phải, nút phụ (viền) đứng trước, nút chính sau.">
         <div className="max-w-140 border-none border-current">{CHAN}</div>
       </BienThe>
       <BienThe ten="Bọc form" moTa="Form ngắn trong thẻ. Form dài nhiều khối: xem FormLayout.">

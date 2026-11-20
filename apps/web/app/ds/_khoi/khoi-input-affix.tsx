@@ -92,12 +92,12 @@ export function KhoiInputAffix() {
 export function KhoiInputAffixHang() {
   return (
     <KhoiHang neo="input-affix">
-      <BienThe ten="VND" moTa="Ô tiền: gõ số, tự chấm hàng nghìn, hậu tố ₫. Rê chuột / Tab để thấy viền.">
+      <BienThe ten="VND" moTa="Ô tiền: gõ số, tự chấm hàng nghìn, ký hiệu ₫ phía sau. Rê chuột hoặc bấm Tab để thấy viền.">
         <div className="max-w-sm">
           <DonGia id="ds-iah-gia" />
         </div>
       </BienThe>
-      <BienThe ten="%" moTa="Hậu tố đơn vị; số thập phân (ghép InputGroup).">
+      <BienThe ten="%" moTa="Đơn vị đứng sau số; nhận số thập phân.">
         <div className="max-w-sm">
           <ChietKhau id="ds-iah-ck" />
         </div>

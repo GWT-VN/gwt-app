@@ -151,7 +151,7 @@ export function KhoiFileUploadHang() {
           <FileDrop id="dsh-tep-tat" accept={ACCEPT} onChonTep={() => {}} goiY={GOI_Y} disabled />
         </div>
       </BienThe>
-      <BienThe ten="Lỗi bắt buộc" moTa="Ô bắt buộc chưa có tệp khi lưu — viền đỏ + câu lỗi gắn aria-describedby.">
+      <BienThe ten="Lỗi bắt buộc" moTa="Ô bắt buộc chưa có tệp khi lưu — viền đỏ + câu lỗi; trình đọc màn hình đọc câu lỗi cùng ô.">
         <div className="max-w-160 border-none border-current">
           <OBatBuoc />
         </div>

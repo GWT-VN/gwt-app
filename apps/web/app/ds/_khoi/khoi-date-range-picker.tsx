@@ -99,7 +99,7 @@ export function KhoiDateRangePickerHang() {
           <DateRangePicker id="dsh-drp-co" value={coKhoang} onValueChange={setCoKhoang} />
         </Field>
       </BienThe>
-      <BienThe ten="Mốc nhanh (bảng mở sẵn)" moTa="Mặt pop vẽ tĩnh (demo, hôm nay 18/11/2026): mốc Tháng này đang khớp.">
+      <BienThe ten="Mốc nhanh (bảng mở sẵn)" moTa="Lịch mở sẵn để xem, bấm thử được (demo, hôm nay 18/11/2026): mốc Tháng này đang khớp.">
         <BangMau className="max-[640px]:w-full max-[640px]:max-w-full" />
       </BienThe>
       <BienThe ten="Tắt" moTa="Kỳ đã khoá / thiếu quyền — vẫn đọc được khoảng.">

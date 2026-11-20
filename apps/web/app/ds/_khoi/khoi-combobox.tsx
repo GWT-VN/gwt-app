@@ -32,9 +32,9 @@ const matTinh = cn(menuContent, 'z-auto')
 
 /** Ba trạng thái vẽ tĩnh bằng thân pop — dùng chung khối cũ (một cột) và bản hàng (mỗi trạng thái một hàng). */
 const TRANG_THAI: { ten: string; moTa: string; options?: MucChon[]; tim?: typeof timTreo; defaultSearch: string }[] = [
-  { ten: 'Rỗng', moTa: 'Gõ không khớp mục nào — pop nói rõ, không để trống trơn.', options: TINH, defaultSearch: 'zzz' },
-  { ten: 'Tìm xa: gõ thêm', moTa: 'Chế độ tìm xa, chưa đủ 2 ký tự — chưa gọi server.', tim: timTreo, defaultSearch: 'n' },
-  { ten: 'Tìm xa: đang tìm', moTa: 'Đã gửi truy vấn, chờ server trả về.', tim: timTreo, defaultSearch: 'nguyen' },
+  { ten: 'Không có kết quả', moTa: 'Gõ không khớp mục nào — danh sách báo rõ, không để trống trơn.', options: TINH, defaultSearch: 'zzz' },
+  { ten: 'Tìm trên máy chủ: gõ thêm', moTa: 'Chưa đủ 2 ký tự — chưa tìm, nhắc gõ thêm.', tim: timTreo, defaultSearch: 'n' },
+  { ten: 'Tìm trên máy chủ: đang tìm', moTa: 'Đã gửi đi tìm, đang chờ kết quả.', tim: timTreo, defaultSearch: 'nguyen' },
 ]
 
 function PanelTrangThai({ options, tim, defaultSearch }: (typeof TRANG_THAI)[number]) {
@@ -82,25 +82,25 @@ export function KhoiComboboxHang() {
   const [loi, setLoi] = useState<string | null>(null)
   return (
     <KhoiHang neo="combobox">
-      <BienThe ten="Danh sách nạp sẵn" moTa="Tập > 10 mục đã có ở client (tỉnh, kho, nhóm hàng) — lọc tại chỗ theo mã/tên.">
+      <BienThe ten="Danh sách nạp sẵn" moTa="Danh sách trên 10 mục đã tải sẵn (tỉnh, kho, nhóm hàng) — gõ mã hoặc tên để lọc ngay.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-cb-san">Tỉnh/thành (gõ thử: &quot;ha&quot;, &quot;12&quot;)</FieldLabel>
           <Combobox id="dsh-cb-san" value={sanCo} onValueChange={setSanCo} options={TINH} max={8} />
         </Field>
       </BienThe>
-      <BienThe ten="Tìm xa (tim)" moTa="Tập lớn không nạp trước (khách, đơn, ticket) — gọi server từ 2 ký tự.">
+      <BienThe ten="Tìm trên máy chủ" moTa="Danh sách lớn không tải trước (khách, đơn, ticket) — gõ từ 2 ký tự mới bắt đầu tìm.">
         <Field className="max-w-80">
-          <FieldLabel htmlFor="dsh-cb-xa">Tỉnh/thành (tìm xa, demo trễ 0,4 giây)</FieldLabel>
+          <FieldLabel htmlFor="dsh-cb-xa">Tỉnh/thành (tìm trên máy chủ, demo trễ 0,4 giây)</FieldLabel>
           <Combobox id="dsh-cb-xa" value={xa} onValueChange={setXa} tim={timGia} />
         </Field>
       </BienThe>
-      <BienThe ten="Form sửa (mucDangChon)" moTa="Mở form với mã đã lưu ở chế độ tìm xa — trigger hiện tên, không hiện mã thô.">
+      <BienThe ten="Mở form sửa đã có giá trị" moTa="Mở lại bản ghi đã lưu — ô hiện tên tỉnh/thành, không hiện mã thô.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-cb-sua">Tỉnh/thành đã lưu</FieldLabel>
           <Combobox id="dsh-cb-sua" value={sua} onValueChange={setSua} tim={timGia} mucDangChon={TINH[21]} />
         </Field>
       </BienThe>
-      <BienThe ten="Lỗi" moTa="Bắt buộc mà chưa chọn — viền đỏ + câu lỗi gắn aria-describedby.">
+      <BienThe ten="Lỗi" moTa="Bắt buộc mà chưa chọn — viền đỏ + câu lỗi; trình đọc màn hình đọc câu lỗi cùng ô.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-cb-loi" required>
             Tỉnh/thành giao

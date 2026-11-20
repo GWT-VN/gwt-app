@@ -26,6 +26,7 @@ import { Switch, SwitchRow } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { kiemTep } from '@/lib/tep'
 import { BienThe, KhoiHang } from '../_khung/tam'
+import { HOM_NAY_MAU } from './khoi-date-picker'
 
 /** Loại việc (demo) — 4 mục ≤ 10 → Select (CHUAN-FILTER). */
 const LOAI = [
@@ -60,20 +61,22 @@ type Truong = 'ten' | 'loai' | 'ngay'
  * Form mẫu của khối (dữ liệu demo) — tái tạo form trong ds/nguon/components/FormLayout/preview.html. `p` = tiền tố id
  * (hai form cùng trang); `batDauLoi` = mở ở trạng thái "đã bấm Lưu khi còn trống" như form thứ hai của preview (không
  * cướp focus lúc mở); `dau` = giá trị ban đầu của Tiêu đề / Loại / Ngày hẹn (test dùng, khỏi mở pop trong jsdom);
- * `trangThaiDau` = mở sẵn ở trạng thái đang lưu / vừa lỗi máy chủ (bản hàng biến thể của /ds).
+ * `trangThaiDau` = mở sẵn ở trạng thái đang lưu / vừa lỗi máy chủ (bản hàng biến thể của /ds); `homNay` = mốc "từ hôm
+ * nay trở đi" (mặc định ngày thật; mẫu đã điền truyền ngày cố định để ngày hẹn mẫu luôn hợp lệ).
  */
 export function FormMau({
   p,
   batDauLoi = false,
   dau,
   trangThaiDau,
+  homNay = isoNgay(new Date()),
 }: {
   p: string
   batDauLoi?: boolean
   dau?: { ten?: string; loai?: string; ngay?: string }
   trangThaiDau?: 'dangLuu' | 'loiMay'
+  homNay?: string
 }) {
-  const homNay = isoNgay(new Date())
   const [ten, setTen] = useState(dau?.ten ?? '')
   const [loai, setLoai] = useState(dau?.loai ?? '')
   const [ngay, setNgay] = useState<string | null>(dau?.ngay ?? null)
@@ -379,12 +382,11 @@ export function KhoiFormLayout() {
   )
 }
 
-/** Ngày hẹn hợp lệ cho mẫu đã điền đủ: 7 ngày sau hôm nay (min của DatePicker là hôm nay). */
-const sauBayNgay = () => {
-  const d = new Date()
-  d.setDate(d.getDate() + 7)
-  return isoNgay(d)
-}
+/**
+ * Mẫu đã điền đủ: ngày hẹn CỐ ĐỊNH 7 ngày sau "hôm nay" mẫu (18/11/2026 như lịch DatePicker) — tính từ ngày thật lúc render
+ * thì máy chủ (UTC) và trình duyệt (giờ VN) lệch ngày trong 0–7h sáng → chữ ô ngày khác nhau giữa hai bên.
+ */
+const DIEN = { ten: 'Bảo dưỡng định kỳ máy nén khí', loai: 'bao-duong', ngay: '2026-11-25' }
 
 /** Form trong thẻ, rộng tối đa 880 như preview. */
 function TheForm(props: Parameters<typeof FormMau>[0]) {
@@ -400,22 +402,21 @@ function TheForm(props: Parameters<typeof FormMau>[0]) {
  * `KhoiFormLayout` giữ cho /ds/tron (cổng so khớp FormLayout).
  */
 export function KhoiFormLayoutHang() {
-  const dien = { ten: 'Bảo dưỡng định kỳ máy nén khí', loai: 'bao-duong', ngay: sauBayNgay() }
   return (
     <KhoiHang neo="form-layout">
-      <BienThe ten="Form 2 cột" moTa="Khối có tiêu đề · lưới 2 cột · chân nút. Mới mở: chưa đỏ ô nào.">
+      <BienThe ten="Form 2 cột" moTa="Nhóm có tiêu đề · 2 cột ô nhập · hàng nút ở chân. Mới mở: chưa báo lỗi ô nào.">
         <TheForm p="ds-flh1" />
       </BienThe>
-      <BienThe ten="Đã bấm Lưu, còn lỗi" moTa="Lỗi từng trường viết cách sửa; Lưu lại → focus ô lỗi đầu.">
+      <BienThe ten="Đã bấm Lưu, còn lỗi" moTa="Mỗi ô lỗi có câu nói cách sửa; bấm Lưu lại thì con trỏ nhảy về ô lỗi đầu tiên.">
         <TheForm p="ds-flh2" batDauLoi />
       </BienThe>
-      <BienThe ten="Đang lưu" moTa="Lưu hiện vòng quay, Huỷ khoá; chân báo “Đang lưu…”.">
-        <TheForm p="ds-flh3" dau={dien} trangThaiDau="dangLuu" />
+      <BienThe ten="Đang lưu" moTa="Nút Lưu hiện vòng quay, nút Huỷ khoá; chân form báo “Đang lưu…”.">
+        <TheForm p="ds-flh3" dau={DIEN} homNay={HOM_NAY_MAU} trangThaiDau="dangLuu" />
       </BienThe>
-      <BienThe ten="Lỗi máy chủ" moTa="Alert danger đầu form, dữ liệu giữ nguyên; bấm Lưu để thử lại.">
-        <TheForm p="ds-flh4" dau={dien} trangThaiDau="loiMay" />
+      <BienThe ten="Lỗi máy chủ" moTa="Khung báo lỗi đỏ ở đầu form, dữ liệu đã nhập giữ nguyên; bấm Lưu để thử lại.">
+        <TheForm p="ds-flh4" dau={DIEN} homNay={HOM_NAY_MAU} trangThaiDau="loiMay" />
       </BienThe>
-      <BienThe ten="Khổ ≤ 640px" moTa="Lưới 1 cột.">
+      <BienThe ten="Màn hẹp (≤ 640px)" moTa="Ô nhập xếp 1 cột.">
         <p className="m-0 max-w-160 border-none border-current text-[14px] leading-[20px] text-muted-foreground">
           Khung nhìn từ 640px trở xuống: mọi ô xếp 1 cột, ô dài (ghi chú, đính kèm) vẫn trọn hàng. Theo bề rộng màn hình,
           không theo bề rộng thẻ — thu hẹp cửa sổ để xem trên các form ở trên.

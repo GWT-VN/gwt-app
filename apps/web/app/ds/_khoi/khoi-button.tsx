@@ -17,8 +17,8 @@ const BIEN_THE: Mau[] = [
 
 const TRANG_THAI: Mau[] = [
   {
-    ten: 'hover · focus-visible',
-    moTa: 'Rê chuột / Tab để thấy — trạng thái thật, không ép class.',
+    ten: 'Rê chuột / Tab',
+    moTa: 'Rê chuột hoặc bấm Tab để thấy nền và viền đổi.',
     demo: (
       <>
         <Button>Hover</Button>
@@ -27,7 +27,7 @@ const TRANG_THAI: Mau[] = [
     ),
   },
   { ten: 'disabled', moTa: 'Thiếu quyền hoặc chưa đủ điều kiện.', demo: <Button data-so="disabled" disabled>Disabled</Button> },
-  { ten: 'loading', moTa: 'Đang gửi: giữ focus, chặn bấm lặp, giữ màu.', demo: <Button data-so="loading" loading>Đang lưu</Button> },
+  { ten: 'loading', moTa: 'Đang gửi: hiện vòng quay, chặn bấm hai lần, giữ nguyên màu.', demo: <Button data-so="loading" loading>Đang lưu</Button> },
   {
     ten: 'variant="outline" disabled',
     moTa: 'Nút viền bị tắt.',
@@ -41,7 +41,7 @@ const KICH_CO: Mau[] = [
   { ten: 'size="lg"', moTa: '36px — nút chính của form lớn.', demo: <Button data-so="lg" size="lg">Thêm (lg 36)</Button> },
   {
     ten: 'size="icon"',
-    moTa: 'Chỉ icon — bắt buộc aria-label.',
+    moTa: 'Chỉ có icon — bắt buộc đặt tên để trình đọc màn hình đọc được.',
     demo: <Button data-so="icon" size="icon" variant="outline" aria-label="Thêm"><Plus /></Button>,
   },
   {

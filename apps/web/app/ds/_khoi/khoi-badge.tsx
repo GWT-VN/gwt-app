@@ -15,7 +15,7 @@ const MAU_SOFT: Mau[] = [
 ]
 
 const KIEU: Mau[] = [
-  { ten: 'variant="solid"', moTa: 'Nền đặc xám — nhấn mạnh hơn soft.', demo: <Badge data-so="solid" variant="solid">Solid</Badge> },
+  { ten: 'variant="solid"', moTa: 'Nền đặc xám — nổi hơn kiểu nền nhạt.', demo: <Badge data-so="solid" variant="solid">Solid</Badge> },
   {
     ten: 'variant="solid" color="success"',
     moTa: 'Đặc xanh — kết quả chốt (đã thanh toán).',
@@ -62,7 +62,7 @@ export function KhoiBadgeHang() {
           <div className="flex flex-wrap items-center gap-2">{m.demo}</div>
         </BienThe>
       ))}
-      <BienThe ten='BadgeDot color="…"' moTa="Chấm màu trong badge outline — trạng thái luôn có chữ, không chỉ màu.">
+      <BienThe ten='BadgeDot color="…"' moTa="Chấm màu trong nhãn viền — trạng thái luôn có chữ, không chỉ dựa vào màu.">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline"><BadgeDot color="success" />Đang chạy</Badge>
           <Badge variant="outline"><BadgeDot color="danger" />Dừng</Badge>
