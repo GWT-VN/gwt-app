@@ -2,21 +2,23 @@
 
 Artifact **"GWT — OpenAI + shadcn"**, **bản 26** — https://claude.ai/artifact/BooHz9v7SKXnLHesvW3Lkr
 
-File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy bản 29 (19/11 — chỉ thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), và 10 `preview.html` của lát 2 lấy **bản 31** (19/11, chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF). Không sửa tay.
+File trong `nguon/` chép **nguyên byte** từ artifact bản 26; riêng `bundle.css` lấy **bản 34** (20/11; bản 29 của 19/11 đã thêm `font-feature-settings: inherit` vào 20 rule shorthand `font:`, CEO chốt), 10 `preview.html` của lát 2 lấy **bản 31** (19/11) trừ Tooltip và ContextMenu lấy **bản 33** (20/11). Chép bằng `cp` — không qua Python/Node chế độ chữ vốn đổi LF → CRLF trên Windows; sha256 đo trước và sau khi chép trùng nhau, file LF. Không sửa tay.
+
+Bản 33–34 đồng bộ ngược 5 điểm từ code lát 2 vào artifact: tooltip line-height 16 (cả tooltip sidebar); mục menu disabled ở theme tối không sáng nền khi trỏ; aria-label của preview Tooltip không lặp `data-tip`; icon ContextMenu 16px màu muted; `.b-noi .ui-menu-item` khớp menu-styles.
 
 | File | sha256 |
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` | `e39f5f9912d809e6206b411e41cc612e3f05c9643fc88c7c1ede3827f7c4839a` |
+| `nguon/bundle.css` (bản 34) | `7b0537c44fe10a225079750e4d7b1bd83afac879b77e0752a5c41987604caf60` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
 | `nguon/components/Kbd/preview.html` (bản 31) | `9a5fcaee5823786d85afef6f07afffcc9ce8d68989c34995e5abc607f2b14b3f` |
 | `nguon/components/Alert/preview.html` (bản 31) | `22cce7f4fdce13943e52729d70092bce3c9cd319c390cda718ef4995897ce4ab` |
-| `nguon/components/Tooltip/preview.html` (bản 31) | `faab4b057f51ad5b31c48bb9287af26bbc2c4dd6704efae14ddba07131b8bf02` |
+| `nguon/components/Tooltip/preview.html` (bản 33) | `46decec67c623e0895c84d3505ed9c93e58686c66ebecdda768a97c8c40f2427` |
 | `nguon/components/DropdownMenu/preview.html` (bản 31) | `6afae375e5581ea6e7df670a84fbc9e070d6a23db4103d07f7a6ec6ceab45a45` |
-| `nguon/components/ContextMenu/preview.html` (bản 31) | `5c839bbf28993a967f55c2515781556ee2afa8a3e75c2d8b097fcea59b6afdf6` |
+| `nguon/components/ContextMenu/preview.html` (bản 33) | `135fe520b997456b6deb7fab94069c4d2ccbc8b784e1b1d30cbb4b118b46ac3b` |
 | `nguon/components/Dialog/preview.html` (bản 31) | `727c5eba30eb50a884300e4337a6b32d1b39b418505e58bb01f6c41bcfe8b2b7` |
 | `nguon/components/ConfirmDialog/preview.html` (bản 31) | `4a13f54f975888e58984a84209e7bd65bcae842af2df36ba589025f3972fd7ec` |
 | `nguon/components/Sheet/preview.html` (bản 31) | `421eac8dd26abecbc212a6beb5931a73a8403cceb5f290377eaa644d5d90a24f` |

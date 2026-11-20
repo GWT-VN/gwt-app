@@ -177,7 +177,7 @@ body {
 .ui-menu-item:hover, .ui-menu-item.is-hover, .ui-menu-item[data-highlighted] { background: var(--alpha-08); }
 [data-theme="dark"] .ui-menu-item:hover, [data-theme="dark"] .ui-menu-item.is-hover, [data-theme="dark"] .ui-menu-item[data-highlighted] { background: var(--alpha-10); }   /* --menu-item-background-color */
 .ui-menu-item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
-.ui-menu-item[aria-disabled="true"] { color: var(--color-text-disabled); cursor: not-allowed; background: transparent; }
+.ui-menu-item[aria-disabled="true"], [data-theme="dark"] .ui-menu-item[aria-disabled="true"] { color: var(--color-text-disabled); cursor: not-allowed; background: transparent; }
 .ui-menu-item[data-variant="destructive"] { color: var(--color-text-danger); }
 .ui-menu-item .ui-icon { color: var(--muted-foreground); }
 .ui-menu-item[data-variant="destructive"] .ui-icon { color: currentColor; }
@@ -413,7 +413,7 @@ body {
 .ui-btn[data-variant="ghost"]:is([aria-pressed="true"], [aria-checked="true"], [aria-expanded="true"]) { background: var(--accent); }
 /* Tooltip: thêm class ui-tip + data-tip="…" (hiện khi hover hoặc focus phím) */
 .ui-tip { position: relative; }
-.ui-tip[data-tip]:is(:hover, :focus-visible):not([aria-expanded="true"])::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
+.ui-tip[data-tip]:is(:hover, :focus-visible):not([aria-expanded="true"])::after { content: attr(data-tip); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 80; padding: 4px 8px; border-radius: var(--radius-md); background: var(--color-background-primary-solid); color: var(--color-text-primary-solid); font: 500 12px/16px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
 /* Avatar chữ cái */
 .ui-avatar { display: inline-grid; place-content: center; flex-shrink: 0; width: var(--control-size-3xs); height: var(--control-size-3xs); border-radius: var(--radius-full); background: var(--alpha-08); color: var(--gray-600); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
 .ui-avatar[data-size="sm"] { width: 20px; height: 20px; font-size: 10px; line-height: 14px; }
@@ -637,7 +637,7 @@ body {
 .pD-icon svg { width: 18px; height: 18px; }
 .pD-icon:hover { background: var(--alpha-04); color: var(--foreground); }
 .pD-icon[aria-current] { background: var(--alpha-05); color: var(--foreground); }
-.pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
+.pD-icon[data-tip]:not([aria-expanded="true"]):is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 60; padding: 4px 8px; border-radius: var(--radius-md); background: var(--gray-900); color: #fff; font: 500 12px/16px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; pointer-events: none; }
 .pD-icon:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
 .pD-cham { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; border-radius: var(--radius-full); background: var(--color-background-danger-solid); box-shadow: 0 0 0 2px var(--muted); }
 .pD-ngan { width: 20px; height: 1px; margin: 6px 0; background: var(--border); }
@@ -729,8 +729,6 @@ body {
 .b-noi { position: fixed; left: var(--noi-x, 0); top: var(--noi-y, 0); z-index: 90; min-width: 200px; max-height: min(420px, calc(100vh - 16px)); overflow-y: auto; } /* toạ độ do Noi tính */
 .b-noi-rong { min-width: 240px; }
 .b-noi.ui-cal-pop { max-height: calc(100vh - 16px); } /* lịch cao hơn menu thường — không cắt chân Áp dụng */
-.b-noi .ui-menu-item { gap: 8px; }
-.b-noi .ui-menu-item[aria-checked="true"]:not(:hover), .b-noi .ui-menu-item[aria-selected="true"]:not(:hover) { background: var(--alpha-04); }
 .b-tick { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); margin-left: auto; color: var(--foreground); }
 .b-menu-cb { cursor: pointer; }
 
@@ -841,7 +839,8 @@ body {
 .b-th-loc { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; line-height: 18px; color: var(--color-text-info); font-variant-numeric: tabular-nums; }
 .b-th-loc svg { width: 11px !important; height: 11px !important; }
 .b-menu-xoa { color: var(--muted-foreground); }
-.b-noi .ui-menu-item svg { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); }
+.b-noi .ui-menu-item > svg { width: 16px; height: 16px; }
+.b-noi .ui-menu-item:not([data-variant="destructive"]) > svg:not(.b-tick) { color: var(--muted-foreground); }
 .ui-btn[data-on] { color: var(--foreground); background: var(--alpha-05); }
 .ui-th-sort svg { width: 12px; height: 12px; }
 .b-th-an { opacity: 0; }

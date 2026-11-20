@@ -77,13 +77,7 @@
             "stroke"
           ]
         }
-      ],
-      "lyDo": {
-        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
-      }
+      ]
     },
     {
       "khoa": "item-hover",
@@ -123,13 +117,7 @@
             "stroke"
           ]
         }
-      ],
-      "lyDo": {
-        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
-      }
+      ]
     },
     {
       "khoa": "vach",
@@ -169,13 +157,7 @@
             "stroke"
           ]
         }
-      ],
-      "lyDo": {
-        "icon.width": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.height": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.color": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact.",
-        "icon.fill": "Preview ContextMenu xuất từ prototype: icon Phosphor KHÔNG mang class `.ui-icon` → rơi về width/height=\"1em\" (14px) và màu chữ (foreground). DS theo đúng rule menu của bundle.css `.ui-icon` 16×16 + `.ui-menu-item .ui-icon` muted-foreground — như preview DropdownMenu (cùng `.ui-menu-item`, icon có `.ui-icon`) và menu-styles.ts dùng chung. Artifact tự mâu thuẫn giữa hai preview → câu hỏi mở cho artifact."
-      }
+      ]
     },
     {
       "khoa": "dong-dang-mo",

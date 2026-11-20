@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"Inter", "Inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/DropdownMenu-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1722/1784 khớp** · 62 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
+**1724/1784 khớp** · 60 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 6 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -46,7 +46,6 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | item-phim | backgroundColor | rgb(0 0 0 / 0) | rgb(255 255 255 / 0.102) | toi 1440, toi 390 | Artifact là <button class="ui-menu-item"> tĩnh: Tab thật cho nó :focus-visible (vòng khớp) nhưng không ai gắn [data-highlighted]; DS Radix gắn data-highlighted cho mục đang focus phím → nền alpha-08 (tối alpha-10) đúng rule `.ui-menu-item[data-highlighted]` bundle.css dòng 177–178 (khoá item-hover so cùng nền đó và khớp). |
 | disabled | icon.fill | none | rgb(175 175 175) | toi 1440, toi 390 | Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp. |
 | disabled | icon.stroke | rgb(175 175 175) | none | toi 1440, toi 390 | Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp. |
-| disabled-tro | backgroundColor | rgb(255 255 255 / 0.102) | rgb(0 0 0 / 0) | toi 1440, toi 390 | Artifact tự mâu thuẫn do specificity: `.ui-menu-item[aria-disabled="true"] { background: transparent }` (0,2,0, bundle.css dòng 180) thua `[data-theme="dark"] .ui-menu-item:hover` (0,3,0, dòng 178) → chỉ theme tối mục chặn quyền sáng nền khi trỏ; theme sáng trong suốt. DS theo ý đồ rule aria-disabled (trong suốt cả hai theme) — câu hỏi mở cho artifact. |
 | disabled-tro | icon.fill | none | rgb(175 175 175) | toi 1440, toi 390 | Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp. |
 | disabled-tro | icon.stroke | rgb(175 175 175) | none | toi 1440, toi 390 | Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp. |
 | xoa | icon.fill | none | rgb(224 46 42) | toi 1440, toi 390 | Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp. |

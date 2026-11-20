@@ -258,8 +258,7 @@
       ],
       "lyDo": {
         "icon.fill": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
-        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp.",
-        "backgroundColor@toi": "Artifact tự mâu thuẫn do specificity: `.ui-menu-item[aria-disabled=\"true\"] { background: transparent }` (0,2,0, bundle.css dòng 180) thua `[data-theme=\"dark\"] .ui-menu-item:hover` (0,3,0, dòng 178) → chỉ theme tối mục chặn quyền sáng nền khi trỏ; theme sáng trong suốt. DS theo ý đồ rule aria-disabled (trong suốt cả hai theme) — câu hỏi mở cho artifact."
+        "icon.stroke": "Icon preview là SVG viết tay vẽ bằng NÉT (fill none, stroke currentColor, stroke-width 2); Phosphor regular vẽ bằng path TÔ (fill currentColor, không stroke). Cùng currentColor (icon.color khớp), hộp 16×16 khớp."
       }
     },
     {

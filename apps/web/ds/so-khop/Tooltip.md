@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"Inter", "Inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/Tooltip-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**364/384 khớp** · 20 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 4 mục CHƯA ĐO
+**372/384 khớp** · 12 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 4 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -24,6 +24,4 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 |---|---|---|---|---|---|
 | icon-ro | cursor | pointer | auto | sang 1440, sang 390, toi 1440, toi 390 | ::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none). |
 | icon-phim | cursor | pointer | auto | sang 1440, sang 390, toi 1440, toi 390 | ::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none). |
-| excel-ro | height | 26px | 24px | sang 1440, sang 390, toi 1440, toi 390 | Artifact tự mâu thuẫn: rule hover/focus thật `.ui-tip[data-tip]:is(:hover,:focus-visible)…::after` (bundle.css dòng 416) ghi 500 12px/18px, còn móc preview tĩnh `.ui-tip.is-tip::after` (dòng 1002, nút icon đang ép mở) ghi 12px/16px. DS theo 16px = brief + bản đang hiện trên trang artifact (khoá icon-ro/icon-phim khớp). Cao 26 vs 24 = hệ quả line-height 18 vs 16 (padding 4+4 khớp). Câu hỏi mở cho CEO/artifact. |
-| excel-ro | lineHeight | 18px | 16px | sang 1440, sang 390, toi 1440, toi 390 | Artifact tự mâu thuẫn: rule hover/focus thật `.ui-tip[data-tip]:is(:hover,:focus-visible)…::after` (bundle.css dòng 416) ghi 500 12px/18px, còn móc preview tĩnh `.ui-tip.is-tip::after` (dòng 1002, nút icon đang ép mở) ghi 12px/16px. DS theo 16px = brief + bản đang hiện trên trang artifact (khoá icon-ro/icon-phim khớp). Câu hỏi mở cho CEO/artifact. |
 | excel-ro | cursor | pointer | auto | sang 1440, sang 390, toi 1440, toi 390 | ::after là pseudo của chính nút → kế thừa cursor:pointer của .ui-btn; nội dung Radix là phần tử riêng trong ô portal (không nằm trong nút) → cursor auto. Chuột không tương tác với tooltip (rule hover thật của artifact còn pointer-events:none). |
