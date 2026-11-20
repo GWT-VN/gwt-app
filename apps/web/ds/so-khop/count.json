@@ -1,0 +1,16 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#count > div"
+  },
+  "chuaDo": [
+    "0 → ẩn, > 9 → 9+, aria-hidden: test components/ui/count.test.tsx; hàng Quá 9 / Bằng 0 / Trên nền khác chỉ có ở /ds (kiểm bằng ảnh)",
+    "Tooltip \"Thông báo\" của nút trong preview (ui-tip) không dựng: tên nút đã là \"Thông báo, 3 chưa đọc\" — tooltip trùng chữ thì trình đọc màn hình đọc hai lần (luật NGUON). Hộp thông báo mở từ nút thuộc NotificationCenter",
+    "Icon chuông (svg) không đo: kích thước theo Button size icon (đã so ở Button)"
+  ],
+  "khoa": [
+    { "khoa": "neo", "artifact": ".ui-notif-neo", "ds": "#count [data-so=\"neo\"]" },
+    { "khoa": "nut", "artifact": ".ui-notif-neo > button", "ds": "#count [data-so=\"nut\"]" },
+    { "khoa": "so", "artifact": ".ui-count", "ds": "#count [data-slot=\"count\"]" }
+  ]
+}

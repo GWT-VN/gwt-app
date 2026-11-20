@@ -1,0 +1,42 @@
+{
+  "khung": {
+    "artifact": "body > div",
+    "ds": "#tabs > div"
+  },
+  "anhTuongTac": {
+    "hover": "#tabs [data-so=\"seg-thuong\"]"
+  },
+  "chuaDo": [
+    "Hover và focus: preview chỉ có 2 nút mẫu ép class (is-hover, is-focus, cao 24 inline, chưa chọn). Bên artifact đo 2 nút mẫu đó; bên DS đo tab THẬT bằng tương tác thật (rê tab Chờ xử lý; focus = bấm link tiêu đề #tabs rồi Tab thật — Radix RovingFocus để tab tabIndex −1 tới khi rãnh tablist nhận focus, rãnh chuyển focus vào tab đang chọn). Chỉ so thuộc tính của trạng thái (màu chữ/nền/cursor, outline), không so kích thước",
+    "←/→ chuyển + kích hoạt, Home/End, bỏ qua tab tắt, chỉ tab chọn tabIndex 0, số đếm đọc kèm nhãn, thu gọn vào nút Thêm: test jsdom components/ui/tabs.dom.test.tsx",
+    "Pill tràn (cuộn ngang, mờ mép phải 40px) và thu gọn Thêm: preview không có ca này — chỉ có ở /ds (hàng Pill tràn, Pill thu gọn), kiểm bằng ảnh",
+    "Focus phím của panel (outline 2 ring cách 2, bo radius-sm) và hover tab pill: preview không có ca riêng; cùng chuỗi class với nguồn"
+  ],
+  "khoa": [
+    { "khoa": "seg", "artifact": "body > div > .ui-tabs-list:not([data-variant])", "ds": "#tabs [data-so=\"seg\"]" },
+    { "khoa": "seg-chon", "artifact": "#t1", "ds": "#tabs [data-so=\"seg-chon\"]" },
+    { "khoa": "seg-dem", "artifact": "#t1 .ui-tabs-count", "ds": "#tabs [data-so=\"seg-dem\"]" },
+    { "khoa": "seg-thuong", "artifact": "#t2", "ds": "#tabs [data-so=\"seg-thuong\"]" },
+    { "khoa": "seg-tat", "artifact": "#t4", "ds": "#tabs [data-so=\"seg-tat\"]" },
+    { "khoa": "panel", "artifact": "#p1", "ds": "#tabs [data-so=\"panel\"]" },
+    { "khoa": "pill", "artifact": "body > div > .ui-tabs-list[data-variant=\"pill\"]", "ds": "#tabs [data-so=\"pill\"]" },
+    { "khoa": "pill-chon", "artifact": "[data-variant=\"pill\"] > .ui-tabs-trigger:nth-child(1)", "ds": "#tabs [data-so=\"pill-1\"]" },
+    { "khoa": "pill-thuong", "artifact": "[data-variant=\"pill\"] > .ui-tabs-trigger:nth-child(2)", "ds": "#tabs [data-so=\"pill-2\"]" },
+    { "khoa": "pill-dem", "artifact": "[data-variant=\"pill\"] > .ui-tabs-trigger:nth-child(1) .ui-tabs-count", "ds": "#tabs [data-so=\"pill-dem\"]" },
+    { "khoa": "pill-danger", "artifact": "[data-variant=\"pill\"] .ui-tabs-count[data-color=\"danger\"]", "ds": "#tabs [data-so=\"pill-danger\"]" },
+    {
+      "khoa": "hover",
+      "artifact": "body > div > p:last-of-type > .is-hover",
+      "ds": "#tabs [data-so=\"seg-thuong\"]",
+      "props": ["color", "backgroundColor", "boxShadow", "cursor"],
+      "buoc": [{ "tro": "#tabs [data-so=\"seg-thuong\"]" }, { "cho": 200 }]
+    },
+    {
+      "khoa": "focus",
+      "artifact": "body > div > p:last-of-type > .is-focus",
+      "ds": "#tabs [data-so=\"seg-chon\"]",
+      "props": ["outlineColor", "outlineStyle", "outlineWidth", "outlineOffset"],
+      "buoc": [{ "bam": "#tabs [data-so=\"seg-chon\"]" }, { "phim": "ArrowDown" }, { "cho": 200 }]
+    }
+  ]
+}
