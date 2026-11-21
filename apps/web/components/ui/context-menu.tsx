@@ -1,9 +1,10 @@
 'use client'
 
 import { createContext, useContext, useEffect, useId, useState, type ComponentProps, type KeyboardEvent } from 'react'
-import { ContextMenu as ContextMenuPrimitive } from 'radix-ui'
+import { ContextMenu as ContextMenuPrimitive, type DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { useDsPortal } from './ds-root'
+import { taoPhanMenu } from './dropdown-menu'
 import { itemDisabled, menuContent, menuItem, menuItemDestructive, menuLabel, menuSeparator } from './menu-styles'
 
 /**
@@ -16,7 +17,10 @@ import { itemDisabled, menuContent, menuItem, menuItemDestructive, menuLabel, me
  *   KHÔNG mở menu DS, để nguyên menu trình duyệt (không preventDefault).
  * - Không modal (khác mặc định Radix): đóng khi Esc, bấm ra ngoài, CUỘN (y artifact) — modal thì Radix khoá cuộn; chuột
  *   phải sang dòng khác mở luôn menu của dòng đó.
- * - `disabled` trên Trigger: không mở bằng gì (cả phím). `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`). Không sub-menu/checkbox/radio: artifact không có.
+ * - `disabled` trên Trigger: không mở bằng gì (cả phím). `disabled` trên Item theo APG như DropdownMenu (xem `itemDisabled`).
+ * - Group, CheckboxItem (✓ / – một phần), RadioGroup/RadioItem, Shortcut (`phim` → Kbd), Sub/SubTrigger/SubContent, MenuTimKiem:
+ *   thêm ở repo 20/11 (artifact không có — nguồn prototype menu thuộc tính CEO duyệt), dùng chung với DropdownMenu qua
+ *   `taoPhanMenu` (dropdown-menu.tsx) nên hành vi giống hệt.
  * - Dòng mang `data-ds-menu-trigger` và khung menu mang `data-trigger-id` cùng giá trị (không dùng `id`: dòng có `id`
  *   riêng thì Slot cho id của dòng thắng) → mục menu mở Dialog /
  *   ConfirmDialog thì hộp đóng xong focus về DÒNG (use-nut-mo.ts), không rơi body (mục menu đã bị gỡ).
@@ -184,3 +188,17 @@ export function ContextMenuSeparator({ className, ...props }: ComponentProps<typ
     />
   )
 }
+
+export const {
+  Group: ContextMenuGroup,
+  CheckboxItem: ContextMenuCheckboxItem,
+  RadioGroup: ContextMenuRadioGroup,
+  RadioItem: ContextMenuRadioItem,
+  Shortcut: ContextMenuShortcut,
+  Sub: ContextMenuSub,
+  SubTrigger: ContextMenuSubTrigger,
+  SubContent: ContextMenuSubContent,
+  // Cùng primitive Menu của Radix (ContextMenu bọc Menu y như DropdownMenu) → ép kiểu an toàn.
+} = taoPhanMenu(ContextMenuPrimitive as unknown as typeof DropdownMenuPrimitive, 'context-menu')
+
+export { MenuTimKiem } from './dropdown-menu'

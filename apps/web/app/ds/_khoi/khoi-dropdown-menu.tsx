@@ -1,7 +1,22 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { ArrowRight, Copy, DotsThree, Eye, PencilSimple, Trash } from '@phosphor-icons/react/ssr'
+import {
+  ArrowRight,
+  CalendarBlank,
+  CellSignalHigh,
+  CellSignalLow,
+  CellSignalMedium,
+  Copy,
+  DotsThree,
+  Eye,
+  PencilSimple,
+  Tag,
+  Trash,
+  UserCircle,
+} from '@phosphor-icons/react/ssr'
+import { boDau } from '@/bang/timkiem'
+import { BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,11 +24,125 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  MenuTimKiem,
 } from '@/components/ui/dropdown-menu'
+import { menuLabel } from '@/components/ui/menu-styles'
 import { BienThe, KhoiHang } from '../_khung/tam'
+
+/**
+ * Ưu tiên: Phosphor CellSignal* bản regular chỉ vẽ vạch đang bật, nét mảnh + màu muted → Cao/Vừa/Thấp khó phân biệt
+ * (prototype bị mờ). `fill` (tam giác đặc theo mức trong khung viền đủ) + màu chữ chính → thấy mức so với đầy.
+ */
+const UU_TIEN = [
+  { id: 'cao', ten: 'Cao', Icon: CellSignalHigh },
+  { id: 'vua', ten: 'Vừa', Icon: CellSignalMedium },
+  { id: 'thap', ten: 'Thấp', Icon: CellSignalLow },
+] as const
+
+/** 12 tên giả (không PII) → quá 10 mục nên menu con phải có ô gõ để tìm (CHUAN-FILTER). */
+const NGUOI = [
+  'Trần Minh An', 'Lê Thu Bình', 'Phạm Quốc Cường', 'Vũ Hải Dương', 'Đỗ Mai Hạnh', 'Hoàng Gia Huy',
+  'Ngô Bảo Khánh', 'Bùi Ngọc Lan', 'Đặng Đức Long', 'Phan Thảo My', 'Trịnh Văn Nam', 'Lý Kim Oanh',
+]
+
+/** Nhãn: "Lỗi máy" chỉ một phần các ticket đang chọn có → dấu – (indeterminate). */
+const NHAN_DAU = { 'loi-may': 'indeterminate', 'bao-hanh': true, 'lap-dat': false } as const
+const NHAN = [
+  { id: 'loi-may', ten: 'Lỗi máy', color: 'danger' },
+  { id: 'bao-hanh', ten: 'Bảo hành', color: 'info' },
+  { id: 'lap-dat', ten: 'Lắp đặt', color: 'success' },
+] as const
+
+/** Menu thuộc tính có menu con (thêm 20/11 — artifact chưa có; nguồn prototype menu thuộc tính CEO duyệt). */
+function MenuThuocTinh({ mau }: { mau?: string }) {
+  const [uuTien, setUuTien] = useState('vua')
+  const [nguoi, setNguoi] = useState(NGUOI[0])
+  const [q, setQ] = useState('')
+  const [nhan, setNhan] = useState<Record<string, boolean | 'indeterminate'>>(NHAN_DAU)
+  const k = boDau(q).trim()
+  const ds = NGUOI.filter((n) => !k || boDau(n).includes(k))
+  return (
+    <DropdownMenu onOpenChange={(o) => !o && setQ('')}>
+      <DropdownMenuTrigger asChild>
+        <Button data-so="mo-menu-con" variant="outline" aria-label={`Thuộc tính 2 ticket${mau ? ` (mẫu: ${mau})` : ''}`}>
+          Thuộc tính…
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[240px]">
+        <DropdownMenuLabel>2 ticket</DropdownMenuLabel>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger icon={<CellSignalHigh aria-hidden="true" />} phim={['P']}>
+            Ưu tiên
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup value={uuTien} onValueChange={setUuTien}>
+              {UU_TIEN.map((x) => (
+                <DropdownMenuRadioItem key={x.id} value={x.id}>
+                  <x.Icon aria-hidden="true" weight="fill" className="text-foreground" />
+                  {x.ten}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger icon={<UserCircle aria-hidden="true" />} phim={['A']}>
+            Người làm
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <MenuTimKiem value={q} onValueChange={setQ} placeholder="Tìm người…" />
+            {ds.length ? (
+              <DropdownMenuRadioGroup value={nguoi} onValueChange={setNguoi}>
+                {ds.map((n) => (
+                  <DropdownMenuRadioItem key={n} value={n}>
+                    {n}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            ) : (
+              <div className={menuLabel}>Không có ai khớp “{q}”</div>
+            )}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger icon={<Tag aria-hidden="true" />} phim={['L']}>
+            Nhãn
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            {NHAN.map((n) => (
+              <DropdownMenuCheckboxItem
+                key={n.id}
+                checked={nhan[n.id]}
+                onCheckedChange={(b) => setNhan((c) => ({ ...c, [n.id]: b }))}
+                onSelect={(e) => e.preventDefault()}
+              >
+                {/* Chấm 6 đặt trong ô 16 = cột icon của các mục khác. */}
+                <span className="grid size-4 shrink-0 place-content-center border-none border-current">
+                  <BadgeDot color={n.color} />
+                </span>
+                {n.ten}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <CalendarBlank aria-hidden="true" />
+          Đặt hạn…
+          <DropdownMenuShortcut phim={['⇧', 'D']} />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 const COT = [
   ['ma', 'Mã đơn'],
@@ -136,6 +265,14 @@ export function KhoiDropdownMenu() {
         <MenuDon so="mo-thao-tac">{DU}</MenuDon>
         <MenuCot />
       </div>
+      {/* Ví dụ menu con bọc figure (KHÔNG phải div): khung so khớp lấy mọi div con trực tiếp của khối → giữ nguyên.
+          pb-60 = chỗ menu + menu con. */}
+      <figure className="flex flex-col items-start gap-2 pb-60">
+        <figcaption className="text-[13px] leading-[18px] text-muted-foreground">
+          Menu con · phím tắt · một phần (thêm ở repo 20/11, chưa có trong artifact): → mở menu con, ← về mục cha.
+        </figcaption>
+        <MenuThuocTinh />
+      </figure>
     </section>
   )
 }
@@ -167,6 +304,12 @@ export function KhoiDropdownMenuHang() {
       </BienThe>
       <BienThe ten="Mục có ô tick" moTa="Chọn nhiều (vd cột hiển thị), menu giữ mở khi tick">
         <MenuCot />
+      </BienThe>
+      <BienThe
+        ten="Menu con + phím tắt"
+        moTa="Mục cha: icon · nhãn · phím · ▸; menu con có ✓ ở giá trị đang có, ô tìm khi quá 10 mục, nhãn một phần hiện –"
+      >
+        <MenuThuocTinh mau="menu con" />
       </BienThe>
       <BienThe ten="Menu ⋯ của dòng" moTa="Đủ các kiểu trên trong một menu thao tác">
         <MenuDon mau="đủ mục">{DU}</MenuDon>

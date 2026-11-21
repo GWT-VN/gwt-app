@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils'
+
 /**
  * Kiểu menu dùng chung (DropdownMenu, ContextMenu…) — chép từ khối `.ui-menu*` của ds/nguon/bundle.css
  * ("Popover / Menu (OpenAI Menu.module.css)"). Chỉ là chuỗi class: component tự gắn vào primitive Radix của nó.
@@ -41,6 +43,32 @@ export const menuItem = [
   'aria-disabled:cursor-not-allowed aria-disabled:text-(--color-text-disabled)',
   '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg:not([class*=text-])]:text-muted-foreground',
 ].join(' ')
+
+/**
+ * Mục mở menu con (thêm ở repo 20/11 — artifact không có menu con; nguồn là prototype menu thuộc tính CEO duyệt): như
+ * menuItem + giữ nền sáng khi menu con đang mở (focus đã sang menu con → mục cha mất data-highlighted).
+ */
+export const menuSubTrigger = `${menuItem} data-[state=open]:bg-(--menu-item-bg)`
+
+/**
+ * Khung menu con = khung menu (menuContent) + R14 không tràn ngang khổ hẹp: rộng tối thiểu 200 nhưng không quá chỗ
+ * trống Radix đo được (biến available-width của Popper) và không quá khung nhìn trừ 8 mỗi mép (= collisionPadding).
+ * min-width thắng max-width trong CSS → min cũng phải kẹp theo chỗ trống. Kiểu "drill-in" cho điện thoại: đang mở.
+ */
+export const menuSubContent = cn(
+  menuContent,
+  'min-w-[min(200px,var(--radix-popper-available-width,200px))]',
+  'max-w-[min(calc(100vw-16px),var(--radix-popper-available-width,100vw))]',
+)
+
+/**
+ * Vị trí menu con: alignOffset −6 = −`--menu-gutter` → mục đầu menu con thẳng hàng mục cha (khung con có padding 6);
+ * sideOffset 4 = như DropdownMenuContent. Số trần vì Radix nhận số px, không nhận biến CSS.
+ */
+export const MENU_SUB = { alignOffset: -6, sideOffset: 4 } as const
+
+/** Ô tìm ở đầu menu con (MenuTimKiem): lề 2 2 6 — prototype menu thuộc tính. */
+export const menuTimKiem = 'px-0.5 pt-0.5 pb-1.5 border-none border-current'
 
 /** `.ui-menu-item[data-variant="destructive"]`: chữ color-text-danger, icon theo màu chữ. Ghép SAU menuItem qua cn(). */
 export const menuItemDestructive = 'text-(--color-text-danger) [&>svg:not([class*=text-])]:text-current'
