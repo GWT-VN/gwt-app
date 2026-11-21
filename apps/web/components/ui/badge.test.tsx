@@ -5,8 +5,8 @@ import { Badge, BadgeDot } from './badge'
 const theGoc = (h: string) => h.match(/^<[^>]*>/)?.[0] ?? ''
 const lop = (h: string) => (theGoc(h).match(/class="([^"]*)"/)?.[1] ?? '').split(' ')
 
-test('Badge mặc định: <span> soft · secondary · sm, pill 20px, 12px semibold, nền soft-alpha', () => {
-  const h = renderToStaticMarkup(<Badge>Nháp</Badge>)
+test('Badge soft: <span> soft · secondary · sm, pill 20px, 12px semibold, nền soft-alpha', () => {
+  const h = renderToStaticMarkup(<Badge variant="soft">Nháp</Badge>)
   const goc = theGoc(h)
   expect(goc).toMatch(/^<span/)
   expect(goc).toContain('data-slot="badge"')
@@ -49,7 +49,7 @@ test('color="danger" variant="solid": data-* đúng, nền/chữ solid danger, k
 
 test('6 màu soft: nền <màu>-soft-alpha + chữ <màu>-soft', () => {
   for (const color of ['secondary', 'info', 'success', 'warning', 'danger', 'discovery'] as const)
-    expect(lop(renderToStaticMarkup(<Badge color={color}>x</Badge>))).toEqual(
+    expect(lop(renderToStaticMarkup(<Badge variant="soft" color={color}>x</Badge>))).toEqual(
       expect.arrayContaining([`bg-(--color-background-${color}-soft-alpha)`, `text-(--color-text-${color}-soft)`]),
     )
 })
@@ -67,7 +67,7 @@ test('outline: nền trong suốt + viền inset 1px secondary-outline, chữ se
 })
 
 test('size md: cao control-size-3xs (22), padding gutter-2xs (6), 14px', () => {
-  const h = renderToStaticMarkup(<Badge size="md">Cỡ md</Badge>)
+  const h = renderToStaticMarkup(<Badge variant="soft" size="md">Cỡ md</Badge>)
   expect(theGoc(h)).toContain('data-size="md"')
   const c = lop(h)
   expect(c).toEqual(expect.arrayContaining(['h-(--control-size-3xs)', 'px-(--control-gutter-2xs)', 'text-[14px]', 'leading-none']))
@@ -77,12 +77,12 @@ test('size md: cao control-size-3xs (22), padding gutter-2xs (6), 14px', () => {
 })
 
 test('viền như span artifact: kiểu none + currentColor (không ăn preflight 0 solid --border)', () => {
-  expect(lop(renderToStaticMarkup(<Badge>x</Badge>))).toEqual(expect.arrayContaining(['border-none', 'border-current']))
+  expect(lop(renderToStaticMarkup(<Badge variant="soft">x</Badge>))).toEqual(expect.arrayContaining(['border-none', 'border-current']))
 })
 
 test('BadgeDot: span aria-hidden 6px tròn, nền currentColor (màu theo badge cha); chữ badge vẫn trong DOM', () => {
   const h = renderToStaticMarkup(
-    <Badge color="info">
+    <Badge variant="soft" color="info">
       <BadgeDot />
       Đang giao
     </Badge>,
@@ -95,19 +95,19 @@ test('BadgeDot: span aria-hidden 6px tròn, nền currentColor (màu theo badge 
 
 test('asChild: ra phần tử con mang class badge; className gộp qua cn', () => {
   const a = renderToStaticMarkup(
-    <Badge asChild>
+    <Badge variant="soft" asChild>
       <a href="/x">Mở</a>
     </Badge>,
   )
   expect(a).toMatch(/^<a /)
   expect(lop(a)).toContain('rounded-(--radius-full)')
-  const c = lop(renderToStaticMarkup(<Badge className="h-6">x</Badge>))
+  const c = lop(renderToStaticMarkup(<Badge variant="soft" className="h-6">x</Badge>))
   expect(c).toContain('h-6')
   expect(c).not.toContain('h-5')
 })
 
 test('không reset font-feature-settings (kế thừa cv11/ss03 của DsRoot)', () => {
-  expect(lop(renderToStaticMarkup(<Badge>x</Badge>)).some((c) => c.includes('font-feature-settings'))).toBe(false)
+  expect(lop(renderToStaticMarkup(<Badge variant="soft">x</Badge>)).some((c) => c.includes('font-feature-settings'))).toBe(false)
 })
 
 test('cascade bundle.css: solid/outline đứng sau [data-color] → solid màu không định nghĩa = xám, outline mọi màu = xám', () => {
@@ -136,4 +136,29 @@ test('BadgeDot color: nền <màu>-solid (.ui-dot[data-color]); không màu = cu
   expect(c).toContain('bg-(--color-background-danger-solid)')
   expect(c).not.toContain('bg-current')
   expect(theGoc(renderToStaticMarkup(<BadgeDot />))).not.toContain('data-color')
+})
+
+test('shadcn: mặc định variant="default" (nền primary đặc); đủ 6 giá trị variant của shadcn, asChild', () => {
+  const goc = theGoc(renderToStaticMarkup(<Badge>Mới</Badge>))
+  expect(goc).toContain('data-variant="default"')
+  expect(lop(renderToStaticMarkup(<Badge>Mới</Badge>))).toEqual(expect.arrayContaining(['bg-primary', 'text-primary-foreground']))
+  const nen = {
+    secondary: 'bg-secondary',
+    destructive: 'bg-(--color-background-danger-solid)',
+    outline: 'bg-transparent',
+    ghost: 'bg-transparent',
+    link: 'bg-transparent',
+  } as const
+  for (const [variant, lopNen] of Object.entries(nen) as [keyof typeof nen, string][]) {
+    const c = lop(renderToStaticMarkup(<Badge variant={variant}>x</Badge>))
+    expect(c).toContain(lopNen)
+    expect(c).not.toContain('bg-(--color-background-secondary-soft-alpha)')
+  }
+  expect(
+    renderToStaticMarkup(
+      <Badge variant="link" asChild>
+        <a href="#x">Link</a>
+      </Badge>,
+    ),
+  ).toMatch(/^<a[^>]*data-slot="badge"/)
 })

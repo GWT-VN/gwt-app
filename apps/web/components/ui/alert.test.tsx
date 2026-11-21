@@ -113,3 +113,11 @@ test('className gộp qua cn; không reset font-feature-settings', () => {
   expect(c).not.toContain('p-(--alert-gutter)')
   expect(c.some((x) => x.includes('font-feature-settings'))).toBe(false)
 })
+
+test('shadcn variant: default = secondary, destructive = danger (role alert); color GWT thắng variant', () => {
+  expect(theGoc(renderToStaticMarkup(<Alert>x</Alert>))).toContain('data-variant="default"')
+  const d = theGoc(renderToStaticMarkup(<Alert variant="destructive">x</Alert>))
+  expect(d).toContain('data-color="danger"')
+  expect(d).toContain('role="alert"')
+  expect(theGoc(renderToStaticMarkup(<Alert variant="destructive" color="warning">x</Alert>))).toContain('data-color="warning"')
+})

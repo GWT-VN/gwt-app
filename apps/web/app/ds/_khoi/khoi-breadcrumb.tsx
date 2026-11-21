@@ -1,4 +1,12 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage } from '@/components/ui/breadcrumb'
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /* Demo dùng chung cho `KhoiBreadcrumb` (/ds/tron) và `KhoiBreadcrumbHang` (/ds) — dữ liệu demo. `data-so` = khoá so khớp. */
@@ -44,6 +52,26 @@ export function KhoiBreadcrumbHang() {
       </BienThe>
       <BienThe ten="Chỗ hẹp" moTa="Mã bản ghi dài bị cắt bằng dấu ba chấm, hai mục trước giữ nguyên.">
         <div className="max-w-[240px] border-none border-current">{duongDan('TK-2611-045-DEMO-BAO-HANH-LAN-2')}</div>
+      </BienThe>
+      <BienThe
+        ten="BreadcrumbSeparator · BreadcrumbEllipsis"
+        moTa="Phần shadcn: dấu phân cách là phần tử (ẩn với trình đọc), mục giữa thu gọn thành …. Mặc định không cần — dấu “/” tự vẽ."
+      >
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#breadcrumb">CSKH</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbEllipsis />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>TK-2611-045</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </BienThe>
     </KhoiHang>
   )

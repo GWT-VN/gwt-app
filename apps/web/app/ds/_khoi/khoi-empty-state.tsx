@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { ArrowClockwise } from '@phosphor-icons/react'
+import { ArrowClockwise, Tray } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { EmptyState } from '@/components/ui/empty-state'
 import { khongVien } from '@/components/ui/feedback-styles'
 import { BienThe, KhoiHang } from '../_khung/tam'
@@ -88,7 +89,10 @@ export function KhoiEmptyState() {
   )
 }
 
-/** #empty-state dạng hàng cho /ds. */
+/**
+ * #empty-state dạng hàng cho /ds. Tên (R22): code theo shadcn `components/ui/empty.tsx` (`Empty*`), `EmptyState` là mẫu ghép
+ * GWT trên đó; khối + cổng giữ tên artifact EmptyState.
+ */
 export function KhoiEmptyStateHang() {
   const o = (x: ReactNode) => <div className={`${khongVien} max-w-[480px]`}>{x}</div>
   return (
@@ -109,6 +113,25 @@ export function KhoiEmptyStateHang() {
         <EmptyState tieuDe="Chưa có ticket nào" moTa="Ticket khách gửi qua Zalo, điện thoại sẽ hiện ở đây.">
           <Button size="sm">Tạo ticket</Button>
         </EmptyState>
+      </BienThe>
+      <BienThe
+        ten="Empty (shadcn)"
+        moTa="Khung gốc ghép 6 phần: Empty › EmptyHeader › EmptyMedia · EmptyTitle · EmptyDescription, rồi EmptyContent. EmptyState dựng trên khung này."
+      >
+        {o(
+          <Empty data-size="sm">
+            <EmptyHeader>
+              <EmptyMedia variant="icon" aria-hidden="true">
+                <Tray />
+              </EmptyMedia>
+              <EmptyTitle>Chưa có báo giá</EmptyTitle>
+              <EmptyDescription>Báo giá gửi khách sẽ hiện ở đây.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button size="sm">Tạo báo giá</Button>
+            </EmptyContent>
+          </Empty>,
+        )}
       </BienThe>
     </KhoiHang>
   )

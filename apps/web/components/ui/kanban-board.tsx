@@ -310,7 +310,7 @@ function Cot({ cot, so, tren, children }: { cot: CotKanban; so: number; tren: bo
   return (
     <section ref={setNodeRef} data-cot-id={cot.id} data-tren={tren || undefined} aria-label={cot.nhan} className={s.cot}>
       <header className={s.cotDau}>
-        <Badge color={cot.color ?? 'secondary'}>{cot.nhan}</Badge>
+        <Badge variant="soft" color={cot.color ?? 'secondary'}>{cot.nhan}</Badge>
         <span className={s.cotDem}>{so}</span>
       </header>
       <div className={s.cotDs}>{so ? children : <div className={s.cotRong}>Kéo thẻ vào đây</div>}</div>
@@ -389,7 +389,7 @@ function The({
         <ContextMenuLabel>Chuyển sang…</ContextMenuLabel>
         {khac.map((c) => (
           <ContextMenuItem key={c.id} onSelect={() => onChuyen(c)}>
-            <Badge color={c.color ?? 'secondary'}>{c.nhan}</Badge>
+            <Badge variant="soft" color={c.color ?? 'secondary'}>{c.nhan}</Badge>
           </ContextMenuItem>
         ))}
       </ContextMenuContent>

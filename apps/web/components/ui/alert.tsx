@@ -1,9 +1,13 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 import { cloneElement, type ComponentProps, type ReactElement } from 'react'
 import { Check, Info, Warning, WarningCircle } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 
 /**
- * Alert — khung shadcn, giá trị chép từ khối `.ui-alert*` trong ds/nguon/bundle.css.
+ * Alert — khung shadcn (`Alert`, `AlertTitle`, `AlertDescription`, `variant` default/destructive), giá trị chép từ khối
+ * `.ui-alert*` trong ds/nguon/bundle.css.
+ * - `variant` (shadcn): `default` = `color="secondary"`, `destructive` = `color="danger"`. Phần GWT thêm (R19): `color`
+ *   đủ 5 màu token (thắng `variant` khi truyền cả hai), `icon`, `AlertActions`, role theo màu.
  * - Grid `16px 1fr auto` (số px của bundle.css): icon cột 1, tiêu đề + mô tả cột 2 (`col-start-2`), hành động cột 3 →
  *   luôn sát mép phải (tương đương `ml-auto`), không cần bọc chữ trong một <div> như preview.
  * - `secondary` = rule gốc `.ui-alert` (nền/viền primary-surface, icon muted-foreground) — bundle.css thắng chữ
@@ -27,18 +31,25 @@ const MAU = {
 
 const ICON = { secondary: Info, info: Info, success: Check, warning: Warning, danger: WarningCircle } as const
 
-export function Alert({
+function Alert({
   className,
-  color = 'secondary',
+  variant = 'default',
+  color: mau,
   icon,
   role,
   children,
   ...props
-}: Omit<ComponentProps<'div'>, 'color'> & { color?: keyof typeof MAU; icon?: ReactElement<{ 'aria-hidden'?: boolean | 'true' | 'false' }> }) {
+}: Omit<ComponentProps<'div'>, 'color'> & {
+  variant?: 'default' | 'destructive'
+  color?: keyof typeof MAU
+  icon?: ReactElement<{ 'aria-hidden'?: boolean | 'true' | 'false' }>
+}) {
+  const color = mau ?? (variant === 'destructive' ? 'danger' : 'secondary')
   const Icon = ICON[color]
   return (
     <div
       data-slot="alert"
+      data-variant={variant}
       data-color={color}
       role={role ?? (color === 'danger' ? 'alert' : 'status')}
       className={cn(
@@ -57,16 +68,16 @@ export function Alert({
   )
 }
 
-export function AlertTitle({ className, ...props }: ComponentProps<'div'>) {
+function AlertTitle({ className, ...props }: ComponentProps<'div'>) {
   return <div data-slot="alert-title" className={cn('col-start-2 font-semibold', className)} {...props} />
 }
 
-export function AlertDescription({ className, ...props }: ComponentProps<'div'>) {
+function AlertDescription({ className, ...props }: ComponentProps<'div'>) {
   return <div data-slot="alert-description" className={cn('col-start-2 text-foreground', className)} {...props} />
 }
 
 /** `.ui-alert-actions`: flex gap 8, giữa dọc; cột 3 phủ dòng tiêu đề + mô tả → giữa như preview. */
-export function AlertActions({ className, ...props }: ComponentProps<'div'>) {
+function AlertActions({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       data-slot="alert-actions"
@@ -75,3 +86,5 @@ export function AlertActions({ className, ...props }: ComponentProps<'div'>) {
     />
   )
 }
+
+export { Alert, AlertTitle, AlertDescription, AlertActions }

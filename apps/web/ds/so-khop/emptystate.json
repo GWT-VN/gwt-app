@@ -14,21 +14,21 @@
       "artifact": ".ds-tinh > div > .ui-empty:nth-child(1)",
       "ds": "#empty-state [data-so=\"e-1\"]",
       "con": [
-        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
-        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
-        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
-        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
-        { "ten": "hanh-dong", "artifact": "> .ui-empty-actions", "ds": "> [data-slot=\"empty-actions\"]" },
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"]" },
+        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-description\"]" },
+        { "ten": "hanh-dong", "artifact": "> .ui-empty-actions", "ds": "> [data-slot=\"empty-content\"]" },
         {
           "ten": "nut-1",
           "artifact": "> .ui-empty-actions > .ui-btn:nth-child(1)",
-          "ds": "> [data-slot=\"empty-actions\"] > button:nth-child(1)",
+          "ds": "> [data-slot=\"empty-content\"] > button:nth-child(1)",
           "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
         },
         {
           "ten": "nut-2",
           "artifact": "> .ui-empty-actions > .ui-btn:nth-child(2)",
-          "ds": "> [data-slot=\"empty-actions\"] > button:nth-child(2)",
+          "ds": "> [data-slot=\"empty-content\"] > button:nth-child(2)",
           "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "fontSize", "fontWeight"]
         }
       ]
@@ -38,13 +38,13 @@
       "artifact": ".ds-tinh > div > .ui-empty:nth-child(2)",
       "ds": "#empty-state [data-so=\"e-2\"]",
       "con": [
-        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
-        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
-        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"]" },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-description\"]" },
         {
           "ten": "nut",
           "artifact": "> .ui-empty-actions > .ui-btn",
-          "ds": "> [data-slot=\"empty-actions\"] > button",
+          "ds": "> [data-slot=\"empty-content\"] > button",
           "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow"]
         }
       ]
@@ -54,14 +54,14 @@
       "artifact": ".ds-tinh > div > .ui-empty:nth-child(3)",
       "ds": "#empty-state [data-so=\"e-3\"]",
       "con": [
-        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
-        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
-        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
-        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" },
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"]" },
+        { "ten": "icon-svg", "artifact": "> .ui-empty-icon > svg", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"] > svg", "props": ["width", "height", "color"] },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-description\"]" },
         {
           "ten": "nut",
           "artifact": "> .ui-empty-actions > .ui-btn",
-          "ds": "> [data-slot=\"empty-actions\"] > button",
+          "ds": "> [data-slot=\"empty-content\"] > button",
           "props": ["width", "height", "borderRadius", "backgroundColor", "color", "boxShadow", "gap"]
         }
       ]
@@ -71,9 +71,9 @@
       "artifact": ".ds-tinh > div > .ui-empty:nth-child(4)",
       "ds": "#empty-state [data-so=\"e-4\"]",
       "con": [
-        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-icon\"]" },
-        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-title\"]" },
-        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-desc\"]" }
+        { "ten": "icon", "artifact": "> .ui-empty-icon", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-icon\"]" },
+        { "ten": "tieu-de", "artifact": "> .ui-empty-title", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-title\"]" },
+        { "ten": "mo-ta", "artifact": "> .ui-empty-desc", "ds": "> [data-slot=\"empty-header\"] > [data-slot=\"empty-description\"]" }
       ]
     }
   ]

@@ -22,7 +22,9 @@ export const breadcrumbList = `${kv} m-0 flex min-w-0 list-none items-center gap
 export const breadcrumbItem = [
   kv,
   'flex min-w-0 items-center gap-1.5 whitespace-nowrap not-last:shrink-0',
-  "not-first:before:content-['/'] not-first:before:border-none not-first:before:border-current not-first:before:text-(--color-text-tertiary)",
+  // Chỉ khi mục đứng ngay sau MỤC (li + li của bundle.css); dùng BreadcrumbSeparator (shadcn) thì mục sau dấu không vẽ thêm.
+  "[[data-slot=breadcrumb-item]+&]:before:content-['/'] [[data-slot=breadcrumb-item]+&]:before:border-none",
+  '[[data-slot=breadcrumb-item]+&]:before:border-current [[data-slot=breadcrumb-item]+&]:before:text-(--color-text-tertiary)',
 ].join(' ')
 /** `a`: màu kế thừa, không gạch chân, bo radius-sm · hover foreground · focus-visible outline 2 ring cách 2. */
 export const breadcrumbLink = [
@@ -30,6 +32,10 @@ export const breadcrumbLink = [
   'rounded-sm text-inherit no-underline hover:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
 ].join(' ')
+/** `BreadcrumbSeparator` (phần tử, shadcn): cùng dấu "/" màu tertiary như ::before; icon con 14px. */
+export const breadcrumbSeparator = `${kv} flex items-center text-(--color-text-tertiary) [&>svg]:size-3.5`
+/** `BreadcrumbEllipsis` (shadcn): ô 32 (control-size-md), icon 16. */
+export const breadcrumbEllipsis = `${kv} flex size-(--control-size-md) items-center justify-center [&>svg]:size-4`
 /** Mục cuối (`aria-current="page"`): foreground, tabular-nums (mã bản ghi), cắt … khi hẹp. */
 export const breadcrumbPage = `${kv} overflow-hidden text-ellipsis text-foreground tabular-nums`
 

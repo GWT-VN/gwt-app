@@ -143,7 +143,7 @@ export function RecordPicker({
   else if (tim && xa.dangTim)
     dem = (
       <span className="inline-flex items-center gap-2">
-        <Spinner />
+        <Spinner aria-hidden />
         Đang tìm…
       </span>
     )

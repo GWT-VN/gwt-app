@@ -43,7 +43,7 @@ function DanhSach() {
         ) : (
           DONG.map(([uuTien, khach, viec]) => (
             <div key={khach} data-so="dong" className={skeletonRow}>
-              <Badge>{uuTien}</Badge>
+              <Badge variant="soft">{uuTien}</Badge>
               {/* Tên + việc chia đôi chỗ còn lại như hai khối chờ dòng chữ (giãn đều) → dữ liệu về không nhảy chỗ. */}
               <span className={`${khongVien} min-w-0 flex-1 truncate`}>{khach}</span>
               <span className={`${khongVien} min-w-0 flex-1 truncate text-[12px] leading-[18px] text-muted-foreground`}>{viec}</span>

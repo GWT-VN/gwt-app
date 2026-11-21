@@ -282,7 +282,7 @@
     {
       "khoa": "rong",
       "artifact": ".ds-muc:nth-child(4) .ui-empty",
-      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-state\"]",
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty\"]",
       "lyDo": {
         "height": "EmptyState DS (Task 2) luôn vẽ ô biểu tượng 40px + lề 8 (README EmptyState: mỗi lý do trống một icon); `.ui-empty` trong khối trạng thái preview Table không icon → cao hơn 52. Ô đang tải cùng hàng lưới giãn theo ô rỗng."
       }
@@ -295,12 +295,12 @@
     {
       "khoa": "rong-mo-ta",
       "artifact": ".ds-muc:nth-child(4) .ui-empty-desc",
-      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-desc\"]"
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-description\"]"
     },
     {
       "khoa": "rong-nut",
       "artifact": ".ds-muc:nth-child(4) .ui-empty .ui-btn",
-      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-actions\"] button"
+      "ds": "#table [data-so=\"trang-thai\"] [data-slot=\"empty-content\"] button"
     },
     {
       "khoa": "loi",

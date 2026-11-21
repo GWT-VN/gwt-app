@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 import type { ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils'
  *   tiêu đề khối form), mô tả 14/20 `muted-foreground` cách trên 4 (như mô tả Dialog). Footer: nút sát phải, cách 8
  *   (như chân form/Dialog — shadcn để trái).
  * - `CardTitle` là `div` như shadcn v4; thẻ là một mục của trang → `role="heading"` + `aria-level`.
+ * - Header/Footer có kẻ (`border-b`/`border-t`) thì chừa 16 như shadcn chừa 24.
  */
 
 /** div/p ăn preflight `0 solid var(--border)` của app; phần của artifact không viền. */
@@ -40,7 +42,7 @@ export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
       className={cn(
         khongVien,
         cachTren,
-        'grid auto-rows-min items-start gap-x-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]',
+        'grid auto-rows-min items-start gap-x-4 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-4',
         className,
       )}
       {...props}
@@ -86,7 +88,7 @@ export function CardFooter({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-footer"
-      className={cn(khongVien, cachTren, 'flex items-center justify-end gap-2', className)}
+      className={cn(khongVien, cachTren, 'flex items-center justify-end gap-2 [.border-t]:pt-4', className)}
       {...props}
     />
   )

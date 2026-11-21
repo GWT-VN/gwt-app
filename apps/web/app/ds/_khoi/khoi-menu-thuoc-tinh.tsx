@@ -488,7 +488,7 @@ function BangMenuThuocTinh() {
                         {t.nhan.map((id) => {
                           const n = NHAN.find((x) => x.id === id)!
                           return (
-                            <Badge key={id} color={n.color} className="shrink-0">
+                            <Badge variant="soft" key={id} color={n.color} className="shrink-0">
                               {n.ten}
                             </Badge>
                           )

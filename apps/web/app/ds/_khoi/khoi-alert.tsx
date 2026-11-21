@@ -8,8 +8,8 @@ type Mau = { ten: string; moTa: string; demo: ReactNode }
 
 const MAU: Mau[] = [
   {
-    ten: 'color="secondary"',
-    moTa: 'Mặc định — ghi chú trung tính.',
+    ten: 'variant="default"',
+    moTa: 'Mặc định (shadcn) = color secondary — ghi chú trung tính.',
     demo: (
       <Alert data-so="mac-dinh">
         <AlertTitle>Bản xem thử</AlertTitle>
@@ -18,7 +18,7 @@ const MAU: Mau[] = [
     ),
   },
   {
-    ten: 'color="info"',
+    ten: 'color="info" (GWT)',
     moTa: 'Thông tin về hệ thống, tiến trình.',
     demo: (
       <Alert data-so="info" color="info">
@@ -28,7 +28,7 @@ const MAU: Mau[] = [
     ),
   },
   {
-    ten: 'color="success"',
+    ten: 'color="success" (GWT)',
     moTa: 'Xác nhận thao tác đã xong.',
     demo: (
       <Alert data-so="success" color="success">
@@ -51,10 +51,10 @@ const MAU: Mau[] = [
     ),
   },
   {
-    ten: 'color="danger"',
-    moTa: 'Lỗi chặn thao tác — trình đọc màn hình đọc ngay khi hiện.',
+    ten: 'variant="destructive"',
+    moTa: 'Lỗi chặn thao tác (= color danger) — trình đọc màn hình đọc ngay khi hiện.',
     demo: (
-      <Alert data-so="danger" color="danger">
+      <Alert data-so="danger" variant="destructive">
         <AlertTitle>Không lưu được</AlertTitle>
         <AlertDescription>Bạn không có quyền sửa đơn của chi nhánh khác.</AlertDescription>
       </Alert>

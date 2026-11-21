@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
+import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, chuCaiDau } from '@/components/ui/avatar'
 import { CHU } from '../_khung/chu'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
@@ -53,6 +53,32 @@ export function KhoiAvatarHang() {
       </BienThe>
       <BienThe ten="Kèm tên" moTa="Avatar đứng trước tên, cách 6px.">
         <span className={`${CHU.xs} text-muted-foreground`}>{KEM_TEN}</span>
+      </BienThe>
+      <BienThe ten='size="lg" · AvatarBadge' moTa="Phần shadcn, artifact chưa có: cỡ 28px; chấm trạng thái góc dưới phải.">
+        <div className="flex flex-wrap items-center gap-3">
+          <Avatar size="lg" aria-hidden="true">
+            <AvatarFallback>{chuCaiDau('chị Hiền')}</AvatarFallback>
+            <AvatarBadge />
+          </Avatar>
+          <Avatar aria-hidden="true">
+            <AvatarFallback>{chuCaiDau('Kim Thoa')}</AvatarFallback>
+            <AvatarBadge />
+          </Avatar>
+        </div>
+      </BienThe>
+      <BienThe ten="AvatarGroup · AvatarGroupCount" moTa="Phần shadcn: nhóm chồng nhau 6px, ô +N cuối nhóm.">
+        <AvatarGroup aria-label="Người theo dõi: Hiền, Thoa, Tùng và 2 người khác" role="img">
+          <Avatar>
+            <AvatarFallback>{chuCaiDau('chị Hiền')}</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>{chuCaiDau('Kim Thoa')}</AvatarFallback>
+          </Avatar>
+          <Avatar>
+            <AvatarFallback>{chuCaiDau('anh Thanh Tùng')}</AvatarFallback>
+          </Avatar>
+          <AvatarGroupCount>+2</AvatarGroupCount>
+        </AvatarGroup>
       </BienThe>
     </KhoiHang>
   )

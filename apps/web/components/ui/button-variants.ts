@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 // File THƯỜNG (không 'use client'): server component gọi được `buttonVariants()` (vd `<Link className={buttonVariants()}>`).
 import { cva } from 'class-variance-authority'
 
@@ -14,6 +15,9 @@ import { cva } from 'class-variance-authority'
  * - Viền outline = box-shadow inset 1px (y bundle.css), không dùng border → không đổi kích thước hộp.
  * - Bo pill = --radius-full (9999px) như bundle.css, không dùng `rounded-full` (calc(infinity*1px)) để computed style
  *   khớp số artifact.
+ * - `variant` + `size` đủ giá trị shadcn (R19). `xs`/`icon-xs`/`icon-lg` artifact chưa có → nối thang token một bậc
+ *   (xs = control-size-2xs 24 như shadcn h-6 và InputGroupButton; icon-lg = control-size-lg 36). `shape` + `loading`
+ *   là phần GWT thêm.
  */
 export const buttonVariants = cva(
   [
@@ -35,10 +39,13 @@ export const buttonVariants = cva(
     variants: {
       size: {
         default: 'h-(--control-size-md) px-[calc(var(--control-gutter-md)*1.33)]',
+        xs: 'h-(--control-size-2xs) px-[calc(var(--control-gutter-xs)*1.33)] gap-1 text-[12px] [&_svg]:size-(--control-icon-size-xs)',
         sm: 'h-(--control-size-sm) px-[calc(var(--control-gutter-sm)*1.33)] gap-1',
         lg: 'h-(--control-size-lg) px-[calc(var(--control-gutter-md)*1.33)]',
         icon: 'size-(--control-size-md) p-0',
+        'icon-xs': 'size-(--control-size-2xs) p-0 [&_svg]:size-(--control-icon-size-xs)',
         'icon-sm': 'size-(--control-size-sm) p-0',
+        'icon-lg': 'size-(--control-size-lg) p-0',
       },
       shape: { pill: '', rounded: '' },
       variant: {
@@ -85,9 +92,10 @@ export const buttonVariants = cva(
     },
     compoundVariants: [
       { shape: 'rounded', size: ['default', 'lg'], class: 'rounded-(--radius-md) px-(--control-gutter-md)' },
-      { shape: 'rounded', size: 'icon', class: 'rounded-(--radius-md)' },
-      { shape: 'rounded', size: ['sm', 'icon-sm'], class: 'rounded-(--radius-sm)' },
+      { shape: 'rounded', size: ['icon', 'icon-lg'], class: 'rounded-(--radius-md)' },
+      { shape: 'rounded', size: ['xs', 'sm', 'icon-xs', 'icon-sm'], class: 'rounded-(--radius-sm)' },
       { shape: 'rounded', size: 'sm', class: 'px-(--control-gutter-sm)' },
+      { shape: 'rounded', size: 'xs', class: 'px-(--control-gutter-xs)' },
     ],
     defaultVariants: { variant: 'default', size: 'default', shape: 'pill' },
   },

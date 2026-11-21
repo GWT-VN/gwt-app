@@ -1,4 +1,5 @@
 'use client'
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 
 import { useEffect, useState, type ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
@@ -10,6 +11,8 @@ import { choTre, khongVien, skeleton, skeletonRow } from './feedback-styles'
  *   qua `VungDoc` (role="status") đứng NGOÀI vùng busy. Preview đặt cả hai trên một thẻ — DS tách (review đợt 1, F9).
  * - Hình (`shape`) + bậc bề rộng (`width`) qua `data-shape`/`data-w` như artifact — không gõ px lẻ.
  * - Nhấp nháy 1.4s; người dùng chọn giảm chuyển động → đứng yên.
+ * - Lệch có chủ đích: thẻ `span` (shadcn `div`) — đặt được trong ô chữ, nút; `block` nên hình như div. `shape`/`width`,
+ *   `SkeletonDong`, `VungDoc` là phần GWT thêm.
  * - Nút đang chạy: KHÔNG dựng ở đây — dùng `<Button loading>` (giữ bề rộng, chữ ẩn, vòng xoay giữa, chặn bấm lần 2).
  */
 export function Skeleton({

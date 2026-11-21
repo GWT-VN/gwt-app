@@ -142,8 +142,8 @@ export function TrangChonGio({ variant }: { variant: MaBienThe }) {
       <div className="mx-auto flex max-w-[1080px] flex-col gap-10 px-4 pt-6 pb-32 md:px-6 md:pt-8">
         <header className="flex flex-col gap-2 border-none border-current">
           <div className="flex flex-wrap items-center gap-2 border-none border-current">
-            <Badge color="warning">Prototype vứt đi</Badge>
-            <Badge color="info">Phương án {variant}</Badge>
+            <Badge variant="soft" color="warning">Prototype vứt đi</Badge>
+            <Badge variant="soft" color="info">Phương án {variant}</Badge>
           </div>
           <h1 className="m-0 ds-heading-lg">Chọn hạn có giờ — họ A (giờ trong pop lịch)</h1>
           <p className="m-0 max-w-[72ch] ds-text-sm text-muted-foreground">

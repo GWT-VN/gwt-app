@@ -60,6 +60,21 @@ const KICH_CO: Mau[] = [
   },
 ]
 
+/** Cỡ shadcn artifact chưa có (R19) — chỉ hiện ở /ds, không ở /ds/tron (cổng so khớp). */
+const CO_SHADCN: Mau[] = [
+  { ten: 'size="xs"', moTa: '24px, chữ 12 — chip, ô nhập (như InputGroupButton). Artifact chưa có.', demo: <Button size="xs" variant="outline"><Plus />Thêm (xs 24)</Button> },
+  {
+    ten: 'size="icon-xs" · "icon-lg"',
+    moTa: 'Nút icon 24px / 36px. Artifact chưa có.',
+    demo: (
+      <>
+        <Button size="icon-xs" variant="ghost" aria-label="Thêm (nhỏ)"><Plus /></Button>
+        <Button size="icon-lg" variant="outline" aria-label="Thêm (lớn)"><Plus /></Button>
+      </>
+    ),
+  },
+]
+
 const hien = (ds: Mau[]) => ds.map((m) => <Fragment key={m.ten}>{m.demo}</Fragment>)
 
 /**
@@ -88,7 +103,7 @@ export function KhoiButton() {
 export function KhoiButtonHang() {
   return (
     <KhoiHang neo="button">
-      {[...BIEN_THE, ...TRANG_THAI, ...KICH_CO].map((m) => (
+      {[...BIEN_THE, ...TRANG_THAI, ...KICH_CO, ...CO_SHADCN].map((m) => (
         <BienThe key={m.ten} ten={m.ten} moTa={m.moTa}>
           <div className="flex flex-wrap items-center gap-2">{m.demo}</div>
         </BienThe>

@@ -60,13 +60,17 @@ test('EmptyState: tiêu đề là heading, mô tả, nút hành động; icon tr
   const icon = document.querySelector('[data-slot="empty-icon"]')
   expect(icon?.getAttribute('aria-hidden')).toBe('true')
   expect(icon?.querySelector('svg')).toBeTruthy()
+  // khung shadcn Empty: Empty › EmptyHeader (media · title h3 · description) + EmptyContent
+  expect(document.querySelector('[data-slot="empty"] > [data-slot="empty-header"] > h3[data-slot="empty-title"]')).toBeTruthy()
+  expect(document.querySelector('[data-slot="empty-header"] > [data-slot="empty-description"]')).toBeTruthy()
+  expect(document.querySelector('[data-slot="empty"] > [data-slot="empty-content"] > button')).toBeTruthy()
 })
 
 test('EmptyState: kieu="loi" → icon màu danger; không con → không có nhóm hành động; size sm; cấp heading đổi được', () => {
   const { container } = render(<EmptyState kieu="loi" size="sm" capTieuDe={2} tieuDe="Không tải được danh sách" />)
   expect(container.querySelector('[data-slot="empty-icon"]')?.getAttribute('data-color')).toBe('danger')
-  expect(container.querySelector('[data-slot="empty-actions"]')).toBeNull()
-  expect(container.querySelector('[data-slot="empty-state"]')?.getAttribute('data-size')).toBe('sm')
+  expect(container.querySelector('[data-slot="empty-content"]')).toBeNull()
+  expect(container.querySelector('[data-slot="empty"]')?.getAttribute('data-size')).toBe('sm')
   expect(screen.getByRole('heading', { level: 2, name: 'Không tải được danh sách' })).toBeTruthy()
 })
 

@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 import type { ComponentProps } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
@@ -5,7 +6,15 @@ import { CaretDown } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 
 /**
- * Badge — khung shadcn, giá trị chép từ khối `.ui-badge*` / `.ui-dot` trong ds/nguon/bundle.css.
+ * Badge — khung shadcn (`Badge`, `badgeVariants`, `variant` default/secondary/destructive/outline/ghost/link, `asChild`),
+ * giá trị từ khối `.ui-badge*` / `.ui-dot` trong ds/nguon/bundle.css.
+ * - Phần GWT thêm (R19): `variant` `soft`/`solid`, `color` (6 màu token), `size` sm/md, `BadgeDot`, `BadgeCaret`. Màu
+ *   theo `color` chỉ có nghĩa với `soft` (nền nhạt + chữ theo màu) và `solid` (chỉ success/danger có màu riêng).
+ * - Mặc định `variant="default"` như shadcn (nền primary đặc). Nhãn trạng thái nền nhạt của artifact → `variant="soft"`.
+ * - Giá trị biến thể shadcn gán token ChatGPT: default = primary; secondary = secondary (gray-100, như Button secondary);
+ *   destructive = danger-solid; outline = viền xám secondary-outline (đúng `.ui-badge[data-variant="outline"]`); ghost =
+ *   trong suốt, hover accent khi là `<a>`; link = chữ xanh như Button link. Artifact chỉ có soft/solid/outline — 4 giá trị
+ *   còn lại chưa có trong artifact.
  * - Chép đúng cascade bundle.css: nền + chữ soft theo `color`; `[data-variant="solid"|"outline"]` khai SAU `[data-color]`
  *   cùng specificity → variant (đứng sau color trong cva, thắng qua tailwind-merge) đè màu: solid = xám secondary-solid,
  *   outline = xám secondary-outline với MỌI màu. Ngoại lệ duy nhất: compound solid+success, solid+danger.
@@ -14,11 +23,14 @@ import { cn } from '@/lib/utils'
  *   artifact không có viền (không ăn preflight `0 solid var(--border)` của app).
  * - Bo pill = --radius-full (9999px), không dùng `rounded-full` (calc(infinity*1px)).
  * - Không reset font-feature-settings (kế thừa cv11/ss03 của DsRoot).
+ * - Bỏ `w-fit shrink-0 justify-center overflow-hidden` của shadcn: `.ui-badge` không có → badge trong hàng flex co/giãn
+ *   như artifact.
  */
-export const badgeVariants = cva(
+const badgeVariants = cva(
   [
     'inline-flex items-center gap-1 rounded-(--radius-full) border-none border-current',
-    'font-semibold whitespace-nowrap',
+    'font-semibold whitespace-nowrap transition-[color,box-shadow]',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&>svg]:pointer-events-none',
   ],
   {
     variants: {
@@ -37,23 +49,29 @@ export const badgeVariants = cva(
         discovery: 'bg-(--color-background-discovery-soft-alpha) text-(--color-text-discovery-soft)',
       },
       variant: {
+        default: 'bg-primary text-primary-foreground [a&]:hover:bg-(--color-background-primary-solid-hover)',
+        secondary: 'bg-secondary text-secondary-foreground [a&]:hover:bg-(--color-background-secondary-soft-hover)',
+        destructive:
+          'bg-(--color-background-danger-solid) text-(--color-text-danger-solid) [a&]:hover:bg-(--color-background-danger-solid-hover) focus-visible:outline-(--color-ring-danger)',
+        outline:
+          'bg-transparent [box-shadow:inset_0_0_0_1px_var(--color-border-secondary-outline)] text-(--color-text-secondary-outline) [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        ghost: 'bg-transparent text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        link: 'bg-transparent text-(--blue-500) in-data-[theme=dark]:text-(--blue-300) underline-offset-4 [a&]:hover:underline',
         soft: '',
         solid: 'bg-(--color-background-secondary-solid) text-(--color-text-secondary-solid)',
-        outline:
-          'bg-transparent [box-shadow:inset_0_0_0_1px_var(--color-border-secondary-outline)] text-(--color-text-secondary-outline)',
       },
     },
     compoundVariants: [
       { variant: 'solid', color: 'success', class: 'bg-(--color-background-success-solid) text-(--color-text-success-solid)' },
       { variant: 'solid', color: 'danger', class: 'bg-(--color-background-danger-solid) text-(--color-text-danger-solid)' },
     ],
-    defaultVariants: { variant: 'soft', color: 'secondary', size: 'sm' },
+    defaultVariants: { variant: 'default', color: 'secondary', size: 'sm' },
   },
 )
 
-export function Badge({
+function Badge({
   className,
-  variant = 'soft',
+  variant = 'default',
   color = 'secondary',
   size = 'sm',
   asChild = false,
@@ -84,7 +102,7 @@ const NEN_CHAM = {
  * Chấm màu trong Badge: 6px tròn. Không `color` → nền currentColor, theo màu chữ badge cha (`.ui-badge .ui-dot`);
  * có `color` → nền `<màu>-solid` (`.ui-dot[data-color]`, dùng trong badge outline xám).
  */
-export function BadgeDot({ color, className }: { color?: keyof typeof NEN_CHAM; className?: string }) {
+function BadgeDot({ color, className }: { color?: keyof typeof NEN_CHAM; className?: string }) {
   return (
     <span
       aria-hidden="true"
@@ -101,7 +119,7 @@ export function BadgeDot({ color, className }: { color?: keyof typeof NEN_CHAM; 
  * (`aria-expanded="true"`). Icon Phosphor CaretDown nét `bold` như preview InlineEdit. Đặt làm con CUỐI của `<Badge>`.
  * Không phải 'use client' (icon bản ssr) → dùng được ở server component.
  */
-export function BadgeCaret({ className }: { className?: string }) {
+function BadgeCaret({ className }: { className?: string }) {
   return (
     <CaretDown
       weight="bold"
@@ -115,3 +133,5 @@ export function BadgeCaret({ className }: { className?: string }) {
     />
   )
 }
+
+export { Badge, badgeVariants, BadgeDot, BadgeCaret }

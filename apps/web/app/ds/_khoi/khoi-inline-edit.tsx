@@ -27,8 +27,8 @@ const MA = 'TK-2611-045'
 /** Ưu tiên (README: P1 solid danger · P2 warning · P3 mặc định · P4 outline). */
 const UU: MucNhan[] = [
   { gt: 'P1', nhan: <Badge variant="solid" color="danger">P1</Badge>, chu: 'P1' },
-  { gt: 'P2', nhan: <Badge color="warning">P2</Badge>, chu: 'P2' },
-  { gt: 'P3', nhan: <Badge>P3</Badge>, chu: 'P3' },
+  { gt: 'P2', nhan: <Badge variant="soft" color="warning">P2</Badge>, chu: 'P2' },
+  { gt: 'P3', nhan: <Badge variant="soft">P3</Badge>, chu: 'P3' },
   { gt: 'P4', nhan: <Badge variant="outline">P4</Badge>, chu: 'P4' },
 ]
 

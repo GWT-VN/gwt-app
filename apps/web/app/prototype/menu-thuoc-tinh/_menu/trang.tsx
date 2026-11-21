@@ -203,8 +203,8 @@ export function TrangMenuThuocTinh() {
     <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 pt-6 pb-32 md:px-6 md:pt-8">
       <header className="flex flex-col gap-3 border-none border-current">
         <div className="flex flex-wrap items-center gap-2 border-none border-current">
-          <Badge color="warning">Prototype vứt đi</Badge>
-          <Badge color="info">Menu thuộc tính kiểu Linear</Badge>
+          <Badge variant="soft" color="warning">Prototype vứt đi</Badge>
+          <Badge variant="soft" color="info">Menu thuộc tính kiểu Linear</Badge>
         </div>
         <h1 className="m-0 ds-heading-lg">Menu thuộc tính trên bảng ticket</h1>
         <Card className="flex flex-col gap-2">
@@ -357,7 +357,7 @@ export function TrangMenuThuocTinh() {
                               {t.nhan.map((id) => {
                                 const n = NHAN.find((x) => x.id === id)!
                                 return (
-                                  <Badge key={id} color={n.color} className="shrink-0">
+                                  <Badge variant="soft" key={id} color={n.color} className="shrink-0">
                                     {n.ten}
                                   </Badge>
                                 )

@@ -143,7 +143,7 @@ function O({ v, id, rong }: { v: Ve; id: string; rong: number }): ReactNode {
     }
     case 'tt': {
       const t = nhanTag(TT, v.tt)
-      return <Badge color={t.color}>{t.nhan}</Badge>
+      return <Badge variant="soft" color={t.color}>{t.nhan}</Badge>
     }
     case 'ma':
       return <span className={lopMa}>{v.ma}</span>

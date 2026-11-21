@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 import type { ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils'
  * - `pointer-coarse:hidden`: thiết bị cảm ứng không có bàn phím → ẩn gợi ý phím (brief lát 2; bundle.css không có rule
  *   này). Đổi Ctrl ↔ ⌘ theo nền tảng: để lát 6 (CommandPalette).
  */
-export function Kbd({ className, ...props }: ComponentProps<'kbd'>) {
+function Kbd({ className, ...props }: ComponentProps<'kbd'>) {
   return (
     <kbd
       data-slot="kbd"
@@ -21,6 +22,8 @@ export function Kbd({ className, ...props }: ComponentProps<'kbd'>) {
         // preflight đặt <kbd> font-feature-settings về normal; bundle.css .ui-kbd ghi `inherit` → lấy lại cv11/ss03 của DsRoot
         '[font-feature-settings:inherit]',
         'pointer-coarse:hidden',
+        // shadcn: không bắt chuột/chọn chữ, icon trong phím 12px
+        'pointer-events-none select-none [&_svg]:size-3',
         className,
       )}
       {...props}
@@ -28,7 +31,21 @@ export function Kbd({ className, ...props }: ComponentProps<'kbd'>) {
   )
 }
 
-/** Nhóm phím (vd Ctrl + K): bundle.css `.ui-command-foot > span` — inline-flex, giữa, gap 4px. */
-export function KbdGroup({ className, ...props }: ComponentProps<'span'>) {
-  return <span data-slot="kbd-group" className={cn('inline-flex items-center gap-1', className)} {...props} />
+/**
+ * Nhóm phím (vd Ctrl + K): bundle.css `.ui-command-foot > span` — inline-flex, giữa, gap 4px. Thẻ `<kbd>` như shadcn →
+ * preflight gắn font mono + font-feature-settings normal cho <kbd> → lấy lại font/feature của vùng DS (chữ "+" giữa phím).
+ */
+function KbdGroup({ className, ...props }: ComponentProps<'kbd'>) {
+  return (
+    <kbd
+      data-slot="kbd-group"
+      className={cn(
+        'inline-flex items-center gap-1 border-none border-current font-[family-name:var(--font-sans)] [font-feature-settings:inherit]',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
+
+export { Kbd, KbdGroup }

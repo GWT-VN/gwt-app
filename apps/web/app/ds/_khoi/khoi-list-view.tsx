@@ -32,8 +32,8 @@ const HOM_NAY = '2026-11-20'
 type Uu = 'P1' | 'P2' | 'P3' | 'P4'
 const UU: MucNhan<Uu>[] = [
   { gt: 'P1', nhan: <Badge variant="solid" color="danger">P1</Badge>, chu: 'P1' },
-  { gt: 'P2', nhan: <Badge color="warning">P2</Badge>, chu: 'P2' },
-  { gt: 'P3', nhan: <Badge>P3</Badge>, chu: 'P3' },
+  { gt: 'P2', nhan: <Badge variant="soft" color="warning">P2</Badge>, chu: 'P2' },
+  { gt: 'P3', nhan: <Badge variant="soft">P3</Badge>, chu: 'P3' },
   { gt: 'P4', nhan: <Badge variant="outline">P4</Badge>, chu: 'P4' },
 ]
 const MAU_LOI = { Main: 'discovery', 'Rò rỉ nước': 'info', 'Chất lượng nước': 'success', App: 'warning' } as const
@@ -255,7 +255,7 @@ function DanhSachTicket({ nhomTheo, onMo, dangMo }: { nhomTheo?: boolean; onMo?:
       khoa={(v) => v.ma}
       onMo={mo}
       dangMo={dangMo}
-      nhom={nhomTheo ? { theo: (v) => v.tt.tt, muc: TT.map((m) => ({ gt: m.gt, nhan: <Badge color={m.color}>{m.nhan}</Badge> })) } : undefined}
+      nhom={nhomTheo ? { theo: (v) => v.tt.tt, muc: TT.map((m) => ({ gt: m.gt, nhan: <Badge variant="soft" color={m.color}>{m.nhan}</Badge> })) } : undefined}
       menuDong={(v) => {
         const dong = v.tt.tt === 'dong'
         return (

@@ -22,8 +22,8 @@ const COT: CotKanban[] = [
 
 const UU = {
   P1: <Badge variant="solid" color="danger">P1</Badge>,
-  P2: <Badge color="warning">P2</Badge>,
-  P3: <Badge>P3</Badge>,
+  P2: <Badge variant="soft" color="warning">P2</Badge>,
+  P3: <Badge variant="soft">P3</Badge>,
   P4: <Badge variant="outline">P4</Badge>,
 }
 const LOI = {

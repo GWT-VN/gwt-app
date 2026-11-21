@@ -20,10 +20,10 @@ const nguoi = (ten: string) => (
 const XU_LY = (
   <PropertyList data-so="dl-1">
     <PropertyRow nhan="Trạng thái">
-      <Badge color="discovery">Mới</Badge>
+      <Badge variant="soft" color="discovery">Mới</Badge>
     </PropertyRow>
     <PropertyRow nhan="Ưu tiên">
-      <Badge>Thường</Badge>
+      <Badge variant="soft">Thường</Badge>
     </PropertyRow>
     <PropertyRow nhan="Loại lỗi">
       <Badge variant="outline">
@@ -89,7 +89,7 @@ export function KhoiPropertyListHang() {
         <div className="max-w-[340px] border-none border-current">
           <PropertyList tieuDe="Xử lý">
             <PropertyRow nhan="Trạng thái">
-              <Badge color="discovery">Mới</Badge>
+              <Badge variant="soft" color="discovery">Mới</Badge>
             </PropertyRow>
             <PropertyRow nhan="Hạn">15:00</PropertyRow>
           </PropertyList>

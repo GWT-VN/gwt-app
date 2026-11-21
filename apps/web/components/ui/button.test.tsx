@@ -143,9 +143,10 @@ test('className gộp qua cn (class sau thắng)', () => {
   expect(c).not.toContain('h-(--control-size-md)')
 })
 
-test('Spinner: span aria-hidden 16px, viền 2px currentColor hở phải, quay 0.8s (giảm chuyển động 2.4s)', () => {
+test('Spinner: span role="status" (shadcn), 16px, viền 2px currentColor hở phải, quay 0.8s (giảm chuyển động 2.4s)', () => {
   const h = renderToStaticMarkup(<Spinner className="absolute" />)
-  expect(h).toMatch(/^<span aria-hidden="true"/)
+  expect(h).toMatch(/^<span role="status" aria-label="Đang tải"/)
+  expect(renderToStaticMarkup(<Spinner aria-hidden />)).toContain('aria-hidden="true"')
   expect(lop(h)).toEqual(
     expect.arrayContaining([
       'size-4',
@@ -174,4 +175,15 @@ test('viền như `.ui-btn { border: 0 }`: kiểu none + màu currentColor (khô
     expect(lop(renderToStaticMarkup(<Button variant={variant}>x</Button>))).toEqual(
       expect.arrayContaining(['border-none', 'border-current']),
     )
+})
+
+test('shadcn size xs / icon-xs / icon-lg: cao 24 / vuông 24 / vuông 36 theo thang token', () => {
+  expect(lop(renderToStaticMarkup(<Button size="xs">x</Button>))).toEqual(
+    expect.arrayContaining(['h-(--control-size-2xs)', 'text-[12px]', '[&amp;_svg]:size-(--control-icon-size-xs)']),
+  )
+  expect(lop(renderToStaticMarkup(<Button size="icon-xs">x</Button>))).toContain('size-(--control-size-2xs)')
+  expect(lop(renderToStaticMarkup(<Button size="icon-lg">x</Button>))).toContain('size-(--control-size-lg)')
+  expect(lop(renderToStaticMarkup(<Button size="xs" shape="rounded">x</Button>))).toEqual(
+    expect.arrayContaining(['rounded-(--radius-sm)', 'px-(--control-gutter-xs)']),
+  )
 })

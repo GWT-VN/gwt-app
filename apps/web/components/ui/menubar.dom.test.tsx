@@ -137,7 +137,7 @@ test('phần GWT + shadcn trong Menubar: Shortcut phim → Kbd, chữ → menuba
   render(<Mau />)
   await user.click(nut('Tệp'))
   const moi = await screen.findByRole('menuitem', { name: /^Đơn mới/ })
-  expect([...moi.querySelectorAll('kbd')].map((k) => k.textContent)).toEqual(['Ctrl', 'N'])
+  expect([...moi.querySelectorAll('[data-slot="kbd"]')].map((k) => k.textContent)).toEqual(['Ctrl', 'N'])
   const dong = screen.getByRole('menuitem', { name: /^Đóng/ })
   expect(dong.querySelector('[data-slot="menubar-shortcut"]')?.textContent).toBe('Ctrl W')
   expect(dong.getAttribute('data-inset')).toBe('true')

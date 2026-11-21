@@ -83,7 +83,7 @@ const BEN = (
   <>
     <PropertyList tieuDe="Xử lý" data-so="dl-1">
       <PropertyRow nhan="Trạng thái">
-        <Badge color="discovery">Mới</Badge>
+        <Badge variant="soft" color="discovery">Mới</Badge>
       </PropertyRow>
       <PropertyRow nhan="Ưu tiên">
         <Badge variant="solid" color="danger" title="P1 · lỗi an toàn">

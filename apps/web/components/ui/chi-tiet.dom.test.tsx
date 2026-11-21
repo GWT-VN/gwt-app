@@ -3,7 +3,15 @@ import { useState } from 'react'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterAll, expect, test, vi } from 'vitest'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage } from './breadcrumb'
+import {
+  Breadcrumb,
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from './breadcrumb'
 import { Composer } from './composer'
 import { DsRoot } from './ds-root'
 import { PageHeader } from './page-header'
@@ -308,4 +316,26 @@ test('Timeline: hai tệp cùng tên không cảnh báo key trùng, hiện đủ
   expect(screen.getAllByText('anh.jpg').length).toBe(2)
   expect(loi.mock.calls.some((c) => String(c[0]).includes('same key'))).toBe(false)
   loi.mockRestore()
+})
+
+test('BreadcrumbSeparator / BreadcrumbEllipsis (shadcn): li aria-hidden mặc định "/", ẩn với cây a11y', () => {
+  const { container } = render(
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#a">CSKH</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbEllipsis />
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>,
+  )
+  const sep = container.querySelector('[data-slot="breadcrumb-separator"]')
+  expect(sep?.tagName).toBe('LI')
+  expect(sep?.getAttribute('aria-hidden')).toBe('true')
+  expect(sep?.textContent).toBe('/')
+  expect(container.querySelector('[data-slot="breadcrumb-ellipsis"]')?.getAttribute('aria-hidden')).toBe('true')
+  expect(within(container).getAllByRole('listitem')).toHaveLength(2)
 })

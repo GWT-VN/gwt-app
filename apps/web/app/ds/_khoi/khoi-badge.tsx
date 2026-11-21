@@ -6,12 +6,12 @@ import { BienThe, KhoiHang } from '../_khung/tam'
 type Mau = { ten: string; moTa: string; demo: ReactNode }
 
 const MAU_SOFT: Mau[] = [
-  { ten: 'color="secondary"', moTa: 'Mặc định — trạng thái trung tính (nháp).', demo: <Badge data-so="nhap">Nháp</Badge> },
-  { ten: 'color="info"', moTa: 'Đang diễn ra.', demo: <Badge data-so="info" color="info"><BadgeDot />Đang giao</Badge> },
-  { ten: 'color="success"', moTa: 'Đã xong, đạt.', demo: <Badge data-so="success" color="success"><BadgeDot />Hoàn tất</Badge> },
-  { ten: 'color="warning"', moTa: 'Chờ, cần để ý.', demo: <Badge data-so="warning" color="warning"><BadgeDot />Chờ xử lý</Badge> },
-  { ten: 'color="danger"', moTa: 'Quá hạn, lỗi.', demo: <Badge data-so="danger" color="danger"><BadgeDot />Quá hạn</Badge> },
-  { ten: 'color="discovery"', moTa: 'Mới, tính năng mới.', demo: <Badge data-so="discovery" color="discovery">Mới</Badge> },
+  { ten: 'variant="soft"', moTa: 'Nền nhạt, color mặc định secondary — trạng thái trung tính (nháp).', demo: <Badge data-so="nhap" variant="soft">Nháp</Badge> },
+  { ten: 'variant="soft" color="info"', moTa: 'Đang diễn ra.', demo: <Badge data-so="info" variant="soft" color="info"><BadgeDot />Đang giao</Badge> },
+  { ten: 'variant="soft" color="success"', moTa: 'Đã xong, đạt.', demo: <Badge data-so="success" variant="soft" color="success"><BadgeDot />Hoàn tất</Badge> },
+  { ten: 'variant="soft" color="warning"', moTa: 'Chờ, cần để ý.', demo: <Badge data-so="warning" variant="soft" color="warning"><BadgeDot />Chờ xử lý</Badge> },
+  { ten: 'variant="soft" color="danger"', moTa: 'Quá hạn, lỗi.', demo: <Badge data-so="danger" variant="soft" color="danger"><BadgeDot />Quá hạn</Badge> },
+  { ten: 'variant="soft" color="discovery"', moTa: 'Mới, tính năng mới.', demo: <Badge data-so="discovery" variant="soft" color="discovery">Mới</Badge> },
 ]
 
 const KIEU: Mau[] = [
@@ -27,7 +27,24 @@ const KIEU: Mau[] = [
     demo: <Badge data-so="solid-danger" variant="solid" color="danger">Lỗi</Badge>,
   },
   { ten: 'variant="outline"', moTa: 'Viền xám — nhãn phụ ít nổi.', demo: <Badge data-so="outline" variant="outline">Outline</Badge> },
-  { ten: 'size="md"', moTa: '22px — đứng cạnh chữ 14px.', demo: <Badge data-so="md-info" size="md" color="info">Cỡ md 22px</Badge> },
+  { ten: 'size="md" (GWT)', moTa: '22px — đứng cạnh chữ 14px.', demo: <Badge data-so="md-info" variant="soft" size="md" color="info">Cỡ md 22px</Badge> },
+]
+
+/** Giá trị `variant` của shadcn (R19) — artifact chưa có (trừ outline), chỉ hiện ở /ds, không ở /ds/tron (cổng so khớp). */
+const SHADCN: Mau[] = [
+  { ten: 'variant="default"', moTa: 'Mặc định shadcn — nền primary đặc.', demo: <Badge>Mặc định</Badge> },
+  { ten: 'variant="secondary"', moTa: 'Nền secondary (gray-100).', demo: <Badge variant="secondary">Secondary</Badge> },
+  { ten: 'variant="destructive"', moTa: 'Nền danger đặc.', demo: <Badge variant="destructive">Destructive</Badge> },
+  { ten: 'variant="ghost"', moTa: 'Không nền — đặt trong `<a>` thì rê có nền accent.', demo: <Badge variant="ghost">Ghost</Badge> },
+  {
+    ten: 'variant="link" asChild',
+    moTa: 'Chữ xanh như Button link; bọc `<a>` qua asChild.',
+    demo: (
+      <Badge variant="link" asChild>
+        <a href="#badge">Link</a>
+      </Badge>
+    ),
+  },
 ]
 
 const hien = (ds: Mau[]) => ds.map((m) => <Fragment key={m.ten}>{m.demo}</Fragment>)
@@ -57,7 +74,7 @@ export function KhoiBadge() {
 export function KhoiBadgeHang() {
   return (
     <KhoiHang neo="badge">
-      {[...MAU_SOFT, ...KIEU].map((m) => (
+      {[...SHADCN, ...MAU_SOFT, ...KIEU].map((m) => (
         <BienThe key={m.ten} ten={m.ten} moTa={m.moTa}>
           <div className="flex flex-wrap items-center gap-2">{m.demo}</div>
         </BienThe>

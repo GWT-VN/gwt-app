@@ -39,18 +39,24 @@ export const skeletonRow = [
 /** `.ui-skeleton-stack`: chồng dọc cách 10. */
 export const skeletonStack = `${khongVien} flex flex-col gap-2.5`
 
-// ---------- EmptyState (.ui-empty*) ----------
+// ---------- Empty / EmptyState (.ui-empty*) ----------
+// Khung shadcn `empty.tsx` (Empty › EmptyHeader › EmptyMedia/EmptyTitle/EmptyDescription, EmptyContent). Artifact xếp phẳng
+// (icon · tiêu đề · mô tả · hành động là con trực tiếp của .ui-empty, gap 4); DS lồng EmptyHeader (gap 4) → khoảng cách
+// giữ y: icon cách tiêu đề 8 + 4, tiêu đề ↔ mô tả 4, đầu ↔ hành động 4 + 12.
 
-export const empty = `${khongVien} flex flex-col items-center gap-1 px-4 py-10 text-center data-[size=sm]:py-6`
-export const emptyIcon = [
-  khongVien,
-  'mb-2 grid size-10 place-content-center rounded-(--radius-full) bg-(--alpha-05) text-muted-foreground [&>svg]:size-5',
+export const empty = `${khongVien} flex min-w-0 flex-col items-center gap-1 px-4 py-10 text-center data-[size=sm]:py-6`
+export const emptyHeader = `${khongVien} flex flex-col items-center gap-1 text-center`
+/** EmptyMedia `default` (shadcn): không nền; `icon`: vòng 40 nền alpha-05, icon 20 muted (`.ui-empty-icon`). */
+export const emptyMedia = `${khongVien} mb-2 flex shrink-0 items-center justify-center [&_svg]:pointer-events-none [&_svg]:shrink-0`
+export const emptyMediaIcon = [
+  'grid size-10 place-content-center rounded-(--radius-full) bg-(--alpha-05) text-muted-foreground [&>svg]:size-5',
   'data-[color=danger]:bg-(--color-background-danger-soft-alpha) data-[color=danger]:text-(--color-text-danger-soft)',
 ].join(' ')
-/** heading-xs 16/24 600. Thẻ heading thật: preflight đã đưa cỡ/đậm/lề về kế thừa. */
+/** heading-xs 16/24 600. Thẻ heading thật (asChild): preflight đã đưa cỡ/đậm/lề về kế thừa. */
 export const emptyTitle = `${khongVien} text-[16px] leading-[24px] font-semibold`
-export const emptyDesc = `${khongVien} max-w-[360px] text-muted-foreground`
-export const emptyActions = `${khongVien} mt-3 flex flex-wrap justify-center gap-2`
+export const emptyDesc = `${khongVien} max-w-[360px] text-muted-foreground [&>a]:underline [&>a]:underline-offset-4`
+/** EmptyContent: hàng nút căn giữa cách 8 (`.ui-empty-actions`), cách đầu 12 (+ gap 4). */
+export const emptyActions = `${khongVien} mt-3 flex min-w-0 flex-wrap justify-center gap-2`
 
 // ---------- Banner (.ui-banner*) ----------
 

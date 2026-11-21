@@ -108,7 +108,7 @@ function NoiDung({
   return (
     <div ref={ref} data-slot="toast" role={loai === 'loi' ? 'alert' : undefined} data-color={loai === 'loi' ? 'danger' : undefined} className={toastVien}>
       {loai === 'chay' ? (
-        <Spinner className={toastSpinner} />
+        <Spinner aria-hidden className={toastSpinner} />
       ) : loai === 'loi' ? (
         <WarningCircle weight="fill" aria-hidden className={toastIconLoi} />
       ) : (

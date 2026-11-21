@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, test } from 'vitest'
-import { Avatar, AvatarFallback, chuCaiDau } from './avatar'
+import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, chuCaiDau } from './avatar'
 import { Kbd, KbdGroup } from './kbd'
 
 const theGoc = (h: string) => h.match(/^<[^>]*>/)?.[0] ?? ''
@@ -93,14 +93,30 @@ test('Kbd: <kbd> 20px, padding 0 4, radius-xs, viền inset alpha-12, 12px 500 m
   expect(h).toContain('>Ctrl</kbd>')
 })
 
-test('KbdGroup: <span> inline-flex gap 4px (như .ui-command-foot > span)', () => {
+test('KbdGroup: <kbd> như shadcn, inline-flex gap 4px (như .ui-command-foot > span)', () => {
   const h = renderToStaticMarkup(
     <KbdGroup>
       <Kbd>Ctrl</Kbd>
       <Kbd>K</Kbd>
     </KbdGroup>,
   )
-  expect(theGoc(h)).toMatch(/^<span[^>]*data-slot="kbd-group"/)
+  expect(theGoc(h)).toMatch(/^<kbd[^>]*data-slot="kbd-group"/)
   expect(lop(h)).toEqual(expect.arrayContaining(['inline-flex', 'items-center', 'gap-1']))
-  expect(h.match(/<kbd/g)).toHaveLength(2)
+  expect(h.match(/data-slot="kbd"/g)).toHaveLength(2)
+})
+
+test('Avatar shadcn: size lg, AvatarBadge / AvatarGroup / AvatarGroupCount đúng data-slot', () => {
+  const h = renderToStaticMarkup(
+    <AvatarGroup>
+      <Avatar size="lg">
+        <AvatarFallback>NH</AvatarFallback>
+        <AvatarBadge />
+      </Avatar>
+      <AvatarGroupCount>+3</AvatarGroupCount>
+    </AvatarGroup>,
+  )
+  expect(h).toMatch(/^<div[^>]*data-slot="avatar-group"/)
+  expect(h).toContain('data-size="lg"')
+  expect(h).toContain('data-slot="avatar-badge"')
+  expect(h).toContain('data-slot="avatar-group-count"')
 })

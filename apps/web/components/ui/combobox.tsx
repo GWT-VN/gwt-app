@@ -215,7 +215,7 @@ export function ComboboxPanel({
   let ghiChu: ReactNode
   if (!options && xa.loi) ghiChu = <span className="text-(--color-text-danger)">{xa.loi}</span>
   else if (!options && xa.thieuKyTu) ghiChu = `Gõ thêm — cần ít nhất ${TOI_THIEU_KY_TU} ký tự để tìm.`
-  else if (!options && xa.dangTim) ghiChu = <><Spinner />Đang tìm…</>
+  else if (!options && xa.dangTim) ghiChu = <><Spinner aria-hidden />Đang tìm…</>
   else if (!ds.length) ghiChu = tu ? `Không có mục nào khớp "${tu}".` : 'Không có mục nào.'
   else if (!options)
     // Tìm xa: RPC có trần dòng → không biết tổng thật; "20 mục" dễ hiểu sai là chỉ có 20. Chạm trần `max` → nói rõ là

@@ -61,7 +61,7 @@ function DongMenuCon() {
           className="flex min-h-[50px] cursor-pointer items-center gap-3 border-none border-current rounded-(--radius-xl) px-4 py-1 outline-none hover:bg-(--alpha-05) focus-within:bg-(--alpha-05) focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]"
         >
           <span role="cell">
-            <Badge color="danger">P1</Badge>
+            <Badge variant="soft" color="danger">P1</Badge>
           </span>
           <span role="cell" className="shrink-0 font-medium">
             TK-2611-040
@@ -131,7 +131,7 @@ function DongTicket() {
           className="flex min-h-[50px] cursor-pointer items-center gap-3 border-none border-current rounded-(--radius-xl) px-4 py-1 outline-none hover:bg-(--alpha-05) focus-within:bg-(--alpha-05) focus-visible:shadow-[inset_0_0_0_2px_var(--ring)]"
         >
           <span role="cell">
-            <Badge color="warning">P2</Badge>
+            <Badge variant="soft" color="warning">P2</Badge>
           </span>
           <span role="cell" className="shrink-0 font-medium">
             TK-2611-039

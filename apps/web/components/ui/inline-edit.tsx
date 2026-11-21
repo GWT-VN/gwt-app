@@ -144,7 +144,7 @@ function MucRadio({
 
 export type MucNhan<T extends string = string> = {
   gt: T
-  /** Nhãn vẽ trong ô + menu — thường là `<Badge>` (README: P1 solid danger · P2 warning · P3 mặc định · P4 outline). */
+  /** Nhãn vẽ trong ô + menu — thường là `<Badge variant="soft">` (README: P1 solid danger · P2 warning · P3 mặc định · P4 outline). */
   nhan: ReactNode
   /** Chữ cho toast + trình đọc màn hình khi `nhan` không phải chuỗi. */
   chu?: string
@@ -218,7 +218,7 @@ export type GiaTriTrangThai = { tt: string; lyDo?: string }
 /** Chip trạng thái: Badge soft theo màu; "· lý do" chữ 400 mờ 80%; `caret` → ▾ 10px bên trong (ô bấm được). */
 export function ChipTrangThai({ muc, value, caret }: { muc?: MucTrangThai; value: GiaTriTrangThai; caret?: boolean }) {
   return (
-    <Badge color={muc?.color ?? 'secondary'}>
+    <Badge variant="soft" color={muc?.color ?? 'secondary'}>
       {muc?.nhan ?? value.tt}
       {/* Khoảng trắng đầu bị gộp mất trong flex (không hiện) nhưng giữ chữ "Chờ · KT" cho trình đọc màn hình. */}
       {value.lyDo && <span className={chipPhu}> · {value.lyDo}</span>}

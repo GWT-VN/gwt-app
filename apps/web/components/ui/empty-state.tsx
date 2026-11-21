@@ -1,11 +1,11 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { CloudSlash, LockSimple, MagnifyingGlass, Tray } from '@phosphor-icons/react/ssr'
-import { cn } from '@/lib/utils'
-import { empty, emptyActions, emptyDesc, emptyIcon, emptyTitle } from './feedback-styles'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './empty'
 
 /**
- * EmptyState — shadcn `Empty` gộp một component (biểu tượng · tiêu đề · mô tả · hành động), giá trị từ `.ui-empty*` của
- * ds/nguon/bundle.css. Bốn lý do trống (README), mỗi lý do một icon mặc định như preview:
+ * EmptyState — mẫu ghép GWT trên khung shadcn `Empty` (empty.tsx): Empty › EmptyHeader › EmptyMedia icon · EmptyTitle ·
+ * EmptyDescription, rồi EmptyContent (hành động). Tên giữ theo artifact (R22). Bốn lý do trống (README), mỗi lý do một
+ * icon mặc định như preview:
  * - `that` chưa có dữ liệu (Tray) — nói thứ gì sẽ hiện ở đây + nút tạo (nếu có quyền);
  * - `loc` không khớp lọc (MagnifyingGlass) — nêu điều kiện đang lọc + "Xoá lọc";
  * - `loi` lỗi tải (CloudSlash, nền danger) — nói không tải được + "Thử lại", không đổ lỗi người dùng;
@@ -38,23 +38,17 @@ export function EmptyState({
   const Icon = ICON[kieu]
   const H = `h${capTieuDe}` as 'h3'
   return (
-    <div data-slot="empty-state" data-size={size} className={cn(empty, className)} {...props}>
-      <div data-slot="empty-icon" data-color={kieu === 'loi' ? 'danger' : undefined} aria-hidden="true" className={emptyIcon}>
-        {icon ?? <Icon />}
-      </div>
-      <H data-slot="empty-title" className={emptyTitle}>
-        {tieuDe}
-      </H>
-      {moTa && (
-        <p data-slot="empty-desc" className={emptyDesc}>
-          {moTa}
-        </p>
-      )}
-      {children && (
-        <div data-slot="empty-actions" className={emptyActions}>
-          {children}
-        </div>
-      )}
-    </div>
+    <Empty data-size={size} className={className} {...props}>
+      <EmptyHeader>
+        <EmptyMedia variant="icon" data-color={kieu === 'loi' ? 'danger' : undefined} aria-hidden="true">
+          {icon ?? <Icon />}
+        </EmptyMedia>
+        <EmptyTitle asChild>
+          <H>{tieuDe}</H>
+        </EmptyTitle>
+        {moTa && <EmptyDescription>{moTa}</EmptyDescription>}
+      </EmptyHeader>
+      {children && <EmptyContent>{children}</EmptyContent>}
+    </Empty>
   )
 }

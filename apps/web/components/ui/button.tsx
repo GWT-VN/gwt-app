@@ -1,4 +1,5 @@
 'use client'
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 
 import type { ComponentProps, MouseEvent } from 'react'
 import type { VariantProps } from 'class-variance-authority'
@@ -51,7 +52,7 @@ export function Button({
       {loading && !asChild ? (
         <>
           <span className="inline-flex items-center gap-[inherit] opacity-0">{children}</span>
-          <Spinner className="absolute inset-0 m-auto" />
+          <Spinner aria-hidden className="absolute inset-0 m-auto" />
         </>
       ) : (
         children
