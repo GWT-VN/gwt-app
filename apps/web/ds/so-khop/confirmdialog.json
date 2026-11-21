@@ -195,7 +195,7 @@
     {
       "khoa": "xoa-icon",
       "artifact": ".ds-muc:nth-child(2) .ui-dialog-icon",
-      "ds": "[data-ds-portal] [data-slot=\"confirm-dialog-icon\"]",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-media\"]",
       "buoc": [
         {
           "bam": "#confirm-dialog [data-so=\"mo-xoa\"]"
@@ -477,7 +477,7 @@
     {
       "khoa": "gop-icon",
       "artifact": ".ds-muc:nth-child(3) .ui-dialog-icon",
-      "ds": "[data-ds-portal] [data-slot=\"confirm-dialog-icon\"]",
+      "ds": "[data-ds-portal] [data-slot=\"alert-dialog-media\"]",
       "buoc": [
         {
           "bam": "#confirm-dialog [data-so=\"mo-gop\"]"

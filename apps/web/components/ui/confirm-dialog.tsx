@@ -10,16 +10,12 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
 } from './alert-dialog'
 import { Button } from './button'
-
-/** `.ui-dialog-icon`: tròn 40, cách tiêu đề 16, nền alpha-05, icon 20 muted; `[data-color=danger]` nền/màu danger-soft. */
-const icon = [
-  'grid size-10 place-content-center mb-4 rounded-(--radius-full) border-none border-current',
-  'bg-(--alpha-05) text-muted-foreground [&>svg]:size-5',
-].join(' ')
-const iconDanger = 'bg-(--color-background-danger-soft-alpha) text-(--color-text-danger-soft)'
+import { mediaDanger } from './dialog-styles'
 
 /**
  * `.ui-dialog-list`: margin 0, thụt 18, chữ foreground 14/20, mục cách 4; `.ui-dialog-list + .ui-field` cách 16 → phần tử
@@ -31,8 +27,10 @@ const list = [
 ].join(' ')
 
 /**
- * ConfirmDialog — hỏi trước việc KHÔNG LÙI ĐƯỢC (đóng ticket, xoá, gộp). Dựng trên AlertDialog (Radix): role
- * alertdialog, labelledby tiêu đề, describedby mô tả, bẫy Tab, bấm overlay không đóng.
+ * ConfirmDialog — hỏi trước việc KHÔNG LÙI ĐƯỢC (đóng ticket, xoá, gộp). Mẫu ghép GWT trên AlertDialog (khung shadcn,
+ * Radix): role alertdialog, labelledby tiêu đề, describedby mô tả, bẫy Tab, bấm overlay không đóng. Ghép đúng phần
+ * shadcn: Header (Media icon + Title + Description) → Body (GWT) → Footer (Cancel outline + nút xác nhận).
+ * Nút xác nhận là Button thường, KHÔNG phải `AlertDialogAction` (Action đóng hộp ngay — không chờ được Promise).
  * - `tieuDe`: câu hỏi gọi tên đối tượng ("Xoá phiếu chi PC-…?"). `nutXacNhan`: đúng động từ ("Xoá phiếu"), không "OK".
  * - `hauQua`: gạch đầu dòng những gì sẽ xảy ra; `children` (ô lý do…) cách danh sách 16.
  * - `pha` (phá dữ liệu): nút xác nhận destructive + focus mặc định vào nút Huỷ (an toàn); không `pha` → focus nút xác
@@ -170,18 +168,15 @@ export function ConfirmDialog({
           } // không → Radix focus nút Huỷ
         }}
       >
-        {bieuTuong && (
-          <div
-            data-slot="confirm-dialog-icon"
-            data-color={color}
-            aria-hidden="true"
-            className={cn(icon, color === 'danger' && iconDanger)}
-          >
-            {bieuTuong}
-          </div>
-        )}
-        <AlertDialogTitle>{tieuDe}</AlertDialogTitle>
-        {moTa && <AlertDialogDescription>{moTa}</AlertDialogDescription>}
+        <AlertDialogHeader>
+          {bieuTuong && (
+            <AlertDialogMedia data-color={color} aria-hidden="true" className={cn(color === 'danger' && mediaDanger)}>
+              {bieuTuong}
+            </AlertDialogMedia>
+          )}
+          <AlertDialogTitle>{tieuDe}</AlertDialogTitle>
+          {moTa && <AlertDialogDescription>{moTa}</AlertDialogDescription>}
+        </AlertDialogHeader>
         {(hauQua?.length || children || loiHien) && (
           <AlertDialogBody>
             {hauQua?.length ? (
@@ -206,11 +201,7 @@ export function ConfirmDialog({
           </AlertDialogBody>
         )}
         <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant="outline" disabled={khoa}>
-              {nutHuy}
-            </Button>
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={khoa}>{nutHuy}</AlertDialogCancel>
           <Button
             ref={nutXn}
             variant={pha ? 'destructive' : 'default'}

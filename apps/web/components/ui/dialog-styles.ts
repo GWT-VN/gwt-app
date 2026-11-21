@@ -1,5 +1,5 @@
 /**
- * Kiểu dialog dùng chung (Dialog, AlertDialog/ConfirmDialog, Sheet) — chép từ khối "Dialog / Sheet" (`.ui-overlay`,
+ * Kiểu dialog dùng chung (Dialog, AlertDialog/ConfirmDialog, Sheet, Drawer) — chép từ khối "Dialog / Sheet" (`.ui-overlay`,
  * `.ui-dialog*`) và "ConfirmDialog: <dialog class="ui-dialog">" của ds/nguon/bundle.css. Chỉ là chuỗi class.
  * `border-none border-current` ở mọi phần: div/h2/p ăn preflight `0 solid var(--border)` của app; artifact không viền.
  *
@@ -31,6 +31,30 @@ export const panel = [
   'starting:opacity-0 starting:translate-y-1 starting:scale-[0.98] motion-reduce:transition-none',
 ].join(' ')
 
+/**
+ * AlertDialogContent `size="sm"` (shadcn `data-[size=sm]:max-w-xs` = 320): artifact không có cỡ này. Thuộc tính +
+ * lớp (0,2,0) thắng cả `max-w-[450px]` lẫn `max-w-none` của mốc ≤640 (0,1,0) → trần 320 mọi khổ. Footer cỡ sm chia hai
+ * cột đều (`footerSm`).
+ */
+export const panelSm = 'data-[size=sm]:max-w-[320px]'
+
+/**
+ * DialogHeader / AlertDialogHeader / DrawerHeader (shadcn có, artifact không có lớp bọc riêng): khối thường, không
+ * gap — khoảng cách tiêu đề ↔ mô tả do `desc` (mt-1) lo như `.ui-dialog-desc` → bọc hay không bọc ra cùng số đo.
+ * shadcn căn giữa chữ trên điện thoại; artifact luôn căn trái → không chép.
+ */
+export const header = 'border-none border-current'
+
+/**
+ * AlertDialogMedia (shadcn: ô 64 bo, nền muted, icon 32) gán giá trị `.ui-dialog-icon` của ConfirmDialog: tròn 40, cách
+ * tiêu đề 16, nền alpha-05, icon 20 muted. `mediaDanger` = `[data-color=danger]` (nền/màu danger-soft) — phần GWT.
+ */
+export const media = [
+  'grid size-10 place-content-center mb-4 rounded-(--radius-full) border-none border-current',
+  'bg-(--alpha-05) text-muted-foreground [&>svg]:size-5',
+].join(' ')
+export const mediaDanger = 'bg-(--color-background-danger-soft-alpha) text-(--color-text-danger-soft)'
+
 /** `.ui-dialog-title`: 18/26 600 (heading-sm), margin 0. Thuộc tính lẻ, không shorthand `font:` (giữ cv11/ss03). */
 export const title = 'm-0 border-none border-current text-[18px] leading-[26px] font-semibold'
 
@@ -51,6 +75,10 @@ export const footer = [
   '[@media(max-width:640px)]:flex-col-reverse [@media(max-width:640px)]:[&>*]:w-full',
 ].join(' ')
 
+/** Footer của AlertDialogContent `size="sm"` (shadcn): lưới hai cột đều, Huỷ trái — hành động phải, mọi khổ. */
+export const footerSm =
+  'group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2'
+
 /**
  * `.ui-dialog-close` (bản 35, CEO chốt 20/11): tâm nút ✕ thẳng tâm dòng tiêu đề — top = --dialog-padding 20 + (line-height
  * tiêu đề 26 − --control-size-sm 28) / 2 = 19; right = top cho cân góc. Dùng chung Dialog + Sheet (header Sheet cũng
@@ -62,7 +90,7 @@ export const closeBtn = 'absolute top-[19px] right-[19px]'
  * `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (bản 37, CEO chốt 20/11): tiêu đề dài
  * không chạy dưới ✕. ✕ chiếm 19–47px tính từ mép phải hộp; tiêu đề nằm trong padding 20 → cần ≥ 47 − 20 + 8 = 35 để cách
  * ✕ 8px → lấy 36 = `pr-9` (9 × --spacing 4, thang DS) → chữ dừng cách mép 56, cách ✕ 9px. Chỉ khi CÓ ✕: DialogContent
- * gắn lên khung khi `showClose` (thay `:has()` của artifact — biết sẵn có ✕ hay không); AlertDialog/ConfirmDialog không ✕,
+ * gắn lên khung khi `showCloseButton` (thay `:has()` của artifact — biết sẵn có ✕ hay không); AlertDialog/ConfirmDialog không ✕,
  * tiêu đề `alert-dialog-title` không trúng → trọn bề ngang. Header Sheet (✕ luôn có) chừa riêng `pr-14` = 56 (sheet.tsx).
  */
 export const chuaNutDong = '[&_[data-slot=dialog-title]]:pr-9'

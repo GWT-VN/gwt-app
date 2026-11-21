@@ -110,21 +110,75 @@ test('bấm overlay đóng và trả focus về trigger', async () => {
   expect(document.activeElement).toBe(nut)
 })
 
-test('nút ✕ nằm cuối header (DOM header → ✕ → thân như preview) → Tab đầu tiên vào ✕, rồi thân, rồi footer; không rời sheet', async () => {
+test('nút ✕ là con CUỐI panel (khung shadcn); vòng Tab vẫn như preview: ✕ → thân → footer → ✕; không rời sheet', async () => {
   const user = userEvent.setup()
   render(<Mau />)
   await user.click(trigger())
   const hop = await screen.findByRole('dialog')
   const dong = screen.getByRole('button', { name: 'Đóng' })
-  const thuTu = [...hop.querySelectorAll('[data-slot]')].map((e) => e.getAttribute('data-slot'))
-  expect(thuTu.indexOf('sheet-header')).toBeLessThan(thuTu.indexOf('sheet-body'))
+  expect(hop.lastElementChild).toBe(dong)
   const dau = hop.querySelector('[data-slot="sheet-header"]')!
-  expect(dau.lastElementChild).toBe(dong)
-  // Header không định vị → ✕ (absolute) neo theo panel như trước, số đo cổng so khớp không đổi.
+  // Header không định vị → ✕ (absolute) neo theo panel, số đo cổng so khớp không đổi.
   expect(dau.className).not.toMatch(/(^| )(relative|absolute|fixed|sticky)( |$)/)
+  await waitFor(() => expect(document.activeElement).toBe(dong))
+  await user.tab()
+  expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Chờ xử lý' }))
+  await user.tab()
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Xoá lọc' }))
+  await user.tab()
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Áp dụng' }))
+  await user.tab()
+  expect(document.activeElement).toBe(dong)
   for (let i = 0; i < 8; i++) {
-    await user.tab()
+    await user.tab({ shift: i % 2 === 0 })
     expect(hop.contains(document.activeElement)).toBe(true)
+  }
+})
+
+test('showCloseButton={false} (shadcn) → không ✕; focus mở = phần tử focus được đầu tiên', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button>Mở</Button>
+        </SheetTrigger>
+        <SheetContent showCloseButton={false}>
+          <SheetHeader>
+            <SheetTitle>Không ✕</SheetTitle>
+          </SheetHeader>
+          <SheetBody>
+            <input aria-label="Ô đầu" />
+          </SheetBody>
+        </SheetContent>
+      </Sheet>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  await screen.findByRole('dialog')
+  expect(screen.queryByRole('button', { name: 'Đóng' })).toBeNull()
+  await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Ô đầu' })))
+})
+
+test('side top/bottom (shadcn): rộng hết, bám mép trên/dưới, data-side; trái/phải giữ rộng min(384px,100%)', async () => {
+  for (const side of ['top', 'bottom', 'left'] as const) {
+    const { unmount } = render(
+      <DsRoot>
+        <Sheet defaultOpen>
+          <SheetContent side={side}>
+            <SheetHeader>
+              <SheetTitle>Cạnh {side}</SheetTitle>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+      </DsRoot>,
+    )
+    const hop = await screen.findByRole('dialog')
+    const c = hop.className.split(/\s+/)
+    expect(hop.getAttribute('data-side')).toBe(side)
+    if (side === 'left') expect(c).toEqual(expect.arrayContaining(['inset-y-0', 'left-0', 'w-[min(384px,100%)]']))
+    else expect(c).toEqual(expect.arrayContaining(['inset-x-0', `${side}-0`, 'max-h-dvh']))
+    unmount()
   }
 })
 
@@ -163,7 +217,7 @@ test('SheetClose trong footer đóng sheet', async () => {
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
 })
 
-test('form bọc THÂN + con có điều kiện trước header: một ✕ duy nhất ở cuối header; data-autofocus thắng ✕; nút form= trong footer gửi form', async () => {
+test('form bọc THÂN + con có điều kiện trước header: một ✕ duy nhất ở cuối panel; data-autofocus thắng ✕; nút form= trong footer gửi form', async () => {
   const user = userEvent.setup()
   const onSubmit = vi.fn((e: { preventDefault(): void }) => e.preventDefault())
   const an = false
@@ -196,7 +250,7 @@ test('form bọc THÂN + con có điều kiện trước header: một ✕ duy n
   const hop = await screen.findByRole('dialog')
   const dongs = screen.getAllByRole('button', { name: 'Đóng' })
   expect(dongs).toHaveLength(1)
-  expect(hop.querySelector('[data-slot="sheet-header"]')!.lastElementChild).toBe(dongs[0])
+  expect(hop.lastElementChild).toBe(dongs[0])
   await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Mã đơn' })))
   await user.click(screen.getByRole('button', { name: 'Áp dụng' }))
   expect(onSubmit).toHaveBeenCalledTimes(1)

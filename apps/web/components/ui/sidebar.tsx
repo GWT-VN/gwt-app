@@ -122,7 +122,7 @@ export function KhungApp({
     <div data-slot="khung-app" className={s.khung}>
       {moMenu ? (
         <Sheet open onOpenChange={setMoMenu}>
-          <SheetContent side="left" aria-describedby={undefined} className={s.nganKeo}>
+          <SheetContent side="left" showCloseButton={false} aria-describedby={undefined} className={s.nganKeo}>
             <SheetTitle className="sr-only">Menu {k?.ten}</SheetTitle>
             {trai(true)}
           </SheetContent>

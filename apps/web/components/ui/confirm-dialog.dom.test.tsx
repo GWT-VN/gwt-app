@@ -230,9 +230,23 @@ test('hauQua → ul.ui-dialog-list (mục li), icon tròn aria-hidden data-color
     'Phiếu biến mất khỏi báo cáo.',
     'Số dư quỹ tăng lại.',
   ])
-  const icon = hop.querySelector('[data-slot="confirm-dialog-icon"]')!
+  // Icon = AlertDialogMedia (shadcn) trong AlertDialogHeader, trước tiêu đề.
+  const icon = hop.querySelector('[data-slot="alert-dialog-media"]')!
   expect(icon.getAttribute('aria-hidden')).toBe('true')
   expect(icon.getAttribute('data-color')).toBe('danger')
+  const dau = hop.querySelector('[data-slot="alert-dialog-header"]')!
+  expect(dau.firstElementChild).toBe(icon)
+  expect(dau.contains(screen.getByRole('heading', { name: 'Xoá phiếu chi PC-DEMO-0001?' }))).toBe(true)
+})
+
+test('Huỷ = AlertDialogCancel (shadcn, Button outline) — không asChild; nút xác nhận KHÔNG phải AlertDialogAction', async () => {
+  const { hop } = await mo()
+  const f = hop.querySelector('[data-slot="alert-dialog-footer"]')!
+  const [huy, xn] = [...f.children] as HTMLElement[]
+  expect(huy.getAttribute('data-slot')).toBe('alert-dialog-cancel')
+  expect(huy.getAttribute('data-variant')).toBe('outline')
+  expect(xn.getAttribute('data-slot')).toBe('button')
+  expect(hop.querySelector('[data-slot="alert-dialog-action"]')).toBeNull()
 })
 
 test('footer ≤640: selector "nút rộng hết" của dialog-styles khớp CẢ HAI nút (kể cả Huỷ bọc AlertDialogCancel asChild)', async () => {

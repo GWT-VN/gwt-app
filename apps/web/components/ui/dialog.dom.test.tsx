@@ -11,6 +11,9 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
 } from './dialog'
@@ -104,7 +107,7 @@ test('tiêu đề chừa lề phải cho ✕ (CEO chốt 20/11): pr-9 = 36px —
   expect(chuaNutDong).toBe('[&_[data-slot=dialog-title]]:pr-9')
 })
 
-test('có ✕ → khung mang chuaNutDong và selector của nó trúng ĐÚNG tiêu đề; showClose={false} → không mang', async () => {
+test('có ✕ → khung mang chuaNutDong và selector của nó trúng ĐÚNG tiêu đề; showCloseButton={false} → không mang', async () => {
   const user = userEvent.setup()
   const { unmount } = render(<Mau />)
   await user.click(trigger())
@@ -119,7 +122,7 @@ test('có ✕ → khung mang chuaNutDong và selector của nó trúng ĐÚNG ti
   render(
     <DsRoot>
       <Dialog defaultOpen>
-        <DialogContent showClose={false}>
+        <DialogContent showCloseButton={false}>
           <DialogTitle>Tiêu đề</DialogTitle>
         </DialogContent>
       </Dialog>
@@ -155,12 +158,12 @@ test('Tab / Shift+Tab không rời dialog (vòng trong hộp)', async () => {
   }
 })
 
-test('showClose={false} → không có nút ✕', async () => {
+test('showCloseButton={false} → không có nút ✕', async () => {
   const user = userEvent.setup()
   render(
     <DsRoot>
       <Dialog defaultOpen>
-        <DialogContent showClose={false}>
+        <DialogContent showCloseButton={false}>
           <DialogTitle>Tiêu đề</DialogTitle>
           <DialogDescription>Mô tả</DialogDescription>
         </DialogContent>
@@ -199,6 +202,64 @@ test('thang z (ds/NGUON.md): overlay + khung Dialog đều z-70 — dưới tool
   const hop = await screen.findByRole('dialog')
   expect(hop.className).toMatch(/(^| )z-70( |$)/)
   expect(document.querySelector('[data-slot="dialog-overlay"]')!.className).toMatch(/(^| )z-70( |$)/)
+})
+
+test('khung shadcn: đủ export; DialogHeader bọc tiêu đề/mô tả không đổi lớp đo; ✕ mang data-slot dialog-close, nằm cuối hộp', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>Mở</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tiêu đề</DialogTitle>
+            <DialogDescription>Mô tả</DialogDescription>
+          </DialogHeader>
+          <DialogFooter showCloseButton />
+        </DialogContent>
+      </Dialog>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  const hop = await screen.findByRole('dialog')
+  const dau = hop.querySelector('[data-slot="dialog-header"]')!
+  expect(dau.className.split(/\s+/).sort()).toEqual(['border-current', 'border-none'])
+  expect(document.getElementById(hop.getAttribute('aria-describedby')!)?.textContent).toBe('Mô tả')
+  const x = hop.lastElementChild as HTMLElement
+  expect(x.getAttribute('aria-label')).toBe('Đóng')
+  expect(x.getAttribute('data-slot')).toBe('dialog-close')
+  // DialogFooter showCloseButton (shadcn): nút outline "Đóng" cuối footer, đóng hộp.
+  const nutFooter = hop.querySelector('[data-slot="dialog-footer"]')!.lastElementChild as HTMLElement
+  expect(nutFooter.textContent).toBe('Đóng')
+  expect(nutFooter.getAttribute('data-variant')).toBe('outline')
+  await user.click(nutFooter)
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+})
+
+test('DialogPortal + DialogOverlay (shadcn export): dựng tay vẫn vào ô portal DS; chưa có DsRoot → không render', async () => {
+  const { unmount } = render(
+    <DsRoot>
+      <Dialog defaultOpen>
+        <DialogPortal>
+          <DialogOverlay data-testid="phu" />
+        </DialogPortal>
+      </Dialog>
+    </DsRoot>,
+  )
+  const phu = await screen.findByTestId('phu')
+  expect(phu.closest('[data-ds-portal]')).not.toBeNull()
+  expect(phu.className).toContain('z-70')
+  unmount()
+  render(
+    <Dialog defaultOpen>
+      <DialogContent>
+        <DialogTitle>Ngoài vùng</DialogTitle>
+      </DialogContent>
+    </Dialog>,
+  )
+  expect(screen.queryByRole('dialog')).toBeNull()
 })
 
 test('data-autofocus trên nút trong hộp thắng focus mặc định (ô nhập đầu)', async () => {
