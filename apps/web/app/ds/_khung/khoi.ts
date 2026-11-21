@@ -42,13 +42,16 @@ import { KHOI_SC_2 } from './dk-sc-2'
 import { KHOI_SC_3 } from './dk-sc-3'
 import { KHOI_SC_4 } from './dk-sc-4'
 import { KHOI_SC_5 } from './dk-sc-5'
+import { KHOI_SC_6 } from './dk-sc-6'
+import { KHOI_SC_7 } from './dk-sc-7'
+import { KHOI_SC_8 } from './dk-sc-8'
 import type { NhomMuc } from './trang'
 
 /** Khối lát 4–6: mỗi task một file `dk-t<N>.ts` (nhiều agent sửa song song không đụng nhau). */
 const MOI: Record<string, ComponentType> = {
   ...KHOI_T1, ...KHOI_T2, ...KHOI_T3, ...KHOI_T4, ...KHOI_T5, ...KHOI_T6, ...KHOI_T7, ...KHOI_T8, ...KHOI_T9, ...KHOI_T10, ...KHOI_T11, ...KHOI_T12, ...KHOI_T13,
   ...KHOI_L7_3, ...KHOI_L7_4,
-  ...KHOI_SC_1, ...KHOI_SC_2, ...KHOI_SC_3, ...KHOI_SC_4, ...KHOI_SC_5,
+  ...KHOI_SC_1, ...KHOI_SC_2, ...KHOI_SC_3, ...KHOI_SC_4, ...KHOI_SC_5, ...KHOI_SC_6, ...KHOI_SC_7, ...KHOI_SC_8,
 }
 const m = (ten: string) => k(ten, MOI[ten])
 
@@ -96,6 +99,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
       k('Select', KhoiSelect),
       m('NativeSelect'),
       k('Combobox', KhoiCombobox),
+      m('Calendar'),
       k('DatePicker', KhoiDatePicker),
       m('DateTimePicker'),
       m('InputOTP'),
@@ -104,7 +108,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
       k('FormLayout', KhoiFormLayout),
     ],
   },
-  { ten: 'Điều hướng', lat: 4, khoi: ['Tabs', 'Sidebar'].map(m) },
+  { ten: 'Điều hướng', lat: 4, khoi: ['Tabs', 'Toggle', 'NavigationMenu', 'Sidebar'].map(m) },
   {
     ten: 'Data view',
     lat: 4,
@@ -112,9 +116,10 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   },
   { ten: 'Trang chi tiết', lat: 5, khoi: ['Breadcrumb', 'PageHeader', 'PropertyList', 'Timeline', 'Composer', 'Attachment', 'DetailLayout'].map(m) },
   { ten: 'Phản hồi', lat: 5, khoi: ['EmptyState', 'Skeleton', 'Progress', 'Banner', 'Toast'].map(m) },
-  { ten: 'Toàn app', lat: 6, khoi: ['CommandPalette', 'StatCard'].map(m) },
+  { ten: 'Toàn app', lat: 6, khoi: ['Command', 'CommandPalette', 'StatCard'].map(m) },
   { ten: 'Thông báo', lat: 6, khoi: ['Count', 'NotificationCenter', 'NotificationMatrix'].map(m) },
-  { ten: 'Bố cục', lat: 8, khoi: ['Accordion', 'Collapsible', 'ScrollArea', 'AspectRatio'].map(m) },
+  { ten: 'Bố cục', lat: 8, khoi: ['Accordion', 'Collapsible', 'ScrollArea', 'AspectRatio', 'Resizable'].map(m) },
+  { ten: 'Biểu đồ & chat', lat: 8, khoi: ['Chart', 'Carousel', 'Message', 'Bubble', 'Marker'].map(m) },
   { ten: 'Mẫu ghép', lat: 7, khoi: ['MenuThuocTinh'].map(m) },
 ]
 export const KHOI = NHOM.flatMap((n) => n.khoi)

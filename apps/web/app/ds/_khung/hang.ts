@@ -24,6 +24,9 @@ import { HANG_SC_2 } from './dk-sc-2'
 import { HANG_SC_3 } from './dk-sc-3'
 import { HANG_SC_4 } from './dk-sc-4'
 import { HANG_SC_5 } from './dk-sc-5'
+import { HANG_SC_6 } from './dk-sc-6'
+import { HANG_SC_7 } from './dk-sc-7'
+import { HANG_SC_8 } from './dk-sc-8'
 
 /**
  * neo → bản hàng biến thể của khối (KhoiHang/BienThe trong `tam.tsx`). Có thì /ds dùng; không thì /ds dùng khối cũ.
@@ -31,5 +34,5 @@ import { HANG_SC_5 } from './dk-sc-5'
  */
 export const HANG: Record<string, ComponentType> = { ...HANG_NEN, ...HANG_OVERLAY, ...HANG_FORM_A, ...HANG_FORM_B, ...HANG_CARD,
   ...HANG_T1, ...HANG_T2, ...HANG_T3, ...HANG_T4, ...HANG_T5, ...HANG_T6, ...HANG_T7, ...HANG_T8, ...HANG_T9, ...HANG_T10, ...HANG_T11, ...HANG_T12, ...HANG_T13, ...HANG_L7_3, ...HANG_L7_4,
-  ...HANG_SC_1, ...HANG_SC_2, ...HANG_SC_3, ...HANG_SC_4, ...HANG_SC_5,
+  ...HANG_SC_1, ...HANG_SC_2, ...HANG_SC_3, ...HANG_SC_4, ...HANG_SC_5, ...HANG_SC_6, ...HANG_SC_7, ...HANG_SC_8,
 }
