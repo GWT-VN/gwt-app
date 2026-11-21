@@ -22,7 +22,7 @@ import { SavedView } from './saved-view'
 import { Tabs, TabsList, TabsTrigger } from './tabs'
 import { thongBao } from './toast'
 import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 import { XemNhanh } from './xem-nhanh'
 
 afterEach(() => vi.restoreAllMocks())
@@ -358,9 +358,9 @@ test('XemNhanh nhường Esc cho lớp trên: tooltip đang hiện → Esc đón
     <DsRoot>
       <XemNhanh the={{ ma: 'T-101' }} onDong={onDong}>
         <input aria-label="Ô gõ" />
-        <Tooltip content="Mô tả nút">
+        <TooltipNhanh content="Mô tả nút">
           <Button variant="ghost">Nút có tooltip</Button>
-        </Tooltip>
+        </TooltipNhanh>
       </XemNhanh>
     </DsRoot>,
   )

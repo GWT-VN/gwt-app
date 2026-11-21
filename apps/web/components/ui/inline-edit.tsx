@@ -606,7 +606,7 @@ export function OSuaNguoi({
          
           className={cn(
             menuContent,
-            'min-w-[240px] max-w-[calc(100vw-16px)] max-h-(--radix-popover-content-available-height)',
+            'w-auto min-w-[240px] max-w-[calc(100vw-16px)] max-h-(--radix-popover-content-available-height)',
           )}
         >
           <ComboboxPanel

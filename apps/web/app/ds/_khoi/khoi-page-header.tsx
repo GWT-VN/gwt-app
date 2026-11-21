@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { PageHeader, type ChuyenBanGhi } from '@/components/ui/page-header'
-import { Tooltip } from '@/components/ui/tooltip'
+import { TooltipNhanh } from '@/components/ui/tooltip'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /* Demo dùng chung cho `KhoiPageHeader` (/ds/tron) và `KhoiPageHeaderHang` (/ds) — dữ liệu demo, tên công ty giả. */
@@ -56,13 +56,13 @@ const HANH_DONG = (
       </DropdownMenuContent>
     </DropdownMenu>
     <DropdownMenu>
-      <Tooltip content="Sao chép link, gộp, huỷ">
+      <TooltipNhanh content="Sao chép link, gộp, huỷ">
         <DropdownMenuTrigger asChild>
           <Button data-so="khac" variant="ghost" size="icon" aria-label="Thao tác khác">
             <DotsThree weight="bold" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
-      </Tooltip>
+      </TooltipNhanh>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
           <Copy aria-hidden="true" />

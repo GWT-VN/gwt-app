@@ -128,7 +128,7 @@ export function Combobox({
         aria-label={trig['aria-labelledby'] ? undefined : (trig['aria-label'] ?? 'Danh sách chọn')}
         className={cn(
           menuContent,
-          'min-w-[max(200px,var(--radix-popover-trigger-width))] max-w-[calc(100vw-16px)]',
+          'w-auto min-w-[max(200px,var(--radix-popover-trigger-width))] max-w-[calc(100vw-16px)]',
           'max-h-(--radix-popover-content-available-height)',
         )}
       >

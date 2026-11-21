@@ -9,7 +9,7 @@ import { Button } from './button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuShortcut, DropdownMenuTrigger } from './dropdown-menu'
 import { Sheet, SheetClose, SheetContent, SheetTitle } from './sheet'
 import * as s from './sidebar-styles'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh as Tooltip } from './tooltip'
 
 /** Một khu (module) trên thanh icon. `gap` = có việc gấp (chấm đỏ). `sapCo` = chưa mở: chỉ hiện trong "Tất cả khu". */
 export type Khu = { id: string; ten: string; icon: Icon; mau: string; gap?: boolean; sapCo?: boolean }

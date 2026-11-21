@@ -6,7 +6,7 @@ import { CauHinhBang, useCauHinh, type BieuTuong, type NghiaChieu, type PropsGoi
 import type { GiaoDienBang } from '@/bang/giaoDien'
 import { GIAO_DIEN_DS } from './bang-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 
 
 /** Radix Select cấm mục giá trị '' → mục "Tất cả" mang khoá riêng, đổi về '' khi báo ra. */
@@ -37,7 +37,7 @@ function OChonDs({ value, onValueChange, muc, nhanTatCa, 'aria-label': ten }: Pr
 }
 
 function GoiYDs({ noiDung, children }: PropsGoiY) {
-  return <Tooltip content={noiDung}>{children}</Tooltip>
+  return <TooltipNhanh content={noiDung}>{children}</TooltipNhanh>
 }
 
 // Chip ×: X bold (preview FilterBar); ✕ của thanh hàng loạt: X regular (preview BulkActionBar).

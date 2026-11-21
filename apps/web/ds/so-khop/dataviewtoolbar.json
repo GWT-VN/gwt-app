@@ -163,7 +163,7 @@
     {
       "khoa": "xemNhanh",
       "artifact": ".ds-tinh > .ds-muc:nth-child(1) .b-cong-cu > [aria-pressed]",
-      "ds": "#data-view-toolbar [data-so=\"muc-day\"] [data-slot=\"toggle\"]",
+      "ds": "#data-view-toolbar [data-so=\"muc-day\"] button[aria-label=\"Thẻ xem nhanh bên phải\"]",
       "boChu": true,
       "con": [
         {

@@ -5,7 +5,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { Button } from './button'
 import { DsRoot } from './ds-root'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
-import { Tooltip } from './tooltip'
+import { Tooltip, TooltipContent, TooltipNhanh, TooltipProvider, TooltipTrigger } from './tooltip'
 
 /**
  * Đồng hồ giả cho test chạm ngưỡng 300ms (đồng hồ thật trên máy chậm/CI dễ lệch ngưỡng). `delay: null`: user-event không
@@ -27,11 +27,11 @@ afterEach(() => vi.useRealTimers())
 function Mau({ expanded }: { expanded?: boolean }) {
   return (
     <DsRoot theme="dark">
-      <Tooltip content="Cài đặt hiển thị">
+      <TooltipNhanh content="Cài đặt hiển thị">
         <Button variant="ghost" size="icon" aria-label="Cài đặt" aria-expanded={expanded}>
           ⚙
         </Button>
-      </Tooltip>
+      </TooltipNhanh>
     </DsRoot>
   )
 }
@@ -112,13 +112,13 @@ test('ghép thật với DropdownMenuTrigger: focus phím hiện tooltip; mở m
   render(
     <DsRoot>
       <DropdownMenu>
-        <Tooltip content="Mở thao tác cho đơn">
+        <TooltipNhanh content="Mở thao tác cho đơn">
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" aria-label="Thao tác">
               ⋯
             </Button>
           </DropdownMenuTrigger>
-        </Tooltip>
+        </TooltipNhanh>
         <DropdownMenuContent>
           <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
         </DropdownMenuContent>
@@ -130,4 +130,31 @@ test('ghép thật với DropdownMenuTrigger: focus phím hiện tooltip; mở m
   await user.keyboard('{Enter}')
   await screen.findByRole('menu')
   await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
+})
+
+test('khung shadcn 4 phần (Provider + Root + Trigger + Content): Tab tới nút → tooltip trong vùng DS, đúng data-slot, side bottom', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="sm">
+              Xuất Excel
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Xuất theo bộ lọc đang chọn</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </DsRoot>,
+  )
+  await user.tab()
+  const nut = screen.getByRole('button', { name: 'Xuất Excel' })
+  expect(nut.getAttribute('data-slot')).toBe('tooltip-trigger')
+  const tip = await screen.findByRole('tooltip')
+  expect(tip.textContent).toBe('Xuất theo bộ lọc đang chọn')
+  const noi = document.querySelector('[data-slot="tooltip-content"]')
+  expect(noi?.closest('[data-ds-portal]')).not.toBeNull()
+  expect(noi?.getAttribute('data-side')).toBe('bottom')
+  expect(noi?.className).toContain('z-80')
 })

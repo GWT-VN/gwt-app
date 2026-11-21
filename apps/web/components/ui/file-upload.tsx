@@ -5,7 +5,7 @@ import { FileText, Image as ImageIcon, UploadSimple, X } from '@phosphor-icons/r
 import { kichThuocDoc, kiemTep } from '@/lib/tep'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 import { laLoi, type AriaInvalid } from './use-trigger-chon'
 
 export { kichThuocDoc, kiemTep }
@@ -200,11 +200,11 @@ export function FileItem({
   const co = kichThuocDoc(kichThuoc)
   const phu = trangThai === 'loi' ? loi : trangThai === 'dang-tai' ? `${co} · đang tải ${tienDo}%` : `${co} · đã tải lên`
   const nutBo = (
-    <Tooltip content="Bỏ tệp">
+    <TooltipNhanh content="Bỏ tệp">
       <Button variant="ghost" size="icon-sm" aria-label={`Bỏ ${ten}`} onClick={onBo}>
         <X aria-hidden="true" />
       </Button>
-    </Tooltip>
+    </TooltipNhanh>
   )
   return (
     <li

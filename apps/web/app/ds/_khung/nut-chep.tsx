@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Check, Copy } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
-import { Tooltip } from '@/components/ui/tooltip'
+import { TooltipNhanh } from '@/components/ui/tooltip'
 
 /**
  * Nút chép tên biến (vd `--primary`) vào clipboard. Tooltip là mô tả thêm, không lặp aria-label (luật NGUON.md).
@@ -31,11 +31,11 @@ export function NutChep({ bien }: { bien: string }) {
   }
   return (
     <>
-      <Tooltip content={ketQua || 'Vào clipboard'}>
+      <TooltipNhanh content={ketQua || 'Vào clipboard'}>
         <Button variant="ghost" size="icon-sm" aria-label={`Chép ${bien}`} onClick={chep}>
           {ketQua.startsWith('Đã') ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
         </Button>
-      </Tooltip>
+      </TooltipNhanh>
       <span className="sr-only" aria-live="polite">
         {ketQua}
       </span>

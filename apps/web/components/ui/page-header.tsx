@@ -12,7 +12,7 @@ import {
   pageHeaderTop,
   pageHeaderViTri,
 } from './detail-styles'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 
 /** Chuyển bản ghi ‹ › theo thứ tự danh sách vừa mở (giữ lọc/sắp xếp) — màn giữ danh sách, PageHeader chỉ vẽ. */
 export type ChuyenBanGhi = {
@@ -62,7 +62,7 @@ export function PageHeader({
                   {chuyen.loai} thứ {chuyen.viTri} trong {chuyen.tong}
                 </span>
               </span>
-              <Tooltip content={`Mở ${chuyen.loai.toLocaleLowerCase('vi')} trước trong danh sách`}>
+              <TooltipNhanh content={`Mở ${chuyen.loai.toLocaleLowerCase('vi')} trước trong danh sách`}>
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -72,8 +72,8 @@ export function PageHeader({
                 >
                   <CaretLeft aria-hidden="true" />
                 </Button>
-              </Tooltip>
-              <Tooltip content={`Mở ${chuyen.loai.toLocaleLowerCase('vi')} sau trong danh sách`}>
+              </TooltipNhanh>
+              <TooltipNhanh content={`Mở ${chuyen.loai.toLocaleLowerCase('vi')} sau trong danh sách`}>
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -83,7 +83,7 @@ export function PageHeader({
                 >
                   <CaretRight aria-hidden="true" />
                 </Button>
-              </Tooltip>
+              </TooltipNhanh>
             </div>
           )}
         </div>

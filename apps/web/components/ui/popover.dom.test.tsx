@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test } from 'vitest'
 import { Button } from './button'
 import { DsRoot } from './ds-root'
-import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from './popover'
 
 function Mau() {
   return (
@@ -55,4 +55,30 @@ test('ngoài DsRoot (chưa có ô portal) → không render nội dung ra docume
   )
   await user.click(screen.getByRole('button', { name: 'Mở' }))
   expect(screen.queryByRole('dialog')).toBeNull()
+})
+
+test('khung shadcn: PopoverHeader/Title/Description đúng data-slot; mặt mặc định w-72 p-4, className người gọi đè phần trùng', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <Popover>
+        <PopoverTrigger>Mở</PopoverTrigger>
+        <PopoverContent aria-labelledby="tieu-de" className="w-auto">
+          <PopoverHeader>
+            <PopoverTitle id="tieu-de">Kích thước</PopoverTitle>
+            <PopoverDescription>Đặt kích thước cho lớp.</PopoverDescription>
+          </PopoverHeader>
+        </PopoverContent>
+      </Popover>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Mở' }))
+  const pop = await screen.findByRole('dialog', { name: 'Kích thước' })
+  expect(pop.getAttribute('data-slot')).toBe('popover-content')
+  expect(pop.className.split(' ')).toContain('w-auto')
+  expect(pop.className.split(' ')).not.toContain('w-72')
+  expect(pop.className.split(' ')).toContain('p-4')
+  expect(pop.querySelector('[data-slot="popover-header"]')).not.toBeNull()
+  expect(pop.querySelector('[data-slot="popover-title"]')?.textContent).toBe('Kích thước')
+  expect(pop.querySelector('[data-slot="popover-description"]')?.tagName).toBe('P')
 })

@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { chip, chipX, composer, composerBar, composerFiles, composerHint, composerInput, composerSend } from './detail-styles'
 import { FieldError } from './field'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 
 /** Trình duyệt chưa có `field-sizing: content` (Firefox) → tự đặt cao theo nội dung; trần 240 vẫn do CSS chặn. */
 const tuCao = (el: HTMLTextAreaElement | null) => {
@@ -132,7 +132,7 @@ export function Composer({
         <div className={composerBar}>
           {choTep && (
             <>
-              <Tooltip content="Chọn tệp từ máy">
+              <TooltipNhanh content="Chọn tệp từ máy">
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -142,7 +142,7 @@ export function Composer({
                 >
                   <Paperclip aria-hidden="true" />
                 </Button>
-              </Tooltip>
+              </TooltipNhanh>
               <input
                 ref={chonTep}
                 type="file"
@@ -158,7 +158,7 @@ export function Composer({
             </>
           )}
           <span className={composerHint}>Ctrl + Enter để gửi</span>
-          <Tooltip content={loi ? 'Gửi lại nội dung đang giữ' : 'Ctrl + Enter'}>
+          <TooltipNhanh content={loi ? 'Gửi lại nội dung đang giữ' : 'Ctrl + Enter'}>
             <Button
               size="icon-sm"
               aria-label={loi ? 'Gửi lại' : 'Gửi'}
@@ -169,7 +169,7 @@ export function Composer({
             >
               <ArrowUp weight="bold" aria-hidden="true" />
             </Button>
-          </Tooltip>
+          </TooltipNhanh>
         </div>
       </div>
       {/* Vùng live luôn có sẵn (rỗng = cao 0) để câu lỗi đến sau được đọc; cách khung 6 như `.ui-field`. */}

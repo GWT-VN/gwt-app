@@ -1,22 +1,22 @@
 import { ClockCounterClockwise, Gear } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
-import { Tooltip } from '@/components/ui/tooltip'
+import { TooltipNhanh } from '@/components/ui/tooltip'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /* Demo dùng chung cho `KhoiTooltip` (/ds/tron) và `KhoiTooltipHang` (/ds). */
 const ICON = (
-  <Tooltip content="Cài đặt hiển thị">
+  <TooltipNhanh content="Cài đặt hiển thị">
     <Button data-so="icon" variant="ghost" size="icon" aria-label="Cài đặt">
       <Gear aria-hidden="true" />
     </Button>
-  </Tooltip>
+  </TooltipNhanh>
 )
 const EXCEL = (
-  <Tooltip content="Xuất theo bộ lọc đang chọn">
+  <TooltipNhanh content="Xuất theo bộ lọc đang chọn">
     <Button data-so="excel" variant="outline" size="sm">
       Xuất Excel
     </Button>
-  </Tooltip>
+  </TooltipNhanh>
 )
 
 /**
@@ -51,11 +51,11 @@ export function KhoiTooltipHang() {
         {EXCEL}
       </BienThe>
       <BienThe ten='side="right"' moTa="Mặc định hiện bên dưới; cho hiện bên phải khi phía dưới chật (thanh bên).">
-        <Tooltip side="right" content="Xem các lần sửa đơn">
+        <TooltipNhanh side="right" content="Xem các lần sửa đơn">
           <Button variant="ghost" size="icon" aria-label="Lịch sử">
             <ClockCounterClockwise aria-hidden="true" />
           </Button>
-        </Tooltip>
+        </TooltipNhanh>
       </BienThe>
     </KhoiHang>
   )

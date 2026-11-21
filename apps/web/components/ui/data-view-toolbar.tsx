@@ -52,7 +52,7 @@ import {
 import { menuLabel, menuSeparator } from './menu-styles'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
 import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
-import { Tooltip } from './tooltip'
+import { TooltipNhanh } from './tooltip'
 import type { CotBang } from './use-cot-bang'
 
 export { DANG_XEM, type DangXem }
@@ -93,17 +93,17 @@ export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat }: P
         {DANG_XEM.map(({ id, ten, tip }) => {
           const I = ICON_XEM[id]
           return (
-            <Tooltip key={id} content={tip}>
+            <TooltipNhanh key={id} content={tip}>
               <ToggleGroupItem value={id} aria-label={ten} className="[&_svg]:size-[18px]">
                 <I aria-hidden="true" />
               </ToggleGroupItem>
-            </Tooltip>
+            </TooltipNhanh>
           )
         })}
       </ToggleGroup>
       <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />
       {/* Như "Toggle pinned summary" của ChatGPT: tắt thì bấm bản ghi mở trang chi tiết. */}
-      <Tooltip content={xemNhanh ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'}>
+      <TooltipNhanh content={xemNhanh ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'}>
         <Toggle
           pressed={xemNhanh}
           onPressedChange={onXemNhanh}
@@ -112,7 +112,7 @@ export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat }: P
         >
           <SidebarSimple mirrored aria-hidden="true" />
         </Toggle>
-      </Tooltip>
+      </TooltipNhanh>
     </div>
   )
 }
@@ -317,13 +317,13 @@ export function CaiDatHienThi({
 
   return (
     <Popover open={mo} onOpenChange={doiMo}>
-      <Tooltip content="Cột, lọc, sắp xếp, nhóm">
+      <TooltipNhanh content="Cột, lọc, sắp xếp, nhóm">
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Cài đặt hiển thị" className="[&_svg]:size-[18px]">
             <GearSix aria-hidden="true" />
           </Button>
         </PopoverTrigger>
-      </Tooltip>
+      </TooltipNhanh>
       {nho && (
         <PopoverAnchor asChild>
           <span aria-hidden="true" className={cdNeoDay} />
