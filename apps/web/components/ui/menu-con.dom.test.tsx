@@ -17,6 +17,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
+  MenuTimKiem as ContextMenuTimKiem,
 } from './context-menu'
 import { DsRoot } from './ds-root'
 import {
@@ -267,4 +268,59 @@ test('ContextMenu đủ bộ: Group, Sub (→ mở, ✓ ở giá trị), Checkbo
   expect([...screen.getByRole('menuitem', { name: /^Đặt hạn/ }).querySelectorAll('kbd')].map((k) => k.textContent)).toEqual(['⇧', 'D'])
   fireEvent.click(loi)
   expect(onNhan).toHaveBeenCalledWith(true)
+})
+
+/** Từ Đợt 1 chép shadcn mỗi họ là file riêng (bỏ taoPhanMenu) → phần GWT thêm của ContextMenu thử riêng, không dựa bản Dropdown. */
+function MauCmTim({ onNguoi = () => {} }: { onNguoi?: (v: string) => void }) {
+  const [q, setQ] = useState('')
+  const ds = NGUOI.filter((n) => n.toLowerCase().includes(q.toLowerCase()))
+  return (
+    <DsRoot>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div tabIndex={0} data-testid="dong-tim">
+            TK-DEMO-040
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent aria-label="Thao tác TK-DEMO-040">
+          <ContextMenuSub>
+            <ContextMenuSubTrigger phim={['A']}>Người làm</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuTimKiem value={q} onValueChange={setQ} placeholder="Tìm người…" />
+              <ContextMenuRadioGroup value="Lan" onValueChange={onNguoi}>
+                {ds.map((n) => (
+                  <ContextMenuRadioItem key={n} value={n} disabled={n === 'Quân'}>
+                    {n === 'Quân' ? 'Quân (không có quyền)' : n}
+                  </ContextMenuRadioItem>
+                ))}
+              </ContextMenuRadioGroup>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+    </DsRoot>
+  )
+}
+
+test('ContextMenu: MenuTimKiem trong menu con (focus ô, lọc, Enter khi còn 1) + RadioItem chặn quyền theo APG', async () => {
+  const onNguoi = vi.fn()
+  const user = userEvent.setup()
+  render(<MauCmTim onNguoi={onNguoi} />)
+  screen.getByTestId('dong-tim').focus()
+  await user.keyboard('{Shift>}{F10}{/Shift}')
+  const t = await screen.findByRole('menuitem', { name: /^Người làm/ })
+  await waitFor(() => expect(document.activeElement).toBe(t))
+  await user.keyboard('{ArrowRight}')
+  const o = await screen.findByRole('textbox', { name: 'Tìm người…' })
+  await waitFor(() => expect(document.activeElement).toBe(o))
+  const quan = screen.getByRole('menuitemradio', { name: 'Quân (không có quyền)' })
+  expect(quan.getAttribute('aria-disabled')).toBe('true')
+  expect(screen.getByRole('menuitemradio', { name: 'Lan' }).getAttribute('aria-checked')).toBe('true')
+  await user.keyboard('qu{Enter}')
+  // Còn đúng 1 mục nhưng là mục chặn quyền → không chọn, menu vẫn mở.
+  expect(onNguoi).not.toHaveBeenCalled()
+  expect(screen.getByRole('textbox', { name: 'Tìm người…' })).toBeTruthy()
+  await user.clear(o)
+  await user.keyboard('mi{Enter}')
+  expect(onNguoi).toHaveBeenCalledWith('Minh')
 })

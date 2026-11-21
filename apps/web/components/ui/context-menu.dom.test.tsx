@@ -6,9 +6,14 @@ import { DsRoot } from './ds-root'
 import {
   ContextMenu,
   ContextMenuContent,
+  ContextMenuGroup,
   ContextMenuItem,
   ContextMenuLabel,
+  ContextMenuPortal,
   ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from './context-menu'
 
@@ -244,4 +249,46 @@ test('menu dài: cuộn BÊN TRONG khung menu (role=menu) → menu vẫn mở; k
   fireEvent.scroll(menu)
   await new Promise((r) => setTimeout(r, 30))
   expect(screen.queryByRole('menu')).toBe(menu)
+})
+
+/** Khung shadcn new-york-v4 (Đợt 1 chép shadcn): đủ phần, đúng data-slot, prop inset, Portal vào ô DsRoot. */
+test('khung shadcn: data-slot từng phần; inset → data-inset + thụt 30; ContextMenuPortal vào ô DsRoot', async () => {
+  render(
+    <DsRoot>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div data-testid="dong-khung">Dòng</div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuLabel inset>Nhóm</ContextMenuLabel>
+          <ContextMenuGroup>
+            <ContextMenuItem inset>Có thụt</ContextMenuItem>
+            <ContextMenuItem>Không thụt</ContextMenuItem>
+          </ContextMenuGroup>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger inset>Thêm</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuItem>Con</ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+          <ContextMenuPortal>
+            <div data-testid="trong-portal" />
+          </ContextMenuPortal>
+        </ContextMenuContent>
+      </ContextMenu>
+    </DsRoot>,
+  )
+  fireEvent.contextMenu(screen.getByTestId('dong-khung'))
+  const menu = await screen.findByRole('menu')
+  expect(menu.getAttribute('data-slot')).toBe('context-menu-content')
+  expect(screen.getByTestId('trong-portal').closest('[data-ds-portal]')).not.toBeNull()
+  expect(menu.querySelector('[data-slot="context-menu-group"]')).not.toBeNull()
+  const nhan = menu.querySelector('[data-slot="context-menu-label"]')!
+  const sub = screen.getByRole('menuitem', { name: 'Thêm' })
+  for (const el of [nhan, screen.getByRole('menuitem', { name: 'Có thụt' }), sub]) {
+    expect(el.getAttribute('data-inset')).toBe('true')
+    expect(el.className).toContain('data-inset:pl-7.5')
+  }
+  expect(screen.getByRole('menuitem', { name: 'Không thụt' }).hasAttribute('data-inset')).toBe(false)
+  expect(sub.getAttribute('data-slot')).toBe('context-menu-sub-trigger')
 })

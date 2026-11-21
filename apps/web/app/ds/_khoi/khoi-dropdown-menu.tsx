@@ -302,6 +302,13 @@ export function KhoiDropdownMenuHang() {
           {MUC.xoa}
         </MenuDon>
       </BienThe>
+      <BienThe ten="Thụt lề (inset)" moTa="Mục không icon thẳng cột chữ với mục có icon — prop inset của shadcn (Item, Label, SubTrigger)">
+        <MenuDon mau="thụt lề">
+          {MUC.xem}
+          {MUC.sua}
+          <DropdownMenuItem inset>In phiếu giao</DropdownMenuItem>
+        </MenuDon>
+      </BienThe>
       <BienThe ten="Mục có ô tick" moTa="Chọn nhiều (vd cột hiển thị), menu giữ mở khi tick">
         <MenuCot />
       </BienThe>

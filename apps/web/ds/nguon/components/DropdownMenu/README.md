@@ -18,7 +18,7 @@ Bàn phím: ↑/↓, Enter/Space, Esc trả focus về nút mở; gõ chữ cái
 
 ## Menu con · phím tắt · một phần
 
-> Thêm ở repo 20/11, **chưa có trong artifact** — nguồn là prototype menu thuộc tính CEO duyệt (`app/prototype/menu-thuoc-tinh`). DropdownMenu và ContextMenu dùng chung một bộ (`taoPhanMenu` trong `dropdown-menu.tsx`).
+> Thêm ở repo 20/11, **chưa có trong artifact** — nguồn là prototype menu thuộc tính CEO duyệt (`app/prototype/menu-thuoc-tinh`). Mỗi họ menu (DropdownMenu, ContextMenu, Menubar) là file riêng theo khung shadcn new-york-v4; phần không phụ thuộc primitive (ô tìm, nhóm Kbd, tự focus menu con) dùng chung ở `menu-them.tsx` nên hành vi giống hệt.
 
 | Phần | Code | Giá trị |
 | --- | --- | --- |

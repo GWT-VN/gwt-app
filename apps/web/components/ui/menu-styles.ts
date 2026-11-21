@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils'
 
 /**
- * Kiểu menu dùng chung (DropdownMenu, ContextMenu…) — chép từ khối `.ui-menu*` của ds/nguon/bundle.css
- * ("Popover / Menu (OpenAI Menu.module.css)"). Chỉ là chuỗi class: component tự gắn vào primitive Radix của nó.
+ * Kiểu menu dùng chung (DropdownMenu, ContextMenu, Menubar…) — chép từ khối `.ui-menu*` của ds/nguon/bundle.css
+ * ("Popover / Menu (OpenAI Menu.module.css)"). Chỉ là chuỗi class (token ChatGPT thay class gốc của shadcn): mỗi họ menu
+ * (dropdown-menu.tsx, context-menu.tsx, menubar.tsx — khung shadcn new-york-v4) tự gắn vào primitive Radix của nó.
  * `border-none border-current` ở mọi phần: div/span Radix ăn preflight `0 solid var(--border)` của app; artifact là
  * `border: 0` / không viền (cùng cách Tooltip).
  */
@@ -69,6 +70,40 @@ export const MENU_SUB = { alignOffset: -6, sideOffset: 4 } as const
 
 /** Ô tìm ở đầu menu con (MenuTimKiem): lề 2 2 6 — prototype menu thuộc tính. */
 export const menuTimKiem = 'px-0.5 pt-0.5 pb-1.5 border-none border-current'
+
+/**
+ * Prop `inset` của shadcn (Item, Label, SubTrigger → `data-inset`): đẩy chữ thẳng cột chữ của mục có icon. shadcn `pl-8`
+ * = đệm 8 + icon 16 + gap 8; DS: đệm 8 (px-2) + icon 16 + gap 6 (--menu-item-gap) = 30 → `pl-7.5` (--spacing 4).
+ */
+export const menuInset = 'data-inset:pl-7.5'
+
+/**
+ * Menubar (shadcn new-york-v4 — artifact CHƯA có): thanh `h-9 gap-1 p-1 rounded-md border bg-background shadow-xs` gán
+ * token — cao 36 (--control-size-lg), bo 8 (--radius-md), viền 1 `--border`, bóng --shadow-100 (bậc nhỏ nhất ≈ shadow-xs).
+ */
+export const menubar = [
+  'flex h-(--control-size-lg) items-center gap-1 p-1 rounded-(--radius-md)',
+  'border border-solid border-(--border) bg-background [box-shadow:var(--shadow-100)]',
+].join(' ')
+
+/**
+ * Nút của Menubar: shadcn `px-2 py-1 rounded-sm text-sm font-medium`, sáng khi focus / đang mở (`bg-accent`) → đệm 4 8,
+ * bo 6 như mục menu, 14/20 medium, nền --menu-item-bg (cùng nền mục đang trỏ). Thêm: rê chuột cũng sáng (nút bấm được);
+ * vòng focus phím 2px ring lùi vào −2 như mục menu ([outline:none] + focus-visible outline-solid — luật NGUON).
+ */
+export const menubarTrigger = [
+  'flex items-center px-2 py-1 rounded-[6px] border-none border-current bg-transparent',
+  'cursor-pointer select-none [outline:none] text-[14px] leading-[20px] font-medium text-foreground',
+  '[--menu-item-bg:var(--alpha-08)] in-data-[theme=dark]:[--menu-item-bg:var(--alpha-10)]',
+  'hover:bg-(--menu-item-bg) focus:bg-(--menu-item-bg) data-[state=open]:bg-(--menu-item-bg)',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-ring',
+].join(' ')
+
+/**
+ * Vị trí khung menu của Menubar (shadcn): căn đầu, alignOffset −4 = −đệm thanh (khung thẳng mép thanh), sideOffset 8
+ * (= đệm 4 + 4 — cách mép dưới thanh 4 như DropdownMenu cách nút).
+ */
+export const MENUBAR_CONTENT = { align: 'start', alignOffset: -4, sideOffset: 8 } as const
 
 /** `.ui-menu-item[data-variant="destructive"]`: chữ color-text-danger, icon theo màu chữ. Ghép SAU menuItem qua cn(). */
 export const menuItemDestructive = 'text-(--color-text-danger) [&>svg:not([class*=text-])]:text-current'

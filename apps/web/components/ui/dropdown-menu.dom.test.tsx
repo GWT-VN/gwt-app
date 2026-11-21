@@ -9,12 +9,17 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import { menuItem } from './menu-styles'
@@ -269,4 +274,51 @@ test('RadioItem: aria-checked + ✓ ở mục đang chọn; chọn mục khác �
   expect(screen.getByRole('menu')).toBeTruthy()
   await user.click(screen.getByRole('menuitemradio', { name: 'Ít gấp trước' }))
   expect(onDoi).toHaveBeenLastCalledWith('giam')
+})
+
+/** Khung shadcn new-york-v4 (Đợt 1 chép shadcn): đủ phần, đúng data-slot, prop inset, Portal vào ô DsRoot. */
+test('khung shadcn: data-slot từng phần; inset → data-inset + thụt 30 (mục không inset không mang); Portal vào ô DsRoot', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <DropdownMenu>
+        <DropdownMenuTrigger>Mở khung</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel inset>Nhóm</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuItem inset>Có thụt</DropdownMenuItem>
+            <DropdownMenuItem>Không thụt</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger inset>Thêm</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>Con</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu open>
+        <DropdownMenuTrigger>Mở portal</DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <div data-testid="trong-portal" />
+        </DropdownMenuPortal>
+      </DropdownMenu>
+    </DsRoot>,
+  )
+  const p = screen.getByTestId('trong-portal')
+  expect(p.closest('[data-ds-portal]')).not.toBeNull()
+  await user.click(screen.getByRole('button', { name: 'Mở khung' }))
+  const menu = await screen.findByRole('menu', { name: 'Mở khung' })
+  expect(menu.getAttribute('data-slot')).toBe('dropdown-menu-content')
+  expect(menu.querySelector('[data-slot="dropdown-menu-group"]')).not.toBeNull()
+  const nhan = menu.querySelector('[data-slot="dropdown-menu-label"]')!
+  const coThut = screen.getByRole('menuitem', { name: 'Có thụt' })
+  const khong = screen.getByRole('menuitem', { name: 'Không thụt' })
+  const sub = screen.getByRole('menuitem', { name: 'Thêm' })
+  for (const el of [nhan, coThut, sub]) {
+    expect(el.getAttribute('data-inset')).toBe('true')
+    expect(el.className).toContain('data-inset:pl-7.5')
+  }
+  expect(khong.hasAttribute('data-inset')).toBe(false)
+  expect(sub.getAttribute('data-slot')).toBe('dropdown-menu-sub-trigger')
 })

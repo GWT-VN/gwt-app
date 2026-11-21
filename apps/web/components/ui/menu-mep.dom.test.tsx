@@ -10,6 +10,7 @@ import { beforeEach, expect, test, vi } from 'vitest'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './context-menu'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { DsRoot } from './ds-root'
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from './menubar'
 
 const ghi = vi.hoisted(() => [] as unknown[])
 
@@ -26,7 +27,7 @@ vi.mock('radix-ui', async (goc) => {
       },
     }
   }
-  return { ...m, DropdownMenu: boc(m.DropdownMenu), ContextMenu: boc(m.ContextMenu) }
+  return { ...m, DropdownMenu: boc(m.DropdownMenu), ContextMenu: boc(m.ContextMenu), Menubar: boc(m.Menubar) }
 })
 
 beforeEach(() => {
@@ -65,9 +66,27 @@ async function moContext(padding?: number) {
   await screen.findByRole('menu')
 }
 
+async function moMenubar(padding?: number) {
+  render(
+    <DsRoot>
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>Tệp</MenubarTrigger>
+          <MenubarContent {...(padding === undefined ? {} : { collisionPadding: padding })}>
+            <MenubarItem>Mới</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    </DsRoot>,
+  )
+  await userEvent.setup().click(screen.getByRole('menuitem', { name: 'Tệp' }))
+  await screen.findByRole('menu')
+}
+
 test.each([
   ['DropdownMenu', moDropdown],
   ['ContextMenu', moContext],
+  ['Menubar', moMenubar],
 ])('%s: Content mặc định collisionPadding 8', async (_, mo) => {
   await mo()
   expect(ghi.length).toBeGreaterThan(0)
@@ -77,6 +96,7 @@ test.each([
 test.each([
   ['DropdownMenu', moDropdown],
   ['ContextMenu', moContext],
+  ['Menubar', moMenubar],
 ])('%s: bên gọi đè collisionPadding={0}', async (_, mo) => {
   await mo(0)
   expect(new Set(ghi)).toEqual(new Set([0]))
