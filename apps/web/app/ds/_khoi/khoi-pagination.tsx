@@ -4,6 +4,15 @@ import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PhanTrang } from '@/bang'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { BienThe, KhoiHang } from '../_khung/tam'
 import { docDemo, Nhan } from './khoi-filter-bar'
 
@@ -48,6 +57,37 @@ export function KhoiPagination() {
   )
 }
 
+/** Pagination của shadcn (`components/ui/pagination.tsx`): dãy số trang dạng link, đang ở trang 3 / 12. */
+function DaySo() {
+  return (
+    <Pagination className="justify-start" data-so="shadcn">
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious href="#pagination" />
+        </PaginationItem>
+        {[1, 2, 3, 4].map((n) => (
+          <PaginationItem key={n}>
+            <PaginationLink href="#pagination" isActive={n === 3} aria-label={`Trang ${n}`}>
+              {n}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#pagination" aria-label="Trang 12">
+            12
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext href="#pagination" />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  )
+}
+
 /** #pagination dạng hàng (/ds). */
 export function KhoiPaginationHang() {
   return (
@@ -65,6 +105,12 @@ export function KhoiPaginationHang() {
           </BienThe>
           <BienThe ten="Chỉ một trang" moTa="Không hiện gì — ít dòng thì không cần chân phân trang.">
             <p className="m-0 text-[12px] leading-[18px] text-muted-foreground">(trống)</p>
+          </BienThe>
+          <BienThe
+            ten="Dãy số trang (shadcn)"
+            moTa="Pagination của shadcn — nhảy thẳng tới số trang (wiki, kết quả tìm). Trang đang xem viền outline + aria-current; bảng dữ liệu vẫn dùng PhanTrang ở trên."
+          >
+            <DaySo />
           </BienThe>
         </Suspense>
       </CauHinhBangDs>

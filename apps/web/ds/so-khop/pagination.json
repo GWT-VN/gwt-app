@@ -127,6 +127,9 @@
       "artifactThat": true,
       "buoc": [
         {
+          "cho": 1500
+        },
+        {
           "tro": {
             "artifact": ".ds-muc:nth-child(1) .ui-pagination > button:last-child",
             "ds": "#pagination [data-so=\"dau\"] > nav > span:nth-child(2) > a"
