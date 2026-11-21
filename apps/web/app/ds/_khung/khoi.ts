@@ -37,12 +37,16 @@ import { KHOI_T12 } from './dk-t12'
 import { KHOI_T13 } from './dk-t13'
 import { KHOI_L7_3 } from './dk-l7-3'
 import { KHOI_L7_4 } from './dk-l7-4'
+import { KHOI_SC_1 } from './dk-sc-1'
+import { KHOI_SC_2 } from './dk-sc-2'
+import { KHOI_SC_4 } from './dk-sc-4'
 import type { NhomMuc } from './trang'
 
 /** Khối lát 4–6: mỗi task một file `dk-t<N>.ts` (nhiều agent sửa song song không đụng nhau). */
 const MOI: Record<string, ComponentType> = {
   ...KHOI_T1, ...KHOI_T2, ...KHOI_T3, ...KHOI_T4, ...KHOI_T5, ...KHOI_T6, ...KHOI_T7, ...KHOI_T8, ...KHOI_T9, ...KHOI_T10, ...KHOI_T11, ...KHOI_T12, ...KHOI_T13,
   ...KHOI_L7_3, ...KHOI_L7_4,
+  ...KHOI_SC_1, ...KHOI_SC_2, ...KHOI_SC_4,
 }
 const m = (ten: string) => k(ten, MOI[ten])
 
@@ -62,7 +66,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   {
     ten: 'Nền',
     lat: 1,
-    khoi: [k('Button', KhoiButton), k('Badge', KhoiBadge), k('Avatar', KhoiAvatar), k('Kbd', KhoiKbd), k('Alert', KhoiAlert), k('Tooltip', KhoiTooltip), k('Card', KhoiCard)],
+    khoi: [k('Button', KhoiButton), k('Badge', KhoiBadge), k('Avatar', KhoiAvatar), k('Kbd', KhoiKbd), k('Alert', KhoiAlert), k('Tooltip', KhoiTooltip), k('Card', KhoiCard), m('Label'), m('Separator')],
   },
   {
     ten: 'Overlay',
@@ -70,9 +74,11 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
     khoi: [
       k('DropdownMenu', KhoiDropdownMenu),
       k('ContextMenu', KhoiContextMenu),
+      m('Menubar'),
       k('Dialog', KhoiDialog),
       k('ConfirmDialog', KhoiConfirmDialog),
       k('Sheet', KhoiSheet),
+      m('Drawer'),
     ],
   },
   {
@@ -84,10 +90,13 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
       k('Checkbox', KhoiCheckbox),
       k('Radio', KhoiRadio),
       k('Switch', KhoiSwitch),
+      m('Slider'),
       k('Select', KhoiSelect),
+      m('NativeSelect'),
       k('Combobox', KhoiCombobox),
       k('DatePicker', KhoiDatePicker),
       m('DateTimePicker'),
+      m('InputOTP'),
       k('DateRangePicker', KhoiDateRangePicker),
       k('FileUpload', KhoiFileUpload),
       k('FormLayout', KhoiFormLayout),
