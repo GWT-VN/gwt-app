@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useMemo, useState, type ReactNode } from 'react'
+import { Suspense, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { KhungChon, OChonDong, OChonTatCa, ThanhDaChon, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
 import { Badge, BadgeDot } from '@/components/ui/badge'
@@ -29,6 +29,9 @@ import {
 import { CHON_BANG, cotDem, ma as lopMa } from '@/components/ui/table-styles'
 import { KeoCot, TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
+import { Kbd } from '@/components/ui/kbd'
+import { VungDoc } from '@/components/ui/skeleton'
+import { usePhimTat } from '@/lib/phim-tat'
 import { BienThe, KhoiHang } from '../_khung/tam'
 import { Nhan } from './khoi-filter-bar'
 
@@ -292,6 +295,107 @@ function CotHien({ c }: { c: ReturnType<typeof useCotBang> }) {
   )
 }
 
+/**
+ * Dòng đang trỏ + phím tắt theo dòng (lát 7): 5 ticket demo. ↑/↓ dời con trỏ (roving tabIndex, focus theo), Ctrl/⌘ hoặc
+ * ⇧ + bấm chọn (`useDaChon().bamDong`), `P` đổi Ưu tiên của dòng đang trỏ (P1 → P2 → P3 → P1). Phím tắt chỉ chạy khi focus
+ * nằm trong thân bảng (`usePhimTat` + `vung`), nhường ô đang gõ và bộ gõ đang ghép chữ.
+ */
+const VE_TRO = VE.slice(0, 5)
+const MA_TRO = VE_TRO.map((v) => v.ma)
+const UU_SAU = { 1: 2, 2: 3, 3: 1 } as const
+
+function BangConTro() {
+  const [uu, setUu] = useState<Record<string, 1 | 2 | 3>>(() => Object.fromEntries(VE_TRO.map((v) => [v.ma, v.uu])))
+  const [conTro, setConTro] = useState(MA_TRO[0])
+  const [doc, setDoc] = useState('')
+  const than = useRef<HTMLTableSectionElement>(null)
+
+  const toi = (ma: string) => {
+    setConTro(ma)
+    const dong = than.current?.querySelector<HTMLTableRowElement>(`tr[data-ma="${ma}"]`)
+    // focus() mặc định cuộn khung cho cả <tr> (rộng hơn khung ở 390) → khung nhảy sang phải, mất cột tick + Mã. Focus không
+    // cuộn, rồi chỉ đưa ô đầu dòng vào tầm nhìn (đo Chrome 390, lát 7).
+    dong?.focus({ preventScroll: true })
+    dong?.cells[0]?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }
+  const doi = (buoc: 1 | -1) => toi(MA_TRO[Math.min(MA_TRO.length - 1, Math.max(0, MA_TRO.indexOf(conTro) + buoc))])
+  usePhimTat(
+    {
+      arrowdown: () => doi(1),
+      arrowup: () => doi(-1),
+      p: () => {
+        const moi = UU_SAU[uu[conTro]]
+        setUu((u) => ({ ...u, [conTro]: moi }))
+        setDoc(`${conTro}: ưu tiên ${MAU_UU[moi].nhan}`)
+      },
+    },
+    { vung: than },
+  )
+
+  return (
+    <KhungChon khoaTrang={MA_TRO} tong={MA_TRO.length} bat thamSo={{}}>
+      <VungDoc chu={doc} />
+      <TableWrap>
+        <Table aria-label="Ticket demo — dòng đang trỏ">
+          <TableHeader>
+            <TableRow>
+              <OChonTatCa nhan="ticket" />
+              <TableHead>Mã</TableHead>
+              <TableHead>Ưu tiên</TableHead>
+              <TableHead>Khách</TableHead>
+              <TableHead>Việc tiếp theo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody ref={than}>
+            {VE_TRO.map((v) => (
+              <DongTro key={v.ma} v={v} uu={uu[v.ma]} conTro={v.ma === conTro} onTro={() => setConTro(v.ma)} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableWrap>
+      <ThanhDaChon nhan="ticket" />
+    </KhungChon>
+  )
+}
+
+function DongTro({ v, uu, conTro, onTro }: { v: Ve; uu: 1 | 2 | 3; conTro: boolean; onTro: () => void }) {
+  const { daChon, bamDong } = useDaChon()
+  const m = MAU_UU[uu]
+  function bam(e: MouseEvent<HTMLTableRowElement>) {
+    onTro()
+    if ((e.target as HTMLElement).closest('input, button, a')) return
+    bamDong(v.ma, { mod: e.ctrlKey || e.metaKey, shift: e.shiftKey })
+    e.currentTarget.focus({ preventScroll: true })
+  }
+  return (
+    <TableRow
+      data-ma={v.ma}
+      chon={daChon.includes(v.ma)}
+      conTro={conTro}
+      tabIndex={conTro ? 0 : -1}
+      aria-keyshortcuts="ArrowUp ArrowDown P"
+      className="cursor-default"
+      onClick={bam}
+      // ⇧/Ctrl + bấm: chặn bôi đen chữ (mousedown mặc định) — focus dòng làm tay trong onClick.
+      onMouseDown={(e) => (e.shiftKey || e.metaKey || e.ctrlKey) && e.preventDefault()}
+      // Focus vào BẤT KỲ đâu trong dòng (kể cả ô tick bằng Tab) → dòng đó thành dòng trỏ: phím tắt luôn áp đúng dòng đang focus.
+      onFocus={(e) => e.currentTarget.contains(e.target) && onTro()}
+    >
+      <OChonDong khoa={v.ma} moTa={`ticket ${v.ma}`} />
+      <TableCell>
+        <span className={lopMa}>{v.ma}</span>
+      </TableCell>
+      <TableCell>
+        <Badge variant={m.variant} color={m.color}>
+          {m.nhan}
+        </Badge>
+      </TableCell>
+      <TableCell>{v.khach}</TableCell>
+      <TableCell>{v.viec}</TableCell>
+    </TableRow>
+  )
+}
+
 const COT_TAI = [{ ten: 'Đang tải' }, { ten: 'Thành tiền', so: true }]
 const CU = (
   <TableWrap vien>
@@ -373,6 +477,17 @@ export function KhoiTableHang() {
           <Suspense>
             <BangTicket url className="max-h-120" cotHien={(c) => <CotHien c={c} />} />
           </Suspense>
+        </BienThe>
+        <BienThe
+          ten="Dòng đang trỏ + phím tắt"
+          moTa={
+            <>
+              Bấm một dòng (hoặc Tab vào bảng), <Kbd>↑</Kbd> <Kbd>↓</Kbd> dời con trỏ, <Kbd>P</Kbd> đổi ưu tiên dòng đang trỏ. Ctrl/⌘ +
+              bấm chọn thêm, ⇧ + bấm chọn dải, Esc bỏ chọn.
+            </>
+          }
+        >
+          <BangConTro />
         </BienThe>
       </CauHinhBangDs>
       <BienThe ten="Đang tải" moTa="Khung + tiêu đề cột + vài dòng chờ; trình đọc màn hình nghe “Đang tải danh sách”.">

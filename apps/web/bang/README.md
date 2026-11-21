@@ -160,6 +160,39 @@ export async function khoaTatCaMay(t: ThamSoLoc): Promise<string[]> {
 Gọi lại **đúng hàm liệt kê**, đừng viết truy vấn lọc riêng — chép bộ lọc làm hai bản thì sớm
 muộn lệch, lúc đó màn hình ghi "91" mà chọn tất cả ra 87 và không ai phát hiện.
 
+### 5. Chọn nhiều bằng Ctrl/⌘ và ⇧ + bấm dòng
+
+Ngoài ô tick, dòng nhận bấm kèm phím bổ trợ như trình quản lý tệp:
+
+```tsx
+function Dong({ r }: { r: May }) {
+  const { daChon, bamDong } = useDaChon()
+  return (
+    <tr
+      data-chon={daChon.includes(r.serial) || undefined}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest('input, button, a')) return   // ô tick / nút trong dòng tự lo
+        bamDong(r.serial, { mod: e.ctrlKey || e.metaKey, shift: e.shiftKey })
+      }}
+      onMouseDown={(e) => (e.shiftKey || e.ctrlKey || e.metaKey) && e.preventDefault()} // khỏi bôi đen chữ
+    >
+      <OChonDong khoa={r.serial} />
+      …
+    </tr>
+  )
+}
+```
+
+| Bấm | Kết quả |
+|---|---|
+| thường | không đổi vùng chọn (màn dời "dòng đang trỏ" của nó), đặt neo |
+| Ctrl / ⌘ | bật/tắt dòng đó, đặt neo |
+| ⇧ | chọn dải từ neo tới dòng bấm theo thứ tự `khoaTrang` — THAY vùng cũ; chưa có neo → chỉ dòng đó |
+| Ctrl + ⇧ | CỘNG dải vào vùng đang chọn (giữ cả dòng ở trang khác) |
+
+Neo = dòng bấm hoặc tick gần nhất. Luật nằm trong hàm thuần `chonTheoBam` (`ChonDong.tsx`, test `ChonDong.test.ts`).
+Dòng đang trỏ + phím tắt theo dòng là việc của màn / bộ giao diện (app này: `TableRow conTro` + `usePhimTat`).
+
 ---
 
 ## Ba cái bẫy đã trả giá — đọc trước khi sửa

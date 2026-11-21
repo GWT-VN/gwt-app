@@ -73,14 +73,26 @@ export function TableFooter({ className, ...props }: ComponentProps<'tfoot'>) {
   return <tfoot data-slot="table-footer" className={cn('border-none border-current [&_td]:bg-muted', className)} {...props} />
 }
 
-/** `chon` → `data-state="selected"`, nền info-soft (ô chọn là checkbox của dòng — trạng thái đọc qua nó, không aria-selected). */
-export function TableRow({ chon, className, ...props }: ComponentProps<'tr'> & { chon?: boolean }) {
+/**
+ * `chon` → `data-state="selected"`, nền info-soft (ô chọn là checkbox của dòng — trạng thái đọc qua nó, không aria-selected).
+ * `conTro` → `data-con-tro`: dòng đang trỏ (phím tắt theo dòng áp vào nó), nền alpha-04; dòng focus phím có vòng ring lùi
+ * vào. Roving `tabIndex` (0 cho dòng trỏ, −1 cho dòng khác) do màn đặt. `ContextMenuTrigger asChild` gắn
+ * `data-state=open|closed` lên dòng → `chon` thắng (NGUON: trigger asChild đè `data-state`).
+ */
+export function TableRow({
+  chon,
+  conTro,
+  className,
+  'data-state': dataState,
+  ...props
+}: ComponentProps<'tr'> & { chon?: boolean; conTro?: boolean; 'data-state'?: string }) {
   return (
     <tr
       data-slot="table-row"
-      data-state={chon ? 'selected' : undefined}
+      data-con-tro={conTro ? '' : undefined}
       className={cn('border-none border-current', useContext(VeCtx) === 'thuong' ? s.trThuong : s.tr, className)}
       {...props}
+      data-state={chon ? 'selected' : dataState}
     />
   )
 }

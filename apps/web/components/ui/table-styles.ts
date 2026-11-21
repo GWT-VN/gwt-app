@@ -37,10 +37,17 @@ export const td = cn(
   // `.b-bang-c tbody .ui-badge`: badge trong ô cao 22 (= avatar) → mọi phần tử trong dòng thẳng hàng.
   'in-data-[layout=fixed]:[&_[data-slot=badge]]:h-(--control-size-3xs)',
 )
-/** `.b-bang tbody tr:hover td` alpha-02 · `tr[data-chon] td` info-soft-alpha (dự phòng alpha-05). */
+/**
+ * `.b-bang tbody tr:hover td` alpha-02 · `tr[data-chon] td` info-soft-alpha (dự phòng alpha-05).
+ * Dòng đang trỏ (`data-con-tro`, chưa có trong artifact — prototype menu thuộc tính duyệt 20/11): nền alpha-04, thắng hover
+ * (một lớp nền), thua "đã chọn". Focus phím: vòng 2px ring lùi vào −2 (khung cuộn cắt vòng ngoài). Không reset outline
+ * bằng utility tắt-outline của Tailwind (NGUON: mất vòng focus) — dùng thuộc tính outline:none thô + kiểu solid khi focus.
+ */
 export const tr = cn(
   'not-data-[state=selected]:hover:[&>td]:bg-(--alpha-02)',
   'data-[state=selected]:[&>td]:bg-(--color-background-info-soft-alpha,var(--alpha-05))',
+  'not-data-[state=selected]:data-con-tro:[&>td]:bg-(--alpha-04)',
+  '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
 )
 export const tfootTd = 'bg-muted font-semibold border-t border-solid border-(--border) border-b-0'
 /** `.b-phai`. */

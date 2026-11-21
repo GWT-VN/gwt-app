@@ -47,6 +47,35 @@ type BoiCanh = {
   daLayToanBo: boolean
   /** Câu cho vùng đọc (aria-live) luôn có sẵn trong khung — ThanhDaChon đặt. */
   datCauDoc: (cau: string) => void
+  /** Bấm dòng kèm phím bổ trợ — xem `chonTheoBam`. */
+  bamDong: (khoa: string, phim: PhimBam) => void
+}
+
+type PhimBam = { mod: boolean; shift: boolean }
+
+/**
+ * Chọn bằng bấm dòng (kiểu trình quản lý tệp / Linear) — hàm thuần, KHÔNG đụng React; chỉ client gọi.
+ * - Ctrl/⌘ (`mod`): bật/tắt một dòng, neo dời về dòng đó.
+ * - ⇧ (`shift`): chọn dải từ `neo` tới dòng bấm theo `thuTu` (thay vùng cũ), neo giữ nguyên; chưa có neo / neo không
+ *   còn trên trang → chỉ dòng bấm. Ctrl+⇧: CỘNG dải vào vùng sẵn có.
+ * - Bấm thường: không đổi vùng chọn (dời con trỏ là việc của màn), neo dời về dòng bấm.
+ */
+export function chonTheoBam(
+  dangChon: string[],
+  neo: string | null,
+  ma: string,
+  thuTu: string[],
+  phim: PhimBam,
+): { chon: string[]; neo: string } {
+  if (phim.shift) {
+    const a = neo === null ? -1 : thuTu.indexOf(neo)
+    const b = thuTu.indexOf(ma)
+    if (a < 0 || b < 0) return { chon: [ma], neo: ma }
+    const dai = thuTu.slice(Math.min(a, b), Math.max(a, b) + 1)
+    return { chon: phim.mod ? [...new Set([...dangChon, ...dai])] : dai, neo: neo! }
+  }
+  if (phim.mod) return { chon: dangChon.includes(ma) ? dangChon.filter((k) => k !== ma) : [...dangChon, ma], neo: ma }
+  return { chon: dangChon, neo: ma }
 }
 
 /**
@@ -101,6 +130,8 @@ export function KhungChon({
 }) {
   const gd = useGiaoDien()
   const [daChon, setDaChon] = useState<Set<string>>(() => new Set())
+  /** Neo của ⇧ + bấm: dòng bấm/tick gần nhất. */
+  const [neo, setNeo] = useState<string | null>(null)
   const [cauDoc, datCauDoc] = useState('')
   const oTatCa = useRef<HTMLInputElement>(null)
   const khung = useRef<HTMLDivElement>(null)
@@ -137,7 +168,17 @@ export function KhungChon({
       else moi.delete(khoa)
       return moi
     })
+    setNeo(khoa)
     setLoi(null)
+  }
+
+  function bamDong(khoa: string, phim: PhimBam) {
+    const kq = chonTheoBam([...daChon], neo, khoa, khoaTrang, phim)
+    setNeo(kq.neo)
+    if (phim.mod || phim.shift) {
+      setDaChon(new Set(kq.chon))
+      setLoi(null)
+    }
   }
 
   /** Chỉ tác động trong phạm vi TRANG: giữ nguyên các dòng đã chọn ở trang khác. */
@@ -178,7 +219,7 @@ export function KhungChon({
     <Ctx.Provider
       value={{
         bat, daChon, khoaTrang, tong, dangLay, loi,
-        doiMot, doiTatCa, xoaHet, chonToanBo, daLayToanBo, datCauDoc,
+        doiMot, doiTatCa, xoaHet, chonToanBo, daLayToanBo, datCauDoc, bamDong,
       }}
     >
       <CtxRef.Provider value={refChon}>
@@ -208,6 +249,11 @@ export function useDaChon() {
     daChon: [...c.daChon],
     soDong: c.daChon.size,
     boChonHet: c.xoaHet,
+    /**
+     * Gắn vào `onClick` của dòng: `bamDong(khoa, { mod: e.ctrlKey || e.metaKey, shift: e.shiftKey })` — Ctrl/⌘ bật/tắt,
+     * ⇧ chọn dải từ dòng bấm/tick trước. Cú bấm trên ô chọn / nút / link trong dòng thì màn tự bỏ qua.
+     */
+    bamDong: c.bamDong,
   }
 }
 
