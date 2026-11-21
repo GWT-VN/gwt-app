@@ -25,7 +25,10 @@ test('FieldLabel required → dấu * đỏ aria-hidden sau chữ', () => {
 })
 
 test('FieldLabel không required → không có *', () => {
-  expect(renderToStaticMarkup(<FieldLabel htmlFor="x">Mã đơn</FieldLabel>)).not.toContain('*')
+  // Đọc chữ của nhãn (class của FieldLabel theo shadcn có ký tự * trong biến thể con trực tiếp).
+  const nhan = dom(renderToStaticMarkup(<FieldLabel htmlFor="x">Mã đơn</FieldLabel>)).querySelector('label')!
+  expect(nhan.textContent).toBe('Mã đơn')
+  expect(nhan.querySelector('[aria-hidden="true"]')).toBeNull()
 })
 
 test('Input aria-invalid giữ thuộc tính; không icon thì không bọc', () => {

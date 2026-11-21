@@ -226,7 +226,7 @@
         {
           "ten": "check",
           "artifact": "> .ui-check",
-          "ds": "> svg",
+          "ds": "> [data-slot=\"select-item-indicator\"]",
           "props": [
             "width",
             "height",

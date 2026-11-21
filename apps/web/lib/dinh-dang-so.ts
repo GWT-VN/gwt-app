@@ -1,5 +1,5 @@
 /**
- * Số nguyên kiểu vi-VN cho ô tiền (OTien, components/ui/input-affix.tsx).
+ * Số nguyên kiểu vi-VN cho ô tiền (OTien, components/ui/input-group.tsx).
  * Khác `lib/so.ts` (`docSo` ở đó đọc số THẬP PHÂN cho ô chỉ tiêu nước, trả lỗi khi gõ sai): ở đây kết quả luôn là số
  * nguyên VND không âm. `fmtVnd` của app/sales/_ui.tsx cùng Intl, chưa dời (chờ duyệt).
  */

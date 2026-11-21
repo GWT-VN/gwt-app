@@ -9,7 +9,7 @@
   "chuaDo": [
     "Preview không có mục hover/focus ép sẵn: hover (Tiền mặt) và focus đo bằng tương tác THẬT ở CẢ HAI bên. Focus: Radix để mọi item tabIndex −1 tới khi nhóm nhận focus (fieldset là điểm dừng Tab rồi chuyển vào mục đang chọn) → bước tab không nhảy thẳng tới item được; bên DS bấm ô Checkbox cuối của khối #checkbox (khối liền trước trên /ds — đổi thứ tự khối thì sửa bước này) rồi Tab thật (link tiêu đề #radio → fieldset → mục Chuyển khoản); bên artifact bấm nhãn khung rồi Tab (radio gốc tự là điểm dừng)",
     "Vòng đo qua con `o` với thuộc tính của HỘP; font/màu chữ của vòng không đo (input nguồn mang font UA, vòng DS là button không chữ) — nhãn bọc ngoài đo đủ 32 thuộc tính",
-    "Chấm chọn: kích thước/bo/màu đo bằng pseudo ::after (cham-*); transform scale 0 → 1 trong 120ms và tắt chuyển động khi prefers-reduced-motion không nằm trong bộ thuộc tính đo — cùng chuỗi CSS với nguồn",
+    "Chấm chọn: nguồn vẽ bằng ::after, DS vẽ trên Indicator `radio-group-indicator` (khung shadcn) — kích thước/bo/màu đo qua khoá cham-* (pseudo bên nguồn); transform scale 0 → 1 trong 120ms và tắt chuyển động khi prefers-reduced-motion không nằm trong bộ thuộc tính đo — cùng chuỗi CSS với nguồn",
     "Hover lên vòng ĐÃ chọn ở theme tối: bundle.css đổi viền sang gray-600 (rule tối 0,3,0 thắng :checked 0,2,0), DS giữ viền primary-solid như theme sáng — preview không có ca này",
     "Tab vào nhóm focus mục đang chọn, mũi tên đổi lựa chọn + bỏ qua mục tắt, bấm chữ nhãn chọn, aria-invalid + aria-describedby nhóm: test jsdom components/ui/checkbox-radio.dom.test.tsx"
   ],
@@ -82,10 +82,9 @@
     {
       "khoa": "cham-chon",
       "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(1) > .ui-radio",
-      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1) > button",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(1) > button > [data-slot=\"radio-group-indicator\"]",
       "pseudo": {
-        "artifact": "::after",
-        "ds": "::after"
+        "artifact": "::after"
       },
       "boChu": true
     },
@@ -127,10 +126,9 @@
     {
       "khoa": "cham-chua",
       "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(2) > .ui-radio",
-      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2) > button",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(2) > button > [data-slot=\"radio-group-indicator\"]",
       "pseudo": {
-        "artifact": "::after",
-        "ds": "::after"
+        "artifact": "::after"
       },
       "boChu": true
     },
@@ -273,10 +271,9 @@
     {
       "khoa": "cham-tat",
       "artifact": "body > div > .ds-muc:nth-child(1) > fieldset > label:nth-of-type(3) > .ui-radio",
-      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3) > button",
+      "ds": "#radio [data-so=\"doc\"] > label:nth-of-type(3) > button > [data-slot=\"radio-group-indicator\"]",
       "pseudo": {
-        "artifact": "::after",
-        "ds": "::after"
+        "artifact": "::after"
       },
       "boChu": true
     },

@@ -51,6 +51,12 @@ export function KhoiSwitchHang() {
       <BienThe ten="Hàng cài đặt" moTa="Nhãn + mô tả bên trái, công tắc bên phải; bấm cả hàng.">
         <NhomCaiDat />
       </BienThe>
+      <BienThe ten="sm" moTa="size sm (shadcn): rãnh 24×14, núm 10 — trong bảng, dòng dày.">
+        <div className="flex items-center gap-4 border-none border-current">
+          <Switch size="sm" defaultChecked aria-label="Công tắc nhỏ bật (demo)" />
+          <Switch size="sm" aria-label="Công tắc nhỏ tắt (demo)" />
+        </div>
+      </BienThe>
     </KhoiHang>
   )
 }

@@ -15,7 +15,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
-- Gõ / dán / xoá / chèn giữa số và vị trí con trỏ của OTien: preview tĩnh không có hành vi — test jsdom components/ui/input-affix.dom.test.tsx
+- Gõ / dán / xoá / chèn giữa số và vị trí con trỏ của OTien: preview tĩnh không có hành vi — test jsdom components/ui/input-group.dom.test.tsx
 - Đơn vị đặt trước số (addon inline-start, data-side start): preview không có — test jsdom kiểm order-first
 - Ô vừa lỗi vừa tắt: preview không có; DS cho tắt thắng lỗi (như controlOutline)
 - Nhãn Chiết khấu: DS ghi "Chiết khấu (%)" theo README (nói đơn vị vì % là aria-hidden), preview ghi "Chiết khấu" — không đo nhãn này

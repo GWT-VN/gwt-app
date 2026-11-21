@@ -2,7 +2,16 @@
 
 import { useState } from 'react'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
-import { InputGroup, InputGroupAddon, InputGroupInput, OTien } from '@/components/ui/input-affix'
+import { MagnifyingGlass, X } from '@phosphor-icons/react/ssr'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+  OTien,
+} from '@/components/ui/input-group'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /** Ô tiền có state riêng để gõ thử được trên /ds. */
@@ -37,7 +46,9 @@ function ChietKhau({ id }: { id: string }) {
           value={ck}
           onChange={(e) => setCk(e.target.value.replace(/[^\d,.]/g, ''))}
         />
-        <InputGroupAddon>%</InputGroupAddon>
+        <InputGroupAddon align="inline-end" aria-hidden="true">
+          %
+        </InputGroupAddon>
       </InputGroup>
     </Field>
   )
@@ -51,6 +62,45 @@ function SoTien({ id }: { id: string }) {
       <FieldError data-so="loi-msg" id={`${id}-e`}>
         Số tiền phải lớn hơn 0.
       </FieldError>
+    </Field>
+  )
+}
+
+/** shadcn: icon đầu khung (addon inline-start, mặc định) + nút xoá trong khung (InputGroupButton icon-xs). */
+function TimKiem({ id }: { id: string }) {
+  const [q, setQ] = useState('DH-10')
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>Tìm đơn</FieldLabel>
+      <InputGroup>
+        <InputGroupAddon aria-hidden="true">
+          <MagnifyingGlass />
+        </InputGroupAddon>
+        <InputGroupInput id={id} value={q} placeholder="Mã đơn, tên khách" onChange={(e) => setQ(e.target.value)} />
+        {q && (
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton size="icon-xs" aria-label="Xoá chữ tìm" onClick={() => setQ('')}>
+              <X />
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
+      </InputGroup>
+    </Field>
+  )
+}
+
+/** shadcn: ô nhiều dòng trong khung + addon block-end (đếm ký tự). */
+function GhiChu({ id }: { id: string }) {
+  const [v, setV] = useState('')
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>Ghi chú giao hàng</FieldLabel>
+      <InputGroup>
+        <InputGroupTextarea id={id} value={v} maxLength={200} placeholder="Gọi trước 30 phút" onChange={(e) => setV(e.target.value)} />
+        <InputGroupAddon align="block-end" aria-hidden="true">
+          <InputGroupText className="ml-auto tabular-nums">{v.length}/200</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
     </Field>
   )
 }
@@ -70,6 +120,7 @@ function DaThu({ id }: { id: string }) {
  * tay `InputGroup` (số thập phân — OTien chỉ nhận số nguyên). Nhãn chiết khấu nói đơn vị "(%)" theo README (preview
  * chỉ ghi "Chiết khấu"). Hover/focus đo bằng bước rê/Tab thật. Dữ liệu minh hoạ (demo). `data-so` = khoá so khớp
  * (ds/so-khop/inputaffix.json).
+ * Tên (R22): code theo shadcn `components/ui/input-group.tsx` (`InputGroup*`); khối + cổng giữ tên artifact InputAffix.
  */
 export function KhoiInputAffix() {
   return (
@@ -110,6 +161,16 @@ export function KhoiInputAffixHang() {
       <BienThe ten="Tắt" moTa="Số hệ thống tính, chỉ xem.">
         <div className="max-w-sm">
           <DaThu id="ds-iah-thu" />
+        </div>
+      </BienThe>
+      <BienThe ten="Icon + nút" moTa="shadcn: icon đầu khung (addon inline-start) và nút xoá trong khung (InputGroupButton).">
+        <div className="max-w-sm">
+          <TimKiem id="ds-iah-tim" />
+        </div>
+      </BienThe>
+      <BienThe ten="Nhiều dòng" moTa="shadcn: InputGroupTextarea + addon block-end (đếm ký tự).">
+        <div className="max-w-sm">
+          <GhiChu id="ds-iah-ghichu" />
         </div>
       </BienThe>
     </KhoiHang>

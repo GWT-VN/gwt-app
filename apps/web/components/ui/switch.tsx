@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
 import { createContext, useContext, useId, type ComponentProps, type ReactNode } from 'react'
@@ -19,19 +20,23 @@ import { cn } from '@/lib/utils'
  */
 export function Switch({
   className,
+  size = 'default',
   'aria-describedby': describedBy,
   ...props
-}: ComponentProps<typeof SwitchPrimitive.Root>) {
+}: ComponentProps<typeof SwitchPrimitive.Root> & { size?: 'sm' | 'default' }) {
   const hang = useContext(HangCtx)
   // Của người gọi (câu lỗi) TRƯỚC, mô tả của hàng SAU — cùng thứ tự với Checkbox/Radio (useNhanChon).
   const moTa = [describedBy, hang?.idMoTa].filter(Boolean).join(' ')
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
+      data-size={size}
       aria-labelledby={hang?.idNhan}
       aria-describedby={moTa || undefined}
       className={cn(
-        'relative mt-px inline-block h-[18px] w-8 shrink-0 cursor-pointer rounded-(--radius-full) border-none border-current p-0',
+        'peer group/switch relative mt-px inline-block shrink-0 cursor-pointer rounded-(--radius-full) border-none border-current p-0',
+        // size theo shadcn: default = rãnh 32×18 của `.ui-switch`; sm = 24×14 (artifact chưa có cỡ nhỏ — cùng tỉ lệ, núm 10).
+        'data-[size=default]:h-[18px] data-[size=default]:w-8 data-[size=sm]:h-3.5 data-[size=sm]:w-6',
         'bg-(--alpha-25) transition-[background-color] duration-150 ease-[ease]',
         'data-[state=checked]:bg-(--color-background-primary-solid)',
         'data-[state=unchecked]:enabled:hover:bg-(--alpha-30)',
@@ -45,11 +50,14 @@ export function Switch({
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
         className={cn(
-          'pointer-events-none absolute top-0.5 left-0.5 block size-3.5 rounded-(--radius-full) border-none border-current',
+          'pointer-events-none absolute top-0.5 left-0.5 block rounded-(--radius-full) border-none border-current',
+          'group-data-[size=default]/switch:size-3.5 group-data-[size=sm]/switch:size-2.5',
           'bg-background in-data-[theme=dark]:bg-foreground',
           '[box-shadow:var(--shadow-hairline),0_1px_2px_var(--alpha-15)]',
           'transition-transform duration-150 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:transition-none',
-          'data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-(--color-text-primary-solid)',
+          'data-[state=checked]:bg-(--color-text-primary-solid)',
+          'group-data-[size=default]/switch:data-[state=checked]:translate-x-3.5',
+          'group-data-[size=sm]/switch:data-[state=checked]:translate-x-2.5',
         )}
       />
     </SwitchPrimitive.Root>

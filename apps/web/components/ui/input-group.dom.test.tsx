@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
-import { InputGroup, InputGroupAddon, InputGroupInput, OTien } from './input-affix'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea, OTien } from './input-group'
 
 function Mau({ dau = null, onDoi }: { dau?: number | null; onDoi?: (v: number | null) => void }) {
   const [v, setV] = useState<number | null>(dau)
@@ -154,4 +154,44 @@ test('InputGroup: addon inline-start đứng trước số (order), input nhận
   const dv = screen.getByTestId('khung').querySelector('[data-slot="input-group-addon"]')!
   expect(dv.getAttribute('data-align')).toBe('inline-start')
   expect(dv.className).toContain('order-first')
+})
+
+test('InputGroup theo shadcn: khung + addon role group; addon mặc định inline-start; bấm addon (không phải nút) focus ô', async () => {
+  const xoa = vi.fn()
+  render(
+    <InputGroup data-testid="khung">
+      <InputGroupAddon data-testid="dau">#</InputGroupAddon>
+      <InputGroupInput aria-label="Mã" />
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton size="icon-xs" aria-label="Xoá" onClick={xoa}>
+          x
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>,
+  )
+  const khung = screen.getByTestId('khung')
+  expect(khung.getAttribute('role')).toBe('group')
+  const dau = screen.getByTestId('dau')
+  expect(dau.getAttribute('data-align')).toBe('inline-start')
+  await userEvent.click(dau)
+  expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Mã' }))
+  const nut = screen.getByRole('button', { name: 'Xoá' })
+  expect(nut.getAttribute('type')).toBe('button')
+  expect(nut.getAttribute('data-size')).toBe('icon-xs')
+  await userEvent.click(nut)
+  expect(xoa).toHaveBeenCalledTimes(1)
+  // Bấm nút không kéo focus về ô (addon bỏ qua click trong button).
+  expect(document.activeElement).toBe(nut)
+})
+
+test('InputGroupTextarea: cùng slot input-group-control, khung cao tự do', () => {
+  render(
+    <InputGroup data-testid="khung">
+      <InputGroupTextarea aria-label="Ghi chú" />
+    </InputGroup>,
+  )
+  const o = screen.getByRole('textbox', { name: 'Ghi chú' })
+  expect(o.tagName).toBe('TEXTAREA')
+  expect(o.getAttribute('data-slot')).toBe('input-group-control')
+  expect(screen.getByTestId('khung').className).toContain('has-[>textarea]:h-auto')
 })

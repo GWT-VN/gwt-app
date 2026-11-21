@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
 import { createContext, useContext, useId, type ComponentProps, type ReactNode } from 'react'
@@ -26,11 +27,13 @@ export const oChon = [
 ].join(' ')
 
 /**
- * Checkbox — Radix Checkbox, `.ui-checkbox`: bo radius-xs 4; chọn / một phần (`checked="indeterminate"`, cho ô "chọn tất
- * cả" của bảng → `aria-checked="mixed"`) viền + nền gray-900. Tắt + chọn: viền + nền gray-300 (tối gray-200). Tắt nền
- * gray-25 (tối gray-200). Nhãn: bọc trong `ChoiceLabel`.
- * Dấu vẽ bằng ::after y nguồn, màu gray-0: ✓ = góc viền 2px 10×6 xoay −45° (nhích lên 1px), – = vạch 2px rộng 8.
- * Không dùng icon Phosphor (kế hoạch ghi Check/Minus bold 12): nét bold ở cỡ 12 chỉ ~1.1px, mảnh rõ so với 2px của
+ * Checkbox — khung shadcn (Radix Checkbox Root + Indicator `checkbox-indicator`), `.ui-checkbox`: bo radius-xs 4; chọn /
+ * một phần (`checked="indeterminate"` — GWT thêm, cho ô "chọn tất cả" của bảng → `aria-checked="mixed"`) viền + nền
+ * gray-900. Tắt + chọn: viền + nền gray-300 (tối gray-200). Tắt nền gray-25 (tối gray-200). Nhãn: bọc trong `ChoiceLabel`.
+ * Dấu vẽ trên chính Indicator (span, không icon) với số của `.ui-checkbox::after`, màu gray-0: ✓ = góc viền 2px 10×6
+ * xoay −45° (nhích lên 1px), – = vạch 2px rộng 8. Indicator `forceMount` (luôn có trong DOM, ẩn bằng opacity như nguồn
+ * — không mount/unmount theo trạng thái) để ô chưa chọn vẫn đo được và không nhảy bố cục lưới.
+ * Không dùng icon (shadcn `CheckIcon`; Phosphor Check/Minus bold 12): nét bold ở cỡ 12 chỉ ~1.1px, mảnh rõ so với 2px của
  * nguồn và gạch "một phần" ra xám (đã so ảnh 20/11).
  */
 export function Checkbox({ className, ...props }: ComponentProps<typeof CheckboxPrimitive.Root>) {
@@ -40,6 +43,7 @@ export function Checkbox({ className, ...props }: ComponentProps<typeof Checkbox
       data-slot="checkbox"
       aria-labelledby={nhan.idNhan}
       className={cn(
+        'peer',
         oChon,
         'rounded-(--radius-xs) [transition:border-color_150ms_ease,background-color_150ms_ease]',
         'in-data-[theme=dark]:disabled:bg-(--gray-200)',
@@ -49,16 +53,23 @@ export function Checkbox({ className, ...props }: ComponentProps<typeof Checkbox
         '[--oc-tat-chon:var(--gray-300)] in-data-[theme=dark]:[--oc-tat-chon:var(--gray-200)]',
         'disabled:data-[state=checked]:border-(--oc-tat-chon) disabled:data-[state=checked]:bg-(--oc-tat-chon)',
         'disabled:data-[state=indeterminate]:border-(--oc-tat-chon) disabled:data-[state=indeterminate]:bg-(--oc-tat-chon)',
-        'after:h-1.5 after:w-2.5 after:border-solid after:border-(--gray-0) after:[border-width:0_0_2px_2px]',
-        'after:[transform:translateY(-1px)_rotate(-45deg)] after:opacity-0',
-        'data-[state=checked]:after:opacity-100 data-[state=indeterminate]:after:opacity-100',
-        'data-[state=indeterminate]:after:h-0 data-[state=indeterminate]:after:w-2',
-        'data-[state=indeterminate]:after:[border-width:0_0_2px_0] data-[state=indeterminate]:after:[transform:none]',
         className,
       )}
       {...props}
       aria-describedby={nhan.moTa}
-    />
+    >
+      <CheckboxPrimitive.Indicator
+        forceMount
+        data-slot="checkbox-indicator"
+        className={cn(
+          'block h-1.5 w-2.5 border-solid border-(--gray-0) [border-width:0_0_2px_2px]',
+          '[transform:translateY(-1px)_rotate(-45deg)] opacity-0',
+          'data-[state=checked]:opacity-100 data-[state=indeterminate]:opacity-100',
+          'data-[state=indeterminate]:h-0 data-[state=indeterminate]:w-2',
+          'data-[state=indeterminate]:[border-width:0_0_2px_0] data-[state=indeterminate]:[transform:none]',
+        )}
+      />
+    </CheckboxPrimitive.Root>
   )
 }
 

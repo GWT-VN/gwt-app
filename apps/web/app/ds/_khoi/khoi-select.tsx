@@ -2,7 +2,16 @@
 
 import { useState } from 'react'
 import { Field, FieldError, FieldLabel, FieldLegend, FieldSet } from '@/components/ui/field'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 const KENH = [
@@ -79,6 +88,31 @@ function KenhBan({ id }: { id: string }) {
   )
 }
 
+/** shadcn: SelectGroup + SelectLabel + SelectSeparator, trigger `size="sm"` (28). Chỉ ở /ds (preview không có). */
+function KhoTheoVung() {
+  const [kho, setKho] = useState('lb')
+  const ten: Record<string, string> = { lb: 'Kho Long Biên', tx: 'Kho Thanh Xuân', td: 'Kho Thủ Đức' }
+  return (
+    <Select value={kho} onValueChange={setKho}>
+      <SelectTrigger size="sm" aria-label="Kho xuất" className="w-56">
+        <SelectValue>{ten[kho]}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Hà Nội</SelectLabel>
+          <SelectItem value="lb">Kho Long Biên</SelectItem>
+          <SelectItem value="tx">Kho Thanh Xuân</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>TP. Hồ Chí Minh</SelectLabel>
+          <SelectItem value="td">Kho Thủ Đức</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
+}
+
 /**
  * #select — tái tạo ds/nguon/components/Select/preview.html: lưới tự xếp cột tối thiểu 220, gap 16, căn trên (style
  * inline của preview). Cột 1 "Kênh bán": preview vẽ menu mở TĨNH dưới nút; ở đây bấm nút thật mới mở (Select modal —
@@ -137,6 +171,9 @@ export function KhoiSelectHang() {
         <div className="max-w-sm">
           <KenhBan id="ds-selecth-kenh" />
         </div>
+      </BienThe>
+      <BienThe ten="Nhóm · sm" moTa="Tiêu đề nhóm (SelectLabel) + vạch ngăn; trigger cỡ sm cao 28 cho thanh công cụ.">
+        <KhoTheoVung />
       </BienThe>
     </KhoiHang>
   )

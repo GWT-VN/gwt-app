@@ -18,7 +18,7 @@ import {
   FormRequiredNote,
   FormSection,
 } from '@/components/ui/form-layout'
-import { OTien } from '@/components/ui/input-affix'
+import { OTien } from '@/components/ui/input-group'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'

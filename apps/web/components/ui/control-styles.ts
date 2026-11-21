@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 /**
- * Viền ô nhập dùng chung (Input, Textarea, InputAffix, Select, DatePicker…) — chép từ khối `.ui-input` / `.ui-textarea` /
+ * Viền ô nhập dùng chung (Input, Textarea, InputGroup, Select, NativeSelect, InputOTP, DatePicker…) — chép từ khối `.ui-input` / `.ui-textarea` /
  * `.ui-select-trigger` / `.ui-input-affix` của ds/nguon/bundle.css ("Label / Input / Textarea (OpenAI Input.module.css)").
  * Chỉ là chuỗi class: component tự gắn vào phần tử của nó.
  *
@@ -48,8 +48,9 @@ export const controlOutline = [
  * (y `.ui-input-affix`): hover theo hover của khung, focus theo focus-within, lỗi khi có con aria-invalid đang bật,
  * tắt khi có con disabled (nền + viền tắt, not-allowed). Con trỏ chữ (`cursor-text`)
  * như bundle.css. Khoảng cách giữa con (gap) do component tự thêm.
- * Lỗi/tắt chỉ xét ô `input` là CON TRỰC TIẾP (như bundle: has con trực tiếp `.ui-input`) — nút phụ bị tắt lồng trong khung
- * (vd nút xoá) không làm cả khung thành "tắt".
+ * Lỗi/tắt chỉ xét ô `input`/`textarea` là CON TRỰC TIẾP (như bundle: has con trực tiếp `.ui-input`) — nút phụ bị tắt
+ * lồng trong khung (vd nút xoá) không làm cả khung thành "tắt". `:is(input,textarea)` giữ đặc hiệu bằng thẻ đơn như
+ * trước khi thêm `InputGroupTextarea` (shadcn) → thứ tự trạng thái không đổi.
  */
 export const controlOutlineWithin = [
   'flex w-full min-w-0 items-center h-(--control-size-md) px-(--control-gutter-md) rounded-(--radius-md)',
@@ -61,11 +62,11 @@ export const controlOutlineWithin = [
   // Hover chỉ áp cho khung ở trạng thái THƯỜNG — loại hẳn focus, lỗi, tắt bằng not-* thay vì trông vào thứ tự/đặc hiệu:
   // Tailwind 4 xếp focus-within TRƯỚC hover, và mỗi lớp :not() cộng đặc hiệu nên hover sẽ thắng has tắt (0,3,0 > 0,2,0).
   // Đo ở so khớp InputAffix 20/11 (lần đo đầu của biến này): bản cũ chỉ có not-focus-within → khung TẮT vẫn đậm viền khi rê.
-  'hover:not-focus-within:not-has-[>input:disabled]:not-has-[>input[aria-invalid=true]]:[box-shadow:inset_0_0_0_1px_var(--ctl-hover)]',
+  'hover:not-focus-within:not-has-[>:is(input,textarea):disabled]:not-has-[>:is(input,textarea)[aria-invalid=true]]:[box-shadow:inset_0_0_0_1px_var(--ctl-hover)]',
   'focus-within:[box-shadow:inset_0_0_0_1px_var(--alpha-50)]',
-  'has-[>input[aria-invalid=true]:enabled]:[box-shadow:inset_0_0_0_1px_var(--ctl-invalid)]',
-  'has-[>input:disabled]:cursor-not-allowed has-[>input:disabled]:bg-(--color-background-disabled)',
-  'has-[>input:disabled]:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
+  'has-[>:is(input,textarea)[aria-invalid=true]:enabled]:[box-shadow:inset_0_0_0_1px_var(--ctl-invalid)]',
+  'has-[>:is(input,textarea):disabled]:cursor-not-allowed has-[>:is(input,textarea):disabled]:bg-(--color-background-disabled)',
+  'has-[>:is(input,textarea):disabled]:[box-shadow:inset_0_0_0_1px_var(--color-border-disabled)]',
 ].join(' ')
 
 /**
@@ -86,6 +87,12 @@ export const selectTrigger = cn(
   '[&[data-placeholder]_[data-slot=select-value]]:text-(--color-text-tertiary)',
   '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
 )
+
+/**
+ * `size` của shadcn (SelectTrigger, NativeSelect): `data-size="sm"` → cao --control-size-sm 28, lề --control-gutter-sm 10
+ * (artifact chỉ có cỡ md; sm lấy nấc kế dưới của thang control). `default` = số của `controlOutline`.
+ */
+export const selectTriggerSize = 'data-[size=sm]:h-(--control-size-sm) data-[size=sm]:px-(--control-gutter-sm)'
 
 /** `.ui-select-value`: một dòng, cắt bằng dấu ba chấm. */
 export const selectValue = 'min-w-0 truncate border-none border-current'
