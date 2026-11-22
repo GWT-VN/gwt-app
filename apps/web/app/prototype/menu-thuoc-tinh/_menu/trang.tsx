@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { cotChon, ma as lopMa } from '@/components/ui/table-styles'
-import { thongBao } from '@/components/ui/toast'
+import { thongBao } from '@/components/ui/sonner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ChonHanA2 } from '../../chon-gio/_chon-gio/bien-the-a2'
 import { ChonHanA4 } from '../../chon-gio/_chon-gio/bien-the-a4'

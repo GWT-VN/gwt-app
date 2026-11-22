@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { NotificationCenter, type ThongBaoMuc } from '@/components/ui/notification-center'
-import { thongBao as toast } from '@/components/ui/toast'
+import { thongBao as toast } from '@/components/ui/sonner'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /*

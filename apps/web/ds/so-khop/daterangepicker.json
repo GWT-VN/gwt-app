@@ -87,27 +87,52 @@
       "lyDo": {
         "zIndex": "Bảng mẫu mở sẵn dùng chung mặt calendarPop (z-90 cho bảng nổi thật, xem khoá pop); preview `.ui-cal-pop` tĩnh z-index auto. Khối tĩnh trong trang không chồng lớp nào nên z không đổi hình.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "dau-bang",
       "artifact": ".ui-cal-top",
-      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"]"
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "so-ngay",
       "artifact": ".ui-cal-top-title",
-      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] [aria-live]"
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] [aria-live]",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "chu-thich",
       "artifact": ".ui-cal-top .ui-caption",
-      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] > div:first-child > span"
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"dau-bang\"] > div:first-child > span",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "o-khoang",
       "artifact": ".ui-cal-fields",
-      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"]"
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"o-khoang\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "o-tu",
@@ -123,6 +148,11 @@
           "ten": "gia-tri",
           "artifact": "> span:last-child",
           "ds": "> span:last-child"
+        }
+      ],
+      "buoc": [
+        {
+          "cho": 1500
         }
       ]
     },
@@ -140,6 +170,11 @@
           "ten": "gia-tri",
           "artifact": "> span:last-child",
           "ds": "> span:last-child"
+        }
+      ],
+      "buoc": [
+        {
+          "cho": 1500
         }
       ]
     },
@@ -166,7 +201,12 @@
     {
       "khoa": "thang-truoc",
       "artifact": ".ui-cal-head > .ui-btn",
-      "ds": "#date-range-picker [data-so=\"bang\"] nav > button:first-child"
+      "ds": "#date-range-picker [data-so=\"bang\"] nav > button:first-child",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "tieu-de-thang",
@@ -174,7 +214,12 @@
       "ds": "#date-range-picker [data-so=\"bang\"] [role=\"status\"]",
       "lyDo": {
         "width@390": "Khổ 390: preview tĩnh vẫn 2 tháng nên tiêu đề đầu tiên là \"Tháng 10, 2026\"; DS 1 tháng (tháng chứa ngày cuối) nên tiêu đề đầu là \"Tháng 11, 2026\" — chữ khác, hộp khác. Cỡ/đậm/màu chữ khớp; khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "ngay-dau",
@@ -187,7 +232,12 @@
         "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
         "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "ngay-dau-hinh",
@@ -200,7 +250,12 @@
       "lyDo": {
         "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "ngay-giua",
@@ -213,7 +268,12 @@
         "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
         "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "ngay-cuoi",
@@ -226,7 +286,12 @@
         "paddingLeft": "Padding mặc định UA của <button> (1px 6px) — bundle .ui-cal-day không khai padding nên artifact giữ của trình duyệt; DS ăn preflight Tailwind (padding 0). Ô cố định 44×44 (≤ 640: rộng 100% vuông), box-sizing border-box, chữ căn giữa bằng grid place-content → padding không đổi kích thước hay vị trí chữ.",
         "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "ngay-cuoi-hinh",
@@ -239,12 +304,22 @@
       "lyDo": {
         "width@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp.",
         "height@390": "Preview tĩnh không chạy JS: ở khổ 390 vẫn vẽ 2 tháng ép trong 100vw − 16 (ô ngày ~22px, không bấm nổi). README + plan Review Focus #5: ≤ 640px chỉ 1 tháng (tháng chứa ngày cuối) đủ ‹ ›, ô giãn vuông (374 − 32)/7 ≈ 48,9px như `.ui-cal-pop .ui-cal-day` của bundle — prototype FormDemo cũng đổi bằng matchMedia. Khổ 1440 khớp."
-      }
+      },
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "moc",
       "artifact": ".ui-cal-presets",
-      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"moc\"]"
+      "ds": "#date-range-picker [data-so=\"bang\"] [data-so=\"moc\"]",
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "moc-thuong",
@@ -253,7 +328,12 @@
       "trangThai": [
         "hover"
       ],
-      "artifactThat": true
+      "artifactThat": true,
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "moc-chon",
@@ -262,7 +342,12 @@
       "trangThai": [
         "hover"
       ],
-      "artifactThat": true
+      "artifactThat": true,
+      "buoc": [
+        {
+          "cho": 1500
+        }
+      ]
     },
     {
       "khoa": "chan",
@@ -288,6 +373,11 @@
           "ten": "ap-dung",
           "artifact": "> .ui-row > .ui-btn:last-child",
           "ds": "> span > button:last-child"
+        }
+      ],
+      "buoc": [
+        {
+          "cho": 1500
         }
       ]
     }

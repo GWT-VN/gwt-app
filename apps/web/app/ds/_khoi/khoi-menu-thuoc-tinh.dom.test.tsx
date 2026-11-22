@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { DsRoot } from '@/components/ui/ds-root'
-import { Toaster, thongBao } from '@/components/ui/toast'
+import { Toaster, thongBao } from '@/components/ui/sonner'
 import { KhoiMenuThuocTinh } from './khoi-menu-thuoc-tinh'
 
 // Giờ VN cho cả file (mẫu date-time-picker.dom.test.tsx): đặt trước mọi import.

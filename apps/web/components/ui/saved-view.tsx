@@ -9,7 +9,7 @@ import { svChan, svChip, svKhung, svTieuDe, svTomTat } from './data-view-styles'
 import { Field, FieldError, FieldLabel } from './field'
 import { Input } from './input'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 
 const TOI_DA = 40
 const LOI = 'Đặt tên để tìm lại trong sidebar.'

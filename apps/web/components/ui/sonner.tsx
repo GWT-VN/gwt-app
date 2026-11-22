@@ -1,8 +1,10 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
-import { Check, WarningCircle, X } from '@phosphor-icons/react'
-import { Toaster as SonnerToaster, toast } from 'sonner'
+import { Check, CheckCircle, Info, WarningCircle, Warning, X, XCircle } from '@phosphor-icons/react'
+import { Toaster as Sonner, toast, type ToasterProps } from 'sonner'
+import { cn } from '@/lib/utils'
 import { Spinner } from './spinner'
 import {
   CACH_DAY,
@@ -21,8 +23,15 @@ import {
 } from './toast-styles'
 
 /**
- * Toast — Sonner 2.0.8 (shadcn Sonner), giao diện `.ui-toast` của ds/nguon/bundle.css.
- * - Đặt MỘT `<Toaster />` mỗi trang, TRONG `<DsRoot>` (Sonner không portal — toaster render tại chỗ → nằm trong vùng
+ * Sonner — khung shadcn new-york-v4 `sonner.tsx` (tab Radix; `toast.tsx` của shadcn chỉ có bản Base UI). Tên file theo shadcn
+ * (R22); khối /ds + cổng so khớp giữ tên artifact **Toast**. Giao diện `.ui-toast` của ds/nguon/bundle.css (toast-styles.ts).
+ *
+ * `Toaster` như shadcn: nhận mọi prop của Sonner (`{...props}` đè mặc định), `icons` + biến `--normal-*` /
+ * `--border-radius` (chỉ áp cho toast kiểu mặc định của Sonner — `toast('…')` gọi thẳng; gán token đảo màu như viên
+ * thuốc DS). Lệch shadcn có chủ đích:
+ * - Không `next-themes` (`useTheme`): DS tự đặt theme ở DsRoot; toast của DS (`thongBao`) tự vẽ (`toast.custom`), không
+ *   theo `theme` của Sonner.
+ * - Đặt MỘT `<Toaster />` mỗi trang, TRONG `<DsRoot>` (R10; Sonner không portal — toaster render tại chỗ → nằm trong vùng
  *   `[data-ds="v2"]`, có token). Gọi `thongBao.*` ở bất kỳ đâu (client).
  * - z 56 (thang z NGUON.md, dưới Dialog 70): Sonner gốc đặt `z-index: 999999999` trên `[data-sonner-toaster]` → ghi
  *   đè bằng style của toaster (inline thắng stylesheet Sonner chèn lúc chạy).
@@ -30,15 +39,33 @@ import {
  *   BulkActionBar đang hiện → 124 (≤767: 236), qua `toasterLop`.
  * - Sonner tự lo: chồng nhiều toast, dừng hẹn giờ khi rê chuột, vuốt để tắt, Alt+T tới vùng thông báo.
  */
-export function Toaster() {
+function Toaster({ className, style, ...props }: ToasterProps) {
   return (
-    <SonnerToaster
+    <Sonner
       position="bottom-center"
       offset={{ bottom: CACH_DAY }}
       mobileOffset={{ bottom: CACH_DAY }}
       containerAriaLabel="Thông báo"
-      className={toasterLop}
-      style={{ zIndex: Z_TOAST, '--width': 'calc(100% - 32px)' } as CSSProperties}
+      className={cn('toaster group', toasterLop, className)}
+      icons={{
+        success: <CheckCircle aria-hidden className="size-(--control-icon-size-sm)" />,
+        info: <Info aria-hidden className="size-(--control-icon-size-sm)" />,
+        warning: <Warning aria-hidden className="size-(--control-icon-size-sm)" />,
+        error: <XCircle aria-hidden className="size-(--control-icon-size-sm)" />,
+        loading: <Spinner aria-hidden className="size-(--control-icon-size-sm)" />,
+      }}
+      style={
+        {
+          zIndex: Z_TOAST,
+          '--width': 'calc(100% - 32px)',
+          '--normal-bg': 'var(--color-background-primary-solid)',
+          '--normal-text': 'var(--color-text-primary-solid)',
+          '--normal-border': 'transparent',
+          '--border-radius': 'var(--radius-full)',
+          ...style,
+        } as CSSProperties
+      }
+      {...props}
     />
   )
 }
@@ -183,3 +210,5 @@ export const thongBao = {
     toast.dismiss(id)
   },
 }
+
+export { Toaster }

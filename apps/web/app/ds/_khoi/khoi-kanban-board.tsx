@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ContextMenuItem } from '@/components/ui/context-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { KanbanBoard, NoiDungThe, type CotKanban, type TheKanban } from '@/components/ui/kanban-board'
-import { thongBao } from '@/components/ui/toast'
+import { thongBao } from '@/components/ui/sonner'
 import { BienThe, KhoiHang } from '../_khung/tam'
 import { Nhan } from './khoi-filter-bar'
 

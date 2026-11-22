@@ -6,7 +6,7 @@ import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { Badge } from './badge'
 import { DsRoot } from './ds-root'
 import { OSuaChu, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from './inline-edit'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 
 // Giờ VN cho cả file (ô hạn): đặt trước mọi import.
 const tzCu = vi.hoisted(() => {
@@ -20,7 +20,7 @@ afterAll(() => {
 })
 
 // Toast thật (Sonner) chạy hẹn giờ — ở đây chỉ cần biết ô GỌI đúng thongBao + bấm được Hoàn tác.
-vi.mock('./toast', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
+vi.mock('./sonner', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
 const xong = vi.mocked(thongBao.xong)
 const loi = vi.mocked(thongBao.loi)
 beforeEach(() => {

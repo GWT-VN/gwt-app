@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { thongBao, type ToastId } from '@/components/ui/toast'
+import { thongBao, type ToastId } from '@/components/ui/sonner'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 const NOOP = () => {}
@@ -34,6 +34,7 @@ function useChay() {
 /**
  * #toast — ds/nguon/components/Toast/preview.html vẽ 3 toast tĩnh; DS bấm nút ra toast thật (Sonner, đáy giữa cách đáy
  * 72). `data-so` = khoá so khớp (ds/so-khop/toast.json). Toaster do trang gắn (khung-ds.tsx, tron/page.tsx).
+ * Tên (R22): code theo shadcn `components/ui/sonner.tsx` (`Toaster` + phần GWT `thongBao`); khối + cổng giữ tên artifact Toast.
  */
 export function KhoiToast() {
   const chay = useChay()

@@ -1,20 +1,24 @@
 'use client'
 
+// C có chủ đích (R21, docs/rework/2026-11-21-chep-shadcn-ke-hoach.md): Combobox của shadcn new-york-v4 dựng trên
+// `@base-ui/react` (16 export) — DS chưa cài thư viện đó, giữ bản ghép kiểu shadcn cũ: Popover + Command (cmdk). Hỏi lại CEO
+// khi màn nghiệp vụ cần chip chọn nhiều.
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { CaretUpDown, Check, MagnifyingGlass, X } from '@phosphor-icons/react/ssr'
-import { Command as CommandPrimitive } from 'cmdk'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { locMucChon } from '@/bang/timkiem'
 import { TOI_THIEU_KY_TU, useTimXa } from '@/bang/useTimXa'
 import { cn } from '@/lib/utils'
-import { menuCheck, menuContent, menuItem } from './menu-styles'
+import { Command, CommandInput, CommandItem, CommandList } from './command'
+import * as cs from './command-styles'
+import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { selectTrigger, selectValue } from './control-styles'
 import { Spinner } from './spinner'
 import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
 /**
- * Combobox — khung shadcn (Popover + cmdk `Command`), giá trị từ `.ui-select-trigger` (trigger, qua `selectTrigger`) và
+ * Combobox — ghép Popover + `Command*` của DS (command.tsx, cmdk), giá trị từ `.ui-select-trigger` (trigger, qua `selectTrigger`) và
  * `.ui-menu*` (pop: `.ui-menu-search`, `.ui-menu-list`, `.ui-menu-item .ui-code`, `.ui-menu-note`/`.ui-menu-empty`) của
  * ds/nguon/bundle.css.
  *
@@ -223,31 +227,12 @@ export function ComboboxPanel({
     ghiChu = tong >= max ? `${ds.length} kết quả đầu — gõ thêm để thu hẹp` : `${tong} kết quả`
   else ghiChu = tong > ds.length ? `Đang hiện ${ds.length} / ${tong} mục — gõ thêm để thu hẹp` : `${tong} mục`
 
-  // `.ui-menu-search`: cao 32, padding 0 8, gap 8, tràn mép menu (margin −6 −6 6 = --menu-gutter), gạch dưới 1px
-  // border; focus trong ô → gạch alpha-50.
-  const hangTim = (o: ReactNode) => (
-    <div
-      data-slot="combobox-search"
-      className={cn(
-        'flex items-center gap-2 h-(--control-size-md) px-2 -mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)',
-        // Chỉ cạnh dưới có viền (cạnh khác none, màu currentColor như `border: 0` của nguồn).
-        'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
-        '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
-      )}
-    >
-      <MagnifyingGlass aria-hidden="true" />
-      {o}
-    </div>
-  )
-  const lopO = cn(
-    'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
-    'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
-  )
-  // `.ui-menu-list`: cao tối đa 240 (bundle.css gõ 240px), cuộn, thanh cuộn alpha-30.
-  const lopDs =
-    'max-h-[240px] overflow-y-auto [scrollbar-color:var(--alpha-30)_transparent] border-none border-current outline-none'
-  // cmdk đánh dấu mục đang sáng bằng data-selected (không phải data-highlighted của Radix).
-  const lopMuc = cn(menuItem, 'data-[selected=true]:bg-(--menu-item-bg)')
+  // Phần Command mặc định đã là `.ui-menu*` (command-styles.ts). Combobox chỉ thêm: gốc là khối thường KHÔNG cắt tràn như
+  // `.ui-menu` của nguồn (hàng tìm tràn mép pop; flex-row trả flex-direction về mặc định cho cổng so khớp khoá mat-tinh),
+  // hàng tìm tràn mép menu (margin −6 −6 6 = --menu-gutter), danh sách không đệm (đệm nằm ở khung pop).
+  const lopGoc = cn('block flex-row overflow-visible', className)
+  const lopHang = '-mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)'
+  const lopDs = 'p-0'
   const noiDung = (m: MucChon) => (
     <>
       {m.nhan !== m.gt && (
@@ -280,19 +265,31 @@ export function ComboboxPanel({
 
   if (tinh)
     return (
-      <div cmdk-root="" inert className={className}>
-        {hangTim(<input readOnly tabIndex={-1} value={go} aria-label="Tìm theo mã hoặc tên" placeholder={searchPlaceholder} className={lopO} />)}
-        <div cmdk-list="" role="listbox" aria-label="Kết quả" className={lopDs}>
+      <div data-slot="command" cmdk-root="" inert className={cn(cs.command, lopGoc)}>
+        <div data-slot="command-input-wrapper" className={cn(cs.commandInputWrapper, lopHang)}>
+          <MagnifyingGlass aria-hidden="true" className={cs.commandInputIcon} />
+          <input
+            data-slot="command-input"
+            readOnly
+            tabIndex={-1}
+            value={go}
+            aria-label="Tìm theo mã hoặc tên"
+            placeholder={searchPlaceholder}
+            className={cs.commandInput}
+          />
+        </div>
+        <div data-slot="command-list" cmdk-list="" role="listbox" aria-label="Kết quả" className={cn(cs.commandList, lopDs)}>
           <div cmdk-list-sizer="">
             {ds.map((m) => (
               <div
                 key={m.gt}
+                data-slot="command-item"
                 cmdk-item=""
                 role="option"
                 aria-selected={m.gt === sangThat}
                 data-selected={m.gt === sangThat}
                 data-checked={m.gt === value || undefined}
-                className={lopMuc}
+                className={cs.commandItem}
               >
                 {noiDung(m)}
               </div>
@@ -304,51 +301,43 @@ export function ComboboxPanel({
     )
 
   return (
-    <CommandPrimitive
+    <Command
       ref={gocRef}
       value={sangThat}
       onValueChange={setSang}
       shouldFilter={false}
       vimBindings={false}
       label="Tìm theo mã hoặc tên"
-      className={className}
+      className={lopGoc}
       onKeyDown={(e) => {
         // cmdk đã bỏ qua phím khi nativeEvent.isComposing / keyCode 229; cờ riêng phủ trình duyệt/bộ gõ không gắn cờ đó.
         if (ghep.current && e.key === 'Enter') e.preventDefault()
       }}
     >
-      {hangTim(
-        <CommandPrimitive.Input
-          value={go}
-          onValueChange={(v) => {
-            setGo(v)
-            if (!ghep.current) setQ(v)
-          }}
-          onCompositionStart={() => {
-            ghep.current = true
-          }}
-          onCompositionEnd={(e) => {
-            ghep.current = false
-            setQ(e.currentTarget.value)
-          }}
-          placeholder={searchPlaceholder}
-          className={lopO}
-        />,
-      )}
-      <CommandPrimitive.List label="Kết quả" className={lopDs}>
+      <CommandInput
+        value={go}
+        onValueChange={(v) => {
+          setGo(v)
+          if (!ghep.current) setQ(v)
+        }}
+        onCompositionStart={() => {
+          ghep.current = true
+        }}
+        onCompositionEnd={(e) => {
+          ghep.current = false
+          setQ(e.currentTarget.value)
+        }}
+        placeholder={searchPlaceholder}
+        wrapperClassName={lopHang}
+      />
+      <CommandList label="Kết quả" className={lopDs}>
         {ds.map((m) => (
-          <CommandPrimitive.Item
-            key={m.gt}
-            value={m.gt}
-            onSelect={() => onSelect(m)}
-            data-checked={m.gt === value || undefined}
-            className={lopMuc}
-          >
+          <CommandItem key={m.gt} value={m.gt} onSelect={() => onSelect(m)} data-checked={m.gt === value || undefined}>
             {noiDung(m)}
-          </CommandPrimitive.Item>
+          </CommandItem>
         ))}
-      </CommandPrimitive.List>
+      </CommandList>
       {ghiChuO}
-    </CommandPrimitive>
+    </Command>
   )
 }

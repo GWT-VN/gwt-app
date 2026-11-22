@@ -36,7 +36,7 @@
     {
       "khoa": "hang-go",
       "artifact": ".ds-muc:nth-child(1) .ui-command-input",
-      "ds": "#command-palette [data-so=\"co-ket-qua\"] [data-slot=\"command-input\"]",
+      "ds": "#command-palette [data-so=\"co-ket-qua\"] [data-slot=\"command-input-wrapper\"]",
       "con": [
         { "ten": "input", "artifact": "> input", "ds": "> input" },
         { "ten": "icon", "artifact": "> svg", "ds": "> svg", "props": ["width", "height", "color"] },

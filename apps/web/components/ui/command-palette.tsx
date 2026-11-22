@@ -6,23 +6,19 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type ComponentProps,
   type ComponentType,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from 'react'
 import { MagnifyingGlass, Sparkle } from '@phosphor-icons/react/ssr'
-import { Command as CommandPrimitive } from 'cmdk'
-import { Dialog as DialogPrimitive } from 'radix-ui'
 import { boDau, chuanHoaTuKhoa } from '@/bang/timkiem'
 import { laMac, laPhimMoLenh, phimMoLenh } from '@/lib/phim-tat'
 import { cn } from '@/lib/utils'
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from './command'
 import * as s from './command-styles'
-import { overlay } from './dialog-styles'
-import { useDsPortal } from './ds-root'
+import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { Kbd, KbdGroup } from './kbd'
-import { useNutMo } from './use-nut-mo'
 
 /** Một dòng kết quả. `truong` = các trường đem khớp, MỖI TRƯỜNG SO RIÊNG (không nối) — vd tên, mã, SĐT. */
 export type MucLenh = { id: string; ten: string; phu?: string; truong: string[] }
@@ -94,7 +90,8 @@ type PropsThan = {
 }
 
 /**
- * Thân CommandPalette (ô gõ + vùng trạng thái + danh sách + chân) — CommandPalette dùng bên trong hộp. Xuất ra cho chỗ cần
+ * Thân CommandPalette (ô gõ + vùng trạng thái + danh sách + chân), dựng trên `Command`/`CommandInput`/`CommandList`/
+ * `CommandGroup`/`CommandItem` (command.tsx) — CommandPalette dùng bên trong hộp. Xuất ra cho chỗ cần
  * mặt NẰM SẴN trên trang (khối /ds vẽ tĩnh): truyền `tinh` và tự bọc `hop` của command-styles.ts qua `className`.
  *
  * ⚠️ Bẫy (review đợt 1, 20/11): cmdk 1.1.1 gọi `scrollIntoView({ block: 'nearest' })` lên mục sáng lúc MOUNT và mỗi lần
@@ -184,13 +181,8 @@ export function CommandPanel({
       {d.value === sangThat && <Kbd aria-hidden="true">↵</Kbd>}
     </>
   )
-  const hangGo = (o: ReactNode) => (
-    <div data-slot="command-input" className={s.hangGo}>
-      <MagnifyingGlass aria-hidden="true" />
-      {o}
-      <Kbd className={s.phimEsc}>Esc</Kbd>
-    </div>
-  )
+  // Chuỗi class chung cho hai cách vẽ (cmdk sống qua command.tsx / tĩnh): mặc định phần Command + `.ui-command-*`.
+  const esc = <Kbd className={s.phimEsc}>Esc</Kbd>
   const giua = (
     <>
       {/* Đọc số kết quả mỗi lần gõ (aria-activedescendant có thể giữ nguyên id mục đầu nên không tự đọc lại). */}
@@ -222,13 +214,25 @@ export function CommandPanel({
 
   if (tinh)
     return (
-      <div data-slot="command-panel" inert cmdk-root="" className={cn(s.goc, className)}>
-        {hangGo(<input readOnly tabIndex={-1} value={go} aria-label="Tìm toàn cục" placeholder={placeholder} className={s.oGo} />)}
+      <div data-slot="command-panel" inert cmdk-root="" className={cn(s.command, s.goc, className)}>
+        <div data-slot="command-input-wrapper" className={cn(s.commandInputWrapper, s.hangGo)}>
+          <MagnifyingGlass aria-hidden="true" className={s.commandInputIcon} />
+          <input
+            data-slot="command-input"
+            readOnly
+            tabIndex={-1}
+            value={go}
+            aria-label="Tìm toàn cục"
+            placeholder={placeholder}
+            className={cn(s.commandInput, s.oGo)}
+          />
+          {esc}
+        </div>
         {giua}
-        <div cmdk-list="" role="listbox" aria-label="Kết quả" className={s.danhSach}>
+        <div data-slot="command-list" cmdk-list="" role="listbox" aria-label="Kết quả" className={cn(s.commandList, s.danhSach)}>
           <div cmdk-list-sizer="">
             {cacNhom.map((g) => (
-              <div key={g.key} cmdk-group="" role="presentation">
+              <div key={g.key} data-slot="command-group" cmdk-group="" role="presentation" className={s.commandGroup}>
                 <div cmdk-group-heading="" aria-hidden="true">
                   {g.heading}
                 </div>
@@ -236,11 +240,12 @@ export function CommandPanel({
                   {g.dong.map((d) => (
                     <div
                       key={d.value}
+                      data-slot="command-item"
                       cmdk-item=""
                       role="option"
                       aria-selected={d.value === sangThat}
                       data-selected={d.value === sangThat}
-                      className={s.dong}
+                      className={cn(s.commandItem, s.dong)}
                     >
                       {noiDung(d)}
                     </div>
@@ -255,7 +260,7 @@ export function CommandPanel({
     )
 
   return (
-    <CommandPrimitive
+    <Command
       ref={gocRef}
       data-slot="command-panel"
       value={sangThat}
@@ -270,46 +275,48 @@ export function CommandPanel({
         if (ghep.current && (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) e.preventDefault()
       }}
     >
-      {hangGo(
-        <CommandPrimitive.Input
-          value={go}
-          onValueChange={(v) => {
-            setGo(v)
-            if (!ghep.current) setQ(v)
-          }}
-          onCompositionStart={() => {
-            ghep.current = true
-          }}
-          onCompositionEnd={(e) => {
-            ghep.current = false
-            setQ(e.currentTarget.value)
-          }}
-          aria-label="Tìm toàn cục"
-          placeholder={placeholder}
-          spellCheck={false}
-          className={s.oGo}
-        />,
-      )}
+      <CommandInput
+        value={go}
+        onValueChange={(v) => {
+          setGo(v)
+          if (!ghep.current) setQ(v)
+        }}
+        onCompositionStart={() => {
+          ghep.current = true
+        }}
+        onCompositionEnd={(e) => {
+          ghep.current = false
+          setQ(e.currentTarget.value)
+        }}
+        aria-label="Tìm toàn cục"
+        placeholder={placeholder}
+        spellCheck={false}
+        wrapperClassName={s.hangGo}
+        className={s.oGo}
+      >
+        {esc}
+      </CommandInput>
       {giua}
-      <CommandPrimitive.List label="Kết quả" className={s.danhSach}>
+      <CommandList label="Kết quả" className={s.danhSach}>
         {cacNhom.map((g) => (
-          <CommandPrimitive.Group key={g.key} heading={g.heading}>
+          <CommandGroup key={g.key} heading={g.heading}>
             {g.dong.map((d) => (
-              <CommandPrimitive.Item key={d.value} value={d.value} onSelect={d.chon} className={s.dong}>
+              <CommandItem key={d.value} value={d.value} onSelect={d.chon} className={s.dong}>
                 {noiDung(d)}
-              </CommandPrimitive.Item>
+              </CommandItem>
             ))}
-          </CommandPrimitive.Group>
+          </CommandGroup>
         ))}
-      </CommandPrimitive.List>
+      </CommandList>
       {chan}
-    </CommandPrimitive>
+    </Command>
   )
 }
 
 /**
- * CommandPalette — ô tìm toàn cục (shadcn `CommandDialog`: Radix Dialog + cmdk), giá trị từ `dialog.ui-command` /
- * `.ui-command-*` của ds/nguon/bundle.css qua command-styles.ts. Mở bằng `usePhimMoLenh` (Ctrl K / ⌘K) hoặc nút 🔍
+ * CommandPalette — ô tìm toàn cục, phần GWT ghép trên `Dialog` + `Command*` của DS (cùng cách shadcn ghép `CommandDialog`;
+ * không dùng thẳng CommandDialog vì cần điều khiển gốc Command: `value`, lọc ngoài, `loop`). Giá trị từ `dialog.ui-command` /
+ * `.ui-command-*` của ds/nguon/bundle.css qua command-styles.ts (phủ lên mặc định gọn của Command). Mở bằng `usePhimMoLenh` (Ctrl K / ⌘K) hoặc nút 🔍
  * (nút nên ghi `PhimMoLenh`).
  * - Khớp KHÔNG DẤU bằng `boDau`/`chuanHoaTuKhoa` của `bang/`, từng trường của mục so riêng; chữ gõ dạng SĐT bỏ `.`/`-`/cách
  *   trước khi so. Mỗi nhóm tối đa 5 dòng; cắt thì tên nhóm ghi "· 5/12". Đoạn khớp bọc `mark` (đậm 600, không tô).
@@ -327,35 +334,26 @@ export function CommandPalette({
   onHoiBap,
   ...than
 }: PropsThan & { open: boolean; onOpenChange(open: boolean): void }) {
-  const container = useDsPortal()
-  if (!container) return null
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal container={container}>
-        <DialogPrimitive.Overlay data-slot="command-overlay" className={overlay} />
-        <HopLenh data-slot="command-palette" className={s.hopNoi}>
-          <DialogPrimitive.Title className="sr-only">Tìm toàn cục</DialogPrimitive.Title>
-          <CommandPanel
-            {...than}
-            onChon={(m) => {
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* DialogContent của DS: portal vào DsRoot (chưa có ô thì không vẽ), nền mờ `overlay`, z-70, trả focus `useNutMo`. */}
+      <DialogContent data-slot="command-palette" showCloseButton={false} className={s.hopNoi}>
+        <DialogTitle className="sr-only">Tìm toàn cục</DialogTitle>
+        <CommandPanel
+          {...than}
+          onChon={(m) => {
+            onOpenChange(false)
+            onChon(m)
+          }}
+          onHoiBap={
+            onHoiBap &&
+            ((q) => {
               onOpenChange(false)
-              onChon(m)
-            }}
-            onHoiBap={
-              onHoiBap &&
-              ((q) => {
-                onOpenChange(false)
-                onHoiBap(q)
-              })
-            }
-          />
-        </HopLenh>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+              onHoiBap(q)
+            })
+          }
+        />
+      </DialogContent>
+    </Dialog>
   )
-}
-
-/** Con trực tiếp của Portal → chỉ mount khi mở (xem useNutMo). Không export. */
-function HopLenh(props: ComponentProps<typeof DialogPrimitive.Content>) {
-  return <DialogPrimitive.Content {...props} {...useNutMo(props)} />
 }

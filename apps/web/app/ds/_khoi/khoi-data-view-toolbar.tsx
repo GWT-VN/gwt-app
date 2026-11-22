@@ -8,7 +8,7 @@ import { CaiDatHienThi, CongCuXem, DataViewToolbar } from '@/components/ui/data-
 import type { CotBang } from '@/components/ui/use-cot-bang'
 import type { DangXem } from '@/components/ui/data-view-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { thongBao } from '@/components/ui/toast'
+import { thongBao } from '@/components/ui/sonner'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { cn } from '@/lib/utils'
 import { BienThe, KhoiHang } from '../_khung/tam'

@@ -34,7 +34,7 @@ import { cat, khach as lopKhach, LY_DO_CHO, luuY as lopLuuY } from './inline-edi
 import * as s from './kanban-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { useEscKhiKeo } from './tieu-de-cot'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 
 type MauBadge = NonNullable<VariantProps<typeof badgeVariants>['color']>
 

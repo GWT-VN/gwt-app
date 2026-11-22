@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, expect, test, vi } from 'vitest'
 import { DsRoot } from './ds-root'
-import { Toaster, thongBao } from './toast'
+import { Toaster, thongBao } from './sonner'
 import { Z_TOAST } from './toast-styles'
 
 function Mau() {

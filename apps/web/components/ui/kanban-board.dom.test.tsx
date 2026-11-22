@@ -15,10 +15,10 @@ import { CauHinhBangDs } from './bang-ds'
 import { ContextMenuItem } from './context-menu'
 import { DsRoot } from './ds-root'
 import { KanbanBoard, type CotKanban, type TheKanban } from './kanban-board'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 
 // Toast thật (Sonner) chạy hẹn giờ — ở đây chỉ cần biết bảng GỌI đúng thongBao + bấm được Hoàn tác.
-vi.mock('./toast', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
+vi.mock('./sonner', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
 const xong = vi.mocked(thongBao.xong)
 const loi = vi.mocked(thongBao.loi)
 

@@ -47,7 +47,7 @@ import {
 import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { RecordPicker, type BanGhi } from './record-picker'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 import type { VariantProps } from 'class-variance-authority'
 

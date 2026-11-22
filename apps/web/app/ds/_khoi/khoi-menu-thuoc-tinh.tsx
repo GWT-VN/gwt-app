@@ -43,7 +43,7 @@ import {
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { cotChon, ma as lopMa } from '@/components/ui/table-styles'
-import { thongBao } from '@/components/ui/toast'
+import { thongBao } from '@/components/ui/sonner'
 import { hienNgayGioGon } from '@/lib/gio'
 import { laOGo, usePhimTat } from '@/lib/phim-tat'
 import { BienThe, KhoiHang } from '../_khung/tam'

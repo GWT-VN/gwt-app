@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { DsRoot } from '@/components/ui/ds-root'
-import { Toaster } from '@/components/ui/toast'
+import { Toaster } from '@/components/ui/sonner'
 import { NHOM_MUC } from './khoi'
 import { MucLuc, ThanhDiDong } from './muc-luc'
 import type { Theme } from './trang'

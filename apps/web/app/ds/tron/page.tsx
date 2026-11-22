@@ -1,5 +1,5 @@
 import { DsRoot } from '@/components/ui/ds-root'
-import { Toaster } from '@/components/ui/toast'
+import { Toaster } from '@/components/ui/sonner'
 import { layTheme } from '../_khung/khung-ds'
 import { KHOI } from '../_khung/khoi'
 

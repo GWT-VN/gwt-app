@@ -1,8 +1,88 @@
+import { cn } from '@/lib/utils'
+import { menuItem, menuSeparator, menuShortcut } from './menu-styles'
+
 /**
- * Kiểu CommandPalette — chép từ khối "CommandPalette" (`dialog.ui-command`, `.ui-command-*`) của ds/nguon/bundle.css bản
- * 40. Chỉ là chuỗi class. `border-none border-current` ở div/span: preflight của app gắn `0 solid var(--border)`; nguồn
- * không viền. Mốc ≤640 viết `[@media(max-width:640px)]` y `@media (max-width: 640px)` của bundle.
+ * Kiểu Command (shadcn `command.tsx`) + CommandPalette. Chỉ là chuỗi class (file THƯỜNG: khối /ds server và mặt tĩnh
+ * `tinh` dùng chung với command.tsx).
+ *
+ * Phần 1 — mặc định của các phần Command: cỡ GỌN theo `.ui-menu*` của ds/nguon/bundle.css (như shadcn: Command gọn, dùng
+ * trong pop; CommandDialog phóng to). Combobox dùng gần nguyên (chỉ thêm lề tràn mép pop), CommandPalette phủ bằng
+ * `.ui-command-*` ở phần 2 qua `className` (`cn` đè đúng phần trùng).
+ *
+ * Phần 2 — CommandPalette: chép từ khối "CommandPalette" (`dialog.ui-command`, `.ui-command-*`) của bundle.css bản 40.
+ * `border-none border-current` ở div/span: preflight của app gắn `0 solid var(--border)`; nguồn không viền. Mốc ≤640 viết
+ * `[@media(max-width:640px)]` y `@media (max-width: 640px)` của bundle.
  */
+
+/** `Command` (shadcn: flex cột, cắt tràn, bo md, nền popover): bo radius-xl như mặt `.ui-menu`, chữ 14/20. */
+export const command = [
+  'flex h-full w-full flex-col overflow-hidden rounded-(--radius-xl) border-none border-current outline-none',
+  'bg-popover text-popover-foreground text-[14px] leading-[20px]',
+].join(' ')
+
+/**
+ * `CommandInput` — hàng bọc (`.ui-menu-search`): cao 32, padding 0 8, gap 8, chỉ kẻ dưới `border`; focus trong ô → gạch
+ * alpha-50. Kính lúp 16 muted (shadcn: opacity 50).
+ */
+export const commandInputWrapper = [
+  'flex shrink-0 items-center gap-2 h-(--control-size-md) px-2',
+  'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
+].join(' ')
+export const commandInputIcon = 'size-4 shrink-0 text-muted-foreground'
+/** Ô gõ: 14/20 400, placeholder tertiary, không viền/nền; tắt → not-allowed + mờ 50 (shadcn). */
+export const commandInput = [
+  'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
+  'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
+  'disabled:cursor-not-allowed disabled:opacity-50',
+].join(' ')
+
+/** `CommandList` (`.ui-menu-list`): trần cao 240 (bundle gõ 240px; shadcn 300), cuộn dọc, thanh cuộn alpha-30, đệm gutter. */
+export const commandList = [
+  'max-h-[240px] scroll-py-1 overflow-x-hidden overflow-y-auto p-(--menu-gutter)',
+  '[scrollbar-color:var(--alpha-30)_transparent] border-none border-current outline-none',
+].join(' ')
+
+/** `CommandEmpty` (`.ui-menu-empty`): padding 6 8, 12/18 muted (shadcn: py-6 giữa). */
+export const commandEmpty = 'px-2 py-1.5 border-none border-current text-[12px] leading-[18px] text-muted-foreground'
+
+/** `CommandGroup`: tên nhóm = `.ui-menu-label` (padding 6 8, 12/18 600 muted). */
+export const commandGroup = [
+  'overflow-hidden border-none border-current text-foreground',
+  '[&_[cmdk-group-heading]]:border-none [&_[cmdk-group-heading]]:border-current',
+  '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[12px]',
+  '[&_[cmdk-group-heading]]:leading-[18px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-muted-foreground',
+].join(' ')
+
+/** `CommandSeparator` (`.ui-menu-sep`): cao 1, nền border, tràn mép (shadcn −mx-1). */
+export const commandSeparator = menuSeparator
+
+/**
+ * `CommandItem` (`.ui-menu-item`): cmdk đánh dấu mục sáng bằng `data-selected` (không phải `data-highlighted` của Radix)
+ * → nền alpha-08 (tối alpha-10); tắt (`data-disabled`) → không nhận chuột, chữ disabled (shadcn: mờ 50).
+ */
+export const commandItem = cn(
+  menuItem,
+  'data-[selected=true]:bg-(--menu-item-bg)',
+  'data-[disabled=true]:pointer-events-none data-[disabled=true]:text-(--color-text-disabled)',
+)
+
+/** `CommandShortcut` (`.ui-menu-shortcut`): căn phải, 12/18 muted. */
+export const commandShortcut = menuShortcut
+
+/**
+ * `CommandDialog` (shadcn: DialogContent `overflow-hidden p-0` + Command phóng to): khung hộp dialog-styles, thân theo
+ * `.ui-command-*` — hàng gõ cao 52 đệm 16/12 gap 10, chữ 16/24, mục cao tối thiểu 40 gap 10, danh sách đệm 6.
+ */
+export const commandDialogContent = 'overflow-hidden p-0'
+export const commandDialog = [
+  '**:data-[slot=command-input-wrapper]:h-auto **:data-[slot=command-input-wrapper]:gap-2.5',
+  '**:data-[slot=command-input-wrapper]:pl-4 **:data-[slot=command-input-wrapper]:pr-3',
+  '**:data-[slot=command-input]:h-[52px] **:data-[slot=command-input]:text-[16px] **:data-[slot=command-input]:leading-[24px]',
+  '**:data-[slot=command-list]:max-h-[min(400px,60dvh)] **:data-[slot=command-list]:p-1.5',
+  '**:data-[slot=command-item]:min-h-(--control-size-xl) **:data-[slot=command-item]:gap-2.5',
+].join(' ')
+
+/* ——— Phần 2: CommandPalette ——— */
 
 /**
  * `dialog.ui-command` (phần không phụ thuộc vị trí — dùng chung hộp nổi và mặt tĩnh của /ds): cột flex, padding 0, bo
@@ -25,6 +105,8 @@ export const hop = [
  */
 export const hopNoi = [
   hop,
+  // Hộp dựng trên DialogContent (dialog.tsx): bỏ `h-fit` / `min-w-[250px]` của khung dialog chung.
+  'h-auto min-w-0',
   'fixed inset-x-0 top-[12vh] bottom-auto z-70 mx-auto my-0 [@media(max-width:640px)]:top-2',
   'transition-[opacity,translate,scale] duration-160 ease-[cubic-bezier(0.19,1,0.22,1)]',
   'starting:opacity-0 starting:translate-y-1 starting:scale-[0.98] motion-reduce:transition-none',
@@ -33,9 +115,12 @@ export const hopNoi = [
 /** Gốc cmdk trong hộp: cột flex co theo hộp → danh sách cuộn bên trong, ô gõ + chân đứng yên. */
 export const goc = 'flex flex-1 min-h-0 flex-col border-none border-current outline-none'
 
-/** `.ui-command-input`: flex giữa, gap 10, padding 0 12 0 16, chỉ kẻ dưới `border`. Icon 16 muted. */
+/**
+ * `.ui-command-input`: flex giữa, gap 10, padding 0 12 0 16, chỉ kẻ dưới `border`. Icon 16 muted. Phủ mặc định gọn của
+ * `CommandInput` (cao 32, gạch alpha-50 khi focus — nguồn không đổi gạch).
+ */
 export const hangGo = [
-  'flex shrink-0 items-center gap-2.5 pl-4 pr-3',
+  'flex shrink-0 items-center gap-2.5 pl-4 pr-3 h-auto focus-within:[border-bottom-color:var(--border)]',
   'border-none border-current [border-bottom:1px_solid_var(--border)]',
   '[&>svg]:size-(--control-icon-size-sm) [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
 ].join(' ')
@@ -54,7 +139,8 @@ export const phimEsc = '[@media(max-width:640px)]:hidden'
 
 /** `.ui-command-list`: co giãn, cuộn dọc, overscroll contain, padding 6. Tên nhóm = `.ui-menu-label` (flex, gap 6). */
 export const danhSach = [
-  'flex-1 min-h-0 overflow-y-auto overscroll-contain p-1.5 border-none border-current outline-none',
+  // Phủ mặc định của CommandList: không trần 240 (co theo hộp), thanh cuộn mặc định trình duyệt.
+  'flex-1 min-h-0 max-h-none overflow-y-auto overscroll-contain p-1.5 border-none border-current outline-none [scrollbar-color:auto]',
   '[&_[cmdk-group-heading]]:flex [&_[cmdk-group-heading]]:items-center [&_[cmdk-group-heading]]:gap-1.5',
   '[&_[cmdk-group-heading]]:border-none [&_[cmdk-group-heading]]:border-current',
   '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[12px]',

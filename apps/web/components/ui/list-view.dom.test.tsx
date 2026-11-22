@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(''),
 }))
 // Ô sửa gọi toast khi lưu — ở đây chỉ kiểm dòng/menu, không kiểm toast.
-vi.mock('./toast', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
+vi.mock('./sonner', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
 
 import { Badge } from './badge'
 import { ContextMenuItem, ContextMenuLabel } from './context-menu'

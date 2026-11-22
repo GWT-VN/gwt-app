@@ -5,9 +5,9 @@ import { beforeEach, expect, test, vi } from 'vitest'
 import { DsRoot } from './ds-root'
 import { OSuaKhach } from './inline-edit'
 import { RecordPicker, type BanGhi } from './record-picker'
-import { thongBao } from './toast'
+import { thongBao } from './sonner'
 
-vi.mock('./toast', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
+vi.mock('./sonner', () => ({ thongBao: { xong: vi.fn(), loi: vi.fn(), dangChay: vi.fn(), dong: vi.fn() } }))
 const xong = vi.mocked(thongBao.xong)
 beforeEach(() => xong.mockClear())
 
