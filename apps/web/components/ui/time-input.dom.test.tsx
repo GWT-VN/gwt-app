@@ -6,7 +6,7 @@ import { expect, test, vi } from 'vitest'
 import { DsRoot } from './ds-root'
 import { TimeInput } from './time-input'
 
-function Gio({ dau = null, onDoi }: { dau?: string | null; onDoi?: (g: string) => void }) {
+function Gio({ dau = null, onDoi }: { dau?: string | null; onDoi?: (g: string | null) => void }) {
   const [v, setV] = useState<string | null>(dau)
   return (
     <TimeInput
@@ -104,7 +104,45 @@ test('gõ sai → aria-invalid; rời ô trả về giá trị cũ, không gọi
   expect(o().value).toBe('17:30')
 })
 
-test('placeholder truyền vào hiện ở ô trống (giờ mặc định của DateTimePicker)', () => {
+test('ô trống + Enter khi danh sách mở mà chưa dời mục sáng → null, KHÔNG lấy gợi ý đang sáng', async () => {
+  const user = userEvent.setup()
+  const onDoi = vi.fn()
+  render(
+    <DsRoot>
+      <Gio onDoi={onDoi} />
+    </DsRoot>,
+  )
+  await user.click(o())
+  expect(screen.getByRole('listbox', { name: 'Gợi ý giờ' })).toBeTruthy()
+  await user.keyboard('{Enter}')
+  expect(onDoi).toHaveBeenLastCalledWith(null)
+  expect(o().value).toBe('')
+})
+
+test('nút "Xoá giờ" chỉ hiện khi có giờ → null; xoá chữ rồi rời ô cũng → null', async () => {
+  const user = userEvent.setup()
+  const onDoi = vi.fn()
+  render(
+    <DsRoot>
+      <Gio dau="09:00" onDoi={onDoi} />
+      <button type="button">khác</button>
+    </DsRoot>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Xoá giờ' }))
+  expect(onDoi).toHaveBeenLastCalledWith(null)
+  expect(o().value).toBe('')
+  expect(screen.queryByRole('button', { name: 'Xoá giờ' })).toBeNull()
+  await user.click(o())
+  await user.keyboard('1000')
+  await user.click(screen.getByRole('button', { name: 'khác' }))
+  expect(onDoi).toHaveBeenLastCalledWith('10:00')
+  await user.click(o())
+  await user.keyboard('{Backspace}')
+  await user.click(screen.getByRole('button', { name: 'khác' }))
+  expect(onDoi).toHaveBeenLastCalledWith(null)
+})
+
+test('placeholder truyền vào hiện ở ô trống', () => {
   render(
     <DsRoot>
       <TimeInput aria-label="Giờ" value={null} onValueChange={() => {}} placeholder="17:30" />

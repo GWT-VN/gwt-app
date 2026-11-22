@@ -2,9 +2,15 @@
 // Không `toISOString()` (UTC → lệch ngày giờ VN), xem bang/ngay.ts.
 import { hienNgay, isoNgay, ngayTuIso } from '@/bang/ngay'
 
-/** Giờ khi chỉ chọn ngày (R13 lát 7). CEO CHƯA chốt con số — đổi một chỗ ở đây. */
-export const GIO_MAC_DINH = '17:30'
+// Giá trị ngày giờ có HAI dạng (CEO 22/11 — "chọn ngày không thì chỉ hiển thị ngày, không tự chọn giờ"; thay R13 17:30):
+// chỉ ngày `YYYY-MM-DD` (không giờ, không múi) · có giờ = ISO có múi `YYYY-MM-DDTHH:mm:00+07:00`.
+
+/** Mục sáng sẵn của danh sách gợi ý khi ô giờ trống — chỉ là chỗ đứng để ↑/↓, KHÔNG tự gán vào giá trị. */
+export const GIO_GOI_Y_DAU = '17:30'
 export const MUI_VN = '+07:00'
+
+/** Giá trị chỉ có ngày ("YYYY-MM-DD")? */
+export const laChiNgay = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v)
 
 /** Gợi ý giờ mỗi 30 phút, 00:00 → 23:30. */
 export const GOI_Y_GIO = Array.from({ length: 48 }, (_, i) => `${String(i >> 1).padStart(2, '0')}:${i % 2 ? '30' : '00'}`)
@@ -49,27 +55,29 @@ const phutMui = (mui: string) => {
 }
 
 /**
- * ISO bất kỳ múi (DB trả `…Z` / `+00:00`) → ngày + giờ theo múi `mui`. Cắt chuỗi thẳng sẽ sai khi giá trị không cùng múi
- * (07:30Z hiện thành 07:30 thay vì 14:30 giờ VN).
+ * Giá trị → ngày + giờ theo múi `mui`; chỉ ngày → `gio: null` (không đổi múi — ngày lịch không có múi). ISO bất kỳ múi
+ * (DB trả `…Z` / `+00:00`) được đổi về `mui`: cắt chuỗi thẳng thì 07:30Z hiện thành 07:30 thay vì 14:30 giờ VN.
  */
-export function tachIso(iso: string, mui = MUI_VN): { ngay: string; gio: string } {
-  const d = new Date(Date.parse(iso) + phutMui(mui) * 60_000)
+export function tachIso(v: string, mui = MUI_VN): { ngay: string; gio: string | null } {
+  if (laChiNgay(v)) return { ngay: v, gio: null }
+  const d = new Date(Date.parse(v) + phutMui(mui) * 60_000)
   return {
     ngay: `${d.getUTCFullYear()}-${hai(d.getUTCMonth() + 1)}-${hai(d.getUTCDate())}`,
     gio: `${hai(d.getUTCHours())}:${hai(d.getUTCMinutes())}`,
   }
 }
 
-/** "YYYY-MM-DD" + "HH:mm" → "YYYY-MM-DDTHH:mm:00+07:00" (ghép chuỗi). */
-export const ghepIso = (ngay: string, gio: string, mui = MUI_VN) => `${ngay}T${gio}:00${mui}`
+/** "YYYY-MM-DD" + "HH:mm" → "YYYY-MM-DDTHH:mm:00+07:00" (ghép chuỗi); không giờ → giữ nguyên "YYYY-MM-DD". */
+export const ghepIso = (ngay: string, gio: string | null, mui = MUI_VN) => (gio ? `${ngay}T${gio}:00${mui}` : ngay)
 
-/** "21/11/2026 · 17:30" — ô form. */
-export const hienNgayGio = (iso: string, mui = MUI_VN) => {
-  const t = tachIso(iso, mui)
-  return `${hienNgay(t.ngay)} · ${t.gio}`
+/** "21/11/2026 · 17:30" — ô form; chỉ ngày → "21/11/2026". */
+export const hienNgayGio = (v: string, mui = MUI_VN) => {
+  const t = tachIso(v, mui)
+  return t.gio ? `${hienNgay(t.ngay)} · ${t.gio}` : hienNgay(t.ngay)
 }
-/** "21/11 17:30" — ô bảng hẹp. */
-export const hienNgayGioGon = (iso: string, mui = MUI_VN) => {
-  const t = tachIso(iso, mui)
-  return `${hienNgay(t.ngay).slice(0, 5)} ${t.gio}`
+/** "21/11 17:30" — ô bảng hẹp; chỉ ngày → "21/11". */
+export const hienNgayGioGon = (v: string, mui = MUI_VN) => {
+  const t = tachIso(v, mui)
+  const n = hienNgay(t.ngay).slice(0, 5)
+  return t.gio ? `${n} ${t.gio}` : n
 }

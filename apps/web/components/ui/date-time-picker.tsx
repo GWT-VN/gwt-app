@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { CalendarBlank, CaretDown } from '@phosphor-icons/react/ssr'
 import { hienNgay, isoNgay, ngayTuIso } from '@/bang/ngay'
-import { docNgay, ghepIso, GIO_MAC_DINH, hienNgayGio, hienNgayGioGon, MUI_VN, tachIso } from '@/lib/gio'
+import { docNgay, ghepIso, hienNgayGio, hienNgayGioGon, laChiNgay, MUI_VN, tachIso } from '@/lib/gio'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import { Calendar } from './calendar'
@@ -16,19 +16,21 @@ import { TimeInput } from './time-input'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
-export { ghepIso, GIO_MAC_DINH, hienNgayGio, hienNgayGioGon, tachIso }
+export { ghepIso, hienNgayGio, hienNgayGioGon, laChiNgay, tachIso }
 
 /**
- * DateTimePicker — chọn ngày + giờ (biến thể A4 của prototype chon-gio, CEO duyệt 20/11). Lưu ISO có múi
- * (`2026-11-25T14:30:00+07:00`), hiện "25/11/2026 · 14:30" (ô form) / "25/11 14:30" (`gon`, ô trong bảng).
+ * DateTimePicker — chọn ngày, giờ tuỳ chọn (biến thể A4 của prototype chon-gio, CEO duyệt 20/11; sửa 22/11). Giá trị hai
+ * dạng: có giờ = ISO có múi (`2026-11-25T14:30:00+07:00`) hiện "25/11/2026 · 14:30" / gọn "25/11 14:30"; **chỉ ngày**
+ * = `2026-11-25` hiện "25/11/2026" / gọn "25/11" (CEO 22/11: chọn ngày không thì chỉ lưu ngày, KHÔNG tự gán giờ).
  *
- * - Pop: đầu pop hai ô gõ [ngày][giờ] (`Input` + `TimeInput`), lịch bên dưới đồng bộ hai chiều với ô ngày; chân pop
+ * - Pop: lịch trên, hai ô gõ [ngày][giờ] (`Input` + `TimeInput`) ngay dưới lịch (CEO 22/11), đồng bộ hai chiều; chân pop
  *   **Xoá** (trái, khi có giá trị) · **Huỷ** + **Xong** (phải). Mở pop là focus ô ngày (chọn hết chữ để gõ đè).
  * - **Chỉ lưu khi Xong** (hoặc Enter ở ô ngày / ô giờ; IME đang ghép thì không). Huỷ / Esc / bấm ra ngoài = bỏ nháp; mở
  *   lại luôn nạp từ `value`. Xoá có hiệu lực ngay (lệnh rõ ràng). Ô ngày gõ sai / ngày đã qua → `aria-invalid`, Xong tắt.
  * - Ô ngày nhận "dd/mm", "dd/mm/yyyy" (`docNgay`). Chỉ đổi giờ, ô ngày trống → ngày của `value`, chưa có thì hôm nay.
- *   Chỉ chọn ngày → giờ của `value`, chưa có thì `gioMacDinh` (R13: mặc định 17:30, CEO chưa chốt) — ô giờ trống hiện số
- *   đó làm placeholder.
+ *   Chỉ chọn ngày → giờ đang có của `value` (nếu có), không thì lưu CHỈ NGÀY. Ô giờ trống placeholder "Giờ"; có giờ thì
+ *   nút ✕ "Xoá giờ" (TimeInput) đưa về chỉ ngày. `gioMacDinh`: KHÔNG có mặc định — chỉ khi bên gọi truyền mới tự gán giờ
+ *   đó khi chỉ chọn ngày (và hiện làm placeholder).
  * - Ngày trước `tuNgay` (mặc định hôm nay) bị tắt, TRỪ ngày của `value` (hạn cũ đã qua vẫn hiện, chọn lại được).
  * - `value` từ DB ở múi khác (`…Z`) được đổi về `mui` trước khi hiện / sửa (`tachIso`).
  * - `open` / `onOpenChange` điều khiển từ ngoài được (vd mục menu "Đặt hạn…" mở pop tại ô Hạn).
@@ -38,7 +40,7 @@ export { ghepIso, GIO_MAC_DINH, hienNgayGio, hienNgayGioGon, tachIso }
 export function DateTimePicker({
   value,
   onValueChange,
-  gioMacDinh = GIO_MAC_DINH,
+  gioMacDinh,
   mui = MUI_VN,
   tuNgay,
   gon,
@@ -48,10 +50,10 @@ export function DateTimePicker({
   name,
   ...trig
 }: TriggerChonProps & {
-  /** ISO có múi, vd `2026-11-25T14:30:00+07:00`; null = chưa có. */
+  /** ISO có múi (`2026-11-25T14:30:00+07:00`) hoặc chỉ ngày (`2026-11-25`); null = chưa có. */
   value: string | null
   onValueChange(v: string | null): void
-  /** "HH:mm" khi chỉ chọn ngày. */
+  /** "HH:mm" tự gán khi chỉ chọn ngày. Bỏ trống (mặc định) = chỉ lưu ngày. */
   gioMacDinh?: string
   /** Múi lưu + hiện, mặc định "+07:00". */
   mui?: string
@@ -97,9 +99,10 @@ export function DateTimePicker({
   const chot = (g = gio) => {
     if (loiNgay) return // ô ngày sai → giữ pop mở để sửa
     const n = hopLe ?? (g && !chu.trim() ? (cu?.ngay ?? (tu > nay ? tu : nay)) : null)
-    if (n) onValueChange(ghepIso(n, g ?? gioMacDinh, mui))
+    if (n) onValueChange(ghepIso(n, g ?? gioMacDinh ?? null, mui))
     datMo(false)
   }
+  const oNgayRef = useRef<HTMLInputElement>(null)
   const enterGio = useRef(false) // phím vừa bấm trong ô giờ là Enter (TimeInput chốt rồi mới báo onValueChange)
 
   return (
@@ -142,11 +145,29 @@ export function DateTimePicker({
         data-mo-chuot={chuot.chuot || undefined}
         className={cn(calendarPop, 'data-mo-chuot:[&_:focus-visible]:[outline:none]! data-mo-chuot:[&_:focus-visible]:outline-offset-0!')}
         onKeyDownCapture={chuot.onKeyDown}
+        // Ô gõ nằm dưới lịch → Radix sẽ focus nút "Tháng trước"; mở pop là đứng ở ô ngày (chọn hết để gõ đè).
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+          oNgayRef.current?.focus()
+        }}
       >
-        {/* Hai ô gõ cách nhau 8, cách lịch 12 (= nhịp chân lịch `calendarFoot`). */}
-        <div className="mb-3 flex gap-2 border-none border-current *:min-w-0">
+        <Calendar
+          mode="single"
+          required
+          selected={hopLe ? ngayTuIso(hopLe) : undefined}
+          month={thang}
+          onMonthChange={setThang}
+          disabled={(d) => {
+            const s = isoNgay(d)
+            return s < tu && s !== cu?.ngay
+          }}
+          onSelect={(d) => setChu(hienNgay(isoNgay(d)))}
+        />
+        {/* Hai ô gõ DƯỚI lịch (CEO 22/11), cách nhau 8, cách lịch 12 (= nhịp chân lịch `calendarFoot`). */}
+        <div className="mt-3 flex gap-2 border-none border-current *:min-w-0">
           <div className="flex-1 border-none border-current">
             <Input
+              ref={oNgayRef}
               icon={<CalendarBlank />}
               aria-label="Ngày"
               placeholder="dd/mm/yyyy"
@@ -179,7 +200,7 @@ export function DateTimePicker({
           >
             <TimeInput
               aria-label="Giờ"
-              placeholder={gioMacDinh}
+              placeholder={gioMacDinh ?? 'Giờ'}
               value={gio}
               onValueChange={(g) => {
                 setGio(g)
@@ -190,18 +211,6 @@ export function DateTimePicker({
             />
           </div>
         </div>
-        <Calendar
-          mode="single"
-          required
-          selected={hopLe ? ngayTuIso(hopLe) : undefined}
-          month={thang}
-          onMonthChange={setThang}
-          disabled={(d) => {
-            const s = isoNgay(d)
-            return s < tu && s !== cu?.ngay
-          }}
-          onSelect={(d) => setChu(hienNgay(isoNgay(d)))}
-        />
         <div className={calendarFoot}>
           {value ? (
             <Button

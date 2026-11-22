@@ -40,8 +40,8 @@ const BIEN_THE: Record<MaBienThe, { ten: string; cach: string; C: ComponentType<
     C: ChonHanA3,
   },
   A4: {
-    ten: 'A4 — hai ô gõ đầu pop',
-    cach: 'Mở pop là đang ở ô ngày: gõ 25/11 (hoặc "mai"), Tab sang ô giờ gõ 1430, Enter là lưu và đóng. Lịch dưới đi theo ô ngày và ngược lại.',
+    ten: 'A4 — DateTimePicker của DS (đã chốt)',
+    cach: 'Lịch trên, hai ô gõ [ngày][giờ] dưới lịch (CEO 22/11). Mở pop là đang ở ô ngày: gõ 25/11, Enter là lưu CHỈ ngày; muốn có giờ thì Tab gõ 1430 rồi Enter. ✕ ở ô giờ = bỏ giờ.',
     C: ChonHanA4,
   },
   A5: {

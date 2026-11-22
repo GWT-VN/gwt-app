@@ -10,8 +10,8 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from 'react'
-import { Clock } from '@phosphor-icons/react/ssr'
-import { docGio, GIO_MAC_DINH, GOI_Y_GIO } from '@/lib/gio'
+import { Clock, X } from '@phosphor-icons/react/ssr'
+import { docGio, GIO_GOI_Y_DAU, GOI_Y_GIO } from '@/lib/gio'
 import { cn } from '@/lib/utils'
 import { Input } from './input'
 import { menuContent, menuItem } from './menu-styles'
@@ -26,10 +26,12 @@ export { docGio, GOI_Y_GIO }
  *   đầu danh sách kèm "đã gõ".
  * - Combobox APG: `role="combobox"` + `aria-activedescendant`; ↑/↓ mở / dời mục sáng, Enter chốt mục sáng (không chốt khi
  *   bộ gõ IME đang ghép chữ), Esc khi danh sách mở trả chữ về giá trị cũ, rời ô chốt nếu đọc được (không thì trả lại).
+ * - Ô trống KHÔNG tự lấy giờ (CEO 22/11): danh sách mở ở quanh `GIO_GOI_Y_DAU` nhưng chưa mục nào sáng — Enter / rời ô
+ *   lúc trống = `onValueChange(null)` (bỏ giờ). Có giờ → nút ✕ "Xoá giờ" ở mép phải ô (kiểu nút bỏ chọn của Combobox).
  * - Danh sách = mặt menu DS (`menuContent`/`menuItem`) trong Popover portal vùng DS; focus ở lại ô gõ. Tự cuộn mục sáng
  *   bằng scrollTop (scrollIntoView kéo cả cửa sổ).
  * - `goiY` = danh sách gợi ý (mặc định mỗi 30 phút); `[]` = không có danh sách. `placeholder` mặc định "Giờ";
- *   DateTimePicker truyền giờ mặc định (R13). Mọi prop `<input>` khác (id, aria-*, disabled…) rơi vào ô.
+ *   DateTimePicker truyền `gioMacDinh` nếu bên gọi có. Mọi prop `<input>` khác (id, aria-*, disabled…) rơi vào ô.
  */
 export function TimeInput({
   value,
@@ -40,7 +42,8 @@ export function TimeInput({
   ...props
 }: Omit<ComponentProps<'input'>, 'value' | 'onChange' | 'defaultValue'> & {
   value: string | null
-  onValueChange(gio: string): void
+  /** "HH:mm"; null = bỏ giờ (ô trống, hoặc bấm ✕). */
+  onValueChange(gio: string | null): void
   goiY?: string[]
 }) {
   const [chu, setChu] = useState(value ?? '')
@@ -53,9 +56,10 @@ export function TimeInput({
   const doc = docGio(chu)
   const ds = doc && !goiY.includes(doc) ? [doc, ...goiY] : goiY
   const mo = moGoc && ds.length > 0
-  const macDinh = Math.max(0, ds.indexOf(doc ?? value ?? GIO_MAC_DINH))
   const [sang, setSang] = useState<number | null>(null) // null = theo chữ đang gõ
-  const iSang = sang ?? macDinh
+  // Mục sáng: dời bằng ↑/↓, không thì mục khớp chữ đang gõ; ô trống → không mục nào (Enter không lấy gợi ý).
+  const iSang = sang ?? (doc ? ds.indexOf(doc) : null)
+  const iNeo = iSang ?? Math.max(0, ds.indexOf(GIO_GOI_Y_DAU)) // chỗ cuộn tới + mốc đầu của ↑/↓
   const neoRef = useRef<HTMLDivElement>(null)
   const vuaFocus = useRef(false) // focus bằng chuột: mouseup bỏ vùng chọn → giữ "chọn hết" để gõ đè
   const dsRef = useRef<HTMLDivElement>(null)
@@ -64,18 +68,21 @@ export function TimeInput({
 
   useLayoutEffect(() => {
     const l = dsRef.current
-    const el = l?.querySelector<HTMLElement>(`[data-i="${iSang}"]`)
+    const el = l?.querySelector<HTMLElement>(`[data-i="${iNeo}"]`)
     if (!l || !el) return
     if (el.offsetTop < l.scrollTop) l.scrollTop = el.offsetTop - 6
     else if (el.offsetTop + el.offsetHeight > l.scrollTop + l.clientHeight)
       l.scrollTop = el.offsetTop + el.offsetHeight - l.clientHeight + 6
-  }, [iSang, mo])
+  }, [iNeo, mo])
 
   const chot = (g: string | null) => {
     if (g) {
       onValueChange(g)
       setChu(g)
-    } else setChu(value ?? '')
+    } else if (!chu.trim()) {
+      onValueChange(null)
+      setChu('')
+    } else setChu(value ?? '') // gõ sai → trả lại giá trị cũ
     setSang(null)
     setMo(false)
   }
@@ -86,11 +93,11 @@ export function TimeInput({
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       if (!mo) return setMo(true)
-      setSang(Math.min(ds.length - 1, Math.max(0, iSang + (e.key === 'ArrowDown' ? 1 : -1))))
+      setSang(iSang === null ? iNeo : Math.min(ds.length - 1, Math.max(0, iSang + (e.key === 'ArrowDown' ? 1 : -1))))
     } else if (e.key === 'Enter') {
       if (e.nativeEvent.isComposing || e.keyCode === 229) return
       e.preventDefault()
-      chot(mo ? ds[iSang] : doc)
+      chot(mo && iSang !== null ? ds[iSang] : doc)
     } else if (e.key === 'Escape' && mo) {
       // Đóng danh sách do DismissableLayer của Popover (lớp trên cùng) lo; ở đây chỉ trả chữ về giá trị cũ.
       setChu(value ?? '')
@@ -101,20 +108,21 @@ export function TimeInput({
   return (
     <Popover open={mo} onOpenChange={setMo}>
       <PopoverAnchor asChild>
-        <div ref={neoRef} className="flex min-w-0 border-none border-current *:min-w-0 *:flex-1">
+        <div ref={neoRef} className="relative flex min-w-0 items-center border-none border-current [&>:first-child]:min-w-0 [&>:first-child]:flex-1">
           <Input
             {...props}
             icon={<Clock />}
             role="combobox"
             aria-expanded={mo}
             aria-controls={mo ? idDs : undefined}
-            aria-activedescendant={mo ? `${idDs}-${iSang}` : undefined}
+            aria-activedescendant={mo && iSang !== null ? `${idDs}-${iSang}` : undefined}
             aria-autocomplete="list"
             aria-invalid={sai || props['aria-invalid'] || undefined}
             inputMode="numeric"
             autoComplete="off"
             placeholder={placeholder}
-            className={cn('tabular-nums', className)}
+            // pr-8 = nút ✕ 20 + lề phải 6 + cách chữ 6.
+            className={cn('tabular-nums', value && !props.disabled && 'pr-8', className)}
             value={chu}
             onChange={(e) => {
               vuaFocus.current = false
@@ -138,6 +146,29 @@ export function TimeInput({
             }}
             onKeyDown={onKeyDown}
           />
+          {value && !props.disabled && (
+            <button
+              type="button"
+              aria-label="Xoá giờ"
+              // Giữ focus nơi đang đứng (không blur ô gõ giữa chừng); bấm là bỏ giờ ngay.
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setChu('')
+                setSang(null)
+                setMo(false)
+                onValueChange(null)
+              }}
+              // Y nút bỏ chọn của Combobox: 20, icon 14 muted, rê → foreground; mép phải 6.
+              className={cn(
+                'absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex size-5 items-center justify-center rounded-sm',
+                'border-none border-current bg-transparent text-muted-foreground hover:text-foreground cursor-pointer',
+                '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
+                '[&>svg]:size-3.5',
+              )}
+            >
+              <X aria-hidden="true" />
+            </button>
+          )}
         </div>
       </PopoverAnchor>
       <PopoverContent

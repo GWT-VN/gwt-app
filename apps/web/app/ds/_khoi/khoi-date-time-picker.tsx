@@ -16,6 +16,7 @@ const TU = '2026-11-20'
 const VIEC = [
   { ma: 'TK-101', viec: 'Lắp máy lọc tầng 3', han: '2026-11-25T14:30:00+07:00' },
   { ma: 'TK-102', viec: 'Thay lõi định kỳ', han: null },
+  { ma: 'TK-105', viec: 'Gọi lại khách hỏi giá', han: '2026-11-27' },
   { ma: 'TK-103', viec: 'Kiểm tra rò nước', han: '2026-11-18T09:00:00+07:00' },
 ]
 
@@ -71,21 +72,28 @@ function MoTuNgoai() {
 function CacBienThe() {
   const [trong, setTrong] = useState<string | null>(null)
   const [co, setCo] = useState<string | null>('2026-11-25T14:30:00+07:00')
+  const [chiNgay, setChiNgay] = useState<string | null>('2026-11-27')
   const [qua, setQua] = useState<string | null>('2026-11-18T09:00:00+07:00')
   const [loi, setLoi] = useState<string | null>(null)
   return (
     <>
       <BienThe
         ten="Trống"
-        moTa="Bấm mở: gõ ngày (25/11) rồi Tab gõ giờ (1430), Enter là lưu; hoặc chọn ở lịch rồi Xong. Huỷ / Esc / bấm ra ngoài = không lưu."
+        moTa="Bấm mở: chọn ngày ở lịch (hoặc gõ 25/11 ở ô ngày dưới lịch), muốn có giờ thì Tab gõ 1430; Enter hoặc Xong là lưu. Huỷ / Esc / bấm ra ngoài = không lưu."
       >
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dtp-trong">Hạn xử lý</FieldLabel>
           <DateTimePicker id="dsh-dtp-trong" aria-describedby="dsh-dtp-trong-mo" tuNgay={TU} value={trong} onValueChange={setTrong} />
-          <FieldDescription id="dsh-dtp-trong-mo">Chỉ chọn ngày → lấy giờ mặc định 17:30 (CEO chưa chốt con số).</FieldDescription>
+          <FieldDescription id="dsh-dtp-trong-mo">Giờ không bắt buộc — chỉ chọn ngày thì chỉ lưu ngày.</FieldDescription>
         </Field>
       </BienThe>
-      <BienThe ten="Có giá trị" moTa="Mở lại thấy đúng ngày giờ đang lưu; đổi xong phải bấm Xong mới lưu. Xoá (trái chân pop) xoá ngay.">
+      <BienThe ten="Chỉ ngày" moTa="Lưu “2026-11-27”, hiện “27/11/2026” — không tự gán giờ. Mở ra ô giờ trống; gõ giờ rồi Xong là thêm giờ.">
+        <Field className="max-w-80">
+          <FieldLabel htmlFor="dsh-dtp-chi-ngay">Hạn xử lý</FieldLabel>
+          <DateTimePicker id="dsh-dtp-chi-ngay" tuNgay={TU} value={chiNgay} onValueChange={setChiNgay} />
+        </Field>
+      </BienThe>
+      <BienThe ten="Có ngày + giờ" moTa="Mở lại thấy đúng ngày giờ đang lưu; đổi xong phải bấm Xong mới lưu. ✕ ở ô giờ = bỏ giờ, về chỉ ngày. Xoá (trái chân pop) xoá cả hạn ngay.">
         <Field className="max-w-80">
           <FieldLabel htmlFor="dsh-dtp-co">Hạn xử lý</FieldLabel>
           <DateTimePicker id="dsh-dtp-co" tuNgay={TU} value={co} onValueChange={setCo} />
@@ -120,7 +128,7 @@ function CacBienThe() {
           <DateTimePicker id="dsh-dtp-tat" disabled value="2026-11-25T14:30:00+07:00" onValueChange={() => {}} />
         </Field>
       </BienThe>
-      <BienThe ten="Gọn trong bảng" moTa="Ô Hạn của dòng: hiện “25/11 14:30”, trống hiện “Đặt hạn”; ▾ khi rê / focus. Pop y như ô form.">
+      <BienThe ten="Gọn trong bảng" moTa="Ô Hạn của dòng: hiện “25/11 14:30”, chỉ ngày “27/11”, trống hiện “Đặt hạn”; ▾ khi rê / focus. Pop y như ô form.">
         <BangHan />
       </BienThe>
       <BienThe ten="Mở từ ngoài" moTa="Mục menu “Đặt hạn…” mở pop ngay tại ô Hạn (open / onOpenChange).">

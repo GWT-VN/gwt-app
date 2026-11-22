@@ -44,12 +44,14 @@ export const thuNgan = (ngay: string) => {
 export const hienMoc = (iso: string, nay: string) =>
   ngayCua(iso) === nay ? gioCua(iso) : ngayCua(iso) <= congNgay(nay, 6) ? `${thuNgan(ngayCua(iso))} ${gioCua(iso)}` : hienGon(iso)
 
-/** "21/11/2026 · 17:30" */
-export const hienDay = (iso: string) => `${hienNgay(iso)} · ${gioCua(iso)}`
+/** Hạn chỉ có ngày ("YYYY-MM-DD", CEO 22/11 — DateTimePicker không tự gán giờ). */
+const chiNgay = (iso: string) => iso.length === 10
+/** "21/11/2026 · 17:30"; chỉ ngày → "21/11/2026". */
+export const hienDay = (iso: string) => (chiNgay(iso) ? hienNgay(iso) : `${hienNgay(iso)} · ${gioCua(iso)}`)
 /** "Thứ Sáu 21/11/2026 · 17:30" */
 export const hienThu = (iso: string) => `${tenThu(ngayCua(iso))} ${hienDay(iso)}`
-/** "21/11 17:30" — ô bảng hẹp. */
-export const hienGon = (iso: string) => `${hienNgay(iso).slice(0, 5)} ${gioCua(iso)}`
+/** "21/11 17:30" — ô bảng hẹp; chỉ ngày → "21/11". */
+export const hienGon = (iso: string) => (chiNgay(iso) ? hienNgay(iso).slice(0, 5) : `${hienNgay(iso).slice(0, 5)} ${gioCua(iso)}`)
 
 /** Thứ (0 = CN … 6 = T7) kế tiếp, SAU hôm nay (hôm nay là Thứ Hai → Thứ Hai tuần sau). */
 export function thuToi(tu: string, thu: number) {

@@ -60,7 +60,7 @@ export type Ticket = {
   nguoiLam: string | null
   uuTien: UuTien
   nhan: string[]
-  /** ISO +07:00 (giống chon-gio); null = chưa có hạn. */
+  /** ISO +07:00 (giống chon-gio) hoặc "YYYY-MM-DD" (chỉ ngày); null = chưa có hạn. */
   han: string | null
 }
 
@@ -77,7 +77,7 @@ export function ticketDau(): Ticket[] {
     t('TK-1025', 'Khách hỏi lịch bảo trì', 'xong', 'nv-02', 'thap', [], ghepIso(congNgay(nay, -3), '15:00')),
     t('TK-1026', 'Vòi nóng không ra nước', 'dang-lam', 'nv-11', 'cao', ['loi-may', 'vip'], ghepIso(congNgay(nay, 2), '14:30')),
     t('TK-1027', 'Đổi địa chỉ lắp đặt', 'huy', null, 'thap', ['lap-dat'], null),
-    t('TK-1028', 'Kiểm tra TDS sau thay lõi', 'cho', 'nv-06', 'vua', ['thay-loi', 'bao-hanh'], ghepIso(congNgay(nay, 5), '09:00')),
+    t('TK-1028', 'Kiểm tra TDS sau thay lõi', 'cho', 'nv-06', 'vua', ['thay-loi', 'bao-hanh'], congNgay(nay, 5)), // hạn chỉ ngày (CEO 22/11)
   ]
 }
 

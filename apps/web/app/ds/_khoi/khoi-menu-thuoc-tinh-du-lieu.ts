@@ -64,7 +64,7 @@ export type Ticket = {
   nguoiLam: string | null
   uuTien: UuTien
   nhan: string[]
-  /** ISO +07:00; null = chưa có hạn. */
+  /** ISO +07:00 (có giờ) hoặc "YYYY-MM-DD" (chỉ ngày — DateTimePicker); null = chưa có hạn. */
   han: string | null
 }
 
@@ -85,7 +85,7 @@ export const TICKET_DAU: Ticket[] = [
   t('TK-1025', 'Khách hỏi lịch bảo trì', 'xong', 'nv-02', 'thap', [], '2026-11-17T15:00:00+07:00'),
   t('TK-1026', 'Vòi nóng không ra nước', 'dang-lam', 'nv-11', 'cao', ['loi-may', 'vip'], '2026-11-22T14:30:00+07:00'),
   t('TK-1027', 'Đổi địa chỉ lắp đặt', 'huy', null, 'thap', ['lap-dat'], null),
-  t('TK-1028', 'Kiểm tra TDS sau thay lõi', 'cho', 'nv-06', 'vua', ['thay-loi', 'bao-hanh'], '2026-11-25T09:00:00+07:00'),
+  t('TK-1028', 'Kiểm tra TDS sau thay lõi', 'cho', 'nv-06', 'vua', ['thay-loi', 'bao-hanh'], '2026-11-26'), // hạn chỉ ngày
 ]
 
 /** Phím tắt chuẩn của menu thuộc tính: S trạng thái · A người làm · P ưu tiên · L nhãn · ⇧D hạn. */

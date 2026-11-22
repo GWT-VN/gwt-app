@@ -151,9 +151,10 @@ test('menu chuột phải trên dòng NGOÀI vùng chọn chỉ áp dòng đó',
   expect([o('TK-1021', 'uu-tien'), o('TK-1022', 'uu-tien'), o('TK-1025', 'uu-tien')]).toEqual(['Cao', 'Vừa', 'Khẩn'])
 })
 
-test('"Đặt hạn…" mở DateTimePicker neo ô Hạn của dòng: Xong lưu; ⇧D mở lại, Huỷ không lưu', async () => {
+test('"Đặt hạn…" mở DateTimePicker neo ô Hạn của dòng: chỉ chọn ngày → Xong lưu CHỈ ngày; ⇧D mở lại, Huỷ không lưu', async () => {
   const user = dung()
   expect(o('TK-1024', 'han')).toBe('Đặt hạn')
+  expect(o('TK-1028', 'han')).toBe('26/11') // hạn chỉ ngày (CEO 22/11): không giờ
   await user.click(screen.getByRole('button', { name: 'Thao tác TK-1024' }))
   await user.click(await screen.findByRole('menuitem', { name: /^Đặt hạn…/ }))
   await screen.findByRole('dialog', { name: 'Chọn ngày giờ' })
@@ -164,8 +165,8 @@ test('"Đặt hạn…" mở DateTimePicker neo ô Hạn của dòng: Xong lưu;
   await user.type(oNgay, '25/11')
   await user.click(screen.getByRole('button', { name: 'Xong' }))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  expect(o('TK-1024', 'han')).toBe('25/11 17:30')
-  await screen.findByText('Đã đặt hạn TK-1024 → 25/11 17:30', { exact: false })
+  expect(o('TK-1024', 'han')).toBe('25/11')
+  await screen.findByText('Đã đặt hạn TK-1024 → 25/11', { exact: false })
 
   await phimTrenDong(user, 'TK-1024', '{Shift>}D{/Shift}')
   await screen.findByRole('dialog', { name: 'Chọn ngày giờ' })
@@ -174,5 +175,5 @@ test('"Đặt hạn…" mở DateTimePicker neo ô Hạn của dòng: Xong lưu;
   await user.type(oNgay2, '26/11')
   await user.click(screen.getByRole('button', { name: 'Huỷ' }))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  expect(o('TK-1024', 'han')).toBe('25/11 17:30')
+  expect(o('TK-1024', 'han')).toBe('25/11')
 })
