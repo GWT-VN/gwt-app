@@ -57,7 +57,7 @@ export function ChonHanA3({ value, onValueChange, id, gon, ma }: PropsHan) {
       />
       <div className="mt-3 flex flex-wrap items-center gap-2 border-none border-current" {...enter.vo}>
         {/* Chưa có hạn: 17:30 vẫn sáng = "chọn ngày thôi thì lấy giờ này". */}
-        <ToggleGroup type="single" aria-label="Giờ hay dùng" value={gio ?? GIO_MAC_DINH} className="flex-wrap">
+        <ToggleGroup type="single" aria-label="Giờ hay dùng" value={gio ?? GIO_MAC_DINH} spacing={0.5} className="flex-wrap">
           {CHIP.map((g) => (
             <ToggleGroupItem key={g} value={g} size="sm" className="tabular-nums" onClick={() => chot(ngay ?? nay, g)}>
               {g}

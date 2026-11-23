@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
 import {
@@ -20,24 +21,31 @@ import {
   tabsContent,
   tabsCount,
   tabsKhung,
-  tabsListPill,
-  tabsListSegmented,
+  tabsListVariants,
+  tabsRoot,
+  tabsTriggerLine,
   tabsTriggerPill,
   tabsTriggerSegmented,
 } from './tabs-styles'
 
 /**
- * Tabs — khung shadcn (Radix Tabs), diện mạo `.ui-tabs-*` của ds/nguon/bundle.css. README: Tabs.
+ * Tabs — khung shadcn (`Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `tabsListVariants`; Radix Tabs; `orientation`),
+ * diện mạo `.ui-tabs-*` của ds/nguon/bundle.css. README: Tabs.
  * - Bàn phím WAI-ARIA Tabs do Radix lo: ←/→ chuyển + kích hoạt luôn (`activationMode="automatic"`), Home/End, bỏ qua
  *   tab tắt, chỉ tab đang chọn tabIndex 0 (RovingFocus: trước khi nhóm nhận focus thì rãnh `tablist` là điểm dừng Tab).
- * - `TabsList variant`: `segmented` (mặc định — chuyển khung trong thẻ/bảng nhỏ) · `pill` (hàng tab màn dữ liệu).
+ * - `TabsList variant` (R19): giá trị shadcn `default` (mặc định — rãnh xám + thumb = segmented control của artifact,
+ *   chuyển khung trong thẻ/bảng nhỏ) · `line` (vạch dưới, artifact chưa có). Phần GWT thêm: `segmented` (= `default`),
+ *   `pill` (hàng tab màn dữ liệu), `thuGon`, `TabsCount`.
  * - Pill tràn: cuộn ngang, mờ mép phải 40px khi còn phần khuất. `thuGon`: tab không vừa gom vào nút "Thêm ▾"
  *   (DropdownMenu DS, chuẩn GitHub/Linear) — tab đang chọn luôn hiện; chọn từ menu → tab đó thành đang chọn, focus về nó.
  *   Nút "Thêm" đứng NGOÀI `tablist` (tablist chỉ chứa tab).
  * - Tab gắn URL (lọc trạng thái danh sách) → tham số chuẩn trong CHUAN-FILTER.md, điều khiển bằng `value`/`onValueChange`.
  */
 
-type Kieu = 'segmented' | 'pill'
+type Kieu = 'default' | 'line' | 'segmented' | 'pill'
+/** Vẻ của tab/số đếm: `default` và `segmented` là một. */
+type Ve = 'segmented' | 'line' | 'pill'
+const veCua = (v: Kieu): Ve => (v === 'default' ? 'segmented' : v)
 type NhanTab = { children: ReactNode; disabled?: boolean }
 
 const GiaTri = createContext<{ value?: string; doi: (v: string) => void }>({ doi: () => {} })
@@ -46,7 +54,7 @@ const KieuTabs = createContext<{
   an?: ReadonlySet<string>
   dangKy?: (value: string, n: NhanTab) => void
 }>({
-  variant: 'segmented',
+  variant: 'default',
 })
 
 export function Tabs({
@@ -54,6 +62,7 @@ export function Tabs({
   defaultValue,
   onValueChange,
   activationMode = 'automatic',
+  orientation = 'horizontal',
   className,
   ...props
 }: ComponentProps<typeof TabsPrimitive.Root>) {
@@ -74,7 +83,9 @@ export function Tabs({
         value={v}
         onValueChange={doi}
         activationMode={activationMode}
-        className={cn('border-none border-current', className)}
+        data-orientation={orientation}
+        orientation={orientation}
+        className={cn(tabsRoot, className)}
         {...props}
       />
     </GiaTri.Provider>
@@ -84,7 +95,7 @@ export function Tabs({
 const UOC_THEM = 88 // ước rộng nút "Thêm" lần đo đầu (nút còn ẩn, chưa đo được) — đo thật ngay vòng sau
 
 export function TabsList({
-  variant = 'segmented',
+  variant = 'default',
   thuGon = false,
   className,
   children,
@@ -95,7 +106,7 @@ export function TabsList({
       ref={ref}
       data-slot="tabs-list"
       data-variant={variant}
-      className={cn(variant === 'pill' ? tabsListPill : tabsListSegmented, className)}
+      className={cn(tabsListVariants({ variant }), className)}
       {...props}
     >
       {children}
@@ -210,6 +221,7 @@ export function TabsTrigger({
   ...props
 }: ComponentProps<typeof TabsPrimitive.Trigger>) {
   const { variant, an, dangKy } = useContext(KieuTabs)
+  const ve = veCua(variant)
   // Nhãn cho menu "Thêm" (tab đang ẩn vẫn mount, chỉ `hidden`).
   useLayoutEffect(() => {
     dangKy?.(value, { children, disabled })
@@ -221,7 +233,7 @@ export function TabsTrigger({
       value={value}
       disabled={disabled}
       hidden={an?.has(value) || undefined}
-      className={cn(variant === 'pill' ? tabsTriggerPill : tabsTriggerSegmented, className)}
+      className={cn(ve === 'pill' ? tabsTriggerPill : ve === 'line' ? tabsTriggerLine : tabsTriggerSegmented, className)}
       {...props}
     >
       {children}
@@ -231,12 +243,12 @@ export function TabsTrigger({
 
 /** Số đếm trong tab — nằm trong nút nên đọc kèm nhãn ("Quá hạn 2"). `color="danger"` cho số cần chú ý. */
 export function TabsCount({ color, className, ...props }: Omit<ComponentProps<'span'>, 'color'> & { color?: 'danger' }) {
-  const { variant } = useContext(KieuTabs)
+  const ve = veCua(useContext(KieuTabs).variant)
   return (
     <span
       data-slot="tabs-count"
       data-color={color}
-      className={cn(tabsCount[variant], color === 'danger' ? tabsCount.danger : tabsCount.thuong[variant], className)}
+      className={cn(tabsCount[ve], color === 'danger' ? tabsCount.danger : tabsCount.thuong[ve], className)}
       {...props}
     />
   )
@@ -245,3 +257,5 @@ export function TabsCount({ color, className, ...props }: Omit<ComponentProps<'s
 export function TabsContent({ className, ...props }: ComponentProps<typeof TabsPrimitive.Content>) {
   return <TabsPrimitive.Content data-slot="tabs-content" className={cn(tabsContent, className)} {...props} />
 }
+
+export { tabsListVariants }

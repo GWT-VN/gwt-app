@@ -7,6 +7,7 @@ import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { GIAO_DIEN_DS } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { oTick } from '@/components/ui/table-styles'
 import { cn } from '@/lib/utils'
 import { BienThe, KhoiHang } from '../_khung/tam'
 import { docDemo, NGHIA, Nhan, nhanLoai, TEN_COT, VE } from './khoi-filter-bar'
@@ -46,6 +47,10 @@ function ThaoTac({ bao }: { bao: (chu: string) => void }) {
 
 // Khối trần (/ds/tron, so khớp): thanh đứng TĨNH trong dòng như preview (preview ép style position static…).
 const THANH_TINH = cn(GIAO_DIEN_DS.chon_thanh, 'static inline-flex translate-x-0 max-w-none transition-none')
+const CAN_O_CHON = {
+  chon_oTh: cn(GIAO_DIEN_DS.chon_oTh, oTick),
+  chon_oTd: cn(GIAO_DIEN_DS.chon_oTd, oTick),
+}
 const TAT_CA = VE.map((r) => r.ma)
 const layHet = async () => TAT_CA
 
@@ -84,7 +89,7 @@ export function KhoiBulkActionBar() {
         <a href="#bulk-action-bar">BulkActionBar</a>
       </h2>
       <div className="flex flex-col items-start gap-2 border-none border-current">
-        <CauHinhBangDs giaoDien={{ chon_thanh: THANH_TINH }}>
+        <CauHinhBangDs giaoDien={{ ...CAN_O_CHON, chon_thanh: THANH_TINH }}>
           <Mau
             so="a"
             nhan='Bấm ô đầu cột: chọn hết trang 1 — mời "Chọn tất cả 19 ticket khớp bộ lọc"'
@@ -151,7 +156,7 @@ function BangThu() {
 export function KhoiBulkActionBarHang() {
   return (
     <KhoiHang neo="bulk-action-bar">
-      <CauHinhBangDs tenCot={TEN_COT} nghiaSapXep={NGHIA}>
+      <CauHinhBangDs giaoDien={CAN_O_CHON} tenCot={TEN_COT} nghiaSapXep={NGHIA}>
         <BienThe
           ten="Bấm thử"
           moTa="Tick ô đầu cột: chọn hết trang → thanh nổi ở đáy màn mời chọn cả 19. Sang trang 2 thanh vẫn nói “gồm cả dòng ở trang khác”. Esc hoặc ✕ bỏ hết; đổi lọc ở FilterBar cũng bỏ hết."

@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 // File THƯỜNG (không 'use client'): chuỗi class — server component đọc được.
 import type { GiaoDienBang } from '@/bang/giaoDien'
 import { cn } from '@/lib/utils'
@@ -12,13 +13,24 @@ const kv = 'border-none border-current'
 
 /** `.b-bang-khung`: tự cuộn hai chiều (header sticky dính trong khung), thanh cuộn ẩn — vẫn cuộn bằng chuột/phím. */
 export const tableWrap = cn(kv, 'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
+/** `table-container` của shadcn (`Table` đứng ngoài `TableWrap`): cuộn ngang, thanh cuộn ẩn như `TableWrap`. */
+export const tableContainer = cn(kv, 'relative w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
 /** `.ui-table-wrap`: viền 1px border, bo radius-xl, nền card (khối trạng thái của preview). */
 export const tableWrapVien = 'border border-solid border-(--border) rounded-(--radius-xl) bg-card'
 
 /** `.b-bang`: 100%, viền tách 0, chữ 14 (line-height kế thừa 20 của DsRoot). */
-export const table = cn(kv, 'w-full border-separate border-spacing-0 text-[14px]')
+export const table = cn(kv, 'w-full caption-bottom border-separate border-spacing-0 text-[14px]')
 /** `.b-bang-c`. */
 export const tableFixed = 'table-fixed'
+
+/**
+ * Ô tick là con TRỰC TIẾP của `th`/`td` (ô chọn dòng / chọn tất cả: Checkbox DS hoặc `<input type=checkbox>` của bang/ —
+ * cả hai cùng `relative top-px inline-grid` như `.ui-checkbox`): bỏ `top` + thành lưới khối → `vertical-align: middle` của ô căn TÂM ô tick đúng tâm dòng. Bản inline nằm trên baseline, cộng
+ * `top: 1px` của Checkbox (cần cho nhãn chữ ChoiceLabel) → thấp hơn chữ cùng dòng 2–3px (đo 22/11, artifact `.b-bang`
+ * cũng lệch 2–2,6px). Thay cho `translate-y-[2px]` của shadcn. Ô tick trong nhóm flex (NotificationMatrix) chỉ bỏ độ dời top.
+ */
+export const oTick =
+  '[&>[role=checkbox]]:top-0 [&>[role=checkbox]]:grid [&>input[type=checkbox]]:top-0 [&>input[type=checkbox]]:grid'
 
 /** `.b-bang th`: dính đầu, z 2, cao 36, đệm ngang 10, nền background, kẻ dưới alpha-08, chữ 12/18 400 muted, trái. */
 export const th = cn(
@@ -28,6 +40,7 @@ export const th = cn(
   'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
   // `.b-bang-c th`: đệm ngang 6.
   'in-data-[layout=fixed]:px-1.5',
+  oTick,
 )
 /** `.b-bang td`: cao 44, đệm ngang 10, kẻ dưới alpha-05, không xuống dòng, tối đa 280 (`.b-bang-c`: đệm 6, không trần, cắt). */
 export const td = cn(
@@ -36,6 +49,7 @@ export const td = cn(
   'in-data-[layout=fixed]:px-1.5 in-data-[layout=fixed]:max-w-none in-data-[layout=fixed]:overflow-hidden',
   // `.b-bang-c tbody .ui-badge`: badge trong ô cao 22 (= avatar) → mọi phần tử trong dòng thẳng hàng.
   'in-data-[layout=fixed]:[&_[data-slot=badge]]:h-(--control-size-3xs)',
+  oTick,
 )
 /**
  * `.b-bang tbody tr:hover td` alpha-02 · `tr[data-chon] td` info-soft-alpha (dự phòng alpha-05).
@@ -50,6 +64,8 @@ export const tr = cn(
   '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
 )
 export const tfootTd = 'bg-muted font-semibold border-t border-solid border-(--border) border-b-0'
+/** `TableCaption`: shadcn `mt-4 text-sm text-muted-foreground` → 14/20 muted (artifact chưa có). */
+export const caption = cn(kv, 'mt-4 text-[14px] leading-5 text-muted-foreground')
 /** `.b-phai`. */
 export const phai = 'text-right'
 /** `.b-ma`: mã 12/18 tabular, color-text-tertiary (font-sans, không mono). */
@@ -131,17 +147,19 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
  * `<Table variant="thuong">`. Khác vẻ dữ liệu (`.b-bang`): đầu cột nền surface-secondary 600 đệm 12 z 1, ô cao 40 đệm 12,
  * kẻ dưới `--border`, hàng cuối hết kẻ, rê primary-outline-hover, chọn accent. Chữ bảng 14/20.
  */
-export const tableThuong = cn(kv, 'w-full border-separate border-spacing-0 text-[14px] leading-[20px]')
+export const tableThuong = cn(kv, 'w-full caption-bottom border-separate border-spacing-0 text-[14px] leading-[20px]')
 export const thThuong = cn(
   'sticky top-0 z-1 h-(--control-size-lg) px-(--control-gutter-md) bg-(--color-surface-secondary)',
   'border-0 border-b [border-style:none_none_solid] border-current border-b-(--border)',
   'text-left text-[12px] leading-[18px] font-semibold text-muted-foreground whitespace-nowrap',
+  oTick,
 )
 export const tdThuong = cn(
   'h-(--control-size-xl) px-(--control-gutter-md) whitespace-nowrap',
   'border-0 border-b [border-style:none_none_solid] border-current border-b-(--border)',
   // `.ui-table tbody tr:last-child td { border-bottom: 0 }`
   '[tbody>tr:last-child>&]:border-b-0',
+  oTick,
 )
 export const trThuong = cn(
   'not-data-[state=selected]:hover:[&>td]:bg-(--color-background-primary-outline-hover)',

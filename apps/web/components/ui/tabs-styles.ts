@@ -1,12 +1,28 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 // File THƯỜNG (không 'use client'): chuỗi class của Tabs — server component / component khác dùng lại được.
 // Giá trị chép từ khối `.ui-tabs-*` trong ds/nguon/bundle.css (bản 40). Mỗi biến thể một chuỗi trọn vẹn, KHÔNG trông
 // vào tailwind-merge để đè (tránh lệch thứ tự biến thể Tailwind 4 so với cascade nguồn — luật NGUON lát 3).
+import { cva } from 'class-variance-authority'
+
+/**
+ * Gốc `Tabs` (shadcn: `group/tabs flex gap-2`, ngang thì cột). Bỏ `gap-2`: khoảng tab ↔ panel là đệm trên 12 của
+ * `.ui-tabs-panel` (`tabsContent`) như artifact. Dọc: hàng, cách 12.
+ */
+export const tabsRoot =
+  'group/tabs flex border-none border-current data-[orientation=horizontal]:flex-col data-[orientation=vertical]:gap-3'
 
 /** `.ui-tabs-list` (segmented): rãnh pill xám cao 32, đệm 2, cách 2; tối nền gray-0. */
 export const tabsListSegmented = [
   'inline-flex items-center gap-0.5 h-(--control-size-md) p-0.5 rounded-(--radius-full) border-none border-current',
   'bg-(--gray-100) in-data-[theme=dark]:bg-(--gray-0)',
 ].join(' ')
+
+/**
+ * `variant="line"` (shadcn, artifact chưa có): không rãnh, cách 4, cao như segmented; tab đang chọn kẻ 2px foreground
+ * dưới chân (vạch `::after` của `tabsTriggerLine`).
+ */
+export const tabsListLine =
+  'inline-flex items-center gap-1 h-(--control-size-md) p-0.5 rounded-none bg-transparent border-none border-current'
 
 /** `.ui-tabs-list[data-variant="pill"]`: không rãnh, cao theo tab, cách 4 (bo pill giữ từ `.ui-tabs-list`). */
 export const tabsListPill =
@@ -23,6 +39,25 @@ export const tabsKhung = [
   'data-tran:[mask-image:linear-gradient(to_right,#000_calc(100%-40px),transparent)]',
 ].join(' ')
 
+/**
+ * `tabsListVariants` — tên + giá trị shadcn (`default` / `line`) cộng phần GWT (`segmented` = `default`, `pill`). Phần
+ * chung shadcn giữ lại: `group/tabs-list`, `w-fit` (gốc là flex cột → không giãn), dọc thì cột + cao theo nội dung.
+ */
+export const tabsListVariants = cva(
+  'group/tabs-list w-fit group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col',
+  {
+    variants: {
+      variant: {
+        default: tabsListSegmented,
+        line: tabsListLine,
+        segmented: tabsListSegmented,
+        pill: tabsListPill,
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+)
+
 /** Phần chung `.ui-tabs-trigger`: 14px/1, muted; hover / đang chọn chữ foreground; focus phím outline 2 ring sát; tắt. */
 const triggerChung = [
   'inline-flex items-center gap-1.5 border-none border-current rounded-(--radius-full) bg-transparent cursor-pointer',
@@ -31,6 +66,8 @@ const triggerChung = [
   'hover:text-foreground data-[state=active]:text-foreground aria-expanded:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring',
   'disabled:text-(--color-text-disabled) disabled:cursor-not-allowed',
+  // shadcn: Tabs dọc thì tab giãn hết ngang, chữ dồn trái.
+  'group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start',
 ].join(' ')
 
 /** Tab segmented: 600, đệm ngang gutter-md × 1.33 (16), đang chọn = thumb gray-0 (tối gray-300) + bóng nhẹ. */
@@ -39,6 +76,19 @@ export const tabsTriggerSegmented = [
   'h-full px-[calc(var(--control-gutter-md)*1.33)] font-semibold',
   'data-[state=active]:bg-(--gray-0) in-data-[theme=dark]:data-[state=active]:bg-(--gray-300)',
   'data-[state=active]:[box-shadow:0_1px_4px_-1px_rgba(0,0,0,0.2)]',
+].join(' ')
+
+/**
+ * Tab `line` (shadcn): như segmented nhưng không thumb/bóng; đang chọn = vạch 2px foreground dưới chân (cách 5 như
+ * shadcn `bottom-[-5px]`), hiện mờ dần. Dọc: vạch bên phải.
+ */
+export const tabsTriggerLine = [
+  triggerChung,
+  'relative h-full px-[calc(var(--control-gutter-md)*1.33)] font-semibold',
+  "after:content-[''] after:absolute after:border-none after:border-current after:bg-foreground after:opacity-0",
+  'after:transition-opacity data-[state=active]:after:opacity-100',
+  'group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:-bottom-[5px] group-data-[orientation=horizontal]/tabs:after:h-0.5',
+  'group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5',
 ].join(' ')
 
 /**
@@ -57,13 +107,17 @@ export const tabsTriggerPill = [
  */
 export const tabsCount = {
   segmented: 'border-none border-current font-medium',
+  line: 'border-none border-current font-medium',
   pill: 'border-none border-current text-[12px] tabular-nums',
-  thuong: { segmented: 'text-muted-foreground', pill: 'font-normal text-(--color-text-tertiary)' },
+  thuong: { segmented: 'text-muted-foreground', line: 'text-muted-foreground', pill: 'font-normal text-(--color-text-tertiary)' },
   danger: 'font-medium text-(--color-text-danger)',
 } as const
 
-/** `.ui-tabs-panel`: đệm trên 12; focus phím outline 2 ring cách 2, bo radius-sm. */
+/**
+ * `.ui-tabs-panel`: đệm trên 12; focus phím outline 2 ring cách 2, bo radius-sm. shadcn `flex-1` giữ; KHÔNG chép
+ * `outline-none` của shadcn (Tailwind 4: mất vòng focus — luật NGUON).
+ */
 export const tabsContent = [
-  'pt-3 border-none border-current',
+  'flex-1 pt-3 border-none border-current group-data-[orientation=vertical]/tabs:pt-0',
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:rounded-(--radius-sm)',
 ].join(' ')

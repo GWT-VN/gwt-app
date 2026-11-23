@@ -21,7 +21,28 @@ import {
   Wrench,
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import { KhungApp, type Khu, type MucMenu } from '@/components/ui/sidebar'
+import {
+  KhungApp,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  type Khu,
+  type MucMenu,
+} from '@/components/ui/sidebar'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /* Demo dùng chung cho `KhoiSidebar` (/ds/tron, cổng so khớp) và `KhoiSidebarHang` (/ds) — dữ liệu demo, không PII.
@@ -136,6 +157,86 @@ export function KhoiSidebar() {
 
 const hop = 'relative h-160 overflow-hidden rounded-xl border border-solid border-(--border)'
 
+/**
+ * Khung shadcn (`SidebarProvider` + `Sidebar collapsible="icon"` + `SidebarInset`). Thanh bên shadcn `position: fixed` →
+ * hộp demo gắn `transform` để thanh bên nằm trong hộp (không phủ trang /ds), cao theo hộp (`h-full`).
+ */
+function DemoShadcn() {
+  const cskh = MENU.cskh
+  return (
+    <div className={`${hop} [transform:translateZ(0)]`}>
+      <SidebarProvider className="h-full min-h-0">
+        <Sidebar collapsible="icon" className="h-full">
+          <SidebarHeader>
+            <div className="flex items-center gap-2 font-semibold">
+              <span aria-hidden="true" className="grid size-8 shrink-0 place-content-center rounded-(--radius-md) bg-(--sidebar-primary) text-[12px] text-(--sidebar-primary-foreground)">
+                GWT
+              </span>
+              <span className="truncate group-data-[collapsible=icon]:hidden">CSKH</span>
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Khu CSKH</SidebarGroupLabel>
+              <SidebarMenu>
+                {cskh.slice(0, 5).map(({ id, ten, icon: I, dem, dangO }) => (
+                  <SidebarMenuItem key={id}>
+                    <SidebarMenuButton asChild tooltip={ten} isActive={dangO}>
+                      <a href="#sidebar" aria-current={dangO ? 'page' : undefined}>
+                        {I && <I aria-hidden="true" />}
+                        <span>{ten}</span>
+                      </a>
+                    </SidebarMenuButton>
+                    {dem !== undefined && <SidebarMenuBadge>{dem}</SidebarMenuBadge>}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Bộ lọc đã lưu</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip="Ticket">
+                    <Ticket aria-hidden="true" />
+                    <span>Ticket</span>
+                  </SidebarMenuButton>
+                  <SidebarMenuSub>
+                    {LOC.map((l) => (
+                      <SidebarMenuSubItem key={l.id}>
+                        <SidebarMenuSubButton href="#sidebar">
+                          <span>{l.ten}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Người dùng demo">
+                  <User aria-hidden="true" />
+                  <span>Người dùng demo</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+        <SidebarInset>
+          <div className="flex h-13 shrink-0 items-center gap-2 border-none border-current px-3">
+            <SidebarTrigger />
+            <span className="font-semibold">Ticket</span>
+          </div>
+          <div className="p-6 text-muted-foreground">Vùng nội dung (demo). Ctrl/⌘B thu / mở thanh bên.</div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
+  )
+}
+
 /** #sidebar dạng hàng cho /ds. */
 export function KhoiSidebarHang() {
   return (
@@ -152,6 +253,12 @@ export function KhoiSidebarHang() {
         <div className={hop}>
           <Demo day={false} />
         </div>
+      </BienThe>
+      <BienThe
+        ten="Khung shadcn"
+        moTa="SidebarProvider + Sidebar (collapsible icon) + SidebarInset — nền khối .ui-sidebar. Nút ☰ hoặc Ctrl/⌘B thu về dải icon (rê icon thấy tên bên phải); dưới 768px thành ngăn kéo."
+      >
+        <DemoShadcn />
       </BienThe>
     </KhoiHang>
   )

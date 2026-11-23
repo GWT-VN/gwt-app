@@ -51,7 +51,8 @@ import {
 } from './data-view-styles'
 import { menuLabel, menuSeparator } from './menu-styles'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
-import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
+import { Toggle } from './toggle'
+import { ToggleGroup, ToggleGroupItem } from './toggle-group'
 import { TooltipNhanh } from './tooltip'
 import type { CotBang } from './use-cot-bang'
 
@@ -88,6 +89,8 @@ export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat }: P
         value={dangXem}
         onValueChange={(v) => v && onDoiXem(v as DangXem)}
         aria-label="Dạng xem"
+        spacing={0.5}
+        size="icon"
         className={dvBoCuc}
       >
         {DANG_XEM.map(({ id, ten, tip }) => {
@@ -107,6 +110,7 @@ export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat }: P
         <Toggle
           pressed={xemNhanh}
           onPressedChange={onXemNhanh}
+          size="icon"
           aria-label="Thẻ xem nhanh bên phải"
           className="[&_svg]:size-[18px]"
         >

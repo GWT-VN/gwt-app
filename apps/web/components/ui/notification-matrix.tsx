@@ -135,6 +135,7 @@ export function NotificationMatrix({
                           ) : (
                             <span className={maTranOChon}>
                               <Checkbox
+                                className="top-0"
                                 checked={o.bat}
                                 aria-labelledby={`${id}-c-${k.id} ${id}-r-${l.id}`}
                                 aria-describedby={`${id}-g-${l.id}`}

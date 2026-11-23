@@ -1,3 +1,6 @@
+// Nguồn (phần khung shadcn cuối file): shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
+import { cva } from 'class-variance-authority'
+
 /**
  * Chuỗi class của KhungApp (Sidebar khung F) — giá trị chép từ khối `.pD-*`, `.pF-dock*`, `.ui-sidebar-mark`,
  * `.ui-sidebar-item`, `.p-cham` trong ds/nguon/bundle.css. File thường (không 'use client') theo luật NGUON.
@@ -164,4 +167,187 @@ export const theBap = [
 export const theBapDau = [
   'flex h-13 shrink-0 items-center gap-2 px-3 border-none border-current',
   '[border-bottom-style:solid] [border-bottom-width:1px] [border-bottom-color:var(--border)]',
+].join(' ')
+
+/*
+ * ───────── Khung shadcn `Sidebar*` (sidebar.tsx) — giá trị từ khối `.ui-sidebar*` của bundle.css ("shadcn Sidebar ·
+ * token GWT"): rộng 256, nền `--sidebar`, viền `--sidebar-border`; header đệm 12; content đệm 4/8; nhãn nhóm cao 32
+ * 12/18 600 muted; mục cao 32 đệm 0 8 cách 8 bo md 14/20, rê / đang chọn nền `--sidebar-accent` (đang chọn 500), icon
+ * muted (đang chọn foreground), focus outline 2 `--sidebar-ring` lõm 2; footer đệm 8 kẻ trên. Phần artifact không có
+ * (thu icon, floating/inset, rail, menu con, action, badge, skeleton) lấy khung shadcn, số theo thang DS.
+ * Thang z: khung cố định 45 / rail 46 (như KhungApp — NGUON).
+ * ─────────
+ */
+
+/** `sidebar-wrapper` (SidebarProvider). */
+export const scWrapper =
+  'group/sidebar-wrapper flex min-h-svh w-full border-none border-current has-data-[variant=inset]:bg-(--sidebar)'
+
+/** `collapsible="none"`: `.ui-sidebar` tĩnh. */
+export const scTinh =
+  'flex h-full w-(--sidebar-width) flex-col border-none border-current bg-(--sidebar) text-(--sidebar-foreground)'
+
+/** Điện thoại: SheetContent làm ngăn kéo (rộng 288 = panel KhungApp). */
+export const scNgan =
+  'w-(--sidebar-width) max-w-none [@media(max-width:640px)]:w-(--sidebar-width) gap-0 bg-(--sidebar) p-0 text-(--sidebar-foreground)'
+
+export const scGoc = 'group peer hidden border-none border-current text-(--sidebar-foreground) md:block'
+
+export const scGap = [
+  'relative w-(--sidebar-width) border-none border-current bg-transparent transition-[width] duration-200 ease-linear',
+  'group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180',
+].join(' ')
+export const scGapNoi = 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
+export const scGapThuong = 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)'
+
+export const scKhung =
+  'fixed inset-y-0 z-45 hidden h-svh w-(--sidebar-width) border-none border-current transition-[left,right,width,visibility] duration-200 ease-linear md:flex group-data-[collapsible=offcanvas]:invisible'
+export const scKhungTrai = 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
+export const scKhungPhai = 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]'
+export const scKhungNoi = 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
+/** `.ui-sidebar` viền phải 1px `--sidebar-border` (phía phải thì viền trái). Chỉ một cạnh: kiểu none·solid·none·none. */
+export const scKhungThuong = [
+  'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
+  'group-data-[side=left]:[border-style:none_solid_none_none] group-data-[side=left]:border-r group-data-[side=left]:border-r-(--sidebar-border)',
+  'group-data-[side=right]:[border-style:none_none_none_solid] group-data-[side=right]:border-l group-data-[side=right]:border-l-(--sidebar-border)',
+].join(' ')
+
+/** `sidebar-inner`: `.ui-sidebar` (nền + chữ); floating = bo lg + bóng hairline + 100. */
+export const scTrong = [
+  'flex h-full w-full flex-col border-none border-current bg-(--sidebar) text-(--sidebar-foreground)',
+  'group-data-[variant=floating]:rounded-(--radius-lg) group-data-[variant=floating]:[box-shadow:var(--shadow-hairline),var(--shadow-100)]',
+].join(' ')
+
+/** `SidebarRail`: vùng bấm 16 vắt mép, vạch 2px `--sidebar-border` khi rê. */
+export const scRail = [
+  'visible absolute inset-y-0 z-46 hidden w-4 -translate-x-1/2 border-none border-current bg-transparent p-0 transition-all ease-linear sm:flex',
+  'group-data-[side=left]:-right-4 group-data-[side=right]:left-0',
+  "after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 after:border-none after:content-[''] hover:after:bg-(--sidebar-border)",
+  'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
+  '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
+  'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full hover:group-data-[collapsible=offcanvas]:bg-(--sidebar)',
+  '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2 [[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
+].join(' ')
+
+/** `SidebarInset` (`<main>`): nền background; `inset` = cách 8, bo xl, bóng hairline + 100. */
+export const scInset = [
+  'relative flex w-full flex-1 flex-col border-none border-current bg-background',
+  'md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-(--radius-xl)',
+  'md:peer-data-[variant=inset]:[box-shadow:var(--shadow-hairline),var(--shadow-100)] md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2',
+].join(' ')
+
+/** `.ui-sidebar-header`: đệm 12, cách 8 (khung shadcn xếp cột). Thu icon (rộng 48): đệm 8 như shadcn → ô 32 nằm giữa. */
+export const scHeader = 'flex flex-col gap-2 p-3 border-none border-current group-data-[collapsible=icon]:p-2'
+/** `.ui-sidebar-footer`: đệm 8, kẻ trên `--sidebar-border`. */
+export const scFooter = [
+  'flex flex-col gap-2 p-2 border-none border-current',
+  '[border-top-style:solid] [border-top-width:1px] [border-top-color:var(--sidebar-border)]',
+].join(' ')
+
+/** `.ui-sidebar-content`: phần cuộn, đệm 4/8; nhóm cách nhau 12 (`.ui-sidebar-group + .ui-sidebar-group`). */
+export const scContent = [
+  'flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-2 py-1 border-none border-current',
+  'group-data-[collapsible=icon]:overflow-hidden',
+].join(' ')
+export const scGroup = 'relative flex w-full min-w-0 flex-col border-none border-current'
+
+/** `.ui-sidebar-label`: cao 32, đệm 0 8, 12/18 600 muted. Thu icon: trượt lên + mờ hẳn (shadcn). */
+export const scGroupLabel = [
+  'flex h-(--control-size-md) shrink-0 items-center rounded-(--radius-md) px-2 border-none border-current',
+  'text-[12px] leading-[18px] font-semibold text-muted-foreground [&>svg]:size-4 [&>svg]:shrink-0',
+  'transition-[margin,opacity] duration-200 ease-linear',
+  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--sidebar-ring)',
+  'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
+].join(' ')
+
+/** Nút nhỏ 20 góc phải nhãn nhóm / mục (shadcn), rê nền `--sidebar-accent`; điện thoại nới vùng bấm 8 mỗi phía. */
+const nutNho = [
+  'absolute flex aspect-square w-5 cursor-pointer items-center justify-center rounded-(--radius-md) p-0 border-none border-current bg-transparent',
+  'text-(--sidebar-foreground) hover:bg-(--sidebar-accent) hover:text-(--sidebar-accent-foreground)',
+  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--sidebar-ring) [&>svg]:size-4 [&>svg]:shrink-0',
+  "after:absolute after:-inset-2 after:border-none after:content-[''] md:after:hidden",
+].join(' ')
+/** Nhãn nhóm cao 32 → nút 20 cách trên 6, phải 4. */
+export const scGroupAction = [nutNho, 'top-1.5 right-1 transition-transform group-data-[collapsible=icon]:hidden'].join(' ')
+
+export const scGroupContent = 'w-full border-none border-current text-[14px]'
+/** `ul` mục: cách 1 (như `.pD-cuon .ui-sidebar-item` cách dưới 1). */
+export const scMenu = 'm-0 flex w-full min-w-0 list-none flex-col gap-px p-0 border-none border-current'
+export const scMenuItem = 'group/menu-item relative border-none border-current'
+
+/**
+ * `sidebarMenuButtonVariants` — `.ui-sidebar-item`. `variant` default/outline, `size` default (32) / sm (28, 12/18) /
+ * lg (48) như shadcn. Đang chọn: `data-active=true` (shadcn) hoặc `aria-current=page` (link màn đang mở, artifact).
+ */
+export const sidebarMenuButtonVariants = cva(
+  [
+    'peer/menu-button flex w-full cursor-pointer items-center gap-2 overflow-hidden rounded-(--radius-md) px-2 border-none border-current',
+    'bg-transparent text-left text-inherit font-normal no-underline transition-[width,height,padding]',
+    'hover:bg-(--sidebar-accent) hover:text-(--sidebar-accent-foreground) active:bg-(--sidebar-accent) active:text-(--sidebar-accent-foreground)',
+    'data-[active=true]:bg-(--sidebar-accent) data-[active=true]:font-medium data-[active=true]:text-(--sidebar-accent-foreground)',
+    'aria-[current=page]:bg-(--sidebar-accent) aria-[current=page]:font-medium',
+    'data-[state=open]:hover:bg-(--sidebar-accent) data-[state=open]:hover:text-(--sidebar-accent-foreground)',
+    'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--sidebar-ring)',
+    'disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50',
+    'group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!',
+    '[&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
+    'data-[active=true]:[&>svg]:text-foreground aria-[current=page]:[&>svg]:text-foreground',
+  ],
+  {
+    variants: {
+      variant: {
+        default: '',
+        outline: ['bg-background [box-shadow:0_0_0_1px_var(--sidebar-border)]', 'hover:[box-shadow:0_0_0_1px_var(--sidebar-accent)]'],
+      },
+      size: {
+        default: 'h-(--control-size-md) text-[14px] leading-5',
+        sm: 'h-(--control-size-sm) text-[12px] leading-[18px]',
+        lg: 'h-12 text-[14px] leading-5 group-data-[collapsible=icon]:p-0!',
+      },
+    },
+    defaultVariants: { variant: 'default', size: 'default' },
+  },
+)
+
+/** `SidebarMenuAction`: nút 20 góc phải mục (cách trên theo size mục). */
+export const scMenuAction = [
+  nutNho,
+  'right-1 transition-transform peer-hover/menu-button:text-(--sidebar-accent-foreground)',
+  'peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-3.5',
+  'group-data-[collapsible=icon]:hidden',
+].join(' ')
+/** `showOnHover`: ẩn tới khi rê/focus mục (máy tính), điện thoại luôn hiện. */
+export const scMenuActionHien = [
+  'group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0',
+  'peer-data-[active=true]/menu-button:text-(--sidebar-accent-foreground)',
+].join(' ')
+
+/** `SidebarMenuBadge`: số góc phải mục — như `.pD-so` (12px 500 tertiary tabular-nums). */
+export const scMenuBadge = [
+  'pointer-events-none absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-(--radius-md) px-1 border-none border-current select-none',
+  'text-[12px] font-medium text-(--color-text-tertiary) tabular-nums',
+  'peer-hover/menu-button:text-(--sidebar-accent-foreground) peer-data-[active=true]/menu-button:text-(--sidebar-accent-foreground)',
+  'peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-3.5',
+  'group-data-[collapsible=icon]:hidden',
+].join(' ')
+
+export const scMenuSkeleton = 'flex h-(--control-size-md) items-center gap-2 rounded-(--radius-md) px-2 border-none border-current'
+
+/** `SidebarMenuSub`: danh sách con thụt 14, vạch trái `--sidebar-border`, đệm 2/10. */
+export const scMenuSub = [
+  'mx-3.5 my-0 flex min-w-0 translate-x-px list-none flex-col gap-px px-2.5 py-0.5',
+  '[border-style:none_none_none_solid] border-l border-l-(--sidebar-border) group-data-[collapsible=icon]:hidden',
+].join(' ')
+export const scMenuSubItem = 'group/menu-sub-item relative border-none border-current'
+export const scMenuSubButton = [
+  'flex h-(--control-size-sm) min-w-0 -translate-x-px cursor-pointer items-center gap-2 overflow-hidden rounded-(--radius-md) px-2 border-none border-current',
+  'text-(--sidebar-foreground) no-underline hover:bg-(--sidebar-accent) hover:text-(--sidebar-accent-foreground)',
+  'active:bg-(--sidebar-accent) active:text-(--sidebar-accent-foreground)',
+  'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--sidebar-ring)',
+  'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+  '[&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-(--sidebar-accent-foreground)',
+  'data-[active=true]:bg-(--sidebar-accent) data-[active=true]:text-(--sidebar-accent-foreground)',
+  'aria-[current=page]:bg-(--sidebar-accent) aria-[current=page]:text-(--sidebar-accent-foreground)',
+  'data-[size=sm]:text-[12px] data-[size=sm]:leading-[18px] data-[size=md]:text-[14px] data-[size=md]:leading-5',
+  'group-data-[collapsible=icon]:hidden',
 ].join(' ')

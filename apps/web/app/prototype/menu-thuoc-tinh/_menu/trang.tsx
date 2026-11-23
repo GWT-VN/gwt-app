@@ -242,7 +242,7 @@ export function TrangMenuThuocTinh() {
         </Card>
         <div className="flex flex-wrap items-center gap-3 border-none border-current">
           <span className="ds-text-sm text-muted-foreground">Ô chọn hạn</span>
-          <ToggleGroup type="single" aria-label="Ô chọn hạn" value={bienThe} onValueChange={(v) => v && setBienThe(v as BienThe)}>
+          <ToggleGroup type="single" spacing={0.5} aria-label="Ô chọn hạn" value={bienThe} onValueChange={(v) => v && setBienThe(v as BienThe)}>
             <ToggleGroupItem value="A4" size="sm">
               A4 · gõ ngày + giờ (đã chốt)
             </ToggleGroupItem>

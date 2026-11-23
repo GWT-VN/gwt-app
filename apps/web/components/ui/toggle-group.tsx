@@ -1,63 +1,85 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
-import type { ComponentProps } from 'react'
+import { createContext, useContext, type ComponentProps, type CSSProperties } from 'react'
 import type { VariantProps } from 'class-variance-authority'
-import { Toggle as TogglePrimitive, ToggleGroup as ToggleGroupPrimitive } from 'radix-ui'
+import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
-import { buttonVariants } from './button-variants'
-
-type Kieu = Pick<VariantProps<typeof buttonVariants>, 'variant' | 'size'>
+import { toggleVariants } from './toggle-styles'
 
 /**
- * Toggle / ToggleGroup — khung shadcn (Radix), diện mạo = Button DS (mặc định ghost icon, như nút công cụ
- * `.ui-btn[data-variant="ghost"][data-size="icon"]` của DataViewToolbar). Đang bật → nền `accent` (button-variants: theo
- * `aria-pressed` / `aria-checked` / `data-state=on`).
- * - `Toggle`: một nút bật/tắt, `aria-pressed` (vd "Thẻ xem nhanh").
- * - `ToggleGroup type="single"`: Radix gắn `role="radiogroup"`, mỗi mục `role="radio"` + `aria-checked`; ←/→ chuyển focus
+ * ToggleGroup — khung shadcn (`ToggleGroup`, `ToggleGroupItem`; Radix ToggleGroup). `variant`/`size`/`spacing` đặt ở
+ * nhóm, truyền xuống mục qua context (mục tự đặt được khi nhóm không đặt).
+ * - `type="single"`: Radix gắn `role="radiogroup"`, mỗi mục `role="radio"` + `aria-checked`; ←/→ chuyển focus
  *   (RovingFocus), Space/Enter chọn. Radix cho bấm lại mục đang chọn để bỏ chọn (giá trị '') → bên gọi bỏ qua '' nếu
  *   nhóm luôn phải có một mục (dạng xem).
+ * - `spacing` (shadcn, bội số `--spacing` 4px): `0` (mặc định) = các mục dính liền, chỉ mục đầu/cuối bo; khác 0 = các
+ *   mục rời, mỗi mục bo pill như Button DS (thanh công cụ DataViewToolbar dùng `spacing={0.5}` = cách 2).
+ * - Mục KHÔNG chép `w-auto min-w-0 px-3` của shadcn: đệm theo `size` của `toggleVariants` (px-3 đè ô vuông `icon`).
+ *   Nhóm KHÔNG chép `rounded-md` + bóng `outline` của shadcn: viền outline DS là bóng inset trên từng mục; `.b-bo-cuc`
+ *   của artifact không bo (cổng DataViewToolbar đo).
  * - Tên đọc: nút chỉ icon BẮT BUỘC `aria-label`.
  */
-export function Toggle({
-  className,
-  variant = 'ghost',
-  size = 'icon',
-  ...props
-}: ComponentProps<typeof TogglePrimitive.Root> & Kieu) {
-  return (
-    <TogglePrimitive.Root
-      data-slot="toggle"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    />
-  )
-}
+const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants> & { spacing?: number }>({
+  size: 'default',
+  variant: 'default',
+  spacing: 0,
+})
 
-export function ToggleGroup({ className, ...props }: ComponentProps<typeof ToggleGroupPrimitive.Root>) {
+function ToggleGroup({
+  className,
+  variant,
+  size,
+  spacing = 0,
+  style,
+  children,
+  ...props
+}: ComponentProps<typeof ToggleGroupPrimitive.Root> & VariantProps<typeof toggleVariants> & { spacing?: number }) {
   return (
     <ToggleGroupPrimitive.Root
       data-slot="toggle-group"
-      className={cn('flex items-center gap-0.5 border-none border-current', className)}
+      data-variant={variant}
+      data-size={size}
+      data-spacing={spacing}
+      style={{ '--gap': spacing, ...style } as CSSProperties}
+      className={cn(
+        'group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] border-none border-current',
+        className,
+      )}
       {...props}
-    />
+    >
+      <ToggleGroupContext.Provider value={{ variant, size, spacing }}>{children}</ToggleGroupContext.Provider>
+    </ToggleGroupPrimitive.Root>
   )
 }
 
-export function ToggleGroupItem({
+function ToggleGroupItem({
   className,
-  variant = 'ghost',
-  size = 'icon',
+  children,
+  variant,
+  size,
   ...props
-}: ComponentProps<typeof ToggleGroupPrimitive.Item> & Kieu) {
+}: ComponentProps<typeof ToggleGroupPrimitive.Item> & VariantProps<typeof toggleVariants>) {
+  const context = useContext(ToggleGroupContext)
+  const v = context.variant || variant
+  const sz = context.size || size
   return (
     <ToggleGroupPrimitive.Item
       data-slot="toggle-group-item"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size }), className)}
+      data-variant={v ?? 'default'}
+      data-size={sz ?? 'default'}
+      data-spacing={context.spacing}
+      className={cn(
+        toggleVariants({ variant: v, size: sz }),
+        'shrink-0 focus:z-10 focus-visible:z-10',
+        'data-[spacing=0]:rounded-none data-[spacing=0]:first:rounded-l-(--radius-full) data-[spacing=0]:last:rounded-r-(--radius-full)',
+        className,
+      )}
       {...props}
-    />
+    >
+      {children}
+    </ToggleGroupPrimitive.Item>
   )
 }
+
+export { ToggleGroup, ToggleGroupItem }

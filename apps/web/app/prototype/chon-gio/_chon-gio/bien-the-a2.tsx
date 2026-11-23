@@ -62,7 +62,8 @@ export function ChonHanA2({ value, onValueChange, id, gon, ma }: PropsHan) {
                 orientation="vertical"
                 aria-label="Giờ"
                 value={gio ?? ''}
-                className="flex-col items-stretch"
+                spacing={0.5}
+                className="w-full flex-col items-stretch"
               >
                 {GIO_COT.map((g) => (
                   <ToggleGroupItem

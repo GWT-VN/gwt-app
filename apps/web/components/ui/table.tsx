@@ -1,3 +1,4 @@
+// Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
 import { createContext, useContext, type ComponentProps, type ReactNode } from 'react'
@@ -10,10 +11,15 @@ import * as s from './table-styles'
 import type { BenTha } from './use-cot-bang'
 
 /**
- * Table — khung shadcn (`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`), giá
+ * Table — khung shadcn (`Table`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`,
+ * `TableCaption`; `Table` tự bọc `div[data-slot=table-container]` cuộn ngang như shadcn), giá
  * trị từ `.b-bang*` của ds/nguon/bundle.css (bảng Token trong README Table): header 36 dính đầu 12/18 muted kẻ alpha-08 ·
  * dòng 44 kẻ alpha-05, hover alpha-02, chọn info-soft · `layout="fixed"` = `.b-bang-c` (colgroup giữ đúng độ rộng đã kéo,
- * đệm ngang 6). `TableWrap` = khung tự cuộn hai chiều, thanh cuộn ẩn (`vien` = khung có viền `.ui-table-wrap`).
+ * đệm ngang 6). Phần GWT thêm: `TableWrap` = khung tự cuộn HAI chiều (tiêu đề dính đầu trong khung), thanh cuộn ẩn
+ * (`vien` = khung có viền `.ui-table-wrap`) — `Table` nằm trong `TableWrap` thì KHÔNG bọc thêm container (hai lớp cuộn
+ * làm tiêu đề dính theo lớp trong, mất dính).
+ * Không chép của shadcn: kẻ viền trên `tr` (DS kẻ trên ô, `border-separate` — tiêu đề dính giữ được vạch);
+ * `pr-0`/`translate-y` cho ô có checkbox (ô chọn dòng dùng `cotChon` của DS).
  * Tiêu đề cột lọc/sắp + kéo đổi chỗ + co dãn: `TieuDeCot` / `KeoCot` (tieu-de-cot.tsx), trạng thái cột: `useCotBang`.
  * `variant="thuong"` = vẻ `.ui-table` (bảng thường: NotificationMatrix…) — con đọc qua context.
  * Ô chọn dòng: `KhungChon`/`OChonTatCa`/`OChonDong` của bang/ trong `CauHinhBangDs giaoDien={CHON_BANG}`.
@@ -34,8 +40,15 @@ export function useOKeo(cot?: string): { 'data-keo'?: ''; 'data-tren'?: BenTha }
   return c.tren?.id === cot ? { 'data-tren': c.tren.ben } : {}
 }
 
+/** Đang nằm trong `TableWrap` → `Table` không bọc container riêng. */
+const TrongKhung = createContext(false)
+
 export function TableWrap({ vien, className, ...props }: ComponentProps<'div'> & { vien?: boolean }) {
-  return <div data-slot="table-wrap" className={cn(s.tableWrap, vien && s.tableWrapVien, className)} {...props} />
+  return (
+    <TrongKhung.Provider value>
+      <div data-slot="table-wrap" className={cn(s.tableWrap, vien && s.tableWrapVien, className)} {...props} />
+    </TrongKhung.Provider>
+  )
 }
 
 /** Vẻ bảng: `du-lieu` = `.b-bang` (dạng xem Bảng, mặc định) · `thuong` = `.ui-table` (bảng thường của artifact). */
@@ -48,15 +61,18 @@ export function Table({
   className,
   ...props
 }: ComponentProps<'table'> & { layout?: 'auto' | 'fixed'; variant?: VeBang }) {
+  const bang = (
+    <table
+      data-slot="table"
+      data-layout={layout}
+      data-variant={variant}
+      className={cn(variant === 'thuong' ? s.tableThuong : s.table, layout === 'fixed' && s.tableFixed, className)}
+      {...props}
+    />
+  )
   return (
     <VeCtx.Provider value={variant}>
-      <table
-        data-slot="table"
-        data-layout={layout}
-        data-variant={variant}
-        className={cn(variant === 'thuong' ? s.tableThuong : s.table, layout === 'fixed' && s.tableFixed, className)}
-        {...props}
-      />
+      {useContext(TrongKhung) ? bang : <div data-slot="table-container" className={s.tableContainer}>{bang}</div>}
     </VeCtx.Provider>
   )
 }
@@ -115,6 +131,11 @@ export function TableCell({ cot, phai, className, ...props }: ComponentProps<'td
       {...props}
     />
   )
+}
+
+/** `TableCaption` (shadcn): chú thích dưới bảng, cách trên 16, chữ 14/20 muted (`caption-side: bottom` ở `table`). */
+export function TableCaption({ className, ...props }: ComponentProps<'caption'>) {
+  return <caption data-slot="table-caption" className={cn(s.caption, className)} {...props} />
 }
 
 /**

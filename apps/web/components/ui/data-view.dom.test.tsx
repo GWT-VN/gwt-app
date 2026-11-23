@@ -21,7 +21,8 @@ import { DsRoot } from './ds-root'
 import { SavedView } from './saved-view'
 import { Tabs, TabsList, TabsTrigger } from './tabs'
 import { thongBao } from './sonner'
-import { Toggle, ToggleGroup, ToggleGroupItem } from './toggle-group'
+import { Toggle } from './toggle'
+import { ToggleGroup, ToggleGroupItem } from './toggle-group'
 import { TooltipNhanh } from './tooltip'
 import { XemNhanh } from './xem-nhanh'
 
@@ -241,12 +242,12 @@ test('Button trạng thái bật: ghost nền accent theo aria-pressed / aria-ch
   expect(c.find((x) => x.endsWith('active:bg-(--color-background-primary-ghost-active)'))).toContain('not-data-[state=on]')
 })
 
-test('Toggle / ToggleGroupItem: diện mạo Button ghost icon, trạng thái đọc được', async () => {
+test('Toggle / ToggleGroupItem: khung shadcn (variant/size/spacing qua context), trạng thái đọc được', async () => {
   const user = userEvent.setup()
   render(
     <>
       <Toggle aria-label="Ghim">G</Toggle>
-      <ToggleGroup type="single" defaultValue="a" aria-label="Chọn">
+      <ToggleGroup type="single" defaultValue="a" aria-label="Chọn" size="icon" spacing={0.5}>
         <ToggleGroupItem value="a" aria-label="A">A</ToggleGroupItem>
         <ToggleGroupItem value="b" aria-label="B">B</ToggleGroupItem>
       </ToggleGroup>
@@ -257,7 +258,14 @@ test('Toggle / ToggleGroupItem: diện mạo Button ghost icon, trạng thái đ
   expect(t.getAttribute('aria-pressed')).toBe('true')
   expect(t.getAttribute('data-state')).toBe('on')
   expect(t.className).toContain('data-[state=on]:bg-accent')
-  expect(screen.getByRole('radio', { name: 'A' }).getAttribute('aria-checked')).toBe('true')
+  expect(t.getAttribute('data-variant')).toBe('default')
+  expect(t.getAttribute('data-size')).toBe('default')
+  const a = screen.getByRole('radio', { name: 'A' })
+  expect(a.getAttribute('aria-checked')).toBe('true')
+  // size + spacing đặt ở nhóm → mục nhận qua context
+  expect(a.getAttribute('data-size')).toBe('icon')
+  expect(a.getAttribute('data-spacing')).toBe('0.5')
+  expect(screen.getByRole('radiogroup').getAttribute('data-spacing')).toBe('0.5')
 })
 
 function Nhanh({ onDong = () => {}, onTruoc = () => {}, onSau = () => {}, the = true }) {
