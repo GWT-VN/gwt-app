@@ -16,6 +16,7 @@ import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
+import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaChu, OSuaHan, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { Input } from '@/components/ui/input'
 import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
@@ -31,6 +32,14 @@ const TAB: { v: Tab; ten: string }[] = [
   { v: 'toi-giao', ten: 'Tôi giao' },
   { v: 'xong', ten: 'Đã xong' },
 ]
+
+/** Trạng thái rỗng theo tab: nói thứ gì sẽ hiện ở đây (EmptyState `that`). */
+const RONG: Record<Tab, { tieuDe: string; moTa: string }> = {
+  mo: { tieuDe: 'Không còn việc nào đang mở', moTa: 'Việc bạn phụ trách, làm cùng, duyệt hoặc theo dõi sẽ hiện ở đây.' },
+  'qua-han': { tieuDe: 'Không có việc trễ hạn', moTa: 'Việc quá hạn mà chưa xong sẽ hiện ở đây.' },
+  'toi-giao': { tieuDe: 'Bạn chưa giao việc nào', moTa: 'Việc bạn tạo cho người khác làm sẽ hiện ở đây.' },
+  xong: { tieuDe: 'Chưa xong việc nào trong 7 ngày qua', moTa: 'Việc đã xong trong 7 ngày gần nhất sẽ hiện ở đây.' },
+}
 
 /** "Vai · gắn với": vai của mình (không vai = Tôi giao) · liên kết ERP đầu tiên, không có thì số việc con. */
 function vaiGan(v: ViecRow) {
@@ -210,6 +219,14 @@ export function ViecCuaToi({ rows, xongTuanNay }: { rows: ViecRow[]; xongTuanNay
         />
       </form>
 
+      {!dong.length && (
+        <EmptyState
+          size="sm"
+          kieu={q ? 'loc' : 'that'}
+          tieuDe={q ? `Không có việc nào khớp “${q}”` : RONG[tab].tieuDe}
+          moTa={q ? 'Thử từ khoá khác — tìm theo tiêu đề hoặc mã việc.' : RONG[tab].moTa}
+        />
+      )}
       <ListView
         aria-label="Việc của tôi"
         cot={cot}
