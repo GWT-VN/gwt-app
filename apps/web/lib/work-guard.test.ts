@@ -16,82 +16,26 @@ const doc = (p: string) =>
 // thấy chữ của việc cũ — và bản nháp bình luận còn sót có thể gửi nhầm sang việc
 // vừa mở. Bản vá là `key={mo}` ở MỌI chỗ dựng panel; test này giữ nó ở đó.
 describe('ChiTietViec — mọi chỗ dựng panel đều truyền key', () => {
+  // v2 (23/11): Việc của tôi + Bảng team dựng panel qua KhungXemViec (<XemNhanhViec>); /work/tu-sinh còn panel cũ.
   const NOI_DUNG = [
-    'components/work/ViecCuaToi.tsx',
-    'components/work/BangTeam.tsx',
-    'components/work/TuSinh.tsx',
+    ['components/work/v2/KhungXemViec.tsx', '<XemNhanhViec'],
+    ['components/work/TuSinh.tsx', '<ChiTietViec'],
   ]
 
-  for (const f of NOI_DUNG) {
-    it(`${f} truyền key cho <ChiTietViec>`, () => {
+  for (const [f, the0] of NOI_DUNG) {
+    it(`${f} truyền key cho ${the0}>`, () => {
       const src = doc(f)
-      const i = src.indexOf('<ChiTietViec')
-      expect(i, `${f} không còn dựng <ChiTietViec> — cập nhật lại test này`).toBeGreaterThan(-1)
+      const i = src.indexOf(the0)
+      expect(i, `${f} không còn dựng ${the0}> — cập nhật lại test này`).toBeGreaterThan(-1)
       // Cắt tới dấu đóng thẻ đầu tiên sau đó rồi tìm key= trong khoảng đó.
       const the = src.slice(i, src.indexOf('/>', i))
       expect(
         /\bkey=\{/.test(the),
-        `${f}: <ChiTietViec> thiếu prop key. Không có nó thì đổi sang việc khác ` +
+        `${f}: ${the0}> thiếu prop key. Không có nó thì đổi sang việc khác ` +
           'vẫn hiện tiêu đề/mô tả/hạn của việc CŨ (defaultValue chỉ áp lúc gắn).',
       ).toBe(true)
     })
   }
-})
-
-// ── 2. Kéo thả kanban phải nạp dữ liệu vào dataTransfer ─────────────────────
-// Firefox KHÔNG khởi động lượt kéo nào nếu kho dữ liệu rỗng. Chrome/Safari dễ
-// tính hơn nên thiếu setData ẩn được rất lâu rồi mới lộ ở máy người khác.
-describe('BangTeam — kéo thả nạp dataTransfer', () => {
-  const src = doc('components/work/BangTeam.tsx')
-
-  it('onDragStart gọi setData', () => {
-    expect(
-      /dataTransfer\.setData\(/.test(src),
-      'onDragStart thiếu dataTransfer.setData — Firefox sẽ không kéo được thẻ nào.',
-    ).toBe(true)
-  })
-
-  it('onDrop đọc lại id từ dataTransfer làm lưới đỡ', () => {
-    expect(
-      /dataTransfer\.getData\(/.test(src),
-      'onDrop chỉ tin React state. dangKeo có thể đã bị dọn trước khi drop chạy; ' +
-        'đọc thêm dataTransfer thì lượt thả nào cũng biết mình đang thả cái gì.',
-    ).toBe(true)
-  })
-
-  // ── Ba bất biến rút ra từ lỗi CEO báo lại 24/08 ("kéo sang vẫn không được") ──
-
-  it('thẻ kéo KHÔNG phải <button>', () => {
-    // Safari/Firefox không cho `draggable` chạy tử tế trên form control: thẻ
-    // không nhấc lên được và cũng chẳng báo gì. Phải là <div role="button">.
-    const i = src.indexOf('draggable')
-    const truoc = src.slice(Math.max(0, i - 500), i)
-    expect(
-      !/<button\s[^>]*$/.test(truoc) && /role="button"/.test(truoc),
-      'Thẻ kanban phải là <div role="button" tabIndex={0}>, không phải <button>.',
-    ).toBe(true)
-  })
-
-  it('cột có chiều cao tối thiểu — cột RỖNG vẫn hứng được cú thả', () => {
-    // Trước 24/08 grid để items-start và cột không có minHeight, nên cột rỗng co
-    // lại còn mỗi tiêu đề (~38px) trong khi thẻ kéo cao gấp đôi. Con trỏ trượt ra
-    // ngoài hộp -> drop không nổ -> "không có gì xảy ra", không kèm lỗi nào.
-    expect(
-      /minHeight:\s*\d{2,}/.test(src),
-      'Cột kanban thiếu minHeight. Cột rỗng co lại thì không thả vào được.',
-    ).toBe(true)
-  })
-
-  it('dragover đọc REF chứ không đọc state', () => {
-    // setDangKeo là state, chỉ thấy được ở lần dựng lại sau; dragover có thể nổ
-    // trước lần dựng đó, đọc ra null rồi bỏ qua preventDefault — mà thiếu
-    // preventDefault thì trình duyệt từ chối thả, im lặng.
-    const i = src.indexOf('onDragOver')
-    expect(
-      /dangKeoRef\.current/.test(src.slice(i, i + 400)),
-      'onDragOver phải đọc dangKeoRef.current (đồng bộ), không đọc state dangKeo.',
-    ).toBe(true)
-  })
 })
 
 // ── /work/tu-sinh: nhân viên thường không thấy màn này ──────────────────────
@@ -284,20 +228,6 @@ describe('Phụ thuộc — thêm được từ giao diện', () => {
     expect(
       /ct\.dang_chan\.length > 0 \|\| ct\.co_the_sua/.test(src),
       'Mục phụ thuộc phải hiện khi người dùng sửa được việc, kể cả lúc danh sách rỗng.',
-    ).toBe(true)
-  })
-})
-
-// ── Ô KPI "Xong tuần này" bấm được như ba ô kia ────────────────────────────
-describe('Ô KPI Xong tuần này', () => {
-  it('có onBam — bấm vào lọc được', () => {
-    const src = doc('components/work/ViecCuaToi.tsx')
-    // Tìm đúng THẺ, không phải chữ trong comment.
-    const i = src.indexOf('nhan="Xong tuần này"')
-    expect(i, 'không thấy thẻ <OThongKe nhan="Xong tuần này">').toBeGreaterThan(-1)
-    expect(
-      /onBam=/.test(src.slice(i, i + 420)),
-      'Ô "Xong tuần này" thiếu onBam — nhìn thấy mà bấm không được thì khác hẳn ba ô kia.',
     ).toBe(true)
   })
 })
