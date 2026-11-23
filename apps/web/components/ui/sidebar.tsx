@@ -18,7 +18,7 @@ import {
 import Link from 'next/link'
 import type { VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
-import { Funnel, GearSix, List, Plus, SidebarSimple, Sparkle, SquaresFour, X, type Icon } from '@phosphor-icons/react'
+import { CaretRight, Funnel, GearSix, List, Plus, SidebarSimple, Sparkle, SquaresFour, X, type Icon } from '@phosphor-icons/react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { laMac } from '@/lib/phim-tat'
 import { cn } from '@/lib/utils'
@@ -32,10 +32,18 @@ import * as s from './sidebar-styles'
 import { Skeleton } from './skeleton'
 import { Tooltip, TooltipContent, TooltipNhanh, TooltipProvider, TooltipTrigger } from './tooltip'
 
-/** Một khu (module) trên thanh icon. `gap` = có việc gấp (chấm đỏ). `sapCo` = chưa mở: chỉ hiện trong "Tất cả khu". */
-export type Khu = { id: string; ten: string; icon: Icon; mau: string; gap?: boolean; sapCo?: boolean }
-/** Một mục menu của panel. `dangO` = màn đang mở (`aria-current="page"`). */
-export type MucMenu = { id: string; ten: string; href: string; dem?: number; dangO?: boolean; icon?: Icon }
+/**
+ * Một khu (module) trên thanh icon. `gap` = có việc gấp (chấm đỏ). `sapCo` = chưa mở: chỉ hiện trong "Tất cả khu".
+ * `day` = đặt ở ĐÁY thanh (vd Quản trị), không nằm trong "Tất cả khu".
+ */
+export type Khu = { id: string; ten: string; icon: Icon; mau: string; gap?: boolean; sapCo?: boolean; day?: boolean }
+/**
+ * Một mục menu của panel. `dangO` = màn đang mở (`aria-current="page"`). `con` = mục nhóm: bấm mở/đóng danh sách trang
+ * con (khung `SidebarMenuSub`: thụt 14, vạch trái), tự mở khi có con `dangO`; mục nhóm không có `href`.
+ */
+export type MucMenu = { id: string; ten: string; href?: string; dem?: number; dangO?: boolean; icon?: Icon; con?: MucMenu[] }
+
+type NguoiDung = { ten: string; phu?: string; menu?: ReactNode }
 
 const GAN_DAY_HIEN = 5
 
@@ -93,9 +101,10 @@ export function KhungApp({
   ganDay?: MucMenu[]
   /** Nút đầu panel bên phải tên khu (chuông, tìm). */
   congCu?: ReactNode
-  /** Đường dẫn màn Quản trị (icon đáy thanh). */
+  /** Đường dẫn màn Quản trị (icon đáy thanh). Cần cả menu Quản trị trong panel → dùng khu `day` thay vì prop này. */
   quanTri?: string
-  nguoiDung?: { ten: string }
+  /** Avatar đáy thanh. `menu` (các `DropdownMenuItem`, vd Đăng xuất) → avatar thành nút mở menu tài khoản; `phu` = dòng phụ (email). */
+  nguoiDung?: NguoiDung
   bap?: ReactNode
   /** Số gợi ý Bắp chủ động đưa ra (chấm số trên nút dock). */
   bapGoiY?: number
@@ -200,7 +209,7 @@ function Trai({
   ganDay?: MucMenu[]
   congCu?: ReactNode
   quanTri?: string
-  nguoiDung?: { ten: string }
+  nguoiDung?: NguoiDung
   trongNgan: boolean
   dongNgan: () => void
 }) {
@@ -209,34 +218,33 @@ function Trai({
   const idGan = useId()
   const k = khu.find((x) => x.id === khuDangChon)
   const ganHien = xemThem ? ganDay : ganDay?.slice(0, GAN_DAY_HIEN)
+  const nutKhu = (x: Khu) => {
+    const dang = x.id === khuDangChon
+    const I = x.icon
+    return (
+      <TooltipNhanh key={x.id} content={<TenTip ten={x.ten} />} side="right" sideOffset={8}>
+        <button
+          type="button"
+          data-slot="khu-icon"
+          data-khu={x.id}
+          className={s.iconKhu}
+          aria-label={x.gap ? `${x.ten}, có việc gấp` : x.ten}
+          aria-current={dang ? 'true' : undefined}
+          onClick={() => onChonKhu(x.id)}
+        >
+          <I aria-hidden="true" weight={dang ? 'fill' : 'regular'} />
+          {x.gap && <span data-slot="khu-gap" className={s.chamGap} />}
+        </button>
+      </TooltipNhanh>
+    )
+  }
   return (
     <>
       <nav aria-label="Khu" data-slot="khung-rail" className={s.rail}>
         <span aria-hidden="true" data-slot="khung-logo" className={s.logo}>
           GWT
         </span>
-        {khu
-          .filter((x) => !x.sapCo)
-          .map((x) => {
-            const dang = x.id === khuDangChon
-            const I = x.icon
-            return (
-              <TooltipNhanh key={x.id} content={<TenTip ten={x.ten} />} side="right" sideOffset={8}>
-                <button
-                  type="button"
-                  data-slot="khu-icon"
-                  data-khu={x.id}
-                  className={s.iconKhu}
-                  aria-label={x.gap ? `${x.ten}, có việc gấp` : x.ten}
-                  aria-current={dang ? 'true' : undefined}
-                  onClick={() => onChonKhu(x.id)}
-                >
-                  <I aria-hidden="true" weight={dang ? 'fill' : 'regular'} />
-                  {x.gap && <span data-slot="khu-gap" className={s.chamGap} />}
-                </button>
-              </TooltipNhanh>
-            )
-          })}
+        {khu.filter((x) => !x.sapCo && !x.day).map(nutKhu)}
         <div data-slot="khung-ngan" className={s.ngan} />
         <DropdownMenu>
           <TooltipNhanh content={<TenTip ten="Tất cả khu" />} side="right" sideOffset={8}>
@@ -249,7 +257,7 @@ function Trai({
           {/* `.pD-launcher`: bên phải thanh, cách 8, mép trên thẳng nút, rộng tối thiểu 220. */}
           <DropdownMenuContent side="right" align="start" sideOffset={8} className="min-w-55">
             <DropdownMenuLabel>Tất cả khu</DropdownMenuLabel>
-            {khu.map((x) => (
+            {khu.filter((x) => !x.day).map((x) => (
               <DropdownMenuItem key={x.id} data-khu={x.id} disabled={x.sapCo} onSelect={() => onChonKhu(x.id)}>
                 <span
                   aria-hidden="true"
@@ -264,6 +272,7 @@ function Trai({
           </DropdownMenuContent>
         </DropdownMenu>
         <span className="flex-1" />
+        {khu.filter((x) => x.day && !x.sapCo).map(nutKhu)}
         {quanTri && (
           <TooltipNhanh content={<TenTip ten="Quản trị" />} side="right" sideOffset={8}>
             <Link href={quanTri} data-slot="khu-quan-tri" className={s.iconKhu} aria-label="Quản trị">
@@ -271,10 +280,28 @@ function Trai({
             </Link>
           </TooltipNhanh>
         )}
-        {nguoiDung && (
+        {nguoiDung && !nguoiDung.menu && (
           <Avatar data-slot="khung-avatar" role="img" aria-label={nguoiDung.ten} title={nguoiDung.ten} className={s.avatar}>
             <AvatarFallback>{chuCaiDau(nguoiDung.ten)}</AvatarFallback>
           </Avatar>
+        )}
+        {nguoiDung?.menu && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" data-slot="khung-tai-khoan" className={s.nutTaiKhoan} aria-label={`Tài khoản ${nguoiDung.ten}`}>
+                <Avatar data-slot="khung-avatar" aria-hidden="true" className={cn(s.avatar, 'mt-0')}>
+                  <AvatarFallback>{chuCaiDau(nguoiDung.ten)}</AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" sideOffset={8} className="min-w-55">
+              <DropdownMenuLabel className="flex flex-col">
+                <span className="truncate">{nguoiDung.ten}</span>
+                {nguoiDung.phu && <span className={s.taiKhoanPhu}>{nguoiDung.phu}</span>}
+              </DropdownMenuLabel>
+              {nguoiDung.menu}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </nav>
 
@@ -307,9 +334,7 @@ function Trai({
             </Link>
           )}
           <div data-nhom="">
-            {menu.map((m) => (
-              <Muc key={m.id} m={m} />
-            ))}
+            {menu.map((m) => (m.con ? <MucNhom key={m.id} m={m} /> : <Muc key={m.id} m={m} />))}
           </div>
           {!!boLocDaLuu?.length && (
             <div data-nhom="" role="group" aria-labelledby={idLoc}>
@@ -354,7 +379,7 @@ function Muc({ m, ganDay }: { m: MucMenu; ganDay?: boolean }) {
   const I = m.icon
   return (
     <Link
-      href={m.href}
+      href={m.href ?? '#'}
       data-slot="khung-muc"
       data-muc={m.id}
       className={s.item}
@@ -364,6 +389,48 @@ function Muc({ m, ganDay }: { m: MucMenu; ganDay?: boolean }) {
       {ganDay ? <span className={s.cat}>{m.ten}</span> : m.ten}
       {m.dem !== undefined && <span data-slot="khung-dem" className={s.so}>{m.dem}</span>}
     </Link>
+  )
+}
+
+/**
+ * Mục nhóm (`MucMenu.con`): nút mở/đóng (`aria-expanded`, mũi tên xoay 90°) + danh sách con kiểu `SidebarMenuSub`. Mở sẵn khi
+ * một con đang ở; sang con khác trong nhóm vẫn giữ mở. Đóng = gỡ hẳn danh sách (Tab không lọt vào link ẩn).
+ */
+function MucNhom({ m }: { m: MucMenu }) {
+  const id = useId()
+  const coDangO = !!m.con?.some((c) => c.dangO)
+  const [mo, setMo] = useState(coDangO)
+  // Vừa đi vào một trang con → mở nhóm (chỉnh state lúc render theo giá trị trước, không qua effect).
+  const [dangOTruoc, setDangOTruoc] = useState(coDangO)
+  if (coDangO !== dangOTruoc) {
+    setDangOTruoc(coDangO)
+    if (coDangO) setMo(true)
+  }
+  const I = m.icon
+  return (
+    <div data-slot="khung-nhom-muc" data-muc={m.id}>
+      <button
+        type="button"
+        data-slot="khung-muc-nhom"
+        className={s.item}
+        aria-expanded={mo}
+        aria-controls={mo ? id : undefined}
+        onClick={() => setMo((v) => !v)}
+      >
+        {I && <I aria-hidden="true" />}
+        <span className={s.cat}>{m.ten}</span>
+        <CaretRight aria-hidden="true" data-mo={mo || undefined} className={s.muiNhom} />
+      </button>
+      {mo && (
+        <ul id={id} data-slot="khung-muc-con" className={s.scMenuSub}>
+          {m.con?.map((c) => (
+            <li key={c.id} className={s.scMenuSubItem}>
+              <Muc m={c} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 

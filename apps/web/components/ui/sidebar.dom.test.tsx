@@ -182,3 +182,55 @@ test('nhiều khung có Bắp: chỉ khung mount sau cùng nhận Ctrl+J; gỡ n
   await user.keyboard('{Control>}j{/Control}')
   expect(document.querySelector('[data-slot="khung-dock"]')?.getAttribute('aria-expanded')).toBe('true')
 })
+
+test('mục nhóm (con): mở sẵn khi có con đang ở; bấm nút nhóm đóng/mở, aria-expanded khớp, đóng thì gỡ link con', async () => {
+  const user = userEvent.setup()
+  const menu: MucMenu[] = [
+    { id: 'may', ten: 'Máy & bảo hành', con: [{ id: 'serial', ten: 'Kho serial', href: '#serial', dangO: true }, { id: 'bh', ten: 'Đăng ký BH', href: '#bh' }] },
+    { id: 'tri', ten: 'Bảo trì', con: [{ id: 'lich', ten: 'Lịch bảo trì', href: '#lich' }] },
+  ]
+  render(
+    <DsRoot>
+      <KhungApp khu={KHU} khuDangChon="cskh" onChonKhu={() => {}} menu={menu} />
+    </DsRoot>,
+  )
+  const may = screen.getByRole('button', { name: 'Máy & bảo hành' })
+  expect(may.getAttribute('aria-expanded')).toBe('true')
+  expect(screen.getByRole('link', { name: 'Kho serial' }).getAttribute('aria-current')).toBe('page')
+  const tri = screen.getByRole('button', { name: 'Bảo trì' })
+  expect(tri.getAttribute('aria-expanded')).toBe('false')
+  expect(screen.queryByRole('link', { name: 'Lịch bảo trì' })).toBeNull()
+  await user.click(tri)
+  expect(tri.getAttribute('aria-expanded')).toBe('true')
+  expect(document.getElementById(tri.getAttribute('aria-controls')!)!.textContent).toContain('Lịch bảo trì')
+  await user.click(may)
+  expect(screen.queryByRole('link', { name: 'Kho serial' })).toBeNull()
+})
+
+test('khu `day` nằm ở đáy thanh (sau "Tất cả khu"), không có trong menu Tất cả khu; menu tài khoản có dòng phụ + mục', async () => {
+  const user = userEvent.setup()
+  const khu: Khu[] = [...KHU, { id: 'quan-tri', ten: 'Quản trị', icon: Package, mau: '#6b7280', day: true }]
+  const onChonKhu = vi.fn()
+  render(
+    <DsRoot>
+      <KhungApp
+        khu={khu}
+        khuDangChon="cskh"
+        onChonKhu={onChonKhu}
+        menu={[]}
+        nguoiDung={{ ten: 'Demo An', phu: 'demo@example.com', menu: <button type="button">Đăng xuất</button> }}
+      />
+    </DsRoot>,
+  )
+  const nut = within(rail()).getAllByRole('button')
+  const qt = within(rail()).getByRole('button', { name: 'Quản trị' })
+  expect(nut.indexOf(qt)).toBeGreaterThan(nut.indexOf(within(rail()).getByRole('button', { name: 'Tất cả khu' })))
+  await user.click(qt)
+  expect(onChonKhu).toHaveBeenCalledWith('quan-tri')
+  await user.click(within(rail()).getByRole('button', { name: 'Tất cả khu' }))
+  expect(screen.queryByRole('menuitem', { name: /Quản trị/ })).toBeNull()
+  await user.keyboard('{Escape}')
+  await user.click(within(rail()).getByRole('button', { name: 'Tài khoản Demo An' }))
+  expect(await screen.findByText('demo@example.com')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Đăng xuất' })).toBeTruthy()
+})

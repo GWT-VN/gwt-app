@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   ChartBar,
   Cpu,
+  GearSix,
   Headset,
   ListChecks,
   MagnifyingGlass,
@@ -43,6 +44,7 @@ import {
   type Khu,
   type MucMenu,
 } from '@/components/ui/sidebar'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { BienThe, KhoiHang } from '../_khung/tam'
 
 /* Demo dùng chung cho `KhoiSidebar` (/ds/tron, cổng so khớp) và `KhoiSidebarHang` (/ds) — dữ liệu demo, không PII.
@@ -237,6 +239,45 @@ function DemoShadcn() {
   )
 }
 
+/* Khung như app thật: mục nhóm mở menu con, khu Quản trị ở đáy thanh, avatar mở menu tài khoản (dữ liệu demo). */
+const KHU_APP: Khu[] = [...KHU.slice(0, 2), { id: 'quan-tri', ten: 'Quản trị', icon: GearSix, mau: '#6b7280', day: true }]
+const MENU_APP: Record<string, MucMenu[]> = {
+  viec: MENU.viec,
+  cskh: [
+    { id: 'tong-quan', ten: 'Tổng quan', href: '#sidebar', icon: ChartBar },
+    {
+      id: 'may',
+      ten: 'Máy & khách',
+      icon: ShieldCheck,
+      con: [
+        { id: 'may-lap', ten: 'Máy đã lắp', href: '#sidebar' },
+        { id: 'serial', ten: 'Kho serial', href: '#sidebar', dangO: true },
+        { id: 'khach', ten: 'Khách hàng', href: '#sidebar' },
+      ],
+    },
+    { id: 'ticket', ten: 'Ticket & lỗi', icon: Ticket, con: [{ id: 'tk', ten: 'Ticket', href: '#sidebar' }, { id: 'dm', ten: 'Danh mục lỗi', href: '#sidebar' }] },
+  ],
+  'quan-tri': [
+    { id: 'nv', ten: 'Nhân viên', href: '#sidebar', icon: Users },
+    { id: 'nk', ten: 'Nhật ký thao tác', href: '#sidebar', icon: BookOpen },
+  ],
+}
+
+function DemoApp() {
+  const [khu, setKhu] = useState('cskh')
+  return (
+    <KhungApp
+      khu={KHU_APP}
+      khuDangChon={khu}
+      onChonKhu={setKhu}
+      menu={MENU_APP[khu] ?? []}
+      nguoiDung={{ ten: 'Người dùng demo', phu: 'demo@example.com', menu: <DropdownMenuItem>Đăng xuất</DropdownMenuItem> }}
+    >
+      <div className="p-6 text-muted-foreground">Vùng nội dung của màn (demo).</div>
+    </KhungApp>
+  )
+}
+
 /** #sidebar dạng hàng cho /ds. */
 export function KhoiSidebarHang() {
   return (
@@ -252,6 +293,14 @@ export function KhoiSidebarHang() {
       <BienThe ten="Tối giản" moTa="Chỉ thanh khu và menu của khu — không tạo nhanh, bộ lọc đã lưu, gần đây, Bắp.">
         <div className={hop}>
           <Demo day={false} />
+        </div>
+      </BienThe>
+      <BienThe
+        ten="Như app thật"
+        moTa='Mục nhóm ("Máy & khách") bấm để mở/đóng danh sách trang con, tự mở khi đang ở một trang con. Khu Quản trị (day) nằm ở đáy thanh, chọn thì panel hiện menu quản trị. Bấm avatar mở menu tài khoản (tên, email, Đăng xuất).'
+      >
+        <div className={hop}>
+          <DemoApp />
         </div>
       </BienThe>
       <BienThe

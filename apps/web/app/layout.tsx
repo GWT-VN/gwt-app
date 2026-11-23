@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TopNav } from "@/components/TopNav";
+import { Khung } from "@/components/khung/Khung";
 import { layNguoiDung } from "@/lib/nen-tang/phien";
 import { conNoDoiMatKhau } from "@/lib/nen-tang/vao-cua";
 import { CauHinhBang } from "@/bang";
@@ -29,7 +29,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await layNguoiDung();
-  // Người còn nợ đổi mật khẩu ban đầu chỉ đi được một chỗ. Hiện thanh menu đầy đủ
+  // Người còn nợ đổi mật khẩu ban đầu chỉ đi được một chỗ. Hiện khung menu đầy đủ
   // là mời họ bấm vào những mục mà proxy sẽ đá ngược lại — trông như app hỏng.
   const choXemMenu = user !== null && !conNoDoiMatKhau(user.user_metadata);
   return (
@@ -45,8 +45,8 @@ export default async function RootLayout({
           diện thì truyền đè vài khoá, xem bang/README.md.
         */}
         <CauHinhBang tenCot={TEN_COT} nghiaSapXep={NGHIA_SAP_XEP}>
-          {choXemMenu ? <TopNav /> : null}
-          <div className="flex-1 min-w-0">{children}</div>
+          {/* Khung điều hướng v2 (phương án F) bọc mọi trang sau đăng nhập; trang cũ nằm trong [data-man-cu]. */}
+          {choXemMenu ? <Khung>{children}</Khung> : <div className="flex-1 min-w-0">{children}</div>}
         </CauHinhBang>
       </body>
     </html>

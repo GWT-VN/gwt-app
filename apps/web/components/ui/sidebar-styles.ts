@@ -53,6 +53,14 @@ export const ngan = 'my-1.5 h-px w-5 shrink-0 border-none border-current bg-bord
 /** `.pD-avatar` (+ `.p-avatar`): 28px, cách trên 6, line-height 14, không giãn chữ. Màu theo Avatar DS (bản 35). */
 export const avatar = 'mt-1.5 size-7 leading-[14px] tracking-normal'
 
+/** Nút tài khoản (avatar có `nguoiDung.menu`): trần, tròn, vòng focus ngoài 2 màu sidebar-ring; giữ lề trên 6 của avatar. */
+export const nutTaiKhoan = [
+  'mt-1.5 grid shrink-0 cursor-pointer place-items-center rounded-(--radius-full) border-none border-current bg-transparent p-0',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--sidebar-ring)',
+].join(' ')
+/** Dòng phụ (email) trong nhãn menu tài khoản: 12/18 thường, muted, cắt …. */
+export const taiKhoanPhu = 'truncate text-[12px] leading-[18px] font-normal text-muted-foreground'
+
 /**
  * `.pD-panel`: 288, cách đỉnh 8, nền background + lớp alpha-02, viền trên/trái alpha-06 · phải alpha-08 · dưới không,
  * bo trên-trái xl, bóng 0 0 8 alpha-05. ≤767: rộng min(288, 100vw − 52 − 24), sát đỉnh, chỉ viền trái, không bo.
@@ -92,6 +100,10 @@ export const item = [
   'aria-[current=page]:bg-(--alpha-05) aria-[current=page]:text-foreground',
   'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--sidebar-ring)',
 ].join(' ')
+
+/** Mũi tên mục nhóm: dồn phải, màu tertiary, xoay 90° khi mở (150ms; giảm chuyển động thì đổi ngay). */
+export const muiNhom =
+  'ml-auto text-(--color-text-tertiary) transition-transform duration-150 motion-reduce:transition-none data-mo:rotate-90'
 
 /** `.pD-cat`: cắt chữ một dòng. */
 export const cat = 'min-w-0 truncate'

@@ -50,6 +50,55 @@ body {
 }
 
 /* ===========================================================================
+ * Màn cũ nằm trong khung điều hướng v2 (components/khung/KhungGwt.tsx).
+ *
+ * Khung là vùng DS [data-ds="v2"]: ds/tokens.css khai đè đúng những biến thang
+ * Tailwind mà màn cũ đọc (--spacing 4px, --radius-* lớn hơn, --shadow,
+ * --background/--foreground) và DsRoot đặt Inter 14/20 + cv11/ss03. Lớp này trả
+ * lại y giá trị app cũ cho mọi thứ bên trong — bỏ nó là p-4, rounded-md, cỡ chữ,
+ * font của mọi màn CSKH/Sales/Kho đổi theo mà không ai yêu cầu.
+ * Danh sách biến = giao của tên biến ds/tokens.css với node_modules/tailwindcss/
+ * theme.css và :root ở trên (đo 23/11; --breakpoint-* chỉ dùng lúc biên dịch;
+ * --font-sans/--font-mono app khai @theme inline nên utility không đọc biến).
+ * =========================================================================== */
+[data-man-cu] {
+  --background: #ffffff;
+  --foreground: #171717;
+  --spacing: 0.25rem;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-feature-settings: normal;
+}
+@media (prefers-color-scheme: dark) {
+  [data-man-cu] {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+@layer base {
+  [data-man-cu] *,
+  [data-man-cu] ::before,
+  [data-man-cu] ::after,
+  [data-man-cu] ::backdrop,
+  [data-man-cu] ::file-selector-button {
+    border-color: var(--color-slate-200, currentColor);
+  }
+}
+
+/* ===========================================================================
  * Khu Việc (Work) — bảng màu lấy từ mockup "GWT Work — Mockup" (18/08/2026).
  *
  * Cố ý BỌC TRONG [data-khu="work"] chứ không đặt ở :root: khu CSKH và Sales
