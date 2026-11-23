@@ -632,8 +632,8 @@ function NutIcon({ nhan, onClick, children }: { nhan: string; onClick: () => voi
 }
 
 /**
- * Chip "+ Thêm …" mở pop chọn có tìm (Popover + ComboboxPanel — như OSuaNguoi, nhưng trigger là nút thêm). Chip có chữ
- * (CEO 23/11: nút "+" trơn khó bấm, không biết thêm gì); `chu` là phần đầu của `nhan` (nhãn đọc chứa chữ đang thấy).
+ * Nút phẳng "+ Thêm …" mở pop chọn có tìm (Popover + ComboboxPanel — như OSuaNguoi, nhưng trigger là nút thêm). Có
+ * chữ (CEO 23/11: nút "+" trơn khó bấm, không biết thêm gì); `chu` là phần đầu của `nhan` (nhãn đọc chứa chữ đang thấy).
  */
 function NutChon({
   nhan,
@@ -654,7 +654,14 @@ function NutChon({
   return (
     <Popover open={mo} onOpenChange={setMo}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="xs" aria-label={nhan}>
+        {/* Nút phẳng (ghost): bình thường chỉ chữ mờ, rê mới hiện nền — CEO 23/11. Lề âm = đúng đệm trái size xs → icon
+            thẳng cột giá trị (nền rê tràn ra trái, như Linear). */}
+        <Button
+          variant="ghost"
+          size="xs"
+          className="-ml-[calc(var(--control-gutter-xs)*1.33)] text-muted-foreground"
+          aria-label={nhan}
+        >
           <Plus aria-hidden="true" />
           {chu}
         </Button>
