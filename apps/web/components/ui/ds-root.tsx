@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { inter } from './font-inter'
+import { TooltipProvider } from './tooltip-provider'
 
 const DsPortalContext = createContext<HTMLElement | null>(null)
 
@@ -27,6 +28,7 @@ export function DsRoot({
   return (
     <div
       data-ds="v2"
+      data-ds-hydrated={portal ? '' : undefined}
       data-theme={theme}
       className={cn(
         inter.variable,
@@ -39,7 +41,9 @@ export function DsRoot({
       )}
       style={{ colorScheme: theme }}
     >
-      <DsPortalContext.Provider value={portal}>{children}</DsPortalContext.Provider>
+      <DsPortalContext.Provider value={portal}>
+        <TooltipProvider>{children}</TooltipProvider>
+      </DsPortalContext.Provider>
       <div data-ds-portal="" ref={setPortal} />
     </div>
   )

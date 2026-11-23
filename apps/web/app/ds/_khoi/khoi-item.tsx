@@ -63,7 +63,7 @@ function CacBienThe() {
           ].map(({ Icon, ten, mo }, i) => (
             <Fragment key={ten}>
               {i > 0 && <ItemSeparator />}
-              <Item role="listitem" size="sm">
+              <Item size="sm">
                 <ItemMedia variant="icon">
                   <Icon aria-hidden="true" />
                 </ItemMedia>

@@ -8,7 +8,7 @@ Chọn **ngày, giờ tuỳ chọn** (hạn xử lý, giờ hẹn) — gõ hoặ
 | --- | --- | --- |
 | Trigger ô form | `ui-select-trigger` (y DatePicker) | icon `CalendarBlank` 16px; "25/11/2026 · 14:30" / chỉ ngày "25/11/2026"; placeholder "Chọn ngày giờ" |
 | Trigger gọn (`gon`) | `.b-osua` (InlineEdit) | "25/11 14:30" / chỉ ngày "25/11" `tabular-nums`; trống chữ `color-text-tertiary`; ▾ khi rê / mở / focus phím |
-| Bảng nổi | `ui-menu ui-cal-pop` (y DatePicker) | padding 20/24, bo `radius-4xl`; trần cao = chỗ trống tới mép màn + cuộn trong |
+| Bảng nổi | `ui-menu ui-cal-pop` (y DatePicker) | padding 20/24, bo `radius-4xl`; trần cao theo chỗ trống tới mép màn. Khi thiếu chỗ, cuộn riêng vùng lịch, giữ hàng nhập và chân bảng nổi |
 | Hai ô gõ | `Input` + `TimeInput` | dưới lịch, cách lịch 12 (rồi tới kẻ chân), cách nhau 8; ô giờ rộng 112 |
 | Ô ngày | `Input` + `CalendarBlank` | nhận `dd/mm`, `dd/mm/yyyy` (dấu / - .); thiếu năm mà đã qua → năm sau; gõ sai / ngày đã qua → `aria-invalid`, **Xong tắt** |
 | Ô giờ | `TimeInput` | 24h; gõ `1430` / `14:30` / `9` (→ 09:00), phút lẻ giữ nguyên; gợi ý mỗi 30 phút (mặt menu), ↑/↓ + Enter; ô trống placeholder "Giờ", chưa mục nào sáng (Enter không lấy gợi ý); có giờ → ✕ "Xoá giờ" mép phải ô (y nút bỏ chọn Combobox) |

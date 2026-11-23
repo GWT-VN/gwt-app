@@ -55,7 +55,7 @@ const MOI: Record<string, ComponentType> = {
 }
 const m = (ten: string) => k(ten, MOI[ten])
 
-type Khoi = { neo: string; ten: string; Khoi?: ComponentType }
+type Khoi = { neo: string; ten: string; nhan?: string; Khoi?: ComponentType }
 const k = (ten: string, Khoi?: ComponentType): Khoi => ({
   neo: ten.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
   ten,
@@ -120,7 +120,7 @@ export const NHOM: { ten: string; lat: number; khoi: Khoi[] }[] = [
   { ten: 'Thông báo', lat: 6, khoi: ['Count', 'NotificationCenter', 'NotificationMatrix'].map(m) },
   { ten: 'Bố cục', lat: 8, khoi: ['Accordion', 'Collapsible', 'ScrollArea', 'AspectRatio', 'Resizable'].map(m) },
   { ten: 'Biểu đồ & chat', lat: 8, khoi: ['Chart', 'Carousel', 'Message', 'Bubble', 'Marker'].map(m) },
-  { ten: 'Mẫu ghép', lat: 7, khoi: ['MenuThuocTinh'].map(m) },
+  { ten: 'Mẫu ghép', lat: 7, khoi: [{ ...m('MenuThuocTinh'), nhan: 'Menu thuộc tính' }] },
 ]
 export const KHOI = NHOM.flatMap((n) => n.khoi)
 export const SO_DA_DUNG = KHOI.filter((x) => x.Khoi).length
@@ -129,5 +129,5 @@ export const SO_DA_DUNG = KHOI.filter((x) => x.Khoi).length
 export const NHOM_MUC: NhomMuc[] = NHOM.map((n) => ({
   ten: n.ten,
   lat: n.lat,
-  muc: n.khoi.map((x) => ({ ten: x.ten, neo: x.neo, daDung: !!x.Khoi })),
+  muc: n.khoi.map((x) => ({ ten: x.nhan ?? x.ten, neo: x.neo, daDung: !!x.Khoi })),
 }))

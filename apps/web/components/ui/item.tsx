@@ -1,4 +1,6 @@
 // Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
+'use client'
+
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
@@ -11,17 +13,20 @@ import { Separator } from './separator'
  * Token (artifact chưa có Item): chữ 14/20, tiêu đề medium, mô tả `muted-foreground` tối đa 2 dòng; bo radius-md; viền
  * 1px trong suốt (variant `outline` → `--border`, không nhảy cỡ); ô icon như `.ui-file-thumb` (32, radius-md, nền `muted`,
  * icon 16 `muted-foreground`, không viền); ảnh 40 radius-md. Focus phím: outline 2 `ring` offset 2 (luật DS).
- * a11y: `ItemGroup` là `role="list"` → mỗi `Item` trong nhóm phải mang `role="listitem"` (shadcn không tự gắn).
- * File thường (không 'use client'): không hook, khối /ds server dùng được.
+ * `ItemGroup` tự thêm role listitem cho các Item. Dòng asChild dùng phần tử bọc để giữ vai trò của link/nút.
  */
-function ItemGroup({ className, ...props }: React.ComponentProps<'div'>) {
+const TrongNhom = React.createContext(false)
+
+function ItemGroup({ className, role = 'list', children, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      role="list"
+      role={role}
       data-slot="item-group"
       className={cn('group/item-group flex flex-col border-none border-current', className)}
       {...props}
-    />
+    >
+      <TrongNhom.Provider value={role === 'list'}>{children}</TrongNhom.Provider>
+    </div>
   )
 }
 
@@ -60,11 +65,14 @@ function Item({
   variant = 'default',
   size = 'default',
   asChild = false,
+  role,
   ...props
 }: React.ComponentProps<'div'> & VariantProps<typeof itemVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : 'div'
-  return (
+  const laMuc = React.useContext(TrongNhom) && role === undefined
+  const noiDung = (
     <Comp
+      role={role ?? (laMuc && !asChild ? 'listitem' : undefined)}
       data-slot="item"
       data-variant={variant}
       data-size={size}
@@ -72,6 +80,7 @@ function Item({
       {...props}
     />
   )
+  return laMuc && asChild ? <div role="listitem">{noiDung}</div> : noiDung
 }
 
 const itemMediaVariants = cva(

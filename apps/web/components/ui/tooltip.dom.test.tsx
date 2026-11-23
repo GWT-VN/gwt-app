@@ -5,7 +5,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { Button } from './button'
 import { DsRoot } from './ds-root'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
-import { Tooltip, TooltipContent, TooltipNhanh, TooltipProvider, TooltipTrigger } from './tooltip'
+import { Tooltip, TooltipContent, TooltipNhanh, TooltipTrigger } from './tooltip'
 
 /**
  * Đồng hồ giả cho test chạm ngưỡng 300ms (đồng hồ thật trên máy chậm/CI dễ lệch ngưỡng). `delay: null`: user-event không
@@ -132,20 +132,18 @@ test('ghép thật với DropdownMenuTrigger: focus phím hiện tooltip; mở m
   await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
 })
 
-test('khung shadcn 4 phần (Provider + Root + Trigger + Content): Tab tới nút → tooltip trong vùng DS, đúng data-slot, side bottom', async () => {
+test('DsRoot cung cấp Provider cho Tooltip ghép tay: Tab tới nút → tooltip trong vùng DS', async () => {
   const user = userEvent.setup()
   render(
     <DsRoot>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="sm">
-              Xuất Excel
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Xuất theo bộ lọc đang chọn</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" size="sm">
+            Xuất Excel
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Xuất theo bộ lọc đang chọn</TooltipContent>
+      </Tooltip>
     </DsRoot>,
   )
   await user.tab()

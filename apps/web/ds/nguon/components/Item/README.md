@@ -13,6 +13,6 @@ Một dòng nội dung: ô media (icon/ảnh) · tiêu đề + mô tả · thao 
 | Ô ảnh | shadcn + DS | 40, radius-md, ảnh cover |
 | Cả dòng là link | DS | `asChild` + `<a>`: rê nền `accent` (ghost hover); focus outline 2 `ring` offset 2 |
 
-**a11y:** `ItemGroup` là `role="list"` → mỗi `Item` trong nhóm phải mang `role="listitem"` (shadcn không tự gắn). Dòng là link thì bên trong không chứa nút/link khác.
+**a11y:** `ItemGroup` gắn vai trò `listitem` cho từng `Item`. Dòng `asChild` có khung `listitem` riêng để giữ vai trò của link hoặc nút con. Một dòng là link dùng nội dung tĩnh bên trong.
 
 **Code:** `components/ui/item.tsx`. Khối `/ds#item`.

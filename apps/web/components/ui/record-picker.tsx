@@ -2,11 +2,12 @@
 
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, MagnifyingGlass, Plus, WarningCircle } from '@phosphor-icons/react/ssr'
-import { Command as CommandPrimitive } from 'cmdk'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { boDau } from '@/bang/timkiem'
 import { TOI_THIEU_KY_TU, useTimXa } from '@/bang/useTimXa'
 import { cn } from '@/lib/utils'
+import { Command, CommandInput, CommandItem, CommandList } from './command'
+import { commandInput, commandInputIcon, commandInputWrapper } from './command-styles'
 import {
   cat,
   recordPickerDem,
@@ -179,23 +180,7 @@ export function RecordPicker({
     <div className={recordPickerRong}>{tu ? `Không thấy ${loai} "${tu}"` : `Chưa có ${loai} nào.`}</div>
   )
   // `.ui-menu-search` y ComboboxPanel: cao 32, đệm 0 8, gap 8, tràn mép menu, gạch dưới border → alpha-50 khi focus.
-  const hangTim = (o: ReactNode) => (
-    <div
-      data-slot="record-picker-search"
-      className={cn(
-        'flex items-center gap-2 h-(--control-size-md) px-2 -mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)',
-        'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
-        '[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
-      )}
-    >
-      <MagnifyingGlass aria-hidden="true" />
-      {o}
-    </div>
-  )
-  const lopO = cn(
-    'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
-    'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
-  )
+  const leHangTim = '-mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)'
   const demO = (
     <div aria-live={tinh ? undefined : 'polite'} data-slot="record-picker-dem" className={recordPickerDem}>
       {dem}
@@ -220,7 +205,10 @@ export function RecordPicker({
   if (tinh)
     return (
       <div data-slot="record-picker" inert cmdk-root="" className={cn('border-none border-current', className)}>
-        {hangTim(<input readOnly tabIndex={-1} value={go} aria-label={`Tìm ${loai}`} placeholder={placeholder} className={lopO} />)}
+        <div data-slot="record-picker-search" className={cn(commandInputWrapper, leHangTim)}>
+          <MagnifyingGlass aria-hidden="true" className={commandInputIcon} />
+          <input readOnly tabIndex={-1} value={go} aria-label={`Tìm ${loai}`} placeholder={placeholder} className={commandInput} />
+        </div>
         {demO}
         <div cmdk-list="" role="listbox" aria-label={tenDanhSach} data-slot="record-picker-ds" className={recordPickerDs}>
           <div cmdk-list-sizer="">
@@ -245,7 +233,7 @@ export function RecordPicker({
     )
 
   return (
-    <CommandPrimitive
+    <Command
       ref={gocRef}
       value={sangThat}
       onValueChange={setSang}
@@ -253,36 +241,35 @@ export function RecordPicker({
       vimBindings={false}
       label={`Tìm ${loai}`}
       data-slot="record-picker"
-      className={cn('border-none border-current', className)}
+      className={cn('block h-auto w-auto overflow-visible rounded-none bg-transparent text-inherit', className)}
       onKeyDown={(e) => {
         // cmdk đã bỏ qua phím khi nativeEvent.isComposing / keyCode 229; cờ riêng phủ bộ gõ không gắn cờ đó.
         if (ghep.current && e.key === 'Enter') e.preventDefault()
       }}
     >
-      {hangTim(
-        // Không autoFocus: trong pop, Radix Popover focus phần tử đầu (= ô tìm) khi mở.
-        <CommandPrimitive.Input
-          value={go}
-          onValueChange={(v) => {
-            setGo(v)
-            if (!ghep.current) setQ(v)
-          }}
-          onCompositionStart={() => {
-            ghep.current = true
-          }}
-          onCompositionEnd={(e) => {
-            ghep.current = false
-            setQ(e.currentTarget.value)
-          }}
-          placeholder={placeholder}
-          aria-label={`Tìm ${loai}`}
-          className={lopO}
-        />,
-      )}
+      {/* Trong pop, Radix focus ô tìm khi mở. */}
+      <CommandInput
+        value={go}
+        onValueChange={(v) => {
+          setGo(v)
+          if (!ghep.current) setQ(v)
+        }}
+        onCompositionStart={() => {
+          ghep.current = true
+        }}
+        onCompositionEnd={(e) => {
+          ghep.current = false
+          setQ(e.currentTarget.value)
+        }}
+        placeholder={placeholder}
+        aria-label={`Tìm ${loai}`}
+        wrapperClassName={leHangTim}
+        wrapperSlot="record-picker-search"
+      />
       {demO}
-      <CommandPrimitive.List label={tenDanhSach} data-slot="record-picker-ds" className={recordPickerDs}>
+      <CommandList label={tenDanhSach} data-slot="record-picker-ds" className={cn('p-0', recordPickerDs)}>
         {ds.map((b) => (
-          <CommandPrimitive.Item
+          <CommandItem
             key={b.ma}
             value={b.ma}
             onSelect={() => onChon(b)}
@@ -290,11 +277,11 @@ export function RecordPicker({
             className={lopMuc}
           >
             {noiDung(b)}
-          </CommandPrimitive.Item>
+          </CommandItem>
         ))}
         {rong}
-      </CommandPrimitive.List>
+      </CommandList>
       {chan}
-    </CommandPrimitive>
+    </Command>
   )
 }

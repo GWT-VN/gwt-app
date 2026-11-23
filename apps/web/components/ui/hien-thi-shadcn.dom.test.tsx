@@ -61,7 +61,7 @@ test('ButtonGroup dọc: data-orientation + chồng theo chiều dọc', () => {
 test('Item: data-slot/variant/size; asChild thành <a>; ItemGroup role list; ô icon token .ui-file-thumb', () => {
   render(
     <ItemGroup aria-label="Việc">
-      <Item role="listitem" variant="outline" size="sm" asChild>
+      <Item variant="outline" size="sm" asChild>
         <a href="#x">
           <ItemMedia variant="icon">i</ItemMedia>
           <ItemContent>
@@ -69,12 +69,15 @@ test('Item: data-slot/variant/size; asChild thành <a>; ItemGroup role list; ô 
           </ItemContent>
         </a>
       </Item>
+      <Item>Kiểm kho</Item>
     </ItemGroup>,
   )
   const ds = screen.getByRole('list', { name: 'Việc' })
   expect(ds.getAttribute('data-slot')).toBe('item-group')
-  const a = screen.getByRole('listitem')
-  expect(a.tagName).toBe('A')
+  const [dau, sau] = screen.getAllByRole('listitem')
+  const a = screen.getByRole('link', { name: /Giao hàng/ })
+  expect(dau.contains(a)).toBe(true)
+  expect(sau.textContent).toBe('Kiểm kho')
   expect(a.getAttribute('data-slot')).toBe('item')
   expect(a.getAttribute('data-variant')).toBe('outline')
   expect(a.getAttribute('data-size')).toBe('sm')

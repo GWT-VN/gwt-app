@@ -32,9 +32,6 @@
       "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
       "buoc": [
         {
-          "cho": 1500
-        },
-        {
           "tro": "#tooltip [data-so=\"icon\"]"
         },
         {
@@ -75,9 +72,6 @@
       "ds": "[data-ds-portal] [data-slot=\"tooltip-content\"]",
       "artifactThat": true,
       "buoc": [
-        {
-          "cho": 1500
-        },
         {
           "tro": {
             "artifact": ".ui-row > .ui-btn:nth-child(2)",

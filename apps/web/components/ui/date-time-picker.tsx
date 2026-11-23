@@ -81,6 +81,7 @@ export function DateTimePicker({
   // Nháp: chữ ô ngày + giờ + tháng lịch. Nạp lại từ value mỗi lần pop chuyển sang mở (kể cả mở từ ngoài qua `open`).
   const [chu, setChu] = useState('')
   const [gio, setGio] = useState<string | null>(null)
+  const [gioDaXoa, setGioDaXoa] = useState(false)
   const [thang, setThang] = useState(() => ngayTuIso(nay))
   const [moTruoc, setMoTruoc] = useState(false)
   if (mo !== moTruoc) {
@@ -88,6 +89,7 @@ export function DateTimePicker({
     if (mo) {
       setChu(cu ? hienNgay(cu.ngay) : '')
       setGio(cu?.gio ?? null)
+      setGioDaXoa(false)
       setThang(ngayTuIso(cu?.ngay ?? nay))
     }
   }
@@ -96,14 +98,18 @@ export function DateTimePicker({
   const hopLe = go && (go >= tu || go === cu?.ngay) ? go : null
   const loiNgay = chu.trim() !== '' && !hopLe
 
+  const doiGio = (g: string | null) => {
+    if (g === null && gio !== null) setGioDaXoa(true)
+    setGio(g)
+  }
   const chot = (g = gio) => {
     if (loiNgay) return // ô ngày sai → giữ pop mở để sửa
     const n = hopLe ?? (g && !chu.trim() ? (cu?.ngay ?? (tu > nay ? tu : nay)) : null)
-    if (n) onValueChange(ghepIso(n, g ?? gioMacDinh ?? null, mui))
+    const giuMacDinh = !gioDaXoa && gio === null
+    if (n) onValueChange(ghepIso(n, g ?? (giuMacDinh ? gioMacDinh : null) ?? null, mui))
     datMo(false)
   }
   const oNgayRef = useRef<HTMLInputElement>(null)
-  const enterGio = useRef(false) // phím vừa bấm trong ô giờ là Enter (TimeInput chốt rồi mới báo onValueChange)
 
   return (
     <Popover open={mo} onOpenChange={datMo}>
@@ -143,28 +149,30 @@ export function DateTimePicker({
       <PopoverContent
         aria-label="Chọn ngày giờ"
         data-mo-chuot={chuot.chuot || undefined}
-        className={cn(calendarPop, 'data-mo-chuot:[&_:focus-visible]:[outline:none]! data-mo-chuot:[&_:focus-visible]:outline-offset-0!')}
+        className={cn(calendarPop, 'flex flex-col overflow-hidden', 'data-mo-chuot:[&_:focus-visible]:[outline:none]! data-mo-chuot:[&_:focus-visible]:outline-offset-0!')}
         onKeyDownCapture={chuot.onKeyDown}
         // Ô gõ nằm dưới lịch → Radix sẽ focus nút "Tháng trước"; mở pop là đứng ở ô ngày (chọn hết để gõ đè).
         onOpenAutoFocus={(e) => {
           e.preventDefault()
-          oNgayRef.current?.focus()
+          oNgayRef.current?.focus({ preventScroll: true })
         }}
       >
-        <Calendar
-          mode="single"
-          required
-          selected={hopLe ? ngayTuIso(hopLe) : undefined}
-          month={thang}
-          onMonthChange={setThang}
-          disabled={(d) => {
-            const s = isoNgay(d)
-            return s < tu && s !== cu?.ngay
-          }}
-          onSelect={(d) => setChu(hienNgay(isoNgay(d)))}
-        />
+        <div className="-m-1 min-h-0 overflow-auto border-none border-current p-1">
+          <Calendar
+            mode="single"
+            required
+            selected={hopLe ? ngayTuIso(hopLe) : undefined}
+            month={thang}
+            onMonthChange={setThang}
+            disabled={(d) => {
+              const s = isoNgay(d)
+              return s < tu && s !== cu?.ngay
+            }}
+            onSelect={(d) => setChu(hienNgay(isoNgay(d)))}
+          />
+        </div>
         {/* Hai ô gõ DƯỚI lịch (CEO 22/11), cách nhau 8, cách lịch 12 (= nhịp chân lịch `calendarFoot`). */}
-        <div className="mt-3 flex gap-2 border-none border-current *:min-w-0">
+        <div className="mt-3 flex shrink-0 gap-2 border-none border-current *:min-w-0">
           <div className="flex-1 border-none border-current">
             <Input
               ref={oNgayRef}
@@ -183,35 +191,27 @@ export function DateTimePicker({
                 if (d) setThang(ngayTuIso(d))
               }}
               onKeyDown={(e) => {
-                if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
+                if (e.key !== 'Enter' || e.nativeEvent.isComposing || e.keyCode === 229) return
                 e.preventDefault()
                 chot()
               }}
             />
           </div>
-          <div
-            className="w-28 shrink-0 border-none border-current"
-            onKeyDownCapture={(e) => {
-              enterGio.current = e.key === 'Enter' && !e.nativeEvent.isComposing
-            }}
-            onClickCapture={() => {
-              enterGio.current = false
-            }}
-          >
+          <div className="w-28 shrink-0 border-none border-current">
             <TimeInput
               aria-label="Giờ"
+              goiYPhiaTren
               placeholder={gioMacDinh ?? 'Giờ'}
               value={gio}
-              onValueChange={(g) => {
-                setGio(g)
-                // Enter trong ô giờ = Xong (truyền thẳng g — state chưa kịp cập nhật). Bấm gợi ý / rời ô chỉ đổi nháp.
-                if (enterGio.current) chot(g)
-                enterGio.current = false
+              onValueChange={doiGio}
+              onEnter={(g) => {
+                doiGio(g)
+                chot(g)
               }}
             />
           </div>
         </div>
-        <div className={calendarFoot}>
+        <div className={cn(calendarFoot, 'shrink-0')}>
           {value ? (
             <Button
               variant="ghost"

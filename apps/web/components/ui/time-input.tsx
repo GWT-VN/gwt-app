@@ -36,7 +36,9 @@ export { docGio, GOI_Y_GIO }
 export function TimeInput({
   value,
   onValueChange,
+  onEnter,
   goiY = GOI_Y_GIO,
+  goiYPhiaTren = false,
   placeholder = 'Giờ',
   className,
   ...props
@@ -44,7 +46,11 @@ export function TimeInput({
   value: string | null
   /** "HH:mm"; null = bỏ giờ (ô trống, hoặc bấm ✕). */
   onValueChange(gio: string | null): void
+  /** Thay onValueChange khi Enter chốt một giá trị hợp lệ hoặc ô trống. */
+  onEnter?(gio: string | null): void
   goiY?: string[]
+  /** Danh sách chỉ mở phía trên ô giờ để chừa phần thao tác bên dưới. */
+  goiYPhiaTren?: boolean
 }) {
   const [chu, setChu] = useState(value ?? '')
   const [goc, setGoc] = useState(value)
@@ -62,25 +68,31 @@ export function TimeInput({
   const iNeo = iSang ?? Math.max(0, ds.indexOf(GIO_GOI_Y_DAU)) // chỗ cuộn tới + mốc đầu của ↑/↓
   const neoRef = useRef<HTMLDivElement>(null)
   const vuaFocus = useRef(false) // focus bằng chuột: mouseup bỏ vùng chọn → giữ "chọn hết" để gõ đè
-  const dsRef = useRef<HTMLDivElement>(null)
+  const [hopGoiY, datHopGoiY] = useState<HTMLDivElement | null>(null)
   const idDs = useId()
   const sai = chu.trim() !== '' && !doc
 
   useLayoutEffect(() => {
-    const l = dsRef.current
-    const el = l?.querySelector<HTMLElement>(`[data-i="${iNeo}"]`)
-    if (!l || !el) return
-    if (el.offsetTop < l.scrollTop) l.scrollTop = el.offsetTop - 6
-    else if (el.offsetTop + el.offsetHeight > l.scrollTop + l.clientHeight)
-      l.scrollTop = el.offsetTop + el.offsetHeight - l.clientHeight + 6
-  }, [iNeo, mo])
+    const muc = hopGoiY?.querySelector<HTMLElement>(`[data-i="${iNeo}"]`)
+    if (!hopGoiY || !muc) return
+    const thayMuc = () => {
+      if (muc.offsetTop < hopGoiY.scrollTop) hopGoiY.scrollTo({ top: muc.offsetTop - 6 })
+      else if (muc.offsetTop + muc.offsetHeight > hopGoiY.scrollTop + hopGoiY.clientHeight)
+        hopGoiY.scrollTo({ top: muc.offsetTop + muc.offsetHeight - hopGoiY.clientHeight + 6 })
+    }
+    thayMuc()
+    // Popper có thể đổi chiều cao sau khi gắn portal hoặc khi cửa sổ co lại.
+    const doLai = new ResizeObserver(thayMuc)
+    doLai.observe(hopGoiY)
+    return () => doLai.disconnect()
+  }, [hopGoiY, iNeo])
 
-  const chot = (g: string | null) => {
+  const chot = (g: string | null, bao = onValueChange) => {
     if (g) {
-      onValueChange(g)
+      bao(g)
       setChu(g)
     } else if (!chu.trim()) {
-      onValueChange(null)
+      bao(null)
       setChu('')
     } else setChu(value ?? '') // gõ sai → trả lại giá trị cũ
     setSang(null)
@@ -97,11 +109,7 @@ export function TimeInput({
     } else if (e.key === 'Enter') {
       if (e.nativeEvent.isComposing || e.keyCode === 229) return
       e.preventDefault()
-      chot(mo && iSang !== null ? ds[iSang] : doc)
-    } else if (e.key === 'Escape' && mo) {
-      // Đóng danh sách do DismissableLayer của Popover (lớp trên cùng) lo; ở đây chỉ trả chữ về giá trị cũ.
-      setChu(value ?? '')
-      setSang(null)
+      chot(mo && iSang !== null ? ds[iSang] : doc, onEnter)
     }
   }
 
@@ -174,8 +182,14 @@ export function TimeInput({
       <PopoverContent
         // Radix gắn role=dialog cho Content; ở đây chỉ là vỏ của listbox (focus ở lại ô gõ) — bỏ để không lồng dialog không tên.
         role="presentation"
+        side={goiYPhiaTren ? 'top' : 'bottom'}
+        avoidCollisions={!goiYPhiaTren}
         onOpenAutoFocus={(e) => e.preventDefault()}
         onCloseAutoFocus={(e) => e.preventDefault()}
+        onEscapeKeyDown={() => {
+          setChu(value ?? '')
+          setSang(null)
+        }}
         onInteractOutside={(e) => {
           if (neoRef.current?.contains(e.target as Node)) e.preventDefault()
         }}
@@ -183,12 +197,12 @@ export function TimeInput({
         className={cn(menuContent, 'min-w-28 w-(--radix-popover-trigger-width) overflow-hidden p-0')}
       >
         <div
-          ref={dsRef}
+          ref={datHopGoiY}
           id={idDs}
           role="listbox"
           aria-label="Gợi ý giờ"
           // 240 = 7½ mục 32 → thấy rõ còn cuộn tiếp (menu DS không có số này; giữ y prototype đã duyệt).
-          className="max-h-[240px] overflow-y-auto p-(--menu-gutter) border-none border-current [scrollbar-color:var(--alpha-30)_transparent]"
+          className="max-h-[min(240px,var(--radix-popover-content-available-height,240px))] overflow-y-auto p-(--menu-gutter) border-none border-current [scrollbar-color:var(--alpha-30)_transparent]"
         >
           {ds.map((g, i) => (
             <div

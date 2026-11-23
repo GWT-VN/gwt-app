@@ -206,7 +206,6 @@
       "khoa": "dang-tim",
       "artifact": ".ui-menu-empty[style]",
       "ds": "#combobox fieldset > div:nth-of-type(3) [data-slot=\"combobox-note\"]",
-      "buoc": [{ "cho": 1500 }],
       "con": [
         {
           "ten": "spinner",

@@ -5,11 +5,12 @@ import { useEffect, useRef, useState, type ComponentProps, type ReactElement, ty
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { useDsPortal } from './ds-root'
+import { TooltipProvider } from './tooltip-provider'
 
 /**
  * Tooltip — khung shadcn new-york-v4 (Radix Tooltip): đủ 4 phần (`TooltipProvider`, `Tooltip` = Root, `TooltipTrigger`,
- * `TooltipContent`), cùng `data-slot`. Ghép tay thì phải có `TooltipProvider` bao ngoài (như shadcn; Radix báo lỗi nếu
- * thiếu). Màn thường dùng hàm tiện `TooltipNhanh` (dưới) — tự mang Provider + luật riêng của DS.
+ * `TooltipContent`), cùng `data-slot`. DsRoot đã bọc `TooltipProvider` cho các Tooltip ghép tay.
+ * Màn thường dùng hàm tiện `TooltipNhanh` (dưới) để có các hành vi bổ sung của DS.
  *
  * Đổi bắt buộc / gán token (giá trị chép từ `.ui-tip.is-tip::after` trong ds/nguon/bundle.css):
  * - Nền primary-solid, chữ primary-solid, 500 12px/16px một dòng, padding 4 8, bo radius-md, cách trigger 6px
@@ -19,10 +20,6 @@ import { useDsPortal } from './ds-root'
  * - `TooltipProvider` trễ 300ms (shadcn 0) — nhịp hiện tooltip của DS.
  * - CỐ Ý không chép: mũi tên (`TooltipPrimitive.Arrow`) và animation — artifact không định nghĩa.
  */
-function TooltipProvider({ delayDuration = 300, ...props }: ComponentProps<typeof TooltipPrimitive.Provider>) {
-  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...props} />
-}
-
 function Tooltip({ ...props }: ComponentProps<typeof TooltipPrimitive.Root>) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }

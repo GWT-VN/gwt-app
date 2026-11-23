@@ -240,23 +240,29 @@ async function moCdp(wsUrl) {
   await new Promise((ok, loi) => { ws.onopen = ok; ws.onerror = loi })
   let id = 0
   const cho = new Map()
-  const nghe = new Set()
+  const daTai = new Set()
   ws.onmessage = (e) => {
     const m = JSON.parse(e.data)
     if (m.id && cho.has(m.id)) {
       const { ok, loi } = cho.get(m.id); cho.delete(m.id)
-      m.error ? loi(new Error(`${m.error.message}`)) : ok(m.result)
-    } else for (const f of nghe) f(m)
+      if (m.error) loi(new Error(m.error.message))
+      else ok(m.result)
+    } else if (m.method === 'Page.lifecycleEvent' && m.params.name === 'load') {
+      daTai.add(m.params.loaderId)
+    }
   }
   const send = (method, params = {}) => new Promise((ok, loi) => {
     const i = ++id; cho.set(i, { ok, loi }); ws.send(JSON.stringify({ id: i, method, params }))
   })
-  const doi = (method, ms = 120000) => new Promise((ok, loi) => {
-    const t = setTimeout(() => { nghe.delete(f); loi(new Error(`hết giờ chờ ${method}`)) }, ms)
-    const f = (m) => { if (m.method === method) { clearTimeout(t); nghe.delete(f); ok(m.params) } }
-    nghe.add(f)
-  })
-  return { send, doi, dong: () => ws.close() }
+  const den = async (url) => {
+    daTai.clear()
+    const { loaderId, errorText } = await send('Page.navigate', { url })
+    if (errorText || !loaderId) throw new Error(`không mở được ${url}: ${errorText ?? 'thiếu loaderId'}`)
+    const han = Date.now() + 60000
+    while (!daTai.has(loaderId) && Date.now() < han) await ngu(50)
+    if (!daTai.has(loaderId)) throw new Error(`hết giờ tải ${url}`)
+  }
+  return { send, den, dong: () => ws.close() }
 }
 
 // Lớp phủ Next dev (huy hiệu "N", toast lỗi, build watcher) đặt fixed góc dưới-trái → che khối cuối trang trong ảnh 390
@@ -363,19 +369,22 @@ async function main() {
     const trang = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === 'page')
     cdp = await moCdp(trang.webSocketDebuggerUrl)
     await cdp.send('Page.enable')
+    await cdp.send('Page.setLifecycleEventsEnabled', { enabled: true })
 
     const di = async (dich) => {
-      const xong = cdp.doi('Page.loadEventFired')
-      await cdp.send('Page.navigate', { url: dich })
-      await xong
+      // Mỗi lần nạp chờ đúng loader, kể cả khi URL giống lần trước.
+      await cdp.den(dich)
       await chay(cdp, 'document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 400))).then(() => true)')
-      // Trang Next (/ds/tron) phải HYDRATE xong mới đo/rê/bấm — trước đây chỉ chờ load + 400ms nên trang nặng lên thì đo hụt
-      // (tooltip không mở, lịch còn 2 tháng…; 21–22/11 phải vá bằng {cho:1500} từng khoá). Trang nguồn tĩnh (không có
-      // self.__next_f) bỏ qua. Trần 20 giây.
-      await chay(
-        cdp,
-        `(async () => { if (!self.__next_f) return true; for (let i = 0; i < 200; i++) { const el = document.querySelector('[data-ds="v2"] button, [data-ds="v2"] [data-slot]'); if (el && Object.keys(el).some((k) => k.startsWith('__react'))) return true; await new Promise((r) => setTimeout(r, 100)) } return true })()`,
-      )
+      if (dich.startsWith('http')) {
+        const sanSang = await chay(cdp, `(async () => {
+          for (let i = 0; i < 200; i++) {
+            if (document.querySelector('[data-ds-hydrated]')) return true
+            await new Promise((r) => setTimeout(r, 100))
+          }
+          return false
+        })()`)
+        if (!sanSang) throw new Error('DsRoot chưa hydrate sau 20 giây')
+      }
       await chay(cdp, `document.head.append(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(AN_NEXT_DEV)} })), true`)
       await chay(cdp, TRO_GIUP)
     }
@@ -425,7 +434,7 @@ async function main() {
       }
     }
 
-    const thuDs = await fetch(`${url}/ds/tron`).catch((e) => ({ ok: false, status: e.cause?.code ?? e.message }))
+    const thuDs = await fetch(`${url}/ds/tron`, { redirect: 'manual' }).catch((e) => ({ ok: false, status: e.cause?.code ?? e.message }))
     if (!thuDs.ok) throw new Error(`không mở được ${url}/ds/tron (${thuDs.status}) — dev server đã chạy chưa? (máy này dùng --url http://127.0.0.1:3401)`)
     // Font: @font-face Inter + giá trị token --font-sans trên gốc [data-ds] của /ds (một lần).
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: KHO[0], height: CAO, deviceScaleFactor: 1, mobile: false })

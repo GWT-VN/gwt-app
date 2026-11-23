@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { useState } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { DateTimePicker } from './date-time-picker'
@@ -148,6 +148,32 @@ test('bấm ra ngoài → bỏ nháp', async () => {
   await user.click(screen.getByRole('button', { name: 'ngoài' }))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(onDoi).not.toHaveBeenCalled()
+})
+
+
+test('Esc bỏ giờ đang gõ trước khi rời ô và bấm Xong', async () => {
+  const user = userEvent.setup()
+  const onDoi = dung('2026-11-22T09:00:00+07:00')
+  await user.click(trigger())
+  await pop()
+  await user.click(oGio())
+  await user.keyboard('1430{Escape}{Tab}')
+  expect(oGio().value).toBe('09:00')
+  await user.click(nut('Xong'))
+  expect(onDoi).toHaveBeenLastCalledWith('2026-11-22T09:00:00+07:00')
+})
+
+test('Enter mã IME 229 và rời ô giờ chưa chốt hạn', async () => {
+  const user = userEvent.setup()
+  const onDoi = dung('2026-11-22')
+  await user.click(trigger())
+  await pop()
+  await user.click(oGio())
+  await user.keyboard('1430')
+  fireEvent.keyDown(oGio(), { key: 'Enter', keyCode: 229 })
+  await user.tab()
+  expect(onDoi).not.toHaveBeenCalled()
+  expect(screen.getByRole('dialog')).toBeTruthy()
 })
 
 test('Huỷ → không lưu, đóng pop', async () => {

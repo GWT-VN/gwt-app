@@ -113,8 +113,7 @@ function InputGroupButton({
       type={type}
       data-size={size}
       variant={variant}
-      // Button chưa có cỡ xs (Đợt 5) → lấy sm/icon-sm làm nền, số cỡ thật do inputGroupButtonVariants đè.
-      size={size === 'icon-xs' || size === 'icon-sm' ? 'icon-sm' : 'sm'}
+      size={size ?? 'xs'}
       className={cn(inputGroupButtonVariants({ size }), className)}
       {...props}
     />

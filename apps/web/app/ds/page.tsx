@@ -24,12 +24,12 @@ export default async function DsPage({ searchParams }: { searchParams: Promise<{
         tieuDe="Components"
         moTa={`Đã dựng ${SO_DA_DUNG}/${KHOI.length} component. Mục mờ ở cột trái = chưa dựng (lát sau).`}
       >
-        {KHOI.map(({ neo, ten, Khoi }) => {
+        {KHOI.map(({ neo, ten, nhan = ten, Khoi }) => {
           if (!Khoi) return null
           const Hang = HANG[neo]
           const md = readmeComponent(ten)
           return (
-            <Muc key={neo} neo={neo} tieuDe={ten} moTa={md ? <span className="block truncate">{motDong(md)}</span> : undefined}>
+            <Muc key={neo} neo={neo} tieuDe={nhan} moTa={md ? <span className="block truncate">{motDong(md)}</span> : undefined}>
               {Hang ? (
                 <Hang />
               ) : (

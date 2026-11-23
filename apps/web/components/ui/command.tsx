@@ -57,11 +57,12 @@ function CommandDialog({
 function CommandInput({
   className,
   wrapperClassName,
+  wrapperSlot = 'command-input-wrapper',
   children,
   ...props
-}: ComponentProps<typeof CommandPrimitive.Input> & { wrapperClassName?: string }) {
+}: ComponentProps<typeof CommandPrimitive.Input> & { wrapperClassName?: string; wrapperSlot?: string }) {
   return (
-    <div data-slot="command-input-wrapper" className={cn(s.commandInputWrapper, wrapperClassName)}>
+    <div data-slot={wrapperSlot} className={cn(s.commandInputWrapper, wrapperClassName)}>
       <MagnifyingGlass aria-hidden="true" className={s.commandInputIcon} />
       <CommandPrimitive.Input data-slot="command-input" className={cn(s.commandInput, className)} {...props} />
       {children}

@@ -188,7 +188,7 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
   → ảnh DS có overlay đang mở cạnh preview. Cú pháp đầy đủ ở đầu `so-khop.mjs`.
 - **Thang z (một chỗ duy nhất — component mới đọc ở đây, không tự chọn số):** bulkbar **55** (`.ui-bulkbar`) · toast
   **56** (`.ui-toast`) · tip thanh bên / sheet đáy điện thoại **60** (`.pD-icon` tip, `.b-caidat`) · dialog + overlay
-  (Dialog, AlertDialog/ConfirmDialog, Sheet) **70** (`dialog-styles.ts`; artifact dùng top layer của `<dialog>` —
+  (Dialog, AlertDialog/ConfirmDialog, Sheet, Drawer) **70** (`dialog-styles.ts`; artifact dùng top layer của `<dialog>` —
   trên mọi lớp trang) · tooltip **80** (`.ui-tip::after`) · menu **90** (`.b-noi`, `.b-chuotphai`). Tooltip/menu > dialog
   vì mở được BÊN TRONG hộp. **Toast < 70** như artifact (toast nằm dưới hộp đang mở): Sonner gốc 999999999 → ghi đè 56
   (đo lát 5), khoá `zIndex` trong so khớp Toast. Lớp cục bộ (lát 4–6, ngoài thang vì chỉ xếp trong khối của mình):
@@ -205,7 +205,7 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 - **Tên prop:** primitive (khung shadcn/Radix: `Dialog*`, `Sheet*`, `DropdownMenu*`, `Button`…) giữ tên tiếng Anh của
   shadcn/Radix (`open`, `onOpenChange`, `variant`, `size`, `disabled`, `asChild`); component GHÉP nghiệp vụ của DS (vd
   `ConfirmDialog`) dùng tên tiếng Việt cho phần nghiệp vụ (`tieuDe`, `hauQua`, `nutXacNhan`, `onXacNhan`…). Riêng màu
-  luôn là **`color`** (`Alert`, `Badge`, `ConfirmDialog` — không `mau`), giá trị theo tên token (`danger`…).
+  theo `variant` của shadcn khi có. `color` (`Alert`, `Badge`, `ConfirmDialog`) là prop mở rộng của GWT, giá trị theo token.
 - **Focus trong overlay (Dialog, Sheet, AlertDialog/ConfirmDialog):**
   - *Focus ban đầu:* Dialog → nút AN TOÀN (Huỷ) mang `data-autofocus` (qua `onOpenAutoFocus` của Radix; `autoFocus` của
     React làm Radix bỏ qua `onOpenAutoFocus` → không dùng). Sheet → mặc định nút ✕ (phần tử focus được đầu tiên); màn
@@ -335,11 +335,46 @@ NVDA/JAWS (chưa thử máy đọc thật).
   `data-autofocus`) nằm trong đầu panel, tên hộp là `SheetTitle` sr-only; thêm header + ✕ thành hai nút đóng. Sheet có
   `side="left"`.
 - **Cổng so khớp:** lỗi chạy (mã 2) ghi đè `<C>.md` đã commit bằng ghi chú lỗi → chạy lại tới thoát 0 rồi `git diff` trước
-  commit; khoá có `buoc` dồn cuối config (mỗi khoá nạp lại trang); /ds nặng → chờ hydrate (phần tử có khoá `__react…`) trước
-  khi bấm, thêm `{ "cho": 800 }` sau bước mở pop; phím Enter qua CDP cần `text: "\r"`; chụp/đo với `mobile: false`; bọc
-  `timeout 1500`. Đo focus item RovingFocus: `bam` item rồi một phím không di chuyển (bấm link `#neo` làm mất focus). Vùng
+  commit. Mỗi lượt nạp chờ sự kiện tải của đúng loader Chrome, rồi chờ dấu hydrate của DsRoot trước khi đo hoặc bấm.
+  Khoá có `buoc` dồn cuối config vì mỗi khoá nạp lại trang. Phím Enter qua CDP cần gửi ký tự xuống dòng.
+  Chụp và đo với `mobile: false`. Đo focus item RovingFocus: `bam` item rồi một phím không di chuyển (bấm link `#neo` làm mất focus). Vùng
   `overflow-x:auto` cắt vòng focus con → đệm + lề âm. `artifactThat` chạy mọi bước ở cả hai bên — bước chỉ DS dùng
   `{ artifact, ds }`. Mỗi task/agent một thư mục con scratchpad riêng.
+
+### Lát 7 và đợt chuyển sang khung shadcn
+
+- **R13 (thay quyết định 17:30):** A4 đặt lịch trên, ô ngày và giờ bên dưới. Chỉ chọn ngày lưu `YYYY-MM-DD`.
+  Chỉ có giờ khi người dùng chọn, khi giá trị cũ có giờ hoặc khi bên gọi truyền `gioMacDinh`. Xoá giờ giữ lại ngày.
+  Xong hoặc Enter hợp lệ mới lưu nháp. Huỷ, Esc ngoài danh sách giờ và bấm ngoài bỏ nháp. Xoá cả hạn có hiệu lực ngay.
+- **R14:** menu con dùng collision của Radix, giới hạn rộng theo khung nhìn. Mở menu con kiểu thay chỗ menu cha trên điện thoại còn mở.
+- **R15:** phím tắt theo vùng dùng `lib/phim-tat.ts`. Bỏ qua ô nhập, `contenteditable`, phím bổ trợ và bộ gõ đang ghép.
+- **R16:** `bang/ChonDong.tsx` quản lý Ctrl/⇧ + bấm chọn dòng. Table vẽ dòng đang trỏ. Menu thuộc tính dùng phím tắt theo
+  dòng, hiển thị số dòng đang chọn và cho Hoàn tác sau khi cập nhật.
+- **R17:** `TimeInput` hỗ trợ giờ 24h, gợi ý và phím ↑/↓. Esc ở danh sách phục hồi giờ trước lần gõ. Xử lý ở sự kiện Esc
+  của lớp Popover vì Radix chặn sự kiện trước khi ô nhập nhận nó. DateTimePicker chỉ chốt Enter do TimeInput xác nhận.
+  Khi thiếu chiều cao, vùng lịch cuộn và hàng nhập cùng chân pop vẫn thấy. Gợi ý giờ mở phía trên ô để chừa Huỷ và Xong.
+- **R18:** dùng shadcn `new-york-v4` nhánh Radix, commit `45bbf9b`. Gán token DS sau khi chép khung.
+- **R19:** ưu tiên `variant` và `size` theo shadcn. Giữ nguyên tên export, prop và `data-slot` gốc. `color` và các phần mở rộng
+  nghiệp vụ là phần GWT thêm. Menu giả lập tìm kiếm, Kbd, phím tắt và hành vi dùng chung của DropdownMenu, ContextMenu,
+  Menubar nằm ở `menu-them.tsx`. Dialog và Sheet dùng `showCloseButton` cho nút ✕.
+- **R20:** Tooltip export Provider, Root, Trigger, Content. `DsRoot` cung cấp Provider mặc định, `TooltipNhanh` ghép sẵn cho
+  nút có mô tả. Trigger asChild có thể thay `data-slot` của nút, dùng `aria-*` cho trạng thái.
+- **R21:** Combobox giữ cmdk. RecordPicker ghép từ Command của DS. Form tiếp tục dùng FormLayout và server action đến khi có
+  màn cần xét lại.
+- **R22:** tên file theo shadcn, tên khối và cổng giữ tên artifact (InputAffix, Toast, EmptyState). Nhãn Menu thuộc tính
+  tách khỏi khoá README và neo `#menu-thuoc-tinh`.
+- **R23:** chuyển các chỗ gọi trong `components/ui`, `app/ds` và `app/prototype` cùng đợt.
+
+- **Căn hàng bảng:** căn checkbox con trực tiếp của ô ở Table, cả Checkbox DS và ô chọn từ `bang/`. Ô đã bọc flex chỉ cần
+  bỏ độ dời dọc. Checkbox dùng với ChoiceLabel giữ căn riêng của nó. Đo tâm từng phần tử nhìn thấy so với tâm nội dung
+  của hàng (trừ viền phân cách), ngưỡng 0,5px đối với hàng một dòng.
+- **CSS chuyển động:** đặt keyframes dùng chung trong `ds/chuyen-dong.css` vì Tailwind chỉ phát biến animation khi quét thấy
+  utility. `ds/theme.css` chỉ chứa màu, có test khoá nội dung.
+
+### Đang mở
+
+- Đồng bộ README, preview và cổng cho các component mới lên artifact sau khi duyệt DS trên `/ds`.
+- Chốt token biểu đồ `--chart-1` đến `--chart-5`, Combobox Base UI, Form dùng react-hook-form và zod, menu con kiểu drill-in.
 
 ## Tương phản — chấp nhận có chủ đích
 
