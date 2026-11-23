@@ -11,6 +11,7 @@ Thanh thao tác hàng loạt — **mới 18/11/2026**, thay thanh tự vẽ `b-h
 | Cảnh báo | `ui-bulkbar-warn` `yellow-300` | "Chỉ chọn được tối đa N mỗi lượt — thu hẹp bộ lọc" |
 | Biến thể mặt nổi `data-variant="surface"` (nền trắng ở theme sáng, popover tối ở theme tối) | `popover` / `popover-foreground`, `shadow-hairline` + `shadow-300` | thêm 23/11/2026 (CEO chốt trên màn Work): cùng bố cục; nút ghost rê `alpha-05`, nhấn `alpha-08`; cảnh báo `color-text-warning`. Code: `<CauHinhBangDs thanhHangLoat="surface">` |
 | Điện thoại ≤ 640px | | rộng `100vw − 32px`, bo `radius-2xl`, **2–3 dòng**: số + × · các thao tác · "Chọn tất cả…" — không cuộn ngang giấu nút |
+| Trong KhungApp (thêm 23/11) | `--khung-trai-rong` | canh giữa **vùng nội dung** (`left: calc(50% + rộng cột trái / 2)`), rộng tối đa `100vw − cột trái − 32`; ≤767 về giữa màn. Nhiều thao tác → 4–5 nút hay dùng + nút **Thêm** (menu con) — ở 1440 thanh 10 nút đè sang menu trái |
 
 **Luật (từ `bang/ChonDong.tsx`):** ô chọn ở đầu bảng = **chọn hết trang đang xem**; hết trang mà còn trang khác → mời chọn toàn bộ; lựa chọn vượt trang **bắt buộc nói ra**; "Bỏ chọn" xoá **hết** (kể cả trang khác); đổi lọc → bỏ chọn. Thao tác ghi dữ liệu: hộp xác nhận ghi rõ **số dòng**, chia lô khi ghi, ghi vết trước/sau, toast có **Hoàn tác**. Chưa có thao tác → nói thật "Thao tác hàng loạt đang được bổ sung", không đặt nút giả.
 

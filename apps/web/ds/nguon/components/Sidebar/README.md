@@ -58,3 +58,4 @@ Nội dung thẻ chat Bắp; logo GWT thật (đang chữ "GWT").
 - **Khu đáy** (`Khu.day`, vd Quản trị): icon nằm đáy thanh trên avatar, cùng hành vi icon khu (chọn → panel hiện menu khu đó); không có trong "Tất cả khu".
 - **Menu tài khoản** (`nguoiDung.menu`): avatar thành nút `.pD-taikhoan` mở `DropdownMenu` bên phải (căn đáy, cách 8): nhãn tên + dòng phụ email 12/18 muted, rồi các mục (Đăng xuất).
 - App thật: `components/khung/` + `lib/khung/ban-do-menu.ts` (khu + menu theo quyền, nhóm rỗng thì bỏ, không hiện mục "sắp có"). Màn cũ nằm trong `[data-man-cu]` — trả lại thang Tailwind/ font của app cũ mà vùng DS khai đè.
+- **Biến `--khung-trai-rong`** (thêm 23/11): KhungApp đo rộng cột trái (rail 52 / rail + panel 340; ≤767 thành ngăn kéo) gắn lên `[data-slot=khung-app]` — thứ nổi giữa đáy (BulkActionBar) canh giữa **vùng nội dung**, không đè sang menu.

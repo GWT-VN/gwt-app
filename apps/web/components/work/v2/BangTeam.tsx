@@ -65,8 +65,8 @@ const chuoiTim = (v: ViecTeamRow) =>
     ].join(' '),
   )
 const dsUrl = (s: string | null) => (s ? s.split(',').filter(Boolean) : [])
-/** Mã team cho ô chọn (ComboboxPanel hiện `gt` như mã) — `key` đọc được, thiếu thì id. */
-const gtTeam = (t: NenTang['teams'][number]) => t.key || String(t.id)
+/** Khoá ô chọn team = TÊN: ComboboxPanel hiện `gt` làm cột mã khi khác `nhan` — mã kỹ thuật (`ky_thuat`) không cho người xem. */
+const gtTeam = (t: NenTang['teams'][number]) => t.name
 
 export function BangTeam({
   rows,

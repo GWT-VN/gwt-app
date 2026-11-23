@@ -16,6 +16,7 @@ import {
   ArrowsClockwise,
   CalendarBlank,
   CheckCircle,
+  DotsThree,
   Flag,
   Trash,
   UserMinus,
@@ -45,6 +46,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   MenuTimKiem,
 } from '@/components/ui/dropdown-menu'
@@ -155,37 +159,104 @@ function DoiHan({ dang, chay }: { dang: boolean; chay: (input: Input, moTa: stri
   )
 }
 
-/** Đổi team: menu các team (> 10 thì có ô gõ để tìm) + "Bỏ team". */
-function DoiTeam({
-  teams,
-  dang,
-  chay,
+/** Menu con có ô gõ để tìm khi quá 10 mục (CHUAN-FILTER luật 2). */
+function MenuCon({
+  nhan,
+  icon,
+  muc,
+  goiY,
+  chon,
 }: {
-  teams: NenTang['teams']
-  dang: boolean
-  chay: (input: Input, moTa: string) => void
+  nhan: string
+  icon: ReactNode
+  muc: { khoa: string; nhan: ReactNode; tim: string; onChon: () => void }[]
+  goiY: string
+  chon?: ReactNode
 }) {
   const [q, setQ] = useState('')
   const tim = boDau(q.trim())
-  const ds = teams.filter((t) => !tim || boDau(`${t.key} ${t.name}`).includes(tim))
+  const ds = muc.filter((m) => !tim || boDau(m.tim).includes(tim))
   return (
-    <DropdownMenu onOpenChange={(m) => !m && setQ('')}>
+    <DropdownMenuSub onOpenChange={(m) => !m && setQ('')}>
+      <DropdownMenuSubTrigger>
+        {icon}
+        {nhan}
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        {muc.length > 10 && <MenuTimKiem value={q} onValueChange={setQ} placeholder={goiY} />}
+        {ds.map((m) => (
+          <DropdownMenuItem key={m.khoa} onSelect={m.onChon}>
+            {m.nhan}
+          </DropdownMenuItem>
+        ))}
+        {chon}
+        <TuFocusMenuCon />
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
+}
+
+/**
+ * "Thêm" — thao tác ít dùng gom vào một menu để thanh không vượt vùng nội dung (thanh nổi giữa màn, 10 nút ở 1440 đã
+ * đè sang cột menu trái): Đổi ưu tiên · Đổi team · Bỏ người.
+ */
+function ThemThaoTac({
+  nenTang,
+  dang,
+  chay,
+}: {
+  nenTang: NenTang
+  dang: boolean
+  chay: (input: Input, moTa: string) => void
+}) {
+  return (
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" disabled={dang}>
-          <UsersThree aria-hidden="true" />
-          Đổi team
+          <DotsThree aria-hidden="true" />
+          Thêm
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start">
-        {teams.length > 10 && <MenuTimKiem value={q} onValueChange={setQ} placeholder="Tìm team…" />}
-        {ds.map((t) => (
-          <DropdownMenuItem key={t.id} onSelect={() => chay({ team_id: t.id }, `Đã chuyển sang team ${t.name}`)}>
-            {t.name}
-          </DropdownMenuItem>
-        ))}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => chay({ xoa_team: true }, 'Đã bỏ team')}>Bỏ team</DropdownMenuItem>
-        {teams.length > 10 && <TuFocusMenuCon />}
+        <MenuCon
+          nhan="Đổi ưu tiên"
+          icon={<Flag aria-hidden="true" />}
+          goiY="Tìm mức…"
+          muc={UU.map((u) => ({
+            khoa: u.gt,
+            nhan: u.nhan,
+            tim: u.chu ?? u.gt,
+            onChon: () => chay({ priority: Number(u.gt) }, `Đã đổi ưu tiên sang ${u.chu}`),
+          }))}
+        />
+        <MenuCon
+          nhan="Đổi team"
+          icon={<UsersThree aria-hidden="true" />}
+          goiY="Tìm team…"
+          muc={nenTang.teams.map((t) => ({
+            khoa: String(t.id),
+            nhan: t.name,
+            tim: `${t.key} ${t.name}`,
+            onChon: () => chay({ team_id: t.id }, `Đã chuyển sang team ${t.name}`),
+          }))}
+          chon={
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => chay({ xoa_team: true }, 'Đã bỏ team')}>Bỏ team</DropdownMenuItem>
+            </>
+          }
+        />
+        <MenuCon
+          nhan="Bỏ người"
+          icon={<UserMinus aria-hidden="true" />}
+          goiY="Gõ tên hoặc email…"
+          muc={nenTang.nhan_su.map((n) => ({
+            khoa: n.id,
+            nhan: n.ten,
+            tim: `${n.ten} ${n.email}`,
+            onChon: () => chay({ bo_ai: n.id }, `Đã bỏ ${n.ten}`),
+          }))}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -307,8 +378,8 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
 }
 
 /**
- * Thanh hàng loạt cho việc: Đánh dấu xong · Đổi trạng thái (kèm Huỷ việc) · Gán người · Bỏ người · Đổi ưu tiên · Đổi hạn ·
- * Đổi team · Xoá.
+ * Thanh hàng loạt cho việc: Đánh dấu xong · Đổi trạng thái (kèm Huỷ việc) · Gán người · Đổi hạn · Thêm (Đổi ưu tiên ·
+ * Đổi team · Bỏ người) · Xoá.
  * `xong` chạy sau khi ghi thành công (thường `router.refresh()`); lựa chọn được bỏ ở đây.
  */
 export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: () => void }) {
@@ -370,40 +441,8 @@ export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: (
           </Button>
         }
       />
-      <ChonMuc
-        nhan={`Bỏ người khỏi ${soDong} việc`}
-        options={ns.options}
-        onChon={(m) => {
-          const id = ns.idCua(m.gt)
-          if (id) void chay({ bo_ai: id }, `Đã bỏ ${m.nhan}`)
-        }}
-        nut={
-          <Button variant="ghost" size="sm" disabled={dang}>
-            <UserMinus aria-hidden="true" />
-            Bỏ người
-          </Button>
-        }
-      />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" disabled={dang}>
-            <Flag aria-hidden="true" />
-            Đổi ưu tiên
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="top" align="start">
-          {UU.map((u) => (
-            <DropdownMenuItem
-              key={u.gt}
-              onSelect={() => void chay({ priority: Number(u.gt) }, `Đã đổi ưu tiên sang ${u.chu}`)}
-            >
-              {u.nhan}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
       <DoiHan dang={dang} chay={(i, m) => void chay(i, m)} />
-      <DoiTeam teams={nenTang.teams} dang={dang} chay={(i, m) => void chay(i, m)} />
+      <ThemThaoTac nenTang={nenTang} dang={dang} chay={(i, m) => void chay(i, m)} />
       <XoaViec ids={ids} dang={dang} xong={ketThuc} />
     </>
   )

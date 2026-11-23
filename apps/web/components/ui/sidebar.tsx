@@ -114,6 +114,19 @@ export function KhungApp({
   const [moBap, setMoBap] = useState(false)
   const k = khu.find((x) => x.id === khuDangChon)
 
+  // Rộng cột trái → biến `--khung-trai-rong` trên gốc khung: thứ nổi giữa đáy (thanh hàng loạt) canh giữa VÙNG NỘI DUNG,
+  // không đè sang menu. Đo thật (chỉ rail 52 / rail + panel 340) thay vì đoán theo class; ≤767 thanh tự về giữa màn.
+  const gocRef = useRef<HTMLDivElement>(null)
+  const traiRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const goc = gocRef.current
+    const trai = traiRef.current
+    if (!goc || !trai || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => goc.style.setProperty('--khung-trai-rong', `${trai.offsetWidth}px`))
+    ro.observe(trai)
+    return () => ro.disconnect()
+  }, [moMenu])
+
   useEffect(() => {
     if (!moMenu) return
     const m = window.matchMedia?.('(min-width: 768px)')
@@ -149,7 +162,7 @@ export function KhungApp({
   )
 
   return (
-    <div data-slot="khung-app" className={s.khung}>
+    <div ref={gocRef} data-slot="khung-app" className={s.khung}>
       {moMenu ? (
         <Sheet open onOpenChange={setMoMenu}>
           <SheetContent side="left" showCloseButton={false} aria-describedby={undefined} className={s.nganKeo}>
@@ -158,7 +171,7 @@ export function KhungApp({
           </SheetContent>
         </Sheet>
       ) : (
-        <div data-slot="khung-trai" className={s.trai}>
+        <div ref={traiRef} data-slot="khung-trai" className={s.trai}>
           {trai(false)}
         </div>
       )}

@@ -31,3 +31,14 @@ Nguồn thiết kế: canvas Claude Design (khung F + màn Work, bản 23 — CE
 2. Xem nhanh (panel chi tiết) · 3. Bảng team (Bảng/Kanban/hàng loạt surface) · 4. Tạo việc (hộp thoại).
 
 DS bổ sung trong đợt: `TrangDuLieu` (`.b-trang`), `O_TIM_PILL`, KhungApp (mục nhóm, khu đáy, menu tài khoản).
+
+## Đợt 2 — hoàn tất khu Việc (23/11)
+
+- Việc tự sinh dựng lại bằng DS (`components/work/v2/TuSinh.tsx` + `SuaLuat.tsx`); code Work cũ xoá hết.
+- Thanh hàng loạt dùng chung `v2/HangLoat.tsx`: Đánh dấu xong · Đổi trạng thái (kèm Huỷ việc) · Gán người · Đổi hạn ·
+  Thêm (Đổi ưu tiên · Đổi team · Bỏ người) · Xoá hai nhịp (`xemTruocXoa` → ConfirmDialog → `xoaHangLoat` + `dau_van`).
+- Bảng team lọc theo team (URL `team`); Việc của tôi đổi dạng xem Danh sách · Bảng · Kanban (`v2/DangXemViec.tsx`).
+- Đổi người chính: bước hạ người cũ lỗi → trả người mới về vai cũ (không để 2 người chính).
+- DS: thanh hàng loạt canh giữa vùng nội dung (`--khung-trai-rong` của KhungApp).
+- Còn chờ DB: tab "Lâu không đụng" + cột "Cập nhật" (`work_bang_team` trả ngày đụng cuối); thứ tự thẻ Kanban ở Việc của
+  tôi (`work_viec_cua_toi` trả `sort_order`).

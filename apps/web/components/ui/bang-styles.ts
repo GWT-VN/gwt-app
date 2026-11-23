@@ -143,7 +143,10 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
     kv,
     // Dấu (không phải Tailwind): Toast đọc bằng `:has()` trên gốc vùng DS để đẩy lên trên thanh (toast-styles.ts).
     'ds-thanh-hang-loat',
-    'fixed bottom-6 left-1/2 z-55 -translate-x-1/2 flex items-center gap-0.5 max-w-[calc(100vw-32px)]',
+    // Canh giữa VÙNG NỘI DUNG: trong KhungApp có `--khung-trai-rong` (rộng cột trái, sidebar.tsx); ngoài khung = 0 → giữa
+    // màn; ≤767 cột trái thành ngăn kéo → giữa màn.
+    'fixed bottom-6 left-[calc(50%+var(--khung-trai-rong,0px)/2)] z-55 -translate-x-1/2 flex items-center gap-0.5',
+    'max-w-[calc(100vw-var(--khung-trai-rong,0px)-32px)] max-[767px]:left-1/2 max-[767px]:max-w-[calc(100vw-32px)]',
     'py-1 pr-1 pl-4 rounded-(--radius-full) [box-shadow:var(--shadow-400)]',
     'bg-(--color-background-primary-solid) text-(--color-text-primary-solid) text-[14px] leading-[20px] font-normal',
     'transition-[opacity,translate] duration-180 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:transition-none',

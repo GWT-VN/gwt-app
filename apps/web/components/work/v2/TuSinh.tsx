@@ -51,6 +51,8 @@ import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/comp
 import { ListView, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
 import { thongBao } from '@/components/ui/sonner'
 import { Switch, SwitchRow } from '@/components/ui/switch'
+import { TooltipNhanh } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import {
   BangTrangThai,
   Table,
@@ -249,24 +251,18 @@ export function TuSinh({
       rong: 'minmax(0,2fr)',
       dienThoai: 'tren',
       o: (l) => (
-        <span className="flex min-w-0 items-baseline gap-2">
-          <span className={l.active ? 'shrink-0 font-medium' : 'shrink-0 font-medium text-muted-foreground'}>
+        // Tên cắt gọn trong cột (shrink-0 từng tràn đè sang Nguồn ở 1440). Mô tả DB viết theo tên bảng/cột → chỉ ở title.
+        // Nguồn gộp vào đây (badge sau tên) — cột riêng 96px làm cột Luật chỉ còn ~100px ở 1440.
+        <>
+          <span
+            className={cn('min-w-0 truncate font-medium', !l.active && 'text-muted-foreground')}
+            title={l.mo_ta ? `${l.name} — ${l.mo_ta}` : l.name}
+          >
             {l.name}
           </span>
-          {l.mo_ta && (
-            <span className="min-w-0 truncate text-muted-foreground" title={l.mo_ta}>
-              {l.mo_ta}
-            </span>
-          )}
-        </span>
+          <Badge variant="soft">{l.nguon}</Badge>
+        </>
       ),
-    },
-    {
-      id: 'nguon',
-      ten: 'Nguồn',
-      rong: '96px',
-      anKhiHep: true,
-      o: (l) => <Badge variant="soft">{l.nguon}</Badge>,
     },
     {
       id: 'tham-so',
@@ -291,7 +287,7 @@ export function TuSinh({
           <OSuaNguoi
             ma={l.name}
             truong="người nhận"
-            value={gtNhan(l)}
+            value={l.nguoi_nhan ? gtNhan(l) : null /* mặc định = "chưa giao" (chữ mờ, không avatar "(Đ") */}
             options={nguoi}
             mucDangChon={l.nguoi_nhan && l.nguoi_nhan_ten ? { gt: gtNhan(l), nhan: l.nguoi_nhan_ten } : undefined}
             chuaGiao={MAC_DINH}
@@ -322,25 +318,27 @@ export function TuSinh({
           {
             id: 'thao-tac',
             ten: 'Thao tác',
-            rong: '184px',
+            rong: '72px',
             anKhiHep: true,
             phai: true,
             o: (l: LuatTuSinh) => (
               <span className="inline-flex gap-1" onClick={chanDong}>
-                <Button variant="ghost" size="sm" aria-label={`Sửa luật ${l.name}`} onClick={() => setSua(l)}>
-                  <PencilSimple aria-hidden="true" />
-                  Sửa
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`Xem trước luật ${l.name}`}
-                  loading={dangThu === l.key}
-                  onClick={() => void xemTruoc(l)}
-                >
-                  <Eye aria-hidden="true" />
-                  Xem trước
-                </Button>
+                <TooltipNhanh content={<span aria-hidden="true">Sửa luật</span>}>
+                  <Button variant="ghost" size="icon-sm" aria-label={`Sửa luật ${l.name}`} onClick={() => setSua(l)}>
+                    <PencilSimple aria-hidden="true" />
+                  </Button>
+                </TooltipNhanh>
+                <TooltipNhanh content={<span aria-hidden="true">Xem trước việc sẽ sinh</span>}>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Xem trước luật ${l.name}`}
+                    loading={dangThu === l.key}
+                    onClick={() => void xemTruoc(l)}
+                  >
+                    <Eye aria-hidden="true" />
+                  </Button>
+                </TooltipNhanh>
               </span>
             ),
           } satisfies CotDanhSach<LuatTuSinh>,
