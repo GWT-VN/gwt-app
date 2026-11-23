@@ -57,8 +57,7 @@ import { menuContent } from '@/components/ui/menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { thongBao } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
-import { hanLuu, TT, UU } from './chung'
-import { chonNhanSu } from './DangXemViec'
+import { hanLuu, TT, UU, VAI } from './chung'
 
 type Input = Parameters<typeof hangLoat>[1]
 
@@ -168,7 +167,7 @@ function MenuCon({
   chon,
 }: {
   nhan: string
-  icon: ReactNode
+  icon?: ReactNode
   muc: { khoa: string; nhan: ReactNode; tim: string; onChon: () => void }[]
   goiY: string
   chon?: ReactNode
@@ -280,7 +279,10 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
     setXt(null)
     setLoi(null)
     setMo(true)
-    const kq = await xemTruocXoa(ids)
+    const kq = await xemTruocXoa(ids).catch((e: unknown) => ({
+      ok: false as const,
+      loi: e instanceof Error ? e.message : 'mất kết nối',
+    }))
     if (lan !== luot.current) return
     if (!kq.ok) {
       setMo(false)
@@ -385,7 +387,6 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
 export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: () => void }) {
   const { daChon, soDong, boChonHet } = useDaChon()
   const [dang, setDang] = useState(false)
-  const ns = chonNhanSu(nenTang.nhan_su)
   const ids = daChon.map(Number)
   const ketThuc = () => {
     boChonHet()
@@ -393,10 +394,16 @@ export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: (
   }
   async function chay(input: Input, moTa: string) {
     setDang(true)
-    const kq = await hangLoat(ids, input)
-    setDang(false)
-    bao(moTa, kq)
-    if (kq.ok) ketThuc()
+    try {
+      const kq = await hangLoat(ids, input)
+      bao(moTa, kq)
+      if (kq.ok) ketThuc()
+    } catch (e) {
+      // Action bị reject (mất mạng, phiên deploy lệch) — không để thanh khoá cứng tới khi tải lại.
+      thongBao.loi(`${moTa}: chưa xong — ${e instanceof Error ? e.message : 'mất kết nối'}`)
+    } finally {
+      setDang(false)
+    }
   }
   return (
     <>
@@ -426,21 +433,30 @@ export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: (
           <DropdownMenuItem onSelect={() => void chay({ status: 'cancelled' }, 'Đã huỷ việc')}>Huỷ việc</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* ponytail: RPC work_hang_loat chỉ THÊM người (vai Làm cùng), không thay người chính — nhãn nói đúng việc. */}
-      <ChonMuc
-        nhan={`Thêm người làm cho ${soDong} việc`}
-        options={ns.options}
-        onChon={(m) => {
-          const id = ns.idCua(m.gt)
-          if (id) void chay({ gan_ai: id, gan_vai: 'doer' }, `Đã gán ${m.nhan}`)
-        }}
-        nut={
+      {/* RPC work_hang_loat chỉ THÊM người theo vai — không có vai Chính (nó không hạ người chính cũ → 2 người chính). */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" disabled={dang}>
             <UserSwitch aria-hidden="true" />
             Gán người
           </Button>
-        }
-      />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="start" aria-label={`Gán người cho ${soDong} việc`}>
+          {(['doer', 'reviewer', 'watcher'] as const).map((vai) => (
+            <MenuCon
+              key={vai}
+              nhan={VAI[vai]}
+              goiY="Gõ tên hoặc email…"
+              muc={nenTang.nhan_su.map((n) => ({
+                khoa: n.id,
+                nhan: n.ten,
+                tim: `${n.ten} ${n.email}`,
+                onChon: () => void chay({ gan_ai: n.id, gan_vai: vai }, `Đã gán ${n.ten} (${VAI[vai]})`),
+              }))}
+            />
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       <DoiHan dang={dang} chay={(i, m) => void chay(i, m)} />
       <ThemThaoTac nenTang={nenTang} dang={dang} chay={(i, m) => void chay(i, m)} />
       <XoaViec ids={ids} dang={dang} xong={ketThuc} />

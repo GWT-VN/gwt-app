@@ -8,7 +8,7 @@ import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
-import { doiTrangThai, ganNguoi, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
+import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
 import { OSuaChu, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
 import { NutMoMa } from '@/components/ui/list-view'
@@ -16,7 +16,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@
 import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanHan, soNgayToiHan } from '@/lib/work'
-import { chac, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
+import { chac, doiNguoiChinh, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
@@ -95,14 +95,15 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
     await chac(p)
     lamMoi()
   }
-  /** Đổi người chính: gán người mới vai owner, hạ người chính cũ về Làm cùng (hai lệnh — xem đề xuất RPC). */
+  /** Đổi người chính (chung.tsx `doiNguoiChinh`: hai lệnh, bước 2 hỏng thì hoàn nguyên). */
   async function doiChinh(v: ViecXem, gt: string | null) {
     const id = gt && ns.idCua(gt)
     if (!id) return
-    const cu = v.assignees.find((a) => a.role === 'owner')
-    await chac(ganNguoi(v.id, id, 'owner'))
-    if (cu && cu.staff_id !== id) await chac(ganNguoi(v.id, cu.staff_id, 'doer'))
-    lamMoi()
+    try {
+      await doiNguoiChinh(v.id, v.assignees, id)
+    } finally {
+      lamMoi()
+    }
   }
   const o = (v: ViecXem, id: string): ReactNode => {
     switch (id) {
@@ -257,6 +258,13 @@ export function KanbanViec<T extends ViecXem>({
   lamMoi: () => void
 }) {
   async function chuyen(id: string, cot: string) {
+    // Nguồn không có thứ tự (work_viec_cua_toi không trả sort_order) → chỉ đổi trạng thái. Gửi keoTha(…, 0) sẽ GHI ĐÈ
+    // thứ tự mà Bảng team đã xếp (thẻ nhảy lên đầu cột ở màn kia).
+    if (!rows.some((v) => v.sort_order !== undefined)) {
+      await chac(doiTrangThai(Number(id), cot))
+      lamMoi()
+      return
+    }
     const cuoi = rows
       .filter((v) => v.status === cot && v.sort_order !== undefined)
       .reduce<number | undefined>((m, v) => Math.max(m ?? -Infinity, v.sort_order!), undefined)

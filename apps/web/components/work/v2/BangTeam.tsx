@@ -139,6 +139,9 @@ export function BangTeam({
     team: teamLoc.join(',') || undefined,
     cot: cotUrl ?? undefined,
     chieu: cotUrl ? (sap.tang ? 'asc' : 'desc') : undefined,
+    // Màn không phân trang → dòng nào biến khỏi màn (sửa tại chỗ sang Xong ở tab Gấp…) thì bỏ chọn hết, để thao tác
+    // hàng loạt không sửa ngầm dòng đã khuất (gói bang/ giữ lựa chọn khi lật trang — ở đây không có trang để lật).
+    hien: dong.map((v) => v.id).join(','),
   }
 
   const dieuKien = [

@@ -7,7 +7,7 @@
 import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import type { MucNhan, MucTrangThai } from '@/components/ui/inline-edit'
-import type { KQ, NguoiLam } from '@/app/work/actions'
+import { boNguoi, ganNguoi, type KQ, type NguoiLam } from '@/app/work/actions'
 import { cn } from '@/lib/utils'
 import { inputTuIso, ngayThang, soNgayToiHan } from '@/lib/work'
 
@@ -37,6 +37,21 @@ export async function chac<T>(p: Promise<KQ<T>>): Promise<T> {
   const kq = await p
   if (!kq.ok) throw new Error(kq.loi)
   return kq.duLieu
+}
+
+/**
+ * Đổi người chính: RPC upsert theo người, không tự hạ người chính cũ → gán người mới vai owner rồi lùi người cũ về Làm
+ * cùng. Bước 2 hỏng → trả người mới về vai cũ (hoặc bỏ ra) rồi NÉM lỗi — không để việc có 2 người chính.
+ */
+export async function doiNguoiChinh(taskId: number, nguoi: NguoiLam[], id: string): Promise<void> {
+  const cu = nguoi.find((a) => a.role === 'owner')
+  const vaiCu = nguoi.find((a) => a.staff_id === id)?.role
+  await chac(ganNguoi(taskId, id, 'owner'))
+  if (!cu || cu.staff_id === id) return
+  const kq = await ganNguoi(taskId, cu.staff_id, 'doer')
+  if (kq.ok) return
+  await (vaiCu ? ganNguoi(taskId, id, vaiCu) : boNguoi(taskId, id))
+  throw new Error(kq.loi)
 }
 
 /** Giá trị ô hạn (OSuaHan): "YYYY-MM-DDTHH:mm" giờ máy; không hạn = "". */

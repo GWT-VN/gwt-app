@@ -183,3 +183,16 @@ test('đổi hạn hàng loạt: "Xoá hạn" gửi xoa_due', async () => {
   await user.click(await screen.findByRole('button', { name: 'Xoá hạn' }))
   expect(m.hangLoat).toHaveBeenCalledWith([3], { xoa_due: true })
 })
+
+test('gán người hàng loạt theo vai: Gán người → Duyệt → người → gan_vai reviewer', async () => {
+  m.hangLoat.mockResolvedValue({ ok: true, duLieu: { da_sua: 1, bo_qua: 0 } })
+  const user = userEvent.setup()
+  man()
+  await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-3' }))
+  await user.click(screen.getByRole('button', { name: 'Gán người' }))
+  // Menu con Radix: mở bằng phím (→) như người dùng bàn phím; jsdom không có toạ độ cho đường rê chuột.
+  ;(await screen.findByRole('menuitem', { name: 'Duyệt' })).focus()
+  await user.keyboard('{ArrowRight}')
+  await user.click(await screen.findByRole('menuitem', { name: 'Demo An' }))
+  await vi.waitFor(() => expect(m.hangLoat).toHaveBeenCalledWith([3], { gan_ai: 'u1', gan_vai: 'reviewer' }))
+})

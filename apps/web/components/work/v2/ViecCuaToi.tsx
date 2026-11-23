@@ -280,7 +280,7 @@ export function ViecCuaToi({
                 khoaTrang={dong.map((v) => String(v.id))}
                 tong={dong.length}
                 bat={dangXem === 'bang'}
-                thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu }}
+                thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu, hien: dong.map((v) => v.id).join(',') }}
               >
                 {dangXem === 'kanban' ? (
                   <KanbanViec dong={dong} rows={loc} phu={vaiGan} moViec={xem.mo} lamMoi={lamMoi} />

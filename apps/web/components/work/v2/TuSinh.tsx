@@ -406,7 +406,7 @@ export function TuSinh({
           moTa="Khi bộ quét chạy và có sự kiện khớp luật đang bật, việc sinh ra sẽ hiện ở đây."
         />
       ) : (
-        <KhungChon khoaTrang={viec.map((v) => String(v.id))} tong={viec.length} bat thamSo={{ tab }}>
+        <KhungChon khoaTrang={viec.map((v) => String(v.id))} tong={viec.length} bat thamSo={{ tab, hien: viec.map((v) => v.id).join(',') }}>
           <TableWrap>
             <Table layout="fixed" className="min-w-180">
               <colgroup>
