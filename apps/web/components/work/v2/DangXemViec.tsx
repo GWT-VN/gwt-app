@@ -15,14 +15,14 @@ import { NutMoMa } from '@/components/ui/list-view'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
-import { nhanHan, soNgayToiHan } from '@/lib/work'
+import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
 import { chac, doiNguoiChinh, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
   ViecTeamRow,
   'id' | 'ref' | 'title' | 'status' | 'priority' | 'due_at' | 'team_id' | 'team_name' | 'sub_n' | 'assignees' | 'links'
-> & { sort_order?: number }
+> & { sort_order?: number; touched_at?: string | null }
 
 export const COT_VIEC: CotBang[] = [
   { id: 'uu', ten: 'Ưu tiên', rong: 76, kieu: 'sap', nghia: { tang: 'Gấp trước', giam: 'Thấp trước' } },
@@ -39,33 +39,67 @@ export const COT_VIEC: CotBang[] = [
     nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' },
   },
 ]
-export const TEN_COT = { uu: 'Ưu tiên', ma: 'Mã', han: 'Hạn' }
+/**
+ * Bảng team thêm cột "Cập nhật" (lần đụng cuối — chỉ work_bang_team trả `touched_at`), 112 như canvas. Cột Việc ăn phần
+ * dư; sàn của nó hạ 280 → 180 để tổng sàn (908) vừa khung nội dung 1440 (927) — không thì bảng cuộn ngang.
+ */
+export const COT_TEAM: CotBang[] = [
+  ...COT_VIEC.map((x) => (x.id === 'viec' ? { ...x, rong: 180 } : x)),
+  {
+    id: 'cn',
+    ten: 'Cập nhật',
+    rong: 112,
+    kieu: 'sap',
+    phai: true,
+    nghia: { tang: 'Lâu nhất trước', giam: 'Mới nhất trước' },
+  },
+]
+export const TEN_COT = { uu: 'Ưu tiên', ma: 'Mã', han: 'Hạn', cn: 'Cập nhật' }
 export const NGHIA = {
   uu: { asc: 'gấp trước', desc: 'thấp trước' },
   ma: { asc: 'cũ nhất trước', desc: 'mới tạo trước' },
   han: { asc: 'gần hạn nhất trước', desc: 'xa hạn nhất trước' },
+  cn: { asc: 'cũ nhất trước', desc: 'mới nhất trước' },
+}
+
+/** Số ngày (lịch) từ lần đụng cuối tới nay; không có mốc → null. */
+export const soNgayKhongDung = (v: ViecXem, bayGio = new Date()) =>
+  v.touched_at ? -soNgayToiHan(v.touched_at, bayGio) : null
+
+/** "14:32 hôm nay" · "09:10 hôm qua" · "16 ngày trước" (title giữ mốc đầy đủ). */
+function ChuCapNhat({ v }: { v: ViecXem }) {
+  const n = soNgayKhongDung(v)
+  if (n === null) return <span className="text-muted-foreground">—</span>
+  return (
+    <span className="truncate tabular-nums text-muted-foreground" title={mocThoiGian(v.touched_at)}>
+      {n <= 1 ? mocThoiGian(v.touched_at) : `${n} ngày trước`}
+    </span>
+  )
 }
 
 export type Sap = { cot: string; tang: boolean }
 /** URL `cot`/`chieu` → sắp; cột lạ = không sắp theo URL (`cotUrl` null). */
 export function docSap(sp: URLSearchParams, macDinh: Sap) {
-  const cotUrl = ['uu', 'ma', 'han'].includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
+  const cotUrl = ['uu', 'ma', 'han', 'cn'].includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
   const sap: Sap = cotUrl ? { cot: cotUrl, tang: sp.get('chieu') !== 'desc' } : macDinh
   return { cotUrl, sap }
 }
-/** So sánh theo cột; việc không hạn luôn cuối; khoá phụ id (CHUAN-FILTER luật 2). */
+/** So sánh theo cột; việc không hạn / không mốc cập nhật luôn cuối; khoá phụ id (CHUAN-FILTER luật 2). */
 export function soSanh(s: Sap) {
   const huong = s.tang ? 1 : -1
   return (a: ViecXem, b: ViecXem) => {
     if (s.cot === 'han' && !a.due_at !== !b.due_at) return a.due_at ? -1 : 1
+    if (s.cot === 'cn' && !a.touched_at !== !b.touched_at) return a.touched_at ? -1 : 1
     const c =
       s.cot === 'uu'
         ? a.priority - b.priority
         : s.cot === 'han' && a.due_at && b.due_at
           ? Date.parse(a.due_at) - Date.parse(b.due_at)
-          : s.cot === 'ma'
-            ? a.id - b.id
-            : 0
+          : s.cot === 'cn' && a.touched_at && b.touched_at
+            ? Date.parse(a.touched_at) - Date.parse(b.touched_at)
+            : s.cot === 'ma'
+              ? a.id - b.id
+              : 0
     return c * huong || a.id - b.id
   }
 }
@@ -146,6 +180,8 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
           />
         )
       }
+      case 'cn':
+        return <ChuCapNhat v={v} />
       case 'han':
         return (
           <OSuaHan
@@ -208,7 +244,12 @@ export function BangViec({
                 cot={x}
                 viTri={i}
                 menuPhai={i === c.hien.length - 1}
-                coDan={x.id === 'viec' ? undefined : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                // Cột cuối không có tay kéo: tay kéo thò 8px qua mép phải → khung bảng cuộn ngang 8px (đo 1440).
+                coDan={
+                  x.id === 'viec' || i === c.hien.length - 1
+                    ? undefined
+                    : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }
+                }
                 sap={
                   x.kieu === 'sap'
                     ? {

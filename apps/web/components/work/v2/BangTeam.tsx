@@ -29,10 +29,11 @@ import { nhanChip, soNgayToiHan } from '@/lib/work'
 import { NguoiChinh, TT } from './chung'
 import {
   BangViec,
-  COT_VIEC as COT,
+  COT_TEAM as COT,
   docSap,
   KanbanViec,
   NGHIA,
+  soNgayKhongDung,
   soSanh,
   TEN_COT,
   useOViec,
@@ -40,15 +41,20 @@ import {
 } from './DangXemViec'
 import { ChonMuc, ThanhHangLoatViec } from './HangLoat'
 
-type Tab = 'moi' | 'gap'
+type Tab = 'moi' | 'gap' | 'lau'
 const TAB: { v: Tab; ten: string }[] = [
   { v: 'moi', ten: 'Mọi người' },
   { v: 'gap', ten: 'Gấp' },
+  { v: 'lau', ten: 'Lâu không đụng' },
 ]
+/** Ngưỡng "Lâu không đụng" (canvas WkBangLau): chưa xong và ≥ 14 ngày không ai sửa / ghi nhật ký / bình luận. */
+const NGAY_LAU = 14
 const XONG = new Set(['done', 'cancelled'])
 /** Gấp = chưa xong và (P1 hoặc quá hạn / hạn hôm nay) — chip FilterBar của canvas. */
 const laGap = (v: ViecTeamRow) =>
   !XONG.has(v.status) && (v.priority === 1 || (!!v.due_at && soNgayToiHan(v.due_at) <= 0))
+
+const laLau = (v: ViecTeamRow) => !XONG.has(v.status) && (soNgayKhongDung(v) ?? 0) >= NGAY_LAU
 
 const ganVoi = (v: Pick<ViecTeamRow, 'team_name' | 'links' | 'sub_n'>) =>
   [v.team_name, v.links?.[0] ? nhanChip(v.links[0]).ten : v.sub_n ? `${v.sub_n} việc con` : '']
@@ -95,14 +101,14 @@ export function BangTeam({
   const { options, idCua, tenCua, lamMoi, o } = useOViec(nenTang, moViec, c.doRong.nguoi)
 
   // ── URL → điều kiện ──
-  const tab: Tab = sp.get('tab') === 'gap' ? 'gap' : 'moi'
+  const tab: Tab = TAB.find((t) => t.v === sp.get('tab'))?.v ?? 'moi'
   const q = sp.get('q') ?? ''
   const nguoiLoc = dsUrl(sp.get('nguoi'))
   const ttLoc = dsUrl(sp.get('tt')).filter((t) => TT.some((x) => x.gt === t))
   const teamLoc = dsUrl(sp.get('team'))
     .map(Number)
     .filter((id) => nenTang.teams.some((t) => t.id === id))
-  const { cotUrl, sap } = docSap(sp, { cot: tab === 'gap' ? 'han' : 'uu', tang: true })
+  const { cotUrl, sap } = docSap(sp, { cot: tab === 'gap' ? 'han' : tab === 'lau' ? 'cn' : 'uu', tang: true })
 
   const datUrl = (sua: Record<string, string | null>) => {
     const p = new URLSearchParams(sp)
@@ -121,7 +127,7 @@ export function BangTeam({
 
   // ── Lọc + sắp ──
   const tim = boDau(q.trim())
-  const nguon = { moi: rows, gap: rows.filter(laGap) }
+  const nguon = { moi: rows, gap: rows.filter(laGap), lau: rows.filter(laLau) }
   const dong = nguon[tab]
     .filter(
       (v) =>
@@ -148,6 +154,11 @@ export function BangTeam({
     tab === 'gap' && {
       nhan: 'Gấp',
       giaTri: 'quá hạn + hạn hôm nay + P1',
+      href: hrefBoLoc(pathname, sp, 'tab'),
+    },
+    tab === 'lau' && {
+      nhan: 'Lâu không đụng',
+      giaTri: `chưa xong · ${NGAY_LAU} ngày không cập nhật`,
       href: hrefBoLoc(pathname, sp, 'tab'),
     },
     q && { nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, sp, 'q') },
@@ -228,6 +239,13 @@ export function BangTeam({
         tieuDe="Chưa có việc nào"
         moTa="Việc bạn được xem sẽ hiện ở đây. Tạo việc đầu tiên cho team."
         hanhDong={nutTao}
+      />
+    ) : dong.length === 0 && tab === 'lau' && dieuKien.length === 1 ? (
+      // Chỉ có điều kiện của tab → đây là tin TỐT, không phải "lọc sai".
+      <BangTrangThai
+        trangThai="rongThat"
+        tieuDe="Không có việc nào bị bỏ quên"
+        moTa={`Mọi việc chưa xong đều được cập nhật trong ${NGAY_LAU} ngày qua.`}
       />
     ) : dong.length === 0 ? (
       <BangTrangThai

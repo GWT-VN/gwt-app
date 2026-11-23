@@ -196,3 +196,25 @@ test('gán người hàng loạt theo vai: Gán người → Duyệt → ngườ
   await user.click(await screen.findByRole('menuitem', { name: 'Demo An' }))
   await vi.waitFor(() => expect(m.hangLoat).toHaveBeenCalledWith([3], { gan_ai: 'u1', gan_vai: 'reviewer' }))
 })
+
+test('tab Lâu không đụng: chưa xong và ≥ 14 ngày không cập nhật, cũ nhất trước; cột Cập nhật ghi "N ngày trước"', () => {
+  m.sp = new URLSearchParams('tab=lau')
+  render(
+    <DsRoot>
+      <BangTeam
+        rows={[
+          viec(1, { touched_at: ngay(-20) }), // lâu
+          viec(2, { touched_at: ngay(-3) }), // mới đụng
+          viec(3, { touched_at: ngay(-30), status: 'done' }), // đã xong → không tính
+          viec(5, { touched_at: ngay(-40) }), // lâu nhất → đứng đầu
+          viec(6, {}), // không có mốc → không tính
+        ]}
+        nenTang={NEN}
+      />
+    </DsRoot>,
+  )
+  expect(ma()).toEqual(['VIEC-5', 'VIEC-1'])
+  expect(within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' })).getByText(/14 ngày không cập nhật/))
+    .toBeTruthy()
+  expect(screen.getByText('40 ngày trước')).toBeTruthy()
+})

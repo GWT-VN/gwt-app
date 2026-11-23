@@ -40,5 +40,18 @@ DS bổ sung trong đợt: `TrangDuLieu` (`.b-trang`), `O_TIM_PILL`, KhungApp (m
 - Bảng team lọc theo team (URL `team`); Việc của tôi đổi dạng xem Danh sách · Bảng · Kanban (`v2/DangXemViec.tsx`).
 - Đổi người chính: bước hạ người cũ lỗi → trả người mới về vai cũ (không để 2 người chính).
 - DS: thanh hàng loạt canh giữa vùng nội dung (`--khung-trai-rong` của KhungApp).
-- Còn chờ DB: tab "Lâu không đụng" + cột "Cập nhật" (`work_bang_team` trả ngày đụng cuối); thứ tự thẻ Kanban ở Việc của
-  tôi (`work_viec_cua_toi` trả `sort_order`).
+- Kanban Việc của tôi kéo thả chỉ đổi trạng thái (`work_viec_cua_toi` không trả `sort_order`; gửi `keoTha(…, 0)` từng
+  ghi đè thứ tự Bảng team).
+
+## DB — work_18 (23/11, áp live bwzmq…)
+
+- `supabase/migrations/20261123134930_work_18_ngay_dung_cuoi.sql`: `work_bang_team` trả thêm `touched_at` =
+  greatest(task.updated_at, nhật ký có người làm, bình luận). Chỉ thêm trường jsonb — app trên `main` không ảnh hưởng.
+- Gate: áp file lên DB local + gọi thử; repo CHƯA có CI `db-reset` nên chưa replay từ 0. Ledger live đã sửa version
+  về đúng số hiệu file (MCP ghi giờ áp).
+- Màn: Bảng team tab "Lâu không đụng" (chưa xong · ≥ 14 ngày, cũ nhất trước) + cột "Cập nhật" (112, như canvas).
+- ⚠️ Có từ trước, chưa sửa (ngoài phạm vi): mọi RPC `work_*` cho `anon`/`authenticated` EXECUTE (advisors WARN) mà
+  danh tính lấy từ tham số `p_email` → ai có anon key gọi thẳng PostgREST là đọc/sửa việc dưới tên người khác. App chỉ
+  gọi bằng service_role → đề xuất `revoke execute … from anon, authenticated` (migration riêng, chờ duyệt).
+- Lệch repo có từ trước: `db/work/migrations/work_13…17` đã áp live nhưng không nằm trong `supabase/migrations/` (README
+  db/work nói migration mới phải ở `supabase/`) → `supabase db reset` local không replay chúng.

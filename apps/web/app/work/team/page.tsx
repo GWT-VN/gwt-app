@@ -1,8 +1,6 @@
 import { Suspense } from 'react'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { ManV2 } from '@/components/khung/ManV2'
-import { Plus } from '@phosphor-icons/react/ssr'
-import { Button } from '@/components/ui/button'
 import { BangTeam } from '@/components/work/v2/BangTeam'
 import { TaoViec } from '@/components/work/v2/TaoViec'
 import { bangTeam, nenTang } from '../actions'
@@ -22,17 +20,7 @@ export default async function BangTeamPage() {
         <BangTeam
           rows={rows}
           nenTang={nt}
-          nutTao={
-            <TaoViec
-              nenTang={nt}
-              trigger={
-                <Button>
-                  <Plus aria-hidden="true" />
-                  Tạo việc
-                </Button>
-              }
-            />
-          }
+          nutTao={<TaoViec nenTang={nt} />}
         />
       </Suspense>
     </ManV2>

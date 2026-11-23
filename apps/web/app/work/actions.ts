@@ -40,6 +40,8 @@ export type ViecTeamRow = Omit<ViecRow, 'description' | 'start_at' | 'my_role'> 
   creator_ten: string | null
   /** Vị trí trong cột kanban. Chỉ work_bang_team trả cột này. */
   sort_order: number
+  /** Lần ĐỤNG cuối (sửa dòng việc · nhật ký có người làm · bình luận) — work_18. Tab "Lâu không đụng", cột "Cập nhật". */
+  touched_at?: string | null
 }
 
 export type NenTang = {

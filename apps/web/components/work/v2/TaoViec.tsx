@@ -67,8 +67,11 @@ export function TaoViec({
   onXong,
 }: {
   nenTang: NenTang
-  /** Nút mở hộp (bọc bằng DialogTrigger asChild). */
-  trigger: ReactNode
+  /**
+   * Nút mở hộp (bọc bằng DialogTrigger asChild). Bỏ trống = nút "Tạo việc" mặc định — trang server nên dùng mặc định:
+   * nút dựng ở server rồi qua asChild bị sao chép làm React cảnh báo thiếu `key` cho mảng con.
+   */
+  trigger?: ReactNode
   onXong?: (kq: { id: number; ref: string }) => void
 }) {
   const router = useRouter()
@@ -150,7 +153,14 @@ export function TaoViec({
           else dong()
         }}
       >
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button>
+              <Plus aria-hidden="true" />
+              Tạo việc
+            </Button>
+          )}
+        </DialogTrigger>
         <DialogContent>
           <DialogTitle>Tạo việc</DialogTitle>
           <DialogBody>
