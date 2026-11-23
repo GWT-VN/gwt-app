@@ -22,6 +22,12 @@
       },
       {
         "cho": 500
+      },
+      {
+        "bam": "#bulk-action-bar [data-so=\"c\"] th input"
+      },
+      {
+        "cho": 300
       }
     ]
   },
@@ -275,6 +281,49 @@
         "width@1440": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px.",
         "height@390": "Câu phụ của bang/ là \"(gồm cả dòng ở trang khác)\" (README gói, quyết định 2 — nói rõ là DÒNG), preview \"(gồm cả trang khác)\" → chữ dài hơn ~50px. Ở 390 câu xuống 2 dòng (whitespace normal ≤640) → 40 so với 20."
       }
+    },
+    {
+      "khoa": "thanh-c",
+      "artifact": ".ds-muc:nth-child(3) > .ui-bulkbar",
+      "ds": "#bulk-action-bar [data-so=\"c\"] [role=\"toolbar\"]",
+      "buoc": [
+        {
+          "bam": "#bulk-action-bar [data-so=\"c\"] th input"
+        },
+        {
+          "cho": 300
+        }
+      ],
+      "lyDo": {
+        "width@1440": "Mẫu (c) dùng lại thao tác ticket của bang/ (Đổi trạng thái / Gán chủ / Xuất Excel + mời chọn cả 19) — preview ghi Đánh dấu xong / Đổi trạng thái / Gán lại; khoá này đo MẶT (nền, chữ, bóng, bo), không đo chữ.",
+        "height@390": "Như width@1440: mẫu (c) có thêm nút mời \"Chọn tất cả 19…\" của bang/ (preview không có) — ≤640 nút này xuống một hàng riêng trọn bề ngang → 92 so với 72."
+      }
+    },
+    {
+      "khoa": "thao-tac-c-hover",
+      "artifact": ".ds-muc:nth-child(3) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn",
+      "ds": "#bulk-action-bar [data-so=\"c\"] [role=\"toolbar\"] > div > button:nth-child(1)",
+      "buoc": [
+        {
+          "bam": {
+            "artifact": ".ds-muc:nth-child(3) > .ds-nhan",
+            "ds": "#bulk-action-bar [data-so=\"c\"] th input"
+          }
+        },
+        {
+          "cho": 300
+        },
+        {
+          "tro": {
+            "artifact": ".ds-muc:nth-child(3) > .ui-bulkbar > div:nth-of-type(1) > .ui-btn",
+            "ds": "#bulk-action-bar [data-so=\"c\"] [role=\"toolbar\"] > div > button:nth-child(1)"
+          }
+        },
+        {
+          "cho": 200
+        }
+      ],
+      "artifactThat": true
     }
   ]
 }

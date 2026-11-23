@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { ArrowDown, ArrowUp, CaretLeft, CaretRight, X } from '@phosphor-icons/react/ssr'
 import { CauHinhBang, useCauHinh, type BieuTuong, type NghiaChieu, type PropsGoiY, type PropsOChon } from '@/bang'
 import type { GiaoDienBang } from '@/bang/giaoDien'
-import { GIAO_DIEN_DS } from './bang-styles'
+import { GIAO_DIEN_DS, THANH_HANG_LOAT_SURFACE } from './bang-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { TooltipNhanh } from './tooltip'
 
@@ -54,23 +54,26 @@ const BIEU_TUONG: BieuTuong = {
  * CauHinhBangDs — `CauHinhBang` của bang/ với giao diện DS: `GIAO_DIEN_DS` (FilterBar, Pagination, BulkActionBar, tiêu
  * đề cột, ô chọn dòng), `OChon` = Select DS, icon Phosphor, tooltip DS, Esc bỏ hết lựa chọn. Đặt TRONG `DsRoot` (Select,
  * Tooltip portal vào ô của DsRoot). `tenCot` / `nghiaSapXep` không truyền → lấy của `CauHinhBang` bao ngoài (layout dự
- * án). `giaoDien` = ghép đè vài khoá (vd khối /ds đặt thanh hàng loạt đứng tĩnh).
+ * án). `giaoDien` = ghép đè vài khoá (vd khối /ds đặt thanh hàng loạt đứng tĩnh). `thanhHangLoat="surface"` = BulkActionBar
+ * mặt nổi (`.ui-bulkbar[data-variant="surface"]`, CEO chốt 23/11).
  */
 export function CauHinhBangDs({
   tenCot,
   nghiaSapXep,
   giaoDien,
+  thanhHangLoat,
   children,
 }: {
   tenCot?: Record<string, string>
   nghiaSapXep?: Record<string, NghiaChieu>
   giaoDien?: Partial<GiaoDienBang>
+  thanhHangLoat?: 'surface'
   children: ReactNode
 }) {
   const ngoai = useCauHinh()
   return (
     <CauHinhBang
-      giaoDien={{ ...GIAO_DIEN_DS, ...giaoDien }}
+      giaoDien={{ ...GIAO_DIEN_DS, ...(thanhHangLoat === 'surface' && THANH_HANG_LOAT_SURFACE), ...giaoDien }}
       tenCot={tenCot ?? ngoai.tenCot}
       nghiaSapXep={nghiaSapXep ?? ngoai.nghiaSapXep}
       OChon={OChonDs}

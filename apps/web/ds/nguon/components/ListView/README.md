@@ -4,6 +4,7 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 `[Ưu tiên][Loại lỗi]  mã  Tên khách (!lưu ý ↻hỏi lại)` · `Việc tiếp theo` · `Trạng thái ▾` · `Hạn` · `Chủ (avatar)`
 - Nhãn đầu dòng theo thứ tự **Ưu tiên → Loại lỗi** (DS `Badge`, xem `InlineEdit`), khung nhãn rộng cố định 190px (ưu tiên 60 + 6 + nhóm lỗi dài nhất "Chất lượng nước" 123) để mã + tên khách thẳng cột.
 - Không icon đầu dòng, không nút ⋯ cuối dòng (thao tác bằng chuột phải — `ContextMenu`).
+- Danh sách chỉ có **một** nhãn đầu (vd ưu tiên của Việc — không có loại lỗi): khung nhãn ôm chữ, `.b-nhan-dau[data-gon]` (thêm 23/11/2026, CEO chốt trên màn Work). Code: `<NhanDau gon>`. Nhãn ưu tiên vẫn rộng tối thiểu 60px nên mã/tên vẫn thẳng cột.
 
 ## Thông số
 | Phần | Token | Giá trị |

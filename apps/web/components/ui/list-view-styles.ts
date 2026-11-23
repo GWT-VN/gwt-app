@@ -99,6 +99,9 @@ export const dauMenu = cn(
  * 162/30 — bundle.css thắng) cách 6, nhãn cao bằng nhau; nhãn đầu (ưu tiên) rộng tối thiểu 60 canh giữa; nhãn cuối (loại
  * lỗi) ôm chữ, dài quá thì cắt …. ≤ 860: khung ôm chữ, chỉ giữ nhãn đầu.
  */
+/** `.b-ticket > .b-nhan-dau[data-gon]`: danh sách chỉ một nhãn đầu → khung ôm chữ thay vì chừa 190 (CEO chốt 23/11). */
+export const nhanDauGon = 'w-auto'
+
 export const nhanDau = cn(
   kv,
   'inline-flex shrink-0 items-stretch gap-1.5 w-[190px] @max-[860px]:w-auto @max-[860px]:[&>:not(:first-child)]:hidden',

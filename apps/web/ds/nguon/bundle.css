@@ -149,6 +149,7 @@ body {
 .ui-input-wrap { position: relative; display: flex; align-items: center; }
 .ui-input-wrap > .ui-icon { position: absolute; left: var(--control-gutter-md); color: var(--muted-foreground); pointer-events: none; }
 .ui-input-wrap > .ui-input { padding-left: calc(var(--control-gutter-md) + 16px + 8px); }   /* icon 16 + --input-gap-md 8 */
+.ui-input[data-shape="pill"] { border-radius: var(--radius-full); }   /* biến thể bo tròn hẳn — ô tìm ở đầu trang dữ liệu (CEO chốt 23/11) */
 
 /* ---------- Select trigger + Combobox (OpenAI SelectControl / Select) ---------- */
 .ui-select-trigger {
@@ -627,6 +628,11 @@ body {
 .ui-bulkbar .ui-btn[data-variant="ghost"][data-size="icon-sm"]:hover { opacity: 1; }
 .ui-bulkbar .ui-btn[data-variant="link"] { color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 0.2em; }
 .ui-bulkbar .ui-menu { color: var(--popover-foreground); }
+/* biến thể mặt nổi "surface" (CEO chốt 23/11 — nền trắng ở theme sáng, nền popover tối ở theme tối): mặt popover + viền mảnh + bóng nhẹ; nút ghost rê alpha-05, nhấn alpha-08; cảnh báo màu chữ warning */
+.ui-bulkbar[data-variant="surface"] { background: var(--popover); color: var(--popover-foreground); box-shadow: var(--shadow-hairline), var(--shadow-300); }
+.ui-bulkbar[data-variant="surface"] .ui-btn[data-variant="ghost"]:hover, .ui-bulkbar[data-variant="surface"] .ui-btn[data-variant="ghost"][aria-expanded="true"] { background: var(--alpha-05); }
+.ui-bulkbar[data-variant="surface"] .ui-btn[data-variant="ghost"]:active { background: var(--alpha-08); }
+.ui-bulkbar[data-variant="surface"] .ui-bulkbar-warn { color: var(--color-text-warning); }
 @keyframes ui-bulk-len { from { opacity: 0; transform: translate(-50%, 8px); } }
 @media (prefers-reduced-motion: reduce) { .ui-bulkbar { animation: none; } }
 @media (max-width: 640px) { /* điện thoại: xuống 2 dòng — không cuộn ngang giấu nút */ .ui-bulkbar { left: 16px; right: 16px; transform: none; flex-wrap: wrap; row-gap: 2px; padding: 8px 6px 6px 16px; border-radius: var(--radius-2xl); } .ui-bulkbar-count { flex: 1 0 calc(100% - 40px); } .ui-bulkbar-close { order: 0; } .ui-bulkbar-sep { display: none; } .ui-bulkbar > *:not(.ui-bulkbar-count):not(.ui-bulkbar-close) { order: 2; } .ui-bulkbar > .ui-btn[data-variant="link"] { order: 3; width: 100%; justify-content: flex-start; padding: 0 0 4px; } @keyframes ui-bulk-len { from { opacity: 0; } } }
@@ -808,6 +814,7 @@ body {
 .b-nhan-dau { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
 /* khung nhãn đầu rộng cố định (nhãn co theo chữ) → mã + tên khách thẳng cột */
 .b-ticket > .b-nhan-dau { width: 190px; } /* = tag ưu tiên 60 + 6 + nhóm lỗi dài nhất "Chất lượng nước" 123 → mã ticket thẳng cột */
+.b-ticket > .b-nhan-dau[data-gon] { width: auto; } /* danh sách chỉ MỘT nhãn đầu (vd ưu tiên của Việc): khung ôm chữ thay vì chừa 190 — CEO chốt 23/11 */
 .b-ticket-chu { display: flex; align-items: center; gap: 10px; min-width: 0; } /* 1 dòng: mã · khách (18/11) */
 .b-ticket-chu .b-ma { flex-shrink: 0; }
 /* ô sửa dạng nhãn (ưu tiên, loại lỗi, trạng thái): không khung xám, không mũi tên — hover làm đậm chính nhãn */

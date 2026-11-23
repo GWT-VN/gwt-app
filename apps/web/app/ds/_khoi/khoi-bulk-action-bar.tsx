@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { KhungChon, OChonDong, OChonTatCa, PhanTrang, ThanhDaChon, TieuDeCotSapXep, useDaChon, type ThamSoLoc } from '@/bang'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
-import { GIAO_DIEN_DS } from '@/components/ui/bang-styles'
+import { GIAO_DIEN_DS, THANH_HANG_LOAT_SURFACE } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
@@ -45,7 +45,9 @@ function ThaoTac({ bao }: { bao: (chu: string) => void }) {
 }
 
 // Khối trần (/ds/tron, so khớp): thanh đứng TĨNH trong dòng như preview (preview ép style position static…).
-const THANH_TINH = cn(GIAO_DIEN_DS.chon_thanh, 'static inline-flex translate-x-0 max-w-none transition-none')
+const TINH = 'static inline-flex translate-x-0 max-w-none transition-none'
+const THANH_TINH = cn(GIAO_DIEN_DS.chon_thanh, TINH)
+const THANH_TINH_SURFACE = cn(THANH_HANG_LOAT_SURFACE.chon_thanh, TINH)
 const TAT_CA = VE.map((r) => r.ma)
 const layHet = async () => TAT_CA
 
@@ -75,7 +77,8 @@ function Mau({ so, nhan, khoa, tieuDe }: { so: string; nhan: string; khoa: strin
  * #bulk-action-bar — tái tạo ds/nguon/components/BulkActionBar/preview.html bằng `KhungChon` + `OChonTatCa` +
  * `ThanhDaChon` THẬT của bang/ (giao diện DS qua `CauHinhBangDs`). Thanh chỉ hiện khi đã chọn ≥ 1 dòng → hai mẫu cần bấm
  * thật: (a) chọn hết trang 1 (15/19) → mời "Chọn tất cả 19…"; (b) trang 2 (4 dòng): chọn hết trang rồi bấm mời → 19,
- * "(gồm cả dòng ở trang khác)". Cổng so khớp bấm bằng `buoc` (ds/so-khop/bulkactionbar.json).
+ * "(gồm cả dòng ở trang khác)"; (c) biến thể mặt nổi `thanhHangLoat="surface"`. Cổng so khớp bấm bằng `buoc`
+ * (ds/so-khop/bulkactionbar.json).
  */
 export function KhoiBulkActionBar() {
   return (
@@ -96,6 +99,14 @@ export function KhoiBulkActionBar() {
             nhan='Trang 2: chọn hết trang rồi bấm "Chọn tất cả 19…" — nói rõ "(gồm cả dòng ở trang khác)"'
             khoa={TAT_CA.slice(15)}
             tieuDe="Trang 2 (4 ticket)"
+          />
+        </CauHinhBangDs>
+        <CauHinhBangDs thanhHangLoat="surface" giaoDien={{ chon_thanh: THANH_TINH_SURFACE }}>
+          <Mau
+            so="c"
+            nhan='Biến thể mặt nổi (nền trắng ở theme sáng) — thanhHangLoat="surface"'
+            khoa={TAT_CA.slice(15)}
+            tieuDe="4 ticket"
           />
         </CauHinhBangDs>
       </div>
@@ -159,6 +170,11 @@ export function KhoiBulkActionBarHang() {
           <Suspense>
             <BangThu />
           </Suspense>
+        </BienThe>
+      </CauHinhBangDs>
+      <CauHinhBangDs thanhHangLoat="surface" giaoDien={{ chon_thanh: THANH_TINH_SURFACE }}>
+        <BienThe ten="Mặt nổi" moTa="thanhHangLoat=&quot;surface&quot;: nền popover (trắng ở theme sáng), viền mảnh + bóng — khi thanh tối quá nặng so với trang. Tick ô đầu cột để hiện.">
+          <Mau so="surface-hang" nhan="Tick để hiện thanh" khoa={TAT_CA.slice(15)} tieuDe="4 ticket" />
         </BienThe>
       </CauHinhBangDs>
     </KhoiHang>

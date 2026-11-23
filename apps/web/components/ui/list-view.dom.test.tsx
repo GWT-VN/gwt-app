@@ -16,7 +16,7 @@ import { Badge } from './badge'
 import { ContextMenuItem, ContextMenuLabel } from './context-menu'
 import { DsRoot } from './ds-root'
 import { OSuaNhan } from './inline-edit'
-import { ListView, NutMoMa, TieuDeGop, type CotDanhSach, type KhoaSap } from './list-view'
+import { ListView, NhanDau, NutMoMa, TieuDeGop, type CotDanhSach, type KhoaSap } from './list-view'
 import type { MucLoc } from './tieu-de-cot'
 
 type Ve = { ma: string; uu: string; loai: string; khach: string }
@@ -255,4 +255,14 @@ describe('ListView — nhóm theo', () => {
     fireEvent.click(within(nhom).getAllByRole('row')[0])
     expect(onMo).not.toHaveBeenCalled()
   })
+})
+
+test('NhanDau gon → data-gon + khung ôm chữ (w-auto thắng w-[190px])', () => {
+  const { container } = render(<><NhanDau gon>a</NhanDau><NhanDau>b</NhanDau></>)
+  const [gon, thuong] = container.querySelectorAll('[data-slot="list-view-nhan"]')
+  expect(gon.hasAttribute('data-gon')).toBe(true)
+  expect(gon.className).toContain('w-auto')
+  expect(gon.className).not.toMatch(/(^| )w-\[190px\]/)
+  expect(thuong.hasAttribute('data-gon')).toBe(false)
+  expect(thuong.className).toMatch(/(^| )w-\[190px\]/)
 })

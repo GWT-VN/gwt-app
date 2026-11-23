@@ -19,6 +19,15 @@ token của artifact để `tokens.css` của artifact quyết định sáng/t�
 23/11 nằm ngoài repo) — đừng sửa tay; cổng so khớp không cần cho 28 cái này vì preview = code. File trong `nguon/` trùng
 byte với bản 48.
 
+Bản 50–51 (23/11, CEO: "Đưa vào DS" — từ góp ý thiết kế màn Work): thêm 3 biến thể vào `bundle.css`, không đổi token:
+`.ui-input[data-shape="pill"]` (bo `radius-full`, ô tìm đầu trang dữ liệu — code `<Input shape="pill">`);
+`.ui-bulkbar[data-variant="surface"]` (mặt `popover`, `shadow-hairline` + `shadow-300`, ghost rê `alpha-05`/nhấn `alpha-08`,
+cảnh báo `color-text-warning` — code `<CauHinhBangDs thanhHangLoat="surface">`, bộ ghép đè `THANH_HANG_LOAT_SURFACE`);
+`.b-ticket > .b-nhan-dau[data-gon]` (khung nhãn đầu ôm chữ khi danh sách chỉ một nhãn — code `<NhanDau gon>`). README
+Input/BulkActionBar/ListView thêm một dòng; preview Input thêm ô `#i7` ở CUỐI lưới (bản 51 dời từ giữa xuống cuối để
+`nth-child` của so khớp không lệch), preview BulkActionBar thêm mục thứ 3. Biến thể tên `surface`, không `light`: ở theme
+tối mặt nổi là popover tối, không trắng.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
@@ -49,7 +58,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` (bản 43) | `fc8772720df2990466ff1f67e2f5a1ada18c617da65bc53c4bfa17d5bebea673` |
+| `nguon/bundle.css` (bản 51) | `f977a04efde4ebcbf64b35f0f672642cd2c3997cd9f1b3469ff48274090e01d9` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
@@ -61,7 +70,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 | `nguon/components/Dialog/preview.html` (bản 31) | `727c5eba30eb50a884300e4337a6b32d1b39b418505e58bb01f6c41bcfe8b2b7` |
 | `nguon/components/ConfirmDialog/preview.html` (bản 31) | `4a13f54f975888e58984a84209e7bd65bcae842af2df36ba589025f3972fd7ec` |
 | `nguon/components/Sheet/preview.html` (bản 31) | `421eac8dd26abecbc212a6beb5931a73a8403cceb5f290377eaa644d5d90a24f` |
-| `nguon/components/Input/preview.html` (bản 37) | `58c864a5daead487b4c5a404f79a3e944577652a119132af9b562b92ad9ed2e9` |
+| `nguon/components/Input/preview.html` (bản 51) | `df5e056ed5403311399f9ffa7684f3e0674b8002191aa12212053d18b57f3f1d` |
 | `nguon/components/InputAffix/preview.html` (bản 37) | `d451f0bae471985a97b34340556fe1453c8a807994e32855004e172172464793` |
 | `nguon/components/Checkbox/preview.html` (bản 37) | `e374b6579be84531451f724c2cea980b60c5a6d50537f03f3d92c8738dfabd10` |
 | `nguon/components/Radio/preview.html` (bản 37) | `c345332155acc101844d432bd8486ae12547134fd848c050742b2ec5e47a8743` |
@@ -89,7 +98,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 | `nguon/components/DropdownMenu/README.md` (bản 37) | `d47d89bde8bc826d043e035c62a3adc067ed474f047f175f29dbc83428059871` |
 | `nguon/components/FileUpload/README.md` (bản 37) | `e85ea46db97771f580342ca82bc007bf06c356fe3fca6756e6702b73a4878660` |
 | `nguon/components/FormLayout/README.md` (bản 37) | `c7509a2d4f3d5dbbd4a99c2496d738bc6a6558d8379033cfcf5f5d581e632f98` |
-| `nguon/components/Input/README.md` (bản 37) | `b365f1544aea4d76a7286dbe4c8a78dbe7ba7af457c09031366bc965582e27db` |
+| `nguon/components/Input/README.md` (bản 51) | `74877769c31f2329ee91b1f898d7e0584d9d02ba3459901f52cf6c86f2387b39` |
 | `nguon/components/InputAffix/README.md` (bản 38) | `5044880db9347ff445b9f6bec5b11b3b948a60b2b65f619f9262e7d5d9278d57` |
 | `nguon/components/Kbd/README.md` (bản 37) | `7fce49f5b25ab4124497cfefcc8e625f38f2e17296e25ab4313dd4548d2b4014` |
 | `nguon/components/Radio/README.md` (bản 38) | `11fcbde03ccbd9c837321ceb48e36d346cec557a62377274da5c1f7db94d0287` |
@@ -109,12 +118,12 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 | `nguon/components/FilterBar/README.md` (bản 41) | `1a3e19f35d9f779246c3cc84474b3254048b93ebcefce8f0fb239060e0c131e5` |
 | `nguon/components/Pagination/preview.html` (bản 41) | `a37728697de08d3753cc45af5b9a5a4cb9a48ae076b961d894f05f6cf0148976` |
 | `nguon/components/Pagination/README.md` (bản 41) | `59b21916e4677fbd3ec005fede7450d53c71ded9a7a52af8190c4991bf818667` |
-| `nguon/components/BulkActionBar/preview.html` (bản 41) | `5c6c2d2ead8be4d9b79fe5cbf7ff7fbceca282de7a90932b38a9bb938ba88d3a` |
-| `nguon/components/BulkActionBar/README.md` (bản 41) | `2810fdb5a888b8bf66e6019237e58afca53edfbd31fc676c7614c290ca33f9f3` |
+| `nguon/components/BulkActionBar/preview.html` (bản 51) | `82e988bf5feadc9ed583a965db2556e29e49b4aed11521a451dffcfd6bfbe0d6` |
+| `nguon/components/BulkActionBar/README.md` (bản 51) | `52e15494adac688de8c382623a51b3b51b0db3692d13652603b286fe2d2b4667` |
 | `nguon/components/SavedView/preview.html` (bản 41) | `b8177b69bad36c8f6abcc5dbd776af6fb6b216ad05464dc5ed032837a61ef46d` |
 | `nguon/components/SavedView/README.md` (bản 41) | `d2233c740dfd0d37000e705820c8802981672c3473764bfa2293e69ebcc0b0d7` |
 | `nguon/components/ListView/preview.html` (bản 41) | `a1e126b4c73922e2ca3f80ccd4fe20fe6c8137174657ae0c7ed786402945c3e8` artifact lưu CRLF — sha bản artifact `b9eeae18bbc196ddf8df7780a8f1d7adb311e04163dd2c647456394e6790e226` |
-| `nguon/components/ListView/README.md` (bản 43) | `e9e5085215dae296762753ec9717b3b913587c637879cd1ee4ff7c71cd5e447f` |
+| `nguon/components/ListView/README.md` (bản 51) | `821a92480bcbae044dd02bac8edecce22a1316dc1e2ed346bd118db184329bf5` |
 | `nguon/components/KanbanBoard/preview.html` (bản 41) | `28fc265ff8924d72a2d1d55c640a7c99346e7587e7f5d0e7216de1a28a651dee` |
 | `nguon/components/KanbanBoard/README.md` (bản 41) | `b6c8cd2707763ea66f18a01d32d0538aa6b7fcfb12083fd3d34008adbeaa8866` |
 | `nguon/components/InlineEdit/preview.html` (bản 41) | `9a54a662853fb188b8170e3bcba12ec9082c785cc03bbc958f69d3dd264e145a` |

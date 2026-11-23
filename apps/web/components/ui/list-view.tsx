@@ -281,10 +281,13 @@ export function TieuDeGop({ ten, sap, loc = [] }: PropsTieuDeGop) {
   )
 }
 
-/** `.b-nhan-dau`: khung nhãn đầu dòng (ưu tiên → loại lỗi) rộng cố định → tên khách thẳng cột. */
-export function NhanDau({ children }: { children: ReactNode }) {
+/**
+ * `.b-nhan-dau`: khung nhãn đầu dòng (ưu tiên → loại lỗi) rộng cố định → tên khách thẳng cột. `gon`
+ * (`.b-nhan-dau[data-gon]`, CEO chốt 23/11): danh sách chỉ MỘT nhãn đầu (vd ưu tiên của Việc) → khung ôm chữ.
+ */
+export function NhanDau({ children, gon }: { children: ReactNode; gon?: boolean }) {
   return (
-    <span data-slot="list-view-nhan" className={l.nhanDau}>
+    <span data-slot="list-view-nhan" data-gon={gon || undefined} className={cn(l.nhanDau, gon && l.nhanDauGon)}>
       {children}
     </span>
   )

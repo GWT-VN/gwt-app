@@ -11,13 +11,26 @@ import { controlOutline } from './control-styles'
  *   màu muted-foreground, `aria-hidden`, không bắt chuột (bấm vào icon là bấm vào ô). `id`/`className`/mọi prop khác
  *   vẫn rơi vào chính `<input>` — `className` KHÔNG vào khung bọc (cần đổi bề rộng/lề cả cụm thì bọc thêm một div).
  * - `required` dấu * ở nhãn chỉ là hình: ô bắt buộc phải mang `required` hoặc `aria-required` để trình đọc màn hình biết.
+ * - `shape="pill"` (bundle.css `.ui-input[data-shape="pill"]`, CEO chốt 23/11): bo `radius-full`, số đo khác giữ nguyên —
+ *   ô tìm ở đầu trang dữ liệu. Ô trong form giữ bo 8.
  */
-export function Input({ className, icon, ...props }: ComponentProps<'input'> & { icon?: ReactNode }) {
+export function Input({
+  className,
+  icon,
+  shape,
+  ...props
+}: ComponentProps<'input'> & { icon?: ReactNode; shape?: 'pill' }) {
   const o = (
     <input
       data-slot="input"
+      data-shape={shape}
       // pl = gutter 12 + icon 16 + --input-gap-md 8 (bundle.css `.ui-input-wrap > .ui-input`).
-      className={cn(controlOutline, icon && 'pl-[calc(var(--control-gutter-md)+24px)]', className)}
+      className={cn(
+        controlOutline,
+        shape === 'pill' && 'rounded-(--radius-full)',
+        icon && 'pl-[calc(var(--control-gutter-md)+24px)]',
+        className,
+      )}
       {...props}
     />
   )

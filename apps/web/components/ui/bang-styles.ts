@@ -185,3 +185,26 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   chon_khuHanhDong: cn('contents', vachTruoc, vachSau, 'max-[640px]:before:hidden max-[640px]:after:hidden max-[640px]:*:order-2'),
   chon_chuaCoHanhDong: cn(kv, 'ml-auto px-2 text-[12px] leading-[18px] opacity-70 max-[640px]:order-2'),
 }
+
+/**
+ * BulkActionBar biến thể mặt nổi — `.ui-bulkbar[data-variant="surface"]` (CEO chốt 23/11): mặt `popover` (trắng ở theme
+ * sáng, popover tối ở theme tối), `shadow-hairline` + `shadow-300`; nút ghost rê `alpha-05`, nhấn `alpha-08`; cảnh báo / lỗi
+ * theo màu chữ ngữ nghĩa (yellow-300 / red-300 chỉ đọc được trên nền tối). Ghép đè lên GIAO_DIEN_DS qua
+ * `<CauHinhBangDs thanhHangLoat="surface">`.
+ */
+const ghostTrenMat = [
+  'not-disabled:not-aria-disabled:hover:bg-(--alpha-05)',
+  'not-disabled:not-aria-disabled:not-aria-pressed:not-aria-expanded:not-aria-checked:active:bg-(--alpha-08)',
+]
+export const THANH_HANG_LOAT_SURFACE: Partial<GiaoDienBang> = {
+  chon_thanh: cn(
+    GIAO_DIEN_DS.chon_thanh,
+    'bg-(--popover) text-(--popover-foreground) [box-shadow:var(--shadow-hairline),var(--shadow-300)]',
+    '[&_[data-variant=ghost]:hover]:bg-(--alpha-05)!',
+    '[&_[data-variant=ghost][aria-expanded=true]]:bg-(--alpha-05)!',
+    '[&_[data-variant=ghost]:active]:bg-(--alpha-08)!',
+  ),
+  chon_nutBoChon: cn(GIAO_DIEN_DS.chon_nutBoChon, ...ghostTrenMat),
+  chon_thanhCanhBao: cn(GIAO_DIEN_DS.chon_thanhCanhBao, 'text-(--color-text-warning)'),
+  chon_loi: cn(GIAO_DIEN_DS.chon_loi, 'text-(--color-text-danger)'),
+}

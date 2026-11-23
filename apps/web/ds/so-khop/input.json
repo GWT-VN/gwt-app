@@ -70,6 +70,13 @@
       "artifactThat": true
     },
     {
+      "khoa": "tim-pill",
+      "artifact": "#i7",
+      "ds": "#input [data-so=\"tim-pill\"]",
+      "trangThai": ["hover", "focus"],
+      "artifactThat": true
+    },
+    {
       "khoa": "hover",
       "artifact": "#i3",
       "ds": "#input [data-so=\"hover\"]",

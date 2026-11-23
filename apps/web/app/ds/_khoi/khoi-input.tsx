@@ -38,6 +38,16 @@ function TruongTim({ id }: { id: string }) {
   )
 }
 
+/** Ô tìm bo tròn hẳn (`shape="pill"`) — ô tìm ở đầu trang dữ liệu (CEO chốt 23/11). */
+function TruongTimPill({ id }: { id: string }) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={id}>Tìm — bo tròn hẳn (data-shape=&quot;pill&quot;)</FieldLabel>
+      <Input data-so="tim-pill" id={id} type="search" shape="pill" placeholder="Tìm tiêu đề, mã việc, khách…" icon={<MagnifyingGlass />} />
+    </Field>
+  )
+}
+
 function TruongHover({ id }: { id: string }) {
   return (
     <Field>
@@ -83,7 +93,7 @@ function TruongGhiChu({ id }: { id: string }) {
 
 /**
  * #input — tái tạo ds/nguon/components/Input/preview.html: lưới tự xếp cột tối thiểu 220 (style inline của preview),
- * gap 16; 6 ô: tên KH + gợi ý, tìm có icon, hover/focus, SĐT lỗi, mã đơn tắt, ghi chú. Preview ép hover/focus bằng
+ * gap 16; 7 ô: tên KH + gợi ý, tìm có icon, hover/focus, SĐT lỗi, mã đơn tắt, ghi chú, tìm bo tròn hẳn. Preview ép hover/focus bằng
  * class `.is-hover`/`.is-focus`; ở đây rê chuột / Tab thật mới thấy (so khớp đo bằng bước `tro`/`tab`).
  * Dữ liệu minh hoạ (demo). `data-so` = khoá so khớp (ds/so-khop/input.json).
  */
@@ -101,6 +111,7 @@ export function KhoiInput() {
         <TruongSdt id="ds-input-sdt" />
         <TruongMa id="ds-input-ma" />
         <TruongGhiChu id="ds-input-gc" />
+        <TruongTimPill id="ds-input-tim-pill" />
       </div>
     </section>
   )
@@ -123,6 +134,11 @@ export function KhoiInputHang() {
       <BienThe ten="Có icon" moTa="Ô tìm kiếm: icon kính lúp bên trái.">
         <div className="max-w-sm">
           <TruongTim id="ds-ih-tim" />
+        </div>
+      </BienThe>
+      <BienThe ten="Tìm bo tròn hẳn" moTa="Ô tìm ở đầu trang dữ liệu (danh sách, bảng): shape=&quot;pill&quot;. Ô trong form giữ bo 8.">
+        <div className="max-w-sm">
+          <TruongTimPill id="ds-ih-tim-pill" />
         </div>
       </BienThe>
       <BienThe ten="Gợi ý" moTa="Dòng gợi ý dưới ô; trình đọc màn hình đọc kèm khi vào ô.">

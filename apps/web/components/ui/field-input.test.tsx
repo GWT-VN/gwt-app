@@ -112,3 +112,12 @@ test('jsdom: bấm nhãn focus đúng ô (cả ô có icon); tên đọc đượ
   await user.click(screen.getByText('Tên khách hàng'))
   expect(document.activeElement).toBe(ten)
 })
+
+test('Input shape="pill" → data-shape + bo radius-full; mặc định không có', () => {
+  const d = dom(renderToStaticMarkup(<><Input shape="pill" aria-label="a" /><Input aria-label="b" /></>))
+  const [tron, thuong] = d.querySelectorAll('input')
+  expect(tron.dataset.shape).toBe('pill')
+  expect(tron.className).toContain('rounded-(--radius-full)')
+  expect(thuong.hasAttribute('data-shape')).toBe(false)
+  expect(thuong.className).not.toContain('rounded-(--radius-full)')
+})
