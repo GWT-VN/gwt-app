@@ -136,8 +136,8 @@ function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
 
 /**
  * Ô trong khung (`.ui-input-affix > .ui-input`): lấp chỗ, cao bằng khung, không padding/bo/nền/viền; chữ 14/20
- * color-text 400 (bundle `font: 400`), placeholder color-text-tertiary, tắt chữ color-text-disabled. GWT: `data-align="end"`
- * căn phải; `inputMode` numeric/decimal → `tabular-nums` (số thẳng cột khi các ô xếp dọc).
+ * color-text 400 (bundle `font: 400`), placeholder color-text-tertiary, tắt chữ color-text-disabled. GWT: số trong FORM căn trái
+ * như chữ (CEO chốt 23/11); `data-align="end"` chỉ khi cần thẳng cột chữ số (ô số trong bảng); `inputMode` numeric/decimal → `tabular-nums` (số thẳng cột khi các ô xếp dọc).
  */
 function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>) {
   return (
@@ -222,7 +222,6 @@ function OTien({
     <InputGroup>
       <InputGroupInput
         inputMode="numeric"
-        data-align="end"
         autoComplete="off"
         {...props}
         type="text"

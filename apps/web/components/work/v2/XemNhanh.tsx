@@ -384,6 +384,7 @@ function NoiDung({
                   {sua && (
                     <NutChon
                       nhan={`Thêm người ${ten.toLowerCase()}`}
+                      chu="Thêm người"
                       options={nguoiChon.filter((m) => m.gt !== chinh?.email && !ds.some((a) => a.email === m.gt))}
                       onChon={(m) => {
                         const id = idCua(m.gt)
@@ -434,6 +435,7 @@ function NoiDung({
                   {sua && (
                     <NutChon
                       nhan={`Gắn ${ten.toLowerCase()}`}
+                      chu={`Gắn ${ten.toLowerCase()}`}
                       tim={tim[loai]}
                       // Ticket/đơn chỉ tìm trong khách đã gắn — không nói ra thì "tìm mãi không thấy" trông như hỏng.
                       goiY={
@@ -545,6 +547,7 @@ function NoiDung({
                     <span className={CUM}>
                       <NutChon
                         nhan="Thêm việc phải xong trước"
+                        chu="Thêm việc"
                         tim={tim.viec}
                         goiY="Tiêu đề hoặc mã việc (việc đã xong/huỷ không hiện)"
                         onChon={(m) => {
@@ -628,15 +631,20 @@ function NutIcon({ nhan, onClick, children }: { nhan: string; onClick: () => voi
   )
 }
 
-/** Nút "+" mở pop chọn có tìm (Popover + ComboboxPanel — như OSuaNguoi, nhưng trigger là nút thêm). */
+/**
+ * Chip "+ Thêm …" mở pop chọn có tìm (Popover + ComboboxPanel — như OSuaNguoi, nhưng trigger là nút thêm). Chip có chữ
+ * (CEO 23/11: nút "+" trơn khó bấm, không biết thêm gì); `chu` là phần đầu của `nhan` (nhãn đọc chứa chữ đang thấy).
+ */
 function NutChon({
   nhan,
+  chu,
   options,
   tim,
   goiY,
   onChon,
 }: {
   nhan: string
+  chu: string
   options?: MucChon[]
   tim?: (q: string) => Promise<MucChon[]>
   goiY?: string
@@ -645,13 +653,12 @@ function NutChon({
   const [mo, setMo] = useState(false)
   return (
     <Popover open={mo} onOpenChange={setMo}>
-      <TooltipNhanh content={<span aria-hidden="true">{nhan}</span>}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon-xs" aria-label={nhan}>
-            <Plus aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-      </TooltipNhanh>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="xs" aria-label={nhan}>
+          <Plus aria-hidden="true" />
+          {chu}
+        </Button>
+      </PopoverTrigger>
       <PopoverContent aria-label={nhan} align="start" className={KHUNG_CHON}>
         <ComboboxPanel
           value={null}

@@ -40,6 +40,7 @@ export function XemNhanh({
   onDong,
   onTruoc,
   onSau,
+  coDinh,
   className,
   children,
 }: {
@@ -48,6 +49,12 @@ export function XemNhanh({
   /** Không truyền = đang ở bản ghi đầu (nút ‹ tắt). */
   onTruoc?: () => void
   onSau?: () => void
+  /**
+   * Thẻ bám MÀN HÌNH (`fixed`) thay vì bám khung chứa: cao hết màn và đứng yên khi cuộn. Dùng ở màn app (khung cuộn =
+   * vùng nội dung sát mép phải màn) — bám khung thì trang ít dòng làm thẻ cụt giữa màn, trang dài thì thẻ trôi theo cuộn.
+   * Bỏ trống ở preview/demo (thẻ phải nằm trong khung demo).
+   */
+  coDinh?: boolean
   className?: string
   children: ReactNode
 }) {
@@ -86,7 +93,7 @@ export function XemNhanh({
     <div data-slot="xem-nhanh-khung" className={cn(xnKhung, className)}>
       <div className={cn('border-none border-current', mo && xnNoiDungNhuong)}>{children}</div>
       {the && (
-        <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={xnThe}>
+        <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && 'fixed')}>
           <div className={xnDau}>
             <span className={xnMa}>{the.ma}</span>
             {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}

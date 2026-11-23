@@ -20,6 +20,7 @@ Trang gốc: Bố cục · Cột hiển thị · Lọc · Sắp xếp · Nhóm t
 ## Hành vi
 - Đổi dạng xem giữ nguyên tab/lọc/sắp xếp.
 - Nút thẻ xem nhanh **mặc định tắt**; tắt → bấm bản ghi mở trang chi tiết, bật → mở thẻ bên phải (xem `Table`).
+- Thẻ xem nhanh trong màn app: `<XemNhanh coDinh>` — thẻ bám **màn hình** (`fixed`, cách mép 8, cao hết màn, đứng yên khi cuộn). Mặc định bám khung chứa (dùng cho demo/preview). Thêm 23/11 (CEO: trang ít dòng làm thẻ cụt giữa màn).
 - Trạng thái view (dạng xem, cột ẩn, thứ tự cột, độ rộng, nhóm, lọc, sắp) phải ghi được vào URL để "Sao chép link view" và lưu view.
 
 ## Bàn phím & a11y

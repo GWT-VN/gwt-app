@@ -1,13 +1,13 @@
 Ô nhập có **chữ cố định trong ô** (₫, %, kg, cái) — ô tiền VND là trường hợp chính. **Mới 18/11/2026**, là **input group**: khung `ui-input-affix` mang viền và bọc cả số + đơn vị; viền/hover/focus/lỗi/tắt chép đúng của `Input`, chuyển từ ô lên khung (`:focus-within`, `:has`). **Cập nhật theo prototype hiện tại:** đơn vị đứng **sát số**, cách 4px cho mọi đơn vị (bản trước đặt đơn vị cố định ở mép phải).
 
-**Dùng khi** nhập số có đơn vị. Tiền VND: luôn số nguyên, dấu chấm hàng nghìn (vi-VN), căn phải để các ô xếp dọc thẳng hàng chữ số.
+**Dùng khi** nhập số có đơn vị. Tiền VND: luôn số nguyên, dấu chấm hàng nghìn (vi-VN). **Căn trái như mọi ô trong form** (CEO chốt 23/11/2026 — trước đó căn phải); căn phải chỉ khi ô số nằm trong bảng/cột cần thẳng hàng chữ số.
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |
 | Khung | `ui-input-affix` | cao `control-size-md` 32px, padding 0 `control-gutter-md`, bo `radius-md`, viền inset `input`; hover `alpha-25` (tối `alpha-30`); focus-within `alpha-50`; lỗi `red-500` (tối `red-600`); tắt nền `color-background-disabled` |
 | Ô số | `ui-input` bên trong | không viền, không nền, lấp chỗ |
 | Đơn vị | `ui-affix` · `color-text-tertiary` | 14/20, cách số 4px, `pointer-events: none`; `data-side="start"` để đặt trước số |
-| Số | | `data-align="end"` căn phải; `inputmode="numeric"` (tiền) / `decimal` (%) → `tabular-nums` |
+| Số | | mặc định căn trái; `data-align="end"` căn phải (chỉ ô trong bảng); `inputmode="numeric"` (tiền) / `decimal` (%) → `tabular-nums` |
 | Gợi ý | `ui-help` | có thể ghi lại số đã định dạng ("= 2.500.000 ₫") |
 
 **Hành vi ô tiền:** gõ chỉ nhận chữ số, tự chèn dấu chấm; lưu **giá trị số** (không lưu chuỗi có dấu chấm); trống = `null`, khác 0. **Phần lẻ chỉ hiểu khi DÁN** (chốt 20/11/2026): dán "1.250.000,00" → 1250000, "12,5" → 13 (1–2 chữ số sau dấu cuối = phần lẻ, làm tròn); khi gõ chỉ lấy chữ số — xoá chữ số cuối của "1.250.000" không bị đọc thành 1250. Ô tiền **không âm**: dán "-500.000" → 500000; cần số âm (điều chỉnh, hoàn tiền) thì dùng ô khác. Không dùng `type="number"` (bàn phím mất dấu chấm, con lăn chuột đổi số).
@@ -28,4 +28,4 @@ Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/p
 - Mới: `InputGroupButton` (Button `ghost`, `type="button"`, `size` `xs` 24 mặc định · `sm` 28 · `icon-xs` · `icon-sm`), `InputGroupText` (chữ kèm 14/20 tertiary), `InputGroupTextarea` (cao tối thiểu 80, đệm dọc 6, khung cao tự do); `align="block-start" | "block-end"` → addon trên/dưới ô, khung thành cột.
 - Addon có icon đầu cách chữ 8; nút sát mép khung 4.
 - Viền khung (`controlOutlineWithin`) xét cả `textarea` con trực tiếp cho hover/lỗi/tắt.
-- Giữ: `InputGroupInput` (`data-align="end"`, `tabular-nums` theo `inputMode`), `OTien` (hành vi ô tiền không đổi). Lệch shadcn: khung cao 32 lề 12, addon không đệm riêng, chữ 400 tertiary.
+- Giữ: `InputGroupInput` (`data-align="end"` tuỳ chọn, `tabular-nums` theo `inputMode`), `OTien` (hành vi ô tiền không đổi; 23/11 bỏ căn phải mặc định). Lệch shadcn: khung cao 32 lề 12, addon không đệm riêng, chữ 400 tertiary.

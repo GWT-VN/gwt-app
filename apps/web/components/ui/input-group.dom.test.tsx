@@ -128,10 +128,10 @@ test('value không nguyên (1250.5 từ cột numeric) → hiển thị làm tr�
   expect(o().value).toBe('1.251')
 })
 
-test('OTien: inputMode numeric, căn phải, đơn vị ₫ aria-hidden; donVi đổi được', () => {
+test('OTien: inputMode numeric, căn trái như form (không data-align), đơn vị ₫ aria-hidden; donVi đổi được', () => {
   const { rerender } = render(<OTien aria-label="Đơn giá" value={null} onValueChange={() => {}} />)
   expect(o().getAttribute('inputmode')).toBe('numeric')
-  expect(o().getAttribute('data-align')).toBe('end')
+  expect(o().getAttribute('data-align')).toBeNull()
   expect(o().type).toBe('text')
   const dv = o().parentElement!.querySelector('[data-slot="input-group-addon"]')!
   expect(dv.textContent).toBe('₫')

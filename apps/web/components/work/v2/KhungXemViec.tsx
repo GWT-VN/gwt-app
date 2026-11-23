@@ -50,6 +50,7 @@ export function KhungXemViec({
           : null
       }
       onDong={dong}
+      coDinh
       onTruoc={i > 0 ? () => mo(ds[i - 1].id) : undefined}
       onSau={i >= 0 && i < ds.length - 1 ? () => mo(ds[i + 1].id) : undefined}
     >

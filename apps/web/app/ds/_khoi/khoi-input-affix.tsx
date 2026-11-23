@@ -42,7 +42,6 @@ function ChietKhau({ id }: { id: string }) {
         <InputGroupInput
           id={id}
           inputMode="decimal"
-          data-align="end"
           value={ck}
           onChange={(e) => setCk(e.target.value.replace(/[^\d,.]/g, ''))}
         />

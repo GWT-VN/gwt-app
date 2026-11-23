@@ -122,7 +122,6 @@ export function SuaLuat({ l, nenTang, onDong }: { l: LuatTuSinh; nenTang: NenTan
           <InputGroupInput
             id={idO}
             inputMode="numeric"
-            data-align="end"
             value={f[k]}
             onChange={(e) => setF((x) => ({ ...x, [k]: e.target.value }))}
             aria-required={GIOI_HAN[k][2] || undefined}
