@@ -1,0 +1,35 @@
+/*
+ * Chuyển động shadcn cần keyframes riêng (bên shadcn nằm trong tw-animate-css / shadcn/tailwind.css — DS không nạp cả gói).
+ * Chỉ khai đúng 3 keyframes component dùng; component gọi bằng utility tuỳ ý `animate-[…]` và tự bọc `motion-safe:`
+ * (tắt khi prefers-reduced-motion). Không đặt trong @theme: Tailwind 4 chỉ phát --animate-* khi quét thấy utility tên đó,
+ * đo 22/11 không ra → khai CSS thẳng cho chắc.
+ * - caret-blink 1.25s ease-out vô hạn: con trỏ giả của InputOTP (giá trị theo hướng dẫn cài InputOTP của shadcn).
+ * - accordion-down/up 200ms ease-out: Accordion mở/thu, cao = biến Radix --radix-accordion-content-height (tw-animate-css).
+ */
+@keyframes caret-blink {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}

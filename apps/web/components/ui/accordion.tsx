@@ -57,7 +57,7 @@ function AccordionContent({ className, children, ...props }: React.ComponentProp
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
-      className="overflow-hidden border-none border-current text-[14px] leading-[20px]"
+      className="overflow-hidden border-none border-current text-[14px] leading-[20px] motion-safe:data-[state=closed]:animate-[accordion-up_200ms_ease-out] motion-safe:data-[state=open]:animate-[accordion-down_200ms_ease-out]"
       {...props}
     >
       <div className={cn('border-none border-current pt-0 pb-4', className)}>{children}</div>

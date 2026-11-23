@@ -369,6 +369,13 @@ async function main() {
       await cdp.send('Page.navigate', { url: dich })
       await xong
       await chay(cdp, 'document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 400))).then(() => true)')
+      // Trang Next (/ds/tron) phải HYDRATE xong mới đo/rê/bấm — trước đây chỉ chờ load + 400ms nên trang nặng lên thì đo hụt
+      // (tooltip không mở, lịch còn 2 tháng…; 21–22/11 phải vá bằng {cho:1500} từng khoá). Trang nguồn tĩnh (không có
+      // self.__next_f) bỏ qua. Trần 20 giây.
+      await chay(
+        cdp,
+        `(async () => { if (!self.__next_f) return true; for (let i = 0; i < 200; i++) { const el = document.querySelector('[data-ds="v2"] button, [data-ds="v2"] [data-slot]'); if (el && Object.keys(el).some((k) => k.startsWith('__react'))) return true; await new Promise((r) => setTimeout(r, 100)) } return true })()`,
+      )
       await chay(cdp, `document.head.append(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(AN_NEXT_DEV)} })), true`)
       await chay(cdp, TRO_GIUP)
     }

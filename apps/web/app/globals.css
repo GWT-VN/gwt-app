@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../ds/tokens.css" layer(base); /* DS v2 — chỉ trong vùng [data-ds="v2"], màn cũ không đổi; layer base để utility đè được .ds-* */
 @import "../ds/theme.css";
+@import "../ds/chuyen-dong.css";
 /* ds/nguon/ = file chép nguyên byte từ artifact (README, preview.html) — chuỗi giống class trong đó làm Tailwind sinh CSS hỏng → dev 500. */
 @source not "../ds/nguon";
 

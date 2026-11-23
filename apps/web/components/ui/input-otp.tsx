@@ -14,8 +14,7 @@ import { cn } from '@/lib/utils'
  * - Ô liền nhau trong InputOTPGroup chồng mép 1px (−ml-px) thay cho viền ba cạnh của shadcn — viền inset vẫn một nét,
  *   ô đang gõ nổi lên trên (z-10) nên cả bốn cạnh đổi màu. Bo radius-md 8 ở ô đầu / cuối nhóm.
  * - Tên: `aria-label` (hoặc `FieldLabel htmlFor` + `id`) đặt lên InputOTP — đi thẳng vào `<input>` thật.
- * - Lệch shadcn có chủ đích: con trỏ giả nhấp nháy dùng `animate-pulse` có sẵn của Tailwind (shadcn `animate-caret-blink`
- *   cần keyframes riêng trong CSS chung — chưa thêm, xem báo cáo Đợt 4); tắt khi prefers-reduced-motion.
+ * - Con trỏ giả nhấp nháy `animate-caret-blink` như shadcn (keyframes ở `ds/chuyen-dong.css`); tắt khi prefers-reduced-motion.
  */
 function InputOTP({
   className,
@@ -61,7 +60,7 @@ function InputOTPSlot({ index, className, ...props }: React.ComponentProps<'div'
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center border-none border-current">
-          <div className="h-4 w-px border-none border-current bg-foreground motion-safe:animate-pulse" />
+          <div className="h-4 w-px border-none border-current bg-foreground motion-safe:animate-[caret-blink_1.25s_ease-out_infinite]" />
         </div>
       )}
     </div>
