@@ -107,17 +107,16 @@ describe('/work/tu-sinh — chặn cả TRANG, không chỉ ẩn nút', () => {
     ).toBe(true)
   })
 
-  for (const f of ['app/work/page.tsx', 'app/work/team/page.tsx']) {
-    it(`${f} ẩn link "Việc tự sinh" với nhân viên thường`, () => {
-      const src = doc(f)
-      const i = src.indexOf('/work/tu-sinh')
-      expect(i, `${f} không còn link tới /work/tu-sinh`).toBeGreaterThan(-1)
-      expect(
-        /thayTuSinh\s*&&/.test(src.slice(Math.max(0, i - 200), i)),
-        `${f}: link "Việc tự sinh" phải bọc trong {thayTuSinh && …}.`,
-      ).toBe(true)
-    })
-  }
+  // Từ khung điều hướng v2 (23/11) link nằm ở menu khu Việc (lib/khung/ban-do-menu.ts — test ẩn/hiện theo quyền ở
+  // ban-do-menu.test.ts). Ở đây giữ: menu hỏi ĐÚNG cặp (mã quyền, luật cũ) mà trang dùng để chặn — lệch là menu hiện mà
+  // bấm vào bị đá ra, hoặc ngược lại.
+  it('menu khung hỏi đúng cặp quyền mà trang /work/tu-sinh dùng để chặn', () => {
+    const trang = doc('app/work/tu-sinh/page.tsx').match(/chanNeuThieuQuyen\(\s*'work\.luat_tu_sinh'\s*,\s*'(\w+)'/)
+    expect(trang, 'trang không còn gọi chanNeuThieuQuyen(work.luat_tu_sinh, …)').not.toBeNull()
+    const menu = doc('lib/khung/ban-do-menu.ts')
+    expect(menu).toContain(`['work.luat_tu_sinh', '${trang![1]}']`)
+    expect(menu).toMatch(/co\('work\.luat_tu_sinh'\)\s*\?\s*\[m\('Việc tự sinh', '\/work\/tu-sinh'\)\]/)
+  })
 })
 
 // ── 3. Xoá hàng loạt phải đi qua hai nhịp ───────────────────────────────────

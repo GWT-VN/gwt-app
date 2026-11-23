@@ -21,7 +21,7 @@ export function useThemeMay(): 'light' | 'dark' {
  */
 export function ManV2({ children }: { children: ReactNode }) {
   return (
-    <DsRoot theme={useThemeMay()} className="min-h-full">
+    <DsRoot theme={useThemeMay()} className="flex-1">
       {children}
     </DsRoot>
   )

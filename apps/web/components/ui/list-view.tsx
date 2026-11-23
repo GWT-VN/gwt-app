@@ -293,10 +293,18 @@ export function NhanDau({ children, gon }: { children: ReactNode; gon?: boolean 
   )
 }
 
-/** `.b-mo-ticket`: nút mã mở bản ghi — bấm nổi lên dòng (`onMo` của ListView), không tự xử lý. */
-export function NutMoMa({ ma }: { ma: string }) {
+/**
+ * `.b-mo-ticket`: nút mã mở bản ghi — bấm nổi lên dòng (`onMo` của ListView), không tự xử lý. ListView ẩn mã khi khung
+ * ≤ 860 (bấm dòng vẫn mở); `luonHien` = cột Mã của Bảng (luôn hiện, bên gọi bắt cú bấm).
+ */
+export function NutMoMa({ ma, luonHien }: { ma: string; luonHien?: boolean }) {
   return (
-    <button type="button" data-slot="list-view-ma" aria-label={`Mở ${ma}`} className={l.nutMoMa}>
+    <button
+      type="button"
+      data-slot="list-view-ma"
+      aria-label={`Mở ${ma}`}
+      className={cn(l.nutMoMa, luonHien && '@max-[860px]:inline-flex')}
+    >
       <span className={s.ma}>{ma}</span>
     </button>
   )

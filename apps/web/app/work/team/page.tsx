@@ -1,40 +1,40 @@
-import Link from 'next/link'
+import { Suspense } from 'react'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
-import { coQuyenHienNut } from '@/lib/nen-tang/kiem-quyen'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Plus } from '@phosphor-icons/react/ssr'
+import { Button } from '@/components/ui/button'
+import { BangTeam } from '@/components/work/v2/BangTeam'
+import { TaoViec } from '@/components/work/v2/TaoViec'
 import { bangTeam, nenTang } from '../actions'
-import { BangTeam } from '@/components/work/BangTeam'
 
 export const metadata = { title: 'Bảng team · GWT Work' }
 
 /**
- * Bảng team — mọi việc mình được xem (work.visible_task_ids quyết định), xem theo
- * Danh sách hoặc Bảng kanban, lọc theo team / người / từ khoá.
+ * Bảng team (v2, dựng bằng DS) — mọi việc mình được xem (work.visible_task_ids quyết định), dạng Bảng / Danh sách /
+ * Kanban; lọc tab · người · trạng thái · từ khoá ở URL. Menu khu (Việc của tôi, Việc tự sinh theo quyền) ở khung điều hướng.
  */
 export default async function BangTeamPage() {
   await requireNhanSu()
-  // Nhân viên thường không thấy mục 'Việc tự sinh' (CEO chốt 24/08). Ẩn link
-  // chỉ là cho gọn mắt — rào thật nằm trong chính trang đó.
-  const thayTuSinh = await coQuyenHienNut('work.luat_tu_sinh', 'QUANLY')
   const [rows, nt] = await Promise.all([bangTeam(), nenTang()])
-
   return (
-    <main data-khu="work" className="min-h-screen">
-      <div className="max-w-[1180px] mx-auto px-5 py-5 sm:px-6 space-y-5 khung-trang">
-        <header>
-          <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
-            <Link href="/work" style={{ color: "var(--accent-ink)" }}>Việc của tôi</Link>
-            <span style={{ color: "var(--faint)" }}>Bảng team</span>
-            {thayTuSinh && (
-              <Link href="/work/tu-sinh" style={{ color: "var(--accent-ink)" }}>Việc tự sinh</Link>
-            )}
-          </nav>
-          <h1 style={{ fontSize: 20, fontWeight: 670, letterSpacing: "-.02em", margin: 0 }}>Bảng team</h1>
-          <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 2 }}>
-            Việc của cả team — bạn chỉ thấy những việc mình có quyền xem.
-          </p>
-        </header>
-        <BangTeam rowsBanDau={rows} nenTang={nt} />
-      </div>
-    </main>
+    <ManV2>
+      <Suspense>
+        <BangTeam
+          rows={rows}
+          nenTang={nt}
+          nutTao={
+            <TaoViec
+              nenTang={nt}
+              trigger={
+                <Button>
+                  <Plus aria-hidden="true" />
+                  Tạo việc
+                </Button>
+              }
+            />
+          }
+        />
+      </Suspense>
+    </ManV2>
   )
 }

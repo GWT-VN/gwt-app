@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { ManV2 } from '@/components/khung/ManV2'
 import { ViecCuaToi } from '@/components/work/v2/ViecCuaToi'
-import { vieCcuaToi, xongTuanNay } from './actions'
+import { nenTang, vieCcuaToi, xongTuanNay } from './actions'
 
 export const metadata = { title: 'Việc của tôi · GWT Work' }
 
@@ -12,11 +12,11 @@ export const metadata = { title: 'Việc của tôi · GWT Work' }
  */
 export default async function WorkPage() {
   await requireNhanSu()
-  const [rows, xong] = await Promise.all([vieCcuaToi(), xongTuanNay()])
+  const [rows, xong, nt] = await Promise.all([vieCcuaToi(), xongTuanNay(), nenTang()])
   return (
     <ManV2>
       <Suspense>
-        <ViecCuaToi rows={rows} xongTuanNay={xong} />
+        <ViecCuaToi rows={rows} xongTuanNay={xong} nenTang={nt} />
       </Suspense>
     </ManV2>
   )

@@ -191,3 +191,11 @@ export const composerFiles = `${kv} flex flex-wrap gap-1.5 px-2.5 pt-1.5`
 export const composerBar = `${kv} flex items-center gap-1 p-1.5`
 export const composerHint = `${kv} ml-auto pr-1 text-[12px] leading-[18px] text-muted-foreground [@media(max-width:640px)]:hidden`
 export const composerSend = '[@media(max-width:640px)]:ml-auto'
+
+/* Thẻ xem nhanh một bản ghi (`.b-ct-*` của bundle.css — nội dung thẻ `XemNhanh`). */
+/** `.b-ct-khoi`: khối cách trên 20. */
+export const xemKhoi = `${kv} mt-5`
+/** `.b-ct-ten`: tiêu đề bản ghi 20/26 600, xuống dòng đủ (không cắt). */
+export const xemTen = `${kv} m-0 text-[20px] leading-[26px] font-semibold tracking-normal [overflow-wrap:anywhere]`
+/** `.b-ct-phu`: dòng phụ 12/18 muted (bên gọi tự thêm lề trên 4 khi đứng ngay dưới tiêu đề). */
+export const xemPhu = `${kv} text-[12px] leading-[18px] text-muted-foreground`
