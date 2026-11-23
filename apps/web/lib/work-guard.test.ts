@@ -228,3 +228,27 @@ describe('Phụ thuộc — thêm được từ giao diện', () => {
     ).toBe(true)
   })
 })
+
+// ── RPC public.work_* chỉ service_role gọi được (work_19, 23/11) ──────────────
+// Mọi RPC khu Việc lấy danh tính từ THAM SỐ p_email. Hàm mới trong `public` nhận grant EXECUTE mặc định của Supabase cho
+// anon/authenticated → ai cầm anon key (công khai) gọi thẳng /rest/v1/rpc/work_* là đọc/sửa việc dưới tên người khác.
+// `create or replace` hàm cũ giữ ACL đã thu; hàm MỚI thì file migration phải tự revoke.
+describe('RPC public.work_* — migration sau work_19 phải tự thu quyền anon', () => {
+  const thuMuc = fileURLToPath(new URL('../../../supabase/migrations', import.meta.url))
+  const MOC = '20261123140724' // work_19_chan_anon_rpc
+  const files = readdirSync(thuMuc).filter((f: string) => f.endsWith('.sql')).sort()
+
+  it('có migration work_19 (chống test xanh giả)', () => {
+    expect(files.some((f: string) => f.startsWith(MOC))).toBe(true)
+  })
+
+  it('file nào sau mốc định nghĩa function public.work_* đều có revoke execute … anon', () => {
+    const viPham = files
+      .filter((f: string) => f.slice(0, 14) > MOC)
+      .filter((f: string) => {
+        const src = readFileSync(`${thuMuc}/${f}`, 'utf8')
+        return /function\s+public\.work_/i.test(src) && !/revoke\s+execute[\s\S]*?\banon\b/i.test(src)
+      })
+    expect(viPham, `Thiếu revoke execute … from public, anon, authenticated: ${viPham.join(', ')}`).toEqual([])
+  })
+})
