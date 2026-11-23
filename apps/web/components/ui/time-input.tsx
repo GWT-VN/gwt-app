@@ -13,6 +13,7 @@ import {
 import { Clock, X } from '@phosphor-icons/react/ssr'
 import { docGio, GIO_GOI_Y_DAU, GOI_Y_GIO } from '@/lib/gio'
 import { cn } from '@/lib/utils'
+import { nutXoaTrongO } from './control-styles'
 import { Input } from './input'
 import { menuContent, menuItem } from './menu-styles'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
@@ -68,6 +69,7 @@ export function TimeInput({
   const iNeo = iSang ?? Math.max(0, ds.indexOf(GIO_GOI_Y_DAU)) // chỗ cuộn tới + mốc đầu của ↑/↓
   const neoRef = useRef<HTMLDivElement>(null)
   const vuaFocus = useRef(false) // focus bằng chuột: mouseup bỏ vùng chọn → giữ "chọn hết" để gõ đè
+  const khongMoKhiFocus = useRef(false) // focus trả về từ nút ✕ → không bung danh sách gợi ý
   const [hopGoiY, datHopGoiY] = useState<HTMLDivElement | null>(null)
   const idDs = useId()
   const sai = chu.trim() !== '' && !doc
@@ -140,6 +142,10 @@ export function TimeInput({
             }}
             onFocus={(e: FocusEvent<HTMLInputElement>) => {
               props.onFocus?.(e)
+              if (khongMoKhiFocus.current) {
+                khongMoKhiFocus.current = false
+                return
+              }
               e.target.select()
               vuaFocus.current = true
               setMo(true)
@@ -160,19 +166,20 @@ export function TimeInput({
               aria-label="Xoá giờ"
               // Giữ focus nơi đang đứng (không blur ô gõ giữa chừng); bấm là bỏ giờ ngay.
               onPointerDown={(e) => e.preventDefault()}
-              onClick={() => {
+              onClick={(e) => {
                 setChu('')
                 setSang(null)
                 setMo(false)
                 onValueChange(null)
+                // Bấm bằng phím (focus đang ở nút): nút sắp gỡ → focus rơi về body. Đưa về ô gõ, không bung gợi ý ở lượt
+                // focus này (mẫu nutRef.focus() của Combobox).
+                if (document.activeElement === e.currentTarget) {
+                  khongMoKhiFocus.current = true
+                  neoRef.current?.querySelector('input')?.focus()
+                }
               }}
               // Y nút bỏ chọn của Combobox: 20, icon 14 muted, rê → foreground; mép phải 6.
-              className={cn(
-                'absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex size-5 items-center justify-center rounded-sm',
-                'border-none border-current bg-transparent text-muted-foreground hover:text-foreground cursor-pointer',
-                '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
-                '[&>svg]:size-3.5',
-              )}
+              className={cn(nutXoaTrongO, 'right-1.5')}
             >
               <X aria-hidden="true" />
             </button>

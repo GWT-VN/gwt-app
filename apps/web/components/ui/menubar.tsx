@@ -231,7 +231,7 @@ function MenubarSeparator({ className, ...props }: ComponentProps<typeof Menubar
 
 /** Phím tắt căn phải; `phim` → nhóm Kbd (GWT thêm) — như DropdownMenuShortcut. */
 function MenubarShortcut({ className, phim, ...props }: ComponentProps<'span'> & { phim?: string[] }) {
-  if (phim) return <PhimKbd phim={phim} className={className} {...props} />
+  if (phim) return <PhimKbd data-slot="menubar-shortcut" phim={phim} className={className} {...props} />
   return <span data-slot="menubar-shortcut" className={cn(menuShortcut, className)} {...props} />
 }
 

@@ -34,3 +34,12 @@ describe('chonTheoBam', () => {
     expect(chonTheoBam(['z', 'a'], 'c', 'e', THU_TU, { mod: true, shift: true })).toEqual({ chon: ['z', 'a', 'c', 'd', 'e'], neo: 'c' })
   })
 })
+
+describe('chonTheoBam — Ctrl+⇧ không neo', () => {
+  test('Ctrl+⇧ khi chưa có neo / neo ở trang khác: CỘNG dòng bấm vào vùng sẵn có (không xoá vùng)', () => {
+    const MOD_SHIFT = { mod: true, shift: true }
+    expect(chonTheoBam(['z', 'a'], null, 'c', THU_TU, MOD_SHIFT)).toEqual({ chon: ['z', 'a', 'c'], neo: 'c' })
+    expect(chonTheoBam(['z', 'a'], 'x', 'c', THU_TU, MOD_SHIFT)).toEqual({ chon: ['z', 'a', 'c'], neo: 'c' })
+    expect(chonTheoBam(['c'], null, 'c', THU_TU, MOD_SHIFT)).toEqual({ chon: ['c'], neo: 'c' })
+  })
+})

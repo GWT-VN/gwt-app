@@ -177,3 +177,59 @@ test('"Đặt hạn…" mở DateTimePicker neo ô Hạn của dòng: chỉ ch�
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(o('TK-1024', 'han')).toBe('25/11')
 })
+
+const nhanDong = (ma: string) => [...dong(ma).querySelectorAll('[data-slot="badge"]')].map((b) => b.textContent)
+
+test('hai thao tác nhãn liên tiếp: Hoàn tác toast 1 chỉ gỡ nhãn của toast 1, nhãn toast 2 còn nguyên', async () => {
+  const user = dung()
+  expect(nhanDong('TK-1024')).toEqual(['Lắp đặt'])
+  await phimTrenDong(user, 'TK-1024', 'l')
+  await waitFor(() => expect(soMenu()).toBe(2))
+  await user.click(screen.getByRole('menuitemcheckbox', { name: 'Khách VIP' }))
+  await user.click(screen.getByRole('menuitemcheckbox', { name: 'Bảo hành' }))
+  expect(nhanDong('TK-1024')).toEqual(['Lắp đặt', 'Khách VIP', 'Bảo hành'])
+  await user.keyboard('{Escape}')
+  await waitFor(() => expect(soMenu()).toBe(0))
+  const toast1 = (await screen.findByText('Đã thêm nhãn Khách VIP cho TK-1024', { exact: false })).closest<HTMLElement>('[data-slot="toast"]')!
+  await user.click(toast1.querySelector<HTMLButtonElement>('button')!)
+  expect(nhanDong('TK-1024')).toEqual(['Lắp đặt', 'Bảo hành'])
+})
+
+test('Hoàn tác gỡ nhãn trên nhiều dòng: chỉ trả nhãn về các dòng ĐÃ có nó, đúng vị trí cũ', async () => {
+  const user = dung()
+  // TK-1023 có Lỗi máy (đứng đầu), TK-1024 không có → gỡ Lỗi máy cho cả hai rồi Hoàn tác.
+  await user.keyboard('{Control>}')
+  await user.click(dong('TK-1023'))
+  await user.click(dong('TK-1024'))
+  await user.keyboard('{/Control}')
+  await user.keyboard('l')
+  await waitFor(() => expect(soMenu()).toBe(2))
+  const loi = screen.getByRole('menuitemcheckbox', { name: 'Lỗi máy' })
+  expect(loi.getAttribute('aria-checked')).toBe('mixed')
+  await user.click(loi) // một phần → thêm cho cả hai
+  expect(nhanDong('TK-1024')).toEqual(['Lắp đặt', 'Lỗi máy'])
+  await user.click(loi) // đủ cả hai → gỡ cả hai
+  expect(nhanDong('TK-1023')).toEqual(['Bảo hành'])
+  await user.keyboard('{Escape}')
+  await waitFor(() => expect(soMenu()).toBe(0))
+  const toast = (await screen.findByText('Đã gỡ nhãn Lỗi máy', { exact: false })).closest<HTMLElement>('[data-slot="toast"]')!
+  await user.click(toast.querySelector<HTMLButtonElement>('button')!)
+  expect(nhanDong('TK-1023')).toEqual(['Lỗi máy', 'Bảo hành'])
+  expect(nhanDong('TK-1024')).toEqual(['Lắp đặt', 'Lỗi máy'])
+})
+
+test('menu con Người làm: focus ở mục trong menu con, gõ "an" → cả hai chữ vào ô tìm; ⇧D cũng là chữ, KHÔNG mở ô chọn hạn', async () => {
+  const user = dung()
+  await phimTrenDong(user, 'TK-1021', 'a')
+  const oTim = await screen.findByRole('textbox', { name: 'Tìm người…' })
+  await waitFor(() => expect(document.activeElement).toBe(oTim))
+  await user.keyboard('{ArrowDown}')
+  expect(document.activeElement?.getAttribute('role')).toBe('menuitemradio')
+  await user.keyboard('an')
+  expect((oTim as HTMLInputElement).value).toBe('an')
+  await user.keyboard('{ArrowDown}{Shift>}D{/Shift}')
+  await new Promise((r) => setTimeout(r, 30))
+  expect((oTim as HTMLInputElement).value).toBe('anD')
+  expect(screen.queryByRole('dialog', { name: 'Chọn ngày giờ' })).toBeNull()
+  expect(soMenu()).toBe(2)
+})

@@ -10,6 +10,7 @@ import {
   type ComponentProps,
   type KeyboardEvent,
   type ReactNode,
+  type SyntheticEvent,
 } from 'react'
 import { CaretRight, Check, Minus } from '@phosphor-icons/react/ssr'
 import { ContextMenu as ContextMenuPrimitive } from 'radix-ui'
@@ -86,9 +87,15 @@ function ContextMenu({
   )
 }
 
-/** Phần tử giữ menu trình duyệt: ô nhập, hoặc menu khác (vd DropdownMenu của ô trong dòng — portal vẫn nổi bọt React). */
-function giuMenuTrinhDuyet(t: EventTarget) {
-  return t instanceof HTMLElement && (t.isContentEditable || !!t.closest('input, textarea, [role="menu"]'))
+/**
+ * Đích KHÔNG mở menu dòng (giữ menu trình duyệt / chạm giữ của hệ điều hành): ô nhập, hoặc phần tử NGOÀI DOM của trigger
+ * mà vẫn là con React của nó — portal nổi bọt React (DropdownMenu của ô trong dòng, pop DateTimePicker, danh sách gợi ý
+ * TimeInput…): mở menu dòng ở đó là đóng pop, mất nháp.
+ */
+function giuMenuTrinhDuyet(e: SyntheticEvent<HTMLElement>) {
+  const t = e.target
+  if (!(t instanceof Node) || !e.currentTarget.contains(t)) return true
+  return t instanceof HTMLElement && (t.isContentEditable || !!t.closest('input, textarea'))
 }
 
 function ContextMenuTrigger({
@@ -108,18 +115,18 @@ function ContextMenuTrigger({
       onContextMenuCapture={(e) => {
         onContextMenuCapture?.(e)
         // Chặn sự kiện đi tới handler của Radix (bubble ở chính trigger) mà KHÔNG preventDefault → menu trình duyệt.
-        if (giuMenuTrinhDuyet(e.target)) e.stopPropagation()
+        if (giuMenuTrinhDuyet(e)) e.stopPropagation()
       }}
       onPointerDownCapture={(e) => {
         onPointerDownCapture?.(e)
         // Nhấn giữ (cảm ứng/bút) trong ô nhập: chặn đường hẹn giờ 700ms của Radix (onPointerDown ở chính trigger) →
         // giữ chọn chữ/menu dán của hệ điều hành. Chuột không qua đường này (Radix chỉ hẹn giờ cho touch/pen).
-        if (e.pointerType !== 'mouse' && giuMenuTrinhDuyet(e.target)) e.stopPropagation()
+        if (e.pointerType !== 'mouse' && giuMenuTrinhDuyet(e)) e.stopPropagation()
       }}
       onKeyDown={(e: KeyboardEvent<HTMLSpanElement>) => {
         onKeyDown?.(e)
         const phim = e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')
-        if (disabled || !phim || e.defaultPrevented || giuMenuTrinhDuyet(e.target)) return
+        if (disabled || !phim || e.defaultPrevented || giuMenuTrinhDuyet(e)) return
         // Radix không có đường phím riêng (chỉ nghe contextmenu). Tự mở neo dưới mép trái dòng; preventDefault để trình
         // duyệt không bắn thêm contextmenu của nó (toạ độ tuỳ trình duyệt) — đủ cho Shift+F10.
         e.preventDefault()
@@ -400,7 +407,7 @@ function ContextMenuSeparator({ className, ...props }: ComponentProps<typeof Con
 
 /** Phím tắt căn phải; `phim` → nhóm Kbd (GWT thêm) — như DropdownMenuShortcut. */
 function ContextMenuShortcut({ className, phim, ...props }: ComponentProps<'span'> & { phim?: string[] }) {
-  if (phim) return <PhimKbd phim={phim} className={className} {...props} />
+  if (phim) return <PhimKbd data-slot="context-menu-shortcut" phim={phim} className={className} {...props} />
   return <span data-slot="context-menu-shortcut" className={cn(menuShortcut, className)} {...props} />
 }
 

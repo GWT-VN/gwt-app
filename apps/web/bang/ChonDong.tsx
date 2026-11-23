@@ -57,7 +57,7 @@ type PhimBam = { mod: boolean; shift: boolean }
  * Chọn bằng bấm dòng (kiểu trình quản lý tệp / Linear) — hàm thuần, KHÔNG đụng React; chỉ client gọi.
  * - Ctrl/⌘ (`mod`): bật/tắt một dòng, neo dời về dòng đó.
  * - ⇧ (`shift`): chọn dải từ `neo` tới dòng bấm theo `thuTu` (thay vùng cũ), neo giữ nguyên; chưa có neo / neo không
- *   còn trên trang → chỉ dòng bấm. Ctrl+⇧: CỘNG dải vào vùng sẵn có.
+ *   còn trên trang → chỉ dòng bấm. Ctrl+⇧: CỘNG dải (không neo: cộng dòng bấm) vào vùng sẵn có.
  * - Bấm thường: không đổi vùng chọn (dời con trỏ là việc của màn), neo dời về dòng bấm.
  */
 export function chonTheoBam(
@@ -70,7 +70,8 @@ export function chonTheoBam(
   if (phim.shift) {
     const a = neo === null ? -1 : thuTu.indexOf(neo)
     const b = thuTu.indexOf(ma)
-    if (a < 0 || b < 0) return { chon: [ma], neo: ma }
+    // Không neo dùng được: ⇧ chỉ lấy dòng bấm; Ctrl+⇧ vẫn là CỘNG — không xoá vùng đang chọn.
+    if (a < 0 || b < 0) return { chon: phim.mod ? [...new Set([...dangChon, ma])] : [ma], neo: ma }
     const dai = thuTu.slice(Math.min(a, b), Math.max(a, b) + 1)
     return { chon: phim.mod ? [...new Set([...dangChon, ...dai])] : dai, neo: neo! }
   }
@@ -173,6 +174,8 @@ export function KhungChon({
   }
 
   function bamDong(khoa: string, phim: PhimBam) {
+    // Không có ô chọn (`bat` false) thì bấm dòng cũng không chọn — vùng chọn ẩn, không ai thấy để bỏ.
+    if (!bat) return
     const kq = chonTheoBam([...daChon], neo, khoa, khoaTrang, phim)
     setNeo(kq.neo)
     if (phim.mod || phim.shift) {

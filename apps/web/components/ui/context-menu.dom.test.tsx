@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createPortal } from 'react-dom'
 import { expect, test, vi } from 'vitest'
 import { DsRoot } from './ds-root'
 import {
@@ -291,4 +292,53 @@ test('khung shadcn: data-slot từng phần; inset → data-inset + thụt 30; C
   }
   expect(screen.getByRole('menuitem', { name: 'Không thụt' }).hasAttribute('data-inset')).toBe(false)
   expect(sub.getAttribute('data-slot')).toBe('context-menu-sub-trigger')
+})
+
+/** Pop con nằm trong cây React của trigger nhưng DOM ở portal (kiểu DateTimePicker / danh sách TimeInput). */
+function MauPop() {
+  return (
+    <DsRoot>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div tabIndex={0} data-testid="dong">
+            TK-DEMO-040
+            {createPortal(
+              <div role="dialog" aria-label="Pop">
+                <button type="button">Ngày 25</button>
+              </div>,
+              document.body,
+            )}
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent aria-label="Thao tác TK-DEMO-040">
+          <ContextMenuItem>Mở ticket</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+    </DsRoot>
+  )
+}
+
+test('pop ở portal (con React của trigger, ngoài DOM trigger): chuột phải / nhấn giữ / Shift+F10 trong pop → KHÔNG mở menu dòng', async () => {
+  render(<MauPop />)
+  const nutPop = screen.getByRole('button', { name: 'Ngày 25' })
+  const ev = createEvent.contextMenu(nutPop)
+  fireEvent(nutPop, ev)
+  expect(ev.defaultPrevented).toBe(false)
+  expect(screen.queryByRole('menu')).toBeNull()
+
+  fireEvent.pointerDown(nutPop, { pointerType: 'touch' })
+  await cho(800)
+  expect(screen.queryByRole('menu')).toBeNull()
+  fireEvent.pointerUp(nutPop, { pointerType: 'touch' })
+
+  nutPop.focus()
+  const phim = createEvent.keyDown(nutPop, { key: 'F10', shiftKey: true })
+  fireEvent(nutPop, phim)
+  expect(phim.defaultPrevented).toBe(false)
+  expect(screen.queryByRole('menu')).toBeNull()
+  expect(dong().getAttribute('data-state')).toBe('closed')
+
+  // Trong DOM của dòng vẫn mở như cũ.
+  fireEvent.contextMenu(dong())
+  expect(await screen.findByRole('menu')).toBeTruthy()
 })

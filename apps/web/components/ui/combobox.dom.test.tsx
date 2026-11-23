@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import type { MucChon } from '@/bang'
 import { Combobox, ComboboxPanel } from './combobox'
+import { nutXoaTrongO } from './control-styles'
 import { Dialog, DialogContent, DialogTitle } from './dialog'
 import { DsRoot } from './ds-root'
 
@@ -320,4 +321,14 @@ test('ComboboxPanel tinh (mặt nằm sẵn trên trang): KHÔNG scrollIntoView 
   } finally {
     Element.prototype.scrollIntoView = goc
   }
+})
+
+test('nút ✕ dùng chung hằng nutXoaTrongO (control-styles) với TimeInput', () => {
+  render(
+    <DsRoot>
+      <ChonTinh />
+    </DsRoot>,
+  )
+  const cls = screen.getByRole('button', { name: 'Bỏ chọn Hà Nội' }).className.split(' ')
+  expect(nutXoaTrongO.split(' ').every((c) => cls.includes(c))).toBe(true)
 })

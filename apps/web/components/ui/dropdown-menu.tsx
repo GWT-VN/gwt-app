@@ -240,7 +240,7 @@ function DropdownMenuSeparator({ className, ...props }: ComponentProps<typeof Dr
  * `.ui-menu-shortcut`. Chữ phím nằm trong tên đọc của mục — như bản chữ.
  */
 function DropdownMenuShortcut({ className, phim, ...props }: ComponentProps<'span'> & { phim?: string[] }) {
-  if (phim) return <PhimKbd phim={phim} className={className} {...props} />
+  if (phim) return <PhimKbd data-slot="dropdown-menu-shortcut" phim={phim} className={className} {...props} />
   return <span data-slot="dropdown-menu-shortcut" className={cn(menuShortcut, className)} {...props} />
 }
 

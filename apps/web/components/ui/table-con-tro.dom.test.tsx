@@ -74,10 +74,10 @@ describe('TableRow — dòng đang trỏ', () => {
 })
 
 /** Bảng 5 dòng nối chọn-bằng-bấm của bang/ (KhungChon → useDaChon().bamDong). */
-function BangBam() {
+function BangBam({ bat = true }: { bat?: boolean }) {
   const ma = ['a', 'b', 'c', 'd', 'e']
   return (
-    <KhungChon khoaTrang={ma} tong={ma.length} bat thamSo={{}}>
+    <KhungChon khoaTrang={ma} tong={ma.length} bat={bat} thamSo={{}}>
       <Table>
         <TableBody>
           {ma.map((m) => (
@@ -111,6 +111,14 @@ describe('KhungChon — chọn bằng bấm dòng (Ctrl/⌘, ⇧)', () => {
     expect(daChon()).toEqual(['b', 'c', 'd'])
     fireEvent.click(dong('c'), { metaKey: true })
     expect(daChon()).toEqual(['b', 'd'])
+  })
+
+  test('bat=false (không có ô chọn): Ctrl / ⇧ + bấm KHÔNG chọn dòng nào', () => {
+    render(<BangBam bat={false} />)
+    fireEvent.click(dong('b'), { ctrlKey: true })
+    fireEvent.click(dong('d'), { shiftKey: true })
+    fireEvent.click(dong('e'), { metaKey: true, shiftKey: true })
+    expect(daChon()).toEqual([])
   })
 
   test('tick ô chọn của dòng cũng đặt neo cho ⇧ + bấm', () => {

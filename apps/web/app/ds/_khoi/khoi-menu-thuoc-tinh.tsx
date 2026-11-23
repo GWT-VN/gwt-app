@@ -292,7 +292,7 @@ function BangMenuThuocTinh() {
   const xongPhim = useCallback(() => setMo((m) => (m?.quaPhim ? { ...m, quaPhim: false } : m)), [])
 
   /** Đổi một trường cho các dòng đích + toast "Hoàn tác" khôi phục đúng giá trị cũ của TỪNG dòng. */
-  function doiTruong<K extends 'trangThai' | 'nguoiLam' | 'uuTien' | 'nhan' | 'han'>(dich: string[], k: K, moi: (t: Ticket) => Ticket[K], chu: string) {
+  function doiTruong<K extends 'trangThai' | 'nguoiLam' | 'uuTien' | 'han'>(dich: string[], k: K, moi: (t: Ticket) => Ticket[K], chu: string) {
     const cu = Object.fromEntries(ds.filter((t) => dich.includes(t.ma)).map((t) => [t.ma, t[k]])) as Record<string, Ticket[K]>
     setDs((d) => d.map((t) => (dich.includes(t.ma) ? { ...t, [k]: moi(t) } : t)))
     thongBao.xong(chu, { hoanTac: () => setDs((d) => d.map((t) => (t.ma in cu ? { ...t, [k]: cu[t.ma] } : t))) })
@@ -306,12 +306,22 @@ function BangMenuThuocTinh() {
       uuTien: (v) => doiTruong(dich, 'uuTien', () => v, `Đã đổi ưu tiên ${ten} → ${UU_TIEN.find((x) => x.id === v)?.ten}`),
       nhan: (id, them) => {
         const n = NHAN.find((x) => x.id === id)?.ten
-        doiTruong(
-          dich,
-          'nhan',
-          (t) => (them ? [...new Set([...t.nhan, id])] : t.nhan.filter((x) => x !== id)),
-          them ? `Đã thêm nhãn ${n} cho ${ten}` : `Đã gỡ nhãn ${n} khỏi ${ten}`,
-        )
+        // Nhãn là TẬP, không chụp cả mảng như doiTruong: Hoàn tác chỉ đảo đúng nhãn `id` trên các dòng ĐỔI THẬT — thao
+        // tác nhãn khác làm sau vẫn giữ. Gỡ → nhớ vị trí cũ để Hoàn tác trả nhãn về đúng chỗ (-1 = dòng chưa có → thêm cuối).
+        const viTri = new Map(ds.filter((t) => dich.includes(t.ma) && t.nhan.includes(id) !== them).map((t) => [t.ma, t.nhan.indexOf(id)]))
+        const dat = (co: boolean) =>
+          setDs((d) =>
+            d.map((t) => {
+              if (!viTri.has(t.ma) || t.nhan.includes(id) === co) return t
+              if (!co) return { ...t, nhan: t.nhan.filter((x) => x !== id) }
+              const i = viTri.get(t.ma)!
+              const nhan = [...t.nhan]
+              nhan.splice(i < 0 ? nhan.length : i, 0, id)
+              return { ...t, nhan }
+            }),
+          )
+        dat(them)
+        thongBao.xong(them ? `Đã thêm nhãn ${n} cho ${ten}` : `Đã gỡ nhãn ${n} khỏi ${ten}`, { hoanTac: () => dat(!them) })
       },
       han: () => {
         diHan.current = { ma, dich }
@@ -337,8 +347,13 @@ function BangMenuThuocTinh() {
     if (!a || a === document.body || !a.isConnected || a.closest('[role="menu"]')) focusDong(ma)
   }
 
-  /** Phím trong menu đang mở: S/A/P/L nhảy sang menu con, ⇧D = Đặt hạn. Ô tìm (Người làm) giữ phím để gõ. */
+  /**
+   * Phím trong menu đang mở: S/A/P/L nhảy sang menu con, ⇧D = Đặt hạn. Chỉ phím trong CHÍNH khung menu cha: sự kiện React
+   * nổi qua portal nên capture ở khung cha chạy TRƯỚC menu con — phím ở menu con (gõ vào ô tìm Người làm từ một mục) là
+   * của menu con. Ô tìm giữ phím để gõ.
+   */
   function phimTrongMenu(e: KeyboardEvent, m: Mo) {
+    if ((e.target as Element).closest('[role="menu"]') !== e.currentTarget) return
     const k = phimMuc({ ...e, isComposing: e.nativeEvent.isComposing, keyCode: e.nativeEvent.keyCode })
     if (!k || laOGo(e.target as Element)) return
     e.preventDefault()

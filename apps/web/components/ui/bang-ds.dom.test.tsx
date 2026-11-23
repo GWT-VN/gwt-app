@@ -438,3 +438,31 @@ describe('OTimKiem — ô tìm', () => {
     expect(screen.getByRole('textbox', { name: 'Tìm ticket' }).getAttribute('placeholder')).toBe('Gõ mã ticket…')
   })
 })
+
+describe('ô chọn dòng của bang/ trong bảng DS thường (GIAO_DIEN_DS)', () => {
+  test('th/td ô chọn mang sẵn bộ căn ô tick (top 0, lưới khối) — không cần màn tự vá', () => {
+    const { container } = render(
+      <Ds>
+        <KhungChon khoaTrang={['a']} tong={1} bat thamSo={{}}>
+          <table>
+            <thead>
+              <tr>
+                <OChonTatCa />
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <OChonDong khoa="a" />
+              </tr>
+            </tbody>
+          </table>
+        </KhungChon>
+      </Ds>,
+    )
+    for (const o of [container.querySelector('th')!, container.querySelector('td')!]) {
+      const cls = o.className.split(' ')
+      expect(cls).toContain('[&>input[type=checkbox]]:top-0')
+      expect(cls).toContain('[&>input[type=checkbox]]:grid')
+    }
+  })
+})

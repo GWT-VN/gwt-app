@@ -3,6 +3,7 @@ import type { GiaoDienBang } from '@/bang/giaoDien'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from './button-variants'
 import { controlOutline } from './control-styles'
+import { oTick as canOTick } from './table-styles'
 
 /**
  * GIAO_DIEN_DS — bộ class DS cho gói `bang/` (bơm qua `CauHinhBangDs`), chép từ ds/nguon/bundle.css:
@@ -130,8 +131,10 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   // Chọn dòng + BulkActionBar
   // Khung nhận focus khi thanh hàng loạt biến mất mà trang không có ô "chọn hết trang" → vòng ring thấy được (WCAG 2.4.7).
   chon_khung: cn(kv, 'flex flex-col gap-4 rounded-(--radius-md) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ring)'),
-  chon_oTh: cn(th, 'w-10 pr-0'),
-  chon_oTd: cn(kv, 'h-(--control-size-xl) w-10 pl-(--control-gutter-md) pr-0 border-b border-solid border-(--border)'),
+  // `canOTick` (table-styles): ô tick con trực tiếp của ô → top 0 + lưới khối, tâm ô tick đúng tâm dòng (bản inline có
+  // top 1px thấp hơn chữ 2–3px). Mọi màn dùng bảng thường có sẵn, không vá riêng.
+  chon_oTh: cn(th, 'w-10 pr-0', canOTick),
+  chon_oTd: cn(kv, 'h-(--control-size-xl) w-10 pl-(--control-gutter-md) pr-0 border-b border-solid border-(--border)', canOTick),
   chon_checkbox: oTick,
   // `.ui-bulkbar`: nổi giữa đáy (cách 24), z 55 (thang z NGUON), pill đệm 4/4/4/16, nền + chữ primary-solid, shadow-400,
   // hiện trượt lên 8px trong 180ms (starting-style thay keyframes — không đụng CSS dùng chung). ≤640: sát hai mép 16,

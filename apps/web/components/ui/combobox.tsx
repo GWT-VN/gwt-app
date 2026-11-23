@@ -13,7 +13,7 @@ import { Command, CommandInput, CommandItem, CommandList } from './command'
 import * as cs from './command-styles'
 import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { selectTrigger, selectValue } from './control-styles'
+import { nutXoaTrongO, selectTrigger, selectValue } from './control-styles'
 import { Spinner } from './spinner'
 import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
 
@@ -114,12 +114,7 @@ export function Combobox({
               nutRef.current?.focus()
             }}
             // Phải = gutter 12 + icon 16 + gap 8 = 36 → right-9 (9 × --spacing). Nút 20, icon 14 muted, rê → foreground.
-            className={cn(
-              'absolute right-9 top-1/2 -translate-y-1/2 inline-flex size-5 items-center justify-center rounded-sm',
-              'border-none border-current bg-transparent text-muted-foreground hover:text-foreground cursor-pointer',
-              '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
-              '[&>svg]:size-3.5',
-            )}
+            className={cn(nutXoaTrongO, 'right-9')}
           >
             <X aria-hidden="true" />
           </button>

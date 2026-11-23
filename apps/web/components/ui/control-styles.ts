@@ -96,3 +96,14 @@ export const selectTriggerSize = 'data-[size=sm]:h-(--control-size-sm) data-[siz
 
 /** `.ui-select-value`: một dòng, cắt bằng dấu ba chấm. */
 export const selectValue = 'min-w-0 truncate border-none border-current'
+
+/**
+ * Nút ✕ nhỏ đặt TRONG ô (bỏ chọn Combobox, "Xoá giờ" TimeInput): 20, giữa dọc, icon 14 muted, rê → foreground, vòng focus
+ * ring khi focus phím. Bên gọi tự thêm mép phải (lề theo ô của mình).
+ */
+export const nutXoaTrongO = cn(
+  'absolute top-1/2 -translate-y-1/2 inline-flex size-5 items-center justify-center rounded-sm',
+  'border-none border-current bg-transparent text-muted-foreground hover:text-foreground cursor-pointer',
+  '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-ring',
+  '[&>svg]:size-3.5',
+)

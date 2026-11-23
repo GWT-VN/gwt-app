@@ -156,7 +156,8 @@ test('Shortcut phim={[⇧, D]} → nhóm 2 <kbd>; không truyền phim thì gi�
   await moBangPhim()
   const han = muc('Đặt hạn…')
   expect([...han.querySelectorAll('[data-slot="kbd"]')].map((k) => k.textContent)).toEqual(['⇧', 'D'])
-  expect(han.querySelector('[data-slot="kbd-group"]')).not.toBeNull()
+  // nhóm Kbd mang data-slot của họ (shadcn) — không phải kbd-group
+  expect(han.querySelectorAll('[data-slot="dropdown-menu-shortcut"] [data-slot="kbd"]')).toHaveLength(2)
   const pl = muc('Phân loại')
   expect(pl.querySelectorAll('[data-slot="kbd"]')).toHaveLength(0)
   expect(pl.querySelector('[data-slot="dropdown-menu-shortcut"]')?.textContent).toBe('Enter')
@@ -265,7 +266,7 @@ test('ContextMenu đủ bộ: Group, Sub (→ mở, ✓ ở giá trị), Checkbo
   const loi = await screen.findByRole('menuitemcheckbox', { name: 'Lỗi' })
   expect(loi.getAttribute('aria-checked')).toBe('mixed')
   expect(loi.querySelector('svg')?.getAttribute('data-chi-bao')).toBe('mot-phan')
-  expect([...screen.getByRole('menuitem', { name: /^Đặt hạn/ }).querySelectorAll('[data-slot="kbd"]')].map((k) => k.textContent)).toEqual(['⇧', 'D'])
+  expect([...screen.getByRole('menuitem', { name: /^Đặt hạn/ }).querySelectorAll('[data-slot="context-menu-shortcut"] [data-slot="kbd"]')].map((k) => k.textContent)).toEqual(['⇧', 'D'])
   fireEvent.click(loi)
   expect(onNhan).toHaveBeenCalledWith(true)
 })

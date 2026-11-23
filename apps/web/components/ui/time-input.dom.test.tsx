@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { DsRoot } from './ds-root'
+import { nutXoaTrongO } from './control-styles'
 import { TimeInput } from './time-input'
 
 function Gio({ dau = null, onDoi }: { dau?: string | null; onDoi?: (g: string | null) => void }) {
@@ -149,4 +150,34 @@ test('placeholder truyền vào hiện ở ô trống', () => {
     </DsRoot>,
   )
   expect(o().placeholder).toBe('17:30')
+})
+
+test('bấm ✕ "Xoá giờ" bằng phím → focus về ô gõ (không rơi về body), danh sách gợi ý KHÔNG bung; gõ tiếp mới mở', async () => {
+  const user = userEvent.setup()
+  const onDoi = vi.fn()
+  render(
+    <DsRoot>
+      <Gio dau="09:00" onDoi={onDoi} />
+    </DsRoot>,
+  )
+  const x = screen.getByRole('button', { name: 'Xoá giờ' })
+  x.focus()
+  await user.keyboard('{Enter}')
+  expect(onDoi).toHaveBeenLastCalledWith(null)
+  expect(screen.queryByRole('button', { name: 'Xoá giờ' })).toBeNull()
+  expect(document.activeElement).toBe(o())
+  expect(o().getAttribute('aria-expanded')).toBe('false')
+  expect(screen.queryByRole('listbox')).toBeNull()
+  await user.keyboard('1')
+  expect(o().getAttribute('aria-expanded')).toBe('true')
+})
+
+test('nút ✕ dùng chung hằng nutXoaTrongO (control-styles) với Combobox', () => {
+  render(
+    <DsRoot>
+      <Gio dau="09:00" />
+    </DsRoot>,
+  )
+  const cls = screen.getByRole('button', { name: 'Xoá giờ' }).className.split(' ')
+  expect(nutXoaTrongO.split(' ').every((c) => cls.includes(c))).toBe(true)
 })
