@@ -17,3 +17,14 @@ shadcn `Dialog` / `AlertDialog` theo token dialog của OpenAI: rộng tối đa
 - Nút ✕ (ghost icon-sm) cách mép trên/phải 19px: tâm nút thẳng tâm dòng tiêu đề (padding 20 + (26 − 28) / 2). Hộp có ✕ → tiêu đề chừa lề phải 36px (chữ dài xuống dòng, cách ✕ 9px, không chạy dưới ✕); AlertDialog/ConfirmDialog không ✕ → tiêu đề trọn bề ngang.
 - Focus vào nút an toàn (Huỷ) khi mở; khoá focus trong dialog; Esc/overlay đóng (AlertDialog: overlay KHÔNG đóng).
 - Loading: nút chính hiện spinner, khoá cả hai nút đến khi xong; lỗi server hiện `Alert` danger trong thân, không đóng dialog.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- **Đổi tên prop:** `DialogContent showClose` → **`showCloseButton`** (mặc định `true`, nút ✕ như trên).
+- Export đủ bộ shadcn + phần GWT: `Dialog`, `DialogTrigger`, `DialogPortal`, `DialogOverlay`, `DialogContent`, `DialogHeader`, `DialogFooter`, `DialogTitle`, `DialogDescription`, `DialogClose` + `DialogBody` (GWT, `.ui-dialog-body` cách phần trên 16px).
+- `DialogHeader` mới: chỉ bọc tiêu đề + mô tả, không thêm khoảng cách (bọc hay không ra cùng số đo); luôn căn trái (shadcn căn giữa trên điện thoại — không chép).
+- `DialogFooter showCloseButton` (mặc định `false`): thêm nút `outline` "Đóng" cuối footer.
+- `DialogPortal` mặc định vào ô portal của `DsRoot` (truyền `container` để đổi); ngoài `DsRoot` không render.
+- `data-slot` mới: `dialog-portal`, `dialog-header`; nút ✕ mang `data-slot="dialog-close"`.
+- Không có hiệu ứng zoom/fade của shadcn — giữ chuyển động `ui-dialog-len` của artifact. Hình thức giữ nguyên.
+- AlertDialog: xem mục cùng tên trong README `ConfirmDialog`.

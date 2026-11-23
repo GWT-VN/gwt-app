@@ -22,3 +22,12 @@ Thông báo ngắn sau một thao tác — **18/11/2026**, bổ sung **lỗi** v
 **a11y:** thành công / đang chạy đọc qua vùng `aria-live="polite"` của toaster (Sonner) — không gắn thêm `role="status"` (lồng hai vùng là đọc hai lần); lỗi `role="alert"`; thanh tiến độ `role="progressbar"` có `aria-valuenow`. Rê chuột **hoặc focus phím** vào toast thì dừng hẹn giờ (WCAG 2.2.1); toast bị gỡ khi đang chứa focus → focus về phần tử trước đó. Thanh thao tác hàng loạt đang hiện → toast tự lên 124px (≤767px: 236px).
 **Code:** `sonner` (shadcn Sonner) — `toast.success(chu, { action: { label: 'Hoàn tác', onClick }, duration: 5000 })`, `toast.error(..., { duration: Infinity })`, `toast.loading(...)` → `toast.success(..., { id })`; giao diện chỉnh theo bảng trên.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/phanhoi` (`apps/web/app/prototype/phanhoi/_ph/PhanHoiDemo.tsx`); CSS ở khối `BỔ SUNG DS PHẢN HỒI` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- File đổi `toast.tsx` → `sonner.tsx` (R22): import `@/components/ui/sonner`. Khối /ds và cổng so khớp giữ tên **Toast**.
+- `Toaster` nhận mọi prop của Sonner (`ToasterProps`, truyền vào đè mặc định: `position`, `offset`, z 56…); vẫn đặt MỘT cái trong `<DsRoot>`.
+- Thay dòng **Code** ở trên: toast DS gọi qua `thongBao.xong(chu, { hoanTac })` · `thongBao.loi(chu, { thuLai })` · `thongBao.dangChay(chu, { tienDo })` · `thongBao.dong(id)` (vẽ bằng `toast.custom`), không gọi thẳng `toast.success/error/loading`.
+- Gọi thẳng `toast('…')` của Sonner → kiểu mặc định Sonner, đã gán token viên thuốc (nền/chữ primary-solid, bo pill qua `--normal-*`, `--border-radius`) và icon Phosphor (CheckCircle, Info, Warning, XCircle, Spinner).
+- Không dùng `next-themes` như shadcn: theme do DsRoot đặt.
+- Vòng xoay "đang chạy" mang `aria-hidden`.

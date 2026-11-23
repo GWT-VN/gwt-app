@@ -1,6 +1,6 @@
 Dòng mốc nhỏ chen giữa luồng tin: mốc ngày, sự kiện hệ thống, trạng thái.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`marker.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`marker.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026).
 
 | Biến thể | Hình | Token |
 | --- | --- | --- |

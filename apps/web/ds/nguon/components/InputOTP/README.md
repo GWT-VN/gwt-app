@@ -1,6 +1,6 @@
 Ô nhập **mã một lần** (OTP) — mỗi chữ số một ô, dán cả mã hoặc điện thoại tự điền từ SMS.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`input-otp.tsx` @45bbf9b, MIT) trên thư viện `input-otp` 1.5.0 (MIT), thêm ở Đợt 4 chép shadcn (21/11/2026). Token mượn ô nhập (`.ui-input` của `bundle.css`, chuỗi `controlOutline`).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`input-otp.tsx` @45bbf9b, MIT) trên thư viện `input-otp` 1.5.0 (MIT), thêm ở Đợt 4 chép shadcn (21/11/2026). Token mượn ô nhập (`.ui-input` của `bundle.css`, chuỗi `controlOutline`).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

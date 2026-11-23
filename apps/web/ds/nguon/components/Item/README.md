@@ -1,6 +1,6 @@
 Một dòng nội dung: ô media (icon/ảnh) · tiêu đề + mô tả · thao tác bên phải — thông báo, việc trong ngày, tệp, dòng cài đặt.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`item.tsx` @45bbf9b, MIT), thêm ở Đợt 5 chép shadcn (21/11/2026). Ô icon lấy token ô xem trước tệp `.ui-file-thumb` của `bundle.css`.
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`item.tsx` @45bbf9b, MIT), thêm ở Đợt 5 chép shadcn (21/11/2026). Ô icon lấy token ô xem trước tệp `.ui-file-thumb` của `bundle.css`.
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

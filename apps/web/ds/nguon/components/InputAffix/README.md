@@ -18,3 +18,14 @@
 
 **Code:** shadcn `InputGroup` (`InputGroupInput` + `InputGroupAddon align="inline-end"`); số thập phân/âm thì `react-number-format` nếu cần số thập phân/âm — **chưa cài**, chỉ thêm khi thật cần.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/prototype/form/_form/FormDemo.tsx`); CSS ở khối `BỔ SUNG DS FORM` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- File đổi `input-affix.tsx` → `input-group.tsx` (R22): import `@/components/ui/input-group`. Khối /ds và cổng so khớp giữ tên **InputAffix**.
+- `InputGroupAddon` mặc định đổi `align="inline-end"` → `"inline-start"` (theo shadcn): đơn vị đứng sau số phải ghi rõ `align="inline-end"`. Đặt trước số = `align="inline-start"` (bảng trên ghi `data-side="start"` theo class artifact).
+- `InputGroupAddon` nay là `div role="group"` và KHÔNG tự `aria-hidden`: đơn vị trang trí tự thêm `aria-hidden="true"`; addon chứa nút thì không ẩn. Thay chữ "`pointer-events: none`" ở bảng trên: addon nhận chuột, bấm vào addon (ngoài nút) đưa con trỏ vào ô.
+- `InputGroup` mang `role="group"`; bấm lề khung → focus ô (input hoặc textarea).
+- Mới: `InputGroupButton` (Button `ghost`, `type="button"`, `size` `xs` 24 mặc định · `sm` 28 · `icon-xs` · `icon-sm`), `InputGroupText` (chữ kèm 14/20 tertiary), `InputGroupTextarea` (cao tối thiểu 80, đệm dọc 6, khung cao tự do); `align="block-start" | "block-end"` → addon trên/dưới ô, khung thành cột.
+- Addon có icon đầu cách chữ 8; nút sát mép khung 4.
+- Viền khung (`controlOutlineWithin`) xét cả `textarea` con trực tiếp cho hover/lỗi/tắt.
+- Giữ: `InputGroupInput` (`data-align="end"`, `tabular-nums` theo `inputMode`), `OTien` (hành vi ô tiền không đổi). Lệch shadcn: khung cao 32 lề 12, addon không đệm riêng, chữ 400 tertiary.

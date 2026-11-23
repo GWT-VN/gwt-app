@@ -14,3 +14,12 @@ shadcn `Select` cho danh sách ≤ 10 mục: trigger như Input (chữ medium) v
 | Disabled item | | `color-text-disabled` |
 
 Hover/focus/lỗi/disabled của trigger giống hệt `Input`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `select.tsx` đủ 10 phần shadcn: thêm `SelectLabel` (tên nhóm trong `SelectGroup`, 12/18 600 muted), `SelectScrollUpButton` / `SelectScrollDownButton` (SelectContent tự gắn, chỉ hiện khi danh sách dài hơn chỗ trống). Tên export cũ không đổi.
+- `SelectTrigger size` mới: `default` 32 · `sm` 28 (lề 10) → `data-size`.
+- ✓ mục đang chọn nằm trong ô `data-slot="select-item-indicator"` rộng 16 luôn chiếm chỗ bên phải → chọn/bỏ chọn không xô chữ.
+- Lệch shadcn giữ: `SelectContent` mặc định `position="popper"` + `align="start"` (shadcn `item-aligned`) → pop luôn dưới trigger; đệm ở khung (`--menu-gutter`), không ở Viewport.
+- Giữ: mục `disabled` theo Radix (mờ, ↑/↓ bỏ qua); mở bằng chuột thì ẩn vòng focus mục tới phím đầu tiên.
+- `NativeSelect` mới (README NativeSelect): `<select>` gốc cùng diện mạo trigger, cùng `size`.

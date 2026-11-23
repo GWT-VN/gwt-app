@@ -40,3 +40,14 @@ Rail là `nav` ("Khu"), icon là `button` có `aria-label` + `aria-current` khi 
 
 ## Chưa chốt
 Nội dung thẻ chat Bắp; logo GWT thật (đang chữ "GWT").
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `KhungApp` (phương án F) giữ API và bố cục, chưa dựng lại trên khung shadcn. Thay dòng **Code** đầu tiên ở trên: rail + panel + dock là bố cục riêng, không phải `Sidebar collapsible="icon"`.
+- Tooltip icon khu / "Tất cả khu" / "Quản trị" dùng `TooltipNhanh` (R20), cạnh phải cách 8 — hình như cũ.
+- Ngăn kéo ≤767px: `SheetContent showCloseButton={false}` (Sheet nay có ✕ mặc định) — vẫn đúng một nút "Đóng menu".
+- Mới cùng file `sidebar.tsx`: khung shadcn `Sidebar*` đủ 24 phần + `useSidebar` (SidebarProvider, Sidebar, SidebarTrigger, SidebarRail, SidebarInset, SidebarHeader / Content / Footer, SidebarGroup*, SidebarMenu*, SidebarInput, SidebarSeparator) cho màn cần thanh bên kiểu thường.
+- `SidebarProvider`: `defaultOpen` / `open` / `onOpenChange`, nhớ trạng thái bằng cookie `sidebar_state` (7 ngày), Ctrl/⌘B bật tắt (bỏ qua khi bộ gõ đang ghép, kèm Alt/Shift).
+- `Sidebar`: `side` left|right, `variant` sidebar|floating|inset, `collapsible` offcanvas (mặc định)|icon|none; ≤767px thành Sheet rộng 288.
+- `SidebarMenuButton`: `isActive` (hoặc `aria-current="page"`), `variant` default|outline, `size` default 32 · sm 28 · lg 48, `tooltip` chỉ hiện khi đang thu icon.
+- Số theo `.ui-sidebar*`: rộng 256 (thu icon 48), nền `--sidebar`, viền `--sidebar-border`, mục cao 32 đệm 0 8 bo md 14/20, rê/đang chọn `--sidebar-accent`; z khung 45 / rail 46.

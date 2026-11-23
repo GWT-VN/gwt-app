@@ -34,3 +34,8 @@ shadcn `Card` mặc áo OpenAI: bề mặt nhóm một cụm nội dung — vi�
   </CardFooter>
 </Card>
 ```
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `CardHeader` có class `border-b` → tự đệm dưới 16px; `CardFooter` có `border-t` → tự đệm trên 16px (shadcn chừa 24px).
+- Còn lại giữ nguyên: export, `data-slot`, số đo và hình thức như bảng trên.

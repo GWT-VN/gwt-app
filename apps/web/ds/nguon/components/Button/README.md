@@ -35,3 +35,10 @@ Không nên: hai nút `default` cạnh nhau; dùng `destructive` cho hành độ
 
 ## Bổ sung 18/11/2026 — trạng thái bật
 Nút `ghost` có `aria-pressed="true"` (toggle), `aria-checked="true"` (radio trong ToggleGroup) hoặc `aria-expanded="true"` (đang mở menu) → nền `accent`. Dùng cho thanh công cụ màn dữ liệu (⚙, dạng xem, thẻ xem nhanh). Nút chỉ icon kèm `Tooltip`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `size` thêm 3 giá trị shadcn (artifact chưa có, nối thang token): `xs` (cao `control-size-2xs` 24px, chữ 12px, icon `control-icon-size-xs`), `icon-xs` (vuông 24px), `icon-lg` (vuông `control-size-lg` 36px). Bảng `size` ở trên chưa có ba dòng này.
+- `shape="rounded"`: `xs`/`icon-xs` bo `radius-sm` như `sm`; `icon-lg` bo `radius-md` như `icon`.
+- `variant`, mặc định (`default`/`default`/`pill`), `asChild`, `loading`, `data-slot="button"` + `data-variant`/`data-size`/`data-shape` giữ nguyên. `shape` và `loading` là phần GWT thêm (R19).
+- Spinner khi `loading` mang `aria-hidden` — trình đọc màn hình chỉ dựa vào `aria-busy` của nút.

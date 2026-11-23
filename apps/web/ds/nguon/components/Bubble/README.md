@@ -1,6 +1,6 @@
 Bong bóng nội dung của một tin chat, kèm dải cảm xúc; bấm được khi là nút/link.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`bubble.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`bubble.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026).
 
 | Biến thể | Nền | Chữ |
 | --- | --- | --- |

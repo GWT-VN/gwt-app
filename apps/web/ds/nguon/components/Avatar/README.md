@@ -9,3 +9,11 @@ Avatar chữ cái cho người phụ trách (chủ ticket, người làm…) —
 | Bo | `radius-full` | |
 
 **Code:** shadcn `Avatar` + `AvatarFallback` (chữ cái); khi có ảnh dùng `AvatarImage`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `size` thêm `lg` (shadcn; artifact chưa có): 28px (`control-size-sm`), chữ 12px. `default` 22px và `sm` 20px giữ nguyên.
+- Thêm `AvatarBadge` (chấm trạng thái góc dưới phải, nền `primary`, viền nền 2px; cỡ 6/8/10px theo `size` của Avatar, `sm` ẩn icon bên trong).
+- Thêm `AvatarGroup` (chồng nhau lề âm 6px, mỗi avatar viền nền 2px, nền avatar được phủ đặc để chữ avatar dưới không lộ) và `AvatarGroupCount` (ô "+N" cuối nhóm, cỡ theo avatar trong nhóm).
+- `data-slot` mới: `avatar-badge`, `avatar-group`, `avatar-group-count`; Root có `data-size` và chặn chọn chữ (`select-none`).
+- `chuCaiDau(ten)` (lấy 1–2 chữ cái, bỏ "anh/chị/em") là phần GWT; export giữ tên `Avatar`, `AvatarImage`, `AvatarFallback`, `chuCaiDau`.

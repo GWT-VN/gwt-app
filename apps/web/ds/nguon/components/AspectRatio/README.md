@@ -1,6 +1,6 @@
 Khung giữ đúng tỉ lệ rộng / cao cho ảnh, video, bản đồ — bề ngang đổi thì chiều cao đổi theo.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`aspect-ratio.tsx` @45bbf9b, MIT) trên Radix AspectRatio, thêm ở Đợt 5 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`aspect-ratio.tsx` @45bbf9b, MIT) trên Radix AspectRatio, thêm ở Đợt 5 chép shadcn (21/11/2026).
 
 | Phần | Nguồn | Giá trị |
 | --- | --- | --- |

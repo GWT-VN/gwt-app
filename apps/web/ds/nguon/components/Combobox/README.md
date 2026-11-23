@@ -18,3 +18,12 @@ Luật cứng của GWT (`docs/CHUAN-FILTER.md`, chốt 22/08/2026): danh sách 
 - Rỗng: "Không có mục nào khớp "…"". Chưa đủ ký tự (tìm xa): "Gõ thêm — cần ít nhất 2 ký tự để tìm". Đang tải: spinner + "Đang tìm…".
 
 **Bàn phím:** trigger là nút thường, tên đọc = **nhãn + giá trị đang chọn** (qua `aria-labelledby`). ↑/↓ di chuyển, Enter chọn, Esc đóng và trả focus về trigger; ô tìm có `role="combobox"`, `aria-controls`, `aria-activedescendant`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- API và hình giữ nguyên (`Combobox`, `ComboboxPanel`, prop như cũ).
+- Ruột dựng lại trên `Command` của DS (`command.tsx`, cmdk 1.1.1 — README Command) thay cmdk trần. `data-slot` đổi: gốc `command`, hàng tìm `command-input-wrapper` (trước `combobox-search`), ô `command-input`, danh sách `command-list`, mục `command-item`.
+- R21: không dùng Combobox của shadcn new-york-v4 (dựng trên `@base-ui/react`, chưa cài) → chưa có chọn nhiều dạng chip; hỏi lại khi màn nghiệp vụ cần.
+- Pop thêm `w-auto` (bỏ `w-72` mà `PopoverContent` nay mặc định).
+- Vòng xoay "Đang tìm…" mang `aria-hidden` (chữ đi kèm đã đọc).
+- Bẫy cmdk (kéo cửa sổ lúc mount, `aria-activedescendant` khi lọc ngoài) ghi ở đầu `command.tsx`.

@@ -17,3 +17,10 @@ Công tắc bật/tắt — **mới 18/11/2026**, cùng màu "đã chọn" với
 
 **Code:** shadcn `Switch` (Radix) — `h-[18px] w-8`, thumb `size-3.5`, `data-[state=checked]:bg-primary`.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/prototype/form/_form/FormDemo.tsx`); CSS ở khối `BỔ SUNG DS FORM` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- Prop mới `size` (shadcn, `data-size`): `default` = rãnh 32×18, núm 14 (như cũ) · `sm` = rãnh 24×14, núm 10, trượt 10 (artifact chưa có cỡ nhỏ).
+- Nút mang `peer` + `group/switch`.
+- Không đổi: hàng cài đặt (`ui-switch-row`), thứ tự `aria-describedby` (câu lỗi trước, mô tả hàng sau), màu, chuyển động.
+- Thay dòng **Bàn phím & a11y** ở trên: công tắc là nút Radix `role="switch"` (không phải `input type="checkbox"`); Space/Enter bật tắt.

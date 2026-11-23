@@ -1,6 +1,6 @@
 Băng chuyền: lướt ngang (hoặc dọc) qua một dãy thẻ/ảnh, có nút trước/sau và phím ←/→.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`carousel.tsx` @45bbf9b, MIT) trên Embla Carousel 8.6.0, thêm ở Đợt 8 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`carousel.tsx` @45bbf9b, MIT) trên Embla Carousel 8.6.0, thêm ở Đợt 8 chép shadcn (21/11/2026).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

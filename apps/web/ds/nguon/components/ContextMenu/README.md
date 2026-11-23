@@ -18,7 +18,7 @@ Nhãn: mã bản ghi · **Mở ticket** · **Xem nhanh bên phải** (tự bật
 
 ## Menu con · phím tắt · một phần
 
-> Thêm ở repo 20/11, **chưa có trong artifact** — nguồn là prototype menu thuộc tính CEO duyệt (`app/prototype/menu-thuoc-tinh`). Mỗi họ menu (DropdownMenu, ContextMenu, Menubar) là file riêng theo khung shadcn new-york-v4; phần không phụ thuộc primitive (ô tìm, nhóm Kbd, tự focus menu con) dùng chung ở `menu-them.tsx` nên hành vi giống hệt.
+> Thêm ở repo 20/11, lên artifact 23/11 — nguồn là prototype menu thuộc tính CEO duyệt (`app/prototype/menu-thuoc-tinh`). Mỗi họ menu (DropdownMenu, ContextMenu, Menubar) là file riêng theo khung shadcn new-york-v4; phần không phụ thuộc primitive (ô tìm, nhóm Kbd, tự focus menu con) dùng chung ở `menu-them.tsx` nên hành vi giống hệt.
 
 | Phần | Code | Giá trị |
 | --- | --- | --- |
@@ -31,3 +31,12 @@ Nhãn: mã bản ghi · **Mở ticket** · **Xem nhanh bên phải** (tự bật
 Bàn phím: → mở menu con và focus mục đang ✓ (có ô tìm thì focus ô), ← đóng về mục cha, Esc đóng hết và trả focus về chỗ mở. Menu con có ô tìm: gõ chữ ở mục cha (menu con đang mở) hay ở mục bất kỳ → chữ vào ô, không nhảy theo chữ đầu; ↓ trong ô sang mục đầu, ↑ ở mục đầu về ô; Enter chọn khi chỉ còn 1 mục; IME đang ghép không chốt.
 
 Đang mở: khổ điện thoại kiểu "drill-in" (menu con thay chỗ menu cha) — v1 chỉ bảo đảm không tràn ngang; menu con lật sang trái vẫn hiện ▸.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `context-menu.tsx` chép theo shadcn new-york-v4: đủ 15 phần, `data-slot="context-menu-*"`. Trước chỉ có Root/Trigger/Content/Item/Label/Separator; nay thêm `ContextMenuCheckboxItem`, `ContextMenuRadioGroup`, `ContextMenuRadioItem`, `ContextMenuShortcut`, `ContextMenuGroup`, `ContextMenuPortal`, `ContextMenuSub`, `ContextMenuSubTrigger`, `ContextMenuSubContent`; `MenuTimKiem` import được từ `context-menu`.
+- Checkbox/Radio (✓ / – bên phải, `checked="indeterminate"`), Shortcut `phim`, menu con, ô tìm: cùng hành vi và hình với DropdownMenu (dùng chung `menu-styles.ts` + `menu-them.tsx`).
+- Prop mới `inset` trên Item, Label, SubTrigger — đệm trái 30px như DropdownMenu.
+- `disabled` trên Item/CheckboxItem/RadioItem theo APG như DropdownMenu (vẫn focus được, không kích hoạt).
+- Giữ phần GWT: không modal, đóng khi cuộn; Shift+F10 / phím Menu neo dưới mép trái dòng + focus mục đầu; chuột phải / nhấn giữ trong ô nhập giữ menu trình duyệt; `disabled` trên Trigger; Content mặc định `side="bottom"`, rộng 220, hiện 120ms; dòng đang mở nền `alpha-05`.
+- Dòng `data-ds-menu-trigger` ↔ khung `data-trigger-id` giữ: hộp mở từ menu đóng xong focus về dòng.

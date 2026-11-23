@@ -11,6 +11,14 @@ Bản 35 (CEO chốt 20/11, "theo đề xuất"): chữ `.ui-avatar` `gray-600` 
 dòng tiêu đề: padding 20 + (26 − 28) / 2; dùng chung Dialog + Sheet); `@media (max-width: 640px) { .ui-sheet { width: 100% } }`
 (artifact khớp code, bỏ 7 `lyDo` width@390 ở `so-khop/sheet.json`). Không preview.html nào đổi.
 
+Bản 48 (23/11, CEO: "check code xong cập nhật lại lên artifact"): đợt chép khung shadcn lên artifact — 28 component mới
+(README + `preview.html`), mục cuối "Đổi khi chép khung shadcn" ở 31 README cũ, README dự án thêm mục "Đợt chép khung
+shadcn" + quyết định mở 14–17. **Preview của 28 component mới là ảnh chụp DOM thật** của khối `/ds/tron` (không vẽ tay
+`ui-*`), stylesheet Tailwind đã lọc theo class dùng ở `components/v2.css` (sha256 `9b4e403f614050ea07f097686a8de38a07a2ad76022b44988eb0647a00aac6f3`; bỏ biến trùng tên
+token của artifact để `tokens.css` của artifact quyết định sáng/tối). Sinh lại bằng script chụp CDP (bản dùng ở phiên
+23/11 nằm ngoài repo) — đừng sửa tay; cổng so khớp không cần cho 28 cái này vì preview = code. File trong `nguon/` trùng
+byte với bản 48.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
@@ -373,7 +381,7 @@ NVDA/JAWS (chưa thử máy đọc thật).
 
 ### Đang mở
 
-- Đồng bộ README, preview và cổng cho các component mới lên artifact sau khi duyệt DS trên `/ds`.
+- ~~Đồng bộ README, preview cho component mới lên artifact~~ — xong bản 48 (23/11). Script chụp preview chưa đưa vào `ds/`.
 - Chốt token biểu đồ `--chart-1` đến `--chart-5`, Combobox Base UI, Form dùng react-hook-form và zod, menu con kiểu drill-in.
 
 ## Tương phản — chấp nhận có chủ đích

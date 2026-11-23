@@ -1,6 +1,6 @@
 Thanh kéo chọn **một số hoặc một khoảng số** khi con số gần đúng là đủ (lọc khoảng giá, ngưỡng cảnh báo).
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`slider.tsx` @45bbf9b, MIT) trên Radix Slider, thêm ở Đợt 4 chép shadcn (21/11/2026). Token mượn Switch (`.ui-switch` của `bundle.css`).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`slider.tsx` @45bbf9b, MIT) trên Radix Slider, thêm ở Đợt 4 chép shadcn (21/11/2026). Token mượn Switch (`.ui-switch` của `bundle.css`).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 Thẻ một tệp/ảnh đính kèm — ô media, tên + thông tin phụ, thao tác (bỏ, thử lại), trạng thái tải. Dùng cho tệp đính kèm ticket, Composer, tin nhắn; `AttachmentGroup` xếp nhiều thẻ thành hàng cuộn ngang.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`attachment.tsx` @45bbf9b, MIT; tài liệu `components/radix/attachment.mdx`), thêm ở Đợt 5 chép shadcn (21/11/2026). Token lấy dòng tệp `.ui-file*` của `bundle.css` (FileUpload).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`attachment.tsx` @45bbf9b, MIT; tài liệu `components/radix/attachment.mdx`), thêm ở Đợt 5 chép shadcn (21/11/2026). Token lấy dòng tệp `.ui-file*` của `bundle.css` (FileUpload).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

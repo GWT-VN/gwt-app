@@ -1,6 +1,6 @@
 Thanh link ngang có mục mở bảng con (mega menu) — cho trang nội dung (wiki, hướng dẫn); điều hướng chính của app là Sidebar.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`navigation-menu.tsx` @45bbf9b, MIT) trên Radix NavigationMenu, thêm ở
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`navigation-menu.tsx` @45bbf9b, MIT) trên Radix NavigationMenu, thêm ở
 Đợt 6 chép shadcn (21/11/2026).
 
 | Phần | Nguồn | Token gán |

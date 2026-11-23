@@ -10,3 +10,10 @@
 **a11y:** bọc `<nav aria-label="Đường dẫn">`; mục cuối không phải liên kết.
 **Code:** shadcn `Breadcrumb` (`BreadcrumbList/Item/Link/Page/Separator`) — đổi separator thành "/" và class theo bảng trên.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/chitiet` (`apps/web/app/prototype/chitiet/_ct/ChiTietDemo.tsx`); CSS ở khối `BỔ SUNG DS TRANG CHI TIẾT` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- Thêm `BreadcrumbSeparator` (shadcn): `<li role="presentation" aria-hidden>`, mặc định "/" màu `color-text-tertiary`, icon con 14px. Chỉ dùng khi cần dấu khác "/" hoặc icon.
+- Thêm `BreadcrumbEllipsis` (shadcn): ô 32px, icon "…" 16px, chữ ẩn "Thêm" — thu gọn mục giữa, bọc trong nút mở menu.
+- Mặc định vẫn không cần `BreadcrumbSeparator`: dấu "/" vẽ bằng `::before`, nay chỉ ở mục đứng ngay sau một mục; mục đứng sau `BreadcrumbSeparator` không vẽ thêm. Thay vế "đổi separator thành '/'" ở dòng **Code:** trên.
+- `data-slot` mới: `breadcrumb-separator`, `breadcrumb-ellipsis`. Các phần cũ (`Breadcrumb`, `BreadcrumbList`, `BreadcrumbItem`, `BreadcrumbLink` có `asChild`, `BreadcrumbPage`) giữ tên và hình thức.

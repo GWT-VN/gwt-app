@@ -1,6 +1,6 @@
 Chia vùng có vạch kéo đổi cỡ — danh sách + xem nhanh, trang chi tiết nhiều cột.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`resizable.tsx` @45bbf9b, MIT) trên `react-resizable-panels` 4.24.1,
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`resizable.tsx` @45bbf9b, MIT) trên `react-resizable-panels` 4.24.1,
 thêm ở Đợt 6 chép shadcn (21/11/2026).
 
 | Phần | Nguồn | Ghi chú |

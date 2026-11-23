@@ -64,6 +64,11 @@ export const TAI_LIEU: Record<string, { tieuDe: string; muc: string[] }> = {
   'tuong-phan': { tieuDe: 'Độ tương phản đã đo', muc: ['Độ tương phản đã đo'] },
   gwt: {
     tieuDe: 'Riêng GWT',
-    muc: ['Phần mở rộng riêng của GWT', 'Tích hợp vào gwt-app (rework/v2.0.0)', 'Quyết định còn mở'],
+    muc: [
+      'Phần mở rộng riêng của GWT',
+      'Tích hợp vào gwt-app (rework/v2.0.0)',
+      'Đợt chép khung shadcn (21–23/11/2026)',
+      'Quyết định còn mở',
+    ],
   },
 }

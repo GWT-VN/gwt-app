@@ -1,6 +1,6 @@
 Nhiều mục mở/thu xếp dọc: câu hỏi thường gặp, thông số máy, nhóm cài đặt dài.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`accordion.tsx` @45bbf9b, MIT) trên Radix Accordion, thêm ở Đợt 5 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`accordion.tsx` @45bbf9b, MIT) trên Radix Accordion, thêm ở Đợt 5 chép shadcn (21/11/2026).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

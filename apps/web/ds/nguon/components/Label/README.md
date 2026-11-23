@@ -1,6 +1,6 @@
 Nhãn chung cho ô nhập, ô chọn, công tắc — bấm nhãn đưa focus vào ô.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`label.tsx` @45bbf9b, MIT), thêm ở Đợt 0 chép shadcn (21/11/2026). Token lấy từ `.ui-label` của `bundle.css`.
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`label.tsx` @45bbf9b, MIT), thêm ở Đợt 0 chép shadcn (21/11/2026). Token lấy từ `.ui-label` của `bundle.css`.
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

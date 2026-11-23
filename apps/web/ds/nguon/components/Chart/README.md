@@ -1,6 +1,6 @@
 Khung biểu đồ: màu chuỗi theo cấu hình, chữ trục, lưới, tooltip, chú giải — biểu đồ vẽ bằng Recharts bên trong.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`chart.tsx` @45bbf9b, MIT) trên Recharts 3.8.0 (bản registry shadcn ghim), thêm ở Đợt 8 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`chart.tsx` @45bbf9b, MIT) trên Recharts 3.8.0 (bản registry shadcn ghim), thêm ở Đợt 8 chép shadcn (21/11/2026).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

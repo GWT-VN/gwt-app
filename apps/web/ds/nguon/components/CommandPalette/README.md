@@ -15,3 +15,12 @@
 **a11y:** mẫu APG combobox + listbox: ô gõ `role="combobox"` `aria-activedescendant`; số kết quả đọc qua vùng `role="status"`; câu "không thấy" nằm ngoài listbox.
 **Code:** shadcn `CommandDialog` (`cmdk`) — tắt lọc sẵn của cmdk (`shouldFilter={false}`), dùng hàm khớp không dấu của dự án; giao diện theo bảng trên.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/toanapp` (`apps/web/app/prototype/toanapp/_ta/ToanAppDemo.tsx`, `khung/_proto/TimToanCuc.tsx`); CSS ở khối `BỔ SUNG DS TOÀN APP` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- API và hình giữ nguyên (`CommandPalette open onOpenChange onChon onHoiBap`, `CommandPanel tinh`, `usePhimMoLenh`).
+- Thay dòng **Code** ở trên: không dùng thẳng `CommandDialog`; ghép `Dialog` / `DialogContent` của DS (`showCloseButton={false}`, `DialogTitle` sr-only "Tìm toàn cục") + `Command*` của `command.tsx` — vì cần điều khiển gốc Command (`value`, lọc ngoài, `loop`).
+- Hộp qua `DialogContent` DS: portal vào DsRoot, nền mờ `overlay`, z-70, đóng xong trả focus về nút mở — như trước, chỉ không tự dựng Radix Dialog.
+- `data-slot` đổi: khung hàng gõ `command-input-wrapper` (trước là `command-input`), ô gõ `command-input`; danh sách `command-list`, nhóm `command-group`, dòng `command-item`.
+- `Command` / `CommandDialog` thành component DS riêng (README Command): mặc định cỡ gọn `.ui-menu*`; CommandPalette phủ `.ui-command-*` lên qua `className`.
+- `CommandInput` (GWT) nhận `children` đuôi hàng (Kbd "Esc") và `wrapperClassName`.

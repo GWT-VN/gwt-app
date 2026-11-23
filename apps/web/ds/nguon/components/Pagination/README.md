@@ -15,3 +15,12 @@ Chân bảng phân trang — **mới 18/11/2026**, đặt trong `ui-table-foot` 
 
 **Code thật:** logic đã có trong gói `apps/web/bang/` — chỉ truyền bộ class DS vào `giaoDien` của `<CauHinhBang>` (xem bảng "Khoá giaoDien"), **không viết lại logic**. Component: `PhanTrang` (giữ mọi tham số URL khác, chỉ đổi `trang`; cần `Suspense`).
 Prototype: nhánh `prototype/v2-khung`, `/prototype/bang?variant=B` — `apps/web/app/prototype/bang/_bang/chung.tsx` (`ThanhDangLoc`, `ChanTrang`, `ThanhHangLoat`, `LuuLoc`); CSS ở khối `BỔ SUNG DS XEM DỮ LIỆU` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- Chân bảng vẫn dùng `PhanTrang` của `bang/` như trên — không đổi.
+- File mới `components/ui/pagination.tsx` = `Pagination` của shadcn, cho chỗ cần nhảy thẳng tới số trang (danh sách bài wiki, kết quả tìm), không dùng cho bảng dữ liệu.
+- Export: `Pagination` (`<nav aria-label="Phân trang">`), `PaginationContent`, `PaginationItem`, `PaginationLink`, `PaginationPrevious`, `PaginationNext`, `PaginationEllipsis`; `data-slot` cùng tên kiểu `pagination-*`.
+- `PaginationLink` là thẻ `<a>`: `isActive` → nút `outline` + `aria-current="page"`, trang khác `ghost`; `size` theo Button, mặc định `icon` (32×32, bo pill).
+- `PaginationPrevious`/`PaginationNext`: chữ "Trước"/"Sau" (ẩn dưới 640px, còn mũi tên), `aria-label` "Về trang trước"/"Tới trang sau". Trang đầu/cuối → không render nút đó (link không `disabled` được) — khác chân bảng giữ nút tắt.
+- `PaginationEllipsis`: ô "…" vuông 32px.

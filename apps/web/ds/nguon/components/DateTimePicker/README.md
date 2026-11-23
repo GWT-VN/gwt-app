@@ -1,6 +1,6 @@
 Chọn **ngày, giờ tuỳ chọn** (hạn xử lý, giờ hẹn) — gõ hoặc chọn lịch, chỉ lưu khi bấm Xong.
 
-**Chưa có trong artifact** — nguồn là prototype `/prototype/chon-gio?variant=A4`, CEO duyệt 20/11/2026; thêm ở repo lát 7. Giá trị hai dạng: **có giờ** = ISO có múi `2026-11-25T14:30:00+07:00`, hiện **dd/MM/yyyy · HH:mm** (ô bảng **dd/MM HH:mm**); **chỉ ngày** = `2026-11-25` (không giờ, không múi), hiện **dd/MM/yyyy** (ô bảng **dd/MM**).
+**Lên artifact 23/11/2026** — nguồn là prototype `/prototype/chon-gio?variant=A4`, CEO duyệt 20/11/2026; thêm ở repo lát 7. Giá trị hai dạng: **có giờ** = ISO có múi `2026-11-25T14:30:00+07:00`, hiện **dd/MM/yyyy · HH:mm** (ô bảng **dd/MM HH:mm**); **chỉ ngày** = `2026-11-25` (không giờ, không múi), hiện **dd/MM/yyyy** (ô bảng **dd/MM**).
 
 **Cách dùng đã chốt (CEO 20/11, sửa 22/11):** lịch ở trên, hai ô gõ **[ngày] [giờ]** ngay **dưới lịch**, trên chân pop — đồng bộ hai chiều với lịch; chân pop **Xoá** (trái) · **Huỷ** + **Xong** (phải). **Chỉ lưu khi Xong** (hoặc Enter ở ô ngày / ô giờ). Huỷ / Esc / bấm ra ngoài = bỏ nháp; mở lại luôn thấy giá trị đang lưu. Xoá có hiệu lực ngay.
 

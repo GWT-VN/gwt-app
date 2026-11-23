@@ -1,6 +1,6 @@
 Một vùng mở/thu đi kèm nút bấm (xem thêm thông số, ghi chú kỹ thuật).
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`collapsible.tsx` @45bbf9b, MIT) trên Radix Collapsible, thêm ở Đợt 5 chép shadcn (21/11/2026). Không có class/token: hình dáng do phần tử bên trong quyết định.
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`collapsible.tsx` @45bbf9b, MIT) trên Radix Collapsible, thêm ở Đợt 5 chép shadcn (21/11/2026). Không có class/token: hình dáng do phần tử bên trong quyết định.
 
 | Phần | Nguồn | Ghi chú |
 | --- | --- | --- |

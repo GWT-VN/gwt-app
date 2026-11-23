@@ -1,6 +1,6 @@
 Lưới tháng để chọn một ngày hoặc một khoảng ngày — lõi của DatePicker, DateRangePicker, DateTimePicker.
 
-**Chưa có trong artifact riêng** (lịch nằm trong DatePicker/DateRangePicker — cổng so khớp đo lịch qua hai khối đó) — khung shadcn new-york-v4 (`calendar.tsx` @45bbf9b, MIT) trên react-day-picker **10.0.2** (shadcn viết cho v9), chép ở Đợt 7 chép shadcn (21/11/2026). Token `.ui-cal*` của `bundle.css`.
+**Lên artifact 23/11/2026** (lịch nằm trong DatePicker/DateRangePicker — cổng so khớp đo lịch qua hai khối đó) — khung shadcn new-york-v4 (`calendar.tsx` @45bbf9b, MIT) trên react-day-picker **10.0.2** (shadcn viết cho v9), chép ở Đợt 7 chép shadcn (21/11/2026). Token `.ui-cal*` của `bundle.css`.
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

@@ -16,3 +16,12 @@ Hộp hỏi lại trước một việc **không lùi được** (xoá, gộp, �
 **a11y:** `role="alertdialog"`, `aria-labelledby` tiêu đề, `aria-describedby` mô tả; bẫy focus; đóng xong trả focus về nút đã mở.
 **Code:** shadcn `AlertDialog` (Radix) — prototype dùng thẻ `<dialog>` gốc + `showModal()` chỉ để minh hoạ.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/phanhoi` (`apps/web/app/prototype/phanhoi/_ph/PhanHoiDemo.tsx`); CSS ở khối `BỔ SUNG DS PHẢN HỒI` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `ConfirmDialog` (mẫu ghép GWT) giữ nguyên prop và hành vi; bên trong nay ghép đúng phần shadcn: `AlertDialogHeader` (`AlertDialogMedia` icon + tiêu đề + mô tả) → `AlertDialogBody` → `AlertDialogFooter`. Nút xác nhận vẫn là `Button` thường (chờ được Promise), không phải `AlertDialogAction`.
+- `data-slot` của biểu tượng đổi `confirm-dialog-icon` → `alert-dialog-media`; thêm `alert-dialog-header`.
+- **AlertDialog (`alert-dialog.tsx`) đổi API:** `AlertDialogAction` và `AlertDialogCancel` nay tự vẽ `Button` như shadcn — Action mặc định `variant="default"`, Cancel `variant="outline"`, nhận `variant`/`size`. Không bọc `<Button>` bằng `asChild` nữa: viết `<AlertDialogCancel>Huỷ</AlertDialogCancel>`.
+- `AlertDialogContent size="sm"` (mới, shadcn): rộng tối đa 320px mọi khổ, footer chia hai cột đều (Huỷ trái, hành động phải). Mặc định `default` như cũ.
+- Export mới: `AlertDialogHeader`, `AlertDialogMedia` (tròn 40px nền `alpha-05`, như `ui-dialog-icon`; nền danger là phần GWT), `AlertDialogPortal` (mặc định vào ô của `DsRoot`), `AlertDialogOverlay`. `AlertDialogBody` là phần GWT.
+- Không có hiệu ứng zoom/fade của shadcn; header luôn căn trái như artifact. Hình thức hộp giữ nguyên.

@@ -25,3 +25,14 @@ Chọn **một ngày** — **kiểu Airbnb** (Dũng chốt 18/11/2026). Trigger 
 
 **Code:** shadcn `Popover` + `Calendar` (react-day-picker v9: `weekStartsOn={1}`, `locale={vi}`, `showOutsideDays={false}`, `disabled={{ before: today }}`) — đổi class theo bảng trên (`day` tròn 44px, `day_button:hover` viền, `selected` tròn đặc, `disabled` gạch ngang). Chưa cài react-day-picker / date-fns: thêm khi code thật. Lọc ngày ở danh sách vẫn đi `LocNgay` (URL `ngtu`/`ngden`), chỉ đổi giao diện.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/prototype/form/_form/FormDemo.tsx`); CSS ở khối `BỔ SUNG DS FORM` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `date-picker.tsx` không đổi: API và hình giữ nguyên.
+- Thay dòng **Code** ở trên: đang chạy react-day-picker **10.0.2** (đã cài, không dùng date-fns); shadcn viết cho v9.
+- `calendar.tsx` theo shadcn: export `Calendar` + `CalendarDayButton`, gốc `data-slot="calendar"`. Prop mới `buttonVariant` (biến thể Button của ‹ ›, mặc định `ghost`), `captionLayout` (mặc định `label`; dạng thả xuống chọn tháng/năm, khung viền ô nhập, "Tháng N"), `showWeekNumber` (ô số tuần 44, 12/18 muted).
+- Lệch shadcn giữ: `showOutsideDays` mặc định TẮT; bật thì ngày tháng khác chữ muted (`data-outside`). Hôm nay vẫn là chấm dưới số.
+- Cờ trên nút ngày dạng có mặt/không: `data-selected`, `data-today`, `data-outside`, `data-range-start|middle|end` (không dùng `data-selected-single` của shadcn).
+- Lớp `rdp-*` mặc định được gắn thêm để móc khi cần, không mang kiểu (DS không nạp style.css của react-day-picker).
+- `popover.tsx` theo shadcn: `PopoverContent` nay mang sẵn mặt `.ui-menu` (nền popover, bo radius-xl, bóng) + `w-72 p-4`; khung lịch truyền `className` riêng đè lên, khung không tự đặt rộng thì thêm `w-auto`. Mới: `PopoverHeader`, `PopoverTitle`, `PopoverDescription`. Giữ `align="start"`, `collisionPadding` 8, z-90.
+- DateTimePicker (README riêng) dùng chung Calendar này.

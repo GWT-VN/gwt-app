@@ -1,6 +1,6 @@
 Thanh **Menubar** — nhóm lệnh của một màn (Tệp · Sửa · Xem) thành các nút trên một thanh, mỗi nút mở một menu.
 
-**Chưa có trong artifact** — nguồn shadcn/ui `new-york-v4` @45bbf9b (MIT, Radix Menubar), thêm ở repo Đợt 1 chép shadcn (21/11/2026). Khung đúng shadcn (16 phần, cùng tên, `data-slot`, prop `inset` / `variant`); thanh + nút gán token theo class shadcn; khung menu và mục **dùng chung** `.ui-menu*` với DropdownMenu/ContextMenu (`components/ui/menu-styles.ts`) nên mục trông y hệt.
+**Lên artifact 23/11/2026** — nguồn shadcn/ui `new-york-v4` @45bbf9b (MIT, Radix Menubar), thêm ở repo Đợt 1 chép shadcn (21/11/2026). Khung đúng shadcn (16 phần, cùng tên, `data-slot`, prop `inset` / `variant`); thanh + nút gán token theo class shadcn; khung menu và mục **dùng chung** `.ui-menu*` với DropdownMenu/ContextMenu (`components/ui/menu-styles.ts`) nên mục trông y hệt.
 
 **Dùng khi** một màn có nhiều nhóm lệnh ngang hàng (soạn thảo, màn cấu hình lớn). Thao tác của MỘT bản ghi → nút ⋯ (`DropdownMenu`) hoặc chuột phải (`ContextMenu`), không phải Menubar. Hành động chính không giấu trong menu.
 **Người dùng cung cấp:** `aria-label` cho thanh, nhãn nút ngắn (một từ), mục bị chặn vì phân quyền → `disabled` kèm lý do trong nhãn, không ẩn đi.

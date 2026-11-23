@@ -1,6 +1,6 @@
 **Mẫu ghép** (pattern, không phải component mới): menu thuộc tính kiểu Linear trên bảng — đổi trạng thái, người làm, ưu tiên, nhãn, hạn của một hoặc nhiều dòng.
 
-**Chưa có trong artifact** — nguồn là prototype `/prototype/menu-thuoc-tinh`, CEO duyệt 20/11/2026; thêm ở repo lát 7. Ghép hoàn toàn từ component DS sẵn có, màn không tự ghép primitive Radix.
+**Lên artifact 23/11/2026** — nguồn là prototype `/prototype/menu-thuoc-tinh`, CEO duyệt 20/11/2026; thêm ở repo lát 7. Ghép hoàn toàn từ component DS sẵn có, màn không tự ghép primitive Radix.
 
 | Phần | Component DS | Ghi chú |
 | --- | --- | --- |

@@ -44,3 +44,13 @@ Dạng xem **Bảng** (shadcn `Table` + TanStack, dựng bằng token OpenAI —
 - Menu nhãn cột: shadcn `DropdownMenu` (Radix tự portal/lật/khử va chạm — prototype phải tự viết `Noi` vì thiếu thứ này: menu bị vùng cuộn cắt).
 - Logic lọc/sắp: gói `apps/web/bang/` (`TieuDeCotSapXep`…), chuẩn `docs/CHUAN-FILTER.md`.
 - Prototype: nhánh `prototype/v2-khung`, `apps/web/app/prototype/bang/_bang/``PhuongAn.tsx` (`BangCot`, `COT`, `ManTicket`) + `chung.tsx` (`DauCot`, `useBang`, `Noi`) + `bang.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- Mới `TableCaption`: chú thích dưới bảng, 14/20 muted, cách trên 16 (bảng `caption-bottom`).
+- `Table` đứng ngoài `TableWrap` tự bọc `div[data-slot=table-container]` cuộn ngang, thanh cuộn ẩn (như shadcn); nằm trong `TableWrap` thì không bọc thêm (giữ tiêu đề dính).
+- Căn ô tick: Checkbox DS hoặc `input type=checkbox` của `bang/` là con TRỰC TIẾP của `th`/`td` → bỏ độ dời 1px, tâm ô tick đúng tâm dòng (trước thấp hơn chữ 2–3px). Ô tick trong nhóm flex (NotificationMatrix) chỉ bỏ độ dời. Không dùng `translate-y-[2px]` của shadcn.
+- `TableRow conTro` mới → `data-con-tro`: dòng đang trỏ (phím tắt theo dòng áp vào nó), nền `alpha-04`, thắng hover, thua "đã chọn"; focus phím có vòng 2px `ring` lùi vào. Roving `tabIndex` do màn đặt; chọn nhiều Ctrl/⇧ + bấm qua `bang/ChonDong.tsx` (R16).
+- `TableRow` nhận `data-state` từ ngoài (`ContextMenuTrigger asChild`), `chon` thắng.
+- Không chép của shadcn: kẻ viền trên `tr` (DS kẻ trên ô, `border-separate`), `pr-0` cho ô checkbox.
+- Giữ: `variant` `du-lieu` / `thuong`, `layout="fixed"`, `TableWrap vien`, `BangTrangThai`.

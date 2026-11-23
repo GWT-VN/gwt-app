@@ -17,3 +17,13 @@ Nếu tab gắn với URL (lọc trạng thái danh sách) thì đi theo tham s�
 
 ## Bổ sung 18/11/2026 — biến thể `pill` (kiểu ChatGPT)
 Hàng tab của màn dữ liệu (ticket, đơn…) dùng **`data-variant="pill"`**, không dùng segmented: không rãnh nền, tab cao `control-size-lg` 36px, padding 0 16px, chữ 500 `muted-foreground`; tab đang chọn nền `alpha-05`, chữ `foreground` **500** (đổi từ 600 theo prototype hiện tại), không bóng. Số đếm 12px 400 `color-text-tertiary` `tabular-nums`; `data-color="danger"` cho số cần chú ý (Quá hạn). Hàng tab dài thì cuộn ngang, không xuống dòng; khi tràn, mép phải mờ dần 40px (`mask-image`) để không cắt cụt giữa chữ. Khi code: tab không vừa gom vào nút "Thêm ▾" (chuẩn GitHub/Linear) để truy cập được bằng phím. Segmented (mặc định) giữ cho chuyển khung trong một thẻ/bảng nhỏ.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `TabsList variant` mặc định đổi tên `segmented` → `default` (shadcn), cùng hình rãnh xám + thumb; `segmented` vẫn nhận (= `default`), `pill` giữ.
+- Biến thể mới `line` (shadcn, artifact chưa có): không rãnh, tab đang chọn có vạch 2px `foreground` dưới chân (dọc: bên phải).
+- `Tabs orientation="vertical"` mới: list thành cột, tab giãn hết ngang chữ dồn trái, panel đứng cạnh cách 12 (không đệm trên). Ngang: gốc là flex cột.
+- Export thêm `tabsListVariants` (cva). `TabsContent` thêm `flex-1`; `TabsCount` có kiểu cho `line`; `thuGon` (nút "Thêm ▾") giữ.
+- `toggle-group.tsx` chép lại: `Toggle` tách sang `toggle.tsx` (README Toggle) — đổi đường import.
+- ToggleGroup `variant` / `size` nay theo `toggleVariants`: `default` (= ghost) · `outline`; `default` 32 · `sm` 28 · `lg` 36 · GWT `icon` · `icon-sm`. Mặc định `default`/`default` — trước là Button `ghost`/`icon` → nút chỉ icon phải truyền `size="icon"`. Đặt ở nhóm thì truyền xuống mục.
+- ToggleGroup prop mới `spacing` (bội 4px): `0` mặc định = các mục dính liền, chỉ mục đầu/cuối bo; trước cách 2px — muốn như cũ truyền `spacing={0.5}`.

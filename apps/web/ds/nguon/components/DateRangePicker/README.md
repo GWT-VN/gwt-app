@@ -20,3 +20,9 @@ Chọn **khoảng ngày** — **kiểu Airbnb** (Dũng chốt 18/11/2026), dựn
 
 **Code:** shadcn `Calendar mode="range" numberOfMonths={2}` (`range_start`/`range_end` tròn đặc + nửa dải, `range_middle` dải `alpha-05`) + đầu bảng và chip tự làm; URL lọc vẫn `ngtu`/`ngden` như `LocNgay`.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/prototype/form/_form/FormDemo.tsx`); CSS ở khối `BỔ SUNG DS FORM` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `date-range-picker.tsx` không đổi: API và hình giữ nguyên.
+- Calendar và Popover bên dưới đổi theo shadcn — xem mục cùng tên trong README DatePicker (react-day-picker 10.0.2, `buttonVariant`, `captionLayout`, `PopoverContent` mang sẵn mặt menu).
+- Dải khoảng: Calendar không tô ở `td` như shadcn; DateRangePicker tự truyền `classNames` `range_*` như dòng **Code** ở trên, nút ngày mang `data-range-start|middle|end` (cả lúc rê xem trước).

@@ -1,6 +1,6 @@
 Nút bật/tắt một tuỳ chọn (Toggle) và nhóm nút chọn một / chọn nhiều (ToggleGroup) — dạng xem, thẻ xem nhanh, định dạng chữ.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`toggle.tsx` + `toggle-group.tsx` @45bbf9b, MIT) trên Radix Toggle /
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`toggle.tsx` + `toggle-group.tsx` @45bbf9b, MIT) trên Radix Toggle /
 ToggleGroup, tách khỏi `toggle-group.tsx` cũ ở Đợt 6 chép shadcn (21/11/2026). Giá trị lấy từ `.ui-btn` (Toggle = nút công cụ
 của DataViewToolbar), ở `components/ui/toggle-styles.ts`.
 

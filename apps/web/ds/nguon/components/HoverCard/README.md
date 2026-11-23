@@ -1,6 +1,6 @@
 shadcn `HoverCard` (thẻ xem nhanh khi rê chuột) cho mã khách, mã đơn, mã máy trong bảng/danh sách: rê vào mã → thẻ tóm tắt, không phải mở trang.
 
-> **Chưa có trong artifact — nguồn shadcn new-york-v4** (`registry/new-york-v4/ui/hover-card.tsx` @45bbf9b, MIT; Radix HoverCard). Giá trị gán theo token mặt nổi của Popover/menu. Khi artifact có HoverCard thì chép bản artifact đè file này và dựng cổng so khớp.
+> **Lên artifact 23/11/2026 — nguồn shadcn new-york-v4** (`registry/new-york-v4/ui/hover-card.tsx` @45bbf9b, MIT; Radix HoverCard). Giá trị gán theo token mặt nổi của Popover/menu. Khi artifact có HoverCard thì chép bản artifact đè file này và dựng cổng so khớp.
 
 **Dùng khi** cần xem thêm vài dòng về một mã mà không rời chỗ đang làm. Thẻ chỉ chứa thông tin THÊM: Radix không cho Tab vào thẻ và trình đọc màn hình bỏ qua nó. Cần bấm/chọn trong thẻ → `Popover`. Chỉ một câu mô tả → `Tooltip`.
 

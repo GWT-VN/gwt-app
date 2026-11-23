@@ -24,3 +24,9 @@ Rộng 400px (tối đa 100vw − 32); dòng 1 14px, dòng 2–3 12/16 `muted-fo
 - shadcn `Popover` + `Command` (cmdk) — tìm phía server khi bảng khách lớn (debounce, giới hạn N, nói rõ khi cắt bớt — xem `Combobox`).
 - Dữ liệu từ bảng khách dùng chung (`customers`, khoá `customer_code`) — đọc `GWT-SHARED/SYSTEM.md` trước khi nối.
 - Prototype: nhánh `prototype/v2-khung`, `apps/web/app/prototype/bang/_bang/``PhuongAn.tsx` (`MenuKhach`, `DS_KHACH` — dữ liệu giả).
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- API và hình giữ nguyên.
+- Ruột dựng trên `Command` / `CommandInput` / `CommandList` / `CommandItem` của DS (`command.tsx`, R21) thay cmdk trần; `data-slot` `record-picker`, `record-picker-search`, `record-picker-ds` giữ (`CommandInput wrapperSlot`).
+- Vòng xoay "Đang tìm…" mang `aria-hidden` (chữ đi kèm đã đọc).

@@ -1,6 +1,6 @@
 Cụm nút liền nhau cho các lệnh cùng nhóm (lưu nháp / xem trước / gửi duyệt, thu phóng, chuyển trang).
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`button-group.tsx` @45bbf9b, MIT), thêm ở Đợt 5 chép shadcn (21/11/2026). Nút bên trong là `Button` của DS — token theo Button.
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`button-group.tsx` @45bbf9b, MIT), thêm ở Đợt 5 chép shadcn (21/11/2026). Nút bên trong là `Button` của DS — token theo Button.
 
 | Phần | Nguồn | Giá trị |
 | --- | --- | --- |

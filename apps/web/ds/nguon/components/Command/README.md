@@ -1,6 +1,6 @@
 Danh sách lệnh có ô gõ để lọc, đi bằng ↑/↓ và Enter — nền cho CommandPalette, Combobox và ô tìm trong pop.
 
-**Chưa có trong artifact riêng** — nguồn shadcn new-york-v4 (`command.tsx` @45bbf9b, MIT) trên cmdk 1.1.1, thêm ở Đợt 7 chép shadcn (21/11/2026). Token mượn `.ui-menu*` (cỡ gọn) và `.ui-command-*` (CommandDialog, CommandPalette) của `bundle.css`.
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`command.tsx` @45bbf9b, MIT) trên cmdk 1.1.1, thêm ở Đợt 7 chép shadcn (21/11/2026). Token mượn `.ui-menu*` (cỡ gọn) và `.ui-command-*` (CommandDialog, CommandPalette) của `bundle.css`.
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

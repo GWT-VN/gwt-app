@@ -1,6 +1,6 @@
 shadcn `Drawer` (ngăn kéo vuốt được, `vaul`) cho thao tác ngắn trên điện thoại: chọn nhanh một mục, xác nhận gọn — kéo xuống để đóng.
 
-> **Chưa có trong artifact — nguồn shadcn new-york-v4** (`registry/new-york-v4/ui/drawer.tsx` @45bbf9b, MIT; bản Radix dùng `vaul` 1.1.2). Giá trị gán theo token Dialog/Sheet của DS. Khi artifact có Drawer thì chép bản artifact đè file này và dựng cổng so khớp.
+> **Lên artifact 23/11/2026 — nguồn shadcn new-york-v4** (`registry/new-york-v4/ui/drawer.tsx` @45bbf9b, MIT; bản Radix dùng `vaul` 1.1.2). Giá trị gán theo token Dialog/Sheet của DS. Khi artifact có Drawer thì chép bản artifact đè file này và dựng cổng so khớp.
 
 **Dùng khi** màn điện thoại cần một lựa chọn/hành động ngắn mà không rời trang. Máy bàn hoặc form dài → `Dialog`; bộ lọc nhiều trường → `Sheet`.
 

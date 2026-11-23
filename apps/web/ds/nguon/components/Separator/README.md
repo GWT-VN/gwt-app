@@ -1,6 +1,6 @@
 Vạch ngăn 1px giữa hai phần nội dung, ngang hoặc dọc.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`separator.tsx` @45bbf9b, MIT), thêm ở Đợt 0 chép shadcn (21/11/2026). Màu lấy token `--border` (cùng màu `.ui-menu-sep` và viền thẻ của `bundle.css`).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`separator.tsx` @45bbf9b, MIT), thêm ở Đợt 0 chép shadcn (21/11/2026). Màu lấy token `--border` (cùng màu `.ui-menu-sep` và viền thẻ của `bundle.css`).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

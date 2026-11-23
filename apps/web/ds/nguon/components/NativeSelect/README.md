@@ -1,6 +1,6 @@
 Ô chọn **gốc của trình duyệt** (`<select>`) mặc diện mạo Select — cho form đơn giản ≤ 10 mục.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`native-select.tsx` @45bbf9b, MIT), thêm ở Đợt 4 chép shadcn (21/11/2026). Token lấy từ `.ui-select-trigger` của `bundle.css` (chuỗi `selectTrigger` dùng chung với Select).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`native-select.tsx` @45bbf9b, MIT), thêm ở Đợt 4 chép shadcn (21/11/2026). Token lấy từ `.ui-select-trigger` của `bundle.css` (chuỗi `selectTrigger` dùng chung với Select).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

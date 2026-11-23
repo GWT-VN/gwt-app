@@ -1,6 +1,6 @@
 Vùng cuộn có thanh cuộn tự vẽ, giống nhau trên Windows/macOS (danh sách dài trong khung cố định, hàng thẻ cuộn ngang).
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`scroll-area.tsx` @45bbf9b, MIT) trên Radix ScrollArea, thêm ở Đợt 5 chép shadcn (21/11/2026).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`scroll-area.tsx` @45bbf9b, MIT) trên Radix ScrollArea, thêm ở Đợt 5 chép shadcn (21/11/2026).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

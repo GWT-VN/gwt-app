@@ -1,6 +1,6 @@
 Một lượt nói trong khung chat (ảnh đại diện + bong bóng + tên/giờ), và khung cuộn danh sách tin `MessageScroller`.
 
-**Chưa có trong artifact** — nguồn shadcn new-york-v4 (`message.tsx`, `message-scroller.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026). `MessageScroller` dựng trên `@shadcn/react` 0.3.1 (primitive shadcn tự viết, không phải Radix; đòi React ≥ 19).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`message.tsx`, `message-scroller.tsx` @45bbf9b, MIT), thêm ở Đợt 8 chép shadcn (21/11/2026). `MessageScroller` dựng trên `@shadcn/react` 0.3.1 (primitive shadcn tự viết, không phải Radix; đòi React ≥ 19).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

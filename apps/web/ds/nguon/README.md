@@ -170,6 +170,15 @@ Hiện trạng đã đọc: `apps/web/app/globals.css` dùng `@import "tailwindc
 4. **Trùng tên với shadcn**: cả hai hệ đều sinh `--color-border` và `--color-ring` trong Tailwind. Trong `@theme inline` giữ `--color-border: var(--border)`, `--color-ring: var(--ring)` và gán `--border`, `--ring` bằng GIÁ TRỊ OpenAI (`light-dark(var(--alpha-10), var(--alpha-12))`, `light-dark(var(--blue-500), var(--blue-400))`) — không viết `--border: var(--color-border)` (tạo vòng tham chiếu).
 5. Bỏ luật ép viền `slate-200` toàn app khi khu đã chuyển; khu chưa chuyển giữ nguyên — đổi theo từng khu như cách khu Việc đang bọc `[data-khu]`.
 
+## Đợt chép khung shadcn (21–23/11/2026)
+
+Code thật (`apps/web/components/ui/`) đã chép lại theo shadcn/ui **new-york-v4 @45bbf9b** (MIT, nhánh Radix) rồi gán token của trang này: giữ đúng tên export, prop, `data-slot` của shadcn; `variant`/`size` theo shadcn là chính, phần GWT (`color`, phím tắt, ô tìm trong menu…) cộng thêm. Ghi công: `apps/web/components/ui/THIRD-PARTY-NOTICES.md`.
+
+- **28 component mới** (README + preview): HoverCard, Label, Separator, ButtonGroup, Item, Menubar, Drawer, Slider, NativeSelect, Calendar, DateTimePicker (+ TimeInput), InputOTP, Toggle, NavigationMenu, Attachment, Progress, Command, Accordion, Collapsible, ScrollArea, AspectRatio, Resizable, Chart, Carousel, Message, Bubble, Marker và mẫu ghép **Menu thuộc tính** (`MenuThuocTinh` — menu con, phím tắt theo dòng, chọn nhiều, Hoàn tác).
+- **Preview của 28 component này là ảnh chụp DOM thật** của khối `/ds` (Tailwind đã biên dịch, gom ở `components/v2.css`), không phải lớp `ui-*` vẽ tay: mặt tĩnh, bấm không chạy logic. Component cũ giữ preview `ui-*` như trước.
+- **Component cũ đổi API** khi chép khung: mỗi README có mục cuối "Đổi khi chép khung shadcn". Điểm dễ sai nhất khi dựng màn: Badge mặc định nay là `variant="default"` (nền đậm) — nhãn trạng thái phải ghi `variant="soft"`; Dialog/Sheet `showClose` → `showCloseButton`; `<Tooltip content>` → `TooltipNhanh`; Toast gọi qua `thongBao.*` (file `sonner.tsx`); InputAffix → `input-group.tsx`; Tabs `segmented` → `default`.
+- **Ngày giờ (chốt 22/11):** DateTimePicker — lịch trên, ô ngày + giờ dưới, Xoá · Huỷ + Xong; chỉ lưu khi Xong/Enter; chỉ chọn ngày thì lưu `YYYY-MM-DD`, không tự gán giờ.
+
 ## Quyết định còn mở
 
 | # | Việc | Đề xuất mặc định |
@@ -187,5 +196,9 @@ Hiện trạng đã đọc: `apps/web/app/globals.css` dùng `@import "tailwindc
 | 11 | Kênh Discord nhận từng loại thông báo (`NotificationMatrix`) | Chưa chốt — tên kênh trong preview là minh hoạ |
 | 12 | Mức chốt của các nhóm component | **Đã chốt 19/11: mọi thứ trên artifact bản 25** (gồm Form, Xem dữ liệu, Trang chi tiết, Phản hồi, Toàn app, Thông báo) |
 | 13 | Data view: logic gói `bang/` không có (kéo/co dãn cột, Kanban, ListView, InlineEdit, SavedView, chọn tất cả qua các trang) | **Đã chốt 19/11: chia đôi** — logic dữ liệu ở `bang/`, hành vi giao diện thành component DS mới |
+| 14 | Token biểu đồ `--chart-1` … `--chart-5` (Chart hiện gọi thẳng ramp `var(--blue-400)`… trong `config`) | Đề xuất blue-400 · orange-500 · pink-600 · purple-400 · green-600 — chờ chốt mới thêm vào `tokens.json` |
+| 15 | Combobox: giữ cmdk hay chuyển bản Combobox Base UI của shadcn | Giữ cmdk (R21) tới khi có màn cần |
+| 16 | Form: react-hook-form + zod (shadcn `Form`) | Chưa chép — dùng `FormLayout` + server action tới khi có màn cần |
+| 17 | Menu con trên điện thoại kiểu "drill-in" (thay chỗ menu cha) | Chưa làm — v1 chỉ bảo đảm không tràn ngang |
 
 

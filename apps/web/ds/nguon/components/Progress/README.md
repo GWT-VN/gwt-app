@@ -1,6 +1,6 @@
 Thanh tiến độ cho việc đang chạy có biết phần trăm (tải tệp, nhập dữ liệu, đồng bộ).
 
-**Chưa có trong artifact riêng** — nguồn shadcn new-york-v4 (`progress.tsx` @45bbf9b, MIT) trên Radix Progress, thêm ở Đợt 5 chép shadcn (21/11/2026). Token lấy `.ui-progress` của `bundle.css` (thanh tải tệp của FileUpload).
+**Lên artifact 23/11/2026** — nguồn shadcn new-york-v4 (`progress.tsx` @45bbf9b, MIT) trên Radix Progress, thêm ở Đợt 5 chép shadcn (21/11/2026). Token lấy `.ui-progress` của `bundle.css` (thanh tải tệp của FileUpload).
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |

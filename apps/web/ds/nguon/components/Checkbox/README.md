@@ -15,3 +15,10 @@ shadcn `Checkbox` theo OpenAI: ô 18px, bo 4px, viền xám, khi chọn nền `g
 - Lỗi: viền red-500 + dòng `ui-error` bên dưới (mở rộng GWT — OpenAI Checkbox không có trạng thái lỗi).
 
 ⚠️ Viền gray-200 (#cdcdcd) trên trắng = 1.6:1, dưới 3:1 của WCAG 1.4.11. Giữ đúng nguồn; xem "Quyết định còn mở".
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `checkbox.tsx` theo khung shadcn: dấu ✓ / – vẽ trên `CheckboxPrimitive.Indicator` (`data-slot="checkbox-indicator"`, luôn mount, ẩn bằng opacity) thay `::after`; số đo và màu giữ nguyên.
+- API giữ: `checked` / `checked="indeterminate"` (GWT thêm, `aria-checked="mixed"`), `ChoiceLabel`, `aria-invalid`.
+- Ô mang class `peer` → `Label` / `FieldLabel` đứng ngay sau tự mờ khi ô tắt.
+- Trong `Table`: ô tick là con trực tiếp của `th`/`td` bỏ độ dời xuống 1px, tâm ô đúng tâm dòng (trước thấp hơn chữ 2–3px) — README Table. Ngoài bảng (cạnh nhãn) vẫn lệch xuống 1px như trên.

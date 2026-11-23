@@ -11,3 +11,7 @@ Khung chờ đúng hình nội dung thật, để lúc dữ liệu về không n
 **Hành vi:** chỉ hiện khi chờ > 300ms (tránh nháy). Vùng đang tải đặt `aria-busy="true"`.
 **Code:** shadcn `Skeleton` + shadcn `Spinner` trong `Button`.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/phanhoi` (`apps/web/app/prototype/phanhoi/_ph/PhanHoiDemo.tsx`); CSS ở khối `BỔ SUNG DS PHẢN HỒI` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+Chỉ đổi cấu trúc file theo shadcn, API và hình thức giữ nguyên.

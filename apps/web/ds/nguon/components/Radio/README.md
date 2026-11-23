@@ -16,3 +16,10 @@ Radio tròn cùng họ với `Checkbox` (18px, viền `gray-200`, chọn = chấ
 
 **Code:** shadcn `RadioGroup` (Radix) — đổi `RadioGroupItem` sang class/biến ở bảng trên; hoặc giữ `<input type="radio">` thuần nếu form không cần Radix.
 Prototype: nhánh `prototype/v2-khung`, route `/prototype/form` (`apps/web/app/prototype/form/_form/FormDemo.tsx`); CSS ở khối `BỔ SUNG DS FORM` cuối `khung/_proto/ui.css`.
+
+## Đổi khi chép khung shadcn (21–23/11/2026)
+
+- `radio-group.tsx` theo khung shadcn: chấm chọn vẽ trên `RadioGroupPrimitive.Indicator` (`data-slot="radio-group-indicator"`, luôn mount, phóng 0 → 1 trong 120ms) thay `::after`; số đo, màu giữ nguyên.
+- Export `RadioGroup`, `RadioGroupItem` không đổi; item mang `peer` + `group/radio`.
+- Giữ phần GWT: `orientation="horizontal"` đặt ở `RadioGroup` (không chuyển cho Radix → cả bốn mũi tên đều chạy); bố cục `.ui-choices` cột cách 8 (shadcn lưới cách 12).
+- Thay dòng **Bàn phím & a11y** và **Code** ở trên: ô là nút Radix `role="radio"` (không phải `input type="radio"`); Radix lo Tab vào nhóm (focus mục đang chọn), mũi tên đổi lựa chọn, bỏ qua mục tắt.
