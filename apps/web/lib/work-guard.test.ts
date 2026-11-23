@@ -16,11 +16,8 @@ const doc = (p: string) =>
 // thấy chữ của việc cũ — và bản nháp bình luận còn sót có thể gửi nhầm sang việc
 // vừa mở. Bản vá là `key={mo}` ở MỌI chỗ dựng panel; test này giữ nó ở đó.
 describe('ChiTietViec — mọi chỗ dựng panel đều truyền key', () => {
-  // v2 (23/11): Việc của tôi + Bảng team dựng panel qua KhungXemViec (<XemNhanhViec>); /work/tu-sinh còn panel cũ.
-  const NOI_DUNG = [
-    ['components/work/v2/KhungXemViec.tsx', '<XemNhanhViec'],
-    ['components/work/TuSinh.tsx', '<ChiTietViec'],
-  ]
+  // v2 (23/11): mọi màn Việc (của tôi, Bảng team, Tự sinh) dựng panel qua KhungXemViec (<XemNhanhViec>).
+  const NOI_DUNG = [['components/work/v2/KhungXemViec.tsx', '<XemNhanhViec']]
 
   for (const [f, the0] of NOI_DUNG) {
     it(`${f} truyền key cho ${the0}>`, () => {
@@ -69,7 +66,7 @@ describe('/work/tu-sinh — chặn cả TRANG, không chỉ ẩn nút', () => {
 // để nói ra con số đó; dấu vân tồn tại để con số đã nói vẫn còn đúng lúc bấm.
 describe('Xoá hàng loạt — hai nhịp, có dấu vân', () => {
   const actions = doc('app/work/actions.ts')
-  const thanh = doc('components/work/ThanhHangLoat.tsx')
+  const thanh = doc('components/work/v2/HangLoat.tsx')
 
   it('có action xem trước, và nó không xoá gì', () => {
     expect(/export async function xemTruocXoa\(/.test(actions)).toBe(true)
@@ -95,11 +92,11 @@ describe('Xoá hàng loạt — hai nhịp, có dấu vân', () => {
 
   it('thanh hàng loạt không gọi thẳng xoaHangLoat khi chưa có dấu vân', () => {
     expect(
-      /xemTruoc\?\.dau_van/.test(thanh) || /xemTruoc\.dau_van/.test(thanh),
-      'ThanhHangLoat phải lấy dau_van từ kết quả xem trước.',
+      /xoaHangLoat\([^)]*dau_van/.test(thanh),
+      'Thanh hàng loạt phải nộp dau_van lấy từ kết quả xem trước.',
     ).toBe(true)
     expect(
-      /HopXacNhanXoa/.test(thanh),
+      /xemTruocXoa\(/.test(thanh) && /<ConfirmDialog/.test(thanh),
       'Nút xoá phải mở hộp xác nhận, không xoá ngay khi bấm.',
     ).toBe(true)
   })
@@ -155,8 +152,8 @@ describe('RPC khu Việc — quyền luôn hỏi hàm chung, không chép tay', 
 })
 
 // ── Panel: việc con tạo được, phụ thuộc hiện được ──────────────────────────
-describe('ChiTietViec — việc con + phụ thuộc', () => {
-  const src = doc('components/work/ChiTietViec.tsx')
+describe('Xem nhanh việc — việc con + phụ thuộc', () => {
+  const src = doc('components/work/v2/XemNhanh.tsx')
 
   it('có ô thêm việc con', () => {
     expect(/taoViecCon\(/.test(src), 'panel chưa gọi taoViecCon').toBe(true)
@@ -165,7 +162,7 @@ describe('ChiTietViec — việc con + phụ thuộc', () => {
   it('việc con tick xong được ngay tại panel', () => {
     const i = src.indexOf('ct.subtasks.map')
     expect(
-      /type="checkbox"/.test(src.slice(i, i + 1200)),
+      /<Checkbox/.test(src.slice(i, i + 1200)),
       'danh sách việc con phải có ô tick, không chỉ đọc.',
     ).toBe(true)
   })
@@ -218,15 +215,15 @@ describe('co_the_sua — watcher không được sửa', () => {
 // bằng SQL — CEO mở panel ra không thấy gì để bấm.
 describe('Phụ thuộc — thêm được từ giao diện', () => {
   it('panel có ô chọn việc chặn', () => {
-    const src = doc('components/work/ChiTietViec.tsx')
-    expect(/ChonViecChan/.test(src) && /themPhuThuoc\(/.test(src)).toBe(true)
+    const src = doc('components/work/v2/XemNhanh.tsx')
+    expect(/themPhuThuoc\(/.test(src)).toBe(true)
   })
 
   it('mục phụ thuộc hiện cả khi CHƯA có phụ thuộc nào', () => {
     // Nếu chỉ hiện khi đã có thì không bao giờ thêm được cái đầu tiên.
-    const src = doc('components/work/ChiTietViec.tsx')
+    const src = doc('components/work/v2/XemNhanh.tsx')
     expect(
-      /ct\.dang_chan\.length > 0 \|\| ct\.co_the_sua/.test(src),
+      /ct\.chan_boi\.length > 0 \|\| ct\.dang_chan\.length > 0 \|\| sua/.test(src),
       'Mục phụ thuộc phải hiện khi người dùng sửa được việc, kể cả lúc danh sách rỗng.',
     ).toBe(true)
   })

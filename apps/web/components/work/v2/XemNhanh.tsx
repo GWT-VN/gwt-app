@@ -213,9 +213,18 @@ function NoiDung({
   async function doiChinh(email: string | null) {
     const id = idCua(email)
     if (!id) throw new Error('không tìm thấy nhân sự')
+    const vaiCu = ct.assignees.find((a) => a.staff_id === id)?.role
     await chac(ganNguoi(t.id, id, 'owner'))
     // RPC upsert theo người, không tự hạ vai người chính cũ → lùi họ về Làm cùng để còn một người chính.
-    if (chinh && chinh.staff_id !== id) await chac(ganNguoi(t.id, chinh.staff_id, 'doer'))
+    if (chinh && chinh.staff_id !== id) {
+      const kq = await ganNguoi(t.id, chinh.staff_id, 'doer')
+      if (!kq.ok) {
+        // Bước 2 hỏng → trả người mới về vai cũ (hoặc bỏ ra), không để việc có 2 người chính.
+        await (vaiCu ? ganNguoi(t.id, id, vaiCu) : boNguoi(t.id, id))
+        await sau()
+        throw new Error(kq.loi)
+      }
+    }
     await sau()
   }
 

@@ -106,3 +106,17 @@ test('lỗi tải → Alert, Đóng gọi onDong', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Đóng' }))
   expect(p.onDong).toHaveBeenCalledOnce()
 })
+
+test('đổi người chính: bước hạ người cũ lỗi → trả người mới về như trước, không để 2 người chính', async () => {
+  chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
+  vi.mocked(actions.ganNguoi)
+    .mockResolvedValueOnce({ ok: true, duLieu: undefined })
+    .mockResolvedValueOnce({ ok: false, loi: 'Lỗi demo' })
+  ve()
+  await screen.findByRole('heading', { level: 2, name: 'Việc demo' })
+  await userEvent.click(screen.getByRole('button', { name: 'Sửa người chính VIEC-7' }))
+  await userEvent.click(await screen.findByRole('option', { name: /Demo Hai/ }))
+  await waitFor(() => expect(actions.boNguoi).toHaveBeenCalledWith(7, 'u2'))
+  expect(actions.ganNguoi).toHaveBeenNthCalledWith(1, 7, 'u2', 'owner')
+  expect(actions.ganNguoi).toHaveBeenNthCalledWith(2, 7, 'u1', 'doer')
+})

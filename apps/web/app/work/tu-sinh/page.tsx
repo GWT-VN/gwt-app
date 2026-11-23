@@ -1,8 +1,9 @@
-import Link from 'next/link'
+import { Suspense } from 'react'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { chanNeuThieuQuyen, quyenChoMan } from '@/lib/nen-tang/kiem-quyen'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TuSinh } from '@/components/work/v2/TuSinh'
 import { manTuSinh, nenTang } from '../actions'
-import { TuSinh } from '@/components/work/TuSinh'
 
 export const metadata = { title: 'Việc tự sinh · GWT Work' }
 
@@ -14,8 +15,8 @@ export const metadata = { title: 'Việc tự sinh · GWT Work' }
 const QUYEN_MAN = [['work.luat_tu_sinh', 'QUANLY']] as const
 
 /**
- * Sự kiện trong CSKH / Sales tự đẻ ra việc — không ai phải nhớ.
- * Bộ quét chạy dưới DB bằng pg_cron; màn này chỉ để xem và chỉnh luật.
+ * Việc tự sinh (v2, dựng bằng DS) — sự kiện trong CSKH / Sales tự đẻ ra việc, không ai phải nhớ.
+ * Bộ quét chạy dưới DB mỗi 15 phút; màn này chỉ để xem và chỉnh luật. Menu khu ở khung điều hướng.
  */
 export default async function TuSinhPage() {
   await requireNhanSu()
@@ -31,21 +32,10 @@ export default async function TuSinhPage() {
   const [duLieu, nt, quyen] = await Promise.all([manTuSinh(), nenTang(), quyenChoMan(QUYEN_MAN)])
 
   return (
-    <main data-khu="work" className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-5 py-5 sm:px-6 space-y-5 khung-trang">
-        <header>
-          <nav className="flex gap-3 mb-2" style={{ fontSize: 12.5 }} aria-label="Khu Việc">
-            <Link href="/work" style={{ color: 'var(--accent-ink)' }}>Việc của tôi</Link>
-            <Link href="/work/team" style={{ color: 'var(--accent-ink)' }}>Bảng team</Link>
-            <span style={{ color: 'var(--faint)' }}>Việc tự sinh</span>
-          </nav>
-          <h1 style={{ fontSize: 20, fontWeight: 670, letterSpacing: '-.02em', margin: 0 }}>Việc tự sinh từ ERP</h1>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
-            Sự kiện trong CSKH / Sales tự đẻ ra việc — không ai phải nhớ.
-          </p>
-        </header>
+    <ManV2>
+      <Suspense>
         <TuSinh duLieu={duLieu} nenTang={nt} duocSuaLuat={quyen['work.luat_tu_sinh'] ?? false} />
-      </div>
-    </main>
+      </Suspense>
+    </ManV2>
   )
 }
