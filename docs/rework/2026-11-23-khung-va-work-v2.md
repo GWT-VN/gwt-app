@@ -50,8 +50,12 @@ DS bổ sung trong đợt: `TrangDuLieu` (`.b-trang`), `O_TIM_PILL`, KhungApp (m
 - Gate: áp file lên DB local + gọi thử; repo CHƯA có CI `db-reset` nên chưa replay từ 0. Ledger live đã sửa version
   về đúng số hiệu file (MCP ghi giờ áp).
 - Màn: Bảng team tab "Lâu không đụng" (chưa xong · ≥ 14 ngày, cũ nhất trước) + cột "Cập nhật" (112, như canvas).
-- ⚠️ Có từ trước, chưa sửa (ngoài phạm vi): mọi RPC `work_*` cho `anon`/`authenticated` EXECUTE (advisors WARN) mà
-  danh tính lấy từ tham số `p_email` → ai có anon key gọi thẳng PostgREST là đọc/sửa việc dưới tên người khác. App chỉ
-  gọi bằng service_role → đề xuất `revoke execute … from anon, authenticated` (migration riêng, chờ duyệt).
+- **work_19 (áp live 23/11)** `20261123140724_work_19_chan_anon_rpc.sql`: thu EXECUTE của `public/anon/authenticated`
+  trên 30 RPC `public.work_*` (SECURITY DEFINER, danh tính từ tham số `p_email` → anon key công khai gọi thẳng là
+  đọc/sửa việc dưới tên người khác). Điểm danh trước khi chặn: chỉ gwt-app (`dataClient()` = service_role, cả `main`)
+  + `smoke_local.py` gọi. Kiểm live: anon `permission denied`, service_role chạy. Hàm `public.work_*` MỚI phải tự
+  revoke trong file migration — `lib/work-guard.test.ts` canh.
+- Advisors còn 7 hàm khác khu (`cap_ma_kh`, `is_admin`, `is_staff`, `is_report_viewer`, `sales_dien_kenh_khach`,
+  `tu_cap_ma_kh`, `ve_tinh_tu_dien_ma_kh`) cho anon EXECUTE — chưa đụng, cần chủ khu điểm danh nơi gọi trước.
 - Lệch repo có từ trước: `db/work/migrations/work_13…17` đã áp live nhưng không nằm trong `supabase/migrations/` (README
   db/work nói migration mới phải ở `supabase/`) → `supabase db reset` local không replay chúng.
