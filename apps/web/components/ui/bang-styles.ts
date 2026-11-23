@@ -186,6 +186,9 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   chon_chuaCoHanhDong: cn(kv, 'ml-auto px-2 text-[12px] leading-[18px] opacity-70 max-[640px]:order-2'),
 }
 
+/** Ô tìm bo tròn hẳn (Input `shape="pill"`, CEO chốt 23/11) — ô tìm ở đầu trang dữ liệu: `<CauHinhBangDs giaoDien={O_TIM_PILL}>`. */
+export const O_TIM_PILL: Partial<GiaoDienBang> = { oTimKiem_input: cn(GIAO_DIEN_DS.oTimKiem_input, 'rounded-(--radius-full)') }
+
 /**
  * BulkActionBar biến thể mặt nổi — `.ui-bulkbar[data-variant="surface"]` (CEO chốt 23/11): mặt `popover` (trắng ở theme
  * sáng, popover tối ở theme tối), `shadow-hairline` + `shadow-300`; nút ghost rê `alpha-05`, nhấn `alpha-08`; cảnh báo / lỗi

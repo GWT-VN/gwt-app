@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useSyncExternalStore, useTransition, type ReactNode } from 'react'
+import { useState, useTransition, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { BookOpen, GearSix, Headset, ListChecks, Package, Receipt, ShoppingCart, Users, type Icon } from '@phosphor-icons/react'
 import { dangXuat } from '@/app/auth/actions'
@@ -8,6 +8,7 @@ import { DsRoot } from '@/components/ui/ds-root'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { KhungApp, type Khu } from '@/components/ui/sidebar'
 import { danhDauDangO, khuCuaDuong, type IdKhu, type KhuBanDo } from '@/lib/khung/ban-do-menu'
+import { useThemeMay } from './ManV2'
 
 const ICON: Record<IdKhu, Icon> = {
   viec: ListChecks,
@@ -18,13 +19,6 @@ const ICON: Record<IdKhu, Icon> = {
   'quan-tri': GearSix,
   'nhan-su': Users,
   'ke-toan': Receipt,
-}
-
-const toiQuery = '(prefers-color-scheme: dark)'
-function ngheTheme(f: () => void) {
-  const m = window.matchMedia(toiQuery)
-  m.addEventListener('change', f)
-  return () => m.removeEventListener('change', f)
 }
 
 /**
@@ -42,14 +36,14 @@ export function KhungGwt({ khu, ten, email, children }: { khu: KhuBanDo[]; ten: 
     setDuongTruoc(pathname)
     setChon(khuCuaDuong(pathname, khu))
   }
-  const toi = useSyncExternalStore(ngheTheme, () => window.matchMedia(toiQuery).matches, () => false)
+  const theme = useThemeMay()
   const [, chuyen] = useTransition()
 
   const dsKhu: Khu[] = khu.map((k) => ({ id: k.id, ten: k.ten, icon: ICON[k.id], mau: k.mau, sapCo: k.sapCo, day: k.day }))
   const k = khu.find((x) => x.id === chon)
 
   return (
-    <DsRoot theme={toi ? 'dark' : 'light'} className="h-dvh">
+    <DsRoot theme={theme} className="h-dvh">
       <KhungApp
         khu={dsKhu}
         khuDangChon={chon}

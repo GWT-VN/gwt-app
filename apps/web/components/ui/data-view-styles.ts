@@ -16,6 +16,12 @@ export const DANG_XEM: readonly { id: DangXem; ten: string; tip: string }[] = [
 
 const kv = 'border-none border-current'
 
+/**
+ * `.b-trang`: khung trang dữ liệu — container (inline-size), rộng tối đa 1584 căn giữa, đệm trên 36 · hai bên
+ * clamp(24, 6vw, 112) · dưới 112 (chừa chỗ thanh hàng loạt / nút Bắp nổi).
+ */
+export const dvTrang = cn(kv, '@container mx-auto max-w-[1584px] pt-9 px-[clamp(24px,6vw,112px)] pb-28')
+
 /** Gốc thanh: `.b-trang` là khung container (inline-size) — ô tìm ≤ 640 container xuống dòng riêng. */
 export const dvGoc = cn(kv, '@container')
 

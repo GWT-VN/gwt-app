@@ -97,6 +97,17 @@ body {
     border-color: var(--color-slate-200, currentColor);
   }
 }
+/* Màn đã dựng lại bằng DS (components/khung/ManV2.tsx) mở vùng DS mới bên trong [data-man-cu]: viền mặc định về
+   lại --border của DS (selector cụ thể hơn khối trên). */
+@layer base {
+  [data-man-cu] [data-ds="v2"] *,
+  [data-man-cu] [data-ds="v2"] ::before,
+  [data-man-cu] [data-ds="v2"] ::after,
+  [data-man-cu] [data-ds="v2"] ::backdrop,
+  [data-man-cu] [data-ds="v2"] ::file-selector-button {
+    border-color: var(--border);
+  }
+}
 
 /* ===========================================================================
  * Khu Việc (Work) — bảng màu lấy từ mockup "GWT Work — Mockup" (18/08/2026).

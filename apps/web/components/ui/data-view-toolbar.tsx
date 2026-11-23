@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from 'react'
 import {
   ArrowLeft,
   CaretRight,
@@ -47,6 +47,7 @@ import {
   dvTieuDe,
   dvTim,
   dvTimIcon,
+  dvTrang,
   type DangXem,
 } from './data-view-styles'
 import { menuLabel, menuSeparator } from './menu-styles'
@@ -172,6 +173,18 @@ export function DataViewToolbar({
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * TrangDuLieu — khung trang của màn dữ liệu (`.b-trang` của bundle.css): đặt `<main>` có landmark, rộng tối đa 1584 căn
+ * giữa, lề theo khổ. Con thường là `DataViewToolbar` rồi FilterBar / ListView / Table / KanbanBoard.
+ */
+export function TrangDuLieu({ className, children, ...p }: ComponentProps<'main'>) {
+  return (
+    <main data-slot="trang-du-lieu" className={cn(dvTrang, className)} {...p}>
+      {children}
+    </main>
   )
 }
 
