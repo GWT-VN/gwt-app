@@ -683,6 +683,12 @@ body {
 .pD-gan:hover { color: var(--foreground); }
 .pD-cat { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .pD-xemthem { display: block; height: 30px; padding: 0 10px; border: 0; background: none; color: var(--color-text-tertiary); font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); }
+.pD-mui { margin-left: auto; color: var(--color-text-tertiary); transition: transform .15s; }   /* mục nhóm có menu con — CEO duyệt 23/11 */
+.pD-mui[data-mo] { transform: rotate(90deg); }
+.pD-con { display: flex; flex-direction: column; gap: 1px; margin: 0 14px; padding: 2px 10px; list-style: none; border-left: 1px solid var(--sidebar-border); }
+.pD-taikhoan { margin-top: 6px; padding: 0; border: 0; background: none; border-radius: 9999px; cursor: pointer; }
+.pD-taikhoan:focus-visible { outline: 2px solid var(--sidebar-ring); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .pD-mui { transition: none; } }
 .pD-xemthem:hover { color: var(--foreground); }
 .pD-xemthem:focus-visible { outline: 2px solid var(--ring); outline-offset: 0; }
 .pD-panel .p-chat { background: var(--background); border-top: 1px solid var(--border); }

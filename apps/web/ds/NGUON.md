@@ -28,6 +28,10 @@ Input/BulkActionBar/ListView thêm một dòng; preview Input thêm ô `#i7` ở
 `nth-child` của so khớp không lệch), preview BulkActionBar thêm mục thứ 3. Biến thể tên `surface`, không `light`: ở theme
 tối mặt nổi là popover tối, không trắng.
 
+Bản 52 (23/11, CEO duyệt khung trên app thật): khung F lắp vào app — `bundle.css` thêm `.pD-mui` (mũi tên mục nhóm), `.pD-con`
+(danh sách trang con kiểu SidebarMenuSub), `.pD-taikhoan` (avatar mở menu tài khoản); README Sidebar thêm mục "Khung lắp vào
+app" (`MucMenu.con`, `Khu.day`, `nguoiDung.menu`). Preview Sidebar không đổi (so khớp không ảnh hưởng).
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
@@ -58,7 +62,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 |---|---|
 | `nguon/tokens.json` | `a6dc379bf515623fac52bb8559e10ca5bc0e914fe105de80883383b67a75d221` |
 | `nguon/tokens.css` | `45230c507af3efd5507f16e82a2911679fadf68b8ed2e5583e84d14f92bc44b5` |
-| `nguon/bundle.css` (bản 51) | `f977a04efde4ebcbf64b35f0f672642cd2c3997cd9f1b3469ff48274090e01d9` |
+| `nguon/bundle.css` (bản 52) | `3a616e4766a7a6da41d42b467f2e1f44a56cf621a34d9356a53362aa5e37e0f9` |
 | `nguon/components/Button/preview.html` | `177935133068d688891289c9b853d7a5cf847dcf34b5c0f4636a5e7b0486052c` |
 | `nguon/components/Badge/preview.html` (bản 31) | `f58ca05c625e32fe41b9493f5e906ffdc81d25c51fc742087ada5a72f4ccc06c` |
 | `nguon/components/Avatar/preview.html` (bản 31) | `1af306836e66a39a844904f9f90e09555ab94decca55a4b0852e176f4f900259` |
@@ -109,7 +113,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 | `nguon/components/Tabs/preview.html` (bản 41) | `13bb9d529c99dd892d715695f92ba7d2d550ca7fa021f2d5540bd51ffbe61ecc` |
 | `nguon/components/Tabs/README.md` (bản 41) | `a9e763969b67f3320e3d50d36914e46718550624dae5b0af849e5e48df487116` |
 | `nguon/components/Sidebar/preview.html` (bản 41) | `23a6be08adc96178a6239ce70ea8c9f2c5abd802b1cba31cfaba4a58a262f507` |
-| `nguon/components/Sidebar/README.md` (bản 41) | `7b00c637705a4137365b96ac2cc9e3200aa2143c45e46213acdf9af5b716fe78` |
+| `nguon/components/Sidebar/README.md` (bản 52) | `421ebed20c7ca9f3ddaa203c0b465109f60fa24e13284e3f1815bcdfe8cbb6de` |
 | `nguon/components/Table/preview.html` (bản 41) | `b66cf227cfa31cc5b1a34f1a026d336876e14546a15af060851b239ccb2e52db` artifact lưu CRLF — sha bản artifact `2a9204b16f3e9b11fcd750d54f227d8cfc86c5f64a184c7f397e65b6b220f056` |
 | `nguon/components/Table/README.md` (bản 41) | `0246872fa10d5b2062df14d91aba1e1aa08a9405e25b602603808cb484f094b9` artifact lưu CRLF — sha bản artifact `6cb78f9e6952c2b9d4ac745aa5c029be9531d8e386073a41df1d159fce2c52b1` |
 | `nguon/components/DataViewToolbar/preview.html` (bản 41) | `c5618b59ccefe0edaa7f41c6e6ce0824337a084fc818233994d0449e85a9a6d0` |

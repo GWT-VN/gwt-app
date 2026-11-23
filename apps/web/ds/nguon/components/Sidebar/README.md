@@ -51,3 +51,10 @@ Nội dung thẻ chat Bắp; logo GWT thật (đang chữ "GWT").
 - `Sidebar`: `side` left|right, `variant` sidebar|floating|inset, `collapsible` offcanvas (mặc định)|icon|none; ≤767px thành Sheet rộng 288.
 - `SidebarMenuButton`: `isActive` (hoặc `aria-current="page"`), `variant` default|outline, `size` default 32 · sm 28 · lg 48, `tooltip` chỉ hiện khi đang thu icon.
 - Số theo `.ui-sidebar*`: rộng 256 (thu icon 48), nền `--sidebar`, viền `--sidebar-border`, mục cao 32 đệm 0 8 bo md 14/20, rê/đang chọn `--sidebar-accent`; z khung 45 / rail 46.
+
+## Khung lắp vào app (CEO duyệt 23/11/2026)
+
+- **Mục nhóm** (`MucMenu.con`): nút cùng kiểu item + mũi tên `.pD-mui` dồn phải (xoay 90° khi mở, 150ms; giảm chuyển động thì đổi ngay), `aria-expanded`; danh sách con `.pD-con` thụt 14, vạch trái `--sidebar-border`, đệm 2/10 (khung `SidebarMenuSub`). Tự mở khi đang ở một trang con; đóng thì gỡ hẳn danh sách (Tab không lọt vào link ẩn). Mục nhóm không có `href`.
+- **Khu đáy** (`Khu.day`, vd Quản trị): icon nằm đáy thanh trên avatar, cùng hành vi icon khu (chọn → panel hiện menu khu đó); không có trong "Tất cả khu".
+- **Menu tài khoản** (`nguoiDung.menu`): avatar thành nút `.pD-taikhoan` mở `DropdownMenu` bên phải (căn đáy, cách 8): nhãn tên + dòng phụ email 12/18 muted, rồi các mục (Đăng xuất).
+- App thật: `components/khung/` + `lib/khung/ban-do-menu.ts` (khu + menu theo quyền, nhóm rỗng thì bỏ, không hiện mục "sắp có"). Màn cũ nằm trong `[data-man-cu]` — trả lại thang Tailwind/ font của app cũ mà vùng DS khai đè.
