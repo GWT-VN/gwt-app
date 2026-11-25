@@ -4,7 +4,7 @@ import type { CauHinh } from "./cau-hinh.ts";
 import type { HoiThoaiPancake, TinPancake } from "./doc.ts";
 import type { DongHoiThoai, DongLuu, KhoPancake } from "./kho.ts";
 import { chayMotLuot } from "./luot.ts";
-import type { KetQuaTra } from "./tu-tra.ts";
+import type { KetQuaTra, LuongTra } from "./tu-tra.ts";
 
 const PAGE = "P1";
 const NOW = new Date("2026-11-25T14:00:00.000Z"); // 21:00 giờ VN, thứ tư → ngoài giờ làm
@@ -57,14 +57,14 @@ function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?
   const tinNhan = vi.fn(async () => { n += 1; return (o.tinLanGet ? o.tinLanGet(n) : [tinKhach(luc)]); });
   const gui = vi.fn(o.gui ?? (async () => "id"));
   const bao = { daGui: vi.fn(async () => {}), chuyenNguoi: vi.fn(async () => {}), loi: vi.fn(async () => {}) };
-  const soan = vi.fn(async () => TRA);
+  const soan = vi.fn(async (_l: LuongTra) => TRA);
   const kho = o.kho ?? khoGia();
   const khieu = o.nhom === "khieu_nai";
   const phanLoai = vi.fn(async () => ({ nhom: (o.nhom ?? "hoi_gia") as never, gap: khieu, tomTat: "hỏi giá CTS20", maMay: "CTS20" }));
   let dem = 0;
-  const chay = () => chayMotLuot({
+  const chay = (bayGio: Date = NOW) => chayMotLuot({
     pageId: PAGE, tenKenh: "Lọc nhỏ", pancake: { dsHoiThoai: async () => [hoiThoai], tinNhan } as never, gui, kho, phanLoai, soan, bao: bao as never,
-    ch: CH({ cheDo: o.cheDo ?? "bat" }), dem: { doc: () => dem, tang: () => { dem += 1; } }, now: () => NOW, nghi: async () => {},
+    ch: CH({ cheDo: o.cheDo ?? "bat" }), dem: { doc: () => dem, tang: () => { dem += 1; } }, now: () => bayGio, nghi: async () => {},
   });
   return { chay, tinNhan, gui, bao, soan, kho, phanLoai };
 }
@@ -146,5 +146,76 @@ describe("chayMotLuot", () => {
       ch: CH(), dem: { doc: () => 0, tang() {} }, now: () => new Date("2026-11-25T03:00:00.000Z"), // 10:00 VN, giờ làm
     });
     expect(sang.viec).toBe("ngoai_gio");
+  });
+
+  const khach = (id: string, text: string, luc: string): TinPancake => ({ id, message: text, original_message: text, inserted_at: luc, from: { id: "u1", name: "Hùng" } });
+  const botTin = (luc: string): TinPancake => ({
+    id: "b1", message: "Chào anh! Em là trợ lý ảo của máy lọc nước GE ạ.⁣", inserted_at: luc, from: { id: PAGE },
+  });
+  const dongCu = (tinKhachLuc: string, soCuoc: DongHoiThoai["soCuoc"], baoLuc: string | null): DongHoiThoai => ({
+    pageId: PAGE, conversationId: "c1", tenKhach: "Hùng", tinKhach: "cũ", tinKhachLuc, coSdt: false, nhom: "hoi_gia", gap: false,
+    tomTat: "x", maMay: null, phanLoaiLuc: tinKhachLuc, trangThai: "cho", discordThreadId: null, discordBaoLuc: baoLuc, discordDongLuc: null, soCuoc,
+  });
+  const SO = { nhu_cau: "hỏi CTS20", da_xong: ["đã báo giá"], con_mo: [], xung_ho: { goi: "chị", xung: "em" } } as const;
+
+  it("khối tin cắt tại tin bot: hai mảnh mới chưa yên → chờ; yên rồi → chỉ hỏi mảnh mới, giữ sổ + xưng hô, không giới thiệu lại", async () => {
+    const kho = khoGia();
+    kho.hang.set("c1", dongCu(lui(3720), SO as never, lui(3590)));
+    const tin = [khach("k3", "CTS20 bao tiền?", lui(30)), khach("k2", "máy nào hợp nhà 4 người", lui(60)), botTin(lui(3600)), khach("k1", "chào shop", lui(3720))];
+    const t = dung({ kho, tinLanGet: () => tin });
+    const r1 = await t.chay();
+    expect(r1.gui).toBe(0);
+    expect(t.soan).not.toHaveBeenCalled();
+    const r2 = await t.chay(new Date(NOW.getTime() + 100_000));
+    expect(r2.gui).toBe(1);
+    const l = t.soan.mock.calls[0][0] as { cauHoi: string; soCuoc: unknown };
+    expect(l.cauHoi).toBe("máy nào hợp nhà 4 người\nCTS20 bao tiền?");
+    expect(l.soCuoc).toMatchObject({ nhu_cau: "hỏi CTS20" });
+    const dau = (t.gui.mock.calls[0] as unknown as string[])[1];
+    expect(dau).toMatch(/^Dạ chị/);
+    expect(dau).not.toContain("trợ lý ảo");
+  });
+
+  it("khách quay lại sau 8 ngày, hai mảnh qua hai lượt → sổ cũ bị bỏ", async () => {
+    const kho = khoGia();
+    const tam = 8 * 86400;
+    kho.hang.set("c1", dongCu(lui(260), SO as never, null)); // mảnh đầu của chính khối, lượt trước ghi
+    const tin = [khach("k3", "còn hàng không", lui(200)), khach("k2", "chào shop", lui(260)), botTin(lui(tam)), khach("k0", "hỏi cũ", lui(tam + 3600))];
+    const t = dung({ kho, tinLanGet: () => tin });
+    await t.chay();
+    expect((t.soan.mock.calls[0][0] as { soCuoc: unknown }).soCuoc).toBeNull();
+  });
+
+  it("ghiSoCuoc hỏng sau khi gửi → dòng vẫn đóng, lượt sau không gửi lại", async () => {
+    const kho = khoGia();
+    kho.ghiSoCuoc = async () => { throw new Error("kho_pancake_ghi_so_cuoc"); };
+    const ghi = vi.spyOn(kho, "ghiBaoLuc");
+    const dd = vi.spyOn(kho, "danhDauXuLy");
+    const t = dung({ kho });
+    t.soan.mockResolvedValue({ ...TRA, soCuoc: { nhu_cau: "hỏi giá", da_xong: [], con_mo: [] } });
+    const r1 = await t.chay();
+    expect(r1.gui).toBe(1);
+    expect(ghi).toHaveBeenCalled();
+    expect(dd).toHaveBeenCalled();
+    expect(kho.hang.get("c1")!.trangThai).toBe("da_xu_ly");
+    const gui1 = t.gui.mock.calls.length;
+    expect((await t.chay()).gui).toBe(0);
+    expect(t.gui.mock.calls.length).toBe(gui1);
+  });
+
+  it("bot đã trả lời sau tin khách ngay ở lần GET đầu → không soạn", async () => {
+    const t = dung({ tinLanGet: (n) => (n >= 2 ? [botTin(lui(20)), tinKhach(lui(180))] : [tinKhach(lui(180))]) });
+    await t.chay();
+    expect(t.soan).not.toHaveBeenCalled();
+    expect(t.gui).not.toHaveBeenCalled();
+  });
+
+  it("mã lỗi toàn chữ số (như SĐT) thành mã chung", async () => {
+    const t = dung({ gui: async () => { throw Object.assign(new Error("x"), { code: "1234567" }); } });
+    await t.chay();
+    expect(t.bao.loi.mock.calls[0]).toMatchObject([{ ma: "LOI_KHONG_RO" }]);
+    const t2 = dung();
+    t2.kho.docTrangThai = async () => { throw new Error("1234567"); };
+    expect(await t2.chay()).toMatchObject({ viec: "loi", loi: "LOI_KHONG_RO" });
   });
 });

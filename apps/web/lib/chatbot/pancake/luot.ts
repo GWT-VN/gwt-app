@@ -41,9 +41,12 @@ const CHO_GIUA_TIN_MS = 1000;
 const TOI_DA_LUOT_NGAY_CHO_MOT_HOI_THOAI = 600_000; // tin bot cách nhau > 10 phút = lượt khác
 
 // Mã lỗi ngắn, không kèm URL/token: chỉ nhận chuỗi chữ-số-gạch dưới.
-const maLoi = (e: unknown) => {
-  const m = e instanceof Error ? e.message : "";
-  return /^[A-Za-z0-9_]{1,80}$/.test(m) ? m : "LOI_KHONG_RO";
+const maSach = (m: unknown) => (typeof m === "string" && /^[A-Za-z][A-Za-z0-9_]{2,63}$/.test(m) ? m : "LOI_KHONG_RO");
+const maLoi = (e: unknown) => maSach(e instanceof Error ? e.message : "");
+/** Khối tin khách đang chờ, cắt tại tin bot mới nhất / mốc đã báo (tinKhachDangCho bỏ qua tin bot chứ không dừng ở đó). */
+const khoiCho = (tin: TinPancake[], pageId: string, baoLuc: string | null | undefined) => {
+  const moc = Math.max(baoLuc ? Date.parse(baoLuc) : -Infinity, ...tin.filter(laTinBot).map((t) => Date.parse(t.inserted_at)).filter(Number.isFinite));
+  return tinKhachDangCho(tin, pageId, undefined, Number.isFinite(moc) ? iso(moc) : undefined);
 };
 const ngayVn = (ms: number) => Math.floor((ms + 7 * 3600_000) / NGAY);
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -86,11 +89,12 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
     for (const h of ungVien) {
       try {
         const tin = await p.pancake.tinNhan(h.id);
-        const kh = tinKhachDangCho(tin, p.pageId);
-        if (!kh) { xong.push(h.id); continue; }
         const dong = cu.get(h.id);
+        const kh = khoiCho(tin, p.pageId, dong?.discordBaoLuc);
+        if (!kh) { xong.push(h.id); continue; }
         if (dong && Date.parse(kh.luc) <= Date.parse(dong.tinKhachLuc)) continue; // không có tin khách mới hơn lần đã phân loại
-        truocDo.set(h.id, dong ? Date.parse(dong.tinKhachLuc) : null);
+        // Mốc cũ chỉ là "lần khách nhắn trước" khi nó nằm trước khối này; còn không là mảnh của chính khối (lượt trước ghi) → dùng tin đã tải.
+        if (dong && Date.parse(dong.tinKhachLuc) < Date.parse(kh.dau)) truocDo.set(h.id, Date.parse(dong.tinKhachLuc));
         dauKhoi.set(h.id, Date.parse(kh.dau));
         const text = kh.text || h.snippet || "";
         const co = h.has_phone || coSdt(text);
@@ -135,9 +139,11 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
         if (danhDau) await p.kho.danhDauXuLy(p.pageId, [id]);
       };
       const tin = await p.pancake.tinNhan(id);
-      const kh = tinKhachDangCho(tin, p.pageId);
+      const kh = khoiCho(tin, p.pageId, d.discordBaoLuc);
       if (!kh) { await p.kho.danhDauXuLy(p.pageId, [id]); return "khac"; } // NV/bot đã trả lời
       if (Date.parse(kh.luc) > luc) return "khac"; // khách nhắn thêm: pha A lượt sau phân loại lại
+      const moi = (t: TinPancake) => Date.parse(t.inserted_at) > Date.parse(kh.luc) && (laTinBot(t) || laNhanVien(t.from));
+      if (tin.some(moi)) { await ghiXong(); return "khac"; } // bot/NV đã nói sau tin khách: không soạn
 
       const chuyen = async (lyDo: string) => {
         await p.bao.chuyenNguoi({
@@ -193,7 +199,7 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       let hong: string | null = null;
       for (const m of tinGui) {
         if (daGui.length) await nghi(CHO_GIUA_TIN_MS);
-        try { await p.gui!(id, m); daGui.push(m); } catch (e) { hong = (e as { code?: string })?.code ?? maLoi(e); break; } // không thử lại
+        try { await p.gui!(id, m); daGui.push(m); } catch (e) { const c = (e as { code?: unknown })?.code; hong = c !== undefined ? maSach(c) : maLoi(e); break; } // không thử lại
       }
       if (hong) {
         await p.bao.loi({ kenh: p.tenKenh, ma: hong }).catch(ghiLoi);
@@ -203,9 +209,9 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       kq.gui += 1;
       p.dem.tang();
       await baoDaGui(daGui, false).catch(ghiLoi);
+      await ghiXong(); // đóng dòng TRƯỚC sổ: sổ hỏng không được để dòng mở lại → soạn/báo lại
       const sach = chuanSoCuoc({ ...(k.soCuoc ?? { nhu_cau: "", da_xong: [], con_mo: [] }), ...(xh ? { xung_ho: xh } : {}) });
-      if (sach) await p.kho.ghiSoCuoc(p.pageId, id, sach);
-      await ghiXong();
+      if (sach) await p.kho.ghiSoCuoc(p.pageId, id, sach).catch(ghiLoi);
       return hong ? "loi_gui" : "gui";
     }
 
