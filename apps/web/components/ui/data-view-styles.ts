@@ -126,11 +126,11 @@ export const xnThe = cn(
   'max-md:inset-0 max-md:z-50 max-md:w-auto max-md:rounded-none max-md:[box-shadow:none]',
 )
 /**
- * `coDinh` (thẻ bám màn hình ở màn app): cách mép màn 12 trên · phải · dưới (CEO 25/11: 8 sát viền quá) → rộng tối đa
- * 100vw − 24, nội dung nhường 464 = 440 + 12 + 12. Bản trong khung chứa (artifact) giữ 8.
+ * `coDinh` (thẻ bám màn hình ở màn app): cách mép màn 16 trên · phải · dưới (CEO 25/11: 8 rồi 12 vẫn sát viền) → rộng tối đa
+ * 100vw − 32, nội dung nhường 472 = 440 + 16 + 16 (CEO 25/11 lần 2: 12 vẫn kịch → 16). Bản trong khung chứa (artifact) giữ 8.
  */
-export const xnTheCoDinh = 'fixed md:top-3 md:right-3 md:bottom-3 md:w-[min(440px,calc(100vw-24px))]'
-export const xnNoiDungNhuongCoDinh = 'md:mr-[464px]'
+export const xnTheCoDinh = 'fixed md:top-4 md:right-4 md:bottom-4 md:w-[min(440px,calc(100vw-32px))]'
+export const xnNoiDungNhuongCoDinh = 'md:mr-[472px]'
 /** `.b-ct-dau`: cao 52, đệm 0 10 0 24, cách 4, không xuống dòng, gạch dưới 1px alpha-05. */
 export const xnDau = cn(
   'flex h-[52px] min-w-0 shrink-0 items-center gap-1 pr-2.5 pl-6 whitespace-nowrap',
