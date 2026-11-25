@@ -1,15 +1,8 @@
--- 53 — gộp khách: KHÔNG nhét SĐT vào ghi chú nữa.
---
--- CEO 20/08/2026: "số còn lại chuyển sang sđt phụ … chứ sđt còn lại ko đưa vào ghi chú".
---
--- Migration 49 vẫn nối SĐT của bản bị gộp vào ô ghi chú của bản giữ. Hồi migration
--- 46 đó là chỗ duy nhất để không mất số. Từ khi giao diện đưa số dư xuống
--- `customer_contacts` (SĐT phụ) thì viết thêm vào ghi chú là THỪA và có hại: cùng
--- một số nằm hai chỗ, sửa một chỗ là lệch, mà ghi chú thì không tra cứu được.
---
--- Chỉ đổi ĐÚNG một biểu thức `notes` ở bước trộn trường. Toàn bộ phần còn lại giữ
--- nguyên như migration 49 (chép lại đủ vì `create or replace` cần cả thân hàm).
--- Tên và địa chỉ VẪN ghi vào ghi chú: chúng chưa có bảng riêng để chứa bản thứ hai.
+-- HỢP THỨC HOÁ từ ledger live 04/09/2026 (supabase_migrations.schema_migrations, version 20260820074222, name 49_gop_khach_chon_truong).
+-- Nội dung dưới đây = đúng SQL đã chạy trên GWT-SalesTracking. File tồn tại để `db reset` local/CI replay
+-- được từ 0; KHÔNG áp lại lên live (đã có). md5(statements) = 0b92dc75fc99f2317274ee6820a8fe6e.
+
+drop function if exists gop_khach(uuid, uuid);
 
 create or replace function gop_khach(p_giu uuid, p_gop uuid, p_chon jsonb default null)
 returns jsonb
@@ -105,12 +98,11 @@ begin
     dia_chi_cty   = coalesce(nullif(v_truong ->> 'dia_chi_cty', ''), nullif(v_giu.dia_chi_cty, ''), nullif(v_gop.dia_chi_cty, '')),
     sdt_cty       = coalesce(nullif(v_truong ->> 'sdt_cty', ''),     nullif(v_giu.sdt_cty, ''),     nullif(v_gop.sdt_cty, '')),
     email_cty     = coalesce(nullif(v_truong ->> 'email_cty', ''),   nullif(v_giu.email_cty, ''),   nullif(v_gop.email_cty, '')),
-    -- ĐỔI Ở ĐÂY: bỏ `v_gop.primary_phone` khỏi câu ghi chú. Số dư nay nằm ở
-    -- customer_contacts (SĐT phụ) — chỗ tra cứu được, không phải chuỗi chữ.
     notes = trim(both e'\n' from concat_ws(e'\n',
       coalesce(nullif(v_truong ->> 'notes', ''), nullif(v_giu.notes, '')),
       concat_ws(' · ',
         '— Đã gộp hồ sơ trùng: ' || v_gop.full_name,
+        nullif(v_gop.primary_phone, ''),
         nullif(v_gop.address, ''),
         nullif(v_gop.notes, ''))
     )),
@@ -126,11 +118,10 @@ begin
        )
        and coalesce(nullif(v_muc ->> 'phone', ''), '') <> coalesce(v_phone_cuoi, '')
     then
-      insert into customer_contacts (customer_id, phone, contact_name, role, is_primary, zalo_ok, ghi_chu)
+      insert into customer_contacts (customer_id, phone, contact_name, role, is_primary, zalo_ok)
       values (
         p_giu, v_muc ->> 'phone', nullif(v_muc ->> 'contact_name', ''),
-        coalesce(nullif(v_muc ->> 'role', ''), 'khac'), false, true,
-        nullif(v_muc ->> 'ghi_chu', '')
+        coalesce(nullif(v_muc ->> 'role', ''), 'khac'), false, true
       );
       n_sdt_phu := n_sdt_phu + 1;
     end if;
@@ -144,12 +135,11 @@ begin
          where customer_id = p_giu and dia_chi = v_muc ->> 'dia_chi'
        )
     then
-      insert into customer_addresses (customer_id, dia_chi, loai, ghi_chu, tinh)
+      insert into customer_addresses (customer_id, dia_chi, loai, ghi_chu)
       values (
         p_giu, v_muc ->> 'dia_chi',
         coalesce(nullif(v_muc ->> 'loai', ''), 'khac'),
-        nullif(v_muc ->> 'ghi_chu', ''),
-        nullif(v_muc ->> 'tinh', '')
+        nullif(v_muc ->> 'ghi_chu', '')
       );
       n_dia_chi := n_dia_chi + 1;
     end if;
@@ -159,6 +149,9 @@ begin
                             'lien_he', n_lienhe, 'su_dung', n_sudung,
                             'sdt_phu_them', n_sdt_phu, 'dia_chi_them', n_dia_chi);
 end $$;
+
+comment on function gop_khach(uuid, uuid, jsonb) is
+  'Gộp khách trùng: dời máy/ticket/plan/liên hệ/địa chỉ sang bản giữ, trộn trường theo lựa chọn của CS (p_chon), SĐT/địa chỉ thừa lưu thành phụ, ẩn mềm bản bị gộp. Nguyên tử.';
 
 revoke all on function gop_khach(uuid, uuid, jsonb) from public, anon, authenticated;
 grant execute on function gop_khach(uuid, uuid, jsonb) to service_role;
