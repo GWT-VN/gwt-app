@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 BANG_CAN_CO = ["tickets", "cs_customers", "sales_orders", "customer_addresses"]  # schema public
-HAM_CAN_CO = ["kho_bot_ghi", "kho_bot_ds_serial"]  # schema public; thêm tên hàm mới vào đây
+HAM_CAN_CO = ["kho_bot_ghi", "kho_bot_ds_serial", "bot_ds_don", "bot_ds_don_dau"]  # schema public; thêm tên hàm mới vào đây
 
 CONFIG = Path(__file__).resolve().parent.parent / "supabase" / "config.toml"
 
