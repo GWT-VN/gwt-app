@@ -1,13 +1,10 @@
 // chép từ GWT-ERP lib/chatbot/kenh/pancake/an-pii.ts @c2f3719
+import { MA_MAY } from "./cong-cu/danh-muc.ts";
+
 /**
  * Che PII và số trong chữ học từ chat NV (spec 2026-10-16 vòng học §3.2). Hàm thuần — LƯỚI AN TOÀN: heuristic không bắt hết
  * địa chỉ/tên viết thường; người duyệt và lời dặn model là lớp còn lại. Không đụng mã máy/mã lõi (CTS10, WH15AECO, KDF55).
  */
-// Mã MÁY (tên thương mại) — chép từ GWT-ERP lib/chatbot/chat/danh-muc.ts MA_MAY (nguồn là DANH_MUC; máy mới ra thì cập nhật cả hai).
-const MA_MAY: ReadonlySet<string> = new Set([
-  "WH15A", "WH15AECO", "WH30A", "WH30AECO", "CTS10", "CTS20", "CTD50", "B04", "USH10", "GN610", "GN620", "DN810",
-]);
-
 // Số VN: 0 / 84 / +84 / (+84) / (84) + 9 chữ số (di động) hoặc 10 (bàn "024 3856 1234"), tối đa 2 ký tự cách/chấm/gạch trước mỗi chữ số.
 // Cấm chữ số đứng trước/sau (giá 30.950.000đ không khớp); chữ đứng trước thì được ("sdt0123456789").
 // Dãy theo sau là đơn vị tiền ("B04 16.950.000 đ" — đo 2026-10-20: mã máy + giá thành 0 + 9 chữ số) là GIÁ, không phải SĐT.
