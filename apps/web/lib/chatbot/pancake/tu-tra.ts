@@ -39,7 +39,7 @@ export const LUAT_THAI_DO =
 /** Trần số tin (bubble) một câu trả lời (ERP tu-gui.ts). */
 export const TOI_DA_TIN_TRA_LOI = 6;
 
-export interface LuongTra { cauHoi: string; khachDaNoi: string[]; lichSu: string[]; maMay: string | null; daCoSdt: boolean; soCuoc: SoCuoc | null }
+export interface LuongTra { cauHoi: string; khachDaNoi: string[]; lichSu: string[]; maMay: string | null; daCoSdt: boolean; soCuoc: SoCuoc | null; xungHoMacDinh?: XungHo | null }
 export interface KetQuaTra {
   traLoi: string; canNv: boolean; khongTraLoi: boolean; lyDo: string;
   /** Lý do KHÔNG được tự gửi (căn cứ không khớp, tự hẹn lịch, hứa báo lại không chuyển NV, nói quá nguồn); rỗng = được. */
@@ -221,7 +221,7 @@ const khoiSo = (so: SoCuoc | null) => (so
   : "— (chưa có — lần này dựng sổ từ hội thoại)");
 export function dungTinTuTra(l: LuongTra): string {
   const cho = [...l.khachDaNoi, ...l.cauHoi.split("\n")].map((c) => c.trim()).filter(Boolean);
-  const xh = l.soCuoc?.xung_ho;
+  const xh = l.soCuoc?.xung_ho ?? l.xungHoMacDinh; // mặc định = đoán từ tên, chỉ là gợi ý cách gọi
   return [
     `SỔ CUỘC CHAT (bot ghi ở lượt trước):\n${khoiSo(l.soCuoc)}`,
     ...(xh ? [`Cách gọi khách đã biết: ${xh.goi}/${xh.xung}`] : []),

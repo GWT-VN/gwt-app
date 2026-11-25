@@ -9,7 +9,15 @@ import { anPii } from "./an-pii.ts";
 
 export type Goi = "anh" | "chị" | "anh/chị" | "cô" | "chú" | "bác" | "ông" | "bà" | "em";
 export type XungHo = { goi: Goi; xung: "em" | "chau" };
-export interface SoCuoc { nhu_cau: string; da_xong: string[]; con_mo: string[]; xung_ho?: XungHo }
+/** Đoán giới / tên gọi từ tên Facebook (phan-loai.ts), lưu cùng sổ để các lượt sau không phải đoán lại. KHÔNG phải xưng hô đã học. */
+export interface DoanTen { gioi: "nam" | "nu" | "khong_ro"; ten: string | null }
+export interface SoCuoc { nhu_cau: string; da_xong: string[]; con_mo: string[]; xung_ho?: XungHo; doan?: DoanTen }
+const doanTen = (v: unknown): DoanTen | undefined => {
+  const o = v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+  if (!o || !(o.gioi === "nam" || o.gioi === "nu" || o.gioi === "khong_ro")) return undefined;
+  const ten = typeof o.ten === "string" && /^[\p{L}\p{M}]{1,15}$/u.test(o.ten) ? o.ten : null;
+  return { gioi: o.gioi, ten };
+};
 
 const GOI: ReadonlySet<string> = new Set(["anh", "chị", "anh/chị", "cô", "chú", "bác", "ông", "bà", "em"]);
 // Cách xưng hô lạ → bỏ khoá (không đoán).
@@ -43,7 +51,8 @@ export function chuanSoCuoc(x: unknown): SoCuoc | null {
   if (!x || typeof x !== "object" || Array.isArray(x)) return null;
   const o = x as Record<string, unknown>;
   const xh = xungHo(o.xung_ho);
-  const so: SoCuoc = { nhu_cau: chu(o.nhu_cau, TRAN_NHU_CAU), da_xong: ds(o.da_xong, TOI_DA_XONG), con_mo: ds(o.con_mo, TOI_DA_MO), ...(xh ? { xung_ho: xh } : {}) };
+  const doan = doanTen(o.doan);
+  const so: SoCuoc = { nhu_cau: chu(o.nhu_cau, TRAN_NHU_CAU), da_xong: ds(o.da_xong, TOI_DA_XONG), con_mo: ds(o.con_mo, TOI_DA_MO), ...(xh ? { xung_ho: xh } : {}), ...(doan ? { doan } : {}) };
   while (JSON.stringify(so).length > TRAN_JSON && so.da_xong.length) so.da_xong.shift();
-  return so.nhu_cau || so.da_xong.length || so.con_mo.length || so.xung_ho ? so : null;
+  return so.nhu_cau || so.da_xong.length || so.con_mo.length || so.xung_ho || so.doan ? so : null;
 }

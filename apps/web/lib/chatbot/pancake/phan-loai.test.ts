@@ -149,4 +149,7 @@ describe("gioi_tu_ten / ten_goi", () => {
     expect(nguoiOf(goi)).toContain("Tên Facebook của khách: Nguyễn Hùng");
     expect(r).toMatchObject({ gioi: "nam", tenGoi: "Hùng" });
   });
+  it("ten_goi viết hoa chữ đầu, còn lại thường", () => {
+    expect(docPhanLoai(tx("nam", "HÙNG"), "NGUYỄN HÙNG")!.tenGoi).toBe("Hùng");
+  });
 });

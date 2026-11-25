@@ -127,4 +127,9 @@ describe("dungTinGui: gọi theo tên, một lời mời SĐT, bullet", () => {
     expect(t).toBe(b("Chào anh Hùng! Em gửi giá ạ:\n\n• A: 1đ\n• B: 2đ"));
     expect(dungTinGui("Em gửi giá ạ:\n\n• A: 1đ\n• B: 2đ", o("chao"))[0]).toBe(t);
   });
+  it("xưng hô rõ → đổi 'anh/chị' còn sót; anh/chị thì giữ nguyên", () => {
+    const r = dungTinGui("Em gửi anh/chị giá ạ.\n\nAnh/chị cho em xin tên ạ.", o("da"));
+    expect(r).toEqual([b("Dạ anh Hùng, em gửi anh giá ạ."), b("Anh cho em xin tên ạ.")]);
+    expect(dungTinGui("Em gửi anh/chị giá ạ.", o("da", { xungHo: null, ten: null }))[0]).toBe(b("Dạ anh/chị, em gửi anh/chị giá ạ."));
+  });
 });

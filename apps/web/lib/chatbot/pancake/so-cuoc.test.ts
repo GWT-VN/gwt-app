@@ -28,3 +28,12 @@ describe("chuanSoCuoc — sổ cuộc chat (đã chốt 2026-10-21)", () => {
     expect(chuanSoCuoc({ xung_ho: { goi: "sếp", xung: "em" } })).toBeNull();
   });
 });
+
+describe("doan (đoán xưng hô từ tên)", () => {
+  it("đọc doan hợp lệ; rác bị bỏ, tên không phải chữ cái → null", () => {
+    expect(chuanSoCuoc({ nhu_cau: "x", doan: { gioi: "nam", ten: "Hùng" } })?.doan).toEqual({ gioi: "nam", ten: "Hùng" });
+    expect(chuanSoCuoc({ nhu_cau: "x", doan: { gioi: "nam", ten: "Hùng1" } })?.doan).toEqual({ gioi: "nam", ten: null });
+    expect(chuanSoCuoc({ nhu_cau: "x", doan: { gioi: "male", ten: "Hùng" } })?.doan).toBeUndefined();
+    expect(chuanSoCuoc({ doan: "nam" })).toBeNull();
+  });
+});

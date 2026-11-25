@@ -223,9 +223,13 @@ describe("chayMotLuot", () => {
     const t = dung({ pl: { gioi: "nam", tenGoi: "Hùng" } });
     t.soan.mockResolvedValue({ ...TRA, xungHo: { goi: "anh", xung: "em" } });
     await t.chay();
-    expect((t.soan.mock.calls[0][0] as { soCuoc: { xung_ho: unknown } }).soCuoc.xung_ho).toEqual({ goi: "anh", xung: "em" });
+    const l = t.soan.mock.calls[0][0] as { soCuoc: unknown; xungHoMacDinh: unknown };
+    expect(l.soCuoc).toBeNull(); // chưa có sổ thì vẫn báo "chưa có sổ", đoán chỉ là xưng hô mặc định
+    expect(l.xungHoMacDinh).toEqual({ goi: "anh", xung: "em" });
     expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào anh Hùng! Em là trợ lý ảo/);
-    expect(t.kho.hang.get("c1")!.soCuoc?.xung_ho).toBeUndefined();
+    const so = t.kho.hang.get("c1")!.soCuoc;
+    expect(so?.xung_ho).toBeUndefined();
+    expect(so?.doan).toEqual({ gioi: "nam", ten: "Hùng" });
   });
 
   it("không rõ giới → 'Chào anh/chị!' không tên; xưng hô đã học (cô) thắng đoán nam", async () => {
@@ -240,6 +244,35 @@ describe("chayMotLuot", () => {
     const t = dung({ kho, tinLanGet: () => tin, pl: { gioi: "nam", tenGoi: "Hùng" } });
     await t.chay();
     expect((t.soan.mock.calls[0][0] as { soCuoc: { xung_ho: unknown } }).soCuoc.xung_ho).toEqual({ goi: "cô", xung: "chau" });
-    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào cô Hùng! Cháu là/);
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào cô! Cháu là/); // cô lệch giới đoán nam → bỏ tên
+  });
+
+  // Hai lượt chạy thật: lượt 1 phân loại + gửi; lượt 2 có tin khách mới sau tin bot, bộ phân loại không còn đoán được → phải lấy từ sổ.
+  async function haiLuot(traLuot2: Partial<KetQuaTra>) {
+    const t = dung({ pl: { gioi: "nam", tenGoi: "Hùng" } });
+    t.soan.mockResolvedValue({ ...TRA, xungHo: { goi: "anh", xung: "em" } });
+    await t.chay();
+    const botLuc = NOW.toISOString();
+    const ngay2 = new Date(NOW.getTime() + 3600_000);
+    const luc2 = new Date(ngay2.getTime() - 180_000).toISOString();
+    const tin = [khach("k2", "CTS30 giá sao", luc2), botTin(botLuc), khach("k1", "CTS20 giá bao nhiêu?", lui(180))];
+    t.phanLoai.mockResolvedValue({ nhom: "hoi_gia" as never, gap: false, tomTat: "x", maMay: null, gioi: "khong_ro", tenGoi: null } as never);
+    t.tinNhan.mockImplementation(async () => tin);
+    t.soan.mockResolvedValue({ ...TRA, ...traLuot2 });
+    t.gui.mockClear();
+    await t.chay(ngay2);
+    return t;
+  }
+  it("hai lượt: lượt 1 ghi doan (không ghi xung_ho do GPT lặp), lượt 2 vẫn 'Dạ anh Hùng,'", async () => {
+    const t = await haiLuot({ xungHo: { goi: "anh", xung: "em" } });
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Dạ anh Hùng, /);
+    const so = t.kho.hang.get("c1")!.soCuoc;
+    expect(so?.xung_ho).toBeUndefined();
+    expect(so?.doan).toEqual({ gioi: "nam", ten: "Hùng" });
+  });
+  it("hai lượt: khách nói 'chị' → xung_ho học được, thắng đoán; tên lệch giới bị bỏ", async () => {
+    const t = await haiLuot({ xungHo: { goi: "chị", xung: "em" } });
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Dạ chị, /);
+    expect(t.kho.hang.get("c1")!.soCuoc?.xung_ho).toEqual({ goi: "chị", xung: "em" });
   });
 });

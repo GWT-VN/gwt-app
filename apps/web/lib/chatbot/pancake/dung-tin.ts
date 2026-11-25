@@ -92,6 +92,10 @@ export function dungTinGui(
     : `Chào ${goi}${them}! ${o.kieu === "gioi_thieu" ? `${o.xungHo?.xung === "chau" ? "Cháu" : "Em"}${CAU_GIOI_THIEU.slice(2)} ạ. ` : ""}`;
   const tin = [mo + ketA(dau), ...sau.map(ketA)];
   if (themHoTro) tin.push(CAU_HO_TRO(o.hotline, o.hoiSo, goi));
+  if (goi !== "anh/chị") { // xưng hô đã rõ: "anh/chị" GPT lỡ viết sót đổi theo
+    const hoa = goi[0].toUpperCase() + goi.slice(1);
+    tin.forEach((t, i) => { tin[i] = t.replaceAll("Anh/chị", hoa).replaceAll("anh/chị", goi); });
+  }
   // Câu dẫn đứng ngay trên dòng "• " đầu tiên: chèn một dòng trống (không chèn giữa các bullet, không nhân đôi).
   return tin.map((s) => `${inDamUnicode(s).replace(/^(?!• )([^\n]+)\n(?=• )/gm, "$1\n\n")}${DAU_BOT}`);
 }
