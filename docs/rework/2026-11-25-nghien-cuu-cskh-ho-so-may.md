@@ -77,6 +77,7 @@ Câu ghi *"suy luận"* là nhận định của người nghiên cứu, không 
 Ràng buộc đã có: ticket gắn 1 khách + 1 máy; nhiều "lần lỗi"; nhật ký nội bộ; chi phí/vật tư; KTV hiện trường; DS
 v2 (Detail page, Data view, panel Xem nhanh). *Chưa rõ, cần hỏi:* CSKH có gửi tin cho khách TỪ app không, hay chỉ ghi
 lại cuộc gọi/Zalo — quyết định ô soạn là "gửi" hay "ghi nhận".
+**CEO chốt 25/11/2026: CHỈ GHI NHẬN** — app không gửi tin cho khách; ô soạn = ghi chú nội bộ / ghi nhận trao đổi (gọi, Zalo).
 
 ### 4a. Trang chi tiết ticket + hồ sơ máy/khách
 

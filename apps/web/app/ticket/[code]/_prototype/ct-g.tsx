@@ -269,9 +269,10 @@ function OSoan({ ds, onThem }: { ds: Lan[]; onThem: (m: GhiMoi) => void }) {
           chuaLuu()
         }}
       />
-      <p className="m-0 ds-text-xs text-muted-foreground">
-        Giả định: app chỉ GHI NHẬN cuộc gọi / Zalo, không gửi tin cho khách (chờ CEO chốt).
-      </p>
+      {/* CEO chốt 25/11: app CHỈ GHI NHẬN trao đổi (gọi / Zalo), không gửi tin cho khách. */}
+      {!noiBo && (
+        <p className="m-0 ds-text-xs text-muted-foreground">Ghi lại nội dung đã gọi / nhắn Zalo với khách — app không gửi tin cho khách.</p>
+      )}
     </div>
   )
 }
