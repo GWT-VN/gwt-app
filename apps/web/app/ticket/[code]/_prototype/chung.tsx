@@ -46,6 +46,7 @@ export type DuLieuCt = {
 }
 
 export const PA = [
+  { ma: 'G', ten: 'Đề xuất theo nghiên cứu' },
   { ma: 'A', ten: 'Hai cột kiểu Linear' },
   { ma: 'B', ten: 'Hội thoại là chính' },
   { ma: 'C', ten: 'Theo tab' },

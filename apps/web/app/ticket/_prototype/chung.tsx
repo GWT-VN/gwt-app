@@ -23,6 +23,7 @@ export type DuLieuTicket = {
 }
 
 export const PHUONG_AN = [
+  { ma: 'F', ten: 'Đề xuất theo nghiên cứu' },
   { ma: 'A', ten: 'Hàng đợi như Việc' },
   { ma: 'B', ten: 'Bảng dày' },
   { ma: 'C', ten: 'Hộp thư chia đôi' },

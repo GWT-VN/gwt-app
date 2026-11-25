@@ -57,8 +57,8 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const cuoi = lanLoi.at(-1)
   const ngayCuoi = cuoi ? ngayCuaLan(cuoi.ngay, cuoi.created_at) : ngayDau
 
-  // PROTOTYPE vứt đi (25/11): ?variant=A–F → 6 phương án trang chi tiết dựng bằng DS v2; không có variant → màn cũ.
-  const variant = process.env.NODE_ENV === 'production' ? undefined : ['A', 'B', 'C', 'D', 'E', 'F'].find((v) => v === sp.variant)
+  // PROTOTYPE vứt đi (25/11): ?variant=A–G → 7 phương án trang chi tiết dựng bằng DS v2; không có variant → màn cũ.
+  const variant = process.env.NODE_ENV === 'production' ? undefined : ['A', 'B', 'C', 'D', 'E', 'F', 'G'].find((v) => v === sp.variant)
   if (variant) {
     const ma = new Set(items.map((i) => i.catalog_code).filter(Boolean))
     return (

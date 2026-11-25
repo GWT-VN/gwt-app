@@ -15,7 +15,7 @@ import { thongBao } from '@/components/ui/sonner'
 import { Timeline } from '@/components/ui/timeline'
 import { cacLan, CanhBao, DuongDan, HangThuocTinh, meta, mucGhiChu, ngayVN, NutLichKT, tieuDe, useGhiChuMoi, type DuLieuCt } from './chung'
 
-type Lan = ReturnType<typeof cacLan>[number] & {
+export type Lan = ReturnType<typeof cacLan>[number] & {
   demo?: boolean
   vatTu: string[]
   ketQua?: { nhan: string; color: 'warning' | 'success' | 'secondary' }
@@ -28,7 +28,7 @@ const KQ = {
 } as const
 
 /** Gắn vật tư + kết quả (dòng máy) vào lần có mốc ngay trước nó. DB local thiếu bảng lần lỗi → thêm 2 lần Demo để thấy bố cục. */
-function dsLan(d: DuLieuCt): Lan[] {
+export function dsLan(d: DuLieuCt): Lan[] {
   const goc = cacLan(d)
   const moc = [d.t.created_at, ...d.lanLoi.map((l) => l.created_at)].map(Date.parse)
   const cuaLan = (luc: string) => {
