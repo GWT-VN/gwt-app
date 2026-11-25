@@ -40,7 +40,7 @@ import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Composer } from '@/components/ui/composer'
 import { propsTitle } from '@/components/ui/detail-styles'
 import { ChipTrangThai, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai, type MucNhan } from '@/components/ui/inline-edit'
-import { cat, nguoi } from '@/components/ui/inline-edit-styles'
+import { cat, nguoi, nutThem } from '@/components/ui/inline-edit-styles'
 import { Input } from '@/components/ui/input'
 import { menuContent } from '@/components/ui/menu-styles'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -675,12 +675,7 @@ function NutChon({
       <PopoverTrigger asChild>
         {/* Nút phẳng (ghost): chữ mờ tertiary (mờ hơn nhãn), rê mới hiện nền + chữ sáng — CEO 23/11. Lề âm = đúng đệm trái size xs → icon
             thẳng cột giá trị (nền rê tràn ra trái, như Linear). */}
-        <Button
-          variant="ghost"
-          size="xs"
-          className="-ml-[calc(var(--control-gutter-xs)*1.33)] text-(--color-text-tertiary) aria-expanded:text-accent-foreground"
-          aria-label={nhan}
-        >
+        <Button variant="ghost" size="xs" className={nutThem} aria-label={nhan}>
           <Plus aria-hidden="true" />
           {chu}
         </Button>

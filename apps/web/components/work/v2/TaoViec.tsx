@@ -2,8 +2,9 @@
 
 /**
  * Hộp "Tạo việc" v2 (canvas WorkTaoViec, CEO duyệt 23/11) — chỉ ghép component DS: Dialog + FormLayout/Field, Input,
- * Textarea, DateTimePicker (Hạn), Select (Ưu tiên hiện badge, Team ≤ 10) / Combobox (Team > 10), người = ButtonGroup
- * [tên · vai ▾ (DropdownMenu đổi vai)][✕] + "Thêm người" (Popover + ComboboxPanel, gõ để tìm), ConfirmDialog khi bỏ dở.
+ * Textarea, DateTimePicker (Hạn), Select (Ưu tiên, Team ≤ 10 — chữ trơn, không badge) / Combobox (Team > 10), người = mỗi
+ * người một dòng [avatar tên … vai ▾ (DropdownMenu)][✕] + "+ Thêm người" (Popover + ComboboxPanel, gõ để tìm),
+ * ConfirmDialog khi bỏ dở. CEO 25/11: bỏ chip pill 28 + badge trong ô chọn → mọi dòng cao 32 như ô nhập.
  *
  * Luật giữ từ FormTaoViec cũ: người đầu tiên thêm vào = Chính (owner), người sau = Làm cùng (doer); không chọn ai → gửi
  * `assignees` rỗng, RPC `work_tao_viec` tự gán người tạo làm Chính.
@@ -19,7 +20,6 @@ import { taoViec, type NenTang } from '@/app/work/actions'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { Combobox, ComboboxPanel } from '@/components/ui/combobox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { FormGrid, FormLayout } from '@/components/ui/form-layout'
+import { cat, dongNguoi, dsNguoi, nguoi, nutThem } from '@/components/ui/inline-edit-styles'
 import { Input } from '@/components/ui/input'
 import { menuContent } from '@/components/ui/menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -211,19 +212,21 @@ export function TaoViec({
 
                 <Field aria-labelledby={idNguoi} aria-describedby={idGoiYNguoi}>
                   <FieldTitle id={idNguoi}>Người làm</FieldTitle>
-                  <div className="flex flex-wrap items-center gap-1.5">
+                  <div className={dsNguoi}>
                     {f.nguoi.map((n) => {
                       const ten = tenCua(n.staff_id)
                       return (
-                        <ButtonGroup key={n.staff_id} aria-label={ten}>
+                        <div key={n.staff_id} className={dongNguoi}>
+                          <span data-slot="nguoi" className={nguoi}>
+                            <Avatar aria-hidden="true">
+                              <AvatarFallback>{chuCaiDau(ten)}</AvatarFallback>
+                            </Avatar>
+                            <span className={cat}>{ten}</span>
+                          </span>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="secondary" size="sm" shape="pill" aria-label={`${ten} · ${VAI[n.role]} — đổi vai`}>
-                                <Avatar size="sm" aria-hidden="true">
-                                  <AvatarFallback>{chuCaiDau(ten)}</AvatarFallback>
-                                </Avatar>
-                                {ten}
-                                <span className="text-muted-foreground">· {VAI[n.role]}</span>
+                              <Button variant="ghost" size="xs" aria-label={`Vai của ${ten}: ${VAI[n.role]} — đổi vai`}>
+                                {VAI[n.role]}
                                 <CaretDown aria-hidden="true" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -244,20 +247,19 @@ export function TaoViec({
                             </DropdownMenuContent>
                           </DropdownMenu>
                           <Button
-                            variant="secondary"
-                            size="icon-sm"
-                            shape="pill"
+                            variant="ghost"
+                            size="icon-xs"
                             aria-label={`Bỏ ${ten}`}
                             onClick={() => sua({ nguoi: f.nguoi.filter((x) => x.staff_id !== n.staff_id) })}
                           >
                             <X aria-hidden="true" />
                           </Button>
-                        </ButtonGroup>
+                        </div>
                       )
                     })}
                     <Popover open={moThem} onOpenChange={setMoThem}>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!chuaChon.length}>
+                        <Button variant="ghost" size="xs" className={nutThem} disabled={!chuaChon.length}>
                           <Plus aria-hidden="true" />
                           Thêm người
                         </Button>
@@ -287,7 +289,7 @@ export function TaoViec({
                     </Popover>
                   </div>
                   <FieldDescription id={idGoiYNguoi}>
-                    Người đầu là người chính; bấm vào tên để đổi vai. Không chọn ai → bạn là người chính.
+                    Người đầu là người chính; không chọn ai → bạn làm chính.
                   </FieldDescription>
                 </Field>
 
@@ -309,8 +311,8 @@ export function TaoViec({
                       </SelectTrigger>
                       <SelectContent>
                         {UU.map((u) => (
-                          <SelectItem key={u.gt} value={u.gt} textValue={u.chu}>
-                            {u.nhan}
+                          <SelectItem key={u.gt} value={u.gt}>
+                            {u.chu}
                           </SelectItem>
                         ))}
                       </SelectContent>

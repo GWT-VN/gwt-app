@@ -59,6 +59,19 @@ export const cat = 'min-w-0 overflow-hidden text-ellipsis whitespace-nowrap'
 /** `.b-nguoi`: avatar + tên cách 8, một dòng. */
 export const nguoi = 'inline-flex min-w-0 items-center gap-2 whitespace-nowrap'
 
+/**
+ * Danh sách người trong FORM (CEO 25/11, hộp Tạo việc): mỗi người MỘT dòng cao 32 (= cao ô nhập) — tên trái, vai ▾ + ✕
+ * phải thẳng cột; nút "+ Thêm người" dòng riêng bên dưới. Thay chip pill 28 xếp tràn dòng (lệch cao với ô 32, nút thêm
+ * kẹt cạnh chip cuối).
+ */
+export const dsNguoi = 'flex min-w-0 flex-col'
+export const dongNguoi = 'flex min-h-(--control-size-md) min-w-0 items-center gap-1 [&>[data-slot=nguoi]]:flex-1'
+/**
+ * Nút "+ Thêm …" của danh sách giá trị (PropertyList, form): Button ghost xs, chữ tertiary — rê / mở mới sáng; lề âm =
+ * đúng đệm trái size xs → icon thẳng cột giá trị (nền rê tràn trái, kiểu Linear). CEO 23/11, dùng chung từ 25/11.
+ */
+export const nutThem = '-ml-[calc(var(--control-gutter-xs)*1.33)] self-start text-(--color-text-tertiary) aria-expanded:text-accent-foreground'
+
 /** `.b-khach`: tên + cờ lưu ý cách 6. `.b-luuy`: cờ đỏ 15px (bundle.css gõ 15px). */
 export const khach = 'inline-flex min-w-0 items-center gap-1.5'
 export const luuY = 'inline-flex shrink-0 items-center text-(--color-text-danger) [&>svg]:size-[15px]'

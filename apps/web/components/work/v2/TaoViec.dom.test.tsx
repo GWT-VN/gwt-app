@@ -84,7 +84,7 @@ test('thêm người: người đầu = Chính, người sau = Làm cùng; đổ
     await user.click(screen.getByRole('button', { name: 'Thêm người' }))
     await user.click(await screen.findByRole('option', { name: new RegExp(ten) }))
   }
-  await user.click(screen.getByRole('button', { name: 'Demo Bình · Làm cùng — đổi vai' }))
+  await user.click(screen.getByRole('button', { name: 'Vai của Demo Bình: Làm cùng — đổi vai' }))
   await user.click(await screen.findByRole('menuitemradio', { name: 'Duyệt' }))
   await user.click(screen.getByRole('button', { name: 'Tạo việc' }))
   await waitFor(() => expect(m.taoViec).toHaveBeenCalled())
