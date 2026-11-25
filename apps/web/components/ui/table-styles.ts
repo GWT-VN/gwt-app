@@ -94,10 +94,10 @@ export const ma = cn(kv, 'text-[12px] leading-[18px] tabular-nums text-(--color-
 
 /**
  * `.b-cot-chon`: ô chọn rộng 36, đệm trái 16. Từ md cột nằm ở lề ngoài bảng (xem khung cuộn ở đầu file): đệm trái 10,
- * không kẻ, không nền hover/chọn — dòng sáng chỉ trong phần bảng.
+ * không kẻ; ô thân không nền hover/chọn — dòng sáng chỉ trong phần bảng.
  */
 export const cotChon =
-  'w-9 min-w-9 pl-4! md:pl-2.5! md:pr-0 md:bg-transparent! md:border-b-transparent'
+  'w-9 min-w-9 pl-4! md:pl-2.5! md:pr-0 md:border-b-transparent'
 /** `.b-cot-dem`: cột đệm cuối ăn chỗ thừa (khung hẹp thì về 0) — cột thật giữ đúng độ rộng đã kéo. */
 export const cotDem = 'p-0!'
 
@@ -177,7 +177,8 @@ export const anChoReO =
 /** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong` / `OChonO`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
 export const CHON_BANG: Partial<GiaoDienBang> = {
   chon_oTh: cn(th, cotChon, anChoReDau),
-  chon_oTd: cn(td, cotChon, anChoRe),
+  // Ô thân trong suốt ở lề (md+): nền rê/chọn chỉ trong phần bảng. Ô tiêu đề GIỮ nền — dính đầu, che ô tick khi cuộn.
+  chon_oTd: cn(td, cotChon, anChoRe, 'md:bg-transparent!'),
   chon_oO: cn('inline-flex', anChoReO),
 }
 

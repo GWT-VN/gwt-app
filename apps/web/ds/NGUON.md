@@ -186,7 +186,9 @@ Gom từ review lát 1 — đọc trước khi dựng component mới trong `com
 
 - **Font:** Inter đi kèm `DsRoot` (`components/ui/font-inter.ts`, biến `--font-inter` gắn trên chính phần tử gốc) → màn
   nào bọc `<DsRoot>` cũng có Inter; không nạp font ở layout.
-- **font-feature-settings:** component **không bao giờ reset** (`cv11`/`ss03` kế thừa từ `DsRoot` — CEO chốt 19/11
+- **font-feature-settings (CEO 25/11 đổi):** `DsRoot` chỉ bật `ss03` — BỎ `cv11` để chữ a HAI tầng (dễ đọc); artifact
+  còn `cv11`, cổng so khớp bật lại `cv11` bên DS lúc ĐO (so hình học đúng artifact). Bản cũ dưới đây giữ để biết lịch sử.
+- **font-feature-settings (cũ):** component **không bao giờ reset** (`cv11`/`ss03` kế thừa từ `DsRoot` — CEO chốt 19/11
   "bật cho đồng bộ"). Artifact bản 29 đã sửa theo: 20 rule dùng shorthand `font:` trong `bundle.css` thêm
   `font-feature-settings: inherit` → so khớp không còn lệch dòng này, không cần `lyDo`.
 - **Viền:** Button base là `border-none` (khớp `.ui-btn{border:0}`) → cần viền thì thêm `border-solid`. Component khác

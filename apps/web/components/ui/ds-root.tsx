@@ -33,9 +33,10 @@ export function DsRoot({
       className={cn(
         inter.variable,
         'bg-background text-foreground font-[family-name:var(--font-sans)] antialiased',
-        '[font-feature-settings:"cv11","ss03"]',
+        // CEO 25/11: chữ a HAI tầng cho dễ đọc → bỏ cv11 (a một tầng), giữ ss03 (dấu câu tròn). Artifact còn cv11.
+        '[font-feature-settings:"ss03"]',
         // y body ds/nguon/bundle.css (14px/20px) — component không khai line-height (Avatar…) kế thừa đúng như artifact.
-        // Tách lẻ, không shorthand `font:` (shorthand xoá cv11/ss03 ở dòng trên).
+        // Tách lẻ, không shorthand `font:` (shorthand xoá ss03 ở dòng trên).
         'text-[14px] leading-[20px]',
         className,
       )}

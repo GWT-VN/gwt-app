@@ -385,7 +385,10 @@ async function main() {
         })()`)
         if (!sanSang) throw new Error('DsRoot chưa hydrate sau 20 giây')
       }
-      await chay(cdp, `document.head.append(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(AN_NEXT_DEV)} })), true`)
+      // CEO 25/11: DsRoot bỏ cv11 (chữ a HAI tầng), artifact còn cv11 → lúc ĐO bật lại cv11 bên DS để so hình học (bề
+      // rộng chữ) và fontFeatureSettings đúng với artifact; khác biệt cv11 là quyết định có chủ đích, không phải lệch.
+      const themCss = dich.startsWith('http') ? AN_NEXT_DEV + '[data-ds="v2"]{font-feature-settings:"cv11","ss03"}' : AN_NEXT_DEV
+      await chay(cdp, `document.head.append(Object.assign(document.createElement('style'), { textContent: ${JSON.stringify(themCss)} })), true`)
       await chay(cdp, TRO_GIUP)
     }
     const S = JSON.stringify

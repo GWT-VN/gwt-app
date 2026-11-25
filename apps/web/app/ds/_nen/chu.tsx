@@ -32,10 +32,10 @@ export function TrangChu() {
   return (
     <Tam
       tieuDe="Chữ"
-      moTa="Inter chính chủ (rsms v4.1, tự host qua next/font/local, gắn ở DsRoot) với cv11 + ss03 bật cho cả vùng DS. Cỡ chủ đạo của app nội bộ là text-sm 14/20; heading 3xl–5xl không dùng trong app. Mẫu vẽ bằng chính biến --text-* của ds/tokens.css."
+      moTa="Inter chính chủ (rsms v4.1, tự host qua next/font/local, gắn ở DsRoot) với ss03 bật cho cả vùng DS (cv11 tắt — chữ a hai tầng, CEO 25/11). Cỡ chủ đạo của app nội bộ là text-sm 14/20; heading 3xl–5xl không dùng trong app. Mẫu vẽ bằng chính biến --text-* của ds/tokens.css."
       muc={[
         { id: 'ho-chu', ten: 'Họ chữ' },
-        { id: 'tinh-nang', ten: 'cv11 · ss03' },
+        { id: 'tinh-nang', ten: 'ss03' },
         { id: 'so', ten: 'Số' },
         ...NHOM_CHU.map((n) => ({ id: `chu-${n.ten.toLowerCase()}`, ten: n.ten })),
       ]}
@@ -66,11 +66,11 @@ export function TrangChu() {
       </Muc>
       <Muc
         id="tinh-nang"
-        tieuDe="cv11 · ss03"
-        moTa="DsRoot bật font-feature-settings cv11 (chữ a một tầng) và ss03 (dấu câu tròn); component không bao giờ reset — CEO chốt 19/11. Dòng Tắt chỉ để so."
+        tieuDe="ss03"
+        moTa="DsRoot bật font-feature-settings ss03 (dấu câu tròn); cv11 (chữ a một tầng) TẮT để chữ a hai tầng dễ đọc — CEO 25/11 (trước đó bật cv11, chốt 19/11). Component không bao giờ reset. Dòng Tắt chỉ để so."
       >
         <BangToken
-          ten="cv11 · ss03"
+          ten="ss03"
           cot={['Mẫu']}
           rong={100}
           hang={[
