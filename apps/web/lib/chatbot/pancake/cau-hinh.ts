@@ -74,8 +74,9 @@ export function docCauHinh(env: Record<string, string | undefined>): { ch: CauHi
   }
 
   const tranTho = env.PANCAKE_TRAN_NGAY?.trim();
+  if (tranTho && !/^\d+$/.test(tranTho)) return { loi: "PANCAKE_TRAN_NGAY phải là số nguyên 1–1000" };
   const tranNgay = tranTho ? Number(tranTho) : 20;
-  if (!Number.isInteger(tranNgay) || tranNgay < 1) return { loi: "PANCAKE_TRAN_NGAY phải là số nguyên dương" };
+  if (tranNgay < 1 || tranNgay > 1000) return { loi: "PANCAKE_TRAN_NGAY phải là số nguyên 1–1000" };
 
   const demTho = env.PANCAKE_DEM_DIR?.trim() || "~/Bots/state";
   const demDir = demTho === "~" || demTho.startsWith("~/") ? homedir() + demTho.slice(1) : demTho;

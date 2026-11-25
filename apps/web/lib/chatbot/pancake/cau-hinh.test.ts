@@ -53,6 +53,9 @@ describe("docCauHinh", () => {
     ["PANCAKE_GIO_LAM", { PANCAKE_GIO_LAM: "xx" }],
     ["PANCAKE_GIO_BOT", { PANCAKE_GIO_BOT: "25:00-22:00" }],
     ["PANCAKE_TRAN_NGAY", { PANCAKE_TRAN_NGAY: "0" }],
+    ["PANCAKE_TRAN_NGAY", { PANCAKE_TRAN_NGAY: "1e21" }],
+    ["PANCAKE_TRAN_NGAY", { PANCAKE_TRAN_NGAY: "0x10" }],
+    ["PANCAKE_TRAN_NGAY", { PANCAKE_TRAN_NGAY: "1001" }],
     ["PANCAKE_TU_GUI", { PANCAKE_TU_GUI: "co" }],
     ["DISCORD_WEBHOOK_PANCAKE_BAO", { DISCORD_WEBHOOK_PANCAKE_BAO: undefined }],
     ["OPENAI_API_KEY", { OPENAI_API_KEY: undefined }],
@@ -78,4 +81,23 @@ describe("trongGioBot (R2)", () => {
     expect(trongGioBot(VN(23, "23:00"), g(b))).toBe(false);
     expect(trongGioBot(VN(23, "19:00"), g(b))).toBe(true);
   });
+  it("biên giờ làm: 08:00 false, 07:59 true, 18:00 true, 17:59 false; CN 10:00 true", () => {
+    expect(trongGioBot(VN(23, "08:00"), g())).toBe(false);
+    expect(trongGioBot(VN(23, "07:59"), g())).toBe(true);
+    expect(trongGioBot(VN(23, "18:00"), g())).toBe(true);
+    expect(trongGioBot(VN(23, "17:59"), g())).toBe(false);
+    expect(trongGioBot(VN(29, "10:00"), g())).toBe(true);
+  });
+  it("biên gioBot 18:00-22:00: 21:59 true, 22:00 false", () => {
+    const b = { tu: 1080, den: 1320 };
+    expect(trongGioBot(VN(23, "21:59"), g(b))).toBe(true);
+    expect(trongGioBot(VN(23, "22:00"), g(b))).toBe(false);
+  });
+  it("gioBot qua nửa đêm 22:00-06:00: 23:30 true, 05:59 true, 06:00 false", () => {
+    const b = { tu: 1320, den: 360 };
+    expect(trongGioBot(VN(23, "23:30"), g(b))).toBe(true);
+    expect(trongGioBot(VN(24, "05:59"), g(b))).toBe(true);
+    expect(trongGioBot(VN(24, "06:00"), g(b))).toBe(false);
+  });
+  it("PANCAKE_TRAN_NGAY 1000 nhận", () => expect(ok(env({ PANCAKE_TRAN_NGAY: "1000" })).tranNgay).toBe(1000));
 });

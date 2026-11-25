@@ -29,6 +29,28 @@ describe("chanTruocSoan (R3–R7)", () => {
   });
 });
 
+describe("biên + không dấu", () => {
+  it.each(["co tang qua gi khong", "mua tra gop duoc khong", "gia tot hon duoc ko", "re hon chut duoc ko"])("%s → hoi_qua_tra_gop", (t) =>
+    expect(tr({ nhom: "hoi_gia", tinKhach: t })).toBe("hoi_qua_tra_gop"));
+  it("NFD có dấu vẫn chặn", () => expect(tr({ nhom: "hoi_gia", tinKhach: "có tặng quà gì không".normalize("NFD") })).toBe("hoi_qua_tra_gop"));
+  it.each(["hôm qua em hỏi giá CTS20", "kỹ thuật qua nhà lúc nào"])("%s → không chặn", (t) =>
+    expect(tr({ nhom: "hoi_gia", tinKhach: t })).toBeNull());
+  it("botLuotHomNay 2 được, 3 chặn", () => {
+    expect(tr({ botLuotHomNay: 2 })).toBeNull();
+    expect(tr({ botLuotHomNay: 3 })).toBe("qua_3_luot");
+  });
+  it("trần ngày: tran-1 được, = tran chặn", () => {
+    expect(tr({ daGuiHomNay: 19 })).toBeNull();
+    expect(tr({ daGuiHomNay: 20 })).toBe("qua_tran_ngay");
+  });
+  it("đúng 6 đoạn được, 7 chặn", () => {
+    const n = (k: number) => Array.from({ length: k }, (_, i) => `Đoạn ${i} ạ.`).join("\n\n");
+    expect(sau({ traLoi: n(6) })).toBeNull();
+    expect(sau({ traLoi: n(7) })).toBe("qua_6_doan");
+  });
+  it("trả lời NFD vẫn bắt quà", () => expect(sau({ traLoi: "Dạ được tặng quà ạ.".normalize("NFD") })).toBe("tra_loi_nhac_qua"));
+});
+
 describe("chanSauSoan", () => {
   it("sạch → null", () => expect(sau()).toBeNull());
   it("từng lý do", () => {
