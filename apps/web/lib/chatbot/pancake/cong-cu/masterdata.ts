@@ -308,7 +308,7 @@ export async function docSoLieuMay(
   const khuyenMai: KhuyenMai | null = km
     ? {
       kenh: String(km.kenh ?? "").trim() || null,
-      giamPct: kmKhop ? soHoac(km.pct_giam) : null,
+      giamPct: kmKhop && giaSauKmThat && (soHoac(km.pct_giam) ?? 0) > 0 ? soHoac(km.pct_giam) : null,
       giaSauKm: kmKhop && giaSauKmThat ? soHoac(km.gia_sau_km) : null,
       quaGiaTri: soHoac(km.qua_gia_tri),
       quaMoTa: moTaQua(String(km.qua_mo_ta ?? "").trim()),

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 // Hai ca ĐỌC DB dưới đây nghiệm thu bằng CÂU khách đọc — câu ở seam chữ, số ở đây.
 
+import { khoiSoLieu } from "./so-lieu-chu.ts";
 import {
   docSoLieuMay,
   quenMasterdata,
@@ -143,6 +144,15 @@ describe("docSoLieuMay — giá sau KM phải thấp hơn giá niêm yết", () 
     const sl = await ca({ kenh: "GWT", pct_giam: 0, gia_sau_km: 179950000, qua_mo_ta: "tặng bình giữ nhiệt" });
     expect(sl?.khuyenMai?.giaSauKm).toBeNull();
     expect(sl?.khuyenMai?.quaMoTa).toContain("bình giữ nhiệt");
+  });
+
+  it("pct 0 + giá bằng gốc → text một máy không có 'giảm 0%' / 'khuyến mãi còn', vẫn có quà", async () => {
+    const sl = await ca({ kenh: "GWT", pct_giam: 0, gia_sau_km: 179950000, qua_mo_ta: "tặng bình giữ nhiệt" });
+    const t = khoiSoLieu(sl);
+    expect(t).not.toContain("giảm 0%");
+    expect(t).not.toContain("khuyến mãi còn");
+    expect(t).not.toContain("còn 179.950.000");
+    expect(t).toContain("bình giữ nhiệt");
   });
 
   it("gia_sau_km thấp hơn giá niêm yết → giữ nguyên", async () => {
