@@ -56,3 +56,6 @@ Dạng xem **Bảng** (shadcn `Table` + TanStack, dựng bằng token OpenAI —
 - `TableRow` nhận `data-state` từ ngoài (`ContextMenuTrigger asChild`), `chon` thắng.
 - Không chép của shadcn: kẻ viền trên `tr` (DS kẻ trên ô, `border-separate`), `pr-0` cho ô checkbox.
 - Giữ: `variant` `du-lieu` / `thuong`, `layout="fixed"`, `TableWrap vien`, `BangTrangThai`.
+
+## Tạo tại chỗ — dòng "+ Mới" (`DongThem`, CEO chốt 25/11/2026)
+Cuối bảng có dòng "+ <tên> mới" (icon thẳng chữ ô đầu, đệm 6). Luật đầy đủ (ô gõ kiểu dòng không khung form, Enter tạo, chỉ đặt ở chỗ không lọc): README `ListView` mục "Tạo tại chỗ".

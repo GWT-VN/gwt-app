@@ -7,7 +7,8 @@
 import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import type { MucNhan, MucTrangThai } from '@/components/ui/inline-edit'
-import { boNguoi, ganNguoi, type KQ, type NguoiLam } from '@/app/work/actions'
+import { thongBao } from '@/components/ui/sonner'
+import { boNguoi, doiTrangThai, ganNguoi, taoViec, type KQ, type NguoiLam } from '@/app/work/actions'
 import { cn } from '@/lib/utils'
 import { inputTuIso, ngayThang, soNgayToiHan } from '@/lib/work'
 
@@ -31,6 +32,34 @@ export const TT: MucTrangThai[] = [
 
 /** Vai DB → chữ của canvas (Chính · Làm cùng · Duyệt · Theo dõi). Không vai = việc mình tạo giao người khác. */
 export const VAI: Record<string, string> = { owner: 'Chính', doer: 'Làm cùng', reviewer: 'Duyệt', watcher: 'Theo dõi' }
+
+/** Gợi ý ô gõ của dòng "+ Việc mới" (Danh sách / Bảng); cột Kanban hẹp dùng bản ngắn. */
+export const GOI_Y_THEM = 'Tên việc — Enter để tạo, Esc để thôi'
+export const GOI_Y_THEM_NGAN = 'Tên việc — Enter để tạo'
+
+/**
+ * Tạo việc từ dòng "+ Việc mới" (DongThem, CEO 25/11 bỏ hộp Tạo việc): chỉ tên → RPC gán người tạo làm Chính, ưu tiên
+ * Thường, chưa hạn; thuộc tính khác sửa tại ô sau. `status` (cột Kanban) khác `todo` → đổi trạng thái ngay sau khi tạo —
+ * hai bước (RPC tạo chưa nhận trạng thái); bước hai hỏng thì việc vẫn có, toast nói rõ để kéo lại tay.
+ */
+
+export async function taoNhanhViec(ten: string, status?: string): Promise<boolean> {
+  const kq = await taoViec({ title: ten })
+  if (!kq.ok) {
+    thongBao.loi(`Chưa tạo được việc — ${kq.loi}`)
+    return false
+  }
+  const { id, ref } = kq.duLieu
+  if (status && status !== 'todo') {
+    const d = await doiTrangThai(id, status)
+    if (!d.ok) {
+      thongBao.loi(`Đã tạo ${ref} nhưng chưa chuyển được trạng thái — ${d.loi}`)
+      return true
+    }
+  }
+  thongBao.xong(`Đã tạo ${ref}`)
+  return true
+}
 
 /** Server action trả `KQ` (không ném — xem actions.ts); ô sửa tại chỗ cần lỗi ném ra để trả giá trị cũ + toast Thử lại. */
 export async function chac<T>(p: Promise<KQ<T>>): Promise<T> {

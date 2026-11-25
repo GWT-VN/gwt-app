@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { ManV2 } from '@/components/khung/ManV2'
 import { BangTeam } from '@/components/work/v2/BangTeam'
-import { TaoViec } from '@/components/work/v2/TaoViec'
 import { bangTeam, nenTang } from '../actions'
 
 export const metadata = { title: 'Bảng team · GWT Work' }
@@ -17,12 +16,7 @@ export default async function BangTeamPage() {
   return (
     <ManV2>
       <Suspense>
-        <BangTeam
-          rows={rows}
-          nenTang={nt}
-          // key: phần tử tạo ở server rồi render trong client — React dev cảnh báo thiếu key nếu không có.
-          nutTao={<TaoViec key="tao-viec" nenTang={nt} />}
-        />
+        <BangTeam rows={rows} nenTang={nt} />
       </Suspense>
     </ManV2>
   )

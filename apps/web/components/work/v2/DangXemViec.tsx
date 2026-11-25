@@ -4,11 +4,12 @@
  * Phần chung của các dạng xem việc v2 (Bảng team, Việc của tôi): cột + ô sửa tại chỗ, Table DS có ô chọn dòng, Kanban
  * theo trạng thái (kéo thả gọi `keoTha`). Mỗi màn tự giữ dữ liệu, lọc / tab / sắp ở URL và danh sách (ListView) riêng.
  */
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { useRouter } from 'next/navigation'
 import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
+import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { OSuaChu, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
 import { NutMoMa } from '@/components/ui/list-view'
@@ -16,7 +17,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@
 import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
-import { chac, doiNguoiChinh, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
+import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
@@ -290,6 +291,8 @@ export function KanbanViec<T extends ViecXem>({
   phu,
   moViec,
   lamMoi,
+  onTao,
+  themRef,
 }: {
   dong: T[]
   rows: T[]
@@ -297,6 +300,10 @@ export function KanbanViec<T extends ViecXem>({
   phu: (v: T) => string
   moViec: (id: number) => void
   lamMoi: () => void
+  /** Có → chân mỗi cột (trừ Xong) có "+ Việc mới" tạo thẳng vào trạng thái của cột. */
+  onTao?: (ten: string, status: string) => Promise<boolean>
+  /** Gắn vào "+ Việc mới" của cột đầu (Cần làm) — nút chính thanh công cụ mở nó. */
+  themRef?: Ref<DongThemRef>
 }) {
   async function chuyen(id: string, cot: string) {
     // Nguồn không có thứ tự (work_viec_cua_toi không trả sort_order) → chỉ đổi trạng thái. Gửi keoTha(…, 0) sẽ GHI ĐÈ
@@ -341,6 +348,20 @@ export function KanbanViec<T extends ViecXem>({
       the={the}
       onChuyen={chuyen}
       onMo={(id) => moViec(Number(id))}
+      chanCot={
+        onTao &&
+        ((c) =>
+          c.id === 'done' ? null : (
+            <DongThem
+              kieu="the"
+              nhan="Việc mới"
+              nhanDoc={`Việc mới — ${c.nhan}`}
+              placeholder={GOI_Y_THEM_NGAN}
+              ref={c.id === TT[0].gt ? themRef : undefined}
+              onTao={(ten) => onTao(ten, c.id)}
+            />
+          ))
+      }
     />
   )
 }

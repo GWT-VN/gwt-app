@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * "Bảng team" v2 — ghép Data view DS theo canvas WorkBangTeam (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, Tạo
- * việc, tab Mọi người · Gấp, ⚙ + dạng xem) · FilterBar (chip điều kiện + "Thêm team" · "Thêm người") · Table /
+ * "Bảng team" v2 — ghép Data view DS theo canvas WorkBangTeam (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, + Việc
+ * mới = mở dòng "+ Việc mới" tạo tại chỗ ở tab Mọi việc — CEO 25/11 bỏ hộp Tạo việc, tab Mọi người · Gấp, ⚙ + dạng xem) · FilterBar (chip điều kiện + "Thêm team" · "Thêm người") · Table /
  * ListView / KanbanBoard · thanh hàng loạt mặt nổi (`ThanhHangLoatViec`). Lọc / sắp / tab ở URL (docs/CHUAN-FILTER.md):
  * `tab`, `q`, `nguoi` (staff id, phẩy), `tt` (trạng thái, phẩy), `team` (team id, phẩy), `cot`/`chieu`. Dữ liệu + quyền
  * qua server action (app/work/actions.ts); lọc chạy trên các việc RPC đã cho xem. Ô / Table / Kanban: DangXemViec.
@@ -10,7 +10,7 @@
  * ponytail: tab "Lâu không đụng" + cột "Cập nhật" chưa làm — `work_bang_team` chưa trả `updated_at`.
  */
 import { KhungXemViec, useXemViec } from './KhungXemViec'
-import { Suspense, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus, UserPlus, UsersThree } from '@phosphor-icons/react/ssr'
 import { boDau, hrefBoLoc, KhungChon, OChonO, OTimKiem, ThanhDaChon, ThanhDangLoc } from '@/bang'
@@ -18,6 +18,7 @@ import type { NenTang, ViecTeamRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
+import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
 import { BangTrangThai } from '@/components/ui/table'
@@ -26,7 +27,7 @@ import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { MucLoc } from '@/components/ui/tieu-de-cot'
 import { useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanChip, soNgayToiHan } from '@/lib/work'
-import { NguoiChinh, TT } from './chung'
+import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT } from './chung'
 import {
   BangViec,
   COT_TEAM as COT,
@@ -78,14 +79,11 @@ export function BangTeam({
   rows,
   nenTang,
   onMo,
-  nutTao,
 }: {
   rows: ViecTeamRow[]
   nenTang: NenTang
   /** Mở thẻ xem nhanh / chi tiết (màn nối). */
   onMo?: (id: number) => void
-  /** Nút "Tạo việc" (màn nối dialog). Không truyền → nút trơn. */
-  nutTao?: ReactNode
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -99,6 +97,9 @@ export function BangTeam({
     onMo?.(id)
   }
   const { options, idCua, tenCua, lamMoi, o } = useOViec(nenTang, moViec, c.doRong.nguoi)
+  const themRef = useRef<DongThemRef>(null)
+  // Bấm nút chính khi đang ở tab khác: đổi tab trước, dòng thêm dựng xong mới mở (ref, không setState trong effect).
+  const moSau = useRef(false)
 
   // ── URL → điều kiện ──
   const tab: Tab = TAB.find((t) => t.v === sp.get('tab'))?.v ?? 'moi'
@@ -108,6 +109,9 @@ export function BangTeam({
   const teamLoc = dsUrl(sp.get('team'))
     .map(Number)
     .filter((id) => nenTang.teams.some((t) => t.id === id))
+  // "+ Việc mới" chỉ ở tab Mọi việc KHÔNG lọc: việc vừa tạo (mình là Chính, không team, Cần làm, chưa gấp/lâu) phải
+  // hiện ngay — đang lọc người/trạng thái/team/từ khoá thì nó lọt khỏi màn sau toast "Đã tạo" (review 25/11).
+  const choThem = tab === 'moi' && !q && !nguoiLoc.length && !ttLoc.length && !teamLoc.length
   const { cotUrl, sap } = docSap(sp, { cot: tab === 'gap' ? 'han' : tab === 'lau' ? 'cn' : 'uu', tang: true })
 
   const datUrl = (sua: Record<string, string | null>) => {
@@ -124,6 +128,17 @@ export function BangTeam({
       cot: s?.cot ?? null,
       chieu: s ? (s.tang ? 'asc' : 'desc') : null,
     })
+
+  useEffect(() => {
+    if (!choThem || !moSau.current) return
+    moSau.current = false
+    themRef.current?.mo()
+  }, [choThem])
+  const taoTai = async (ten: string, status?: string) => {
+    const ok = await taoNhanhViec(ten, status)
+    if (ok) lamMoi()
+    return ok
+  }
 
   // ── Lọc + sắp ──
   const tim = boDau(q.trim())
@@ -234,12 +249,14 @@ export function BangTeam({
   ]
 
   const xem =
-    rows.length === 0 ? (
+    // Kanban ở chỗ được thêm: luôn vẽ đủ cột (kể cả chưa có việc) — tạo thẳng vào cột, tạo xong focus không rơi.
+    dangXem === 'kanban' && choThem ? (
+      <KanbanViec dong={dong} rows={rows} phu={ganVoi} moViec={moViec} lamMoi={lamMoi} onTao={taoTai} themRef={themRef} />
+    ) : rows.length === 0 ? (
       <BangTrangThai
         trangThai="rongThat"
         tieuDe="Chưa có việc nào"
-        moTa="Việc bạn được xem sẽ hiện ở đây. Tạo việc đầu tiên cho team."
-        hanhDong={nutTao}
+        moTa="Việc bạn được xem sẽ hiện ở đây. Tạo việc đầu tiên bằng nút + Việc mới."
       />
     ) : dong.length === 0 && tab === 'lau' && dieuKien.length === 1 ? (
       // Chỉ có điều kiện của tab → đây là tin TỐT, không phải "lọc sai".
@@ -256,7 +273,13 @@ export function BangTeam({
         onXoaLoc={() => router.replace(pathname, { scroll: false })}
       />
     ) : dangXem === 'kanban' ? (
-      <KanbanViec dong={dong} rows={rows} phu={ganVoi} moViec={moViec} lamMoi={lamMoi} />
+      <KanbanViec
+        dong={dong}
+        rows={rows}
+        phu={ganVoi}
+        moViec={moViec}
+        lamMoi={lamMoi}
+      />
     ) : dangXem === 'danh-sach' ? (
       <ListView aria-label="Bảng team" cot={cotDs} dong={dong} khoa={(v) => String(v.id)} onMo={(v) => moViec(v.id)} />
     ) : (
@@ -288,12 +311,17 @@ export function BangTeam({
               </Suspense>
             }
             nutChinh={
-              nutTao ?? (
-                <Button>
-                  <Plus aria-hidden="true" />
-                  Tạo việc
-                </Button>
-              )
+              <Button
+                onClick={() => {
+                  if (choThem) return themRef.current?.mo()
+                  // Đổi về tab Mọi việc + bỏ lọc (giữ sắp xếp) để việc vừa tạo hiện ngay; dòng dựng xong mới mở.
+                  moSau.current = true
+                  datUrl({ tab: null, q: null, nguoi: null, tt: null, team: null })
+                }}
+              >
+                <Plus aria-hidden="true" />
+                Việc mới
+              </Button>
             }
             tabs={
               <Tabs value={tab} onValueChange={(t) => datUrl({ tab: t === 'moi' ? null : t })}>
@@ -378,6 +406,16 @@ export function BangTeam({
             thamSo={thamSo}
           >
             {xem}
+            {/* Kanban có "+ Việc mới" ở chân từng cột. */}
+            {choThem && dangXem !== 'kanban' && (
+              <DongThem
+                ref={themRef}
+                kieu={dangXem === 'bang' && dong.length ? 'bang' : 'ds'}
+                nhan="Việc mới"
+                placeholder={GOI_Y_THEM}
+                onTao={(ten) => taoTai(ten)}
+              />
+            )}
             <ThanhDaChon nhan="việc">
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
             </ThanhDaChon>

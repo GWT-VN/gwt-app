@@ -22,7 +22,17 @@ export function OTimKiem({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [q, setQ] = useState(searchParams.get('q') ?? '')
+  const urlQ = searchParams.get('q') ?? ''
+  const [q, setQ] = useState(urlQ)
+  // URL đổi từ NGOÀI (nút "Xoá lọc", nút "+ Việc mới" bỏ từ khoá…) → ô theo URL. Trước 25/11 ô giữ chữ cũ và hẹn giờ
+  // ghi NGƯỢC `q` cũ lên URL → bỏ từ khoá từ ngoài không ăn. Bỏ qua đúng giá trị chính ô này vừa ghi (`daGhi`): URL về
+  // chậm hơn phím gõ, nhận nó sẽ đè chữ người dùng gõ thêm trong lúc chờ.
+  const [urlTruoc, setUrlTruoc] = useState(urlQ)
+  const [daGhi, setDaGhi] = useState<string | null>(null)
+  if (urlQ !== urlTruoc) {
+    setUrlTruoc(urlQ)
+    if (urlQ !== daGhi) setQ(urlQ)
+  }
   const [, batDau] = useTransition()
   const { giaoDien: gd, bieuTuong } = useCauHinh()
 
@@ -37,6 +47,7 @@ export function OTimKiem({
     if (q === (searchParams.get('q') ?? '')) return
 
     const hen = setTimeout(() => {
+      setDaGhi(q)
       const sp = new URLSearchParams(searchParams.toString())
       if (q) sp.set('q', q)
       else sp.delete('q')

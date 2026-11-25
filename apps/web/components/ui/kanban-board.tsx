@@ -73,6 +73,8 @@ export type PropsKanbanBoard = {
   menuThe?: (t: TheKanban) => ReactNode
   /** Lý do cho cột `hoiLyDo` (mặc định khách · KT · vật tư · hãng · duyệt — như InlineEdit). */
   lyDo?: readonly string[]
+  /** Chân cột, dưới danh sách thẻ — thường là `<DongThem kieu="the">` ("+ Việc mới" tạo thẳng vào cột). */
+  chanCot?: (c: CotKanban) => ReactNode
   className?: string
 }
 
@@ -95,7 +97,7 @@ const chuLoi = (e: unknown) => (e instanceof Error && e.message ? e.message : 'l
  * - Cột rỗng: "Kéo thẻ vào đây". Rỗng do lọc CẢ MÀN: bên gọi vẽ `EmptyState kieu="loc"` thay cho bảng (như Table).
  * - ≤ 767: cột 82% bề ngang, cuộn ngang có snap. Bảng lấp chiều cao khung cha (flex cột) — khung cha đặt chiều cao.
  */
-export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CHO, className }: PropsKanbanBoard) {
+export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CHO, chanCot, className }: PropsKanbanBoard) {
   const id = useId()
   const portal = useDsPortal()
   const [keo, setKeo] = useState<string | null>(null)
@@ -236,7 +238,7 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
         {cot.map((c) => {
           const ds = the.filter((t) => t.cot === c.id)
           return (
-            <Cot key={c.id} cot={c} so={ds.length} tren={tren === c.id}>
+            <Cot key={c.id} cot={c} so={ds.length} tren={tren === c.id} chan={chanCot?.(c)}>
               {ds.map((t) => (
                 <The
                   key={t.id}
@@ -305,7 +307,19 @@ function toaDoPhim(cot: readonly CotKanban[], trenNay: string | null): KeyboardC
   }
 }
 
-function Cot({ cot, so, tren, children }: { cot: CotKanban; so: number; tren: boolean; children: ReactNode }) {
+function Cot({
+  cot,
+  so,
+  tren,
+  chan,
+  children,
+}: {
+  cot: CotKanban
+  so: number
+  tren: boolean
+  chan?: ReactNode
+  children: ReactNode
+}) {
   const { setNodeRef } = useDroppable({ id: cot.id })
   return (
     <section ref={setNodeRef} data-cot-id={cot.id} data-tren={tren || undefined} aria-label={cot.nhan} className={s.cot}>
@@ -314,6 +328,7 @@ function Cot({ cot, so, tren, children }: { cot: CotKanban; so: number; tren: bo
         <span className={s.cotDem}>{so}</span>
       </header>
       <div className={s.cotDs}>{so ? children : <div className={s.cotRong}>Kéo thẻ vào đây</div>}</div>
+      {chan}
     </section>
   )
 }

@@ -34,3 +34,11 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 - Prototype: nhánh `prototype/v2-khung`, `apps/web/app/prototype/bang/_bang/``PhuongAn.tsx` (`DanhSach`, `gom`) + `bang.css` (`.b-ds*`, `.b-ticket`, `.b-nhan-dau`).
 
 **Chọn dòng (thêm 23/11/2026):** dòng ListView chọn được bằng `OChonO` (bang/) đặt ĐẦU ô đầu tiên, trong `KhungChon` + `ThanhDaChon` như Table; cùng luật ô chọn ẩn chờ rê (README Table). Bấm ô chọn không mở bản ghi. **Từ 768 ô chọn nằm ở lề trái NGOÀI dòng** (CEO 25/11/2026, như cột chọn của Table): đặt tuyệt đối `right: 100%` của dòng (dòng `relative`), mép phải ô tick cách mép nội dung (mép dòng) 10, trùng cột chọn Table, căn tâm dòng — nội dung dòng không bị ô tick xô vào; < 768 ô chọn ở trong dòng.
+
+## Tạo tại chỗ — dòng "+ Mới" (`DongThem`, CEO chốt 25/11/2026)
+Thay hộp "Tạo …": cuối danh sách / bảng (Kanban: chân mỗi cột, trừ cột cuối "Xong") có dòng **"+ <tên bản ghi> mới"** — DS `Button` ghost xs + icon `Plus`, chữ `color-text-tertiary`, icon thẳng mép chữ của dạng xem (ListView đệm 16 · Table 6 · Kanban 8; lề âm = đệm nút, như nút thêm của `PropertyList`).
+- **Bấm → chính dòng đó thành ô gõ kiểu dòng, KHÔNG khung form** (CEO 25/11: "không dùng form kiểu này"): nền rê của dòng `alpha-05` bo `radius-xl`, icon + đứng yên đúng chỗ, chữ 14/20 gõ ngay sau icon, gợi ý tertiary, không viền / không vòng focus riêng.
+- **Enter = tạo ngay** chỉ với tên (trường bắt buộc duy nhất) — thuộc tính khác sửa tại ô (`InlineEdit`) trên dòng vừa hiện; tạo xong ô xoá trắng, GIỮ mở để gõ tiếp; Esc / rời ô khi trống = đóng, rời ô khi đã gõ = giữ chữ. Đang gửi: ô chỉ đọc (không disabled — giữ focus), chặn Enter lặp. Lỗi: toast, giữ chữ.
+- Nút chính thanh công cụ ("+ <tên> mới") mở dòng này (`ref.mo()`, focus lại nếu đã mở). Nhiều dòng trên một màn (cột Kanban) → `nhanDoc` ghép tên cột ("Việc mới — Đang làm").
+- **Chỉ đặt dòng ở chỗ bản ghi vừa tạo sẽ hiện**: tab mặc định, KHÔNG lọc / từ khoá (Việc: tab Đang mở / Mọi việc). Đang lọc thì không có dòng; bấm nút chính = về tab mặc định + bỏ lọc rồi mở dòng. Kanban ở chỗ được thêm luôn vẽ đủ cột kể cả chưa có bản ghi.
+- Code: `components/ui/dong-them.tsx`, `KanbanBoard chanCot`.

@@ -1,13 +1,14 @@
 'use client'
 
 /**
- * "Việc của tôi" v2 — ghép Data view DS theo canvas bản 23 (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, Tạo việc,
- * tab Đang mở · Quá hạn · Tôi giao · Đã xong, dạng xem) + ba dạng xem: Danh sách (ListView nhóm
+ * "Việc của tôi" v2 — ghép Data view DS theo canvas bản 23 (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, + Việc mới,
+ * tab Đang mở · Quá hạn · Tôi giao · Đã xong, dạng xem) + ba dạng xem (tab Đang mở có dòng "+ Việc mới" tạo tại chỗ —
+ * CEO 25/11 bỏ hộp Tạo việc; nút chính thanh công cụ mở dòng đó): Danh sách (ListView nhóm
  * theo hạn, sửa tại chỗ) · Bảng (Table DS, chọn dòng + thanh hàng loạt) · Kanban (theo trạng thái, kéo thả).
  * Bảng / Kanban / ô sửa dùng chung với Bảng team (DangXemViec). URL: `tab`, `q`, `cot`/`chieu`. Dữ liệu + quyền qua
  * server action (app/work/actions.ts).
  */
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
 import { KhungChon, OChonO, OTimKiem, ThanhDaChon } from '@/bang'
@@ -15,6 +16,7 @@ import { type NenTang, type ViecRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
+import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
@@ -23,8 +25,7 @@ import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { NHAN_NHOM, nhanChip, nhomTheoHan, THU_TU_NHOM } from '@/lib/work'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
-import { TaoViec } from './TaoViec'
-import { NguoiChinh, VAI } from './chung'
+import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, VAI } from './chung'
 import { BangViec, COT_VIEC, docSap, KanbanViec, NGHIA, soSanh, TEN_COT, useOViec, type Sap } from './DangXemViec'
 import { ThanhHangLoatViec } from './HangLoat'
 
@@ -87,6 +88,22 @@ export function ViecCuaToi({
   const xem = useXemViec()
   const c = useCotBang(COT, { url: true })
   const { lamMoi, o } = useOViec(nenTang, xem.mo, c.doRong.nguoi)
+  // Dòng "+ Việc mới" chỉ ở tab Đang mở, không từ khoá: việc vừa tạo (mình là Chính, chưa hạn) chỉ hiện ở đó — tạo ở tab
+  // khác / khi đang tìm thì dòng mới biến mất ngay khỏi mắt.
+  const choThem = tab === 'mo' && !q
+  const themRef = useRef<DongThemRef>(null)
+  // Bấm nút chính khi đang ở tab khác: đổi tab trước, dòng thêm dựng xong mới mở (ref, không setState trong effect).
+  const moSau = useRef(false)
+  useEffect(() => {
+    if (!choThem || !moSau.current) return
+    moSau.current = false
+    themRef.current?.mo()
+  }, [choThem])
+  const taoTai = async (ten: string, status?: string) => {
+    const ok = await taoNhanhViec(ten, status)
+    if (ok) lamMoi()
+    return ok
+  }
   const { cotUrl, sap } = docSap(new URLSearchParams(sp.toString()), { cot: 'han', tang: true })
 
   const cuaToi = rows.filter((v) => v.my_role)
@@ -167,15 +184,16 @@ export function ViecCuaToi({
               </Suspense>
             }
             nutChinh={
-              <TaoViec
-                nenTang={nenTang}
-                trigger={
-                  <Button>
-                    <Plus aria-hidden="true" />
-                    Tạo việc
-                  </Button>
-                }
-              />
+              <Button
+                onClick={() => {
+                  if (choThem) return themRef.current?.mo()
+                  moSau.current = true
+                  datUrl({ tab: null, q: null })
+                }}
+              >
+                <Plus aria-hidden="true" />
+                Việc mới
+              </Button>
             }
             tabs={
               <Tabs value={tab} onValueChange={(t) => datUrl({ tab: t === 'mo' ? null : t })}>
@@ -197,7 +215,6 @@ export function ViecCuaToi({
             onXemNhanh={(bat) => (bat ? dong[0] && xem.mo(dong[0].id) : xem.dong())}
           />
 
-          {/* CEO 25/11: bỏ ô "Thêm việc nhanh" cho đỡ rối — tạo việc qua nút "Tạo việc" của thanh công cụ. */}
           {/* Danh sách + Bảng đều chọn dòng được (ô chọn ẩn chờ rê); Kanban không có ô chọn. */}
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
@@ -207,7 +224,8 @@ export function ViecCuaToi({
           >
             {dangXem === 'danh-sach' ? (
               // Rỗng → chỉ EmptyState, không vẽ hàng tiêu đề cột trơ trọi bên dưới (CEO 25/11: "thừa").
-              rong || (
+              <>
+                {rong || (
                 <ListView
                   aria-label="Việc của tôi"
                   cot={cot}
@@ -231,17 +249,31 @@ export function ViecCuaToi({
                         }
                   }
                 />
+                )}
+                {choThem && (
+                  <DongThem ref={themRef} kieu="ds" nhan="Việc mới" placeholder={GOI_Y_THEM} onTao={(ten) => taoTai(ten)} />
+                )}
+              </>
+            ) : dangXem === 'kanban' ? (
+              // Chỗ được thêm (tab Đang mở, không từ khoá) luôn vẽ cột kể cả chưa có việc — tạo thẳng vào cột.
+              (!choThem && rong) || (
+                <KanbanViec
+                  dong={dong}
+                  rows={loc}
+                  phu={vaiGan}
+                  moViec={xem.mo}
+                  lamMoi={lamMoi}
+                  onTao={choThem ? taoTai : undefined}
+                  themRef={themRef}
+                />
               )
             ) : (
-              rong || (
-                <>
-                  {dangXem === 'kanban' ? (
-                    <KanbanViec dong={dong} rows={loc} phu={vaiGan} moViec={xem.mo} lamMoi={lamMoi} />
-                  ) : (
-                    <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} />
-                  )}
-                </>
-              )
+              <>
+                {rong || <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} />}
+                {choThem && (
+                  <DongThem ref={themRef} kieu="bang" nhan="Việc mới" placeholder={GOI_Y_THEM} onTao={(ten) => taoTai(ten)} />
+                )}
+              </>
             )}
             <ThanhDaChon nhan="việc">
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />

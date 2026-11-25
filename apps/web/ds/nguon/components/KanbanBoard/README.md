@@ -23,3 +23,6 @@ Thẻ `tabIndex=0`, Enter mở; đổi trạng thái bằng bàn phím phải c�
 ## Code
 - `@dnd-kit/core` + `sortable` (đa cột) — **đề xuất thay** HTML5 drag của prototype.
 - Prototype: nhánh `prototype/v2-khung`, `apps/web/app/prototype/bang/_bang/``PhuongAn.tsx` (`KanbanTT`) + `bang.css` (`.b-kanban`, `.b-k-*`, `.b-the`).
+
+## Tạo tại chỗ — dòng "+ Mới" (`DongThem`, CEO chốt 25/11/2026)
+Chân mỗi cột (trừ cột cuối "Xong") có dòng "+ <tên> mới" (đệm 8, thẳng mép thẻ) qua prop `chanCot`; tạo thẳng vào trạng thái của cột, `nhanDoc` ghép tên cột. Luật đầy đủ (ô gõ kiểu dòng không khung form, Enter tạo, chỉ đặt ở chỗ không lọc): README `ListView` mục "Tạo tại chỗ".
