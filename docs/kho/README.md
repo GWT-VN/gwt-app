@@ -1,5 +1,5 @@
 # Khu Kho (`/kho`) — xem + sửa sổ kho
-n> Đang làm: sổ kho HCM (Eton) — xem [handoff-2026-11-25-kho-hcm-eton.md](handoff-2026-11-25-kho-hcm-eton.md).
+n> Kho HCM (Eton): bot tự đọc CCP → sổ HCM từ 25/11/2026 (đang chạy kênh test) — xem [handoff-2026-11-25-kho-hcm-eton.md](handoff-2026-11-25-kho-hcm-eton.md).
 
 **Xem** cho mọi nhân sự có `kho.ton.xem`; **sửa** (Đợt 3, 04/11/2026) cho người có `kho.so.sua` (mặc định chỉ admin). Dữ liệu là **sổ số lượng kho v2** (`wh_master`, DB **GWT-Masterdata** `qynpywysgltspmgnhhga`, KHÁC DB của app).
 Ai ghi sổ: bot **Bắp** đọc kênh Discord kho Nguyễn Xiển liên tục (~20 giây/lượt, `nx-chay.mjs theo-doi`) (anh kỹ thuật nhắn "`<ngày> kho xuất/nhập` + `tên : SL lý do`",
