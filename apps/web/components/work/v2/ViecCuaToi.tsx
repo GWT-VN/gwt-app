@@ -2,7 +2,7 @@
 
 /**
  * "Việc của tôi" v2 — ghép Data view DS theo canvas bản 23 (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, Tạo việc,
- * tab Đang mở · Quá hạn · Tôi giao · Đã xong, dạng xem) + ô "Thêm việc nhanh" + ba dạng xem: Danh sách (ListView nhóm
+ * tab Đang mở · Quá hạn · Tôi giao · Đã xong, dạng xem) + ba dạng xem: Danh sách (ListView nhóm
  * theo hạn, sửa tại chỗ) · Bảng (Table DS, chọn dòng + thanh hàng loạt) · Kanban (theo trạng thái, kéo thả).
  * Bảng / Kanban / ô sửa dùng chung với Bảng team (DangXemViec). URL: `tab`, `q`, `cot`/`chieu`. Dữ liệu + quyền qua
  * server action (app/work/actions.ts).
@@ -11,16 +11,14 @@ import { Suspense, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
 import { KhungChon, OChonO, OTimKiem, ThanhDaChon } from '@/bang'
-import { taoViec, type NenTang, type ViecRow } from '@/app/work/actions'
+import { type NenTang, type ViecRow } from '@/app/work/actions'
 import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Input } from '@/components/ui/input'
 import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
-import { thongBao } from '@/components/ui/sonner'
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
@@ -90,8 +88,6 @@ export function ViecCuaToi({
   const xem = useXemViec()
   const c = useCotBang(COT, { url: true })
   const { lamMoi, o } = useOViec(nenTang, xem.mo, c.doRong.nguoi)
-  const [moi, setMoi] = useState('')
-  const [dangTao, setDangTao] = useState(false)
   const { cotUrl, sap } = docSap(new URLSearchParams(sp.toString()), { cot: 'han', tang: true })
 
   const cuaToi = rows.filter((v) => v.my_role)
@@ -115,18 +111,6 @@ export function ViecCuaToi({
   }
   const chieu = cotUrl ? (sap.tang ? 'asc' : 'desc') : undefined
   const datSap = (s: Sap | null) => datUrl({ cot: s?.cot ?? null, chieu: s ? (s.tang ? 'asc' : 'desc') : null })
-
-  async function themNhanh() {
-    const title = moi.trim()
-    if (!title || dangTao) return
-    setDangTao(true)
-    const kq = await taoViec({ title })
-    setDangTao(false)
-    if (!kq.ok) return thongBao.loi(`Chưa thêm được việc — ${kq.loi}`)
-    setMoi('')
-    thongBao.xong(`Đã thêm ${kq.duLieu.ref}`)
-    lamMoi()
-  }
 
   const cot: CotDanhSach<ViecRow>[] = [
     {
@@ -214,23 +198,7 @@ export function ViecCuaToi({
             onXemNhanh={(bat) => (bat ? dong[0] && xem.mo(dong[0].id) : xem.dong())}
           />
 
-          <form
-            className="mb-3"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void themNhanh()
-            }}
-          >
-            <Input
-              icon={<Plus />}
-              value={moi}
-              onChange={(e) => setMoi(e.target.value)}
-              disabled={dangTao}
-              placeholder="Thêm việc nhanh — gõ tiêu đề rồi Enter (hạn, người sửa sau)"
-              aria-label="Thêm việc nhanh"
-            />
-          </form>
-
+          {/* CEO 25/11: bỏ ô "Thêm việc nhanh" cho đỡ rối — tạo việc qua nút "Tạo việc" của thanh công cụ. */}
           {/* Danh sách + Bảng đều chọn dòng được (ô chọn ẩn chờ rê); Kanban không có ô chọn. */}
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
