@@ -90,6 +90,11 @@ const PHU = xemPhu
 /** Hàng chip trong ô PropertyList (người, liên kết): xuống dòng khi hẹp. */
 const HANG = 'flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-none border-current'
 const CUM = 'inline-flex min-w-0 items-center gap-0.5 border-none border-current'
+/** Danh sách người của một vai: mỗi người một dòng (cao 32 = dòng nhãn), nút "+ Thêm người" dòng riêng bên dưới. */
+const DOC = 'flex min-w-0 flex-col items-start border-none border-current'
+const DONG_NGUOI = 'group/nguoi inline-flex min-h-(--control-size-md) min-w-0 items-center gap-0.5 border-none border-current'
+/** × bỏ người: ẩn, rê vào người đó / focus phím mới hiện; máy cảm ứng luôn hiện. */
+const AN_CHO_RE = 'opacity-0 group-hover/nguoi:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100'
 /** Khung pop chọn có tìm — y PopoverContent của `OSuaNguoi`. */
 const KHUNG_CHON = cn(
   menuContent,
@@ -370,12 +375,16 @@ function NoiDung({
             if (!ds.length && !sua) return null
             return (
               <PropertyRow key={v} nhan={ten}>
-                <span className={HANG}>
+                <span className={DOC}>
                   {ds.map((a) => (
-                    <span key={a.staff_id} className={CUM}>
+                    <span key={a.staff_id} className={DONG_NGUOI}>
                       <Nguoi ten={a.ten} />
                       {sua && ct.assignees.length > 1 && (
-                        <NutIcon nhan={`Bỏ ${a.ten} khỏi việc`} onClick={() => void chay(boNguoi(t.id, a.staff_id), `bỏ ${a.ten}`)}>
+                        <NutIcon
+                          nhan={`Bỏ ${a.ten} khỏi việc`}
+                          className={AN_CHO_RE}
+                          onClick={() => void chay(boNguoi(t.id, a.staff_id), `bỏ ${a.ten}`)}
+                        >
                           <X aria-hidden="true" />
                         </NutIcon>
                       )}
@@ -621,10 +630,20 @@ function Nguoi({ ten }: { ten: string }) {
 }
 
 /** Nút icon ghost xs + tooltip (chữ tooltip trùng tên nút → aria-hidden, không đọc hai lần). */
-function NutIcon({ nhan, onClick, children }: { nhan: string; onClick: () => void; children: ReactElement }) {
+function NutIcon({
+  nhan,
+  onClick,
+  className,
+  children,
+}: {
+  nhan: string
+  onClick: () => void
+  className?: string
+  children: ReactElement
+}) {
   return (
     <TooltipNhanh content={<span aria-hidden="true">{nhan}</span>}>
-      <Button variant="ghost" size="icon-xs" aria-label={nhan} onClick={onClick}>
+      <Button variant="ghost" size="icon-xs" aria-label={nhan} className={className} onClick={onClick}>
         {children}
       </Button>
     </TooltipNhanh>

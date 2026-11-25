@@ -84,7 +84,9 @@ export const pageHeaderActions = [
  */
 export const propsList = [
   kv,
-  'm-0 grid grid-cols-[minmax(96px,128px)_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5',
+  // items-start (25/11): giá trị nhiều dòng (danh sách người) thì nhãn thẳng DÒNG ĐẦU, không lơ lửng giữa — nhãn và
+  // giá trị cùng cao tối thiểu 32 nên dòng một-giá-trị vẫn thẳng tâm như cũ.
+  'm-0 grid grid-cols-[minmax(96px,128px)_minmax(0,1fr)] items-start gap-x-3 gap-y-0.5',
   '[@media(max-width:640px)]:not-data-layout:grid-cols-[minmax(88px,112px)_minmax(0,1fr)]',
   'data-[layout=stack]:grid-cols-[minmax(0,1fr)] data-[layout=stack]:gap-0',
   'data-[layout=stack]:[&>dt]:mt-2.5 data-[layout=stack]:[&>dt]:min-h-0 data-[layout=stack]:[&>dt:first-child]:mt-0',
