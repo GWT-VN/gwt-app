@@ -62,6 +62,15 @@ describe("dungTinGui", () => {
     expect(dungTinGui("Giá CTS20 là 12.990.000đ", o("da"))[0]).toBe(b("Dạ anh Hùng, giá CTS20 là 12.990.000đ ạ."));
     expect(dungTinGui("Giá rẻ.\n\nCó không?", o("da"))).toEqual([b("Dạ anh Hùng, giá rẻ ạ."), b("Có không ạ?")]);
   });
+  it('"ạ" phải là từ riêng: "lạ" chưa tính', () => {
+    expect(dungTinGui("Nước có mùi lạ.", o("da"))[0]).toBe(b("Dạ anh Hùng, nước có mùi lạ ạ."));
+  });
+  it("không còn nội dung (chỉ 'Dạ.' hoặc chỉ lời chào) → []", () => {
+    expect(dungTinGui("Dạ.", o("da"))).toEqual([]);
+    expect(dungTinGui("Chào anh!", o("chao"))).toEqual([]);
+    expect(dungTinGui("Dạ, chào anh Hùng ạ.", o("gioi_thieu"))).toEqual([]);
+    expect(dungTinGui("Dạ.\n\nGiá 1đ ạ.", o("da"))).toEqual([b("Giá 1đ ạ.")]);
+  });
   it("câu chào GPT lỡ viết ở đầu bị bỏ — không hai câu chào", () => {
     const r = dungTinGui("Chào anh! Dạ, giá 1đ ạ.", o("chao"))[0];
     expect(r).toBe(b("Chào anh Hùng! Dạ, giá 1đ ạ."));
@@ -69,7 +78,7 @@ describe("dungTinGui", () => {
   });
   it("in đậm Unicode, tin danh sách không bị ép 'ạ', mọi tin kết U+2063", () => {
     const r = dungTinGui("Dạ, em gửi ạ.\n\n**Giá:**\n• **CTS10:** 1đ", o("da"));
-    expect(r[1]).toBe(b("𝐆𝐢𝐚́: \n• 𝐂𝐓𝐒𝟏𝟎: 1đ".replace(": \n", ":\n")));
+    expect(r[1]).toBe(b("𝐆𝐢𝐚́:\n• 𝐂𝐓𝐒𝟏𝟎: 1đ ạ."));
     expect(r.every((s) => s.endsWith(DAU_BOT))).toBe(true);
   });
 });

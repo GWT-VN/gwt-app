@@ -55,11 +55,10 @@ export function inDamUnicode(s: string): string {
 const CHAO_GPT = /^(dạ\s*,?\s*)?(chào|xin chào)[^.!?\n]*[.!?]\s*/i;
 const DA_DAU = /^dạ\s*,?\s*/i;
 
-/** Mỗi tin kết "ạ" (trước dấu . ? ! cuối; không dấu thì thêm " ạ."). Tin dạng danh sách (• / -) là tiêu đề + gạch đầu dòng: giữ nguyên. */
+/** Mỗi tin kết "ạ" (trước dấu . ? ! cuối; không dấu thì thêm " ạ."). Luôn "ạ" ở cuối (spec §6.6), kể cả tin danh sách. "ạ" phải là từ riêng ("lạ", "mặt nạ" chưa tính). */
 function ketA(s: string): string {
-  if (/^\s*[•-]\s/m.test(s)) return s;
   const m = /^([\s\S]*?)([.?!…]*)$/.exec(s.trimEnd())!;
-  if (/ạ$/.test(m[1])) return s;
+  if (/(^|\s)ạ$/u.test(m[1])) return s;
   return m[2] ? `${m[1]} ạ${m[2]}` : `${s.trimEnd()} ạ.`;
 }
 
@@ -79,8 +78,11 @@ export function dungTinGui(
   const them = ten ? ` ${ten}` : "";
   const mo = o.kieu === "da" ? `Dạ ${goi}${them}, `
     : `Chào ${goi}${them}! ${o.kieu === "gioi_thieu" ? `${o.xungHo?.xung === "chau" ? "Cháu" : "Em"}${CAU_GIOI_THIEU.slice(2)} ạ. ` : ""}`;
-  const dauTin = dau ? mo + ketA(dau) : o.kieu === "da" ? "" : mo.trim(); // GPT chỉ chào → còn đúng câu mở
-  const tin = [dauTin, ...doan.slice(1).map(ketA)].filter(Boolean);
+  const CO_CHU = /\p{L}/u;
+  const sau = doan.slice(1).filter((x) => CO_CHU.test(x)); // đoạn không có chữ ("Dạ.", dấu câu lẻ) bỏ
+  if (!CO_CHU.test(dau) && sau.length === 0) return []; // chỉ có lời chào / "Dạ" → không có gì để gửi (bên gọi coi [] là không gửi)
+  const dauTin = CO_CHU.test(dau) ? mo + ketA(dau) : o.kieu === "da" ? "" : mo.trim(); // GPT chỉ chào ở đoạn 1 → còn đúng câu mở
+  const tin = [dauTin, ...sau.map(ketA)].filter(Boolean);
   if (o.kieu === "gioi_thieu" && !coHotline(traLoi, o.hotline)) tin.push(CAU_HO_TRO(o.hotline, o.hoiSo, goi));
   return tin.map((s) => `${inDamUnicode(s)}${DAU_BOT}`);
 }
