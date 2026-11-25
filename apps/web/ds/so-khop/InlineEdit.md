@@ -24,6 +24,6 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|
-| menu-tt | width | 348.5px | 200px | sang 1440, sang 390, toi 1440, toi 390 | Preview: menu tĩnh nằm trong `.ds-muc` (con của hàng flex `.ds-hang`) nên giãn theo nhãn mục dài phía trên ("Menu trạng thái (mục đầu đang hover, mục đang chọn có ✓)") = 348.5px. Menu thật ôm nội dung, tối thiểu 200 (`.ui-menu` min-width) — mục dài nhất "Chờ KH xác nhận" chưa tới 200. |
-| menu-tt-muc | width | 336.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Mục giãn theo bề ngang menu: preview 348.5 − 2 × 6 = 336.5 (menu giãn theo nhãn mục, xem khoá menu-tt); menu thật 200 − 12 = 188. |
-| menu-tt-muc | hover.width | 336.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng width (menu preview giãn theo nhãn mục). |
+| menu-tt | width | 345.5px | 200px | sang 1440, sang 390, toi 1440, toi 390 | Preview: menu tĩnh nằm trong `.ds-muc` (con của hàng flex `.ds-hang`) nên giãn theo nhãn mục dài phía trên ("Menu trạng thái (mục đầu đang hover, mục đang chọn có ✓)") = 348.5px. Menu thật ôm nội dung, tối thiểu 200 (`.ui-menu` min-width) — mục dài nhất "Chờ KH xác nhận" chưa tới 200. |
+| menu-tt-muc | width | 333.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Mục giãn theo bề ngang menu: preview 348.5 − 2 × 6 = 336.5 (menu giãn theo nhãn mục, xem khoá menu-tt); menu thật 200 − 12 = 188. |
+| menu-tt-muc | hover.width | 333.5px | 188px | sang 1440, sang 390, toi 1440, toi 390 | Như dòng width (menu preview giãn theo nhãn mục). |

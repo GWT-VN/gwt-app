@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 16px;
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss03";
+  font-feature-settings: "ss03"; /* 25/11/2026 CEO: bỏ cv11 → chữ a HAI tầng cho dễ đọc; giữ ss03 (dấu câu tròn) */
   font-size: 14px;
   line-height: 20px;
   color: var(--foreground);
@@ -595,7 +595,7 @@ body {
    chỉ truyền bộ class này vào giaoDien của <CauHinhBang>, KHÔNG viết lại logic. Dựng trên Button/Menu/Input/Checkbox. */
 
 /* --- FilterBar: chip điều kiện đang lọc + số dòng + Xoá lọc / Lưu bộ lọc --- */
-.ui-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: var(--control-size-sm); }
+.ui-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: var(--control-size-sm); margin-bottom: 12px; /* 25/11: cách tiêu đề bảng 12 */ }
 .ui-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; height: var(--control-size-sm); padding: 0 10px; border-radius: var(--radius-full); background: var(--alpha-05); color: var(--foreground); font: 400 12px/18px var(--font-sans); font-feature-settings: inherit; white-space: nowrap; }
 .ui-chip > span { overflow: hidden; text-overflow: ellipsis; }
 .ui-chip strong { font-weight: 600; }
@@ -739,7 +739,7 @@ body {
 .b-h1 { margin: 0; font-size: 24px; line-height: 28px; font-weight: 600; letter-spacing: 0; }
 .b-dem { font-size: 12px; line-height: 18px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 
-.b-thanh { display: flex; align-items: center; gap: 12px; margin: 22px 0 12px; }
+.b-thanh { display: flex; align-items: center; gap: 12px; margin: 22px 0 16px; /* 25/11: dưới 12 → 16 */ }
 .b-tabs-cuon { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); } /* tràn: mờ dần mép phải, vẫn cuộn được — không cắt cụt giữa chữ */
 .b-tim { width: 240px; }
 .b-filterbar { margin: -4px 0 12px; }
@@ -849,6 +849,20 @@ body {
 .b-bang tbody tr[data-chon] td { background: var(--color-background-info-soft-alpha, var(--alpha-05)); }
 .b-bang td > * { vertical-align: middle; }
 .b-cot-chon { width: 36px; padding-left: 16px !important; }
+/* Ô chọn dòng ẨN CHỜ RÊ (23/11): cột giữ chỗ, ô mờ hẳn (vẫn bấm/Tab được); hiện khi rê/focus trong dòng, ô đang tick,
+   đã có dòng được chọn ([data-co-chon] của khung chọn), máy cảm ứng. Ô "chọn tất cả" hiện khi rê cả bảng. Ô tick CHỈ để chọn. */
+.b-cot-chon > input { opacity: 0; }
+.b-cot-chon > input:checked, .b-cot-chon > input:indeterminate, .b-cot-chon > input:focus-visible,
+.b-bang tbody tr:hover > .b-cot-chon > input, .b-bang tbody tr:focus-within > .b-cot-chon > input,
+.b-bang:hover > thead .b-cot-chon > input, [data-co-chon] .b-cot-chon > input { opacity: 1; }
+@media (hover: none) { .b-cot-chon > input { opacity: 1; } }
+/* Cột ô chọn nằm ở LỀ NGOÀI bảng (25/11, ≥768): khung cuộn lùi trái thêm 36 → cột dữ liệu đầu thẳng mép nội dung trang;
+   ô chọn đệm trái 10, không kẻ; ô thân không nền rê/chọn (dòng sáng chỉ trong phần bảng); ô tiêu đề giữ nền (dính đầu). */
+@media (min-width: 768px) {
+  .b-bang-khung:has(> .b-bang > thead > tr > .b-cot-chon:first-child) { margin-left: -44px; }
+  .b-bang .b-cot-chon { padding-left: 10px !important; padding-right: 0; border-bottom-color: transparent; }
+  .b-bang tbody tr td.b-cot-chon { background: transparent; }
+}
 .b-cot-viec { max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
 .ui-th-sort { white-space: nowrap; height: var(--control-size-sm); } /* DS ui-th-sort + chiều cao ô */
 /* kéo đổi chỗ cột: hover tiêu đề có nền + tay cầm; lúc kéo cả cột nguồn mờ nền, vạch thả chạy suốt chiều cao bảng */
@@ -961,6 +975,9 @@ body {
 /* mở xem nhanh: cả vùng cuộn co lại (thẻ 440 + mép 8 + khe 8) — bảng không bị che, thanh cuộn nằm bên trái thẻ, không dính mép thẻ */
 @media (min-width: 768px) {
   .pD-noidung:has(> .b-chitiet) { margin-right: 456px; }
+  /* Thẻ bám MÀN HÌNH ở màn app (code `<XemNhanh coDinh>`, 23–25/11): fixed, cách mép 12 (8 sát viền quá), nhường 464 = 440 + 12 + 12 */
+  .b-chitiet[data-co-dinh] { position: fixed; top: 12px; right: 12px; bottom: 12px; width: min(440px, calc(100vw - 24px)); }
+  .pD-noidung:has(> .b-chitiet[data-co-dinh]) { margin-right: 464px; }
   .b-trang[data-xem] { padding-inline: 32px 24px; }
 }
 @media (max-width: 767px) {
@@ -1075,7 +1092,7 @@ body {
 }
 
 /* ---------- PropertyList: nhãn ↔ giá trị, giá trị sửa tại chỗ (InlineEdit) ---------- */
-.ui-props { display: grid; grid-template-columns: minmax(96px, 128px) minmax(0, 1fr); align-items: center; gap: 2px 12px; margin: 0; }
+.ui-props { display: grid; grid-template-columns: minmax(96px, 128px) minmax(0, 1fr); align-items: start; gap: 2px 12px; margin: 0; } /* 25/11: căn đầu — giá trị nhiều dòng thì nhãn thẳng dòng đầu */
 .ui-props > dt { display: flex; align-items: center; gap: 6px; min-height: var(--control-size-md); font-size: 12px; line-height: 18px; color: var(--muted-foreground); }
 .ui-props > dt svg { width: var(--control-icon-size-xs); height: var(--control-icon-size-xs); flex-shrink: 0; }
 .ui-props > dd { display: flex; align-items: center; min-width: 0; min-height: var(--control-size-md); margin: 0; font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }

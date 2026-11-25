@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/BulkActionBar-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**1814/1828 khớp** · 14 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
+**1816/1828 khớp** · 12 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 5 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -23,10 +23,9 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|
-| thanh | width | 730px | 730.5px | sang 1440, toi 1440 | Lệch 0.5px do làm tròn bề rộng chữ (nút/chữ con đều khớp từng khoá) — dưới ngưỡng thấy được. |
-| thanh-b | width | 649px | 698.5px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
-| dem-b | width | 256.5px | 306.5px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
-| thanh-c | width | 513.5px | 721px | sang 1440, toi 1440 | Mẫu (c) dùng lại thao tác ticket của bang/ (Đổi trạng thái / Gán chủ / Xuất Excel + mời chọn cả 19) — preview ghi Đánh dấu xong / Đổi trạng thái / Gán lại; khoá này đo MẶT (nền, chữ, bóng, bo), không đo chữ. |
+| thanh-b | width | 643.5px | 693.5px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
+| dem-b | width | 254px | 304px | sang 1440, toi 1440 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. |
+| thanh-c | width | 508.5px | 716.5px | sang 1440, toi 1440 | Mẫu (c) dùng lại thao tác ticket của bang/ (Đổi trạng thái / Gán chủ / Xuất Excel + mời chọn cả 19) — preview ghi Đánh dấu xong / Đổi trạng thái / Gán lại; khoá này đo MẶT (nền, chữ, bóng, bo), không đo chữ. |
 | thanh-b | height | 72px | 84px | sang 390, toi 390 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. Ở 390 DS cho câu số xuống dòng (bundle giữ nowrap — chữ dài của bang/ đẩy nút ✕ xuống hàng dưới, đo ảnh 20/11) → thêm 1 dòng 20 → 84 so với 72. |
 | dem-b | height | 20px | 40px | sang 390, toi 390 | Câu phụ của bang/ là "(gồm cả dòng ở trang khác)" (README gói, quyết định 2 — nói rõ là DÒNG), preview "(gồm cả trang khác)" → chữ dài hơn ~50px. Ở 390 câu xuống 2 dòng (whitespace normal ≤640) → 40 so với 20. |
 | thanh-c | height | 72px | 92px | sang 390, toi 390 | Như width@1440: mẫu (c) có thêm nút mời "Chọn tất cả 19…" của bang/ (preview không có) — ≤640 nút này xuống một hàng riêng trọn bề ngang → 92 so với 72. |

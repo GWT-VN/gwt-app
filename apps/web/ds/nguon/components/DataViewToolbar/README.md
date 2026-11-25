@@ -13,6 +13,7 @@
 | Ô tìm | DS `Input` + icon | `ui-input-wrap`, rộng 240px |
 | Vạch ngăn | `gray-100` | 1×18px, lề 8px |
 | Menu ⚙ | `ui-menu` | rộng 300px, cao tối đa 560px / 70vh |
+| Khoảng dọc | `b-thanh` | hàng tab cách hàng FilterBar bên dưới **16** (25/11: 12 → 16); FilterBar cách tiêu đề bảng 12 |
 
 ## ⚙ Cài đặt hiển thị (kiểu Notion "View settings")
 Trang gốc: Bố cục · Cột hiển thị · Lọc · Sắp xếp · Nhóm theo — mỗi dòng có giá trị hiện tại + ›; dưới: Sao chép link view · Lưu view của tôi · Lưu view chung · Xuất Excel theo bộ lọc. Trang con có nút ← quay lại. "Cột hiển thị": checkbox từng cột (cột Mã khoá bật). "Sắp xếp": chỉ cột có thứ tự/số lượng. Điện thoại: menu thành sheet đáy.
@@ -20,7 +21,7 @@ Trang gốc: Bố cục · Cột hiển thị · Lọc · Sắp xếp · Nhóm t
 ## Hành vi
 - Đổi dạng xem giữ nguyên tab/lọc/sắp xếp.
 - Nút thẻ xem nhanh **mặc định tắt**; tắt → bấm bản ghi mở trang chi tiết, bật → mở thẻ bên phải (xem `Table`).
-- Thẻ xem nhanh trong màn app: `<XemNhanh coDinh>` — thẻ bám **màn hình** (`fixed`, cách mép 8, cao hết màn, đứng yên khi cuộn). Mặc định bám khung chứa (dùng cho demo/preview). Thêm 23/11 (CEO: trang ít dòng làm thẻ cụt giữa màn).
+- Thẻ xem nhanh trong màn app: `<XemNhanh coDinh>` — thẻ bám **màn hình** (`fixed`, cách mép **12** trên · phải · dưới, cao hết màn, đứng yên khi cuộn; nội dung nhường 464 = 440 + 12 + 12; CSS `.b-chitiet[data-co-dinh]`). Mặc định bám khung chứa, cách mép 8 (dùng cho demo/preview). Thêm 23/11 (CEO: trang ít dòng làm thẻ cụt giữa màn); 25/11 mép 8 → 12 (CEO: sát viền).
 - Trạng thái view (dạng xem, cột ẩn, thứ tự cột, độ rộng, nhóm, lọc, sắp) phải ghi được vào URL để "Sao chép link view" và lưu view.
 
 ## Bàn phím & a11y

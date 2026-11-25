@@ -21,5 +21,5 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|
-| header | goi.width | 163px | 155px | sang 390, toi 390 | README: ≤640 "2 nút chữ chia đôi bề rộng". DS: hai nút là con trực tiếp (trigger menu asChild) → flex 1 chia đúng 155/155 (tổng 310 = preview). Preview ra 163/147 (tổng cũng 310) — preview bọc nút menu trong span inline-flex, nút trong span rộng 100%; chưa truy chính xác vì sao preview không chia đều (đang đoán do lớp span bọc), DS theo README |
-| header | doi.width | 147px | 155px | sang 390, toi 390 | Cùng lý do goi.width@390: DS chia đều 155/155 đúng README; preview 163/147 |
+| header | goi.width | 164.5px | 155px | sang 390, toi 390 | README: ≤640 "2 nút chữ chia đôi bề rộng". DS: hai nút là con trực tiếp (trigger menu asChild) → flex 1 chia đúng 155/155 (tổng 310 = preview). Preview ra 163/147 (tổng cũng 310) — preview bọc nút menu trong span inline-flex, nút trong span rộng 100%; chưa truy chính xác vì sao preview không chia đều (đang đoán do lớp span bọc), DS theo README |
+| header | doi.width | 145.5px | 155px | sang 390, toi 390 | Cùng lý do goi.width@390: DS chia đều 155/155 đúng README; preview 163/147 |

@@ -55,10 +55,7 @@
         }
       ],
       "lyDo": {
-        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
-        "paddingLeft@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng.",
-        "paddingRight@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng.",
-        "borderBottomColor@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng."
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
       }
     },
     {
@@ -136,10 +133,7 @@
       "artifact": ".ds-muc:nth-child(1) tbody tr:first-child td:first-child",
       "ds": "#table [data-so=\"bang\"] tbody tr:first-child td:first-child",
       "lyDo": {
-        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp.",
-        "paddingLeft@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng.",
-        "paddingRight@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng.",
-        "borderBottomColor@1440": "CEO 25/11: từ md cột ô chọn nằm ở LỀ NGOÀI bảng (khung cuộn lùi −36) → đệm trái 10, phải 0 (ô tick cách cột dữ liệu đầu 10 + đệm ô đó); không kẻ dưới vì nằm ngoài bảng."
+        "width@1440": "Preview: bảng rộng 100% KHÔNG có cột đệm → `table-layout: fixed` chia phần dư của khung 1424 cho mọi cột (Ưu tiên 76 → 120). DS theo prototype `BangCot` (cột đệm cuối `.b-cot-dem`): cột giữ ĐÚNG độ rộng mặc định/đã kéo, chỗ thừa dồn vào cột đệm — kéo một cột không làm cột khác giãn theo. Khổ 390 (bảng 900 > khung) hai bên khớp."
       }
     },
     {

@@ -4,7 +4,7 @@ Hàng **"đang áp dụng gì"** ngay dưới hàng tab: mỗi điều kiện l�
 
 | Phần | Token | Giá trị |
 | --- | --- | --- |
-| Hàng | `ui-filterbar` | flex wrap, gap 6/8, cao tối thiểu `control-size-sm` 28px |
+| Hàng | `ui-filterbar` | flex wrap, gap 6/8, cao tối thiểu `control-size-sm` 28px, cách bảng/danh sách bên dưới 12 (25/11/2026 — trước dính sát tiêu đề bảng) |
 | Chip | `ui-chip` · `alpha-05` | cao 28px pill, padding 0 10 (có × thì phải 4), chữ 12/18; **nhãn thường + giá trị `strong` 600** ("Loại lỗi: **Rò rỉ nước**") |
 | Nút × | `ui-chip-x` | ô tròn 20px, icon X 12px `muted-foreground`; hover `alpha-10` + `foreground`; `aria-label="Bỏ lọc <nhãn>"` |
 | Chip sắp xếp | `ui-chip` + icon ↑/↓ | "Sắp xếp: **Hạn** · muộn nhất trước" — nghĩa lấy từ `nghiaSapXep` của dự án, không để người dùng đoán từ mũi tên; × = về thứ tự mặc định; đang mặc định thì **ẩn chip** |

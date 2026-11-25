@@ -50,10 +50,7 @@
         {
           "cho": 300
         }
-      ],
-      "lyDo": {
-        "width@1440": "Lệch 0.5px do làm tròn bề rộng chữ (nút/chữ con đều khớp từng khoá) — dưới ngưỡng thấy được."
-      }
+      ]
     },
     {
       "khoa": "dem",

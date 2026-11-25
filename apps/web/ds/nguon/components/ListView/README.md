@@ -32,4 +32,4 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 - Dựng bằng CSS grid (không `<table>`) trên dữ liệu TanStack Table (dùng chung model với `Table`, chỉ khác cách vẽ); ảo hoá dòng (`@tanstack/react-virtual`) khi > ~200 dòng.
 - Prototype: nhánh `prototype/v2-khung`, `apps/web/app/prototype/bang/_bang/``PhuongAn.tsx` (`DanhSach`, `gom`) + `bang.css` (`.b-ds*`, `.b-ticket`, `.b-nhan-dau`).
 
-**Chọn dòng (thêm 23/11/2026):** dòng ListView chọn được bằng `OChonO` (bang/) đặt ĐẦU ô đầu tiên, trong `KhungChon` + `ThanhDaChon` như Table; cùng luật ô chọn ẩn chờ rê (README Table). Bấm ô chọn không mở bản ghi.
+**Chọn dòng (thêm 23/11/2026):** dòng ListView chọn được bằng `OChonO` (bang/) đặt ĐẦU ô đầu tiên, trong `KhungChon` + `ThanhDaChon` như Table; cùng luật ô chọn ẩn chờ rê (README Table). Bấm ô chọn không mở bản ghi. **Từ 768 ô chọn nằm ở lề trái NGOÀI dòng** (CEO 25/11/2026, như cột chọn của Table): đặt tuyệt đối `right: 100%` của dòng (dòng `relative`), mép phải ô tick cách mép nội dung 10, căn tâm dòng — nội dung dòng không bị ô tick xô vào; < 768 ô chọn ở trong dòng.
