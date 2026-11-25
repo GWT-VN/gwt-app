@@ -23,5 +23,8 @@ describe("chuanSoCuoc — sổ cuộc chat (đã chốt 2026-10-21)", () => {
   it("xung_ho hợp lệ được giữ; giá trị lạ bị bỏ khoá", () => {
     expect(chuanSoCuoc({ nhu_cau: "x", da_xong: [], con_mo: [], xung_ho: { goi: "cô", xung: "chau" } })?.xung_ho).toEqual({ goi: "cô", xung: "chau" });
     expect(chuanSoCuoc({ nhu_cau: "x", da_xong: [], con_mo: [], xung_ho: { goi: "sếp", xung: "em" } })).not.toHaveProperty("xung_ho");
+    // review 2026-11-25: sổ chỉ có xung_ho vẫn là sổ (lượt sau nhớ cách gọi); xung_ho lạ + rỗng hết → null
+    expect(chuanSoCuoc({ xung_ho: { goi: "cô", xung: "chau" } })).toEqual({ nhu_cau: "", da_xong: [], con_mo: [], xung_ho: { goi: "cô", xung: "chau" } });
+    expect(chuanSoCuoc({ xung_ho: { goi: "sếp", xung: "em" } })).toBeNull();
   });
 });

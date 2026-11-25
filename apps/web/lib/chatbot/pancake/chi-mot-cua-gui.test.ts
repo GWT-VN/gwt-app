@@ -7,9 +7,13 @@ import { describe, expect, it } from "vitest";
 const THU_MUC = import.meta.dirname;
 // Luật (2026-11-25, Task 6): POST sang API model (claude.ts, openai.ts…) được; kênh khách chỉ một cửa gui-khach.ts —
 // reply_inbox chỉ ở đó, file nào khác chạm pages.fm chỉ được method GET.
-const mon = () => readdirSync(THU_MUC).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts"));
+// Quét cả thư mục con (cong-cu/…); f là đường dẫn tương đối.
+const mon = () => readdirSync(THU_MUC, { recursive: true, encoding: "utf8" }).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts"));
 
 describe("guard: chỉ gui-khach.ts được gửi tin cho khách", () => {
+  it("quét cả thư mục con", () => {
+    expect(mon()).toEqual(expect.arrayContaining(["gui-khach.ts", join("cong-cu", "embedding.ts")]));
+  });
   it("không file nào khác chứa reply_inbox", () => {
     for (const f of mon()) {
       if (f === "gui-khach.ts") continue;
@@ -26,6 +30,6 @@ describe("guard: chỉ gui-khach.ts được gửi tin cho khách", () => {
     }
   });
   it("không file nào import server-only (chạy thẳng bằng Node)", () => {
-    for (const f of mon()) expect({ f, vi: /server-only/.test(readFileSync(join(THU_MUC, f), "utf8")) }).toEqual({ f, vi: false });
+    for (const f of mon()) expect({ f, vi: /^\s*import\s+["'`]server-only["'`]/m.test(readFileSync(join(THU_MUC, f), "utf8")) }).toEqual({ f, vi: false });
   });
 });

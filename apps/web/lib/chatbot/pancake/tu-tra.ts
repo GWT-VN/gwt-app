@@ -130,15 +130,23 @@ export interface CanCu { y: string; trich: string }
 /**
  * Kiểm căn cứ (chặn bịa lớp 6, đã chốt 2026-10-23): câu trích phải có NGUYÊN VĂN trong `nguon` (lời dặn + tin đầu + kết quả công cụ
  * — đúng những gì model đã đọc; trích có "…" thì từng phần phải có), và mỗi số đáng kể của `traLoi` phải nằm trong một câu trích.
+ * Số chặt hơn (review 2026-11-25): câu trích mang số phải có nguyên văn trong `nguonSo` = KẾT QUẢ CÔNG CỤ — lời dặn có giá ví dụ
+ * (33.957.500 đ…) và lời khách («giá 5.000.000 đúng không») không phải căn cứ cho số; riêng số hotline nơi gọi truyền vào thì qua.
  * Trả các ý không đạt (rỗng = đạt). Bot không đọc ảnh → trích "ảnh khách" không có trong nguồn, tự rớt.
  */
-export function kiemCanCu(traLoi: string, canCu: readonly CanCu[], nguon: string): string[] {
+export function kiemCanCu(traLoi: string, canCu: readonly CanCu[], nguon: string, nguonSo = nguon, hotline = ""): string[] {
   const goc = chuanTrich(nguon);
-  const sai = canCu.filter((c) => {
-    const phan = chuanTrich(c.trich).split(/…|\.\.\./).map((p) => p.trim()).filter((p) => p.length >= 3);
-    return !phan.length || phan.some((p) => !goc.includes(p));
-  }).map((c) => c.y.trim() || c.trich.trim());
-  const soTrich = new Set(canCu.flatMap((c) => [...c.trich.normalize("NFKC").matchAll(SO_DANG_KE)].map((m) => chuSo(m[0]))));
+  const gocSo = chuanTrich(nguonSo);
+  const coTrong = (trich: string, g: string) => {
+    const phan = chuanTrich(trich).split(/…|\.\.\./).map((p) => p.trim()).filter((p) => p.length >= 3);
+    return phan.length > 0 && phan.every((p) => g.includes(p));
+  };
+  const sai = canCu.filter((c) => !coTrong(c.trich, goc)).map((c) => c.y.trim() || c.trich.trim());
+  const soCuaChu = (s: string) => [...s.normalize("NFKC").matchAll(SO_DANG_KE)].map((m) => chuSo(m[0]));
+  const soTrich = new Set([
+    ...canCu.filter((c) => coTrong(c.trich, gocSo)).flatMap((c) => soCuaChu(c.trich)),
+    ...(chuSo(hotline) ? [...soCuaChu(hotline), chuSo(hotline)] : []),
+  ]);
   const soThieu = [...new Set([...traLoi.normalize("NFKC").matchAll(SO_DANG_KE)].map((m) => m[0]))].filter((s) => !soTrich.has(chuSo(s)));
   return [...sai, ...soThieu.map((s) => `số ${s} không có câu trích`)];
 }
@@ -291,7 +299,8 @@ export async function soanTuTra(l: LuongTra, o: { congCu: CongCuTra; goi: GoiTuT
       };
       const lyDo = typeof v.ly_do === "string" ? v.ly_do.trim() : "";
       const xungHo: XungHo | null = docXungHo(v.xung_ho) ?? null;
-      const soCuoc = chuanSoCuoc(v.so_cuoc && typeof v.so_cuoc === "object" ? { ...v.so_cuoc, xung_ho: v.xung_ho } : null);
+      // xung_ho đi vào sổ kể cả khi so_cuoc hỏng — lượt sau còn nhớ cách gọi.
+      const soCuoc = chuanSoCuoc({ ...(v.so_cuoc && typeof v.so_cuoc === "object" && !Array.isArray(v.so_cuoc) ? v.so_cuoc : {}), xung_ho: v.xung_ho });
       const canNv = v.can_nv === true || v.khong_tra_loi === true;
       // Điểm bán / showroom (đã chốt 2026-10-20): bot im, chỉ báo NV. Đã viết tra_loi (khách hỏi showroom KÈM vế khác) thì giữ câu
       // trả lời các vế khác, chuyển NV (canNv) — không vứt cả câu.
@@ -301,10 +310,12 @@ export async function soanTuTra(l: LuongTra, o: { congCu: CongCuTra; goi: GoiTuT
       const chu = iChot >= 0 ? String(v.tra_loi ?? "") : (m.content ?? "");
       const traLoi = boDaLap(moiSdtCuoi([...boMarkdown(chu)].slice(0, TRAN_TRA_LOI).join("")));
       if (!traLoi) throw new Error("TU_TRA_RONG");
-      // Nguồn = đúng những gì model đã đọc: lời dặn, tin đầu, kết quả công cụ.
-      const khongCanCu = kiemCanCu(traLoi, docCanCu(v.can_cu), [he, tin, ...daTra].join("\n"));
+      // Nguồn = đúng những gì model đã đọc: lời dặn, tin đầu, kết quả công cụ; số chỉ căn cứ được bằng kết quả công cụ / hotline.
+      const khongCanCu = kiemCanCu(traLoi, docCanCu(v.can_cu), [he, tin, ...daTra].join("\n"), daTra.join("\n"), o.hotline);
       const quaNguon = tuTuyetDoi(traLoi, [tin, ...daTra].join("\n"));
       const chanTuGui = [
+        // Không chốt = không có can_cu, sổ, xưng hô → không kiểm được ý chữ → không tự gửi (review 2026-11-25).
+        ...(iChot < 0 ? ["không gọi chot_tra_loi — không có căn cứ để kiểm"] : []),
         ...(tuHenLich(traLoi) ? ["nháp tự hẹn ngày giờ — việc hẹn lịch là của NV, sửa trước khi gửi"] : []),
         ...(khongCanCu.length ? [`căn cứ không khớp dữ liệu tra (có thể bịa): ${khongCanCu.slice(0, 3).join("; ")}`] : []),
         ...(!canNv && huaBaoLai(traLoi) ? ["nháp hứa báo lại mà không chuyển NV — NV theo dõi hoặc sửa trước khi gửi"] : []),

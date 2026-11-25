@@ -38,12 +38,12 @@ const ds = (v: unknown, toiDa: number) =>
 export const giuDaXong = (cu: SoCuoc | null | undefined, moi: SoCuoc, coViecMoi: boolean): SoCuoc =>
   coViecMoi ? moi : { ...moi, da_xong: cu?.da_xong ?? [] };
 
-/** Đầu ra model / dòng DB → sổ sạch; rỗng hết hoặc sai dạng → null (= chưa có sổ). */
+/** Đầu ra model / dòng DB → sổ sạch; rỗng hết (kể cả không có xung_ho hợp lệ) hoặc sai dạng → null (= chưa có sổ). */
 export function chuanSoCuoc(x: unknown): SoCuoc | null {
   if (!x || typeof x !== "object" || Array.isArray(x)) return null;
   const o = x as Record<string, unknown>;
   const xh = xungHo(o.xung_ho);
   const so: SoCuoc = { nhu_cau: chu(o.nhu_cau, TRAN_NHU_CAU), da_xong: ds(o.da_xong, TOI_DA_XONG), con_mo: ds(o.con_mo, TOI_DA_MO), ...(xh ? { xung_ho: xh } : {}) };
   while (JSON.stringify(so).length > TRAN_JSON && so.da_xong.length) so.da_xong.shift();
-  return so.nhu_cau || so.da_xong.length || so.con_mo.length ? so : null;
+  return so.nhu_cau || so.da_xong.length || so.con_mo.length || so.xung_ho ? so : null;
 }

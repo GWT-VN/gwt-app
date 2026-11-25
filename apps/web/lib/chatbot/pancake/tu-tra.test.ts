@@ -39,7 +39,8 @@ describe("soanTuTra — 5 ca của plan", () => {
       .mockResolvedValueOnce(goiCu([["t1", "tra_may", { ma: "CTS20" }]]))
       .mockResolvedValueOnce(chot({ tra_loi: "Dạ CTS20 bên em giá 12.990.000 đ ạ.", can_cu: [{ y: "giá CTS20", trich: "Giá niêm yết CTS20: 12.990.000 đ" }] }));
     const r = await chay(goi, L, c);
-    expect(r).toEqual({ traLoi: "Dạ CTS20 bên em giá 12.990.000 đ ạ.", canNv: false, khongTraLoi: false, lyDo: "", chanTuGui: [], xungHo: { goi: "anh", xung: "em" }, soCuoc: null });
+    expect(r).toEqual({ traLoi: "Dạ CTS20 bên em giá 12.990.000 đ ạ.", canNv: false, khongTraLoi: false, lyDo: "", chanTuGui: [], xungHo: { goi: "anh", xung: "em" },
+      soCuoc: { nhu_cau: "", da_xong: [], con_mo: [], xung_ho: { goi: "anh", xung: "em" } } });
     expect(c.traMay).toHaveBeenCalledWith("CTS20");
     const m = msgs(goi, 1);
     expect(m[0].role).toBe("system");
@@ -95,7 +96,7 @@ describe("soanTuTra — chặn và lỗi (chép ý ERP)", () => {
       .mockResolvedValueOnce(chu("Dạ em kiểm tra rồi báo lại anh ạ."));
     const r = await chay(goi, L, c);
     expect(r.traLoi).toBe("Dạ em kiểm tra rồi báo lại anh ạ.");
-    expect(r.chanTuGui).toEqual(["nháp hứa báo lại mà không chuyển NV — NV theo dõi hoặc sửa trước khi gửi"]);
+    expect(r.chanTuGui).toEqual(["không gọi chot_tra_loi — không có căn cứ để kiểm", "nháp hứa báo lại mà không chuyển NV — NV theo dõi hoặc sửa trước khi gửi"]);
     expect(msgs(goi, 1).at(-1)).toMatchObject({ tool_call_id: "t1", content: "Tra lỗi, thử cách khác hoặc nói em kiểm tra rồi báo lại." });
   });
   it("hứa báo lại KÈM can_nv → không chặn (NV giữ lời hứa); canNv ra riêng", async () => {
@@ -110,7 +111,8 @@ describe("soanTuTra — chặn và lỗi (chép ý ERP)", () => {
     const bia = await chay(vi.fn<Goi>()
       .mockResolvedValueOnce(goiCu([["t1", "tra_may", { ma: "CTS20" }]]))
       .mockResolvedValueOnce(chot({ tra_loi: "Dạ CTS20 giá 12.990.000 đ ạ.", can_cu: [{ y: "giá CTS20", trich: "CTS20 giá 12.990.000 đ kèm quà 5 triệu" }] })));
-    expect(bia.chanTuGui).toEqual(["căn cứ không khớp dữ liệu tra (có thể bịa): giá CTS20"]);
+    // trích bịa không phải căn cứ cho cả ý lẫn số trong nó
+    expect(bia.chanTuGui).toEqual(["căn cứ không khớp dữ liệu tra (có thể bịa): giá CTS20; số 12.990.000 không có câu trích"]);
     const c = congCu();
     vi.mocked(c.timTaiLieu).mockResolvedValueOnce([{ tieuDe: "Xuất xứ", noiDung: "Lõi thay thế do hãng cung cấp trực tiếp." }]);
     const qua = await chay(vi.fn<Goi>()
@@ -162,6 +164,15 @@ describe("soanTuTra — chặn và lỗi (chép ý ERP)", () => {
     expect(tin2).toContain("— (chưa có — lần này dựng sổ từ hội thoại)");
     expect(tin2).not.toContain("Cách gọi khách đã biết");
   });
+  it("chữ thường không chốt, câu không số, không hứa → vẫn chặn (không có căn cứ để kiểm)", async () => {
+    const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chu("Dạ máy CTS20 có nước nóng và lạnh ạ.")));
+    expect(r).toMatchObject({ traLoi: "Dạ máy CTS20 có nước nóng và lạnh ạ.", chanTuGui: ["không gọi chot_tra_loi — không có căn cứ để kiểm"], xungHo: null, soCuoc: null });
+  });
+  it("so_cuoc hỏng mà xung_ho hợp lệ → sổ vẫn mang xung_ho", async () => {
+    const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: "Dạ cháu ghi nhận ạ.", so_cuoc: "hỏng", xung_ho: { goi: "bác", xung: "chau" } })));
+    expect(r.xungHo).toEqual({ goi: "bác", xung: "chau" });
+    expect(r.soCuoc).toEqual({ nhu_cau: "", da_xong: [], con_mo: [], xung_ho: { goi: "bác", xung: "chau" } });
+  });
   it("xung_ho lạ → xungHo null", async () => {
     const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: "Dạ ạ.", xung_ho: { goi: "mày", xung: "tao" } })));
     expect(r.xungHo).toBeNull();
@@ -169,6 +180,38 @@ describe("soanTuTra — chặn và lỗi (chép ý ERP)", () => {
   it("hậu xử lý: bỏ markdown #, lặp \"Dạ\", câu mời SĐT xuống cuối", async () => {
     const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: `## Lọc tổng\nDạ CTS20 có nước lạnh ạ. ${MOI_SDT}\n\nDạ em gửi thêm: máy có soda ạ.` })));
     expect(r.traLoi).toBe(`Lọc tổng\nDạ CTS20 có nước lạnh ạ.\n\nEm gửi thêm: máy có soda ạ.\n\n${MOI_SDT}`);
+  });
+});
+
+// Review 2026-11-25: số chỉ căn cứ được bằng KẾT QUẢ CÔNG CỤ (hoặc hotline) — không bằng giá ví dụ của lời dặn hay lời khách.
+describe("soanTuTra — nguồn của con số", () => {
+  it("(a) số lấy từ câu ví dụ của LUAT_GIONG, không công cụ nào trả → chặn", async () => {
+    const vd = "Dạ máy CTS20 bên em tháng này đang khuyến mãi còn 33.957.500 đ (giá niêm yết 39.950.000 đ) ạ.";
+    expect(dungLoiDanTuTra("")).toContain(vd);
+    const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: vd, can_cu: [{ y: "giá CTS20", trich: vd }] })));
+    expect(r.chanTuGui).toEqual([expect.stringContaining("số 33.957.500 không có câu trích")]);
+  });
+  it("(b) khách tự nêu 5.000.000, câu trả lời lặp lại và trích lời khách → chặn", async () => {
+    const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: "Dạ CTS20 giá 5.000.000 đ ạ.", can_cu: [{ y: "giá", trich: "giá CTS20 5.000.000 đúng không" }] })),
+      { ...L, cauHoi: "giá CTS20 5.000.000 đúng không" });
+    expect(r.chanTuGui).toEqual([expect.stringContaining("số 5.000.000 không có câu trích")]);
+  });
+  it("(c) số có trong kết quả tra_may, trích đúng → qua", async () => {
+    const r = await chay(vi.fn<Goi>()
+      .mockResolvedValueOnce(goiCu([["t1", "tra_may", { ma: "CTS20" }]]))
+      .mockResolvedValueOnce(chot({ tra_loi: "Dạ CTS20 bên em giá 12.990.000 đ ạ.", can_cu: [{ y: "giá", trich: "Giá niêm yết CTS20: 12.990.000 đ" }] })));
+    expect(r.chanTuGui).toEqual([]);
+  });
+  it("(d) số hotline nơi gọi truyền vào → qua không cần trích; viết liền cũng qua", async () => {
+    for (const cau of ["Dạ anh gọi hotline 1900 1234 giúp em ạ.", "Dạ anh gọi hotline 19001234 giúp em ạ."]) { // pii-ok: số giả
+      const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chot({ tra_loi: cau })), L, congCu(), "1900 1234"); // pii-ok: số giả
+      expect(r.chanTuGui).toEqual([]);
+    }
+  });
+  it("kiemCanCu: trích chữ (không số) từ lời dặn vẫn là căn cứ; trích mang số phải có trong nguonSo", () => {
+    const he = "Khách hỏi mua ở đâu: mua trực tiếp với GWT qua Facebook. Ví dụ giá 22.950.000 đ.";
+    expect(kiemCanCu("Dạ anh mua qua Facebook ạ.", [{ y: "kênh", trich: "mua trực tiếp với GWT qua Facebook" }], he, "")).toEqual([]);
+    expect(kiemCanCu("Dạ giá 22.950.000 đ ạ.", [{ y: "giá", trich: "Ví dụ giá 22.950.000 đ" }], he, "")).toEqual(["số 22.950.000 không có câu trích"]);
   });
 });
 
