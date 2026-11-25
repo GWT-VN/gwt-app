@@ -26,6 +26,8 @@ export const PHUONG_AN = [
   { ma: 'A', ten: 'Hàng đợi như Việc' },
   { ma: 'B', ten: 'Bảng dày' },
   { ma: 'C', ten: 'Hộp thư chia đôi' },
+  { ma: 'D', ten: 'Kanban theo trạng thái' },
+  { ma: 'E', ten: 'Bàn làm việc trong ngày' },
 ]
 
 export const chuaLuu = () => thongBao.xong('Prototype — chưa lưu')

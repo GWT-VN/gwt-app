@@ -49,6 +49,9 @@ export const PA = [
   { ma: 'A', ten: 'Hai cột kiểu Linear' },
   { ma: 'B', ten: 'Hội thoại là chính' },
   { ma: 'C', ten: 'Theo tab' },
+  { ma: 'D', ten: 'Chat với khách' },
+  { ma: 'E', ten: 'Hồ sơ máy & khách' },
+  { ma: 'F', ten: 'Đối chiếu từng lần' },
 ]
 
 // ───────────── định dạng ─────────────
