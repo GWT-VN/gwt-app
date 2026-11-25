@@ -52,11 +52,13 @@ export function inDamUnicode(s: string): string {
   return s.replace(/\*\*(.+?)\*\*/g, (_, t: string) => dam(t)).replaceAll("**", "");
 }
 
+const MOI_SDT_CUOI = /\s*(?:Anh\/chị|Anh|Chị)\s+cần tư vấn thêm về sản phẩm có thể để lại SĐT để được chuyên gia liên hệ hỗ trợ ạ\.?\s*$/;
 const CHAO_GPT = /^(dạ\s*,?\s*)?(chào|xin chào)[^.!?\n]*[.!?]\s*/i;
 const DA_DAU = /^dạ\s*,?\s*/i;
 
-/** Mỗi tin kết "ạ" (trước dấu . ? ! cuối; không dấu thì thêm " ạ."). Luôn "ạ" ở cuối (spec §6.6), kể cả tin danh sách. "ạ" phải là từ riêng ("lạ", "mặt nạ" chưa tính). */
+/** Mỗi tin kết "ạ" (trước dấu . ? ! cuối; không dấu thì thêm " ạ."). Luôn "ạ" ở cuối (spec §6.6), trừ khi dòng cuối là gạch đầu dòng "• ". "ạ" phải là từ riêng ("lạ", "mặt nạ" chưa tính). */
 function ketA(s: string): string {
+  if (/(^|\n)• [^\n]*$/.test(s.trimEnd())) return s; // dòng cuối là gạch đầu dòng: giữ nguyên, không " ạ"
   const m = /^([\s\S]*?)([.?!…]*)$/.exec(s.trimEnd())!;
   if (/(^|\s)ạ$/u.test(m[1])) return s;
   return m[2] ? `${m[1]} ạ${m[2]}` : `${s.trimEnd()} ạ.`;
@@ -64,10 +66,10 @@ function ketA(s: string): string {
 
 export function dungTinGui(
   traLoi: string,
-  o: { kieu: KieuMo; xungHo: XungHo | null; tenKhach: string | null; hotline: string; hoiSo: boolean },
+  o: { kieu: KieuMo; xungHo: XungHo | null; ten: string | null; hotline: string; hoiSo: boolean },
 ): string[] {
   const goi = o.xungHo?.goi ?? "anh/chị";
-  const ten = tenGoi(o.tenKhach);
+  const ten = o.ten; // tên gọi (ten_goi đã kiểm ở phan-loai.ts); null → chào không kèm tên
   const CO_CHU = /\p{L}/u;
   const chuan = (x: string) => { // đoạn đầu: bỏ câu chào GPT lỡ viết (bot tự chào theo `kieu`)
     let d = x.replace(CHAO_GPT, "");
@@ -78,7 +80,9 @@ export function dungTinGui(
     return d;
   };
   // Đoạn không có chữ ("Dạ.", chỉ lời chào, dấu câu lẻ) bỏ TRƯỚC; câu mở luôn đi vào đoạn đầu còn lại.
-  const ps = tachDoan(traLoi);
+  const themHoTro = o.kieu === "gioi_thieu" && !coHotline(traLoi, o.hotline);
+  // Sẽ thêm CAU_HO_TRO (đã có lời mời SĐT) → bỏ lời mời SĐT GPT lỡ viết cuối, chỉ còn một lời mời.
+  const ps = tachDoan(themHoTro ? traLoi.replace(MOI_SDT_CUOI, "") : traLoi);
   let dau = "";
   while (ps.length && !CO_CHU.test((dau = chuan(ps[0])))) ps.shift();
   if (!ps.length) return []; // không còn nội dung → bên gọi coi [] là không gửi
@@ -87,6 +91,7 @@ export function dungTinGui(
   const mo = o.kieu === "da" ? `Dạ ${goi}${them}, `
     : `Chào ${goi}${them}! ${o.kieu === "gioi_thieu" ? `${o.xungHo?.xung === "chau" ? "Cháu" : "Em"}${CAU_GIOI_THIEU.slice(2)} ạ. ` : ""}`;
   const tin = [mo + ketA(dau), ...sau.map(ketA)];
-  if (o.kieu === "gioi_thieu" && !coHotline(traLoi, o.hotline)) tin.push(CAU_HO_TRO(o.hotline, o.hoiSo, goi));
-  return tin.map((s) => `${inDamUnicode(s)}${DAU_BOT}`);
+  if (themHoTro) tin.push(CAU_HO_TRO(o.hotline, o.hoiSo, goi));
+  // Câu dẫn đứng ngay trên dòng "• " đầu tiên: chèn một dòng trống (không chèn giữa các bullet, không nhân đôi).
+  return tin.map((s) => `${inDamUnicode(s).replace(/^(?!• )([^\n]+)\n(?=• )/gm, "$1\n\n")}${DAU_BOT}`);
 }

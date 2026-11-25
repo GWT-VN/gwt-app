@@ -51,7 +51,7 @@ function khoGia(): KhoPancake & { hang: Map<string, DongHoiThoai>; khoa: Set<str
   };
 }
 
-function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?: CauHinh["cheDo"]; nhom?: string; gui?: () => Promise<string>; kho?: ReturnType<typeof khoGia> } = {}) {
+function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?: CauHinh["cheDo"]; nhom?: string; pl?: object; gui?: () => Promise<string>; kho?: ReturnType<typeof khoGia> } = {}) {
   const luc = o.luc ?? lui(180);
   let n = 0;
   const tinNhan = vi.fn(async () => { n += 1; return (o.tinLanGet ? o.tinLanGet(n) : [tinKhach(luc)]); });
@@ -60,7 +60,7 @@ function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?
   const soan = vi.fn(async (_l: LuongTra) => TRA);
   const kho = o.kho ?? khoGia();
   const khieu = o.nhom === "khieu_nai";
-  const phanLoai = vi.fn(async () => ({ nhom: (o.nhom ?? "hoi_gia") as never, gap: khieu, tomTat: "hỏi giá CTS20", maMay: "CTS20" }));
+  const phanLoai = vi.fn(async () => ({ nhom: (o.nhom ?? "hoi_gia") as never, gap: khieu, tomTat: "hỏi giá CTS20", maMay: "CTS20", ...(o.pl ?? {}) }));
   let dem = 0;
   const chay = (bayGio: Date = NOW) => chayMotLuot({
     pageId: PAGE, tenKenh: "Lọc nhỏ", pancake: { dsHoiThoai: async () => [hoiThoai], tinNhan } as never, gui, kho, phanLoai, soan, bao: bao as never,
@@ -217,5 +217,29 @@ describe("chayMotLuot", () => {
     const t2 = dung();
     t2.kho.docTrangThai = async () => { throw new Error("1234567"); };
     expect(await t2.chay()).toMatchObject({ viec: "loi", loi: "LOI_KHONG_RO" });
+  });
+
+  it("đoán giới từ tên: nam + Hùng → 'Chào anh Hùng!', soan nhận xưng hô mặc định; sổ không lưu đoán", async () => {
+    const t = dung({ pl: { gioi: "nam", tenGoi: "Hùng" } });
+    t.soan.mockResolvedValue({ ...TRA, xungHo: { goi: "anh", xung: "em" } });
+    await t.chay();
+    expect((t.soan.mock.calls[0][0] as { soCuoc: { xung_ho: unknown } }).soCuoc.xung_ho).toEqual({ goi: "anh", xung: "em" });
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào anh Hùng! Em là trợ lý ảo/);
+    expect(t.kho.hang.get("c1")!.soCuoc?.xung_ho).toBeUndefined();
+  });
+
+  it("không rõ giới → 'Chào anh/chị!' không tên; xưng hô đã học (cô) thắng đoán nam", async () => {
+    const t0 = dung({ pl: { gioi: "khong_ro", tenGoi: null } });
+    await t0.chay();
+    expect((t0.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào anh\/chị! Em là/);
+
+    const kho = khoGia();
+    kho.hang.set("c1", dongCu(lui(3720), { ...SO, xung_ho: { goi: "cô", xung: "chau" } } as never, null));
+    const bot2: TinPancake = { id: "b2", message: "Dạ ạ⁣", inserted_at: lui(3600), from: { id: PAGE } };
+    const tin = [khach("k2", "CTS20 giá?", lui(180)), bot2, khach("k0", "chào", lui(3720))];
+    const t = dung({ kho, tinLanGet: () => tin, pl: { gioi: "nam", tenGoi: "Hùng" } });
+    await t.chay();
+    expect((t.soan.mock.calls[0][0] as { soCuoc: { xung_ho: unknown } }).soCuoc.xung_ho).toEqual({ goi: "cô", xung: "chau" });
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào cô Hùng! Cháu là/);
   });
 });

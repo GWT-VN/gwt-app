@@ -24,7 +24,7 @@ describe("luatCungGap", () => {
 describe("docPhanLoai", () => {
   it("đúng schema → object; sai nhóm / thiếu khoá / không phải JSON → null", () => {
     expect(docPhanLoai(JSON.stringify({ nhom: "hoi_gia", gap: false, tom_tat: "Hỏi giá", ma_may: "CTS10" })))
-      .toEqual({ nhom: "hoi_gia", gap: false, tomTat: "Hỏi giá", maMay: "CTS10" });
+      .toEqual({ nhom: "hoi_gia", gap: false, tomTat: "Hỏi giá", maMay: "CTS10", gioi: "khong_ro", tenGoi: null });
     expect(docPhanLoai(JSON.stringify({ nhom: "lung_tung", gap: false, tom_tat: "x", ma_may: null }))).toBeNull();
     expect(docPhanLoai(JSON.stringify({ nhom: "khac", gap: false }))).toBeNull();
     expect(docPhanLoai("```json {}```")).toBeNull();
@@ -54,9 +54,9 @@ describe("docPhanLoai", () => {
 });
 
 describe("SCHEMA_PHAN_LOAI", () => {
-  it("chặn khoá lạ, bắt đủ 4 khoá, ma_may dùng anyOf", () => {
+  it("chặn khoá lạ, bắt đủ 6 khoá, ma_may dùng anyOf", () => {
     expect(SCHEMA_PHAN_LOAI.additionalProperties).toBe(false);
-    expect(SCHEMA_PHAN_LOAI.required).toEqual(["nhom", "gap", "tom_tat", "ma_may"]);
+    expect(SCHEMA_PHAN_LOAI.required).toEqual(["nhom", "gap", "tom_tat", "ma_may", "gioi_tu_ten", "ten_goi"]);
     expect((SCHEMA_PHAN_LOAI.properties as Record<string, unknown>).ma_may)
       .toEqual({ anyOf: [{ type: "string" }, { type: "null" }] });
   });
@@ -125,5 +125,28 @@ describe("phanLoai", () => {
   });
   it("sai schema → nhom null, gap theo luật cứng, KHÔNG ném", async () => {
     expect(await phanLoai("hỏi", false, [], traVe({ nhom: 1 }) as never)).toEqual({ nhom: null, gap: false, tomTat: null, maMay: null });
+  });
+});
+
+describe("gioi_tu_ten / ten_goi", () => {
+  const tx = (gioi: unknown, ten: unknown) => JSON.stringify({ nhom: "khac", gap: false, tom_tat: "x", ma_may: null, gioi_tu_ten: gioi, ten_goi: ten });
+  it("hợp lệ: nam + Hùng của 'Nguyễn Hùng' được giữ", () => {
+    expect(docPhanLoai(tx("nam", "Hùng"), "Nguyễn Hùng")).toMatchObject({ gioi: "nam", tenGoi: "Hùng" });
+    expect(docPhanLoai(tx("nu", "hùng"), "Nguyễn Hùng")).toMatchObject({ gioi: "nu", tenGoi: "Hùng" });
+  });
+  it("giá trị giới lạ → khong_ro; ten_goi không phải từ của tên → null", () => {
+    expect(docPhanLoai(tx("male", "Hùng"), "Nguyễn Hùng")).toMatchObject({ gioi: "khong_ro", tenGoi: "Hùng" });
+    expect(docPhanLoai(tx("nam", "Dũng"), "Nguyễn Hùng")!.tenGoi).toBeNull();
+    expect(docPhanLoai(tx("nam", "Nguyễn Hùng"), "Nguyễn Hùng")!.tenGoi).toBeNull();
+    expect(docPhanLoai(tx("nam", "Hùng"))!.tenGoi).toBeNull(); // không có tên → fail-closed
+  });
+  it("tên không dùng được (emoji / số) → khong_ro", () => {
+    expect(docPhanLoai(tx("nam", "x"), "😎")).toMatchObject({ gioi: "khong_ro", tenGoi: null });
+  });
+  it("phanLoai gửi tên Facebook cho model và trả gioi/tenGoi đã kiểm", async () => {
+    const goi = traVe({ nhom: "hoi_gia", gap: false, tom_tat: "x", ma_may: null, gioi_tu_ten: "nam", ten_goi: "Hùng" });
+    const r = await phanLoai("giá", false, [], goi as never, "Nguyễn Hùng");
+    expect(nguoiOf(goi)).toContain("Tên Facebook của khách: Nguyễn Hùng");
+    expect(r).toMatchObject({ gioi: "nam", tenGoi: "Hùng" });
   });
 });

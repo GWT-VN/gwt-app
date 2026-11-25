@@ -8,7 +8,7 @@ import type { SoCuoc } from "./so-cuoc.ts";
 
 const HL = "1900 1234";
 const o = (kieu: KieuMo, extra: Partial<Parameters<typeof dungTinGui>[1]> = {}) =>
-  ({ kieu, xungHo: { goi: "anh", xung: "em" } as const, tenKhach: "Hùng", hotline: HL, hoiSo: false, ...extra });
+  ({ kieu, xungHo: { goi: "anh", xung: "em" } as const, ten: "Hùng", hotline: HL, hoiSo: false, ...extra });
 const b = (s: string) => `${s}${DAU_BOT}`;
 
 describe("tachDoan / inDamUnicode / tenGoi (chép từ ERP)", () => {
@@ -39,18 +39,18 @@ describe("dungTinGui", () => {
     ]);
   });
   it("xưng cháu / gọi cô; hoiSo → xin SĐT; đã có hotline trong câu trả lời → không thêm", () => {
-    const r = dungTinGui("Giá ạ.", o("gioi_thieu", { xungHo: { goi: "cô", xung: "chau" }, tenKhach: "Lan", hoiSo: true }));
+    const r = dungTinGui("Giá ạ.", o("gioi_thieu", { xungHo: { goi: "cô", xung: "chau" }, ten: "Lan", hoiSo: true }));
     expect(r[0]).toBe(b("Chào cô Lan! Cháu là trợ lý ảo của máy lọc nước GE ạ. Giá ạ."));
     expect(r[1]).toContain("để lại SĐT");
     expect(dungTinGui("Hotline 1900 1234 ạ.", o("gioi_thieu"))).toHaveLength(1);
   });
   it("tên có số/emoji hoặc xungHo null → chào không tên, anh/chị, xưng em", () => {
-    expect(dungTinGui("Giá ạ.", o("gioi_thieu", { xungHo: null, tenKhach: "Hùng 😎 0912" }))[0])
+    expect(dungTinGui("Giá ạ.", o("gioi_thieu", { xungHo: null, ten: null }))[0])
       .toBe(b("Chào anh/chị! Em là trợ lý ảo của máy lọc nước GE ạ. Giá ạ."));
-    expect(dungTinGui("Giá ạ.", o("da", { xungHo: null, tenKhach: null }))[0]).toBe(b("Dạ anh/chị, giá ạ."));
+    expect(dungTinGui("Giá ạ.", o("da", { xungHo: null, ten: null }))[0]).toBe(b("Dạ anh/chị, giá ạ."));
   });
   it("chao: không giới thiệu, không hotline", () => {
-    expect(dungTinGui("Máy còn hàng ạ.", o("chao", { xungHo: { goi: "chị", xung: "em" }, tenKhach: "Mai" })))
+    expect(dungTinGui("Máy còn hàng ạ.", o("chao", { xungHo: { goi: "chị", xung: "em" }, ten: "Mai" })))
       .toEqual([b("Chào chị Mai! Máy còn hàng ạ.")]);
   });
   it("da: bỏ 'Dạ' của GPT, hạ chữ đầu từ thường, giữ mã máy", () => {
@@ -77,9 +77,9 @@ describe("dungTinGui", () => {
     expect(r).toBe(b("Chào anh Hùng! Dạ, giá 1đ ạ."));
     expect(dungTinGui("Chào anh! Dạ, giá 1đ ạ.", o("da"))[0]).toBe(b("Dạ anh Hùng, giá 1đ ạ."));
   });
-  it("in đậm Unicode, tin danh sách không bị ép 'ạ', mọi tin kết U+2063", () => {
+  it("in đậm Unicode, dòng cuối là bullet không thêm 'ạ', chèn dòng trống sau câu dẫn, mọi tin kết U+2063", () => {
     const r = dungTinGui("Dạ, em gửi ạ.\n\n**Giá:**\n• **CTS10:** 1đ", o("da"));
-    expect(r[1]).toBe(b("𝐆𝐢𝐚́:\n• 𝐂𝐓𝐒𝟏𝟎: 1đ ạ."));
+    expect(r[1]).toBe(b("𝐆𝐢𝐚́:\n\n• 𝐂𝐓𝐒𝟏𝟎: 1đ"));
     expect(r.every((s) => s.endsWith(DAU_BOT))).toBe(true);
   });
 });
@@ -98,5 +98,33 @@ describe("kieuMo", () => {
     expect(kieuMo([khach, bot("2026-11-25T03:00:00Z")], NOW, SO)).toBe("chao");
     expect(kieuMo([khach, bot("2026-11-25T05:00:00Z")], NOW, SO)).toBe("da");
     expect(kieuMo([khach, t("2026-11-25T09:00:00Z", "dạ", { id: "P", admin_id: "nv1" }), bot("2026-11-25T01:00:00Z")], NOW, SO)).toBe("da");
+  });
+});
+
+describe("dungTinGui: gọi theo tên, một lời mời SĐT, bullet", () => {
+  it("câu mẫu: Chào anh Hùng! + giới thiệu + Dạ, …", () => {
+    expect(dungTinGui("Dạ, em gửi giá ạ.", o("gioi_thieu", { hoiSo: false }))[0]).toBe(b("Chào anh Hùng! Em là trợ lý ảo của máy lọc nước GE ạ. Dạ, em gửi giá ạ."));
+  });
+  it("không rõ giới + có tên gọi → 'Chào anh/chị Hùng!'; không tên → 'Chào anh/chị!'", () => {
+    expect(dungTinGui("Giá ạ.", o("chao", { xungHo: null, ten: null }))[0]).toBe(b("Chào anh/chị! Giá ạ."));
+  });
+  it("GPT đã mời SĐT + có CAU_HO_TRO → chỉ còn một lời mời", () => {
+    const r = dungTinGui("Dạ, em gửi giá ạ.\n\nAnh/chị cần tư vấn thêm về sản phẩm có thể để lại SĐT để được chuyên gia liên hệ hỗ trợ ạ.", o("gioi_thieu", { hoiSo: true }));
+    expect(r).toHaveLength(2);
+    expect(r.join(" ").match(/để lại SĐT/g)).toHaveLength(1);
+    expect(r[1]).toContain("hotline");
+    const r2 = dungTinGui("Giá 1đ ạ. Anh cần tư vấn thêm về sản phẩm có thể để lại SĐT để được chuyên gia liên hệ hỗ trợ ạ.", o("gioi_thieu", { hoiSo: true }));
+    expect(r2.join(" ").match(/để lại SĐT/g)).toHaveLength(1);
+  });
+  it("dòng cuối là bullet → không thêm 'ạ'; câu thường vẫn có 'ạ'", () => {
+    const r = dungTinGui("Dạ, em gửi giá ạ:\n• **A:** 1đ\n• **B:** 2đ", o("da"));
+    expect(r[0]).not.toMatch(/ạ\.?\u2063$/);
+    expect(r[0].endsWith(`2đ${DAU_BOT}`)).toBe(true);
+    expect(dungTinGui("Giá 1đ", o("da"))[0]).toBe(b("Dạ anh Hùng, giá 1đ ạ."));
+  });
+  it("chèn một dòng trống giữa câu dẫn và bullet đầu; không giữa các bullet, không nhân đôi", () => {
+    const t = dungTinGui("Em gửi giá ạ:\n• A: 1đ\n• B: 2đ", o("chao"))[0];
+    expect(t).toBe(b("Chào anh Hùng! Em gửi giá ạ:\n\n• A: 1đ\n• B: 2đ"));
+    expect(dungTinGui("Em gửi giá ạ:\n\n• A: 1đ\n• B: 2đ", o("chao"))[0]).toBe(t);
   });
 });

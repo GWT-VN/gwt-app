@@ -40,7 +40,7 @@ async function main(): Promise<number> {
       // cửa gửi chỉ dựng khi chế độ hiệu lực là bat (--kho đã ép thu)
       gui: chonGui(ch.cheDo, t.id, t.token, taoGuiKhach),
       kho: khoPancake,
-      phanLoai: (tin, coSdt, lichSu) => phanLoai(tin, coSdt, lichSu, goiPhanLoai),
+      phanLoai: (tin, coSdt, lichSu, tenKhach) => phanLoai(tin, coSdt, lichSu, goiPhanLoai, tenKhach),
       soan: (l) => soanTuTra(l, { congCu, hotline: ch.hotline, goi: (messages, tools) => goiGpt({ apiKey: env.OPENAI_API_KEY!, model: ch.modelTraLoi, messages, tools }) }),
       bao, ch,
       dem: taoDem(ch.demDir, t.id),

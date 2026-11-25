@@ -7,8 +7,8 @@ import type { PancakeClient, TinPancake } from "./doc.ts";
 import { dungTinGui, kieuMo } from "./dung-tin.ts";
 import type { DongHoiThoai, KhoPancake } from "./kho.ts";
 import { dangCho, laKhach, laNhanVien, laTinBot, lichSuHoiThoai, tinKhachDangCho, TRAN_DUNG_SO } from "./loc.ts";
-import type { PhanLoai } from "./phan-loai.ts";
-import { chuanSoCuoc, type SoCuoc } from "./so-cuoc.ts";
+import type { Gioi, PhanLoai } from "./phan-loai.ts";
+import { chuanSoCuoc, type SoCuoc, type XungHo } from "./so-cuoc.ts";
 import type { KetQuaTra, LuongTra } from "./tu-tra.ts";
 
 export interface KetQua {
@@ -20,7 +20,7 @@ export interface PhuThuocLuot {
   pancake: Pick<PancakeClient, "dsHoiThoai" | "tinNhan">;
   gui?: (cid: string, msg: string) => Promise<string>; // cửa gửi duy nhất (gui-khach.ts) do bên gọi tiêm vào
   kho: KhoPancake;
-  phanLoai: (tin: string, coSdt: boolean, lichSu: string[]) => Promise<PhanLoai>;
+  phanLoai: (tin: string, coSdt: boolean, lichSu: string[], tenKhach?: string | null) => Promise<PhanLoai>;
   soan: (l: LuongTra) => Promise<KetQuaTra>;
   bao: ReturnType<typeof taoBao>;
   ch: CauHinh;
@@ -86,6 +86,7 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
     const ungVien = [...ds.values()].filter((h) => dangCho(h) && (h.customers?.length ?? 0) < 2);
     const cu = await p.kho.docHoiThoai(p.pageId, ungVien.map((h) => h.id));
     const xong: string[] = [];
+    const doanTen = new Map<string, { gioi?: Gioi; tenGoi?: string | null }>(); // conversationId → đoán giới/tên gọi từ tên Facebook (chỉ trong lượt chạy này)
     for (const h of ungVien) {
       try {
         const tin = await p.pancake.tinNhan(h.id);
@@ -100,7 +101,8 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
         const co = h.has_phone || coSdt(text);
         const soTin = Math.max(1, kh.text.split("\n").length);
         const { lichSu } = lichSuHoiThoai(tin, p.pageId, undefined, soTin);
-        const pl = await p.phanLoai(text, co, lichSu);
+        const pl = await p.phanLoai(text, co, lichSu, h.from?.name ?? null);
+        doanTen.set(h.id, { gioi: pl.gioi, tenGoi: pl.tenGoi });
         kq.phanLoai += 1;
         await p.kho.luuHoiThoai({
           pageId: p.pageId, conversationId: h.id, tenKhach: h.from?.name ?? null, tinKhach: text, tinKhachLuc: iso(Date.parse(kh.luc)),
@@ -173,7 +175,13 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
         .filter((ms, i) => laKhach(tin[i].from, p.pageId) && ms < Date.parse(kh.dau)).sort((a, b) => b - a)[0] ?? null;
       const so: SoCuoc | null = d.soCuoc && truoc !== null && nowMs - truoc <= 7 * NGAY ? d.soCuoc : null;
       const ls = lichSuHoiThoai(tin, p.pageId, undefined, Math.max(1, kh.text.split("\n").length), so ? undefined : TRAN_DUNG_SO);
-      const k = await p.soan({ cauHoi: kh.text, khachDaNoi: [], lichSu: ls.lichSu, maMay: d.maMay, daCoSdt: ls.daCoSdt || d.coSdt, soCuoc: so });
+      const kieu = kieuMo(tin, now, so);
+      // Đoán anh/chị từ tên: chỉ khi sổ chưa biết cách xưng hô (xưng hô đã học thắng). Lượt trước chưa lưu đoán (DB chưa có cột) → hỏi lại bộ phân loại, chỉ ở lần đầu tiếp xúc.
+      let doan = doanTen.get(id);
+      if (!doan && kieu === "gioi_thieu" && d.tenKhach) doan = await p.phanLoai(d.tinKhach, d.coSdt, [], d.tenKhach).catch(() => undefined);
+      const doanGoi: XungHo | null = so?.xung_ho ? null : doan?.gioi === "nam" ? { goi: "anh", xung: "em" } : doan?.gioi === "nu" ? { goi: "chị", xung: "em" } : null;
+      const soChoSoan: SoCuoc | null = doanGoi ? { ...(so ?? { nhu_cau: "", da_xong: [], con_mo: [] }), xung_ho: doanGoi } : so;
+      const k = await p.soan({ cauHoi: kh.text, khachDaNoi: [], lichSu: ls.lichSu, maMay: d.maMay, daCoSdt: ls.daCoSdt || d.coSdt, soCuoc: soChoSoan });
       const chanSau = chanSauSoan(k);
       if (chanSau) return chuyen(chanSau);
 
@@ -183,8 +191,9 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       if (lai.some((t) => kiem(t) && (laTinBot(t) || laNhanVien(t.from)))) { await ghiXong(); return "khac"; }
       if (lai.some((t) => kiem(t) && laKhach(t.from, p.pageId))) return "khac"; // khách nhắn thêm trong lúc soạn
 
-      const xh = k.xungHo ?? so?.xung_ho ?? null;
-      const tinGui = dungTinGui(k.traLoi, { kieu: kieuMo(tin, now, so), xungHo: xh, tenKhach: d.tenKhach, hotline: p.ch.hotline, hoiSo: !(ls.daCoSdt || d.coSdt) });
+      const xh = k.xungHo ?? so?.xung_ho ?? doanGoi;
+      const laDoan = Boolean(xh && doanGoi && xh.goi === doanGoi.goi && xh.xung === doanGoi.xung); // chỉ là đoán từ tên → không ghi vào sổ
+      const tinGui = dungTinGui(k.traLoi, { kieu, xungHo: xh, ten: doan?.tenGoi ?? null, hotline: p.ch.hotline, hoiSo: !(ls.daCoSdt || d.coSdt) });
       if (!tinGui.length) return chuyen("rong");
 
       const baoDaGui = (tinDa: string[], thu: boolean) =>
@@ -210,7 +219,8 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       p.dem.tang();
       await baoDaGui(daGui, false).catch(ghiLoi);
       await ghiXong(); // đóng dòng TRƯỚC sổ: sổ hỏng không được để dòng mở lại → soạn/báo lại
-      const sach = chuanSoCuoc({ ...(k.soCuoc ?? { nhu_cau: "", da_xong: [], con_mo: [] }), ...(xh ? { xung_ho: xh } : {}) });
+      const { xung_ho: _boDoan, ...soMoi } = k.soCuoc ?? { nhu_cau: "", da_xong: [], con_mo: [] };
+      const sach = chuanSoCuoc({ ...soMoi, ...(xh && !laDoan ? { xung_ho: xh } : {}) });
       if (sach) await p.kho.ghiSoCuoc(p.pageId, id, sach).catch(ghiLoi);
       return hong ? "loi_gui" : "gui";
     }
