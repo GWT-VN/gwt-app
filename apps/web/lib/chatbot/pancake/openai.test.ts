@@ -19,7 +19,7 @@ describe("goiGpt", () => {
     expect(b).toMatchObject({ model: "gpt-x", tool_choice: "auto", max_output_tokens: 8000, store: false });
     expect(b).not.toHaveProperty("temperature");
     expect(b.input).toEqual([{ role: "developer", content: "S" }, { role: "user", content: "U" }]);
-    expect(b.tools).toEqual([{ type: "function", name: "tra_may", description: "D", parameters: { type: "object" } }]);
+    expect(b.tools).toEqual([{ type: "function", name: "tra_may", description: "D", parameters: { type: "object" }, strict: false }]);
   });
   it("vòng công cụ: assistant tool_calls + tool → function_call + function_call_output cùng call_id", async () => {
     const f = traVe({ output: [] });
@@ -51,6 +51,18 @@ describe("goiGpt", () => {
     expect(r.message.tool_calls).toBeUndefined();
     const r2 = await goiGpt({ ...o, fetchImpl: traVe({ output: out, status: "incomplete" }) as never });
     expect(r2.finish).toBe("length");
+  });
+  it("incomplete: content_filter → content_filter; lý do khác → length kể cả có function_call", async () => {
+    const fc = { type: "function_call", call_id: "c", name: "n", arguments: "{" };
+    const r = await goiGpt({ ...o, fetchImpl: traVe({ output: [], status: "incomplete", incomplete_details: { reason: "content_filter" } }) as never });
+    expect(r.finish).toBe("content_filter");
+    const r2 = await goiGpt({ ...o, fetchImpl: traVe({ output: [fc], status: "incomplete", incomplete_details: { reason: "max_output_tokens" } }) as never });
+    expect(r2.finish).toBe("length");
+  });
+  it("200 nhưng status failed hoặc có error → GPT_MANG", async () => {
+    for (const j of [{ output: [], status: "failed" }, { output: [], error: { message: "x" } }]) {
+      expect((await goiGpt({ ...o, fetchImpl: traVe(j) as never }).catch((x: Error) => x) as Error).message).toBe("GPT_MANG");
+    }
   });
   it("refusal được ánh xạ", async () => {
     const r = await goiGpt({ ...o, fetchImpl: traVe({ output: [msgOut([{ type: "refusal", refusal: "không thể" }])], status: "completed" }) as never });

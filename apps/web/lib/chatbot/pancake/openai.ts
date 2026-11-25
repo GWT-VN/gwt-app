@@ -24,7 +24,7 @@ function sangInput(messages: unknown[]): unknown[] {
 }
 
 export async function goiGpt(o: { apiKey: string; model: string; messages: unknown[]; tools: unknown[]; fetchImpl?: typeof fetch }): Promise<TraGpt> {
-  const tools = (o.tools as CongCuChat[]).map((t) => ({ type: "function", name: t.function.name, description: t.function.description, parameters: t.function.parameters }));
+  const tools = (o.tools as CongCuChat[]).map((t) => ({ type: "function", name: t.function.name, description: t.function.description, parameters: t.function.parameters, strict: false }));
   let res: Response;
   try {
     res = await (o.fetchImpl ?? fetch)("https://api.openai.com/v1/responses", {
@@ -37,9 +37,9 @@ export async function goiGpt(o: { apiKey: string; model: string; messages: unkno
     throw new Error("GPT_MANG");
   }
   if (!res.ok) throw new Error(`GPT_HTTP_${res.status}`);
-  let j: { output?: MucRa[]; status?: string };
+  let j: { output?: MucRa[]; status?: string; error?: unknown; incomplete_details?: { reason?: string } | null };
   try { j = await res.json(); } catch { throw new Error("GPT_MANG"); }
-  if (!Array.isArray(j.output)) throw new Error("GPT_MANG");
+  if (j.status === "failed" || j.error || !Array.isArray(j.output)) throw new Error("GPT_MANG");
   const items = j.output.filter((x) => x.type === "message").flatMap((x) => x.content ?? []);
   const text = items.filter((c) => c.type === "output_text").map((c) => c.text ?? "").join("");
   const refusal = items.find((c) => c.type === "refusal")?.refusal;
@@ -48,6 +48,6 @@ export async function goiGpt(o: { apiKey: string; model: string; messages: unkno
     .map((x) => ({ id: x.call_id as string, type: "function", function: { name: x.name as string, arguments: x.arguments as string } }));
   return {
     message: { content: text || null, ...(refusal !== undefined ? { refusal } : {}), ...(calls.length ? { tool_calls: calls } : {}) },
-    finish: calls.length ? "tool_calls" : j.status === "incomplete" ? "length" : "stop",
+    finish: j.status === "incomplete" ? (j.incomplete_details?.reason === "content_filter" ? "content_filter" : "length") : calls.length ? "tool_calls" : "stop",
   };
 }
