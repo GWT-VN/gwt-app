@@ -1,5 +1,5 @@
 /** Phần thuần của scripts/pancake-luot.ts (parser env, tham số, sổ đếm ngày, cấu hình ép chế độ) — để test được không cần dịch vụ thật. */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { docCauHinh, type CauHinh } from "./cau-hinh.ts";
 
@@ -44,8 +44,31 @@ export function taoDem(thuMuc: string, pageId: string, now: () => Date = () => n
     } catch { return 0; }
   };
   const tang = () => {
-    mkdirSync(thuMuc, { recursive: true });
-    writeFileSync(f, JSON.stringify({ ngay: ngayVn(now()), so: doc() + 1 }));
+    try { // không ném: ném sau khi đã gửi sẽ mất dòng báo Discord + khoá lượt (main đã dò thư mục trước vòng lặp)
+      mkdirSync(thuMuc, { recursive: true });
+      writeFileSync(f, JSON.stringify({ ngay: ngayVn(now()), so: doc() + 1 }));
+    } catch { /* bỏ qua */ }
   };
   return { doc, tang };
+}
+
+/** Dò thư mục sổ đếm ghi được không (thiếu thì tạo). Hỏng → trần/ngày sẽ mở toang, nên main dừng. */
+export function doThuMucDem(thuMuc: string): boolean {
+  try {
+    mkdirSync(thuMuc, { recursive: true });
+    const f = join(thuMuc, ".do-ghi");
+    writeFileSync(f, "");
+    rmSync(f);
+    return true;
+  } catch { return false; }
+}
+
+/** Nạp env từ file vào `dich` (process.env): biến đã có sẵn (đặt inline / launchd) THẮNG file; trong file, dòng sau thắng dòng trước. */
+export function napEnv(dich: Record<string, string | undefined>, file: Record<string, string>): void {
+  for (const [k, v] of Object.entries(file)) if (!(k in dich)) dich[k] = v;
+}
+
+/** Cửa gửi chỉ có khi chế độ hiệu lực là `bat` (`--kho` đã ép `thu` trong docCauHinhChay). */
+export function chonGui<G extends { gui: unknown }>(cheDo: CauHinh["cheDo"], pageId: string, token: string, taoGui: (id: string, token: string) => G): G["gui"] | undefined {
+  return cheDo === "bat" ? taoGui(pageId, token).gui : undefined;
 }

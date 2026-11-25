@@ -12,6 +12,9 @@ ENV_FILE=~/Bots/.secrets/gwtapp-pancake.env \
 # thêm --kho: chạy khô — ép chế độ "thu" (không gửi gì cho khách), webhook Discord nhận dòng ✉️ THỬ
 ```
 
+Env: `ENV_FILE` được nạp vào `process.env`; biến đặt inline (`PANCAKE_TU_GUI=thu node …`) hoặc từ launchd THẮNG file; trùng khoá trong file thì dòng SAU thắng.
+Thư mục sổ đếm không ghi được → `{"loi":"DEM_DIR_HONG"}`, thoát 1 (không chạy, để trần/ngày không mở toang).
+
 Stdout: đúng một dòng JSON mỗi page `{"trang":…,"viec":…,"gui":…}`; thoát 1 nếu có `loi`. Không in chữ khách / SĐT / khoá.
 
 Biến env (xem `.env.example`): `PANCAKE_TU_GUI` `PANCAKE_PAGES` `PANCAKE_PAGE_TOKEN_<id>` `PANCAKE_TU_GUI_TRANG` `PANCAKE_GIO_LAM`
@@ -44,17 +47,28 @@ Page Zalo cá nhân (`pzl_`) và Shopee (`spo_`) không bao giờ được tự 
 
 ## Bot cũ phải tắt
 
-Hai bot cùng chạy = khách nhận tin đôi. Kiểm trước khi bật bản mới:
+Hai bot cùng chạy = khách nhận tin đôi. Plist `com.gwt.pancake` do `GWT-Agent-Team/mac/cai-launchd.sh --chi com.gwt.pancake` cài (không phải từ GWT-ERP `scripts/chatbot/mac/`).
+**Tắt = CẢ HAI lệnh** (chỉ `bootout` thì lần chạy `cai-launchd.sh` sau nạp lại):
 
 ```bash
-launchctl print gui/$(id -u)/com.gwt.pancake    # phải báo "Could not find service" hoặc disabled
-launchctl print-disabled gui/$(id -u) | grep pancake
+launchctl bootout gui/$(id -u)/com.gwt.pancake
+launchctl disable gui/$(id -u)/com.gwt.pancake
 ```
+
+Rồi gỡ `com.gwt.pancake` khỏi danh sách nhãn của `cai-launchd.sh`. Kiểm:
+
+```bash
+launchctl print gui/$(id -u)/com.gwt.pancake          # phải báo "Could not find service"
+launchctl print-disabled gui/$(id -u) | grep pancake  # com.gwt.pancake => disabled
+```
+
+Nhãn mới `com.gwt.pancake.app` tắt theo đúng cách: `bootout` + `disable` (bật lại: `enable` + `bootstrap`).
 
 ## Quay về bot cũ
 
-1. Đặt `PANCAKE_TU_GUI=tat` (hoặc gỡ nhãn `com.gwt.pancake.app`): `launchctl bootout gui/$(id -u)/com.gwt.pancake.app`.
-2. Bật lại bot cũ: `launchctl enable gui/$(id -u)/com.gwt.pancake` rồi nạp lại plist của nó (repo GWT-ERP `scripts/chatbot/mac/`).
+Không bao giờ bật cả hai cùng lúc — tắt bản mới TRƯỚC:
+1. `launchctl bootout gui/$(id -u)/com.gwt.pancake.app` rồi `launchctl disable gui/$(id -u)/com.gwt.pancake.app` (và đặt `PANCAKE_TU_GUI=tat`).
+2. Thêm lại `com.gwt.pancake` vào danh sách nhãn của `cai-launchd.sh`, rồi `launchctl enable gui/$(id -u)/com.gwt.pancake` và `bash GWT-Agent-Team/mac/cai-launchd.sh --chi com.gwt.pancake` (bootstrap).
 3. Hội thoại bản mới đã `da_xu_ly` nên bot cũ không trả lại tin cũ.
 
 ## Kiểm bằng SQL
