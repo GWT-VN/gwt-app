@@ -74,8 +74,11 @@ export type PropsListView<T> = {
    * (`NutMoMa`) — chỗ trống không làm gì, dòng không con trỏ tay (CEO 25/11, màn Việc). Enter trên dòng vẫn mở.
    */
   moKhi?: 'dong' | 'ten'
-  /** Dòng nháp "+ Mới" (`useDongMoi`): một hàng trống cùng lưới cột, ô của cột `cot` chứa ô gõ — CEO 25/11. */
-  dongNhap?: { cot: string; o: ReactNode }
+  /**
+   * Hàng nháp "+ Mới" (`useDongMoi`, CEO 25/11 "tạo ra một format mẫu y hệt rồi chọn từng mục"): một hàng cùng lưới cột,
+   * nội dung từng ô do bên gọi vẽ (`o(cotId)`) — thường là ô sửa tại chỗ bọc `OSuaNhap` + ô gõ tên.
+   */
+  dongNhap?: (cotId: string) => ReactNode
   className?: string
 }
 
@@ -175,7 +178,7 @@ export function ListView<T>({
             <div role="row" data-slot="list-view-row" data-nhap="" className={l.hangNhap}>
               {cot.map((c) => (
                 <div key={c.id} role="cell" data-cot={c.id} className={cn(l.o, ...lopO(c))}>
-                  {c.id === dongNhap.cot ? dongNhap.o : null}
+                  {dongNhap(c.id)}
                 </div>
               ))}
             </div>
@@ -326,6 +329,15 @@ export function NutMoTen({ ten }: { ten: string }) {
     <button type="button" data-slot="list-view-ten" className={l.nutMoTen}>
       {ten}
     </button>
+  )
+}
+
+/** Chỗ mã của hàng nháp (bản ghi chưa có mã): cùng khung + chữ mã như `NutMoMa`, không bấm được. Mặc định "Mới". */
+export function MaCho({ chu = 'Mới' }: { chu?: string }) {
+  return (
+    <span data-slot="list-view-ma-cho" className={cn(l.nutMoMa, l.maCho)}>
+      <span className={s.ma}>{chu}</span>
+    </span>
   )
 }
 

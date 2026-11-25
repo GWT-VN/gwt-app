@@ -27,7 +27,7 @@ import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { MucLoc } from '@/components/ui/tieu-de-cot'
 import { useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanChip, soNgayToiHan } from '@/lib/work'
-import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT } from './chung'
+import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT, type GiaTriNhap } from './chung'
 import {
   BangViec,
   COT_TEAM as COT,
@@ -38,6 +38,7 @@ import {
   soSanh,
   TEN_COT,
   useOViec,
+  useViecNhap,
   type Sap,
 } from './DangXemViec'
 import { ChonMuc, ThanhHangLoatViec } from './HangLoat'
@@ -134,19 +135,37 @@ export function BangTeam({
     moSau.current = false
     themRef.current?.mo()
   }, [choThem])
-  const taoTai = async (ten: string, status?: string) => {
-    const ok = await taoNhanhViec(ten, status)
+  const taoTai = async (ten: string, them?: GiaTriNhap) => {
+    const ok = await taoNhanhViec(ten, them)
     if (ok) lamMoi()
     return ok
   }
+  // Hàng mẫu y hệt dòng thật (Thường · Mới · tên · Cần làm · — · Chính = mình), chọn từng mục rồi Enter ở ô tên.
+  const vn = useViecNhap(nenTang)
   // Hàng nháp của Danh sách / Bảng (Kanban có DongThem riêng ở chân cột — ref nhường cho nó).
   const moi = useDongMoi({
     nhan: 'Việc mới',
     placeholder: GOI_Y_THEM,
-    onTao: (ten) => taoTai(ten),
+    onTao: async (ten) => {
+      const ok = await taoTai(ten, vn.giaTri())
+      if (ok) vn.datLai()
+      return ok
+    },
+    onDong: vn.datLai,
     ref: dangXem === 'kanban' ? undefined : themRef,
   })
   const nhap = choThem && moi.mo
+  /** Ô hàng nháp của Danh sách: cột Việc = nhãn ưu tiên + mã "Mới" + ô gõ tên (như dòng thật), cột khác = ô nháp. */
+  const oNhapDs = (id: string) =>
+    id === 'viec' ? (
+      <>
+        <NhanDau gon>{vn.o('uu')}</NhanDau>
+        {vn.o('ma')}
+        {moi.oGo}
+      </>
+    ) : (
+      vn.o(id)
+    )
 
   // ── Lọc + sắp ──
   const tim = boDau(q.trim())
@@ -259,7 +278,7 @@ export function BangTeam({
   const xem =
     // Kanban ở chỗ được thêm: luôn vẽ đủ cột (kể cả chưa có việc) — tạo thẳng vào cột, tạo xong focus không rơi.
     dangXem === 'kanban' && choThem ? (
-      <KanbanViec dong={dong} rows={rows} phu={ganVoi} moViec={moViec} lamMoi={lamMoi} onTao={taoTai} themRef={themRef} />
+      <KanbanViec dong={dong} rows={rows} phu={ganVoi} moViec={moViec} lamMoi={lamMoi} onTao={(ten, status) => taoTai(ten, { status })} themRef={themRef} />
     ) : rows.length === 0 && !nhap ? (
       <BangTrangThai
         trangThai="rongThat"
@@ -296,7 +315,7 @@ export function BangTeam({
         khoa={(v) => String(v.id)}
         onMo={(v) => moViec(v.id)}
         moKhi="ten"
-        dongNhap={nhap ? { cot: 'viec', o: moi.oGo } : undefined}
+        dongNhap={nhap ? oNhapDs : undefined}
       />
     ) : (
       <BangViec
@@ -306,7 +325,7 @@ export function BangTeam({
         onSap={datSap}
         loc={{ tuyChon: tuyChonTt, daChon: ttLoc, onDoi: (gt) => datUrl({ tt: gt.join(',') || null }) }}
         o={o}
-        dongNhap={nhap ? moi.oGo : undefined}
+        dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}
       />
     )
 

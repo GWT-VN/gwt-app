@@ -47,7 +47,7 @@ test('đang gửi: Enter lặp không gọi lần hai', async () => {
   await waitFor(() => expect(o().value).toBe(''))
 })
 
-test('Esc đóng (bỏ chữ); rời ô khi trống cũng đóng, rời ô khi đã gõ thì giữ', async () => {
+test('Esc đóng (bỏ chữ); rời ô KHÔNG đóng (hàng mẫu còn ô chọn khác), kể cả khi trống', async () => {
   const user = userEvent.setup()
   render(
     <>
@@ -64,7 +64,7 @@ test('Esc đóng (bỏ chữ); rời ô khi trống cũng đóng, rời ô khi �
   expect(o().value).toBe('nháp')
   await user.clear(o())
   await user.click(screen.getByRole('button', { name: 'ngoài' }))
-  expect(screen.queryByRole('textbox')).toBeNull()
+  expect(o().value).toBe('')
 })
 
 test('ref.mo() mở dòng (nút chính thanh công cụ)', async () => {

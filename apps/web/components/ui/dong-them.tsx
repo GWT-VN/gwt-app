@@ -8,7 +8,8 @@
  *   cùng lưới cột (`ListView dongNhap`, `BangViec dongNhap`), các ô khác để trống, ô tên là ô gõ trơn (chữ 14/20, không
  *   viền, gợi ý tertiary); Kanban: một thẻ trống trong cột. Nút "+" ẩn trong lúc có hàng nháp.
  * - Gõ tên, Enter = `onTao(tên)` (tên là trường bắt buộc duy nhất; thuộc tính khác sửa tại ô của dòng vừa hiện); xong →
- *   hàng nháp xoá trắng, GIỮ để gõ tiếp. Esc / rời ô khi trống = bỏ hàng nháp; rời ô khi đã gõ = giữ chữ.
+ *   hàng nháp xoá trắng, GIỮ để gõ tiếp. Esc = bỏ hàng nháp. Rời ô KHÔNG đóng: hàng mẫu có ô chọn ưu tiên / trạng thái /
+ *   hạn / người — bấm chúng là rời ô tên (trước 25/11 rời ô khi trống = đóng → bấm chọn ưu tiên làm mất cả hàng).
  * - `onTao` trả Promise: `true` = xong, `false`/ném = giữ chữ (bên gọi báo lỗi bằng toast). Đang gửi: ô chỉ đọc (KHÔNG
  *   disabled — disabled làm rơi focus), Enter lặp bị chặn.
  * - `ref.mo()`: nút chính thanh công cụ mở hàng nháp (đã mở → focus lại) + cuộn tới.
@@ -43,11 +44,13 @@ type PropsDongMoi = {
   /** Gợi ý trong ô gõ, vd "Tên việc — Enter để tạo, Esc để thôi". */
   placeholder?: string
   onTao: (ten: string) => Promise<boolean>
+  /** Bỏ hàng nháp (Esc / rời ô khi trống) — bên gọi đặt lại các ô khác của hàng nháp về mặc định. */
+  onDong?: () => void
   ref?: Ref<DongThemRef>
 }
 
 /** Trạng thái + ô gõ + nút của hàng nháp. `oGo` đặt vào ô tên của hàng nháp; `nut` đặt dưới dạng xem khi `!mo`. */
-export function useDongMoi({ nhan, nhanDoc, placeholder, onTao, ref }: PropsDongMoi) {
+export function useDongMoi({ nhan, nhanDoc, placeholder, onTao, onDong, ref }: PropsDongMoi) {
   const [mo, setMo] = useState(false)
   const [chu, setChu] = useState('')
   const [dangGui, setDangGui] = useState(false)
@@ -81,6 +84,7 @@ export function useDongMoi({ nhan, nhanDoc, placeholder, onTao, ref }: PropsDong
   const dong = () => {
     setMo(false)
     setChu('')
+    onDong?.()
   }
 
   const oGo: ReactNode = (
@@ -106,7 +110,6 @@ export function useDongMoi({ nhan, nhanDoc, placeholder, onTao, ref }: PropsDong
           dong()
         }
       }}
-      onBlur={() => !chu.trim() && !dangGui && dong()}
     />
   )
 

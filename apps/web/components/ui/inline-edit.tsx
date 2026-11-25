@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  createContext,
+  useContext,
   useEffect,
   useId,
   useLayoutEffect,
@@ -76,7 +78,17 @@ const chuLoi = (e: unknown) => (e instanceof Error && e.message ? e.message : 'l
  * Giá trị đang hiện của ô + `luu(moi)` lạc quan. `xong(v)` = câu toast khi lưu xong; `truong` vào câu lỗi.
  * Đồng bộ `value` từ ngoài theo mẫu "giá trị trước đó" của React (không effect).
  */
+const NhapCtx = createContext(false)
+/**
+ * Ô sửa trong HÀNG NHÁP (bản ghi chưa tạo — `DongThem`/`useDongMoi`, CEO 25/11): chọn = đổi giá trị cục bộ, chưa lưu gì
+ * → không toast "đã lưu" + Hoàn tác. Bọc quanh các ô của hàng nháp.
+ */
+export function OSuaNhap({ children }: { children: ReactNode }) {
+  return <NhapCtx.Provider value>{children}</NhapCtx.Provider>
+}
+
 function useLacQuan<T>(value: T, onLuu: Luu<T>, ma: string, truong: string, xong: (v: T) => string) {
+  const nhap = useContext(NhapCtx)
   const [gt, setGt] = useState(value)
   const [goc, setGoc] = useState(value)
   if (!bang(value, goc)) {
@@ -93,7 +105,7 @@ function useLacQuan<T>(value: T, onLuu: Luu<T>, ma: string, truong: string, xong
       thongBao.loi(`${ma}: chưa lưu được ${truong} — ${chuLoi(e)}`, { thuLai: () => void ghi(moi, cu, chu) })
       return
     }
-    if (chu !== null) thongBao.xong(chu, { hoanTac: () => ghi(cu, moi, null) })
+    if (chu !== null && !nhap) thongBao.xong(chu, { hoanTac: () => ghi(cu, moi, null) })
   }
   return {
     gt,

@@ -4,21 +4,21 @@
  * Phần chung của các dạng xem việc v2 (Bảng team, Việc của tôi): cột + ô sửa tại chỗ, Table DS có ô chọn dòng, Kanban
  * theo trạng thái (kéo thả gọi `keoTha`). Mỗi màn tự giữ dữ liệu, lọc / tab / sắp ở URL và danh sách (ListView) riêng.
  */
-import type { ReactNode, Ref } from 'react'
+import { useState, type ReactNode, type Ref } from 'react'
 import { useRouter } from 'next/navigation'
 import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
 import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
-import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
+import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaNhap, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
-import { NutMoMa, NutMoTen } from '@/components/ui/list-view'
+import { MaCho, NutMoMa, NutMoTen } from '@/components/ui/list-view'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { hangNhap as hangNhapBang } from '@/components/ui/table-styles'
 import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
-import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type Uu } from './chung'
+import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type GiaTriNhap, type Uu } from './chung'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
@@ -203,6 +203,77 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
   return { ...ns, lamMoi, luu, o }
 }
 
+/**
+ * Hàng nháp "+ Việc mới" (CEO 25/11: "tạo ra một format mẫu y hệt thế này rồi chọn từng mục"): mang giá trị mặc định của
+ * việc mới — Thường · Cần làm · chưa hạn · Chính = mình — vẽ bằng ĐÚNG các ô sửa tại chỗ của dòng thật (bọc `OSuaNhap`:
+ * chọn chỉ đổi giá trị cục bộ, không toast), mã là `MaCho` "Mới". Enter ở ô tên (`useDongMoi`) tạo với `giaTri()`;
+ * tạo xong `datLai()` về mặc định cho việc kế tiếp.
+ */
+export function useViecNhap(nenTang: NenTang) {
+  const ns = chonNhanSu(nenTang.nhan_su)
+  const me = nenTang.me
+  const gtMe = me ? ns.gtCua(me) : null
+  const MAC_DINH = { uu: '3' as Uu, tt: 'todo', han: hanO(null), chinh: gtMe }
+  const [n, setN] = useState(MAC_DINH)
+  const doi = (p: Partial<typeof MAC_DINH>) => {
+    setN((x) => ({ ...x, ...p }))
+    return Promise.resolve()
+  }
+  const tenChinh = n.chinh ? (ns.options.find((m) => m.gt === n.chinh)?.nhan ?? me?.ten ?? '') : ''
+
+  const o = (id: string): ReactNode => {
+    switch (id) {
+      case 'uu':
+        return <OSuaNhan ma="Việc mới" truong="ưu tiên" value={n.uu} muc={UU} onLuu={(uu) => doi({ uu })} />
+      case 'ma':
+        return <MaCho />
+      case 'tt':
+        return <OSuaTrangThai ma="Việc mới" value={{ tt: n.tt }} muc={TT} onLuu={(g) => doi({ tt: g.tt })} />
+      case 'han':
+        return (
+          <OSuaHan
+            ma="Việc mới"
+            value={n.han}
+            onLuu={(han) => doi({ han })}
+            hien={() => <HanChu due={n.han ? hanLuu(n.han) : null} />}
+          />
+        )
+      case 'nguoi':
+      case 'chinh':
+        return (
+          <OSuaNguoi
+            ma="Việc mới"
+            truong="người chính"
+            value={n.chinh}
+            options={ns.options}
+            mucDangChon={n.chinh ? { gt: n.chinh, nhan: tenChinh } : undefined}
+            gon={id === 'chinh'}
+            onLuu={(chinh) => doi({ chinh })}
+          />
+        )
+      case 'vai':
+        return <span className="min-w-0 truncate text-muted-foreground">{n.chinh === gtMe ? 'Chính' : ''}</span>
+      default:
+        return null
+    }
+  }
+
+  return {
+    /** Ô của cột `id` trong hàng nháp — đã bọc `OSuaNhap`. */
+    o: (id: string): ReactNode => <OSuaNhap>{o(id)}</OSuaNhap>,
+    giaTri: (): GiaTriNhap => {
+      const chinh = n.chinh ? (ns.idCua(n.chinh) ?? null) : null
+      return {
+        status: n.tt,
+        priority: Number(n.uu),
+        due: n.han ? hanLuu(n.han) : null,
+        chinh: chinh && chinh !== me?.id ? chinh : null,
+      }
+    },
+    datLai: () => setN(MAC_DINH),
+  }
+}
+
 /** Dòng bảng: ô chọn của bang/ + nền chọn. */
 function DongBang({ v, children }: { v: ViecXem; children: ReactNode }) {
   const { daChon } = useDaChon()
@@ -231,8 +302,8 @@ export function BangViec({
   /** Lọc cột kiểu `loc` (Trạng thái). */
   loc?: { tuyChon: MucLoc[]; daChon: string[]; onDoi: (gt: string[]) => void }
   o: (v: ViecXem, id: string) => ReactNode
-  /** Hàng nháp "+ Việc mới" (`useDongMoi().oGo`): một hàng trống cùng cột, ô gõ nằm ở cột Việc — CEO 25/11. */
-  dongNhap?: ReactNode
+  /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
+  dongNhap?: (cotId: string) => ReactNode
 }) {
   const tongRong = 36 + c.hien.reduce((t, x) => t + c.doRong[x.id], 0)
   return (
@@ -288,7 +359,7 @@ export function BangViec({
               <TableCell />
               {c.hien.map((x) => (
                 <TableCell key={x.id} cot={x.id} phai={x.phai}>
-                  {x.id === 'viec' ? dongNhap : null}
+                  {dongNhap(x.id)}
                 </TableCell>
               ))}
             </TableRow>

@@ -25,8 +25,8 @@ import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { NHAN_NHOM, nhanChip, nhomTheoHan, THU_TU_NHOM } from '@/lib/work'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
-import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, VAI } from './chung'
-import { BangViec, COT_VIEC, docSap, KanbanViec, NGHIA, soSanh, TEN_COT, useOViec, type Sap } from './DangXemViec'
+import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, VAI, type GiaTriNhap } from './chung'
+import { BangViec, COT_VIEC, docSap, KanbanViec, NGHIA, soSanh, TEN_COT, useOViec, useViecNhap, type Sap } from './DangXemViec'
 import { ThanhHangLoatViec } from './HangLoat'
 
 type Tab = 'mo' | 'qua-han' | 'toi-giao' | 'xong'
@@ -99,19 +99,37 @@ export function ViecCuaToi({
     moSau.current = false
     themRef.current?.mo()
   }, [choThem])
-  const taoTai = async (ten: string, status?: string) => {
-    const ok = await taoNhanhViec(ten, status)
+  const taoTai = async (ten: string, them?: GiaTriNhap) => {
+    const ok = await taoNhanhViec(ten, them)
     if (ok) lamMoi()
     return ok
   }
+  // Hàng mẫu y hệt dòng thật (Thường · Mới · tên · Cần làm · — · Chính = mình), chọn từng mục rồi Enter ở ô tên.
+  const vn = useViecNhap(nenTang)
   // Hàng nháp của Danh sách / Bảng (Kanban có DongThem riêng ở chân cột — ref nhường cho nó).
   const moi = useDongMoi({
     nhan: 'Việc mới',
     placeholder: GOI_Y_THEM,
-    onTao: (ten) => taoTai(ten),
+    onTao: async (ten) => {
+      const ok = await taoTai(ten, vn.giaTri())
+      if (ok) vn.datLai()
+      return ok
+    },
+    onDong: vn.datLai,
     ref: dangXem === 'kanban' ? undefined : themRef,
   })
   const nhap = choThem && moi.mo
+  /** Ô hàng nháp của Danh sách: cột Việc = nhãn ưu tiên + mã "Mới" + ô gõ tên (như dòng thật), cột khác = ô nháp. */
+  const oNhapDs = (id: string) =>
+    id === 'viec' ? (
+      <>
+        <NhanDau gon>{vn.o('uu')}</NhanDau>
+        {vn.o('ma')}
+        {moi.oGo}
+      </>
+    ) : (
+      vn.o(id)
+    )
   const { cotUrl, sap } = docSap(new URLSearchParams(sp.toString()), { cot: 'han', tang: true })
 
   const cuaToi = rows.filter((v) => v.my_role)
@@ -242,7 +260,7 @@ export function ViecCuaToi({
                   onMo={(v) => xem.mo(v.id)}
                   dangMo={xem.id ? String(xem.id) : null}
                   moKhi="ten"
-                  dongNhap={nhap ? { cot: 'viec', o: moi.oGo } : undefined}
+                  dongNhap={nhap ? oNhapDs : undefined}
                   nhom={
                     tab === 'xong'
                       ? undefined
@@ -271,14 +289,14 @@ export function ViecCuaToi({
                   phu={vaiGan}
                   moViec={xem.mo}
                   lamMoi={lamMoi}
-                  onTao={choThem ? taoTai : undefined}
+                  onTao={choThem ? (ten, status) => taoTai(ten, { status }) : undefined}
                   themRef={themRef}
                 />
               )
             ) : (
               <>
                 {(!nhap && rong) || (
-                  <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} dongNhap={nhap ? moi.oGo : undefined} />
+                  <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined} />
                 )}
                 {choThem && !moi.mo && <div className={khungNutThem('bang')}>{moi.nut}</div>}
               </>

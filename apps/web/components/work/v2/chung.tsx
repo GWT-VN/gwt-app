@@ -43,8 +43,17 @@ export const GOI_Y_THEM_NGAN = 'Tên việc — Enter để tạo'
  * hai bước (RPC tạo chưa nhận trạng thái); bước hai hỏng thì việc vẫn có, toast nói rõ để kéo lại tay.
  */
 
-export async function taoNhanhViec(ten: string, status?: string): Promise<boolean> {
-  const kq = await taoViec({ title: ten })
+export type GiaTriNhap = { status?: string; priority?: number; due?: string | null; chinh?: string | null }
+
+export async function taoNhanhViec(ten: string, them: GiaTriNhap = {}): Promise<boolean> {
+  const { status, priority, due, chinh } = them
+  const kq = await taoViec({
+    title: ten,
+    priority,
+    due,
+    // Chính = người khác → gán họ; bỏ trống / chính mình → RPC tự gán người tạo làm Chính.
+    assignees: chinh ? [{ staff_id: chinh, role: 'owner' }] : undefined,
+  })
   if (!kq.ok) {
     thongBao.loi(`Chưa tạo được việc — ${kq.loi}`)
     return false

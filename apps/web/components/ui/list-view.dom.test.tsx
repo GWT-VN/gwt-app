@@ -287,10 +287,10 @@ describe('moKhi="ten" + dongNhap (CEO 25/11: chỉ bấm tên mới mở; tạo 
     await user.keyboard('{Enter}')
     expect(onMo).toHaveBeenCalledTimes(3)
   })
-  test('dongNhap: thêm MỘT hàng cùng số ô, nội dung chỉ ở cột chỉ định', () => {
+  test('dongNhap: thêm MỘT hàng cùng số ô, nội dung theo từng cột', () => {
     render(
       <DsRoot>
-        <ListView aria-label="T" cot={COT} dong={VE} khoa={(v) => v.ma} onMo={vi.fn()} dongNhap={{ cot: 'khach', o: <input aria-label="Việc mới" /> }} />
+        <ListView aria-label="T" cot={COT} dong={VE} khoa={(v) => v.ma} onMo={vi.fn()} dongNhap={(id) => (id === 'khach' ? <input aria-label="Việc mới" /> : null)} />
       </DsRoot>,
     )
     const hang = screen.getAllByRole('row').at(-1)!

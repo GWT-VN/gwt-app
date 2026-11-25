@@ -54,7 +54,7 @@ export const hangDong = cn(
 /** `moKhi="ten"`: chỉ bấm tên / mã mới mở → dòng không con trỏ tay (bấm chỗ trống không làm gì). */
 export const hangChiMoTen = 'cursor-default'
 /** Dòng nháp của `DongThem` (CEO 25/11 "ra hẳn một hàng trống"): cùng lưới cột, nền đang gõ alpha-05, không kẻ dưới. */
-export const hangNhap = cn(hang, 'bg-(--alpha-05)')
+export const hangNhap = cn(hang, 'bg-(--alpha-05) [&_[data-slot=badge]]:h-(--control-size-3xs)') // nhãn cao 22 như dòng thật
 
 /**
  * Ô: flex một dòng, khoảng 10 (`.b-ticket`). Ô sửa (InlineEdit) trong ô được co (cắt …); ô sửa KHÔNG đứng đầu ô (vd tên
@@ -133,6 +133,9 @@ export const nutMoTen = cn(
   'hover:underline hover:underline-offset-2 hover:decoration-(--alpha-35)',
   '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-(--ring) focus-visible:outline-offset-2',
 )
+
+/** `MaCho`: như nút mã nhưng không bấm (không con trỏ tay, không nền rê). */
+export const maCho = 'cursor-default hover:bg-transparent'
 
 export const nutMoMa = cn(
   kv,
