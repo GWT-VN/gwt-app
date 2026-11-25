@@ -654,12 +654,12 @@ function NutChon({
   return (
     <Popover open={mo} onOpenChange={setMo}>
       <PopoverTrigger asChild>
-        {/* Nút phẳng (ghost): bình thường chỉ chữ mờ, rê mới hiện nền — CEO 23/11. Lề âm = đúng đệm trái size xs → icon
+        {/* Nút phẳng (ghost): chữ mờ tertiary (mờ hơn nhãn), rê mới hiện nền + chữ sáng — CEO 23/11. Lề âm = đúng đệm trái size xs → icon
             thẳng cột giá trị (nền rê tràn ra trái, như Linear). */}
         <Button
           variant="ghost"
           size="xs"
-          className="-ml-[calc(var(--control-gutter-xs)*1.33)] text-muted-foreground"
+          className="-ml-[calc(var(--control-gutter-xs)*1.33)] text-(--color-text-tertiary) aria-expanded:text-accent-foreground"
           aria-label={nhan}
         >
           <Plus aria-hidden="true" />
@@ -783,7 +783,7 @@ function ThemViecCon({ onThem }: { onThem: (title: string) => Promise<boolean> }
   }
   if (!mo)
     return (
-      <Button variant="ghost" size="sm" className="mt-2" autoFocus={daDong} onClick={() => setMo(true)}>
+      <Button variant="ghost" size="sm" className="mt-2 text-(--color-text-tertiary)" autoFocus={daDong} onClick={() => setMo(true)}>
         <Plus aria-hidden="true" />
         Thêm việc con
       </Button>
