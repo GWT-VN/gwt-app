@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const THU_MUC = import.meta.dirname;
+// claude.ts POST sang api.anthropic.com (không phải kênh khách) → miễn khỏi cấm POST, vẫn bị cấm reply_inbox/pages.fm.
 const mon = () => readdirSync(THU_MUC).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts"));
 const CAM = [/reply_inbox/, /method:\s*["'`]POST/i];
 
@@ -13,7 +14,8 @@ describe("guard: chỉ gui-khach.ts được gửi tin cho khách", () => {
     for (const f of mon()) {
       if (f === "gui-khach.ts") continue;
       const src = readFileSync(join(THU_MUC, f), "utf8");
-      expect({ f, vi: CAM.filter((re) => re.test(src)).map(String) }).toEqual({ f, vi: [] });
+      const cam = f === "claude.ts" ? CAM.slice(0, 1) : CAM;
+      expect({ f, vi: cam.filter((re) => re.test(src)).map(String) }).toEqual({ f, vi: [] });
     }
   });
   it("không file nào khác vừa chạm pages.fm vừa có khoá method:", () => {

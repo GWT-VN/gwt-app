@@ -3,8 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { chuanSoCuoc, type SoCuoc } from "./so-cuoc.ts";
 
-// Nhóm phân loại tin khách (bot mới chưa dùng nhóm riêng) — để chuỗi.
-export type Nhom = string;
+import type { Nhom } from "./phan-loai.ts";
 
 export interface DongHoiThoai {
   pageId: string; conversationId: string; tenKhach: string | null; tinKhach: string; tinKhachLuc: string; coSdt: boolean;
