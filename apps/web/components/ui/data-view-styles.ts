@@ -52,8 +52,8 @@ export const dvTimIcon = cn(
   'pointer-events-none absolute left-(--control-gutter-md) z-1 size-4 shrink-0 text-muted-foreground',
 )
 
-/** `.b-thanh`: hàng tab + công cụ, cách 12, lề trên 22 dưới 12 (nguồn gõ 22px). `.b-tabs-cuon`: giãn, co được. */
-export const dvThanh = cn(kv, 'mt-[22px] mb-3 flex items-center gap-3')
+/** `.b-thanh`: hàng tab + công cụ, cách 12, lề trên 22 dưới 16 (nguồn 12 — CEO 23/11 giãn). `.b-tabs-cuon`: giãn, co được. */
+export const dvThanh = cn(kv, 'mt-[22px] mb-4 flex items-center gap-3')
 export const dvTabs = cn(kv, 'min-w-0 flex-1')
 
 /** `.b-thanh-phai` (cách 8, không co) > `.b-cong-cu` (cách 2). `.b-bocuc`: cách 2. */

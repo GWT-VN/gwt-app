@@ -11,12 +11,33 @@ import { cn } from '@/lib/utils'
  */
 const kv = 'border-none border-current'
 
+/*
+ * Cột ô chọn nằm NGOÀI mép bảng (CEO 23/11): khung cuộn có ô chọn-tất-cả ở cột đầu → lùi trái đúng bề rộng cột chọn
+ * (36 — khớp `<col>` 36 của các bảng) và nở thêm 36, nên cột dữ liệu đầu thẳng mép nội dung trang, ô chọn nằm ở lề. Chỉ từ md (lề trang ≥ 46);
+ * dưới md lề 24 không đủ chỗ → cột chọn ở trong bảng như cũ. Khung có viền (`tableWrapVien`) không lùi.
+ * (Lớp viết nguyên chuỗi ở từng chỗ — Tailwind chỉ quét chuỗi literal.)
+ */
+
 /** `.b-bang-khung`: tự cuộn hai chiều (header sticky dính trong khung), thanh cuộn ẩn — vẫn cuộn bằng chuột/phím. */
-export const tableWrap = cn(kv, 'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
+export const tableWrap = cn(
+  kv,
+  'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:-ml-9',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-[calc(100%+36px)]',
+)
 /** `table-container` của shadcn (`Table` đứng ngoài `TableWrap`): cuộn ngang, thanh cuộn ẩn như `TableWrap`. */
-export const tableContainer = cn(kv, 'relative w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
+export const tableContainer = cn(
+  kv,
+  'relative w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:-ml-9',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-[calc(100%+36px)]',
+)
 /** `.ui-table-wrap`: viền 1px border, bo radius-xl, nền card (khối trạng thái của preview). */
-export const tableWrapVien = 'border border-solid border-(--border) rounded-(--radius-xl) bg-card'
+export const tableWrapVien = cn(
+  'border border-solid border-(--border) rounded-(--radius-xl) bg-card',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:ml-0',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-full',
+)
 
 /** `.b-bang`: 100%, viền tách 0, chữ 14 (line-height kế thừa 20 của DsRoot). */
 export const table = cn(kv, 'w-full caption-bottom border-separate border-spacing-0 text-[14px]')
@@ -71,8 +92,12 @@ export const phai = 'text-right'
 /** `.b-ma`: mã 12/18 tabular, color-text-tertiary (font-sans, không mono). */
 export const ma = cn(kv, 'text-[12px] leading-[18px] tabular-nums text-(--color-text-tertiary) whitespace-nowrap')
 
-/** `.b-cot-chon`: ô chọn rộng 36, đệm trái 16. */
-export const cotChon = 'w-9 pl-4!'
+/**
+ * `.b-cot-chon`: ô chọn rộng 36, đệm trái 16. Từ md cột nằm ở lề ngoài bảng (xem khung cuộn ở đầu file): đệm trái 10,
+ * không kẻ, không nền hover/chọn — dòng sáng chỉ trong phần bảng.
+ */
+export const cotChon =
+  'w-9 min-w-9 pl-4! md:pl-2.5! md:pr-0 md:bg-transparent! md:border-b-transparent'
 /** `.b-cot-dem`: cột đệm cuối ăn chỗ thừa (khung hẹp thì về 0) — cột thật giữ đúng độ rộng đã kéo. */
 export const cotDem = 'p-0!'
 

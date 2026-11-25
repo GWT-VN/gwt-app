@@ -20,7 +20,8 @@ export default async function BangTeamPage() {
         <BangTeam
           rows={rows}
           nenTang={nt}
-          nutTao={<TaoViec nenTang={nt} />}
+          // key: phần tử tạo ở server rồi render trong client — React dev cảnh báo thiếu key nếu không có.
+          nutTao={<TaoViec key="tao-viec" nenTang={nt} />}
         />
       </Suspense>
     </ManV2>

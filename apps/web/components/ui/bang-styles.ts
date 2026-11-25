@@ -82,8 +82,8 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   oTimKiem_input: cn(controlOutline, 'pr-9'),
   oTimKiem_nutXoa: cn(chipX, 'absolute right-1.5 top-1/2 ml-0 -translate-y-1/2'),
 
-  // FilterBar — `.ui-filterbar`: flex wrap, gap 6/8, cao tối thiểu 28
-  dangLoc_khung: cn(kv, 'flex flex-wrap items-center gap-x-2 gap-y-1.5 min-h-(--control-size-sm)'),
+  // FilterBar — `.ui-filterbar`: flex wrap, gap 6/8, cao tối thiểu 28; cách bảng bên dưới 12 (CEO 23/11 giãn)
+  dangLoc_khung: cn(kv, 'mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 min-h-(--control-size-sm)'),
   dangLoc_nhomChip: 'contents',
   dangLoc_chip: chip,
   dangLoc_chipCoNutGo: 'pr-1',
