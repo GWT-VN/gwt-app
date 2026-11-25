@@ -17,6 +17,8 @@ import { LocNgay } from '@/bang'
 import { docLocNgay, moTaLocNgay, SAP_TICKET_MAC_DINH } from '@/lib/danhSach'
 import { TuLamMoi } from '@/components/TuLamMoi'
 import { KhungChon, ThanhDaChon } from '@/bang'
+import { TrangTicketPrototype } from './_prototype/trang'
+import { locDemo, TICKET_DEMO } from './_prototype/demo'
 
 export default async function TicketsPage({
   searchParams,
@@ -24,9 +26,10 @@ export default async function TicketsPage({
   searchParams: Promise<{
     q?: string; state?: string; khan?: string; mine?: string; trang?: string
     cot?: string; chieu?: string; loai?: string; loi?: string; ngtu?: string; ngden?: string
+    variant?: string
   }>
 }) {
-  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden } = await searchParams
+  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden, variant } = await searchParams
   const onlyKhan = khan === '1'
   const isMine = mine === '1'
   const trang = Math.max(1, Number(trangRaw) || 1)
@@ -54,6 +57,20 @@ export default async function TicketsPage({
   ])
   const views = await listBangView('tickets')
   const { rows: tickets, tong, soTrang, sapXep } = ketQua
+
+  // PROTOTYPE vứt đi (25/11): ?variant=A|B|C → 3 phương án DS v2 (app/ticket/_prototype), chỉ chạy dev. Không variant = màn cũ.
+  if (variant && ['A', 'B', 'C'].includes(variant) && process.env.NODE_ENV !== 'production') {
+    // DB local gần như trống (< 5 ticket) → thêm ticket Demo trong bộ nhớ (lọc theo tab/từ khoá) sau ticket thật.
+    const dbIt = tong < 5 && (await searchTickets('', undefined, false, undefined, { trang: 1, kemDongMay: false })).tong < 5
+    const demo = dbIt ? [...tickets, ...locDemo({ state, khan, mine, q })] : null
+    return (
+      <TrangTicketPrototype
+        variant={variant} rows={demo ?? tickets} tong={demo?.length ?? tong} trang={trang} soTrang={demo ? 1 : soTrang}
+        loaiList={demo ? [...new Set(TICKET_DEMO.map((t) => t.ticket_type!))] : loaiList} demo={!!demo}
+        dsLoi={dsLoi.map((d) => ({ code: d.code, ten: d.ten }))}
+      />
+    )
+  }
 
   const tabs = [
     { key: '', label: 'Tất cả' },

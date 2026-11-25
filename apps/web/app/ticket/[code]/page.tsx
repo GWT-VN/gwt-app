@@ -24,9 +24,11 @@ import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 import { DauTicket } from '@/components/ticket/DauTicket'
 import { KhoiThuGon, tomTatNhatKy } from '@/components/ticket/KhoiThuGon'
 import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
-import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
+import { ngayCuaLan, ngayVNHomNay, soNgayMo } from '@/lib/loi/ngayTicket'
+import { ManV2 } from '@/components/khung/ManV2'
+import { CtPrototype } from './_prototype/trang'
 
-export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[] }> }) {
+export default async function TicketPage({ params, searchParams }: { params: Promise<{ code: string }>; searchParams: Promise<{ canhBao?: string | string[]; variant?: string }> }) {
   const { code } = await params
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
@@ -54,6 +56,27 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const ngayDau = ngayCuaLan(them.ngay_bao, t.created_at)
   const cuoi = lanLoi.at(-1)
   const ngayCuoi = cuoi ? ngayCuaLan(cuoi.ngay, cuoi.created_at) : ngayDau
+
+  // PROTOTYPE vứt đi (25/11): ?variant=A|B|C → 3 phương án trang chi tiết dựng bằng DS v2; không có variant → màn cũ.
+  const variant = process.env.NODE_ENV === 'production' ? undefined : ['A', 'B', 'C'].find((v) => v === sp.variant)
+  if (variant) {
+    const ma = new Set(items.map((i) => i.catalog_code).filter(Boolean))
+    return (
+      <ManV2>
+        <CtPrototype
+          variant={variant}
+          d={{
+            t, ngayBao: them.ngay_bao, csTheoDoi: them.cs_theo_doi, nhom, notes, items,
+            tenCatalog: Object.fromEntries(catalog.filter((c) => ma.has(c.code)).map((c) => [c.code, c.ten ?? c.code])),
+            lanLoi, dongMay, tepNK, nguoi: thieuNguoi ? null : nguoi, staff, canhBao,
+            thieu: { dongMay: thieuDongMay, danhMuc: thieuDanhMuc, lanLoi: thieuLanLoi },
+            quyen: { lichKT: quyen.lichKT, sua: quyen.sua },
+            ngayDau, ngayCuoi, soNgayMo: ngayDau ? soNgayMo(ngayDau, homNay) : null,
+          }}
+        />
+      </ManV2>
+    )
+  }
 
   // Khách & máy: cột phải trên màn rộng; trên điện thoại hiện ngay sau "Các lần lỗi".
   const khachMay = (
