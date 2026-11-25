@@ -298,7 +298,15 @@ describe("lichSuHoiThoai — đoạn chat trước tin đang chờ cho nháp + B
     const moi = m(7, PAGE_KHONG_ADMIN, `Chào anh/chị Minh Anh! Em là trợ lý tự động của máy lọc nước GE. Dạ CTS20 có nước nóng ạ.${DAU_BOT}`);
     const ls = lichSuHoiThoai([m(9, KHACH, "còn lạnh?"), moi, m(6, KHACH, "có nóng ko"), m(5, NHAN_VIEN, "Dạ em chào anh")], PAGE, undefined, 2).lichSu;
     expect(ls).toEqual(["GWT: Dạ em chào anh", "GWT: Dạ CTS20 có nước nóng ạ."]);
-  });
+     // câu giới thiệu mới của bot GPT (gwt-app): "Em là trợ lý ảo của máy lọc nước GE ạ." cũng bị bỏ
+    const gpt = m(7, PAGE_KHONG_ADMIN, `Chào anh Hùng! Em là trợ lý ảo của máy lọc nước GE ạ. Dạ CTS20 có nước nóng ạ.${DAU_BOT}`);
+    expect(lichSuHoiThoai([m(9, KHACH, "còn lạnh?"), gpt, m(6, KHACH, "có nóng ko"), m(5, NHAN_VIEN, "Dạ em chào anh")], PAGE, undefined, 2).lichSu)
+      .toEqual(["GWT: Dạ em chào anh", "GWT: Dạ CTS20 có nước nóng ạ."]);
+    const chau = m(7, PAGE_KHONG_ADMIN, `Chào cô Lan! Cháu là trợ lý ảo của máy lọc nước GE ạ. Dạ CTS20 có nước nóng ạ.${DAU_BOT}`);
+    expect(coCauBao(chau.message)).toBe(true);
+    expect(lichSuHoiThoai([m(9, KHACH, "còn lạnh?"), chau, m(6, KHACH, "có nóng ko"), m(5, NHAN_VIEN, "Dạ em chào anh")], PAGE, undefined, 2).lichSu)
+      .toEqual(["GWT: Dạ em chào anh", "GWT: Dạ CTS20 có nước nóng ạ."]);
+ });
   it("trần (nới 2026-10-20): tối đa 40 dòng mới nhất, mỗi dòng ≤ 600 + nhãn, cả khối ≤ 12000 ký tự; không khách nào gửi số → daCoSdt false", () => {
     const dai = Array.from({ length: 60 }, (_, i) => m(59 - i, i % 2 ? NHAN_VIEN : KHACH, `${i} ${"chữ ".repeat(200)}`));
     const r = lichSuHoiThoai(dai, PAGE);

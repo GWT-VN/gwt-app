@@ -28,7 +28,8 @@ export const CAU_GIOI_THIEU = "Em là trợ lý ảo của máy lọc nước GE
 export const CAU_BAO_DAU = "Em là trợ lý tự động của máy lọc nước GE";
 /** Câu báo cũ (tới 2026-10-23) — vẫn nhận, để hội thoại đã có câu cũ không bị chào lại. */
 const CAU_BAO_CU = "em là trợ lý tự động của GWT";
-export const coCauBao = (s: string) => s.includes(CAU_GIOI_THIEU) || s.includes(CAU_BAO_DAU) || s.includes(CAU_BAO_CU);
+const CAU_GIOI_THIEU_CHAU = `Cháu${CAU_GIOI_THIEU.slice(2)}`; // khách xưng "cô/chú…" → bot xưng cháu (dung-tin.ts)
+export const coCauBao = (s: string) => s.includes(CAU_GIOI_THIEU) || s.includes(CAU_GIOI_THIEU_CHAU) || s.includes(CAU_BAO_DAU) || s.includes(CAU_BAO_CU);
 // ponytail: nhận tin bot bằng dấu vô hình trong chữ — nền tảng nào lột ký tự đó thì tin bot sau tin đầu trông như NV
 // (thread ✅, 🧑‍💼 vẫn cần người `mẫu` mới vào học); đo ở lần gửi thật đầu tiên, hỏng thì lưu id tin đã gửi.
 export const laTinBot = (t: TinPancake): boolean => {
@@ -97,7 +98,7 @@ const TRAN_MAC_DINH = { dong: TOI_DA_LICH_SU, kyTu: TRAN_LICH_SU };
 /** Chưa có sổ cuộc chat: đọc lùi tới 90 tin một lần để dựng sổ cho đủ (so-cuoc.ts, đã chốt 2026-10-21). */
 export const TRAN_DUNG_SO = { dong: 90, kyTu: 24_000 };
 // Câu chào bot đầu tin (tu-gui.ts; mới: "Chào anh/chị <tên>! Em là … GE.", cũ: "Dạ, em là … GWT. … hotline … ạ.") — chỉ tốn chỗ trong lịch sử.
-const CAU_BAO = new RegExp(`^.*?(?:${CAU_GIOI_THIEU}\\.|${CAU_BAO_DAU}\\.|${CAU_BAO_CU}.*?ạ\\.)\\s*`, "u");
+const CAU_BAO = new RegExp(`^.*?(?:(?:${CAU_GIOI_THIEU}|${CAU_GIOI_THIEU_CHAU})(?: ạ)?\\.|${CAU_BAO_DAU}\\.|${CAU_BAO_CU}.*?ạ\\.)\\s*`, "u");
 /** Dòng chèn giữa hai tin cách nhau ≥ NGAY_GIAN_DOAN ngày: "— cách N ngày —" (đo 2026-10-22: khách cũ 14 tháng quay lại hỏi dòng máy
  *  khác, nháp vẫn bám máy cũ — lịch sử không có giờ nên model tưởng một mạch). */
 export const GIAN_DOAN = "— cách";
