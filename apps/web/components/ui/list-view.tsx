@@ -69,6 +69,13 @@ export type PropsListView<T> = {
   menuDong?: (d: T) => ReactNode
   /** Khoá bản ghi đang mở ở thẻ xem nhanh → dòng nền alpha-06. */
   dangMo?: string | null
+  /**
+   * Cái gì mở bản ghi: `dong` (mặc định) = bấm chỗ trống của dòng / mã · `ten` = CHỈ bấm tên (`NutMoTen`) hoặc mã
+   * (`NutMoMa`) — chỗ trống không làm gì, dòng không con trỏ tay (CEO 25/11, màn Việc). Enter trên dòng vẫn mở.
+   */
+  moKhi?: 'dong' | 'ten'
+  /** Dòng nháp "+ Mới" (`useDongMoi`): một hàng trống cùng lưới cột, ô của cột `cot` chứa ô gõ — CEO 25/11. */
+  dongNhap?: { cot: string; o: ReactNode }
   className?: string
 }
 
@@ -81,6 +88,8 @@ export function ListView<T>({
   nhom,
   menuDong,
   dangMo,
+  moKhi = 'dong',
+  dongNhap,
   className,
 }: PropsListView<T>) {
   const luoi = {
@@ -101,8 +110,11 @@ export function ListView<T>({
         data-khoa={k}
         data-xem={dangMo === k ? '' : undefined}
         aria-keyshortcuts={menuDong ? 'Shift+F10' : undefined}
-        className={l.hangDong}
-        onClick={() => onMo(d)}
+        className={cn(l.hangDong, moKhi === 'ten' && l.hangChiMoTen)}
+        onClick={(e) => {
+          if (moKhi === 'ten' && !(e.target as Element).closest('[data-slot=list-view-ma],[data-slot=list-view-ten]')) return
+          onMo(d)
+        }}
         onKeyDown={(e: KeyboardEvent) => {
           if (e.key === 'Enter' && e.target === e.currentTarget) {
             e.preventDefault()
@@ -158,6 +170,17 @@ export function ListView<T>({
             {g.dong.map(veDong)}
           </div>
         ))}
+        {dongNhap && (
+          <div role="rowgroup">
+            <div role="row" data-slot="list-view-row" data-nhap="" className={l.hangNhap}>
+              {cot.map((c) => (
+                <div key={c.id} role="cell" data-cot={c.id} className={cn(l.o, ...lopO(c))}>
+                  {c.id === dongNhap.cot ? dongNhap.o : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -297,6 +320,15 @@ export function NhanDau({ children, gon }: { children: ReactNode; gon?: boolean 
  * `.b-mo-ticket`: nút mã mở bản ghi — bấm nổi lên dòng (`onMo` của ListView), không tự xử lý. ListView ẩn mã khi khung
  * ≤ 860 (bấm dòng vẫn mở); `luonHien` = cột Mã của Bảng (luôn hiện, bên gọi bắt cú bấm).
  */
+/** Tên mở bản ghi (`moKhi="ten"`) — bấm nổi lên dòng như `NutMoMa`; ở Table bên gọi bắt cú bấm. */
+export function NutMoTen({ ten }: { ten: string }) {
+  return (
+    <button type="button" data-slot="list-view-ten" className={l.nutMoTen}>
+      {ten}
+    </button>
+  )
+}
+
 export function NutMoMa({ ma, luonHien }: { ma: string; luonHien?: boolean }) {
   return (
     <button

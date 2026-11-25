@@ -18,9 +18,9 @@ import type { NenTang, ViecTeamRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
+import { khungNutThem, useDongMoi, type DongThemRef } from '@/components/ui/dong-them'
 import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
-import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
+import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { BangTrangThai } from '@/components/ui/table'
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -139,6 +139,14 @@ export function BangTeam({
     if (ok) lamMoi()
     return ok
   }
+  // Hàng nháp của Danh sách / Bảng (Kanban có DongThem riêng ở chân cột — ref nhường cho nó).
+  const moi = useDongMoi({
+    nhan: 'Việc mới',
+    placeholder: GOI_Y_THEM,
+    onTao: (ten) => taoTai(ten),
+    ref: dangXem === 'kanban' ? undefined : themRef,
+  })
+  const nhap = choThem && moi.mo
 
   // ── Lọc + sắp ──
   const tim = boDau(q.trim())
@@ -212,7 +220,7 @@ export function BangTeam({
           <OChonO khoa={String(v.id)} moTa={`việc ${v.ref}`} />
           <NhanDau gon>{o(v, 'uu')}</NhanDau>
           <NutMoMa ma={v.ref} />
-          {o(v, 'viec')}
+          <NutMoTen ten={v.title} />
         </>
       ),
     },
@@ -252,7 +260,7 @@ export function BangTeam({
     // Kanban ở chỗ được thêm: luôn vẽ đủ cột (kể cả chưa có việc) — tạo thẳng vào cột, tạo xong focus không rơi.
     dangXem === 'kanban' && choThem ? (
       <KanbanViec dong={dong} rows={rows} phu={ganVoi} moViec={moViec} lamMoi={lamMoi} onTao={taoTai} themRef={themRef} />
-    ) : rows.length === 0 ? (
+    ) : rows.length === 0 && !nhap ? (
       <BangTrangThai
         trangThai="rongThat"
         tieuDe="Chưa có việc nào"
@@ -265,7 +273,7 @@ export function BangTeam({
         tieuDe="Không có việc nào bị bỏ quên"
         moTa={`Mọi việc chưa xong đều được cập nhật trong ${NGAY_LAU} ngày qua.`}
       />
-    ) : dong.length === 0 ? (
+    ) : dong.length === 0 && !nhap ? (
       <BangTrangThai
         trangThai="rongLoc"
         tieuDe="Không có việc nào khớp bộ lọc"
@@ -281,7 +289,15 @@ export function BangTeam({
         lamMoi={lamMoi}
       />
     ) : dangXem === 'danh-sach' ? (
-      <ListView aria-label="Bảng team" cot={cotDs} dong={dong} khoa={(v) => String(v.id)} onMo={(v) => moViec(v.id)} />
+      <ListView
+        aria-label="Bảng team"
+        cot={cotDs}
+        dong={dong}
+        khoa={(v) => String(v.id)}
+        onMo={(v) => moViec(v.id)}
+        moKhi="ten"
+        dongNhap={nhap ? { cot: 'viec', o: moi.oGo } : undefined}
+      />
     ) : (
       <BangViec
         dong={dong}
@@ -290,6 +306,7 @@ export function BangTeam({
         onSap={datSap}
         loc={{ tuyChon: tuyChonTt, daChon: ttLoc, onDoi: (gt) => datUrl({ tt: gt.join(',') || null }) }}
         o={o}
+        dongNhap={nhap ? moi.oGo : undefined}
       />
     )
 
@@ -407,14 +424,8 @@ export function BangTeam({
           >
             {xem}
             {/* Kanban có "+ Việc mới" ở chân từng cột. */}
-            {choThem && dangXem !== 'kanban' && (
-              <DongThem
-                ref={themRef}
-                kieu={dangXem === 'bang' && dong.length ? 'bang' : 'ds'}
-                nhan="Việc mới"
-                placeholder={GOI_Y_THEM}
-                onTao={(ten) => taoTai(ten)}
-              />
+            {choThem && dangXem !== 'kanban' && !moi.mo && (
+              <div className={khungNutThem(dangXem === 'bang' && dong.length ? 'bang' : 'ds')}>{moi.nut}</div>
             )}
             <ThanhDaChon nhan="việc">
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />

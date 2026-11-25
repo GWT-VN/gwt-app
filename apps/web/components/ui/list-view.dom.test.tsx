@@ -16,7 +16,7 @@ import { Badge } from './badge'
 import { ContextMenuItem, ContextMenuLabel } from './context-menu'
 import { DsRoot } from './ds-root'
 import { OSuaNhan } from './inline-edit'
-import { ListView, NhanDau, NutMoMa, TieuDeGop, type CotDanhSach, type KhoaSap } from './list-view'
+import { ListView, NhanDau, NutMoMa, NutMoTen, TieuDeGop, type CotDanhSach, type KhoaSap } from './list-view'
 import type { MucLoc } from './tieu-de-cot'
 
 type Ve = { ma: string; uu: string; loai: string; khach: string }
@@ -265,4 +265,38 @@ test('NhanDau gon → data-gon + khung ôm chữ (w-auto thắng w-[190px])', ()
   expect(gon.className).not.toMatch(/(^| )w-\[190px\]/)
   expect(thuong.hasAttribute('data-gon')).toBe(false)
   expect(thuong.className).toMatch(/(^| )w-\[190px\]/)
+})
+
+describe('moKhi="ten" + dongNhap (CEO 25/11: chỉ bấm tên mới mở; tạo = một hàng trống)', () => {
+  const COT: CotDanhSach<Ve>[] = [
+    { id: 'ten', ten: 'Ticket', rong: 'minmax(0,1fr)', o: (v) => <><NutMoMa ma={v.ma} /><NutMoTen ten={v.khach} /></> },
+    { id: 'khach', ten: 'Khách', rong: '140px', o: (v) => v.uu },
+  ]
+  test('bấm chỗ trống không mở; bấm tên / mã mở; Enter trên dòng vẫn mở', async () => {
+    const onMo = vi.fn()
+    const user = userEvent.setup()
+    render(<DsRoot><ListView aria-label="T" cot={COT} dong={VE} khoa={(v) => v.ma} onMo={onMo} moKhi="ten" /></DsRoot>)
+    const dong = screen.getAllByRole('row')[1]
+    await user.click(within(dong).getAllByRole('cell')[1])
+    expect(onMo).not.toHaveBeenCalled()
+    await user.click(within(dong).getByRole('button', { name: VE[0].khach }))
+    expect(onMo).toHaveBeenLastCalledWith(VE[0])
+    await user.click(within(dong).getByRole('button', { name: `Mở ${VE[0].ma}` }))
+    expect(onMo).toHaveBeenCalledTimes(2)
+    dong.focus()
+    await user.keyboard('{Enter}')
+    expect(onMo).toHaveBeenCalledTimes(3)
+  })
+  test('dongNhap: thêm MỘT hàng cùng số ô, nội dung chỉ ở cột chỉ định', () => {
+    render(
+      <DsRoot>
+        <ListView aria-label="T" cot={COT} dong={VE} khoa={(v) => v.ma} onMo={vi.fn()} dongNhap={{ cot: 'khach', o: <input aria-label="Việc mới" /> }} />
+      </DsRoot>,
+    )
+    const hang = screen.getAllByRole('row').at(-1)!
+    const o = within(hang).getAllByRole('cell')
+    expect(o).toHaveLength(2)
+    expect(o[0].textContent).toBe('')
+    expect(within(o[1]).getByRole('textbox', { name: 'Việc mới' })).toBeTruthy()
+  })
 })

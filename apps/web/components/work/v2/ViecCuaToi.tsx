@@ -16,10 +16,10 @@ import { type NenTang, type ViecRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
+import { khungNutThem, useDongMoi, type DongThemRef } from '@/components/ui/dong-them'
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
-import { ListView, NhanDau, NutMoMa, type CotDanhSach } from '@/components/ui/list-view'
+import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
@@ -104,6 +104,14 @@ export function ViecCuaToi({
     if (ok) lamMoi()
     return ok
   }
+  // Hàng nháp của Danh sách / Bảng (Kanban có DongThem riêng ở chân cột — ref nhường cho nó).
+  const moi = useDongMoi({
+    nhan: 'Việc mới',
+    placeholder: GOI_Y_THEM,
+    onTao: (ten) => taoTai(ten),
+    ref: dangXem === 'kanban' ? undefined : themRef,
+  })
+  const nhap = choThem && moi.mo
   const { cotUrl, sap } = docSap(new URLSearchParams(sp.toString()), { cot: 'han', tang: true })
 
   const cuaToi = rows.filter((v) => v.my_role)
@@ -140,7 +148,7 @@ export function ViecCuaToi({
           <OChonO khoa={String(v.id)} moTa={`việc ${v.ref}`} />
           <NhanDau gon>{o(v, 'uu')}</NhanDau>
           <NutMoMa ma={v.ref} />
-          {o(v, 'viec')}
+          <NutMoTen ten={v.title} />
         </>
       ),
     },
@@ -225,7 +233,7 @@ export function ViecCuaToi({
             {dangXem === 'danh-sach' ? (
               // Rỗng → chỉ EmptyState, không vẽ hàng tiêu đề cột trơ trọi bên dưới (CEO 25/11: "thừa").
               <>
-                {rong || (
+                {(!nhap && rong) || (
                 <ListView
                   aria-label="Việc của tôi"
                   cot={cot}
@@ -233,6 +241,8 @@ export function ViecCuaToi({
                   khoa={(v) => String(v.id)}
                   onMo={(v) => xem.mo(v.id)}
                   dangMo={xem.id ? String(xem.id) : null}
+                  moKhi="ten"
+                  dongNhap={nhap ? { cot: 'viec', o: moi.oGo } : undefined}
                   nhom={
                     tab === 'xong'
                       ? undefined
@@ -250,9 +260,7 @@ export function ViecCuaToi({
                   }
                 />
                 )}
-                {choThem && (
-                  <DongThem ref={themRef} kieu="ds" nhan="Việc mới" placeholder={GOI_Y_THEM} onTao={(ten) => taoTai(ten)} />
-                )}
+                {choThem && !moi.mo && <div className={khungNutThem('ds')}>{moi.nut}</div>}
               </>
             ) : dangXem === 'kanban' ? (
               // Chỗ được thêm (tab Đang mở, không từ khoá) luôn vẽ cột kể cả chưa có việc — tạo thẳng vào cột.
@@ -269,10 +277,10 @@ export function ViecCuaToi({
               )
             ) : (
               <>
-                {rong || <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} />}
-                {choThem && (
-                  <DongThem ref={themRef} kieu="bang" nhan="Việc mới" placeholder={GOI_Y_THEM} onTao={(ten) => taoTai(ten)} />
+                {(!nhap && rong) || (
+                  <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} dongNhap={nhap ? moi.oGo : undefined} />
                 )}
+                {choThem && !moi.mo && <div className={khungNutThem('bang')}>{moi.nut}</div>}
               </>
             )}
             <ThanhDaChon nhan="việc">

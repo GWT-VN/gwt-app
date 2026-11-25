@@ -64,6 +64,10 @@ export const th = cn(
   oTick,
 )
 /** `.b-bang td`: cao 44, đệm ngang 10, kẻ dưới alpha-05, không xuống dòng, tối đa 280 (`.b-bang-c`: đệm 6, không trần, cắt). */
+/** Hàng nháp của `DongThem` (CEO 25/11 "ra hẳn một hàng trống"): ô nền đang gõ alpha-05 (như nền rê dòng). */
+// `!`: ô thân Bảng tự mang nền (alpha-02) đè lớp của dòng. Ô đầu = cột chọn ở lề ngoài bảng → trong suốt như dòng thường.
+export const hangNhap = '[&>td:not(:first-child)]:bg-(--alpha-05)! [&>td:first-child]:bg-transparent! [&>td:first-child]:border-b-transparent'
+
 export const td = cn(
   'h-(--control-size-2xl) px-2.5 max-w-[280px] align-middle whitespace-nowrap',
   'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-05)',

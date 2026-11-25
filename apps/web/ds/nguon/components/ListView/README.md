@@ -26,6 +26,8 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 - Hiện hết danh sách đang lọc — không phân trang 10/20 dòng.
 - Nhóm theo (từ ⚙): tiêu đề nhóm = nhãn + số lượng. **Nhãn nhóm là chữ trơn đậm vừa (500), KHÔNG Badge** (CEO 25/11/2026): Badge dành cho thuộc tính của dòng — nhóm vẽ bằng Badge trùng hệt nhãn trong dòng (vd nhóm "Không có hạn" ngay trên ưu tiên "Thường"). Cần nhấn thì đổi màu chữ ("Quá hạn" = `color-text-danger`). Danh sách rỗng → chỉ `EmptyState`, không vẽ hàng đầu cột.
 
+**Mở bản ghi chỉ qua tên (`moKhi="ten"`, CEO 25/11 màn Việc):** tên là `NutMoTen` (chữ thường, rê gạch chân, focus vòng ring); chỉ bấm tên hoặc mã mới mở thẻ xem nhanh, bấm chỗ trống của dòng không làm gì (dòng không con trỏ tay); Enter trên dòng vẫn mở. Đổi tên ở thẻ (bút chì cạnh tiêu đề), không sửa tại ô.
+
 ## Bàn phím & a11y
 `role="table"`/`row`/`columnheader`; dòng `tabIndex=0`, Enter mở bản ghi, phím Menu/Shift+F10 mở menu thao tác.
 
@@ -37,7 +39,7 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 
 ## Tạo tại chỗ — dòng "+ Mới" (`DongThem`, CEO chốt 25/11/2026)
 Thay hộp "Tạo …": cuối danh sách / bảng (Kanban: chân mỗi cột, trừ cột cuối "Xong") có dòng **"+ <tên bản ghi> mới"** — DS `Button` ghost xs + icon `Plus`, chữ `color-text-tertiary`, icon thẳng mép chữ của dạng xem (ListView đệm 16 · Table 6 · Kanban 8; lề âm = đệm nút, như nút thêm của `PropertyList`).
-- **Bấm → chính dòng đó thành ô gõ kiểu dòng, KHÔNG khung form** (CEO 25/11: "không dùng form kiểu này"): nền rê của dòng `alpha-05` bo `radius-xl`, icon + đứng yên đúng chỗ, chữ 14/20 gõ ngay sau icon, gợi ý tertiary, không viền / không vòng focus riêng.
+- **Bấm → hiện HẲN MỘT HÀNG TRỐNG** (CEO 25/11: "không dùng form kiểu này", "ra hẳn một hàng trống"): dòng nháp cùng lưới cột, cao bằng dòng thật (ListView 50 · Table 44), nền `alpha-05`, các ô khác để trống, ô tên là ô gõ trơn 14/20 (không viền, gợi ý tertiary) — `ListView dongNhap` / `BangViec dongNhap` + `useDongMoi`; Kanban: một thẻ trống trong cột. Nút "+" ẩn khi đang có hàng nháp.
 - **Enter = tạo ngay** chỉ với tên (trường bắt buộc duy nhất) — thuộc tính khác sửa tại ô (`InlineEdit`) trên dòng vừa hiện; tạo xong ô xoá trắng, GIỮ mở để gõ tiếp; Esc / rời ô khi trống = đóng, rời ô khi đã gõ = giữ chữ. Đang gửi: ô chỉ đọc (không disabled — giữ focus), chặn Enter lặp. Lỗi: toast, giữ chữ.
 - Nút chính thanh công cụ ("+ <tên> mới") mở dòng này (`ref.mo()`, focus lại nếu đã mở). Nhiều dòng trên một màn (cột Kanban) → `nhanDoc` ghép tên cột ("Việc mới — Đang làm").
 - **Chỉ đặt dòng ở chỗ bản ghi vừa tạo sẽ hiện**: tab mặc định, KHÔNG lọc / từ khoá (Việc: tab Đang mở / Mọi việc). Đang lọc thì không có dòng; bấm nút chính = về tab mặc định + bỏ lọc rồi mở dòng. Kanban ở chỗ được thêm luôn vẽ đủ cột kể cả chưa có bản ghi.

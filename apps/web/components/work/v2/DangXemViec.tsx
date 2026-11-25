@@ -10,10 +10,11 @@ import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
 import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
-import { OSuaChu, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
+import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
-import { NutMoMa } from '@/components/ui/list-view'
+import { NutMoMa, NutMoTen } from '@/components/ui/list-view'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { hangNhap as hangNhapBang } from '@/components/ui/table-styles'
 import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
@@ -160,7 +161,12 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
           </span>
         )
       case 'viec':
-        return <OSuaChu ma={v.ref} truong="tiêu đề" value={v.title} onLuu={(title) => luu(suaViec(v.id, { title }))} />
+        // CEO 25/11: bấm TÊN mới mở thẻ xem nhanh (đổi tên ở thẻ — bút chì cạnh tiêu đề). Table không có onMo → bắt ở đây.
+        return (
+          <span className="inline-flex min-w-0 border-none border-current" onClick={() => moViec(v.id)}>
+            <NutMoTen ten={v.title} />
+          </span>
+        )
       case 'tt':
         return (
           <OSuaTrangThai ma={v.ref} value={{ tt: v.status }} muc={TT} onLuu={(g) => luu(doiTrangThai(v.id, g.tt))} />
@@ -216,6 +222,7 @@ export function BangViec({
   onSap,
   loc,
   o,
+  dongNhap,
 }: {
   dong: ViecXem[]
   c: ReturnType<typeof useCotBang>
@@ -224,6 +231,8 @@ export function BangViec({
   /** Lọc cột kiểu `loc` (Trạng thái). */
   loc?: { tuyChon: MucLoc[]; daChon: string[]; onDoi: (gt: string[]) => void }
   o: (v: ViecXem, id: string) => ReactNode
+  /** Hàng nháp "+ Việc mới" (`useDongMoi().oGo`): một hàng trống cùng cột, ô gõ nằm ở cột Việc — CEO 25/11. */
+  dongNhap?: ReactNode
 }) {
   const tongRong = 36 + c.hien.reduce((t, x) => t + c.doRong[x.id], 0)
   return (
@@ -274,6 +283,16 @@ export function BangViec({
               ))}
             </DongBang>
           ))}
+          {dongNhap && (
+            <TableRow data-nhap="" className={hangNhapBang}>
+              <TableCell />
+              {c.hien.map((x) => (
+                <TableCell key={x.id} cot={x.id} phai={x.phai}>
+                  {x.id === 'viec' ? dongNhap : null}
+                </TableCell>
+              ))}
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </TableWrap>

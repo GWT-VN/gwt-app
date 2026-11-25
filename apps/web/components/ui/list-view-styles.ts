@@ -51,6 +51,11 @@ export const hangDong = cn(
   '[&_[data-slot=badge]]:h-(--control-size-3xs)',
 )
 
+/** `moKhi="ten"`: chỉ bấm tên / mã mới mở → dòng không con trỏ tay (bấm chỗ trống không làm gì). */
+export const hangChiMoTen = 'cursor-default'
+/** Dòng nháp của `DongThem` (CEO 25/11 "ra hẳn một hàng trống"): cùng lưới cột, nền đang gõ alpha-05, không kẻ dưới. */
+export const hangNhap = cn(hang, 'bg-(--alpha-05)')
+
 /**
  * Ô: flex một dòng, khoảng 10 (`.b-ticket`). Ô sửa (InlineEdit) trong ô được co (cắt …); ô sửa KHÔNG đứng đầu ô (vd tên
  * khách sau mã) thì bỏ lề âm −6 + cắt tràn (`.b-ticket > .b-osua-wrap > .b-osua`).
@@ -118,6 +123,17 @@ export const nhanDau = cn(
  * `.b-mo-ticket` + `.b-ma`: nút mở bản ghi bằng mã — cao 30, tràn lề −6, đệm 6, bo radius-md, rê nền alpha-05; mã 12/18
  * số thẳng cột màu tertiary. ≤ 860 ẩn (bấm dòng vẫn mở).
  */
+/**
+ * Nút TÊN mở bản ghi (CEO 25/11: "bấm vào tên việc thì mới hiện popup bên phải"): chữ thường của ô, cắt …, rê gạch chân
+ * (dấu hiệu bấm được của link — không thêm nền); focus phím vòng 2px ring. Như nút mã: bấm nổi lên dòng (`onMo`).
+ */
+export const nutMoTen = cn(
+  kv,
+  'min-w-0 truncate rounded-(--radius-sm) bg-transparent p-0 text-left text-inherit [font:inherit] cursor-pointer',
+  'hover:underline hover:underline-offset-2 hover:decoration-(--alpha-35)',
+  '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-(--ring) focus-visible:outline-offset-2',
+)
+
 export const nutMoMa = cn(
   kv,
   'inline-flex shrink-0 items-center gap-2.5 min-w-0 max-w-full h-[30px] -mx-1.5 px-1.5 rounded-(--radius-md)',
