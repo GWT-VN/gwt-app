@@ -163,6 +163,10 @@ describe("soanTuTra — chặn và lỗi (chép ý ERP)", () => {
     const tin2 = msgs(goi, 1)[1].content as string;
     expect(tin2).toContain("— (chưa có — lần này dựng sổ từ hội thoại)");
     expect(tin2).not.toContain("Cách gọi khách đã biết");
+    await chay(goi, { ...L, xungHoMacDinh: { goi: "anh", xung: "em" } });
+    const tin3 = msgs(goi, 2)[1].content as string;
+    expect(tin3).toContain("Cách gọi tạm (đoán theo tên Facebook, khách tự xưng khác thì theo khách): anh/em");
+    expect(tin3).not.toContain("Cách gọi khách đã biết");
   });
   it("chữ thường không chốt, câu không số, không hứa → vẫn chặn (không có căn cứ để kiểm)", async () => {
     const r = await chay(vi.fn<Goi>().mockResolvedValueOnce(chu("Dạ máy CTS20 có nước nóng và lạnh ạ.")));

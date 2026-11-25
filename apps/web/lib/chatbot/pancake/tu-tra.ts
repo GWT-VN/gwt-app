@@ -221,10 +221,10 @@ const khoiSo = (so: SoCuoc | null) => (so
   : "— (chưa có — lần này dựng sổ từ hội thoại)");
 export function dungTinTuTra(l: LuongTra): string {
   const cho = [...l.khachDaNoi, ...l.cauHoi.split("\n")].map((c) => c.trim()).filter(Boolean);
-  const xh = l.soCuoc?.xung_ho ?? l.xungHoMacDinh; // mặc định = đoán từ tên, chỉ là gợi ý cách gọi
   return [
     `SỔ CUỘC CHAT (bot ghi ở lượt trước):\n${khoiSo(l.soCuoc)}`,
-    ...(xh ? [`Cách gọi khách đã biết: ${xh.goi}/${xh.xung}`] : []),
+    ...(l.soCuoc?.xung_ho ? [`Cách gọi khách đã biết: ${l.soCuoc.xung_ho.goi}/${l.soCuoc.xung_ho.xung}`]
+      : l.xungHoMacDinh ? [`Cách gọi tạm (đoán theo tên Facebook, khách tự xưng khác thì theo khách): ${l.xungHoMacDinh.goi}/${l.xungHoMacDinh.xung}`] : []),
     `HỘI THOẠI TRƯỚC ĐÓ (cũ → mới):\n${l.lichSu.length ? l.lichSu.map((c) => `- ${ngoac(c)}`).join("\n") : "—"}`,
     `TIN KHÁCH ĐANG CHỜ TRẢ LỜI (cũ → mới):\n${cho.map((c) => `- ${ngoac(c)}`).join("\n")}`,
     `Máy bộ phân loại ghi (có thể sai, lời khách thắng): ${l.maMay ?? "—"}`,

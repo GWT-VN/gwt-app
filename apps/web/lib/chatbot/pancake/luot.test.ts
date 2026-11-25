@@ -275,4 +275,19 @@ describe("chayMotLuot", () => {
     expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Dạ chị, /);
     expect(t.kho.hang.get("c1")!.soCuoc?.xung_ho).toEqual({ goi: "chị", xung: "em" });
   });
+
+  it("khong_ro + tên Linh + GPT 'anh/chị' → 'Chào anh/chị!' không tên, không học xung_ho", async () => {
+    const t = dung({ pl: { gioi: "khong_ro", tenGoi: "Linh" } });
+    t.soan.mockResolvedValue({ ...TRA, xungHo: { goi: "anh/chị", xung: "em" } });
+    await t.chay();
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Chào anh\/chị! Em là/);
+    expect(t.kho.hang.get("c1")!.soCuoc?.xung_ho).toBeUndefined();
+  });
+  it("đoán nam Hùng + GPT 'anh/chị' ở lượt sau → 'Dạ anh Hùng,'; doan GPT bịa bị bỏ", async () => {
+    const t = await haiLuot({ xungHo: { goi: "anh/chị", xung: "em" }, soCuoc: { nhu_cau: "x", da_xong: [], con_mo: [], doan: { gioi: "nu", ten: "Bịa" } } as never });
+    expect((t.gui.mock.calls[0] as unknown as string[])[1]).toMatch(/^Dạ anh Hùng, /);
+    const so = t.kho.hang.get("c1")!.soCuoc;
+    expect(so?.xung_ho).toBeUndefined();
+    expect(so?.doan).toEqual({ gioi: "nam", ten: "Hùng" });
+  });
 });

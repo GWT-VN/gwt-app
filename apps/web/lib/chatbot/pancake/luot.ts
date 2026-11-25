@@ -51,8 +51,8 @@ const khoiCho = (tin: TinPancake[], pageId: string, baoLuc: string | null | unde
 const ngayVn = (ms: number) => Math.floor((ms + 7 * 3600_000) / NGAY);
 const iso = (ms: number) => new Date(ms).toISOString();
 
-// Tên gọi chỉ đi kèm khi cách gọi không lệch giới đoán được; không chắc (bác, em…) → bỏ tên.
-const HOP: Record<string, readonly string[]> = { nam: ["anh", "chú", "ông", "anh/chị"], nu: ["chị", "anh/chị"], khong_ro: ["anh", "chị", "anh/chị", "cô", "chú", "bác", "ông", "bà", "em"] };
+// Tên gọi chỉ đi kèm khi cách gọi rõ và không lệch giới đoán được; "anh/chị", bác, em… → không tên.
+const HOP: Record<string, readonly string[]> = { nam: ["anh", "chú", "ông"], nu: ["chị"], khong_ro: ["anh", "chị", "cô", "chú", "bác", "ông", "bà", "em"] };
 const tenHopGioi = (doan: DoanTen | undefined, goi: string | undefined) => (doan?.ten && goi && HOP[doan.gioi].includes(goi) ? doan.ten : null);
 
 export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
@@ -187,7 +187,8 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
         if (!r) r = await p.phanLoai(d.tinKhach, d.coSdt, [], d.tenKhach).catch(() => undefined);
         if (r) doan = { gioi: r.gioi ?? "khong_ro", ten: r.tenGoi ?? null };
       }
-      const doanGoi: XungHo | null = so?.xung_ho ? null : doan?.gioi === "nam" ? { goi: "anh", xung: "em" } : doan?.gioi === "nu" ? { goi: "chị", xung: "em" } : null;
+      const soXh = so?.xung_ho?.goi === "anh/chị" ? undefined : so?.xung_ho; // "anh/chị" không phải xưng hô đã học
+      const doanGoi: XungHo | null = soXh ? null : doan?.gioi === "nam" ? { goi: "anh", xung: "em" } : doan?.gioi === "nu" ? { goi: "chị", xung: "em" } : null;
       const k = await p.soan({ cauHoi: kh.text, khachDaNoi: [], lichSu: ls.lichSu, maMay: d.maMay, daCoSdt: ls.daCoSdt || d.coSdt, soCuoc: so, xungHoMacDinh: doanGoi });
       const chanSau = chanSauSoan(k);
       if (chanSau) return chuyen(chanSau);
@@ -198,7 +199,8 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       if (lai.some((t) => kiem(t) && (laTinBot(t) || laNhanVien(t.from)))) { await ghiXong(); return "khac"; }
       if (lai.some((t) => kiem(t) && laKhach(t.from, p.pageId))) return "khac"; // khách nhắn thêm trong lúc soạn
 
-      const xh = k.xungHo ?? so?.xung_ho ?? doanGoi;
+      const kXh = k.xungHo?.goi === "anh/chị" ? null : k.xungHo; // GPT "anh/chị" không mang thông tin: không học, không đè đoán
+      const xh = kXh ?? soXh ?? doanGoi;
       const laDoan = Boolean(xh && doanGoi && xh.goi === doanGoi.goi && xh.xung === doanGoi.xung); // chỉ là đoán từ tên → không ghi vào sổ
       const tinGui = dungTinGui(k.traLoi, { kieu, xungHo: xh, ten: tenHopGioi(doan, xh?.goi ?? "anh/chị"), hotline: p.ch.hotline, hoiSo: !(ls.daCoSdt || d.coSdt) });
       if (!tinGui.length) return chuyen("rong");
@@ -226,7 +228,7 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
       p.dem.tang();
       await baoDaGui(daGui, false).catch(ghiLoi);
       await ghiXong(); // đóng dòng TRƯỚC sổ: sổ hỏng không được để dòng mở lại → soạn/báo lại
-      const { xung_ho: _boDoan, ...soMoi } = k.soCuoc ?? { nhu_cau: "", da_xong: [], con_mo: [] };
+      const { xung_ho: _boXh, doan: _boDoan, ...soMoi } = k.soCuoc ?? { nhu_cau: "", da_xong: [], con_mo: [] };
       const sach = chuanSoCuoc({ ...soMoi, ...(xh && !laDoan ? { xung_ho: xh } : {}), ...(doan ? { doan } : {}) });
       if (sach) await p.kho.ghiSoCuoc(p.pageId, id, sach).catch(ghiLoi);
       return hong ? "loi_gui" : "gui";
