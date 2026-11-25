@@ -13,7 +13,7 @@ export interface SoCuoc { nhu_cau: string; da_xong: string[]; con_mo: string[]; 
 
 const GOI: ReadonlySet<string> = new Set(["anh", "chị", "anh/chị", "cô", "chú", "bác", "ông", "bà", "em"]);
 // Cách xưng hô lạ → bỏ khoá (không đoán).
-const xungHo = (v: unknown): XungHo | undefined => {
+export const xungHo = (v: unknown): XungHo | undefined => {
   const o = v && typeof v === "object" ? (v as Record<string, unknown>) : null;
   return o && typeof o.goi === "string" && GOI.has(o.goi) && (o.xung === "em" || o.xung === "chau") ? { goi: o.goi as Goi, xung: o.xung } : undefined;
 };

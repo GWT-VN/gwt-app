@@ -5,17 +5,15 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const THU_MUC = import.meta.dirname;
-// claude.ts POST sang api.anthropic.com (không phải kênh khách) → miễn khỏi cấm POST, vẫn bị cấm reply_inbox/pages.fm.
+// Luật (2026-11-25, Task 6): POST sang API model (claude.ts, openai.ts…) được; kênh khách chỉ một cửa gui-khach.ts —
+// reply_inbox chỉ ở đó, file nào khác chạm pages.fm chỉ được method GET.
 const mon = () => readdirSync(THU_MUC).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts"));
-const CAM = [/reply_inbox/, /method:\s*["'`]POST/i];
 
 describe("guard: chỉ gui-khach.ts được gửi tin cho khách", () => {
-  it("không file nào khác chứa reply_inbox hoặc method POST", () => {
+  it("không file nào khác chứa reply_inbox", () => {
     for (const f of mon()) {
       if (f === "gui-khach.ts") continue;
-      const src = readFileSync(join(THU_MUC, f), "utf8");
-      const cam = f === "claude.ts" ? CAM.slice(0, 1) : CAM;
-      expect({ f, vi: cam.filter((re) => re.test(src)).map(String) }).toEqual({ f, vi: [] });
+      expect({ f, vi: /reply_inbox/.test(readFileSync(join(THU_MUC, f), "utf8")) }).toEqual({ f, vi: false });
     }
   });
   it("không file nào khác vừa chạm pages.fm vừa có khoá method:", () => {
