@@ -122,7 +122,7 @@ bản repo, kèm sha bản artifact. `bundle.css` bản 43 (bản 41 không đ�
 | `nguon/components/Tabs/README.md` (bản 41) | `a9e763969b67f3320e3d50d36914e46718550624dae5b0af849e5e48df487116` |
 | `nguon/components/Sidebar/preview.html` (bản 41) | `23a6be08adc96178a6239ce70ea8c9f2c5abd802b1cba31cfaba4a58a262f507` |
 | `nguon/components/Sidebar/README.md` (bản 54) | `08d74d3bd7b6ac7bf63003219fdc2c10c703646abd7c2b29a53556be2665ccfc` |
-| `nguon/components/Table/preview.html` (bản 54) | `3f39e4a8cbf920c025249c0e37706806e26ed717b5e6dfab9f271eda68e2b2fb` artifact lưu CRLF (bản 54 gửi CRLF) — repo LF |
+| `nguon/components/Table/preview.html` (bản 54) | `3f39e4a8cbf920c025249c0e37706806e26ed717b5e6dfab9f271eda68e2b2fb` = bản CRLF trên đĩa + artifact; git lưu LF (sha `e0d9e7dca8b68bb65a7dc6f2f6e1f93f…`) |
 | `nguon/components/Table/README.md` (bản 54) | `2925eef71674242b775dfcfe8d08bde703272b5bd1a7ac26ea32a31db455eb81` |
 | `nguon/components/DataViewToolbar/preview.html` (bản 41) | `c5618b59ccefe0edaa7f41c6e6ce0824337a084fc818233994d0449e85a9a6d0` |
 | `nguon/components/DataViewToolbar/README.md` (bản 54) | `048a4c666419918afcfe85c18c07c1350bb15b8ffa63c9d5d83361619f5dff84` |
