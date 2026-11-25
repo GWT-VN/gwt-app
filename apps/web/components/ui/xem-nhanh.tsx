@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { CaretLeft, CaretRight, X } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { xnDau, xnKhung, xnMa, xnNoiDungNhuong, xnThan, xnThe } from './data-view-styles'
+import { xnDau, xnKhung, xnMa, xnNoiDungNhuong, xnNoiDungNhuongCoDinh, xnThan, xnThe, xnTheCoDinh } from './data-view-styles'
 import { useDsPortal } from './ds-root'
 
 /**
@@ -91,9 +91,11 @@ export function XemNhanh({
 
   return (
     <div data-slot="xem-nhanh-khung" className={cn(xnKhung, className)}>
-      <div className={cn('border-none border-current', mo && xnNoiDungNhuong)}>{children}</div>
+      <div className={cn('border-none border-current', mo && (coDinh ? xnNoiDungNhuongCoDinh : xnNoiDungNhuong))}>
+        {children}
+      </div>
       {the && (
-        <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && 'fixed')}>
+        <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
           <div className={xnDau}>
             <span className={xnMa}>{the.ma}</span>
             {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
