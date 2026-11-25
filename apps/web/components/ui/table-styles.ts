@@ -181,7 +181,7 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
   chon_oTd: cn(td, cotChon, anChoRe, 'md:bg-transparent!'),
   // Dòng ListView (relative): từ md ô chọn nằm ở LỀ trái ngoài dòng như cột chọn của Bảng (mép phải ô tick cách mép nội
   // dung 10 = lề âm −8 của danh sách + 2) — tên việc thẳng mép, không bị ô tick xô vào (CEO 25/11).
-  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-0.5 md:-translate-y-1/2 [&>input]:top-0'),
+  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'),
 }
 
 /*

@@ -404,7 +404,10 @@
     {
       "khoa": "khach-dt",
       "artifact": ".ds-muc:nth-child(3) [data-ma=\"TK-2611-045\"] .b-ticket > .b-osua-wrap > .b-osua",
-      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"ticket\"] > [data-slot=\"inline-edit\"] > button"
+      "ds": "#list-view [data-so=\"dt\"] [data-khoa=\"TK-2611-045\"] [data-cot=\"ticket\"] > [data-slot=\"inline-edit\"] > button",
+      "lyDo": {
+        "width": "CEO 25/11 bỏ lề âm −8 của danh sách (kiểu Notion) → dòng hẹp đi 16, tên khách phải co; phần co lộ đúng chênh 6 của khung nhãn đầu (nhan-dau-dt: preview 66 giữ vỏ rỗng, DS 60) → tên khách DS rộng hơn 6."
+      }
     },
     {
       "khoa": "o-viec-dt",

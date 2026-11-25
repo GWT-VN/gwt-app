@@ -793,7 +793,7 @@ body {
 .b-link svg { width: 12px; height: 12px; }
 
 /* ---------- A. danh sách nhẹ ---------- */
-.b-ds { margin-inline: -8px; }
+.b-ds { margin-inline: 0; } /* 25/11 CEO (kiểu Notion): nền dòng thẳng mép nội dung trang, chữ thụt 16 = chữ tab; trước −8 */
 .b-ds-hang { position: relative; display: grid; grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) 140px 88px 40px; align-items: center; gap: 12px; min-height: 50px; padding: 4px 16px; border-radius: var(--radius-xl); outline: none; }
 .b-ds-hang:not(.b-ds-dau) { cursor: pointer; }
 .b-ds-hang:not(.b-ds-dau)::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 1px; background: var(--alpha-05); }

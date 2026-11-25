@@ -12,8 +12,12 @@ const kv = 'border-none border-current'
 /** Vỏ: container query trên vùng đặt danh sách (README "container query trên vùng trang"). */
 export const vo = cn(kv, '@container min-w-0')
 
-/** `.b-ds`: lề âm −8 hai bên → nền rê/focus tràn 8px ra ngoài, chữ thẳng mép nội dung trang. */
-export const bang = cn(kv, '-mx-2')
+/**
+ * `.b-ds`: KHÔNG lề âm (CEO 25/11, kiểu Notion) — nền rê/chọn của dòng thẳng mép nội dung trang (tiêu đề, nền tab, ô
+ * thêm nhanh); chữ đầu cột / nhãn nhóm / nội dung dòng thụt 16 = thẳng chữ của tab. Trước: −8 → nền thò ra ngoài 8,
+ * chữ lệch 8 so với mọi lớp khác.
+ */
+export const bang = kv
 
 /**
  * `.b-ds-hang` (chung đầu cột + dòng): lưới theo cột (`--lv-cot`; ≤ 860 bỏ rãnh cột `anKhiHep` → `--lv-cot-hep` — nguồn

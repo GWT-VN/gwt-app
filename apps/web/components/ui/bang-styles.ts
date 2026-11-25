@@ -140,7 +140,7 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
     canOTick,
     anChoRe,
   ),
-  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-0.5 md:-translate-y-1/2 [&>input]:top-0'), // ô chọn dòng ListView ra lề từ md (xem table-styles CHON_BANG)
+  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'), // ô chọn dòng ListView ra lề từ md (xem table-styles CHON_BANG)
   chon_checkbox: oTick,
   // `.ui-bulkbar`: nổi giữa đáy (cách 24), z 55 (thang z NGUON), pill đệm 4/4/4/16, nền + chữ primary-solid, shadow-400,
   // hiện trượt lên 8px trong 180ms (starting-style thay keyframes — không đụng CSS dùng chung). ≤640: sát hai mép 16,
