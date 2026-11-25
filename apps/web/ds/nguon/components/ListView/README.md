@@ -24,7 +24,7 @@ Dạng xem **Danh sách** — mặc định của màn dữ liệu: mỗi bản 
 ## Hành vi
 - Bấm **ô** → sửa tại chỗ (`InlineEdit`); bấm **chỗ trống của dòng** hoặc mã → mở bản ghi (trang chi tiết, hoặc thẻ xem nhanh nếu đang bật).
 - Hiện hết danh sách đang lọc — không phân trang 10/20 dòng.
-- Nhóm theo (từ ⚙): tiêu đề nhóm = nhãn + số lượng.
+- Nhóm theo (từ ⚙): tiêu đề nhóm = nhãn + số lượng. **Nhãn nhóm là chữ trơn đậm vừa (500), KHÔNG Badge** (CEO 25/11/2026): Badge dành cho thuộc tính của dòng — nhóm vẽ bằng Badge trùng hệt nhãn trong dòng (vd nhóm "Không có hạn" ngay trên ưu tiên "Thường"). Cần nhấn thì đổi màu chữ ("Quá hạn" = `color-text-danger`). Danh sách rỗng → chỉ `EmptyState`, không vẽ hàng đầu cột.
 
 ## Bàn phím & a11y
 `role="table"`/`row`/`columnheader`; dòng `tabIndex=0`, Enter mở bản ghi, phím Menu/Shift+F10 mở menu thao tác.

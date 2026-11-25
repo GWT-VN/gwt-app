@@ -126,7 +126,11 @@ export const nutMoMa = cn(
   '@max-[860px]:hidden',
 )
 
-/** `.b-nhom-dau.b-nhom-ds`: tiêu đề nhóm — đệm 18 16 6; nhãn + số lượng cách 8, số màu tertiary thẳng cột. */
+/**
+ * `.b-nhom-dau.b-nhom-ds`: tiêu đề nhóm — đệm 18 16 6; nhãn + số lượng cách 8, số màu tertiary thẳng cột.
+ * Nhãn nhóm là CHỮ TRƠN đậm vừa, KHÔNG Badge (CEO 25/11): Badge dành cho thuộc tính của dòng — nhóm "Không có hạn"
+ * vẽ bằng Badge trùng hệt nhãn ưu tiên "Thường" ngay dưới. Muốn nhấn (vd "Quá hạn") thì đổi màu chữ.
+ */
 export const nhomDau = cn(kv, 'px-4 pt-4.5 pb-1.5')
-export const nhomO = cn(kv, 'flex items-center gap-2')
-export const nhomSo = cn(kv, 'tabular-nums text-(--color-text-tertiary)')
+export const nhomO = cn(kv, 'flex items-center gap-2 font-medium')
+export const nhomSo = cn(kv, 'font-normal tabular-nums text-(--color-text-tertiary)')

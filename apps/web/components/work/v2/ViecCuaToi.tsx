@@ -12,7 +12,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
 import { KhungChon, OChonO, OTimKiem, ThanhDaChon } from '@/bang'
 import { type NenTang, type ViecRow } from '@/app/work/actions'
-import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
@@ -207,8 +206,8 @@ export function ViecCuaToi({
             thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu, hien: dong.map((v) => v.id).join(',') }}
           >
             {dangXem === 'danh-sach' ? (
-              <>
-                {rong}
+              // Rỗng → chỉ EmptyState, không vẽ hàng tiêu đề cột trơ trọi bên dưới (CEO 25/11: "thừa").
+              rong || (
                 <ListView
                   aria-label="Việc của tôi"
                   cot={cot}
@@ -224,15 +223,15 @@ export function ViecCuaToi({
                           muc: THU_TU_NHOM.map((n) => ({
                             gt: n,
                             nhan: (
-                              <Badge variant="soft" color={n === 'qua_han' ? 'danger' : 'secondary'}>
+                              <span className={n === 'qua_han' ? 'text-(--color-text-danger)' : undefined}>
                                 {NHAN_NHOM[n]}
-                              </Badge>
+                              </span>
                             ),
                           })),
                         }
                   }
                 />
-              </>
+              )
             ) : (
               rong || (
                 <>

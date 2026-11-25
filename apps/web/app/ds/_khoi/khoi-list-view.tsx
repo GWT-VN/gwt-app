@@ -255,7 +255,7 @@ function DanhSachTicket({ nhomTheo, onMo, dangMo }: { nhomTheo?: boolean; onMo?:
       khoa={(v) => v.ma}
       onMo={mo}
       dangMo={dangMo}
-      nhom={nhomTheo ? { theo: (v) => v.tt.tt, muc: TT.map((m) => ({ gt: m.gt, nhan: <Badge variant="soft" color={m.color}>{m.nhan}</Badge> })) } : undefined}
+      nhom={nhomTheo ? { theo: (v) => v.tt.tt, muc: TT.map((m) => ({ gt: m.gt, nhan: m.nhan })) } : undefined}
       menuDong={(v) => {
         const dong = v.tt.tt === 'dong'
         return (

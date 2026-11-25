@@ -812,7 +812,7 @@ body {
 .b-viec-o .b-osua-chu { max-width: 100%; }
 [data-xem].b-ds-hang, .b-bang tbody tr[data-xem] td { background: var(--alpha-06) !important; }
 .b-the[data-xem] { box-shadow: 0 0 0 2px var(--ring), var(--shadow-100); }
-.b-nhom-dau { display: flex; align-items: center; gap: 8px; }
+.b-nhom-dau { display: flex; align-items: center; gap: 8px; font-weight: 500; } /* 25/11 CEO: nhãn nhóm = chữ trơn, không Badge */
 .b-nhom-ds { padding: 18px 16px 6px; }
 .b-nhom-tr td { height: auto !important; padding: 18px 10px 6px !important; border-bottom: 1px solid var(--alpha-05); background: none !important; }
 /* ô Ticket: nhãn đầu (ưu tiên → loại lỗi) + tên khách, mã ở dòng dưới */
