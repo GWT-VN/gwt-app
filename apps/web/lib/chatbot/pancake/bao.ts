@@ -11,19 +11,22 @@ const sach = (s: string) => thoat(s.replaceAll(DAU_BOT, "").replace(/\s+/g, " ")
 
 export function taoBao(webhook: string, fetchImpl: typeof fetch = fetch) {
   const gui = async (content: string, ping?: string) => {
-    const r = await fetchImpl(webhook, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ content: catDonVi(content, 2000), allowed_mentions: { parse: [], roles: ping ? [ping] : [] } }),
-      signal: AbortSignal.timeout(15_000),
-    });
+    let r: Response;
+    try {
+      r = await fetchImpl(webhook, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ content: catDonVi(content, 2000), allowed_mentions: { parse: [], roles: ping ? [ping] : [] } }),
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch { throw new Error("DISCORD_MANG"); } // lỗi gốc có thể chứa URL webhook (token) → chỉ ném mã
     if (!r.ok) throw new Error(`DISCORD_HTTP_${r.status}`);
   };
   return {
     daGui: (o: { kenh: string; nhom: string; tomTat: string; tin: string[]; thu: boolean }) =>
       gui([`✉️ ${o.thu ? "THỬ — chưa gửi · " : ""}${o.kenh} · ${o.nhom} · ${sach(o.tomTat)}`, ...o.tin.map((t) => sach(t))].join("\n")),
     chuyenNguoi: (o: { kenh: string; nhom: string; lyDo: string; tomTat: string; khieuNai: boolean; ping?: string }) =>
-      gui(`🙋 ${o.khieuNai ? "🔴 " : ""}${o.kenh} · ${o.nhom} · ${sach(o.lyDo)} · ${sach(o.tomTat)}${o.khieuNai && o.ping ? ` <@&${o.ping}>` : ""}`, o.khieuNai ? o.ping : undefined),
+      gui(`🙋 ${o.khieuNai ? `🔴 ${o.ping ? `<@&${o.ping}> ` : ""}` : ""}${o.kenh} · ${o.nhom} · ${sach(o.lyDo)} · ${sach(o.tomTat)}`, o.khieuNai ? o.ping : undefined),
     loi: (o: { kenh: string; ma: string }) => gui(`⚠️ ${o.kenh} · gửi hỏng ${sach(o.ma)} — NV trả lời giúp`),
   };
 }

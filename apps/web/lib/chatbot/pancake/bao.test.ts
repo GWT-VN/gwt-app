@@ -30,7 +30,7 @@ describe("taoBao", () => {
     const { goi, f } = gia();
     const b = taoBao("w", f);
     await b.chuyenNguoi({ kenh: "K", nhom: "n", lyDo: "gấp", tomTat: "t", khieuNai: true, ping: "123" });
-    expect(goi[0].body.content).toBe("🙋 🔴 K · n · gấp · t <@&123>");
+    expect(goi[0].body.content).toBe("🙋 🔴 <@&123> K · n · gấp · t");
     expect(goi[0].body.allowed_mentions).toEqual({ parse: [], roles: ["123"] });
     await b.chuyenNguoi({ kenh: "K", nhom: "n", lyDo: "x", tomTat: "t", khieuNai: false, ping: "123" });
     expect(goi[1].body.content).toBe("🙋 K · n · x · t");
@@ -56,5 +56,9 @@ describe("taoBao", () => {
   it("HTTP lỗi → DISCORD_HTTP_<status>", async () => {
     const { f } = gia(500);
     await expect(taoBao("w", f).loi({ kenh: "K", ma: "E" })).rejects.toThrow("DISCORD_HTTP_500");
+  });
+  it("fetch ném → chỉ mã DISCORD_MANG, không lộ URL", async () => {
+    const f = (async () => { throw new TypeError("Failed to parse URL from https://d/secret-token"); }) as unknown as typeof fetch;
+    await expect(taoBao("https://d/secret-token", f).loi({ kenh: "K", ma: "E" })).rejects.toThrow(/^DISCORD_MANG$/);
   });
 });
