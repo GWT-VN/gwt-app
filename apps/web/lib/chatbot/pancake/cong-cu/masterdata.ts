@@ -301,12 +301,15 @@ export async function docSoLieuMay(
   // % giảm và giá sau KM phải KHỚP giá niêm yết; lệch (sheet CTKM tính trên giá gốc cũ) thì bỏ cặp số, giữ quà —
   // câu hỏi CTKM của máy đó đi xuống đuôi hoãn thay vì đọc hai con số đá nhau cho khách (KB-015).
   const kmKhop = kmKhopGia([...giaTheoMa.values()].map((g) => g.dong), soHoac(km?.pct_giam), soHoac(km?.gia_sau_km));
+  // Giá sau KM chỉ là giá KM khi THẤP HƠN giá niêm yết thấp nhất (pct 0 / chỉ tặng quà → bằng giá gốc: không báo "còn …").
+  const giaSauKmRaw = soHoac(km?.gia_sau_km);
+  const giaSauKmThat = giaSauKmRaw !== null && giaTheoMa.size > 0 && giaSauKmRaw < Math.min(...[...giaTheoMa.values()].map((g) => g.dong));
   if (!kmKhop) console.warn(`[masterdata] CTKM ${ma.join("/")} lệch giá niêm yết — bỏ % giảm và giá sau KM`);
   const khuyenMai: KhuyenMai | null = km
     ? {
       kenh: String(km.kenh ?? "").trim() || null,
       giamPct: kmKhop ? soHoac(km.pct_giam) : null,
-      giaSauKm: kmKhop ? soHoac(km.gia_sau_km) : null,
+      giaSauKm: kmKhop && giaSauKmThat ? soHoac(km.gia_sau_km) : null,
       quaGiaTri: soHoac(km.qua_gia_tri),
       quaMoTa: moTaQua(String(km.qua_mo_ta ?? "").trim()),
       tongGiaTri: soHoac(km.tong_gia_tri),

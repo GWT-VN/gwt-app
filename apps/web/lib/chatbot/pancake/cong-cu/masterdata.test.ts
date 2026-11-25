@@ -128,6 +128,29 @@ describe("docSoLieuMay — giá lõi khớp theo tên", () => {
   });
 });
 
+describe("docSoLieuMay — giá sau KM phải thấp hơn giá niêm yết", () => {
+  beforeEach(() => quenMasterdata());
+
+  const ca = (km: Record<string, unknown>) => docSoLieuMay("WH15A", khachGia(
+    [{ alias_norm: "WH15A", internal_code: "WH15A" }],
+    {
+      chatbot_price: [{ internal_code: "WH15A", product_name: "GE WH15A", gia_ban: 179950000 }],
+      chatbot_machine_filter: [], chatbot_warranty: [], chatbot_promotion: [km],
+    },
+  ) as never);
+
+  it("gia_sau_km == giá niêm yết (pct 0 / chỉ tặng quà) → giaSauKm null, quà giữ nguyên", async () => {
+    const sl = await ca({ kenh: "GWT", pct_giam: 0, gia_sau_km: 179950000, qua_mo_ta: "tặng bình giữ nhiệt" });
+    expect(sl?.khuyenMai?.giaSauKm).toBeNull();
+    expect(sl?.khuyenMai?.quaMoTa).toContain("bình giữ nhiệt");
+  });
+
+  it("gia_sau_km thấp hơn giá niêm yết → giữ nguyên", async () => {
+    const sl = await ca({ kenh: "GWT", pct_giam: 10, gia_sau_km: 161955000, qua_mo_ta: "" });
+    expect(sl?.khuyenMai?.giaSauKm).toBe(161955000);
+  });
+});
+
 // PostgREST trả numeric/bigint dưới dạng CHUỖI — số CTKM (giá sau KM, %giảm)
 // đi qua soHoac trước khi lên prompt. Bẫy: chuỗi rỗng KHÔNG được hoá 0.
 describe("soHoac", () => {
