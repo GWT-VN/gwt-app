@@ -69,7 +69,8 @@ describe("dungTinGui", () => {
     expect(dungTinGui("Dạ.", o("da"))).toEqual([]);
     expect(dungTinGui("Chào anh!", o("chao"))).toEqual([]);
     expect(dungTinGui("Dạ, chào anh Hùng ạ.", o("gioi_thieu"))).toEqual([]);
-    expect(dungTinGui("Dạ.\n\nGiá 1đ ạ.", o("da"))).toEqual([b("Giá 1đ ạ.")]);
+    expect(dungTinGui("Chào anh!\n\nGiá 1đ ạ.", o("chao"))).toEqual([b("Chào anh Hùng! Giá 1đ ạ.")]);
+    expect(dungTinGui("Dạ.\n\nGiá 1đ ạ.", o("da"))).toEqual([b("Dạ anh Hùng, giá 1đ ạ.")]);
   });
   it("câu chào GPT lỡ viết ở đầu bị bỏ — không hai câu chào", () => {
     const r = dungTinGui("Chào anh! Dạ, giá 1đ ạ.", o("chao"))[0];

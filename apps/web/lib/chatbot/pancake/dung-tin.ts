@@ -68,21 +68,25 @@ export function dungTinGui(
 ): string[] {
   const goi = o.xungHo?.goi ?? "anh/chị";
   const ten = tenGoi(o.tenKhach);
-  const doan = tachDoan(traLoi);
-  // Câu chào GPT lỡ viết ở đầu → bỏ (bot tự chào theo `kieu`).
-  let dau = (doan[0] ?? "").replace(CHAO_GPT, "");
-  if (o.kieu === "da") { // GPT mở bằng "Dạ" → bỏ để khỏi "Dạ anh Hùng, dạ …"; chữ đầu hạ thường vì nối sau dấu phẩy
-    dau = dau.replace(DA_DAU, "");
-    if (/^\p{Lu}\p{Ll}/u.test(dau)) dau = dau[0].toLowerCase() + dau.slice(1); // "Máy" → "máy"; "CTS20" giữ
-  }
+  const CO_CHU = /\p{L}/u;
+  const chuan = (x: string) => { // đoạn đầu: bỏ câu chào GPT lỡ viết (bot tự chào theo `kieu`)
+    let d = x.replace(CHAO_GPT, "");
+    if (o.kieu === "da") { // bỏ "Dạ" của GPT để khỏi "Dạ anh Hùng, dạ …"; chữ đầu hạ thường vì nối sau dấu phẩy
+      d = d.replace(DA_DAU, "");
+      if (/^\p{Lu}\p{Ll}/u.test(d)) d = d[0].toLowerCase() + d.slice(1); // "Máy" → "máy"; "CTS20" giữ
+    }
+    return d;
+  };
+  // Đoạn không có chữ ("Dạ.", chỉ lời chào, dấu câu lẻ) bỏ TRƯỚC; câu mở luôn đi vào đoạn đầu còn lại.
+  const ps = tachDoan(traLoi);
+  let dau = "";
+  while (ps.length && !CO_CHU.test((dau = chuan(ps[0])))) ps.shift();
+  if (!ps.length) return []; // không còn nội dung → bên gọi coi [] là không gửi
+  const sau = ps.slice(1).filter((x) => CO_CHU.test(x));
   const them = ten ? ` ${ten}` : "";
   const mo = o.kieu === "da" ? `Dạ ${goi}${them}, `
     : `Chào ${goi}${them}! ${o.kieu === "gioi_thieu" ? `${o.xungHo?.xung === "chau" ? "Cháu" : "Em"}${CAU_GIOI_THIEU.slice(2)} ạ. ` : ""}`;
-  const CO_CHU = /\p{L}/u;
-  const sau = doan.slice(1).filter((x) => CO_CHU.test(x)); // đoạn không có chữ ("Dạ.", dấu câu lẻ) bỏ
-  if (!CO_CHU.test(dau) && sau.length === 0) return []; // chỉ có lời chào / "Dạ" → không có gì để gửi (bên gọi coi [] là không gửi)
-  const dauTin = CO_CHU.test(dau) ? mo + ketA(dau) : o.kieu === "da" ? "" : mo.trim(); // GPT chỉ chào ở đoạn 1 → còn đúng câu mở
-  const tin = [dauTin, ...sau.map(ketA)].filter(Boolean);
+  const tin = [mo + ketA(dau), ...sau.map(ketA)];
   if (o.kieu === "gioi_thieu" && !coHotline(traLoi, o.hotline)) tin.push(CAU_HO_TRO(o.hotline, o.hoiSo, goi));
   return tin.map((s) => `${inDamUnicode(s)}${DAU_BOT}`);
 }
