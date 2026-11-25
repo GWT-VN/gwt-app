@@ -16,6 +16,15 @@ describe("guard: chỉ gui-khach.ts được gửi tin cho khách", () => {
       expect({ f, vi: CAM.filter((re) => re.test(src)).map(String) }).toEqual({ f, vi: [] });
     }
   });
+  it("không file nào khác vừa chạm pages.fm vừa có khoá method:", () => {
+    for (const f of mon()) {
+      if (f === "gui-khach.ts") continue;
+      const src = readFileSync(join(THU_MUC, f), "utf8");
+      // doc.ts gọi pages.fm nhưng chỉ method GET (hợp lệ) → chỉ cấm method khác GET
+      const lech = /pages\.fm/.test(src) && [...src.matchAll(/method:\s*["'`]?(\w+)/g)].some((m) => m[1].toUpperCase() !== "GET");
+      expect({ f, lech }).toEqual({ f, lech: false });
+    }
+  });
   it("không file nào import server-only (chạy thẳng bằng Node)", () => {
     for (const f of mon()) expect({ f, vi: /server-only/.test(readFileSync(join(THU_MUC, f), "utf8")) }).toEqual({ f, vi: false });
   });
