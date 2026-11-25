@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore, type ReactNode } from 'react'
 import { DsRoot } from '@/components/ui/ds-root'
+import { Toaster } from '@/components/ui/sonner'
 
 const toiQuery = '(prefers-color-scheme: dark)'
 function ngheTheme(f: () => void) {
@@ -18,11 +19,13 @@ export function useThemeMay(): 'light' | 'dark' {
 /**
  * Vỏ của màn đã dựng lại bằng DS v2 nằm trong khung: màn trong khung bị bọc `[data-man-cu]` (trả thang của app cũ), nên
  * màn mới mở lại vùng DS của riêng nó — token, Inter, ô portal — theo theme máy, cao đầy vùng nội dung.
+ * Mang luôn MỘT `<Toaster>` cho màn (R10) — trước 25/11 thiếu: `thongBao.*` của màn v2 không hiện gì.
  */
 export function ManV2({ children }: { children: ReactNode }) {
   return (
     <DsRoot theme={useThemeMay()} className="flex-1">
       {children}
+      <Toaster />
     </DsRoot>
   )
 }
