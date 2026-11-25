@@ -136,10 +136,24 @@ export const keoBong = cn(
   '[box-shadow:var(--shadow-hairline),var(--shadow-300)] text-[12px] leading-[18px] font-medium whitespace-nowrap cursor-grabbing',
 )
 
-/** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
+/*
+ * Ô chọn dòng ẨN CHỜ RÊ (CEO chốt 23/11): cột ô chọn giữ nguyên chỗ (không xô nội dung), ô mờ hẳn (opacity 0, vẫn
+ * bấm/Tab được); hiện khi rê hoặc focus trong dòng, ô đang tick / nửa tick, đã có dòng được chọn (`data-co-chon` của
+ * KhungChon — thấy được mình đang chọn gì), và trên máy cảm ứng (không có rê). Ô "chọn tất cả" ở đầu bảng hiện khi rê
+ * cả bảng. Ô chọn CHỈ để chọn dòng — không dùng ô tick làm "xong việc".
+ */
+export const anChoRe =
+  '*:opacity-0 [&>:checked]:opacity-100 [&>:focus-visible]:opacity-100 [tr:hover_&]:*:opacity-100 [tr:focus-within_&]:*:opacity-100 [[data-co-chon]_&]:*:opacity-100 [@media(hover:none)]:*:opacity-100'
+export const anChoReDau =
+  '*:opacity-0 [&>:checked]:opacity-100 [&>:indeterminate]:opacity-100 [&>:focus-visible]:opacity-100 [table:hover_&]:*:opacity-100 [[data-co-chon]_&]:*:opacity-100 [@media(hover:none)]:*:opacity-100'
+export const anChoReO =
+  '*:opacity-0 [&>:checked]:opacity-100 [&>:focus-visible]:opacity-100 [[data-slot=list-view-row]:hover_&]:*:opacity-100 [[data-slot=list-view-row]:focus-within_&]:*:opacity-100 [[data-co-chon]_&]:*:opacity-100 [@media(hover:none)]:*:opacity-100'
+
+/** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong` / `OChonO`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
 export const CHON_BANG: Partial<GiaoDienBang> = {
-  chon_oTh: cn(th, cotChon),
-  chon_oTd: cn(td, cotChon),
+  chon_oTh: cn(th, cotChon, anChoReDau),
+  chon_oTd: cn(td, cotChon, anChoRe),
+  chon_oO: cn('inline-flex', anChoReO),
 }
 
 /*

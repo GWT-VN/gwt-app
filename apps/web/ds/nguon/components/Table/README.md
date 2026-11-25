@@ -50,6 +50,7 @@ Dạng xem **Bảng** (shadcn `Table` + TanStack, dựng bằng token OpenAI —
 - Mới `TableCaption`: chú thích dưới bảng, 14/20 muted, cách trên 16 (bảng `caption-bottom`).
 - `Table` đứng ngoài `TableWrap` tự bọc `div[data-slot=table-container]` cuộn ngang, thanh cuộn ẩn (như shadcn); nằm trong `TableWrap` thì không bọc thêm (giữ tiêu đề dính).
 - Căn ô tick: Checkbox DS hoặc `input type=checkbox` của `bang/` là con TRỰC TIẾP của `th`/`td` → bỏ độ dời 1px, tâm ô tick đúng tâm dòng (trước thấp hơn chữ 2–3px). Ô tick trong nhóm flex (NotificationMatrix) chỉ bỏ độ dời. Không dùng `translate-y-[2px]` của shadcn.
+- **Ô chọn dòng ẩn chờ rê** (CEO chốt 23/11/2026): cột ô chọn giữ chỗ cố định (nội dung không xô), ô `opacity 0`; hiện khi rê / focus trong dòng, ô đang tick, đã có dòng được chọn (`data-co-chon` của `KhungChon` → hiện mọi ô), máy cảm ứng (`hover: none`). Ô "chọn tất cả" đầu bảng hiện khi rê cả bảng. Ô tick **chỉ để chọn dòng** — không dùng làm "xong việc". Code: `anChoRe*` (table-styles.ts) trong `CHON_BANG` / `GIAO_DIEN_DS`.
 - `TableRow conTro` mới → `data-con-tro`: dòng đang trỏ (phím tắt theo dòng áp vào nó), nền `alpha-04`, thắng hover, thua "đã chọn"; focus phím có vòng 2px `ring` lùi vào. Roving `tabIndex` do màn đặt; chọn nhiều Ctrl/⇧ + bấm qua `bang/ChonDong.tsx` (R16).
 - `TableRow` nhận `data-state` từ ngoài (`ContextMenuTrigger asChild`), `chon` thắng.
 - Không chép của shadcn: kẻ viền trên `tr` (DS kẻ trên ô, `border-separate`), `pr-0` cho ô checkbox.

@@ -13,7 +13,7 @@ import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { Suspense, useState, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus, UserPlus, UsersThree } from '@phosphor-icons/react/ssr'
-import { boDau, hrefBoLoc, KhungChon, OTimKiem, ThanhDaChon, ThanhDangLoc } from '@/bang'
+import { boDau, hrefBoLoc, KhungChon, OChonO, OTimKiem, ThanhDaChon, ThanhDangLoc } from '@/bang'
 import type { NenTang, ViecTeamRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
@@ -194,6 +194,7 @@ export function BangTeam({
       dienThoai: 'tren',
       o: (v) => (
         <>
+          <OChonO khoa={String(v.id)} moTa={`việc ${v.ref}`} />
           <NhanDau gon>{o(v, 'uu')}</NhanDau>
           <NutMoMa ma={v.ref} />
           {o(v, 'viec')}
@@ -373,7 +374,7 @@ export function BangTeam({
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
             tong={dong.length}
-            bat={dangXem === 'bang'}
+            bat={dangXem !== 'kanban'}
             thamSo={thamSo}
           >
             {xem}

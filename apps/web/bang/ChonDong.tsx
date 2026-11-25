@@ -226,7 +226,8 @@ export function KhungChon({
       }}
     >
       <CtxRef.Provider value={refChon}>
-        <div ref={khung} className={gd.chon_khung}>
+        {/* data-co-chon: đang có dòng được chọn → giao diện hiện MỌI ô chọn (ô ẩn-chờ-rê của DS). */}
+        <div ref={khung} className={gd.chon_khung} data-co-chon={daChon.size > 0 || undefined}>
           {/* Vùng đọc LUÔN có (kể cả 0 dòng chọn): vùng live sinh cùng lúc với nội dung thì
               câu đầu không được đọc. Đặt ĐẦU khung: sr-only là absolute nên không đổi bố cục. */}
           <span className={gd.chon_vungDoc} aria-live="polite" aria-atomic="true">
@@ -293,6 +294,27 @@ export function OChonTatCa({ nhan = 'dòng' }: { nhan?: string }) {
         className={gd.chon_checkbox}
       />
     </th>
+  )
+}
+
+/**
+ * Ô chọn của một dòng KHÔNG phải `<tr>` (dòng lưới ListView): `<span>` đặt đầu ô đầu tiên. Chặn cú bấm nổi lên dòng —
+ * dòng ListView bấm là mở bản ghi.
+ */
+export function OChonO({ khoa, moTa }: { khoa: string; moTa?: string }) {
+  const c = useBoiCanh('OChonO')
+  const gd = useGiaoDien()
+  if (!c.bat) return null
+  return (
+    <span className={gd.chon_oO} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      <input
+        type="checkbox"
+        checked={c.daChon.has(khoa)}
+        onChange={(e) => c.doiMot(khoa, e.target.checked)}
+        aria-label={`Chọn ${moTa ?? khoa}`}
+        className={gd.chon_checkbox}
+      />
+    </span>
   )
 }
 

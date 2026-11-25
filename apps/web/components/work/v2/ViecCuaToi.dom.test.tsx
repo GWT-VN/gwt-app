@@ -54,9 +54,13 @@ test('đổi dạng xem: Danh sách (mặc định) → Bảng (chọn dòng + t
   const user = userEvent.setup()
   man()
   expect(screen.getByRole('radio', { name: 'Danh sách' }).getAttribute('aria-checked')).toBe('true')
-  // ListView (role table, tên "Việc của tôi") — không có ô chọn dòng.
+  // ListView (role table, tên "Việc của tôi"): ô tick ở cột đầu CHỈ để chọn dòng (CEO 23/11) — không còn "đánh dấu xong".
   expect(screen.getByRole('table', { name: 'Việc của tôi' })).toBeTruthy()
-  expect(screen.queryByRole('checkbox', { name: 'Chọn việc VIEC-1' })).toBeNull()
+  expect(screen.queryByRole('checkbox', { name: /Đánh dấu xong/ })).toBeNull()
+  await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-2' }))
+  expect(screen.getByRole('toolbar', { name: 'Thao tác hàng loạt' })).toBeTruthy()
+  expect(m.replace).not.toHaveBeenCalled() // bấm ô chọn không mở Xem nhanh (?xem=)
+  await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-2' }))
 
   await user.click(screen.getByRole('radio', { name: 'Bảng' }))
   expect(screen.queryByRole('table', { name: 'Việc của tôi' })).toBeNull()

@@ -10,13 +10,12 @@
 import { Suspense, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
-import { KhungChon, OTimKiem, ThanhDaChon } from '@/bang'
-import { doiTrangThai, taoViec, type NenTang, type ViecRow } from '@/app/work/actions'
+import { KhungChon, OChonO, OTimKiem, ThanhDaChon } from '@/bang'
+import { taoViec, type NenTang, type ViecRow } from '@/app/work/actions'
 import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
@@ -90,7 +89,7 @@ export function ViecCuaToi({
   const [dangXem, setDangXem] = useState<DangXem>('danh-sach')
   const xem = useXemViec()
   const c = useCotBang(COT, { url: true })
-  const { lamMoi, luu, o } = useOViec(nenTang, xem.mo, c.doRong.nguoi)
+  const { lamMoi, o } = useOViec(nenTang, xem.mo, c.doRong.nguoi)
   const [moi, setMoi] = useState('')
   const [dangTao, setDangTao] = useState(false)
   const { cotUrl, sap } = docSap(new URLSearchParams(sp.toString()), { cot: 'han', tang: true })
@@ -137,23 +136,8 @@ export function ViecCuaToi({
       dienThoai: 'tren',
       o: (v) => (
         <>
-          {/* Ô tick = đánh dấu xong (canvas) — bấm không mở dòng. */}
-          <span className="inline-flex" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-            <Checkbox
-              aria-label={`Đánh dấu xong ${v.ref}`}
-              checked={v.status === 'done'}
-              disabled={v.status === 'done'}
-              onCheckedChange={async (c) => {
-                if (!c) return
-                const kq = await doiTrangThai(v.id, 'done')
-                if (!kq.ok) return thongBao.loi(`${v.ref}: chưa đánh dấu xong — ${kq.loi}`)
-                thongBao.xong(`${v.ref}: đã xong`, {
-                  hoanTac: () => void luu(doiTrangThai(v.id, v.status)),
-                })
-                lamMoi()
-              }}
-            />
-          </span>
+          {/* Ô chọn dòng (ẩn chờ rê) — CEO 23/11: ô tick CHỈ để chọn, xong việc đi qua chip trạng thái / Xem nhanh. */}
+          <OChonO khoa={String(v.id)} moTa={`việc ${v.ref}`} />
           <NhanDau gon>{o(v, 'uu')}</NhanDau>
           <NutMoMa ma={v.ref} />
           {o(v, 'viec')}
@@ -247,52 +231,55 @@ export function ViecCuaToi({
             />
           </form>
 
-          {dangXem === 'danh-sach' ? (
-            <>
-              {rong}
-              <ListView
-                aria-label="Việc của tôi"
-                cot={cot}
-                dong={dong}
-                khoa={(v) => String(v.id)}
-                onMo={(v) => xem.mo(v.id)}
-                dangMo={xem.id ? String(xem.id) : null}
-                nhom={
-                  tab === 'xong'
-                    ? undefined
-                    : {
-                        theo: (v) => nhomTheoHan(v.due_at),
-                        muc: THU_TU_NHOM.map((n) => ({
-                          gt: n,
-                          nhan: (
-                            <Badge variant="soft" color={n === 'qua_han' ? 'danger' : 'secondary'}>
-                              {NHAN_NHOM[n]}
-                            </Badge>
-                          ),
-                        })),
-                      }
-                }
-              />
-            </>
-          ) : (
-            rong || (
-              <KhungChon
-                khoaTrang={dong.map((v) => String(v.id))}
-                tong={dong.length}
-                bat={dangXem === 'bang'}
-                thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu, hien: dong.map((v) => v.id).join(',') }}
-              >
-                {dangXem === 'kanban' ? (
-                  <KanbanViec dong={dong} rows={loc} phu={vaiGan} moViec={xem.mo} lamMoi={lamMoi} />
-                ) : (
-                  <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} />
-                )}
-                <ThanhDaChon nhan="việc">
-                  <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
-                </ThanhDaChon>
-              </KhungChon>
-            )
-          )}
+          {/* Danh sách + Bảng đều chọn dòng được (ô chọn ẩn chờ rê); Kanban không có ô chọn. */}
+          <KhungChon
+            khoaTrang={dong.map((v) => String(v.id))}
+            tong={dong.length}
+            bat={dangXem !== 'kanban'}
+            thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu, hien: dong.map((v) => v.id).join(',') }}
+          >
+            {dangXem === 'danh-sach' ? (
+              <>
+                {rong}
+                <ListView
+                  aria-label="Việc của tôi"
+                  cot={cot}
+                  dong={dong}
+                  khoa={(v) => String(v.id)}
+                  onMo={(v) => xem.mo(v.id)}
+                  dangMo={xem.id ? String(xem.id) : null}
+                  nhom={
+                    tab === 'xong'
+                      ? undefined
+                      : {
+                          theo: (v) => nhomTheoHan(v.due_at),
+                          muc: THU_TU_NHOM.map((n) => ({
+                            gt: n,
+                            nhan: (
+                              <Badge variant="soft" color={n === 'qua_han' ? 'danger' : 'secondary'}>
+                                {NHAN_NHOM[n]}
+                              </Badge>
+                            ),
+                          })),
+                        }
+                  }
+                />
+              </>
+            ) : (
+              rong || (
+                <>
+                  {dangXem === 'kanban' ? (
+                    <KanbanViec dong={dong} rows={loc} phu={vaiGan} moViec={xem.mo} lamMoi={lamMoi} />
+                  ) : (
+                    <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} />
+                  )}
+                </>
+              )
+            )}
+            <ThanhDaChon nhan="việc">
+              <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
+            </ThanhDaChon>
+          </KhungChon>
         </CauHinhBangDs>
       </TrangDuLieu>
     </KhungXemViec>

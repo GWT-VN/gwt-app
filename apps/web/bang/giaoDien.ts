@@ -58,6 +58,7 @@ export type GiaoDienBang = {
   chon_khung: string
   chon_oTh: string
   chon_oTd: string
+  chon_oO: string                 // ô chọn NẰM TRONG ô của dòng không phải <tr> (ListView) — OChonO
   chon_checkbox: string
   chon_thanh: string
   chon_thanhSo: string            // "Đã chọn N …"
@@ -131,6 +132,7 @@ export const GIAO_DIEN_MAC_DINH: GiaoDienBang = {
   chon_khung: 'space-y-4',
   chon_oTh: 'w-10 px-4 py-2.5',
   chon_oTd: 'w-10 px-4 py-3',
+  chon_oO: 'inline-flex',
   chon_checkbox: 'align-middle accent-[#0e8c9a]',
   chon_thanh:
     'flex items-center gap-x-3 gap-y-1 flex-wrap rounded-[10px] border border-[#0c2a2e] bg-[#0c2a2e] px-3 py-2 text-sm text-white',
