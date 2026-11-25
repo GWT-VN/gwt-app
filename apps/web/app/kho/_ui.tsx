@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { linkTinDiscord, mauTrangThai, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
+import { chungTuEton, linkTinDiscord, mauTrangThai, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
 import { TuLamMoi } from './_tu-lam-moi'
 
 /** Google Sheet theo dõi sổ kho NX (cùng dữ liệu) — đổi Sheet thì sửa ở gwt-discord-bot/admin/kho/nx-chay.mjs (SHEET_NX) VÀ ở đây. */
@@ -76,6 +76,8 @@ export function LinkMa({ ma, kho = 'NX' }: { ma: string | null; kho?: string }) 
 }
 
 export function LinkTin({ id }: { id: string | null }) {
+  const ct = chungTuEton(id)
+  if (ct) return <span className="font-mono text-xs text-slate-500" title="Chứng từ Eton">{ct}</span>
   const u = linkTinDiscord(id)
   return u ? <a href={u} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 underline">tin ↗</a> : null
 }

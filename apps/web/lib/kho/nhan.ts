@@ -26,6 +26,11 @@ export function linkTinDiscord(id: string | null | undefined, kenh = KENH_KHO_NX
   return id && /^\d{15,22}$/.test(id) ? `https://discord.com/channels/${GUILD}/${kenh}/${id}` : null
 }
 
+/** Dòng sổ từ Eton: discord_msg_id = 'eton:<chứng từ>|<SKU>|…' → mã chứng từ; còn lại null. */
+export function chungTuEton(id: string | null): string | null {
+  return id?.startsWith('eton:') ? id.slice(5).split('|')[0] || null : null
+}
+
 export const LOAI = ['Nhập', 'Xuất', 'Điều chỉnh'] as const
 export const KHO = [{ ma: 'NX', ten: 'Kho Nguyễn Xiển' }, { ma: 'HCM', ten: 'Kho HCM' }] as const
 export const tenKho = (ma: string) => KHO.find((k) => k.ma === ma)?.ten ?? ma
