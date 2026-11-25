@@ -82,8 +82,14 @@ group by 1 order by 2 desc;
 
 ## Model GPT soạn trả lời
 
-Chưa chọn — điền sau khi đo trên ~30 câu khách thật (chạy `soanTuTra`, chỉ giữ kết quả trong bộ nhớ). Đặt vào `PANCAKE_TRA_LOI_MODEL`.
+Chọn **gpt-6.1-terra**: `PANCAKE_TRA_LOI_MODEL=gpt-6.1-terra`. Bot gọi `/v1/responses` (không phải chat/completions) vì gpt-5.6+/6.x từ chối function tools trên chat/completions.
 
-| model | số câu | chanTuGui rỗng/tổng | token |
-|---|---|---|---|
-| | | | |
+Đo 25/11/2026 trên 30 câu khách thật; "câu có ý không căn cứ" do gpt-5.5-pro chấm đối chiếu kết quả tool.
+
+| model | số câu | tự gửi được | câu có ý không căn cứ / ý | token vào/ra | giây/câu |
+|---|---|---|---|---|---|
+| gpt-6.1-terra (CHỌN) | 30 | 26 | 0 / 0 | 428k / 20k | 15,9 |
+| gpt-5.5 | 30 | 25 | 1 / 5 | 447k / 32k | 13,6 |
+| gpt-5.6-terra | 30 | 26 | 2 / 4 | 392k / 23k | 9,8 |
+| gpt-6.2-sol | 30 | 26 | 1 / 5 | 470k / 19k | 13,8 |
+| gpt-5.4-mini (đo trước khi sửa lỗi giá KM) | 30 | 23 | — (4 câu bị rào "căn cứ không khớp") | 399k / 17k | 3,5 |
