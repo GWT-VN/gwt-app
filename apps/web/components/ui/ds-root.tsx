@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { TAT_VIEN_FOCUS_CHUOT } from './focus-chuot'
 import { inter } from './font-inter'
 import { TooltipProvider } from './tooltip-provider'
 
@@ -38,6 +39,8 @@ export function DsRoot({
         // y body ds/nguon/bundle.css (14px/20px) — component không khai line-height (Avatar…) kế thừa đúng như artifact.
         // Tách lẻ, không shorthand `font:` (shorthand xoá ss03 ở dòng trên).
         'text-[14px] leading-[20px]',
+        // Focus đến từ chuột (menu/pop đóng trả focus về nút mở) không hiện vòng focus — focus-chuot.ts.
+        TAT_VIEN_FOCUS_CHUOT,
         className,
       )}
       style={{ colorScheme: theme }}

@@ -15,7 +15,7 @@ vi.mock('next/navigation', () => ({
 import { DsRoot } from './ds-root'
 import { Table, TableBody, TableCell, TableHeader, TableRow } from './table'
 import { ColCotBang, TieuDeCot } from './tieu-de-cot'
-import { docUrlCot, doVuaNoiDung, ghiUrlCot, RONG_O_CHON, useCotBang, type CotBang } from './use-cot-bang'
+import { docUrlCot, doVuaNoiDung, ghiUrlCot, giuCotKhoa, RONG_O_CHON, useCotBang, type CotBang } from './use-cot-bang'
 
 const COT: CotBang[] = [
   { id: 'khach', ten: 'Khách', kieu: 'thuong', khoa: true, rongToiDa: 200 },
@@ -192,4 +192,13 @@ test('URL: cot_rong ghi CHỈ cột kéo tay; mở lại giữ đúng số đã 
   nav.qs = sp.toString()
   render(<Man dong={DONG} url />)
   expect(rong()[1]).toBe('250px')
+})
+
+test('cột khoá đứng yên đầu bảng: URL cũ / kéo thả đẩy cột khác lên trước nó → trả về vị trí khai báo (CEO 26/11 "align giữ nguyên")', () => {
+  expect(giuCotKhoa(['may', 'khach', 'han'], COT)).toEqual(['khach', 'may', 'han'])
+  expect(giuCotKhoa(['han', 'may', 'khach'], COT)).toEqual(['khach', 'han', 'may'])
+  expect(docUrlCot(new URLSearchParams('cot_thu_tu=may,khach,han'), COT).thuTu).toEqual(['khach', 'may', 'han'])
+  nav.qs = 'cot_thu_tu=han,may,khach'
+  render(<Man dong={DONG} url />)
+  expect(document.querySelector('thead th[data-cot]')?.getAttribute('data-cot')).toBe('khach')
 })

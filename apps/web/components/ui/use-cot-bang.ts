@@ -57,6 +57,19 @@ export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
 /** Cột GHIM trái khi bảng cuộn ngang: cột `khoa` đứng ĐẦU hàng (vị trí 0 trong `hien`) — như cột nhãn của Twenty. */
 export const laGhim = (c: CotBang, viTri: number) => !!c.khoa && viTri === 0
 
+/**
+ * Cột `khoa` đứng YÊN ở vị trí khai báo (cột khoá đầu = cột ghim). Kéo thả (dnd-kit cho thả TRƯỚC cột khoá) hoặc URL
+ * `cot_thu_tu` cũ có thể đẩy cột khác lên trước nó → bảng mất `th[data-ghim]` và mất luôn bộ kiểu bảng ghim (ô tick thụt,
+ * tiêu đề viết hoa, kẻ trên) — CEO 26/11 "Align giữ nguyên bản gốc chứ sao đẩy lệch thế này". Gom về đây: mọi đường đổi
+ * thứ tự đi qua hàm này.
+ */
+export function giuCotKhoa(thuTu: string[], cot: CotBang[]): string[] {
+  const khoa = cot.flatMap((c, i) => (c.khoa && thuTu.includes(c.id) ? [[c.id, i] as const] : []))
+  const ra = thuTu.filter((x) => !khoa.some(([id]) => id === x))
+  for (const [id, i] of khoa) ra.splice(Math.min(i, ra.length), 0, id)
+  return ra
+}
+
 /** Bỏ `id` khỏi chỗ cũ, chèn trước (`trai`) / sau (`phai`) cột `dich`. Cột lạ hoặc trùng → giữ nguyên. */
 export function doiChoMang(thuTu: string[], id: string, dich: string, ben: BenTha): string[] {
   if (id === dich || !thuTu.includes(id) || !thuTu.includes(dich)) return thuTu
@@ -85,7 +98,7 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
   const theoId = new Map(cot.map((c) => [c.id, c]))
   const ds = (k: string) => (sp.get(k) ?? '').split(',').filter((x) => theoId.has(x))
   const thuTuUrl = [...new Set(ds(P_THU_TU))]
-  const thuTu = [...thuTuUrl, ...md.thuTu.filter((x) => !thuTuUrl.includes(x))]
+  const thuTu = giuCotKhoa([...thuTuUrl, ...md.thuTu.filter((x) => !thuTuUrl.includes(x))], cot)
   const keoTay: Record<string, number> = {}
   for (const cap of (sp.get(P_RONG) ?? '').split(',')) {
     const [id, so] = cap.split(':')
@@ -246,7 +259,8 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     () => Object.fromEntries(cot.map((c) => [c.id, s.keoTay[c.id] ?? c.rong ?? vua[c.id] ?? RONG_CHO_DO])),
     [cot, s.keoTay, vua],
   )
-  const doiCho = (id: string, dich: string, ben: BenTha) => setS((t) => ({ ...t, thuTu: doiChoMang(t.thuTu, id, dich, ben) }))
+  const doiCho = (id: string, dich: string, ben: BenTha) =>
+    setS((t) => ({ ...t, thuTu: giuCotKhoa(doiChoMang(t.thuTu, id, dich, ben), cot) }))
   const anHien = (id: string, hienCot?: boolean) =>
     setS((t) => {
       if (cot.find((c) => c.id === id)?.khoa) return t

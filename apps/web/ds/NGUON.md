@@ -144,6 +144,17 @@ segmented + pill tự khai `radius-full`, line + nút "+N Thêm" khai `radius-sm
 Twenty (CEO 26/11 "hạ sắc độ label xuống giống twenty"). Đo nền trắng: 3,23:1 — DƯỚI AA 4,5:1 cho chữ 12px (muted cũ
 6,5:1); chấp nhận theo lệnh CEO, ghi lại để quyết khi đẩy artifact.
 
+**Chờ đồng bộ lên artifact** — focus đến từ CHUỘT không vẽ vòng focus (26/11, CEO ảnh tiêu đề cột: "Nhớ sửa trạng thái
+focus"): Radix đóng menu/pop thì trả focus về nút mở (DS giữ — form đi tiếp bằng Tab), Chrome coi đó là `:focus-visible`
+→ vòng xanh dù chỉ bấm chuột. `focus-chuot.ts` gắn `data-focus-chuot` lên phần tử nhận focus khi lần nhập cuối là chuột,
+gõ phím gỡ ngay; `DsRoot` tắt `outline` của `[data-focus-chuot]:focus-visible` (chỉ outline — viền ô nhập vẽ bằng
+box-shadow giữ nguyên). Đo: đóng menu "Loại lỗi" bằng chuột → nút có focus, outline none; gõ phím → outline 2px ring.
+
+**Luật — cột `khoa` đứng yên** (26/11, CEO "Align giữ nguyên bản gốc chứ sao đẩy lệch thế này"): kéo thả cho thả cột
+khác TRƯỚC cột khoá → mất `th[data-ghim]` → mất cả bộ kiểu bảng ghim (ô tick thụt 8, tiêu đề viết hoa, kẻ trên, lề khung).
+`giuCotKhoa` (use-cot-bang.ts) đưa cột khoá về đúng vị trí khai báo ở MỌI đường đổi thứ tự (kéo thả, menu dời, URL
+`cot_thu_tu` cũ). Đổi gì ở bảng ghim: đo lại mép ô tick = mép chữ tab đầu, mép khung = mép chữ tiêu đề trang.
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,
