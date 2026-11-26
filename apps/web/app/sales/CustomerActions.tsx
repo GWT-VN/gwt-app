@@ -1,36 +1,48 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { xoaKhach } from './actions'
 
 export function CustomerActions({ customerCode }: { customerCode: string }) {
   const router = useRouter()
-  const [pending, start] = useTransition()
+  const [mo, setMo] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
-  function onDelete() {
-    if (!confirm(`Xoá khách ${customerCode}? Không hoàn tác được.`)) return
+  async function onDelete() {
     setErr(null)
-    start(async () => {
-      const res = await xoaKhach(customerCode)
-      if (res.ok) {
-        router.push('/sales/khach')
-        router.refresh()
-      } else setErr(res.error)
-    })
+    const res = await xoaKhach(customerCode)
+    if (!res.ok) {
+      setErr(res.error)
+      throw new Error(res.error)
+    }
+    router.push('/sales/khach')
+    router.refresh()
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <div className="flex items-center gap-2">
-        <Link href={`/sales/khach/${encodeURIComponent(customerCode)}/sua`} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Sửa</Link>
-        <button onClick={onDelete} disabled={pending} className="rounded-lg border border-rose-300 px-3 py-1.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-60">
-          {pending ? 'Đang xoá…' : 'Xoá'}
-        </button>
-      </div>
-      {err && <span className="max-w-xs text-right text-xs text-rose-600">{err}</span>}
+    <div className="flex flex-wrap items-center gap-2">
+      <Button variant="outline" size="sm" asChild>
+        <Link href={`/sales/khach/${encodeURIComponent(customerCode)}/sua`}>Sửa</Link>
+      </Button>
+      <Button variant="destructive" size="sm" onClick={() => { setErr(null); setMo(true) }}>
+        Xoá
+      </Button>
+      <ConfirmDialog
+        open={mo}
+        onOpenChange={setMo}
+        color="danger"
+        pha
+        tieuDe={`Xoá khách ${customerCode}?`}
+        moTa="Không hoàn tác được."
+        nutXacNhan="Xoá khách"
+        loi={err}
+        onXacNhan={onDelete}
+      />
     </div>
   )
 }

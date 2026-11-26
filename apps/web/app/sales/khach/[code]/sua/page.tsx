@@ -1,3 +1,5 @@
+import { SalesScreen } from '@/app/sales/_ui'
+import { PageHeader } from '@/components/ui/page-header'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
@@ -21,14 +23,12 @@ export default async function SuaKhachPage({ params }: { params: Promise<{ code:
   if (!initial) notFound()
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-[1100px] space-y-5 p-4 sm:p-6">
-        <div className="text-sm"><Link href={`/sales/khach/${encodeURIComponent(customerCode)}`} className="text-teal-700 hover:underline">← Hồ sơ khách</Link></div>
-        <header>
-          <h1 className="text-xl font-semibold text-slate-900">Sửa khách <span className="font-mono">{customerCode}</span></h1>
-        </header>
-        <div className="max-w-2xl"><CustomerForm mode="edit" customerCode={customerCode} initial={initial} kenh={kenh} nhanVien={nhanVien} khoaSheet={tuSheet} /></div>
+    <SalesScreen className="max-w-[1100px] space-y-5">
+      <div className="text-sm"><Link href={`/sales/khach/${encodeURIComponent(customerCode)}`} className="text-(--color-text-info) hover:underline">← Hồ sơ khách</Link></div>
+      <div>
+        <PageHeader tieuDe={<> Sửa khách <span className="font-mono">{customerCode}</span></>} />
       </div>
-    </main>
+      <div className="max-w-2xl"><CustomerForm mode="edit" customerCode={customerCode} initial={initial} kenh={kenh} nhanVien={nhanVien} khoaSheet={tuSheet} /></div>
+    </SalesScreen>
   )
 }

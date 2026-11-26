@@ -1,6 +1,18 @@
+import type { ComponentProps, ReactNode } from 'react'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Badge } from '@/components/ui/badge'
+import { PropertyRow } from '@/components/ui/property-list'
+import { cn } from '@/lib/utils'
 // Helper hiển thị + badge dùng chung cho khu Sales. Thuần trình bày (render ở server).
-import type { ReactNode } from 'react'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
+
+export function SalesScreen({ className, ...props }: ComponentProps<'main'>) {
+  return (
+    <ManV2>
+      <main className={cn('mx-auto w-full p-4 sm:p-6', className)} {...props} />
+    </ManV2>
+  )
+}
 
 const vnd = new Intl.NumberFormat('vi-VN')
 
@@ -25,34 +37,29 @@ export function fmtPhone(raw: string | null | undefined): string {
   return s
 }
 
-const TAB: Record<string, { nhan: string; lop: string }> = {
-  DON_POE: { nhan: 'POE', lop: 'bg-teal-100 text-teal-700' },
-  DON_POU: { nhan: 'POU', lop: 'bg-cyan-100 text-cyan-700' },
-  DON_OTHERS: { nhan: 'Khác', lop: 'bg-slate-100 text-slate-600' },
-  DON_TANG: { nhan: 'Tặng', lop: 'bg-amber-100 text-amber-700' },
-}
+const TAB = {
+  DON_POE: { nhan: 'POE', mau: 'success' },
+  DON_POU: { nhan: 'POU', mau: 'info' },
+  DON_OTHERS: { nhan: 'Khác', mau: 'secondary' },
+  DON_TANG: { nhan: 'Tặng', mau: 'warning' },
+} as const
 
 export function TabBadge({ tab }: { tab: string | null }) {
-  const t = (tab && TAB[tab]) || { nhan: tab || '—', lop: 'bg-slate-100 text-slate-500' }
-  return <span className={`inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold ${t.lop}`}>{t.nhan}</span>
+  const t = tab && Object.hasOwn(TAB, tab) ? TAB[tab as keyof typeof TAB] : null
+  return <Badge variant="soft" color={t?.mau ?? 'secondary'}>{t?.nhan ?? (tab || '—')}</Badge>
 }
 
 /** Badge trạng thái chung: tô màu theo từ khoá, không cần bảng cứng. */
 export function StatusBadge({ value }: { value: string | null }) {
-  if (!value) return <span className="text-slate-400">—</span>
+  if (!value) return <span className="text-muted-foreground">—</span>
   const v = value.toLowerCase()
-  let lop = 'bg-slate-100 text-slate-600'
-  if (/(đã thu|đủ|hoàn thành|xong|đã giao|done|active|kích hoạt)/.test(v)) lop = 'bg-emerald-100 text-emerald-700'
-  else if (/(chờ|đối soát|pending|xử lý|open|mới)/.test(v)) lop = 'bg-amber-100 text-amber-700'
-  else if (/(huỷ|hủy|lỗi|cancel|từ chối)/.test(v)) lop = 'bg-rose-100 text-rose-700'
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${lop}`}>{value}</span>
+  let mau: ComponentProps<typeof Badge>['color'] = 'secondary'
+  if (/(đã thu|đủ|hoàn thành|xong|đã giao|done|active|kích hoạt)/.test(v)) mau = 'success'
+  else if (/(chờ|đối soát|pending|xử lý|open|mới)/.test(v)) mau = 'warning'
+  else if (/(huỷ|hủy|lỗi|cancel|từ chối)/.test(v)) mau = 'danger'
+  return <Badge variant="soft" color={mau}>{value}</Badge>
 }
 
 export function Field({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div>
-      <dt className="text-[11px] uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className="mt-0.5 text-sm text-slate-800">{value == null || value === '' ? '—' : value}</dd>
-    </div>
-  )
+  return <PropertyRow nhan={label} trong="—">{value}</PropertyRow>
 }

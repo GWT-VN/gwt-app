@@ -1,9 +1,21 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { FieldLabel } from '@/components/ui/field'
+import { FormFooter, FormLayout } from '@/components/ui/form-layout'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+
+import { useEffect, useMemo, useRef, useState, useTransition, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChonTinh } from '@/components/ChonTinh'
 import { taoDon, suaDon, timKhachChoDon, boiCanhGia } from './actions'
+import { ChannelSelect } from './ChannelSelect'
 import { fmtVnd } from './_ui'
 import { deriveSourceTab } from './_calc'
 import {
@@ -55,10 +67,6 @@ function todayISO(): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
 }
 
-const inp =
-  'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100'
-const lbl = 'block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1'
-const card = 'rounded-xl border border-slate-200 bg-white p-4 shadow-sm'
 
 /** Ô tìm sản phẩm: gõ theo tên / mã nội bộ / mã cũ / mã đối tác, hoặc bấm chọn. */
 function ProductPicker({
@@ -97,31 +105,31 @@ function ProductPicker({
   }, [])
   return (
     <div className="relative" ref={boxRef}>
-      <input
-        className={inp}
+      <Input
+
         placeholder="Gõ tên / mã nội bộ / mã cũ… hoặc bấm chọn"
         value={open ? q : code ? `${name} (${code})` : ''}
         onFocus={() => { setOpen(true); setQ('') }}
         onChange={(e) => { setQ(e.target.value); setOpen(true) }}
       />
       {open && (
-        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-slate-200 bg-white text-sm shadow-lg">
-          {filtered.length === 0 && <div className="px-3 py-2 text-slate-400">Không thấy sản phẩm khớp.</div>}
+        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card text-sm shadow-lg">
+          {filtered.length === 0 && <div className="px-3 py-2 text-muted-foreground">Không thấy sản phẩm khớp.</div>}
           {filtered.map((c) => (
             <button
               key={c.internal_code}
               type="button"
               onClick={() => { onPick(c); setOpen(false); setQ('') }}
-              className="block w-full px-3 py-2 text-left hover:bg-slate-50"
+              className="block w-full px-3 py-2 text-left hover:bg-muted"
             >
-              <span className="text-slate-800">{c.name}</span>
-              <span className="ml-1 font-mono text-xs text-slate-400">
+              <span className="text-foreground">{c.name}</span>
+              <span className="ml-1 font-mono text-xs text-muted-foreground">
                 {c.internal_code}
                 {c.ma_cu ? ` · cũ ${c.ma_cu}` : ''}
               </span>
             </button>
           ))}
-          {filtered.length === 40 && <div className="px-3 py-1.5 text-[11px] text-slate-400">Gõ thêm để lọc hẹp hơn…</div>}
+          {filtered.length === 40 && <div className="px-3 py-1.5 text-[11px] text-muted-foreground">Gõ thêm để lọc hẹp hơn…</div>}
         </div>
       )}
     </div>
@@ -142,6 +150,7 @@ export function OrderForm({
   initial?: OrderFormInitial
 }) {
   const router = useRouter()
+  const fieldId = useId()
   const isEdit = mode === 'edit'
 
   const initHasNewCust = !!initial && !initial.customer_code && !!(initial.customer_name || initial.phone)
@@ -442,18 +451,19 @@ export function OrderForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <FormLayout onSubmit={submit} noValidate={false}>
+      {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       {/* Khách hàng */}
-      <div className={card}>
+      <Card>
         <div className="mb-3 flex items-center gap-4">
-          <span className="text-sm font-semibold text-slate-800">Khách hàng</span>
+          <span className="text-sm font-semibold text-foreground">Khách hàng</span>
           <div className="flex gap-1 text-sm">
             {(['existing', 'new'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setCustomerMode(m)}
-                className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-[#0e8c9a] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')}
+                className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent')}
               >
                 {m === 'existing' ? 'Khách cũ' : 'Khách mới'}
               </button>
@@ -466,25 +476,25 @@ export function OrderForm({
             <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
               <span>
                 <b>{selectedCust.name || '(chưa tên)'}</b> · {selectedCust.phone_chuan || selectedCust.phone} ·{' '}
-                <span className="font-mono text-xs text-slate-500">{selectedCust.customer_code}</span>
+                <span className="font-mono text-xs text-muted-foreground">{selectedCust.customer_code}</span>
               </span>
-              <button type="button" className="text-slate-500 hover:text-slate-700" onClick={() => setSelectedCust(null)}>Đổi</button>
+              <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedCust(null)}>Đổi</button>
             </div>
           ) : (
             <div className="relative">
-              <input className={inp} placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery} onChange={(e) => runSearch(e.target.value)} />
+              <Input placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery} onChange={(e) => runSearch(e.target.value)} />
               {(searching || custHits.length > 0) && (
-                <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg">
-                  {searching && <div className="px-3 py-2 text-sm text-slate-400">Đang tìm…</div>}
+                <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                  {searching && <div className="px-3 py-2 text-sm text-muted-foreground">Đang tìm…</div>}
                   {custHits.map((h) => (
-                    <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustHits([]); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50">
+                    <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustHits([]); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
                       <b>{h.name || '(chưa tên)'}</b>{' '}
-                      <span className="text-slate-500">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
-                      <span className="ml-1 font-mono text-xs text-slate-400">{h.customer_code}</span>
+                      <span className="text-muted-foreground">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
+                      <span className="ml-1 font-mono text-xs text-muted-foreground">{h.customer_code}</span>
                     </button>
                   ))}
                   {!searching && custQuery.length >= 2 && custHits.length === 0 && (
-                    <div className="px-3 py-2 text-sm text-slate-400">Không thấy — chuyển sang <b>Khách mới</b>?</div>
+                    <div className="px-3 py-2 text-sm text-muted-foreground">Không thấy — chuyển sang <b>Khách mới</b>?</div>
                   )}
                 </div>
               )}
@@ -492,21 +502,21 @@ export function OrderForm({
           )
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            <div><label className={lbl}>Tên khách</label><input className={inp} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nguyễn Văn A" /></div>
-            <div><label className={lbl}>SĐT</label><input className={inp} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="09xxxxxxxx" inputMode="tel" /></div>
-            <p className="text-xs text-slate-400 sm:col-span-2">Khách mới nhập tại đây sẽ nối theo SĐT; muốn cấp mã KA thì tạo ở trang Khách hàng.</p>
+            <div><FieldLabel htmlFor={fieldId + '-newName'} className="mb-1">Tên khách</FieldLabel><Input id={fieldId + '-newName'} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nguyễn Văn A" /></div>
+            <div><FieldLabel htmlFor={fieldId + '-newPhone'} className="mb-1">SĐT</FieldLabel><Input id={fieldId + '-newPhone'} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="09xxxxxxxx" inputMode="tel" /></div>
+            <p className="text-xs text-muted-foreground sm:col-span-2">Khách mới nhập tại đây sẽ nối theo SĐT; muốn cấp mã KA thì tạo ở trang Khách hàng.</p>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Sản phẩm */}
-      <div className={card}>
+      <Card>
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-semibold text-slate-800">Sản phẩm</span>
-          <button type="button" onClick={addLine} className="rounded-md bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-200">＋ Thêm dòng</button>
+          <span className="text-sm font-semibold text-foreground">Sản phẩm</span>
+          <Button variant="outline" size="sm" onClick={addLine}>＋ Thêm dòng</Button>
         </div>
         {/* Hàng tiêu đề: các ô số bên phải rất hẹp, không có nhãn thì không đoán được ô nào là gì. */}
-        <div className="mb-1 hidden grid-cols-12 gap-2 px-2 text-[11px] uppercase tracking-wide text-slate-400 sm:grid">
+        <div className="mb-1 hidden grid-cols-12 gap-2 px-2 text-[11px] uppercase tracking-wide text-muted-foreground sm:grid">
           <span className="col-span-5">Sản phẩm</span>
           <span className="col-span-2 text-right">Số lượng</span>
           <span className="col-span-2 text-right">Đơn giá (gồm VAT)</span>
@@ -535,12 +545,12 @@ export function OrderForm({
               </span>
             ))}
             {bcGia?.bac && bcGia.ctkm && (
-              <span className="text-xs text-teal-700">
+              <span className="text-xs text-(--color-text-info)">
                 (đại lý ăn giá bậc, <b>không</b> cộng thêm khuyến mãi bán lẻ)
               </span>
             )}
             {(bcGia?.soCtkmKhac ?? 0) > 0 && (
-              <span className="text-xs text-teal-700">
+              <span className="text-xs text-(--color-text-info)">
                 · còn {bcGia!.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
               </span>
             )}
@@ -548,7 +558,7 @@ export function OrderForm({
         )}
         <div className="space-y-2">
           {lines.map((l) => (
-            <div key={l.key} className="rounded-lg border border-slate-100 bg-slate-50/50 p-2">
+            <div key={l.key} className="rounded-lg border border-border bg-slate-50/50 p-2">
               <div className="grid grid-cols-12 items-center gap-2">
                 <div className="col-span-12 sm:col-span-5">
                   <ProductPicker
@@ -572,8 +582,8 @@ export function OrderForm({
                     }
                   />
                 </div>
-                <input type="number" min={0} className={inp + ' col-span-3 sm:col-span-2 text-right'} value={l.quantity} onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} title="Số lượng (DVBT = số lần)" />
-                <input type="number" min={0} step="any" className={inp + ' col-span-4 sm:col-span-2 text-right'} value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
+                <Input type="number" min={0} className="col-span-3 sm:col-span-2 text-right" value={l.quantity} onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} title="Số lượng (DVBT = số lần)" />
+                <Input type="number" min={0} step="any" className="col-span-4 sm:col-span-2 text-right" value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
                 <LineGiaNhan
                   g={goiY[l.key]}
                   daGo={Number(l.unit_price_vat) || 0}
@@ -581,8 +591,8 @@ export function OrderForm({
                   onApLai={(v) => setLine(l.key, { unit_price_vat: v, giaTuGo: false })}
                   tuDien={!l.giaTuGo}
                 />
-                <select
-                  className={inp + ' col-span-2 sm:col-span-1 text-right'}
+                <div className="col-span-2 sm:col-span-1">
+                  <NativeSelect className="text-right"
                   value={maVat(l.vat_pct, l.vat_loai)}
                   onChange={(e) => {
                     const v = VAT_OPTS.find((x) => x.ma === e.target.value)
@@ -591,13 +601,14 @@ export function OrderForm({
                   title="Thuế suất VAT — KCT: không chịu thuế (muối) · KAD: không áp dụng (bình gas)"
                 >
                   {VAT_OPTS.map((v) => (
-                    <option key={v.ma} value={v.ma}>{v.nhan}</option>
+                    <NativeSelectOption key={v.ma} value={v.ma}>{v.nhan}</NativeSelectOption>
                   ))}
-                </select>
-                <label className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1 text-xs text-slate-500" title="Hàng tặng"><input type="checkbox" checked={l.is_gift} onChange={(e) => setLine(l.key, { is_gift: e.target.checked })} />Quà</label>
-                <button type="button" onClick={() => removeLine(l.key)} className="col-span-1 text-slate-400 hover:text-rose-600" title="Xoá dòng">✕</button>
+                </NativeSelect>
+                </div>
+                <ChoiceLabel className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1 text-xs text-muted-foreground" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
+                <button type="button" onClick={() => removeLine(l.key)} className="col-span-1 text-muted-foreground hover:text-rose-600" title="Xoá dòng">✕</button>
               </div>
-              <input className={inp + ' mt-1.5 text-xs'} value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
+              <Input className="mt-1.5 text-xs" value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
             </div>
           ))}
         </div>
@@ -612,9 +623,9 @@ export function OrderForm({
             <div className="space-y-1.5">
               {quaCtkm.map((q) => (
                 <div key={`${q.ctkmId}|${q.ma}`} className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium text-slate-800">{q.ten}</span>
-                  <span className="font-mono text-[11px] text-slate-400">{q.ma}</span>
-                  <span className="text-slate-500">× {q.soLuong}</span>
+                  <span className="font-medium text-foreground">{q.ten}</span>
+                  <span className="font-mono text-[11px] text-muted-foreground">{q.ma}</span>
+                  <span className="text-muted-foreground">× {q.soLuong}</span>
                   {q.dieuKien && <span className="text-xs text-amber-700">· điều kiện: {q.dieuKien}</span>}
                   <span className="flex-1" />
                   {quaDaThem.has(q.ma) ? (
@@ -635,88 +646,89 @@ export function OrderForm({
           </div>
         )}
 
-        <p className="mt-2 text-xs text-slate-400"><b>DVBT</b> = mã bảo trì, SL = số lần. Nguồn đơn tự suy từ danh mục. Tick “Quà” → dòng tính 0 đ.</p>
-        <div className="mt-3 flex items-center justify-end gap-3 border-t border-slate-100 pt-3 text-sm">
-          <span className="text-slate-500">Tổng (VAT)</span>
-          <span className="text-lg font-semibold text-slate-900">{fmtVnd(total)}</span>
+        <p className="mt-2 text-xs text-muted-foreground"><b>DVBT</b> = mã bảo trì, SL = số lần. Nguồn đơn tự suy từ danh mục. Tick “Quà” → dòng tính 0 đ.</p>
+        <div className="mt-3 flex items-center justify-end gap-3 border-t border-border pt-3 text-sm">
+          <span className="text-muted-foreground">Tổng (VAT)</span>
+          <span className="text-lg font-semibold text-foreground">{fmtVnd(total)}</span>
         </div>
-      </div>
+      </Card>
 
       {/* Giao & thanh toán */}
-      <div className={card}>
-        <div className="mb-3 text-sm font-semibold text-slate-800">Giao hàng & thanh toán</div>
+      <Card>
+        <div className="mb-3 text-sm font-semibold text-foreground">Giao hàng & thanh toán</div>
         <div className="grid gap-3 sm:grid-cols-4">
-          <div><label className={lbl}>Ngày đơn</label><input type="date" className={inp} value={orderDate} onChange={(e) => setOrderDate(e.target.value)} required /></div>
-          <div><label className={lbl}>Kênh</label>
-            <select className={inp} value={channelId} onChange={(e) => setChannelId(e.target.value)}>
-              <option value="">— chọn —</option>
-              {channels.map((c) => <option key={c.id} value={c.id}>{[c.channel_l1, c.channel_l2].filter(Boolean).join(' · ')}</option>)}
-            </select>
+          <div><FieldLabel htmlFor={fieldId + '-orderDate'} className="mb-1">Ngày đơn</FieldLabel><Input id={fieldId + '-orderDate'} type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} required /></div>
+          <div><FieldLabel htmlFor={fieldId + '-channelId'} className="mb-1">Kênh</FieldLabel>
+            <ChannelSelect id={fieldId + '-channelId'} value={channelId} onChange={setChannelId} emptyLabel="Chọn kênh…"
+              options={channels.map((channel) => ({
+                gt: String(channel.id), nhan: [channel.channel_l1, channel.channel_l2].filter(Boolean).join(' · '), anMa: true,
+              }))}
+            />
           </div>
-          <div><label className={lbl}>Chi tiết kênh</label><input className={inp} value={chiTietKenh} onChange={(e) => setChiTietKenh(e.target.value)} placeholder="Tên shop / người giới thiệu…" /></div>
-          <div><label className={lbl}>Mã đơn đối tác</label><input className={inp} value={partnerCode} onChange={(e) => setPartnerCode(e.target.value)} placeholder="Shopee / HĐ…" /></div>
-          <div><label className={lbl}>Ngày lắp đặt</label><input type="date" className={inp} value={installDate} onChange={(e) => setInstallDate(e.target.value)} /></div>
-          <div><label className={lbl}>Tình trạng hàng</label><select className={inp} value={status} onChange={(e) => setStatus(e.target.value)}>{FULFILL_OPTS.map((o) => <option key={o} value={o}>{o}</option>)}</select></div>
-          <div><label className={lbl}>Thanh toán</label><select className={inp} value={payment} onChange={(e) => setPayment(e.target.value)}>{PAYMENT_OPTS.map((o) => <option key={o} value={o}>{o}</option>)}</select></div>
-          <div><label className={lbl}>Hình thức TT</label><select className={inp} value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>{PAYMETHOD_OPTS.map((o) => <option key={o} value={o}>{o || '— chọn —'}</option>)}</select></div>
-          <div><label className={lbl}>Mã vận đơn</label><input className={inp} value={shippingCode} onChange={(e) => setShippingCode(e.target.value)} /></div>
-          <div className="sm:col-span-2"><label className={lbl}>Link tracking</label><input className={inp} value={linkTracking} onChange={(e) => setLinkTracking(e.target.value)} placeholder="https://…" /></div>
-          <div><label className={lbl}>Số tiền đã cọc</label>
-            <input type="number" min={0} step="any" className={inp + ' text-right tabular-nums'} value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
+          <div><FieldLabel htmlFor={fieldId + '-chiTietKenh'} className="mb-1">Chi tiết kênh</FieldLabel><Input id={fieldId + '-chiTietKenh'} value={chiTietKenh} onChange={(e) => setChiTietKenh(e.target.value)} placeholder="Tên shop / người giới thiệu…" /></div>
+          <div><FieldLabel htmlFor={fieldId + '-partnerCode'} className="mb-1">Mã đơn đối tác</FieldLabel><Input id={fieldId + '-partnerCode'} value={partnerCode} onChange={(e) => setPartnerCode(e.target.value)} placeholder="Shopee / HĐ…" /></div>
+          <div><FieldLabel htmlFor={fieldId + '-installDate'} className="mb-1">Ngày lắp đặt</FieldLabel><Input id={fieldId + '-installDate'} type="date" value={installDate} onChange={(e) => setInstallDate(e.target.value)} /></div>
+          <div><FieldLabel htmlFor={fieldId + '-status'} className="mb-1">Tình trạng hàng</FieldLabel><NativeSelect id={fieldId + '-status'} value={status} onChange={(e) => setStatus(e.target.value)}>{FULFILL_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
+          <div><FieldLabel htmlFor={fieldId + '-payment'} className="mb-1">Thanh toán</FieldLabel><NativeSelect id={fieldId + '-payment'} value={payment} onChange={(e) => setPayment(e.target.value)}>{PAYMENT_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
+          <div><FieldLabel htmlFor={fieldId + '-payMethod'} className="mb-1">Hình thức TT</FieldLabel><NativeSelect id={fieldId + '-payMethod'} value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>{PAYMETHOD_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o || '— chọn —'}</NativeSelectOption>)}</NativeSelect></div>
+          <div><FieldLabel htmlFor={fieldId + '-shippingCode'} className="mb-1">Mã vận đơn</FieldLabel><Input id={fieldId + '-shippingCode'} value={shippingCode} onChange={(e) => setShippingCode(e.target.value)} /></div>
+          <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-linkTracking'} className="mb-1">Link tracking</FieldLabel><Input id={fieldId + '-linkTracking'} value={linkTracking} onChange={(e) => setLinkTracking(e.target.value)} placeholder="https://…" /></div>
+          <div><FieldLabel htmlFor={fieldId + '-tienCoc'} className="mb-1">Số tiền đã cọc</FieldLabel>
+            <Input id={fieldId + '-tienCoc'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
           </div>
-          <div><label className={lbl}>Còn cần thu</label>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-right text-sm font-semibold tabular-nums text-slate-700">
+          <div><FieldLabel className="mb-1">Còn cần thu</FieldLabel>
+            <div className="rounded-lg border border-border bg-muted px-3 py-2 text-right text-sm font-semibold tabular-nums text-foreground">
               {fmtVnd(conCanThu)}
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Tổng đơn − đã cọc, app tự tính</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Tổng đơn − đã cọc, app tự tính</p>
           </div>
-          <div className="sm:col-span-1"><label className={lbl}>Tỉnh / TP</label>
-            <ChonTinh value={province} onChange={setProvince} className={inp} />
+          <div className="sm:col-span-1"><FieldLabel className="mb-1">Tỉnh / TP</FieldLabel>
+            <ChonTinh value={province} onChange={setProvince} />
           </div>
-          <div className="sm:col-span-3"><label className={lbl}>Địa chỉ giao</label><input className={inp} value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+          <div className="sm:col-span-3"><FieldLabel htmlFor={fieldId + '-address'} className="mb-1">Địa chỉ giao</FieldLabel><Input id={fieldId + '-address'} value={address} onChange={(e) => setAddress(e.target.value)} /></div>
         </div>
-        <div className="mt-3"><label className={lbl}>Ghi chú đơn</label><textarea className={inp} rows={2} value={note} onChange={(e) => setNote(e.target.value)} /></div>
-      </div>
+        <div className="mt-3"><FieldLabel htmlFor={fieldId + '-note'} className="mb-1">Ghi chú đơn</FieldLabel><Textarea id={fieldId + '-note'} rows={2} value={note} onChange={(e) => setNote(e.target.value)} /></div>
+      </Card>
 
 
       {/* QUÀ TẶNG — Sheet để 2 ô CHỮ TỰ DO cho cả POE lẫn POU (chốt 27/07/2025, bỏ cách
           tách từng cột "Lõi PCF / Lõi NF / Bình gas" đánh 0/2). Giữ đúng như vậy: nhân viên
           ghi kiểu liệt kê, ép thành ô chọn là mất những ca ngoài danh sách. */}
       {(laPOE || laPOU) && (
-        <div className={card}>
-          <div className="mb-3 text-sm font-semibold text-slate-800">Quà tặng</div>
+        <Card>
+          <div className="mb-3 text-sm font-semibold text-foreground">Quà tặng</div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className={lbl}>Quà tặng đi kèm</label>
-              <textarea className={inp} rows={2} value={quaTang} onChange={(e) => setQuaTang(e.target.value)}
+              <FieldLabel htmlFor={fieldId + '-quaTang'} className="mb-1">Quà tặng đi kèm</FieldLabel>
+              <Textarea id={fieldId + '-quaTang'} rows={2} value={quaTang} onChange={(e) => setQuaTang(e.target.value)}
                 placeholder="02 lõi PCF / 01 lõi NF / 01 bình gas" />
             </div>
             <div>
-              <label className={lbl}>Sử dụng quà tặng</label>
-              <textarea className={inp} rows={2} value={dungQuaTang} onChange={(e) => setDungQuaTang(e.target.value)}
+              <FieldLabel htmlFor={fieldId + '-dungQuaTang'} className="mb-1">Sử dụng quà tặng</FieldLabel>
+              <Textarea id={fieldId + '-dungQuaTang'} rows={2} value={dungQuaTang} onChange={(e) => setDungQuaTang(e.target.value)}
                 placeholder="01 lõi PCF (27/6/2025)" />
             </div>
           </div>
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Ghi kiểu liệt kê như trong Sheet. Hàng tặng có mã và có tính vào đơn thì tick
             <b> Quà</b> ở dòng hàng bên trên, đừng ghi vào đây.
           </p>
-        </div>
+        </Card>
       )}
 
       {/* POU — theo dõi sau bán: bảo hành, hướng dẫn sử dụng, hoá đơn, đối soát. */}
       {coDoiSoat && (
-        <div className={card}>
-          <div className="mb-3 text-sm font-semibold text-slate-800">
+        <Card>
+          <div className="mb-3 text-sm font-semibold text-foreground">
             {laPOU ? 'Theo dõi sau bán (POU)' : 'Đối soát'}
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
             {laPOU && (
-              <div className="sm:col-span-2"><label className={lbl}>Email khách</label>
-                <input type="email" className={inp} value={emailDon} onChange={(e) => setEmailDon(e.target.value)} /></div>
+              <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-emailDon'} className="mb-1">Email khách</FieldLabel>
+                <Input id={fieldId + '-emailDon'} type="email" value={emailDon} onChange={(e) => setEmailDon(e.target.value)} /></div>
             )}
-            <div><label className={lbl}>Ngày nhận đối soát</label>
-              <input type="date" className={inp} value={ngayDoiSoat} onChange={(e) => setNgayDoiSoat(e.target.value)} /></div>
+            <div><FieldLabel htmlFor={fieldId + '-ngayDoiSoat'} className="mb-1">Ngày nhận đối soát</FieldLabel>
+              <Input id={fieldId + '-ngayDoiSoat'} type="date" value={ngayDoiSoat} onChange={(e) => setNgayDoiSoat(e.target.value)} /></div>
           </div>
           <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
             <OTick nhan="Đã đối soát" giaTri={doiSoat} doi={setDoiSoat} />
@@ -727,34 +739,34 @@ export function OrderForm({
               <OTick nhan="Xuất hoá đơn" giaTri={xuatHD} doi={setXuatHD} />
             </>}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* POE — đơn lọc tổng: hồ sơ, tiến độ lắp, khảo sát nhà, thông tin xuất hoá đơn.
           Gập lại vì 20 ô, mở ra chỉ khi cần. */}
       {laPOE && (
-        <div className={card}>
+        <Card>
           <button type="button" onClick={() => setMoPOE((v) => !v)}
-            className="flex w-full items-center justify-between text-left text-sm font-semibold text-slate-800">
+            className="flex w-full items-center justify-between text-left text-sm font-semibold text-foreground">
             <span>Hồ sơ &amp; lắp đặt (POE)</span>
-            <span className="text-slate-400">{moPOE ? '▲' : '▼ mở ra'}</span>
+            <span className="text-muted-foreground">{moPOE ? '▲' : '▼ mở ra'}</span>
           </button>
 
           {moPOE && (
             <div className="mt-3 space-y-4">
               <div className="grid gap-3 sm:grid-cols-4">
-                <div><label className={lbl}>Số HĐ</label><input className={inp} value={soHD} onChange={(e) => setSoHD(e.target.value)} /></div>
-                <div><label className={lbl}>Tên gọi khách</label><input className={inp} value={tenGoi} onChange={(e) => setTenGoi(e.target.value)} placeholder="gọi thân mật" /></div>
-                <div><label className={lbl}>Tên folder</label><input className={inp} value={tenFolder} onChange={(e) => setTenFolder(e.target.value)} /></div>
-                <div><label className={lbl}>Tên khách theo dõi</label><input className={inp} value={tenTheoDoi} onChange={(e) => setTenTheoDoi(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-soHD'} className="mb-1">Số HĐ</FieldLabel><Input id={fieldId + '-soHD'} value={soHD} onChange={(e) => setSoHD(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tenGoi'} className="mb-1">Tên gọi khách</FieldLabel><Input id={fieldId + '-tenGoi'} value={tenGoi} onChange={(e) => setTenGoi(e.target.value)} placeholder="gọi thân mật" /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tenFolder'} className="mb-1">Tên folder</FieldLabel><Input id={fieldId + '-tenFolder'} value={tenFolder} onChange={(e) => setTenFolder(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tenTheoDoi'} className="mb-1">Tên khách theo dõi</FieldLabel><Input id={fieldId + '-tenTheoDoi'} value={tenTheoDoi} onChange={(e) => setTenTheoDoi(e.target.value)} /></div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-4">
-                <div><label className={lbl}>Tiền sẽ thu</label>
-                  <input type="number" min={0} step="any" className={inp + ' text-right tabular-nums'} value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
-                <div><label className={lbl}>Tiến độ lắp đặt</label><input className={inp} value={tienDoLap} onChange={(e) => setTienDoLap(e.target.value)} /></div>
-                <div><label className={lbl}>Ngày hoàn thành lắp</label><input type="date" className={inp} value={ngayXongLap} onChange={(e) => setNgayXongLap(e.target.value)} /></div>
-                <div><label className={lbl}>Tủ điện</label><input className={inp} value={tuDien} onChange={(e) => setTuDien(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tienSeThu'} className="mb-1">Tiền sẽ thu</FieldLabel>
+                  <Input id={fieldId + '-tienSeThu'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tienDoLap'} className="mb-1">Tiến độ lắp đặt</FieldLabel><Input id={fieldId + '-tienDoLap'} value={tienDoLap} onChange={(e) => setTienDoLap(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-ngayXongLap'} className="mb-1">Ngày hoàn thành lắp</FieldLabel><Input id={fieldId + '-ngayXongLap'} type="date" value={ngayXongLap} onChange={(e) => setNgayXongLap(e.target.value)} /></div>
+                <div><FieldLabel htmlFor={fieldId + '-tuDien'} className="mb-1">Tủ điện</FieldLabel><Input id={fieldId + '-tuDien'} value={tuDien} onChange={(e) => setTuDien(e.target.value)} /></div>
               </div>
 
               <div className="flex flex-wrap gap-x-6 gap-y-2">
@@ -764,56 +776,54 @@ export function OrderForm({
                   chuThich="Hồ sơ bảo hành nằm bên CSKH — đây chỉ là cờ đánh dấu trên đơn" />
               </div>
 
-              <div className="border-t border-slate-100 pt-3">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="border-t border-border pt-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Khảo sát tại thời điểm lắp
                 </div>
                 <div className="grid gap-3 sm:grid-cols-4">
-                  <div><label className={lbl}>Version</label><input className={inp} value={phienBan} onChange={(e) => setPhienBan(e.target.value)} /></div>
-                  <div><label className={lbl}>Nghề nghiệp</label><input className={inp} value={ngheNghiep} onChange={(e) => setNgheNghiep(e.target.value)} /></div>
-                  <div><label className={lbl}>Ngày sinh</label><input type="date" className={inp} value={ngaySinhKH} onChange={(e) => setNgaySinhKH(e.target.value)} /></div>
-                  <div><label className={lbl}>Giới tính</label>
-                    <select className={inp} value={gioiTinh} onChange={(e) => setGioiTinh(e.target.value)}>
-                      <option value="">—</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
-                    </select></div>
-                  <div><label className={lbl}>Độ tuổi</label><input className={inp} value={doTuoi} onChange={(e) => setDoTuoi(e.target.value)} placeholder="30-40" /></div>
-                  <div><label className={lbl}>Loại nhà</label><input className={inp} value={loaiNha} onChange={(e) => setLoaiNha(e.target.value)} placeholder="Chung cư, nhà phố…" /></div>
-                  <div><label className={lbl}>Tình trạng nhà</label><input className={inp} value={tinhTrangNha} onChange={(e) => setTinhTrangNha(e.target.value)} placeholder="Đang ở, đang xây…" /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-phienBan'} className="mb-1">Version</FieldLabel><Input id={fieldId + '-phienBan'} value={phienBan} onChange={(e) => setPhienBan(e.target.value)} /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-ngheNghiep'} className="mb-1">Nghề nghiệp</FieldLabel><Input id={fieldId + '-ngheNghiep'} value={ngheNghiep} onChange={(e) => setNgheNghiep(e.target.value)} /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-ngaySinhKH'} className="mb-1">Ngày sinh</FieldLabel><Input id={fieldId + '-ngaySinhKH'} type="date" value={ngaySinhKH} onChange={(e) => setNgaySinhKH(e.target.value)} /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-gioiTinh'} className="mb-1">Giới tính</FieldLabel>
+                    <NativeSelect id={fieldId + '-gioiTinh'} value={gioiTinh} onChange={(e) => setGioiTinh(e.target.value)}>
+                      <NativeSelectOption value="">—</NativeSelectOption><NativeSelectOption value="Nam">Nam</NativeSelectOption><NativeSelectOption value="Nữ">Nữ</NativeSelectOption><NativeSelectOption value="Khác">Khác</NativeSelectOption>
+                    </NativeSelect></div>
+                  <div><FieldLabel htmlFor={fieldId + '-doTuoi'} className="mb-1">Độ tuổi</FieldLabel><Input id={fieldId + '-doTuoi'} value={doTuoi} onChange={(e) => setDoTuoi(e.target.value)} placeholder="30-40" /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-loaiNha'} className="mb-1">Loại nhà</FieldLabel><Input id={fieldId + '-loaiNha'} value={loaiNha} onChange={(e) => setLoaiNha(e.target.value)} placeholder="Chung cư, nhà phố…" /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-tinhTrangNha'} className="mb-1">Tình trạng nhà</FieldLabel><Input id={fieldId + '-tinhTrangNha'} value={tinhTrangNha} onChange={(e) => setTinhTrangNha(e.target.value)} placeholder="Đang ở, đang xây…" /></div>
                 </div>
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Đây là khảo sát <b>của lần lắp này</b>, không phải hồ sơ khách — một khách lắp
                   hai lần có thể khai khác nhau, nên lưu ở đơn.
                 </p>
               </div>
 
-              <div className="border-t border-slate-100 pt-3">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="border-t border-border pt-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Xuất hoá đơn cho công ty
                 </div>
                 <div className="grid gap-3 sm:grid-cols-4">
-                  <div className="sm:col-span-2"><label className={lbl}>Công ty xuất HĐ</label><input className={inp} value={ctyXuatHD} onChange={(e) => setCtyXuatHD(e.target.value)} /></div>
-                  <div><label className={lbl}>MST</label><input className={inp + ' font-mono'} value={mstXuatHD} onChange={(e) => setMstXuatHD(e.target.value)} /></div>
-                  <div className="sm:col-span-4"><label className={lbl}>Địa chỉ xuất HĐ</label><input className={inp} value={dcXuatHD} onChange={(e) => setDcXuatHD(e.target.value)} /></div>
+                  <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-ctyXuatHD'} className="mb-1">Công ty xuất HĐ</FieldLabel><Input id={fieldId + '-ctyXuatHD'} value={ctyXuatHD} onChange={(e) => setCtyXuatHD(e.target.value)} /></div>
+                  <div><FieldLabel htmlFor={fieldId + '-mstXuatHD'} className="mb-1">MST</FieldLabel><Input id={fieldId + '-mstXuatHD'} className="font-mono" value={mstXuatHD} onChange={(e) => setMstXuatHD(e.target.value)} /></div>
+                  <div className="sm:col-span-4"><FieldLabel htmlFor={fieldId + '-dcXuatHD'} className="mb-1">Địa chỉ xuất HĐ</FieldLabel><Input id={fieldId + '-dcXuatHD'} value={dcXuatHD} onChange={(e) => setDcXuatHD(e.target.value)} /></div>
                 </div>
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Chỉ điền khi hợp đồng ký với <b>công ty</b>. Tên / SĐT / địa chỉ khách ở trên
                   vẫn giữ của <b>người</b>, không thay bằng thông tin công ty.
                 </p>
               </div>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
-      {error && <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div>}
-
-      <div className="flex items-center gap-3">
-        <button type="submit" disabled={submitting} className="rounded-lg bg-[#0e8c9a] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0a6771] disabled:opacity-60">
+      <FormFooter>
+        <Button type="submit" loading={submitting} disabled={submitting}>
           {submitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo đơn'}
-        </button>
-        {!isEdit && <span className="text-xs text-slate-400">Mã đơn tự sinh (YYMMDD-{'{E|U|O}'}nnn) theo loại sản phẩm.</span>}
-      </div>
-    </form>
+        </Button>
+        {!isEdit && <span className="text-xs text-muted-foreground">Mã đơn tự sinh (YYMMDD-{'{E|U|O}'}nnn) theo loại sản phẩm.</span>}
+      </FormFooter>
+    </FormLayout>
   )
 }
 
@@ -836,7 +846,7 @@ function LineGiaNhan({
       {g.nguon === 'KHONG_RO' ? (
         <span className="text-amber-600">⚠ {g.nhan} — nhập tay giúp.</span>
       ) : (
-        <span className={g.nguon === 'NIEM_YET' ? 'text-slate-400' : 'text-teal-700'}>
+        <span className={g.nguon === 'NIEM_YET' ? 'text-muted-foreground' : 'text-(--color-text-info)'}>
           {g.nguon === 'NIEM_YET' ? 'Giá niêm yết' : `Theo ${g.nhan}`}
           {g.gia != null && <> · <b>{fmtVnd(g.gia)}</b></>}
         </span>
@@ -844,7 +854,7 @@ function LineGiaNhan({
       {/* Nói rõ con số trong ô là của app hay của người — để nhân viên biết đổi khách
           giữa chừng thì ô nào sẽ tự đổi theo, ô nào giữ nguyên số họ đã gõ. */}
       {tuDien && !lech && g.gia != null && (
-        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-500">app tự điền</span>
+        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">app tự điền</span>
       )}
       {!tuDien && (
         <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">giá gõ tay — app không tự đổi</span>
@@ -852,7 +862,7 @@ function LineGiaNhan({
       {duoi && <span className="text-rose-600">⚠ đang bán THẤP HƠN mức đã duyệt</span>}
       {lech && g.gia != null && (
         <button type="button" onClick={() => onApLai(g.gia as number)}
-          className="text-teal-700 underline hover:text-teal-900">áp lại giá này</button>
+          className="text-(--color-text-info) underline hover:text-teal-900">áp lại giá này</button>
       )}
     </div>
   )
@@ -864,8 +874,8 @@ function OTick({
   nhan, giaTri, doi, chuThich,
 }: { nhan: string; giaTri: boolean; doi: (v: boolean) => void; chuThich?: string }) {
   return (
-    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700" title={chuThich}>
-      <input type="checkbox" className="h-4 w-4 accent-[#0e8c9a]" checked={giaTri} onChange={(e) => doi(e.target.checked)} />
+    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-foreground" title={chuThich}>
+      <Checkbox checked={giaTri} onCheckedChange={(checked) => doi(checked === true)} />
       {nhan}
     </label>
   )

@@ -1,7 +1,15 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { FieldLabel } from '@/components/ui/field'
+import { FormFooter, FormLayout, FormGrid } from '@/components/ui/form-layout'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChonTinh } from '@/components/ChonTinh'
 import { ChonKenh } from '@/components/ChonKenh'
@@ -11,9 +19,6 @@ import { OChonGoiY } from '@/bang'
 import { taoKhach, suaKhach, traSdtSales, type NhanVienChon } from './actions'
 import type { CustomerInput } from './_types'
 
-const inp =
-  'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100'
-const lbl = 'block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1'
 
 /**
  * MỘT form cho CẢ tạo lẫn sửa, và cho cả trang riêng lẫn hộp thoại.
@@ -46,6 +51,7 @@ export function CustomerForm({
   onXong?: () => void
 }) {
   const router = useRouter()
+  const fieldId = useId()
   const isEdit = mode === 'edit'
 
   const [name, setName] = useState(initial?.name ?? '')
@@ -134,7 +140,8 @@ export function CustomerForm({
   const cauNhac = khop ? nhanKetQuaTra(khop) : null
 
   return (
-    <form onSubmit={submit} className="space-y-3">
+    <FormLayout onSubmit={submit} noValidate={false}>
+      {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       {khoaSheet && (
         <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
           <b>Khách từ Google Sheet.</b> Tên · SĐT · địa chỉ · tỉnh · công ty xuất hoá đơn · MST ·
@@ -144,19 +151,19 @@ export function CustomerForm({
         </div>
       )}
 
-      <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <Card className="space-y-3">
         {/* SĐT ĐẦU TIÊN — nhận diện người trước khi bắt gõ gì khác. */}
         <div>
-          <label className={lbl}>SĐT</label>
-          <input
-            className={`${inp} font-mono disabled:bg-slate-100 disabled:text-slate-500`} value={phone}
+          <FieldLabel htmlFor={fieldId + '-phone'} className="mb-1">SĐT</FieldLabel>
+          <Input id={fieldId + '-phone'}
+            className="font-mono" value={phone}
             inputMode="tel" placeholder="09xxxxxxxx" disabled={khoaSheet}
             onChange={(e) => { setPhone(e.target.value); setKhop(null) }}
             onBlur={traSdt}
           />
-          {dangTra && <p className="mt-1 text-xs text-slate-400">Đang tra SĐT…</p>}
+          {dangTra && <p className="mt-1 text-xs text-muted-foreground">Đang tra SĐT…</p>}
           {!isEdit && !dangTra && !khop && (
-            <p className="mt-1 text-xs text-slate-400">Gõ SĐT trước — app tra xem đã có khách này chưa, khỏi tạo trùng.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Gõ SĐT trước — app tra xem đã có khách này chưa, khỏi tạo trùng.</p>
           )}
         </div>
 
@@ -181,62 +188,60 @@ export function CustomerForm({
           </div>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <FormGrid>
           <div>
-            <label className={lbl}>Tên khách</label>
-            <input className={inp + ' disabled:bg-slate-100 disabled:text-slate-500'} value={name} disabled={khoaSheet} onChange={(e) => setName(e.target.value)} placeholder="Nguyễn Văn A" />
+            <FieldLabel htmlFor={fieldId + '-name'} className="mb-1">Tên khách</FieldLabel>
+            <Input id={fieldId + '-name'} value={name} disabled={khoaSheet} onChange={(e) => setName(e.target.value)} placeholder="Nguyễn Văn A" />
           </div>
           <div>
-            <label className={lbl}>Tỉnh / TP</label>
+            <FieldLabel className="mb-1">Tỉnh / TP</FieldLabel>
             {khoaSheet
-              ? <input className={inp + ' disabled:bg-slate-100 disabled:text-slate-500'} value={province} disabled />
+              ? <Input value={province} disabled />
               : <ChonTinh value={province} onChange={setProvince} />}
           </div>
-        </div>
+        </FormGrid>
 
         <div>
-          <label className={lbl}>Địa chỉ</label>
-          <input className={inp + ' disabled:bg-slate-100 disabled:text-slate-500'} value={address} disabled={khoaSheet} onChange={(e) => setAddress(e.target.value)} placeholder="Số nhà, đường, phường/xã" />
+          <FieldLabel htmlFor={fieldId + '-address'} className="mb-1">Địa chỉ</FieldLabel>
+          <Input id={fieldId + '-address'} value={address} disabled={khoaSheet} onChange={(e) => setAddress(e.target.value)} placeholder="Số nhà, đường, phường/xã" />
         </div>
-      </div>
+      </Card>
 
       {/* BUNG TẠI CHỖ — không rời màn, không mất chữ đã gõ. */}
       {!chiTiet ? (
-        <button type="button" onClick={() => setChiTiet(true)}
-          className="text-sm font-medium text-teal-700 hover:underline">
+        <Button variant="outline" className="self-start" onClick={() => setChiTiet(true)}>
           ＋ Thêm chi tiết (kênh, email, công ty, sales phụ trách, ghi chú)
-        </button>
+        </Button>
       ) : (
-        <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <Card className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800">Chi tiết</h3>
+            <h3 className="text-sm font-semibold text-foreground">Chi tiết</h3>
             {!isEdit && (
-              <button type="button" onClick={() => setChiTiet(false)}
-                className="text-xs text-slate-400 hover:text-slate-700">Thu gọn</button>
+              <Button variant="ghost" size="sm" onClick={() => setChiTiet(false)}>Thu gọn</Button>
             )}
           </div>
 
           <div>
-            <label className={lbl}>Kênh</label>
+            <FieldLabel className="mb-1">Kênh</FieldLabel>
             <ChonKenh kenh={kenh} value={kenhId} onChange={setKenhId} />
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Khách lẻ hưởng khuyến mãi theo kênh này. Đại lý thì gán bậc ở <b>Đối tác đại lý</b>, không đặt ở đây.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <FormGrid>
             <div>
-              <label className={lbl}>Email</label>
-              <input className={inp} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <FieldLabel htmlFor={fieldId + '-email'} className="mb-1">Email</FieldLabel>
+              <Input id={fieldId + '-email'} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className={lbl}>Ngày sinh</label>
-              <input className={inp + ' tabular-nums'} type="date" value={ngaySinh} onChange={(e) => setNgaySinh(e.target.value)} />
+              <FieldLabel htmlFor={fieldId + '-ngaySinh'} className="mb-1">Ngày sinh</FieldLabel>
+              <Input id={fieldId + '-ngaySinh'} className="tabular-nums" type="date" value={ngaySinh} onChange={(e) => setNgaySinh(e.target.value)} />
             </div>
-          </div>
+          </FormGrid>
 
           <div>
-            <label className={lbl}>Sales phụ trách</label>
+            <FieldLabel className="mb-1">Sales phụ trách</FieldLabel>
             <OChonGoiY
               giaTri={salesOwner || null}
               onChon={(v) => setSalesOwner(v ?? '')}
@@ -246,59 +251,56 @@ export function CustomerForm({
             />
           </div>
 
-          <div className="border-t border-slate-100 pt-3">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Thông tin công ty</h4>
-            <div className="grid gap-3 sm:grid-cols-2">
+          <div className="border-t border-border pt-3">
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Thông tin công ty</h4>
+            <FormGrid>
               <div>
-                <label className={lbl}>Công ty xuất hoá đơn</label>
-                <input className={inp + ' disabled:bg-slate-100 disabled:text-slate-500'} value={company} disabled={khoaSheet} onChange={(e) => setCompany(e.target.value)} />
-              </div>
-              <div>
-                <label className={lbl}>Mã số thuế</label>
-                <input className={`${inp} font-mono disabled:bg-slate-100 disabled:text-slate-500`} value={taxCode} disabled={khoaSheet} onChange={(e) => setTaxCode(e.target.value)} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className={lbl}>Địa chỉ công ty</label>
-                <input className={inp} value={diaChiCty} onChange={(e) => setDiaChiCty(e.target.value)} />
+                <FieldLabel htmlFor={fieldId + '-company'} className="mb-1">Công ty xuất hoá đơn</FieldLabel>
+                <Input id={fieldId + '-company'} value={company} disabled={khoaSheet} onChange={(e) => setCompany(e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>SĐT công ty</label>
-                <input className={`${inp} font-mono`} value={sdtCty} onChange={(e) => setSdtCty(e.target.value)} />
+                <FieldLabel htmlFor={fieldId + '-taxCode'} className="mb-1">Mã số thuế</FieldLabel>
+                <Input id={fieldId + '-taxCode'} className="font-mono" value={taxCode} disabled={khoaSheet} onChange={(e) => setTaxCode(e.target.value)} />
+              </div>
+              <div data-span="full">
+                <FieldLabel htmlFor={fieldId + '-diaChiCty'} className="mb-1">Địa chỉ công ty</FieldLabel>
+                <Input id={fieldId + '-diaChiCty'} value={diaChiCty} onChange={(e) => setDiaChiCty(e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>Email công ty</label>
-                <input className={inp} type="email" value={emailCty} onChange={(e) => setEmailCty(e.target.value)} />
+                <FieldLabel htmlFor={fieldId + '-sdtCty'} className="mb-1">SĐT công ty</FieldLabel>
+                <Input id={fieldId + '-sdtCty'} className="font-mono" value={sdtCty} onChange={(e) => setSdtCty(e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>Người đại diện</label>
-                <input className={inp} value={daiDien} onChange={(e) => setDaiDien(e.target.value)} placeholder="Người ký hợp đồng / hoá đơn" />
+                <FieldLabel htmlFor={fieldId + '-emailCty'} className="mb-1">Email công ty</FieldLabel>
+                <Input id={fieldId + '-emailCty'} type="email" value={emailCty} onChange={(e) => setEmailCty(e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>Chức danh</label>
-                <input className={inp} value={chucVu} onChange={(e) => setChucVu(e.target.value)} placeholder="Giám đốc, Kế toán trưởng…" />
+                <FieldLabel htmlFor={fieldId + '-daiDien'} className="mb-1">Người đại diện</FieldLabel>
+                <Input id={fieldId + '-daiDien'} value={daiDien} onChange={(e) => setDaiDien(e.target.value)} placeholder="Người ký hợp đồng / hoá đơn" />
               </div>
-            </div>
+              <div>
+                <FieldLabel htmlFor={fieldId + '-chucVu'} className="mb-1">Chức danh</FieldLabel>
+                <Input id={fieldId + '-chucVu'} value={chucVu} onChange={(e) => setChucVu(e.target.value)} placeholder="Giám đốc, Kế toán trưởng…" />
+              </div>
+            </FormGrid>
           </div>
 
           <div>
-            <label className={lbl}>Ghi chú</label>
-            <textarea className={`${inp} min-h-[72px] disabled:bg-slate-100 disabled:text-slate-500`} value={note} disabled={khoaSheet}
+            <FieldLabel htmlFor={fieldId + '-note'} className="mb-1">Ghi chú</FieldLabel>
+            <Textarea id={fieldId + '-note'} className="min-h-[72px]" value={note} disabled={khoaSheet}
               onChange={(e) => setNote(e.target.value)} placeholder="Lưu ý khi chăm sóc khách này…" />
           </div>
-        </div>
+        </Card>
       )}
 
-      {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
-
-      <div className="flex items-center gap-3">
-        <button type="submit" disabled={submitting}
-          className="rounded-lg bg-[#0e8c9a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a6771] disabled:opacity-50">
+      <FormFooter>
+        <Button type="submit" loading={submitting} disabled={submitting}>
           {submitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo khách'}
-        </button>
+        </Button>
         {onXong && (
-          <button type="button" onClick={onXong} className="text-sm text-slate-500 hover:text-slate-800">Huỷ</button>
+          <Button variant="outline" disabled={submitting} onClick={onXong}>Huỷ</Button>
         )}
-      </div>
-    </form>
+      </FormFooter>
+    </FormLayout>
   )
 }

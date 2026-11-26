@@ -1,5 +1,9 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
@@ -26,6 +30,7 @@ export function CtkmActions({
   const router = useRouter()
   const [dangChay, batDau] = useTransition()
   const [loi, setLoi] = useState<string | null>(null)
+  const [moXoa, setMoXoa] = useState(false)
 
   function chay(fn: () => Promise<{ ok: boolean; error?: string }>) {
     setLoi(null)
@@ -36,76 +41,71 @@ export function CtkmActions({
     })
   }
 
-  const nut = 'rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-slate-300 disabled:opacity-50'
+  async function xoaBanNhap() {
+    setLoi(null)
+    const r = await xoaNhap(id)
+    if (!r.ok) {
+      const thongBao = r.error ?? 'Không thực hiện được.'
+      setLoi(thongBao)
+      throw new Error(thongBao)
+    }
+    router.refresh()
+  }
 
   return (
-    <div className="border-t border-slate-200 bg-slate-50/70 px-4 py-2.5">
-      {loi && <p className="mb-2 rounded bg-rose-50 px-2 py-1 text-xs text-rose-700">{loi}</p>}
+    <div className="border-t border-border bg-muted px-4 py-2.5">
+      {loi && !moXoa && <Alert color="danger" className="mb-2"><AlertDescription>{loi}</AlertDescription></Alert>}
       <div className="flex flex-wrap items-center gap-2">
         {quyen.soan && (
-          <Link href={`/sales/ctkm/${id}`} className={nut}>
-            {trangThai === 'nhap' ? 'Sửa' : 'Xem chi tiết'}
-          </Link>
-        )}
-
-        {quyen.soan && (
-          <button
-            type="button"
-            disabled={dangChay}
-            className={nut}
-            onClick={() => chay(() => nhanBan(id, thangSau()))}
-            title={`Chép "${ten}" thành bản nháp cho tháng sau`}
-          >
-            ⧉ Nhân bản sang tháng sau
-          </button>
+          <>
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/sales/ctkm/${id}`}>{trangThai === 'nhap' ? 'Sửa' : 'Xem chi tiết'}</Link>
+            </Button>
+            <Button size="sm" variant="outline" disabled={dangChay}
+              onClick={() => chay(() => nhanBan(id, thangSau()))}
+              title={`Chép "${ten}" thành bản nháp cho tháng sau`}>
+              ⧉ Nhân bản sang tháng sau
+            </Button>
+          </>
         )}
 
         <span className="flex-1" />
 
-        {trangThai === 'nhap' &&
-          (quyen.duyet ? (
-            <button
-              type="button"
-              disabled={dangChay}
-              className="rounded-md bg-[#0e8c9a] px-3 py-1 text-xs font-semibold text-white hover:bg-[#0a6771] disabled:opacity-50"
-              onClick={() => chay(() => banHanh(id))}
-            >
+        {trangThai === 'nhap' && (
+          quyen.duyet ? (
+            <Button size="sm" disabled={dangChay} onClick={() => chay(() => banHanh(id))}>
               ✓ Ban hành
-            </button>
+            </Button>
           ) : (
-            // Không có quyền duyệt thì nói rõ VÌ SAO không thấy nút, thay vì để trống.
-            <span className="text-xs text-slate-500" title="Chỉ người có quyền duyệt mới ban hành được">
-              Chờ duyệt
-            </span>
-          ))}
+            <span className="text-xs text-muted-foreground" title="Chỉ người có quyền duyệt mới ban hành được">Chờ duyệt</span>
+          )
+        )}
 
-        {/* Xoá HẲN — chỉ bản nháp. Bản đã ban hành dùng "Kết thúc sớm": đơn cũ cần giữ
-            dấu vết vì sao được giá đó. */}
         {trangThai === 'nhap' && quyen.soan && (
-          <button
-            type="button"
-            disabled={dangChay}
-            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50"
-            onClick={() => {
-              if (confirm(`Xoá hẳn bản nháp "${ten}"?\n\nKênh, sản phẩm và quà của chương trình cũng mất theo. Không khôi phục được.`))
-                chay(() => xoaNhap(id))
-            }}
-            title="Xoá hẳn bản nháp này"
-          >
-            🗑 Xoá nháp
-          </button>
+          <>
+            <Button size="sm" variant="outline" disabled={dangChay} onClick={() => { setLoi(null); setMoXoa(true) }}>
+              Xoá nháp
+            </Button>
+            <ConfirmDialog
+              open={moXoa}
+              onOpenChange={setMoXoa}
+              color="danger"
+              pha
+              tieuDe={`Xoá hẳn bản nháp "${ten}"?`}
+              moTa="Kênh, sản phẩm và quà của chương trình cũng mất theo. Không khôi phục được."
+              nutXacNhan="Xoá nháp"
+              loi={loi}
+              onXacNhan={xoaBanNhap}
+            />
+          </>
         )}
 
         {trangThai === 'ban_hanh' && quyen.duyet && (
-          <button
-            type="button"
-            disabled={dangChay}
-            className="rounded-md border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:border-rose-300 hover:text-rose-700 disabled:opacity-50"
+          <Button size="sm" variant="outline" disabled={dangChay}
             onClick={() => chay(() => ketThucSom(id))}
-            title="Dừng từ hôm nay. Không xoá — đơn cũ vẫn tra lại được."
-          >
+            title="Dừng từ hôm nay. Không xoá — đơn cũ vẫn tra lại được.">
             Kết thúc sớm
-          </button>
+          </Button>
         )}
       </div>
     </div>

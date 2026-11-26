@@ -1,3 +1,8 @@
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Table, TableWrap, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { SalesScreen, TabBadge } from './_ui'
+import { PageHeader } from '@/components/ui/page-header'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
@@ -14,7 +19,6 @@ export const dynamic = 'force-dynamic'
 const vnd = new Intl.NumberFormat('vi-VN')
 const fmtVnd = (n: number) => (n ? vnd.format(Math.round(n)) + ' ₫' : '—')
 const fmtDate = (d: string | null) => hienNgay(d)
-const TAB_LABEL: Record<string, string> = { DON_POE: 'POE', DON_POU: 'POU', DON_OTHERS: 'Khác', DON_TANG: 'Tặng' }
 const TABS = [
   { key: '', label: 'Tất cả' },
   { key: 'DON_POE', label: 'POE' },
@@ -57,116 +61,108 @@ export default async function SalesDonPage({ searchParams }: { searchParams: Pro
   ].filter(Boolean) as { nhan: string; giaTri: string }[]
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-[1100px] space-y-4 p-4 sm:p-6">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">Đơn hàng</h1>
-            <p className="text-sm text-slate-500">{rows.length} đơn · đơn tag &ldquo;App&rdquo; = tạo trên app (sửa/xoá được)</p>
+    <SalesScreen className="max-w-[1100px] space-y-4">
+      <PageHeader
+        tieuDe="Đơn hàng"
+        meta={[rows.length + ' đơn', 'Đơn gắn nhãn “App” được tạo trên app và có thể sửa hoặc xoá']}
+        hanhDong={<Button asChild><Link href="/sales/don/moi">＋ Tạo đơn</Link></Button>}
+      />
+
+      {/* Mọi component dưới đây đọc useSearchParams -> BẮT BUỘC bọc Suspense,
+          thiếu là `next build` fail chứ không phải cảnh báo. */}
+      <Suspense fallback={<div className="h-24" />}>
+        <div className="space-y-2 rounded-xl border border-border bg-card p-3 shadow-sm">
+          <OTimKiem placeholder="Tìm mã đơn / tên khách / sản phẩm…" />
+          <div className="flex flex-wrap items-center gap-2">
+            <LocNgay nhan="Ngày đơn" />
           </div>
-          <Link href="/sales/don/moi" className="rounded-lg bg-[#0e8c9a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a6771]">＋ Tạo đơn</Link>
-        </header>
-
-        {/* Mọi component dưới đây đọc useSearchParams -> BẮT BUỘC bọc Suspense,
-            thiếu là `next build` fail chứ không phải cảnh báo. */}
-        <Suspense fallback={<div className="h-24" />}>
-          <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <OTimKiem placeholder="Tìm mã đơn / tên khách / sản phẩm…" />
-            <div className="flex flex-wrap items-center gap-2">
-              <LocNgay nhan="Ngày đơn" />
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <BoLocChon param="tt" nhan="Tình trạng" tuyChon={FULFILL_OPTS.map((o) => ({ giaTri: o, nhan: o }))} />
-              <BoLocChon param="tp" nhan="Thanh toán" tuyChon={PAYMENT_OPTS.map((o) => ({ giaTri: o, nhan: o }))} />
-              <BoLocChon param="kenh" nhan="Kênh" tuyChon={kenhOpts.map((o) => ({ giaTri: o, nhan: o }))} />
-              <BoLocChon param="kenh2" nhan="Kênh chi tiết" tuyChon={kenh2Opts} />
-              {/* Sản phẩm dùng ô GÕ-ĐỂ-GỢI-Ý: danh mục quá dài để cuộn tay. Gõ mã hoặc tên đều ra. */}
-              <BoLocGoiY param="sp" nhan="Sản phẩm" tuyChon={spOpts.map((o) => ({ giaTri: o.ma, nhan: o.ten }))} />
-            </div>
-          </div>
-        </Suspense>
-
-        <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={rows.length} nhan="đơn" />
-
-        {sp && (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-            Đang lọc theo sản phẩm <b>{sp}</b> — cột <b>Tổng</b> chỉ cộng các dòng khớp sản phẩm này,
-            không phải tổng cả đơn.
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((t) => {
-            const params = new URLSearchParams()
-            for (const [k, v] of Object.entries(sp0)) if (k !== 'tab' && v) params.set(k, v)
-            if (t.key) params.set('tab', t.key)
-            const href = '/sales' + (params.toString() ? `?${params.toString()}` : '')
-            const on = curTab === t.key
-            return (
-              <Link
-                key={t.key || 'all'}
-                href={href}
-                className={'rounded-full border px-3 py-1.5 text-xs font-medium ' + (on ? 'border-[#0e8c9a] bg-[#0e8c9a] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300')}
-              >
-                {t.label}
-              </Link>
-            )
-          })}
-        </div>
-
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="px-3 py-2.5 font-medium">Mã đơn</th>
-                  <th className="px-3 py-2.5 font-medium">Ngày</th>
-                  <th className="px-3 py-2.5 font-medium">Khách</th>
-                  <th className="px-3 py-2.5 font-medium">Tình trạng</th>
-                  <th className="px-3 py-2.5 font-medium">Thanh toán</th>
-                  <th className="px-3 py-2.5 text-right font-medium">Tổng (VAT)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-3 py-10 text-center text-slate-400">Không có đơn nào khớp.</td>
-                  </tr>
-                ) : (
-                  rows.map((o) => (
-                    <tr key={o.order_code} className="hover:bg-slate-50">
-                      <td className="whitespace-nowrap px-3 py-2.5">
-                        <Link
-                          href={`/sales/don/${encodeURIComponent(o.order_code)}`}
-                          className="inline-flex items-center gap-2 font-medium text-teal-700 hover:underline"
-                        >
-                          {o.source_tab && (
-                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">
-                              {TAB_LABEL[o.source_tab] ?? o.source_tab}
-                            </span>
-                          )}
-                          {o.order_code}
-                          {o.is_app && (
-                            <span className="rounded bg-teal-100 px-1.5 py-0.5 text-[10px] font-semibold text-teal-700">App</span>
-                          )}
-                        </Link>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 text-slate-600">{fmtDate(o.order_date)}</td>
-                      <td className="px-3 py-2.5 text-slate-700">
-                        {o.customer_name || '—'}
-                        {o.province ? <span className="block text-xs text-slate-400">{o.province}</span> : null}
-                      </td>
-                      <td className="px-3 py-2.5 text-slate-600">{o.fulfillment_status || '—'}</td>
-                      <td className="px-3 py-2.5 text-slate-600">{o.payment_status || '—'}</td>
-                      <td className="whitespace-nowrap px-3 py-2.5 text-right font-medium text-slate-900">{fmtVnd(o.total_vat)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="flex flex-wrap items-center gap-2">
+            <BoLocChon param="tt" nhan="Tình trạng" tuyChon={FULFILL_OPTS.map((o) => ({ giaTri: o, nhan: o }))} />
+            <BoLocChon param="tp" nhan="Thanh toán" tuyChon={PAYMENT_OPTS.map((o) => ({ giaTri: o, nhan: o }))} />
+            <BoLocChon param="kenh" nhan="Kênh" tuyChon={kenhOpts.map((o) => ({ giaTri: o, nhan: o }))} />
+            <BoLocChon param="kenh2" nhan="Kênh chi tiết" tuyChon={kenh2Opts} />
+            {/* Sản phẩm dùng ô GÕ-ĐỂ-GỢI-Ý: danh mục quá dài để cuộn tay. Gõ mã hoặc tên đều ra. */}
+            <BoLocGoiY param="sp" nhan="Sản phẩm" tuyChon={spOpts.map((o) => ({ giaTri: o.ma, nhan: o.ten }))} />
           </div>
         </div>
+      </Suspense>
+
+      <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={rows.length} nhan="đơn" />
+
+      {sp && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          Đang lọc theo sản phẩm <b>{sp}</b> — cột <b>Tổng</b> chỉ cộng các dòng khớp sản phẩm này,
+          không phải tổng cả đơn.
+        </p>
+      )}
+
+      <div className="flex flex-wrap gap-2">
+        {TABS.map((t) => {
+          const params = new URLSearchParams()
+          for (const [k, v] of Object.entries(sp0)) if (k !== 'tab' && v) params.set(k, v)
+          if (t.key) params.set('tab', t.key)
+          const href = '/sales' + (params.toString() ? `?${params.toString()}` : '')
+          const on = curTab === t.key
+          return (
+            <Link
+              key={t.key || 'all'}
+              href={href}
+              className={'rounded-full border px-3 py-1.5 text-xs font-medium ' + (on ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-border')}
+            >
+              {t.label}
+            </Link>
+          )
+        })}
       </div>
-    </main>
+
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <TableWrap>
+          <Table variant="thuong">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-3 py-2.5 font-medium">Mã đơn</TableHead>
+                <TableHead className="px-3 py-2.5 font-medium">Ngày</TableHead>
+                <TableHead className="px-3 py-2.5 font-medium">Khách</TableHead>
+                <TableHead className="px-3 py-2.5 font-medium">Tình trạng</TableHead>
+                <TableHead className="px-3 py-2.5 font-medium">Thanh toán</TableHead>
+                <TableHead className="px-3 py-2.5 text-right font-medium">Tổng (VAT)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="px-3 py-10 text-center text-muted-foreground">Không có đơn nào khớp.</TableCell>
+                </TableRow>
+              ) : (
+                rows.map((o) => (
+                  <TableRow key={o.order_code} className="hover:bg-muted">
+                    <TableCell className="whitespace-nowrap px-3 py-2.5">
+                      <Link
+                        href={`/sales/don/${encodeURIComponent(o.order_code)}`}
+                        className="inline-flex items-center gap-2 font-medium text-(--color-text-info) hover:underline"
+                      >
+                        {o.source_tab && <TabBadge tab={o.source_tab} />}
+                        {o.order_code}
+                        {o.is_app && (
+                          <Badge variant="soft" color="info">App</Badge>
+                        )}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">{fmtDate(o.order_date)}</TableCell>
+                    <TableCell className="px-3 py-2.5 text-foreground">
+                      {o.customer_name || '—'}
+                      {o.province ? <span className="block text-xs text-muted-foreground">{o.province}</span> : null}
+                    </TableCell>
+                    <TableCell className="px-3 py-2.5 text-muted-foreground">{o.fulfillment_status || '—'}</TableCell>
+                    <TableCell className="px-3 py-2.5 text-muted-foreground">{o.payment_status || '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap px-3 py-2.5 text-right font-medium text-foreground">{fmtVnd(o.total_vat)}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableWrap>
+      </div>
+    </SalesScreen>
   )
 }

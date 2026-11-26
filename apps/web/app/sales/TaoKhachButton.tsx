@@ -1,5 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Kenh } from '@/app/actions'
@@ -20,28 +23,14 @@ export function TaoKhachButton({ kenh, nhanVien }: { kenh: Kenh[]; nhanVien: Nha
   const router = useRouter()
 
   return (
-    <>
-      <button type="button" onClick={() => setMo(true)}
-        className="rounded-lg bg-[#0e8c9a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a6771]">
-        ＋ Tạo khách
-      </button>
-
-      {mo && (
-        // overflow-y-auto: bung hết chi tiết thì form cao hơn màn hình, phải cuộn được.
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 p-4"
-          role="dialog" aria-modal="true" aria-label="Tạo khách mới">
-          <div className="mx-auto w-full max-w-2xl">
-            <div className="flex items-center justify-between gap-3 rounded-t-xl bg-white px-5 py-3">
-              <h2 className="font-semibold text-slate-900">Tạo khách mới</h2>
-              <button type="button" onClick={() => setMo(false)}
-                className="text-slate-400 hover:text-slate-900" aria-label="Đóng">✕</button>
-            </div>
-            <div className="rounded-b-xl bg-slate-50 p-4">
-              <CustomerForm mode="create" kenh={kenh} nhanVien={nhanVien} onXong={() => { setMo(false); router.refresh() }} />
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <Dialog open={mo} onOpenChange={setMo}>
+      <DialogTrigger asChild><Button>＋ Tạo khách</Button></DialogTrigger>
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()} aria-describedby={undefined} className="sm:max-w-2xl">
+        <DialogHeader><DialogTitle>Tạo khách mới</DialogTitle></DialogHeader>
+        <DialogBody>
+          <CustomerForm mode="create" kenh={kenh} nhanVien={nhanVien} onXong={() => { setMo(false); router.refresh() }} />
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }

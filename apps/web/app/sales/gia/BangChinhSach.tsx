@@ -1,5 +1,14 @@
 'use client'
 
+import { Checkbox } from '@/components/ui/checkbox'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+
+import { Table, TableWrap, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { luuOChinhSach, luuHangLoat, type DongChinhSach, type DongLichSuGia } from './actions'
@@ -27,7 +36,7 @@ export function BangChinhSach({
   const [xemLichSu, setXemLichSu] = useState(false)
 
   function doiTick(ma: string) {
-    setTick((t) => { const n = new Set(t); n.has(ma) ? n.delete(ma) : n.add(ma); return n })
+    setTick((t) => { const n = new Set(t); if (n.has(ma)) n.delete(ma); else n.add(ma); return n })
   }
   const tickHet = ds.length > 0 && tick.size === ds.length
 
@@ -78,38 +87,37 @@ export function BangChinhSach({
     })
   }
 
-  const inpO = 'w-[86px] rounded border border-slate-300 px-2 py-1 text-right text-sm tabular-nums disabled:bg-slate-50 disabled:text-slate-400'
+  const inpO = 'text-right tabular-nums'
 
   return (
     <div className="space-y-2">
-      {loi && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{loi}</p>}
+      {loi && <Alert color="danger"><AlertDescription>{loi}</AlertDescription></Alert>}
 
       {/* SỬA HÀNG LOẠT — CEO chốt 22/08: các mã thường giống nhau, phải đặt được một lượt. */}
       {coQuyenSoan && (
         <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 transition ${
-          tick.size ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-white'}`}>
-          <span className="text-sm font-semibold text-slate-800">
+          tick.size ? 'border-teal-300 bg-teal-50' : 'border-border bg-card'}`}>
+          <span className="text-sm font-semibold text-foreground">
             {tick.size ? `Đã chọn ${tick.size} mã` : 'Sửa hàng loạt'}
           </span>
           {tick.size === 0 ? (
-            <span className="text-xs text-slate-500">Tick vào các mã bên dưới để đặt cùng một mức giảm.</span>
+            <span className="text-xs text-muted-foreground">Tick vào các mã bên dưới để đặt cùng một mức giảm.</span>
           ) : (
             <>
-              <span className="text-sm text-slate-600">đặt</span>
-              <select className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" value={bacHL}
+              <span className="text-sm text-muted-foreground">đặt</span>
+              <div className="min-w-40"><NativeSelect aria-label="Bậc áp hàng loạt" value={bacHL}
                 onChange={(e) => setBacHL(e.target.value as Bac)}>
-                {BAC.map((b) => <option key={b.ma} value={b.ma}>{b.nhan}</option>)}
-              </select>
-              <span className="text-sm text-slate-600">giảm</span>
-              <input type="number" className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm tabular-nums"
-                placeholder="%" value={pctHL} onChange={(e) => setPctHL(e.target.value)} />
-              <button type="button" disabled={dangChay} onClick={apHangLoat}
-                className="rounded-lg bg-[#0e8c9a] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#0a6771] disabled:opacity-50">
+                {BAC.map((b) => <NativeSelectOption key={b.ma} value={b.ma}>{b.nhan}</NativeSelectOption>)}
+              </NativeSelect></div>
+              <span className="text-sm text-muted-foreground">giảm</span>
+              <Input type="number" className="w-24 text-right tabular-nums"
+                aria-label="Mức giảm áp hàng loạt" placeholder="%" value={pctHL} onChange={(e) => setPctHL(e.target.value)} />
+              <Button disabled={dangChay} onClick={apHangLoat}>
                 {dangChay ? 'Đang áp…' : `Áp cho ${tick.size} mã`}
-              </button>
+              </Button>
               <button type="button" onClick={() => setTick(new Set())}
-                className="text-xs text-slate-500 hover:text-slate-800 hover:underline">Bỏ chọn</button>
-              <span className="w-full text-xs text-slate-500">
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline">Bỏ chọn</button>
+              <span className="w-full text-xs text-muted-foreground">
                 Để trống ô % rồi bấm Áp = <b>bỏ chính sách</b> của {tick.size} mã này ở bậc trên. Bản cũ vẫn nằm trong lịch sử.
               </span>
             </>
@@ -117,59 +125,58 @@ export function BangChinhSach({
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
-              <tr>
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <TableWrap>
+          <Table variant="thuong">
+            <TableHeader className="bg-muted text-[10px] uppercase tracking-wide text-muted-foreground">
+              <TableRow>
                 {coQuyenSoan && (
-                  <th rowSpan={2} className="border-b border-slate-200 px-3 py-2 align-bottom">
-                    <input type="checkbox" className="h-4 w-4 accent-[#0e8c9a]" checked={tickHet}
-                      title={tickHet ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-                      onChange={() => setTick(tickHet ? new Set() : new Set(ds.map((d) => d.ma)))} />
-                  </th>
+                  <TableHead rowSpan={2} className="border-b border-border px-3 py-2 align-bottom">
+                    <Checkbox checked={tickHet}
+                      aria-label={tickHet ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                      onCheckedChange={() => setTick(tickHet ? new Set() : new Set(ds.map((d) => d.ma)))} />
+                  </TableHead>
                 )}
-                <th rowSpan={2} className="border-b border-slate-200 px-3 py-2 align-bottom font-bold">Sản phẩm</th>
-                <th rowSpan={2} className="border-b border-slate-200 px-3 py-2 text-right align-bottom font-bold">Niêm yết</th>
+                <TableHead rowSpan={2} className="border-b border-border px-3 py-2 align-bottom font-bold">Sản phẩm</TableHead>
+                <TableHead rowSpan={2} className="border-b border-border px-3 py-2 text-right align-bottom font-bold">Niêm yết</TableHead>
                 {BAC.map((b) => (
-                  <th key={b.ma} colSpan={2} className="border-b border-l border-slate-200 px-3 py-2 text-center font-bold">{b.nhan}</th>
+                  <TableHead key={b.ma} colSpan={2} className="border-b border-l border-border px-3 py-2 text-center font-bold">{b.nhan}</TableHead>
                 ))}
-              </tr>
-              <tr>
+              </TableRow>
+              <TableRow>
                 {BAC.map((b) => (
-                  <th key={b.ma} className="border-b border-l border-slate-200 px-2 py-1.5 text-center font-medium" colSpan={2}>
+                  <TableHead key={b.ma} className="border-b border-l border-border px-2 py-1.5 text-center font-medium" colSpan={2}>
                     <span className="mr-6">% giảm</span><span>Giá bán</span>
-                  </th>
+                  </TableHead>
                 ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {ds.map((d) => (
-                <tr key={d.ma} className={tick.has(d.ma) ? 'bg-teal-50/60' : 'hover:bg-slate-50'}>
+                <TableRow key={d.ma} className={tick.has(d.ma) ? 'bg-teal-50/60' : 'hover:bg-muted'}>
                   {coQuyenSoan && (
-                    <td className="px-3 py-2">
-                      <input type="checkbox" className="h-4 w-4 accent-[#0e8c9a]"
-                        checked={tick.has(d.ma)} onChange={() => doiTick(d.ma)} />
-                    </td>
+                    <TableCell className="px-3 py-2">
+                      <Checkbox aria-label={`Chọn ${d.ten}`} checked={tick.has(d.ma)} onCheckedChange={() => doiTick(d.ma)} />
+                    </TableCell>
                   )}
-                  <td className="px-3 py-2">
-                    <div className="font-medium text-slate-800">{d.ten}</div>
-                    <div className="font-mono text-[11px] text-slate-400">{d.ma}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2 text-right font-semibold tabular-nums text-slate-700">
+                  <TableCell className="px-3 py-2">
+                    <div className="font-medium text-foreground">{d.ten}</div>
+                    <div className="font-mono text-[11px] text-muted-foreground">{d.ma}</div>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-3 py-2 text-right font-semibold tabular-nums text-foreground">
                     {vnd.format(d.niem_yet)} ₫
-                  </td>
+                  </TableCell>
                   {BAC.map((b) => (
-                    <td key={b.ma} className="border-l border-slate-100 px-2 py-2" colSpan={2}>
+                    <TableCell key={b.ma} className="border-l border-border px-2 py-2" colSpan={2}>
                       <div className="flex items-center justify-center gap-1.5">
-                        <input
-                          type="number" className={inpO} disabled={!coQuyenSoan || dangChay}
+                        <Input
+                          type="number" className={inpO + ' w-[86px]'} disabled={!coQuyenSoan || dangChay}
                           value={o(d, b.ma, 'pct')}
                           onChange={(e) => goVao(d, b.ma, 'pct', e.target.value)}
                           onBlur={() => luu(d, b.ma, 'pct')}
                           placeholder="%"
                         />
-                        <input
+                        <Input
                           type="number" className={inpO + ' w-[118px]'} disabled={!coQuyenSoan || dangChay}
                           value={o(d, b.ma, 'gia')}
                           onChange={(e) => goVao(d, b.ma, 'gia', e.target.value)}
@@ -177,69 +184,69 @@ export function BangChinhSach({
                           placeholder="₫"
                         />
                       </div>
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableWrap>
       </div>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         📌 <b>Điền một ô, ô kia tự tính.</b> Gõ % giảm → ra giá bán; gõ giá bán → ra % giảm.
         Rời khỏi ô là lưu. Xoá trắng ô = bỏ chính sách của mã đó ở bậc đó.
       </p>
       {/* LỊCH SỬ PHIÊN BẢN — CEO chốt 22/08: phải biết đã đổi những gì, khi nào. */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <button type="button" onClick={() => setXemLichSu((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-800 hover:bg-slate-50">
-          <span>Lịch sử thay đổi <span className="ml-1 font-normal text-slate-400">({lichSu.length} bản ghi)</span></span>
-          <span className="text-slate-400">{xemLichSu ? '▲' : '▼'}</span>
+          className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-foreground hover:bg-muted">
+          <span>Lịch sử thay đổi <span className="ml-1 font-normal text-muted-foreground">({lichSu.length} bản ghi)</span></span>
+          <span className="text-muted-foreground">{xemLichSu ? '▲' : '▼'}</span>
         </button>
         {xemLichSu && (
-          <div className="overflow-x-auto border-t border-slate-200">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Sản phẩm</th>
-                  <th className="px-3 py-2 font-medium">Bậc</th>
-                  <th className="px-3 py-2 text-right font-medium">% giảm</th>
-                  <th className="px-3 py-2 text-right font-medium">Giá bán</th>
-                  <th className="px-3 py-2 font-medium">Áp từ</th>
-                  <th className="px-3 py-2 font-medium">Đến</th>
-                  <th className="px-3 py-2 font-medium">Ai đặt</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
+          <div className="overflow-x-auto border-t border-border">
+            <Table variant="thuong">
+              <TableHeader className="border-b border-border bg-muted text-[10px] uppercase tracking-wide text-muted-foreground">
+                <TableRow>
+                  <TableHead className="px-3 py-2 font-medium">Sản phẩm</TableHead>
+                  <TableHead className="px-3 py-2 font-medium">Bậc</TableHead>
+                  <TableHead className="px-3 py-2 text-right font-medium">% giảm</TableHead>
+                  <TableHead className="px-3 py-2 text-right font-medium">Giá bán</TableHead>
+                  <TableHead className="px-3 py-2 font-medium">Áp từ</TableHead>
+                  <TableHead className="px-3 py-2 font-medium">Đến</TableHead>
+                  <TableHead className="px-3 py-2 font-medium">Ai đặt</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {lichSu.length === 0 ? (
-                  <tr><td colSpan={7} className="px-3 py-8 text-center text-slate-400">Chưa có thay đổi nào được ghi lại.</td></tr>
+                  <TableRow><TableCell colSpan={7} className="px-3 py-8 text-center text-muted-foreground">Chưa có thay đổi nào được ghi lại.</TableCell></TableRow>
                 ) : lichSu.map((h, i) => {
                   const cu = h.trang_thai === 'thay_the'
                   return (
-                    <tr key={i} className={cu ? 'text-slate-400' : 'hover:bg-slate-50'}>
-                      <td className="px-3 py-2">
-                        <div className={cu ? '' : 'text-slate-700'}>{h.ten}</div>
-                        <div className="font-mono text-[11px] text-slate-400">{h.ma}</div>
-                      </td>
-                      <td className="px-3 py-2">{BAC.find((b) => b.ma === h.bac)?.nhan ?? h.bac}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{h.giam_pct == null ? '—' : `${h.giam_pct}%`}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">{h.gia_ban == null ? '—' : `${vnd.format(h.gia_ban)} ₫`}</td>
-                      <td className="whitespace-nowrap px-3 py-2 tabular-nums">{h.hieu_luc_tu}</td>
-                      <td className="whitespace-nowrap px-3 py-2 tabular-nums">
+                    <TableRow key={i} className={cu ? 'text-muted-foreground' : 'hover:bg-muted'}>
+                      <TableCell className="px-3 py-2">
+                        <div className={cu ? '' : 'text-foreground'}>{h.ten}</div>
+                        <div className="font-mono text-[11px] text-muted-foreground">{h.ma}</div>
+                      </TableCell>
+                      <TableCell className="px-3 py-2">{BAC.find((b) => b.ma === h.bac)?.nhan ?? h.bac}</TableCell>
+                      <TableCell className="px-3 py-2 text-right tabular-nums">{h.giam_pct == null ? '—' : `${h.giam_pct}%`}</TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-2 text-right tabular-nums">{h.gia_ban == null ? '—' : `${vnd.format(h.gia_ban)} ₫`}</TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">{h.hieu_luc_tu}</TableCell>
+                      <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">
                         {cu ? h.hieu_luc_den
                             : <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">đang áp</span>}
-                      </td>
-                      <td className="px-3 py-2 text-xs">{h.boi ?? '—'}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-xs">{h.boi ?? '—'}</TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         📌 App lưu <b>cả hai</b> con số kèm ghi nhớ ô nào bạn gõ — để số hiển thị luôn đúng thứ đã duyệt,
         không lệch vài đồng vì tính lại từ phần trăm.
       </p>

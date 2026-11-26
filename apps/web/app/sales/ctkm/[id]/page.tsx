@@ -1,3 +1,5 @@
+import { SalesScreen } from '@/app/sales/_ui'
+import { PageHeader } from '@/components/ui/page-header'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { chiTietCtkm, nguonChoForm, quyenCtkm } from '../actions'
@@ -14,17 +16,15 @@ export default async function SuaCtkmPage({ params }: { params: Promise<{ id: st
   if (!ct) notFound()
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-[900px] space-y-4 p-4 sm:p-6">
-        <div className="text-sm"><Link href="/sales/ctkm" className="text-teal-700 hover:underline">← Chương trình khuyến mãi</Link></div>
-        <header>
-          <h1 className="text-xl font-semibold text-slate-900">{ct.ten}</h1>
-          <p className="text-sm text-slate-500">
-            Sửa xong chương trình quay về <b>bản nháp</b> và phải duyệt lại — người soạn không tự đẩy thay đổi lên đơn đang chạy.
-          </p>
-        </header>
-        <CtkmForm kenhDs={nguon.kenh} spDs={nguon.sp} initial={ct} coQuyenDuyet={quyen.duyet} />
+    <SalesScreen className="max-w-[900px] space-y-4">
+      <div className="text-sm"><Link href="/sales/ctkm" className="text-(--color-text-info) hover:underline">← Chương trình khuyến mãi</Link></div>
+      <div>
+        <PageHeader tieuDe={ct.ten} />
+        <p className="text-sm text-muted-foreground">
+          Sửa xong chương trình quay về <b>bản nháp</b> và phải duyệt lại — người soạn không tự đẩy thay đổi lên đơn đang chạy.
+        </p>
       </div>
-    </main>
+      <CtkmForm kenhDs={nguon.kenh} spDs={nguon.sp} initial={ct} coQuyenDuyet={quyen.duyet} />
+    </SalesScreen>
   )
 }
