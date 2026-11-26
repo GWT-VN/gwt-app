@@ -6,17 +6,14 @@ import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { BoLocChon, BoLocGoiY, LocNgay, OTimKiem, ThanhDangLoc } from '@/bang'
 import { danhSachDon, kenhChiTietTrongDon, kenhTrongDon, spTrongDon } from './actions'
 import { FULFILL_OPTS, PAYMENT_OPTS } from './_types'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 export const metadata = { title: 'Đơn hàng · GWT Sales' }
 export const dynamic = 'force-dynamic'
 
 const vnd = new Intl.NumberFormat('vi-VN')
 const fmtVnd = (n: number) => (n ? vnd.format(Math.round(n)) + ' ₫' : '—')
-function fmtDate(d: string | null): string {
-  if (!d) return '—'
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d)
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : d
-}
+const fmtDate = (d: string | null) => hienNgay(d)
 const TAB_LABEL: Record<string, string> = { DON_POE: 'POE', DON_POU: 'POU', DON_OTHERS: 'Khác', DON_TANG: 'Tặng' }
 const TABS = [
   { key: '', label: 'Tất cả' },

@@ -1,5 +1,6 @@
 // Helper hiển thị + badge dùng chung cho khu Sales. Thuần trình bày (render ở server).
 import type { ReactNode } from 'react'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const vnd = new Intl.NumberFormat('vi-VN')
 
@@ -13,14 +14,8 @@ export function fmtQty(n: number | null | undefined): string {
   return vnd.format(Number(n))
 }
 
-/** order_date lưu 'YYYY-MM-DD' → hiển thị dd/MM/yyyy, không lệch múi giờ. */
-export function fmtDate(d: string | null | undefined): string {
-  if (!d) return '—'
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d)
-  if (m) return `${m[3]}/${m[2]}/${m[1]}`
-  const dt = new Date(d)
-  return Number.isNaN(dt.getTime()) ? d : dt.toLocaleDateString('vi-VN')
-}
+/** order_date lưu 'YYYY-MM-DD' → mặc định `hienNgay` (dd/MM, khác năm dd/MM/yy), không lệch múi giờ. */
+export const fmtDate = (d: string | null | undefined): string => hienNgay(d)
 
 /** SĐT có thể mất số 0 đầu (lưu dạng số) → thêm lại khi thấy 9 chữ số. */
 export function fmtPhone(raw: string | null | undefined): string {

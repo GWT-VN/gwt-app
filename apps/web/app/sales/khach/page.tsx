@@ -6,15 +6,12 @@ import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { BoLocChon, OTimKiem, ThanhDangLoc } from '@/bang'
 import { danhSachKhach, kenhChonDuoc, kenhTrongDon, khachTrungSdt, nhanVienChonDuoc, tinhTrongKhach } from '../actions'
 import { TaoKhachButton } from '../TaoKhachButton'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 export const metadata = { title: 'Khách hàng · GWT Sales' }
 export const dynamic = 'force-dynamic'
 
-function fmtDate(d: string | null): string {
-  if (!d) return '—'
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d)
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : d
-}
+const fmtDate = (d: string | null) => hienNgay(d)
 
 export default async function SalesKhachPage({
   searchParams,
