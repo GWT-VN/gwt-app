@@ -109,6 +109,38 @@ ngoài bảng. Rỗng → minh hoạ + nút tạo.
 Khác biệt cố ý với Shopify: **trạng thái** — Shopify để ở cột phụ, nhưng yêu cầu #1 của mình là "thứ rõ nhất" →
 lấy kiểu **Intercom**: nút trạng thái tô màu ở hàng tiêu đề (đổi tại chỗ), cột phụ không lặp lại.
 
+## Twenty (CRM mã nguồn mở) — xem trực tiếp trên app, 26/11
+
+Nguồn: workspace dùng thử của CEO trên app.twenty.com (dữ liệu mẫu: 5 công ty, 6 cơ hội), xem bằng Chrome, không tạo/sửa
+dữ liệu. Mã nguồn https://github.com/twentyhq/twenty là **AGPL-3.0 → chỉ học bố cục, không chép code**.
+
+**Mở bản ghi — 2 tầng:**
+- Bấm từ danh sách/kanban → **panel bên phải** (~330px), danh sách vẫn thấy. Panel: tên + nút "mở trang đầy đủ" + ✕;
+  tab **Home · Timeline · Tasks · +4 More**; chân panel có ⋮ · ♡ · hành động chính (Send Email).
+- Trang đầy đủ: breadcrumb **"Companies / Airbnb (1/5)"** + ↑ ↓ sang bản ghi kề + hành động ở góc phải.
+
+**Trang đầy đủ — ĐẢO so với Shopify:** cột **thuộc tính bên TRÁI** (315px) · nội dung bên phải là **tab ngang**
+(Timeline · Tasks · Notes · Files · Messages · Calendar). Cột trái gồm:
+- "Fields" chia **nhóm gập được** (General · Business · Contact · System, mũi tên ^ ở phải tên nhóm).
+- Mỗi dòng: **icon + nhãn mờ (cắt …) + giá trị**; trống → hiện tên trường màu mờ làm chỗ bấm (không "Chưa có").
+- Dưới Fields: mỗi quan hệ một khối (People, Opportunities, Company, Owner) có ↗ (mở danh sách) + ✎, kẻ vạch ngăn.
+
+**Trạng thái (Stage/Status):** chỉ là một dòng thuộc tính, giá trị là **tag màu**; bấm → menu chọn có **ô tìm trên đầu**,
+mỗi giai đoạn một tag màu, ✓ mục đang chọn. Nổi bật nằm ở **danh sách kanban**: cột = giai đoạn, đầu cột là tag màu +
+tổng (80k, 75k…). Thẻ kanban: tên + các dòng giá trị **chỉ icon, không nhãn**.
+
+**Danh sách:** đầu trang chỉ có tên đối tượng + "+ Create"; hàng dưới: ô chọn view **"By Stage · 6 ▾"** (+ Add view) bên
+trái, **Filter · Sort · Options** chữ trơn bên phải. Bảng: tiêu đề cột có icon kiểu dữ liệu, "+" thêm cột, dòng
+"+ Add New" cuối, **dòng Calculate** dưới cùng (Count all 5, Empty of Linkedin 100%…).
+
+**Cảm giác "sạch":** chữ 13px Inter (nhãn trường 13/500), gần như không viền thẻ — phân vùng bằng vạch 1px + nền xám
+nhạt sidebar; icon nhỏ đơn sắc trước mọi nhãn; mọi giá trị bấm vào là sửa.
+
+**Áp cho ticket (đề xuất):** Twenty hợp làm khuôn **danh sách + xem nhanh** (panel phải có tab, danh sách vẫn thấy — DS
+đã có `XemNhanh`); trang đầy đủ của Twenty đặt thuộc tính TRÁI và giấu nội dung sau tab → với ticket, lần lỗi là nội dung
+chính nên không nên giấu sau tab; nếu dùng tab thì tab mặc định = "Các lần lỗi". Trạng thái: Twenty KHÔNG làm nổi ở
+trang bản ghi — mâu thuẫn yêu cầu #1, giữ cách Intercom (nút trạng thái hàng tiêu đề).
+
 ## Áp vào GWT CSKH v2 (đề xuất, chưa dựng)
 
 | # yêu cầu | Học từ | Đề xuất cho ticket |
