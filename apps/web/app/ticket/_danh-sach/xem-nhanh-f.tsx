@@ -45,7 +45,7 @@ import { thongBao } from '@/components/ui/sonner'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, mayLoi, ngayNgan, tenKhach } from './chung'
-import { ChuBaoHanh, IconKhan, TT, type DongF, type SuaF } from './ds-f'
+import { CHU_DO, ChuBaoHanh, laKhan, SrKhan, TT, type DongF, type SuaF } from './ds-f'
 
 /** Tab của thẻ — `xem_tab` trên URL (mặc định `tong` không ghi). */
 export const TAB_XEM = ['tong', 'lan', 'nk', 'vt', 'khac'] as const
@@ -371,8 +371,15 @@ export function theXemNhanhF({
 }): The {
   return {
     ma: t.ticket_code,
-    phu: tenKhach(t),
-    co: t.khan && t.state === 'Open' ? <IconKhan /> : undefined,
+    // Khẩn = tên khách ở tiêu đề màu đỏ (CEO 26/11), không icon.
+    phu: laKhan(t) ? (
+      <span className={CHU_DO}>
+        <SrKhan />
+        {tenKhach(t)}
+      </span>
+    ) : (
+      tenKhach(t)
+    ),
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabXem),

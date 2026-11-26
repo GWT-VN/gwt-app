@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   User,
   UserPlus,
-  WarningCircle,
   Wrench,
 } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
@@ -29,16 +28,16 @@ import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangX
 import { EmptyState } from '@/components/ui/empty-state'
 import type { MucTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
-import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
+import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
-import { recordPickerLuuY } from '@/components/ui/inline-edit-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
+import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
@@ -63,12 +62,14 @@ export const TT: MucTrangThai[] = [
 ]
 
 // Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành = chữ;
-// màu chữ chỉ cho ngoại lệ (hết BH). Khẩn = icon đỏ đầu hàng. Xem nhanh cũng vậy (xem-nhanh-f.tsx).
-const CHU_DO = 'text-(--color-text-danger)'
+// màu chữ chỉ cho ngoại lệ (hết BH, khẩn). Xem nhanh cũng vậy (xem-nhanh-f.tsx).
+export const CHU_DO = 'text-(--color-text-danger)'
 
-/** Khẩn: icon đỏ (kiểu ưu tiên của Linear) thay badge — tên đọc được cho trình đọc màn hình. */
-export function IconKhan() {
-  return <WarningCircle weight="fill" role="img" aria-label="Khẩn" className={recordPickerLuuY} />
+/** Khẩn (đang mở) = CHỮ tên/tiêu đề màu đỏ — CEO 26/11: "bỏ dấu chấm than đỏ ở đầu tên, cho hiện chữ tiêu đề màu đỏ là
+ *  được". Không truyền nghĩa chỉ bằng màu: kèm `<SrKhan />` trước tên cho trình đọc màn hình. */
+export const laKhan = (t: Ticket) => t.khan && t.state === 'Open'
+export function SrKhan() {
+  return <span className="sr-only">Khẩn: </span>
 }
 
 /** Bảo hành dạng chữ cho bảng/danh sách; `ngan` (ô bảng hẹp): "Còn BH" / "Hết BH". */
@@ -156,10 +157,10 @@ type Sap = { cot: string; tang: boolean }
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
   khach: (t, mo) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      {/* Mã đứng đầu ô — thẳng mép chữ tiêu đề cột (CEO 26/11). Khẩn = icon SAU mã, không chừa khe đầu ô. */}
+      {/* Mã đứng đầu ô — thẳng mép chữ tiêu đề cột (CEO 26/11). Khẩn = tên đỏ (kể cả lúc rê/focus). */}
       <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
-      {t.khan && t.state === 'Open' && <IconKhan />}
-      <button type="button" className={nutMoTen} onClick={() => mo(t.ticket_code)}>
+      <button type="button" className={cn(nutMoTen, laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
+        {laKhan(t) && <SrKhan />}
         {tenKhach(t)}
       </button>
     </span>
@@ -212,13 +213,16 @@ const COT_DS: CotDanhSach<Dong>[] = [
     dienThoai: 'tren',
     o: (t) => (
       <>
-        {t.khan && t.state === 'Open' && (
-          <NhanDau gon>
-            <IconKhan />
-          </NhanDau>
-        )}
         <NutMoMa ma={t.ticket_code} />
-        <NutMoTen ten={tenKhach(t)} />
+        {laKhan(t) ? (
+          // NutMoTen chữ `text-inherit` → bọc span đỏ (flex min-w-0 giữ cắt …).
+          <span className={cn('flex min-w-0', CHU_DO)}>
+            <SrKhan />
+            <NutMoTen ten={tenKhach(t)} />
+          </span>
+        ) : (
+          <NutMoTen ten={tenKhach(t)} />
+        )}
       </>
     ),
   },
@@ -537,11 +541,15 @@ export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {
                   noiDung: (
                     <NoiDungTheTruong
                       dau={
-                        <>
-                          {/* Mã đứng đầu (thẳng mép trường dưới), Khẩn = icon SAU mã — như ô bảng. */}
-                          {d.ticket_code}
-                          {d.khan && d.state === 'Open' && <IconKhan />}
-                        </>
+                        // Mã = tiêu đề thẻ; khẩn → chữ đỏ như ô bảng.
+                        laKhan(d) ? (
+                          <span className={CHU_DO}>
+                            <SrKhan />
+                            {d.ticket_code}
+                          </span>
+                        ) : (
+                          d.ticket_code
+                        )
                       }
                       truong={truongThe(d)}
                     />
