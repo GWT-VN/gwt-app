@@ -8,7 +8,6 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import {
   AddressBook,
   ArrowsClockwise,
-  CalendarBlank,
   CalendarPlus,
   Cube,
   ShieldCheck,
@@ -173,19 +172,19 @@ const COT: CotBang[] = [
   // → 36 + 280 + 167 + 404 + 40 ("+") = 927 — nút "+" không bị đẩy khuất ngoài mép. Khung hẹp hơn thì cuộn ngang.
   // Tiêu đề VIẾT HOA (CEO 26/11) rộng hơn: TRẠNG THÁI 77,5 + 4 + mũi 12 + đệm 12 → 106; PHỤ TRÁCH 73,05 → 104 (101 hụt
   // 0,05px là đã hiện "…") → lấy từ Loại lỗi (128 → 104) và Hạn (96 → 90, "Quá 12 ngày" 76 + 12 vẫn vừa); tổng 927.
-  { id: 'khach', ten: 'Ticket · khách', rong: 280, kieu: 'thuong', khoa: true },
-  { id: 'may', ten: 'Máy · bảo hành', rong: 167, kieu: 'thuong' },
+  // Bỏ cột Hạn (CEO 26/11 "thường không có hạn") → 90 trả lại: khách 311 (tên dài nhất đo 311), máy 226; tổng vẫn 927.
+  { id: 'khach', ten: 'Ticket · khách', rong: 311, kieu: 'thuong', khoa: true },
+  { id: 'may', ten: 'Máy · bảo hành', rong: 226, kieu: 'thuong' },
   { id: 'loi', ten: 'Loại lỗi', rong: 104, kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', rong: 106, kieu: 'loc' },
   { id: 'cs', ten: 'Phụ trách', rong: 104, kieu: 'loc' },
-  { id: 'han', ten: 'Hạn', rong: 90, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
   { id: 'loai', ten: 'Loại', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tinh', ten: 'Tỉnh/TP', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tao', ten: 'Ngày tạo', rong: 104, kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
 ]
-const COT_SAP = ['han', 'tao']
-const TEN_COT = { han: 'Hạn', tao: 'Ngày tạo' }
-const NGHIA = { han: { asc: 'gần hạn nhất trước', desc: 'xa hạn nhất trước' }, tao: { asc: 'cũ nhất trước', desc: 'mới tạo trước' } }
+const COT_SAP = ['tao']
+const TEN_COT = { tao: 'Ngày tạo' }
+const NGHIA = { tao: { asc: 'cũ nhất trước', desc: 'mới tạo trước' } }
 type Sap = { cot: string; tang: boolean }
 
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
@@ -263,8 +262,7 @@ const COT_DS: CotDanhSach<Dong>[] = [
     ),
   },
   { id: 'may', ten: 'Máy · lỗi', rong: 'minmax(0,1.2fr)', anKhiHep: true, dienThoai: 'duoi', o: (t) => <span className="min-w-0 truncate text-muted-foreground">{mayLoi(t)}</span> },
-  { id: 'han', ten: 'Hạn', rong: '112px', dienThoai: 'trenPhai', o: (t) => <NhanHan t={t} /> },
-  { id: 'bh', ten: 'Bảo hành', rong: '132px', dienThoai: 'duoiPhai', o: (t) => <ChuBaoHanh t={t} /> },
+  { id: 'bh', ten: 'Bảo hành', rong: '132px', dienThoai: 'trenPhai', o: (t) => <ChuBaoHanh t={t} /> },
   { id: 'cs', ten: 'Phụ trách', rong: '72px', anKhiHep: true, o: (t) => <NguoiPhuTrach ten={t.cs_ten} /> },
 ]
 
@@ -307,7 +305,6 @@ const truongThe = (d: Dong): TruongThe[] => [
   },
   { id: 'loi', icon: <Wrench />, ten: 'Lỗi gần nhất', giaTri: d.dong_may?.[0]?.nhan },
   { id: 'bh', icon: <ShieldCheck />, ten: 'Bảo hành', giaTri: d.serial ? <ChuBaoHanh t={d} /> : null },
-  { id: 'han', icon: <CalendarBlank />, ten: 'Hạn', giaTri: d.state === 'Open' ? <NhanHan t={d} /> : null },
   { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
 ]
 

@@ -8,7 +8,6 @@ import Link from 'next/link'
 import {
   AddressBook,
   Barcode,
-  CalendarBlank,
   CalendarPlus,
   ChatText,
   CircleHalf,
@@ -45,7 +44,7 @@ import { thongBao } from '@/components/ui/sonner'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, mayLoi, ngayNgan, tenKhach } from './chung'
-import { ChuBaoHanh, IconKhan, NhanHan, TT, type DongF, type SuaF } from './ds-f'
+import { ChuBaoHanh, IconKhan, TT, type DongF, type SuaF } from './ds-f'
 
 /** Tab của thẻ — `xem_tab` trên URL (mặc định `tong` không ghi). */
 export const TAB_XEM = ['tong', 'lan', 'nk', 'vt', 'khac'] as const
@@ -93,9 +92,6 @@ function TongQuan({ t, nguoi, sua }: { t: DongF; nguoi: { gt: string; nhan: stri
             </Truong>
             <Truong icon={ic(User)} nhan="Phụ trách">
               <OSuaNguoi ma={t.ticket_code} truong="người phụ trách" value={t.cs_ten} options={nguoi} onLuu={(v) => sua({ cs: v })} />
-            </Truong>
-            <Truong icon={ic(CalendarBlank)} nhan="Hạn">
-              {t.state === 'Open' && <NhanHan t={t} />}
             </Truong>
             <Truong icon={ic(Tag)} nhan="Loại">
               {t.ticket_type}
