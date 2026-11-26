@@ -19,7 +19,7 @@ async function main(): Promise<number> {
   if (ch.cheDo === "tat") { in1({ viec: "tat" }); return 0; }
 
   if (!doThuMucDem(ch.demDir)) { in1({ loi: "DEM_DIR_HONG" }); return 1; }
-  const [{ taoBao }, { goiClaudeJson }, { taoCongCuTra }, { taoPancake }, { taoGuiKhach }, { taoKhoPancake }, { chayMotLuot }, { goiGpt }, { phanLoai, SCHEMA_PHAN_LOAI }, { soanTuTra }] = await Promise.all([
+  const [{ taoBao }, { goiClaudeJson, goiClaudeCongCu }, { taoCongCuTra }, { taoPancake }, { taoGuiKhach }, { taoKhoPancake }, { chayMotLuot }, { goiGpt }, { phanLoai, SCHEMA_PHAN_LOAI }, { soanTuTra }] = await Promise.all([
     import("../lib/chatbot/pancake/bao.ts"), import("../lib/chatbot/pancake/claude.ts"), import("../lib/chatbot/pancake/cong-cu/cong-cu-tra.ts"),
     import("../lib/chatbot/pancake/doc.ts"), import("../lib/chatbot/pancake/gui-khach.ts"), import("../lib/chatbot/pancake/kho.ts"),
     import("../lib/chatbot/pancake/luot.ts"), import("../lib/chatbot/pancake/openai.ts"), import("../lib/chatbot/pancake/phan-loai.ts"),
@@ -31,6 +31,10 @@ async function main(): Promise<number> {
   const bao = taoBao(ch.webhook, fetch, ch.baoThread);
   const goiPhanLoai = (system: string, user: string) =>
     goiClaudeJson({ apiKey: env.ANTHROPIC_API_KEY!, model: ch.modelPhanLoai, system, user, schema: SCHEMA_PHAN_LOAI, maxTokens: 600 });
+  // Model soạn trả lời: "claude-…" (anh Dũng chốt 2026-11-26: claude-haiku-5-5) đi Anthropic, còn lại đi OpenAI như trước.
+  const goiTraLoi = (messages: unknown[], tools: unknown[]) => (ch.modelTraLoi.startsWith("claude-")
+    ? goiClaudeCongCu({ apiKey: env.ANTHROPIC_API_KEY!, model: ch.modelTraLoi, messages, tools })
+    : goiGpt({ apiKey: env.OPENAI_API_KEY!, model: ch.modelTraLoi, messages, tools }));
 
   let coLoi = false;
   for (const t of ch.trang) {
@@ -41,7 +45,7 @@ async function main(): Promise<number> {
       gui: chonGui(ch.cheDo, t.id, t.token, taoGuiKhach),
       kho: khoPancake,
       phanLoai: (tin, coSdt, lichSu, tenKhach) => phanLoai(tin, coSdt, lichSu, goiPhanLoai, tenKhach),
-      soan: (l) => soanTuTra(l, { congCu, hotline: ch.hotline, goi: (messages, tools) => goiGpt({ apiKey: env.OPENAI_API_KEY!, model: ch.modelTraLoi, messages, tools }) }),
+      soan: (l) => soanTuTra(l, { congCu, hotline: ch.hotline, goi: goiTraLoi }),
       bao, ch,
       dem: taoDem(ch.demDir, t.id),
       now: () => new Date(),

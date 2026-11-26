@@ -1,6 +1,6 @@
 # Bot Pancake tự trả lời — RUNBOOK
 
-Mỗi lượt: `launchd` gọi script → đọc hội thoại mới → phân loại (Claude) → soạn (GPT) → gửi / chuyển người, báo Discord.
+Mỗi lượt: `launchd` gọi script → đọc hội thoại mới → phân loại (Claude Sonnet) → soạn (Claude Haiku 5.5, hoặc GPT) → gửi / chuyển người, báo Discord.
 Thiết kế: `docs/specs/2026-11-25-chatbot-pancake-gwt-app-design.md`.
 
 ## Chạy
@@ -80,9 +80,18 @@ where discord_bao_luc > now() - interval '1 day'
 group by 1 order by 2 desc;
 ```
 
-## Model GPT soạn trả lời
+## Model soạn trả lời
 
-Chọn **gpt-6.1-terra**: `PANCAKE_TRA_LOI_MODEL=gpt-6.1-terra`. Bot gọi `/v1/responses` (không phải chat/completions) vì gpt-5.6+/6.x từ chối function tools trên chat/completions.
+**Đang dùng (anh Dũng chốt 26/11/2026): `PANCAKE_TRA_LOI_MODEL=claude-haiku-5-5`, bật suy luận (thinking adaptive, effort medium).**
+Tên model bắt đầu `claude-` → gọi Anthropic (`goiClaudeCongCu` trong `claude.ts`, dùng `ANTHROPIC_API_KEY`); còn lại → OpenAI như cũ.
+Đổi lại GPT chỉ cần đặt lại biến này. `OPENAI_API_KEY` vẫn bắt buộc (embedding của kho tài liệu).
+
+Đo 26/11/2026 (tin khách thật trên Forum + 7 câu tổng hợp): Haiku nhanh hơn GPT 2–3 lần, chọn máy dứt khoát hơn; tắt suy luận thì 2/7 câu
+rớt kiểm căn cứ và hay tự chèn giá, bật suy luận thì 0/7 rớt, bớt chèn giá, chậm hơn khoảng 1,5–2 lần (6–24 giây/câu).
+
+### Đo GPT (trước khi đổi)
+
+Từng chọn **gpt-6.1-terra**: `PANCAKE_TRA_LOI_MODEL=gpt-6.1-terra`. Bot gọi `/v1/responses` (không phải chat/completions) vì gpt-5.6+/6.x từ chối function tools trên chat/completions.
 
 Đo 25/11/2026 trên 30 câu khách thật; "câu có ý không căn cứ" do gpt-5.5-pro chấm đối chiếu kết quả tool.
 
