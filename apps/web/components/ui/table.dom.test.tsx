@@ -389,14 +389,16 @@ describe('useCotBang — URL', () => {
     expect(ghiUrlCot(new URLSearchParams(''), md, COT).toString()).toBe('')
     expect(md.an).toEqual(['nguon'])
     const la = docUrlCot(new URLSearchParams('cot_thu_tu=xx,ma&cot_rong=ma:10'), COT)
-    expect(la.thuTu).toEqual(['ma', 'uu', 'nhom', 'nguon'])
+    // Cột URL không biết (uu, nhom, nguon) = cột ra đời sau khi link được lưu → đứng đúng chỗ mặc định (CEO 26/11).
+    expect(la.thuTu).toEqual(['uu', 'nhom', 'ma', 'nguon'])
     expect(la.keoTay.ma).toBe(56)
   })
 
   test('url: true → mở trang đọc trạng thái cột từ URL', () => {
     nav.qs = 'cot_an=&cot_thu_tu=nguon'
     render(<Url />)
-    expect(screen.getByTestId('hien').textContent).toBe('nguon,uu,nhom,ma')
+    // cot_an rỗng → hiện cả cột ẩn mặc định; cột URL không có chèn theo thứ tự mặc định quanh nó.
+    expect(screen.getByTestId('hien').textContent).toBe('uu,nhom,ma,nguon')
   })
 })
 

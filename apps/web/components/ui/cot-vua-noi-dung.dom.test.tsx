@@ -202,3 +202,9 @@ test('cột khoá đứng yên đầu bảng: URL cũ / kéo thả đẩy cột 
   render(<Man dong={DONG} url />)
   expect(document.querySelector('thead th[data-cot]')?.getAttribute('data-cot')).toBe('khach')
 })
+
+test('link cũ thiếu cột mới (URL lưu trước khi cột ra đời) → cột mới đứng đúng vị trí mặc định, không dồn cuối', () => {
+  // COT mặc định: khach, may, han. URL cũ chỉ biết khach, han (đã đổi chỗ han lên trước may chưa tồn tại).
+  expect(docUrlCot(new URLSearchParams('cot_thu_tu=han,khach'), COT).thuTu).toEqual(['khach', 'may', 'han'])
+  expect(docUrlCot(new URLSearchParams('cot_thu_tu=khach,han'), COT).thuTu).toEqual(['khach', 'may', 'han'])
+})

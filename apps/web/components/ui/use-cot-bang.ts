@@ -98,7 +98,15 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
   const theoId = new Map(cot.map((c) => [c.id, c]))
   const ds = (k: string) => (sp.get(k) ?? '').split(',').filter((x) => theoId.has(x))
   const thuTuUrl = [...new Set(ds(P_THU_TU))]
-  const thuTu = giuCotKhoa([...thuTuUrl, ...md.thuTu.filter((x) => !thuTuUrl.includes(x))], cot)
+  // Cột mới khai sau khi link được lưu (URL thiếu id) → chèn ngay sau cột đứng trước nó trong thứ tự mặc định, không
+  // dồn xuống cuối (CEO 26/11: link cũ thiếu `ma`/`bh` hiện hai cột này cuối bảng).
+  const thuTuDu = giuCotKhoa(thuTuUrl, cot)
+  md.thuTu.forEach((id, i) => {
+    if (thuTuDu.includes(id)) return
+    const truoc = md.thuTu.slice(0, i).reverse().find((x) => thuTuDu.includes(x))
+    thuTuDu.splice(truoc ? thuTuDu.indexOf(truoc) + 1 : 0, 0, id)
+  })
+  const thuTu = giuCotKhoa(thuTuDu, cot)
   const keoTay: Record<string, number> = {}
   for (const cap of (sp.get(P_RONG) ?? '').split(',')) {
     const [id, so] = cap.split(':')
