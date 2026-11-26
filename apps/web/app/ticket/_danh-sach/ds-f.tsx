@@ -108,6 +108,10 @@ function mucLoi(ds: DuLieuTicket['dsLoi'], t: Ticket): MucChon[] {
   return co.some((m) => m.gt === CHUA_PHAN_LOAI) ? co : [...co, { gt: CHUA_PHAN_LOAI, nhan: 'Chưa phân loại' }]
 }
 
+/** Chữ cặp Máy · Loại lỗi: đậm hơn một bậc (500) nhưng nhạt màu (muted, không tertiary — tương phản ≥ 4,5) — CEO 26/11
+ *  "Mã máy và lỗi tăng thêm 1 weight nhưng cho giảm sắc độ xuống". "+N" / "Chưa phân loại" giữ chữ thường. */
+const CHU_CAP = 'font-medium text-muted-foreground'
+
 /** "+N" dòng máy khác — như nhau ở cột Máy và Loại lỗi (cặp đọc ngang cùng hàng). */
 function ThemDong({ t }: { t: Ticket }) {
   const n = soDongThem(t)
@@ -211,7 +215,7 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   // hàng); tên đầy đủ + serial ở title.
   may: (t) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      <span className="min-w-0 truncate" title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
+      <span className={cn('min-w-0 truncate', CHU_CAP)} title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
         {maMayDong(t)}
       </span>
       <ThemDong t={t} />
@@ -224,6 +228,7 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
       // Bấm ô → chọn lỗi CỦA MÁY cùng hàng (danh mục ma_may, như DB) + "Chưa phân loại"; lưu vào dòng máy đầu.
       return (
         <span className="flex min-w-0 items-center gap-2 border-none border-current">
+          <span className={cn('contents', d && !d.chuaPhanLoai && CHU_CAP)}>
           <OSuaChon
             ma={t.ticket_code}
             truong="loại lỗi"
@@ -233,12 +238,13 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
             options={mucLoi(sua.dsLoi, t)}
             onLuu={(v) => luuLoi(t, v ?? CHUA_PHAN_LOAI)}
           />
+          </span>
           <ThemDong t={t} />
         </span>
       )
     return (
       <span className="flex min-w-0 items-center gap-2 border-none border-current">
-        <span className={cn('min-w-0 truncate', (!d || d.chuaPhanLoai) && 'text-muted-foreground')}>{d?.loi_ten ?? '—'}</span>
+        <span className={cn('min-w-0 truncate', !d || d.chuaPhanLoai ? 'text-muted-foreground' : CHU_CAP)}>{d?.loi_ten ?? '—'}</span>
         <ThemDong t={t} />
       </span>
     )
@@ -321,7 +327,7 @@ const COT_DS: CotDanhSach<Dong>[] = [
       </>
     ),
   },
-  { id: 'may', ten: 'Máy · lỗi', rong: 'minmax(0,1.2fr)', anKhiHep: true, dienThoai: 'duoi', o: (t) => <span className="min-w-0 truncate text-muted-foreground">{mayLoi(t)}</span> },
+  { id: 'may', ten: 'Máy · lỗi', rong: 'minmax(0,1.2fr)', anKhiHep: true, dienThoai: 'duoi', o: (t) => <span className={cn('min-w-0 truncate', CHU_CAP)}>{mayLoi(t)}</span> },
   { id: 'bh', ten: 'Bảo hành', rong: '132px', dienThoai: 'trenPhai', o: (t) => <ChuBaoHanh t={t} /> },
   { id: 'cs', ten: 'Phụ trách', rong: '72px', anKhiHep: true, o: (t) => <NguoiPhuTrach ten={t.cs_ten} /> },
 ]
