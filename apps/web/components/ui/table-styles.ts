@@ -207,11 +207,13 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
  * Như `CHON_BANG` cho bảng có cột GHIM (`oGhim`): cột ô chọn cũng dính trái (không thì ô đang cuộn lộ ra ở 36px lề trái,
  * dưới cột ghim). Ô thân đục: dưới md nền + màu trạng thái dòng; từ md (cột chọn ở lề ngoài bảng) chỉ nền trang, không
  * màu dòng — như `md:bg-transparent` của `CHON_BANG` nhưng che được ô cuộn. Tiêu đề z 30: trên mọi tiêu đề `TieuDeCot`.
+ * Ô chọn LUÔN HIỆN (như Twenty — CEO 26/11 "cho hiện sẵn checkbox cũng được"), không ẩn chờ rê như `CHON_BANG`; kẻ
+ * ngang chạy suốt tới ô chọn (CEO 26/11 "cho đường line kéo dài tới checkbox luôn") thay vì trong suốt ở lề.
  */
 export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
   ...CHON_BANG,
-  chon_oTh: cn(th, cotChon, anChoReDau, 'left-0 z-30'),
-  chon_oTd: cn(td, cotChon, anChoRe, 'sticky left-0 z-1', nenDuc, 'md:bg-none!'),
+  chon_oTh: cn(th, cotChon, 'md:border-b-(--alpha-08) left-0 z-30'),
+  chon_oTd: cn(td, cotChon, 'md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc, 'md:bg-none!'),
 }
 
 /*
