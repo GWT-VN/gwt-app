@@ -186,6 +186,13 @@ describe("tinKhachDangCho", () => {
     const r = tinKhachDangCho([tin("m4", "còn hàng ko"), tin("m3", "CTS10 giá?"), tin("m2", "Dạ em chào", true), tin("m1", "alo")]);
     expect(r).toMatchObject({ text: "CTS10 giá?\ncòn hàng ko", luc: "2026-10-14T03:04:00Z" });
   });
+  it("tin Pancake AI đứng giữa các tin khách cắt khối (tin trước nó đã được trả lời); Pancake AI mới nhất chưa tính là trả lời", () => {
+    // Đo 2026-11-26: «Bao tiền bộ lọc này» → Pancake AI báo giá → 1 giờ sau «Cao quá» → bot gom cả hai, báo lại nguyên bảng giá.
+    const AI: NguoiGui = { id: PAGE, ai_generated: true };
+    const ds = [m(9, AI, "Em hiểu anh thấy mức này cao"), m(8, KHACH, "Cao quá"), m(7, AI, "Giá WH15A ECO …"), m(5, KHACH, "Bao tiền bộ lọc này")];
+    expect(tinKhachDangCho(ds, PAGE)).toMatchObject({ text: "Cao quá", dau: m(8, KHACH).inserted_at });
+    expect(tinKhachDangCho(ds.slice(1), PAGE)?.text).toBe("Cao quá");
+  });
   it("tin mới nhất là của nhân viên → null; rỗng → null", () => {
     expect(tinKhachDangCho([tin("m2", "Dạ", true), tin("m1", "hỏi")])).toBeNull();
     expect(tinKhachDangCho([])).toBeNull();
@@ -263,9 +270,9 @@ describe("tinKhachDangCho", () => {
     expect(tinKhachDangCho([m(1, KHACH, "<div></div>")], PAGE)).toMatchObject({ text: "", luc: "2026-10-14T03:01:00Z" });
     expect(tinKhachDangCho([m(2, BOTCAKE, "Dạ"), m(1, KHACH, "")], PAGE)).toMatchObject({ text: "", luc: "2026-10-14T03:01:00Z" });
   });
-  it("tin của máy (ai_generated / is_automated) bị bỏ qua, KHÔNG chặn việc gom về trước nó", () => {
+  it("tin máy is_automated bị bỏ qua, KHÔNG chặn việc gom về trước nó; Pancake AI (ai_generated) đứng giữa thì cắt (2026-11-26)", () => {
     const r1 = tinKhachDangCho([tin("m3", "CTS10 giá?"), tin("m2", "bot", false, { from: { ai_generated: true } }), tin("m1", "alo")]);
-    expect(r1).toMatchObject({ text: "alo\nCTS10 giá?", luc: "2026-10-14T03:03:00Z" });
+    expect(r1).toMatchObject({ text: "CTS10 giá?", luc: "2026-10-14T03:03:00Z" });
     const r2 = tinKhachDangCho([tin("m3", "còn ko"), tin("m2", "auto", false, { from: { is_automated: true } }), tin("m1", "alo")]);
     expect(r2).toMatchObject({ text: "alo\ncòn ko", luc: "2026-10-14T03:03:00Z" });
   });

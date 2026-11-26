@@ -74,6 +74,9 @@ export function tinKhachDangCho(tin: TinPancake[], pageId?: string, pageNgoai?: 
   for (const t of tin) {
     if (laTinBot(t)) continue; // bot tự gửi không phải NV đã trả lời: không cắt khối tin khách
     if (laNhanVien(t.from, pageNgoai)) break;
+    // Pancake AI đã trả lời các tin khách TRƯỚC nó (đo 2026-11-26: gom cả câu hỏi giá đã được báo → bot báo lại nguyên bảng).
+    // Pancake AI mới nhất (chưa gom tin khách nào) vẫn không tính là đã trả lời — có trả lời chồng hay không chưa chốt.
+    if (cuaKhach.length && t.from?.ai_generated === true && !laTinHeThong(t, pageNgoai)) break;
     if (!laTinHeThong(t, pageNgoai) && laKhach(t.from, pageId) && Date.parse(t.inserted_at) > moc) cuaKhach.push(t);
   }
   if (cuaKhach.length === 0) return null;
