@@ -468,10 +468,23 @@ export function useEscKhiKeo(dangKeo: boolean) {
  * bảng cuộn ngang (`<Table layout="fixed" style={{ minWidth: RONG_O_CHON + tongRong + <cột cuối> }}>`). KHÔNG để một cột
  * thật "ăn phần dư": kéo cột khác thì cột đó co bù → mép trái cột đang kéo chạy ngược (CEO 26/11). Hàng tiêu đề và mọi
  * hàng thân cần ô cuối tương ứng để kẻ ngang hết bề rộng.
+ * `choDo` (= `useCotBang().choDo`): `<colgroup data-cho-do>` → `tableFixed` ẩn bảng (giữ chỗ) tới lượt đo đầu — server
+ * render không lộ độ rộng tạm `RONG_CHO_DO` rồi nhảy. (Thử `table-layout: auto` thay thế: lệch 20–110px so với số đo vì
+ * tiêu đề xuống dòng + trần `rongToiDa` không áp được — đo 26/11, bỏ.)
  */
-export function ColCotBang({ hien, doRong, chon = true }: { hien: CotBang[]; doRong: Record<string, number>; chon?: boolean }) {
+export function ColCotBang({
+  hien,
+  doRong,
+  chon = true,
+  choDo = false,
+}: {
+  hien: CotBang[]
+  doRong: Record<string, number>
+  chon?: boolean
+  choDo?: boolean
+}) {
   return (
-    <colgroup>
+    <colgroup data-cho-do={choDo ? '' : undefined}>
       {chon && <col style={{ width: RONG_O_CHON }} />}
       {hien.map((x) => (
         <col key={x.id} data-cot={x.id} style={{ width: doRong[x.id] }} />

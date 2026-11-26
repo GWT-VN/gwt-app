@@ -313,7 +313,7 @@ export function BangViec({
       {/* Mọi cột rộng cố định theo `c.doRong` (Việc tự vừa nội dung, có trần), cột trống cuối ăn phần dư — kéo tay co cột
           nào chỉ cột đó đổi (học Twenty). */}
       <Table ref={refBang} layout="fixed" style={{ minWidth: 36 + c.tongRong }}>
-        <ColCotBang hien={c.hien} doRong={c.doRong} />
+        <ColCotBang hien={c.hien} doRong={c.doRong} choDo={c.choDo} />
         <TableHeader>
           <TableRow>
             <OChonTatCa nhan="việc" />

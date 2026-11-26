@@ -46,7 +46,7 @@ export const tableWrapVien = cn(
 /** `.b-bang`: 100%, viền tách 0, chữ 14 (line-height kế thừa 20 của DsRoot). */
 export const table = cn(kv, 'w-full caption-bottom border-separate border-spacing-0 text-[14px]')
 /** `.b-bang-c`. */
-export const tableFixed = 'table-fixed'
+export const tableFixed = 'table-fixed has-[>colgroup[data-cho-do]]:invisible'
 
 /**
  * Ô tick là con TRỰC TIẾP của `th`/`td` (ô chọn dòng / chọn tất cả: Checkbox DS hoặc `<input type=checkbox>` của bang/ —

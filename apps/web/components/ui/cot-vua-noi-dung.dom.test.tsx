@@ -30,7 +30,7 @@ function Man({ dong, url = false }: { dong: Dong[]; url?: boolean }) {
   return (
     <DsRoot>
       <Table ref={refBang} layout="fixed" style={{ minWidth: RONG_O_CHON + c.tongRong }}>
-        <ColCotBang hien={c.hien} doRong={c.doRong} />
+        <ColCotBang hien={c.hien} doRong={c.doRong} choDo={c.choDo} />
         <TableHeader>
           <TableRow>
             <th />
@@ -157,9 +157,13 @@ test('bảng đang ẩn (display:none) → không đo (không kẹp về sàn); 
   bangHien = false
   render(<Man dong={DONG} />)
   expect(rong()[1]).toBe('120px') // RONG_CHO_DO, chưa đo
+  // Chưa đo → bảng ẩn (giữ chỗ) để không lộ 120px rồi nhảy (CEO 26/11 "cột giật lúc mở").
+  expect(document.querySelector('colgroup')!.hasAttribute('data-cho-do')).toBe(true)
+  expect(document.querySelector('table')!.className).toContain('has-[>colgroup[data-cho-do]]:invisible')
   bangHien = true
   act(() => ro.forEach((cb) => cb()))
   await waitFor(() => expect(rong()[1]).toBe('180px'))
+  expect(document.querySelector('colgroup')!.hasAttribute('data-cho-do')).toBe(false)
 })
 
 test('cộng đệm trái/phải của ô; nội dung nhiều con nằm ngang = từ mép trái nhất tới mép phải nhất', () => {

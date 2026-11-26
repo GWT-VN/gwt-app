@@ -186,6 +186,7 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
   const [s, setS] = useState<TrangThaiCot>(() => (url ? docUrlCot(new URLSearchParams(sp.toString()), cot) : macDinh(cot)))
   const [bang, refBang] = useState<HTMLTableElement | null>(null)
   const [vua, setVua] = useState<Record<string, number>>({})
+  const [daDo, setDaDo] = useState(false)
 
   useEffect(() => {
     if (!url) return
@@ -218,6 +219,7 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
       if (choHien) return
       const moi = doVuaNoiDung(bang, cot)
       setVua((cu) => (Object.keys(moi).every((k) => cu[k] === moi[k]) ? cu : { ...cu, ...moi }))
+      setDaDo(true)
     }
     const henDo = () => {
       if (!hen) hen = requestAnimationFrame(chay)
@@ -267,6 +269,12 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     refBang,
     /** Cột đang hiện, đúng thứ tự. */
     hien,
+    /**
+     * Bảng có cột tự vừa mà CHƯA đo lần nào (server render, trước hydrate) — đưa cho `ColCotBang choDo`: bảng giữ chỗ
+     * nhưng ẩn (`visibility: hidden`) tới lượt đo đầu (layout effect, trước khi vẽ) thay vì hiện `RONG_CHO_DO` rồi nhảy
+     * (CEO thấy cột giật lúc mở trang, 26/11). Đo xong một lần là hiện, kể cả cột không đo được (về `RONG_CHO_DO`).
+     */
+    choDo: !daDo && !!idDo,
     /**
      * Tổng bề rộng các cột đang hiện (chưa gồm ô chọn / cột cuối). Bảng `layout="fixed"` đặt `minWidth` = số này + phần
      * cố định khác → vượt khung thì cuộn ngang. Dùng cùng `ColCotBang` (tieu-de-cot.tsx).
