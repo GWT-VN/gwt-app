@@ -68,7 +68,7 @@ export const tabsListVariants = cva(
 
 /** Phần chung `.ui-tabs-trigger`: 14px/1, muted; hover / đang chọn chữ foreground; focus phím outline 2 ring sát; tắt. */
 const triggerChung = [
-  'inline-flex items-center gap-1.5 border-none border-current rounded-(--radius-full) bg-transparent cursor-pointer',
+  'inline-flex items-center gap-1.5 border-none border-current bg-transparent cursor-pointer',
   'text-[14px] leading-none text-muted-foreground',
   // Icon trước chữ (Phosphor, học Twenty 26/11): cỡ token icon md như Button/Toggle cùng cỡ control; icon tự đặt `size-*`
   // (caret của "Thêm") giữ cỡ của nó.
@@ -84,7 +84,7 @@ const triggerChung = [
 /** Tab segmented: 600, đệm ngang gutter-md × 1.33 (16), đang chọn = thumb gray-0 (tối gray-300) + bóng nhẹ. */
 export const tabsTriggerSegmented = [
   triggerChung,
-  'h-full px-[calc(var(--control-gutter-md)*1.33)] font-semibold',
+  'h-full px-[calc(var(--control-gutter-md)*1.33)] font-semibold rounded-(--radius-full)',
   'data-[state=active]:bg-(--gray-0) in-data-[theme=dark]:data-[state=active]:bg-(--gray-300)',
   'data-[state=active]:[box-shadow:0_1px_4px_-1px_rgba(0,0,0,0.2)]',
 ].join(' ')
@@ -96,7 +96,8 @@ export const tabsTriggerSegmented = [
  */
 export const tabsTriggerLine = [
   triggerChung,
-  'relative h-full px-3 font-semibold whitespace-nowrap shrink-0',
+  // Bo radius-sm (không full): vòng focus ôm chữ như ô chữ nhật — vòng viên thuốc quanh tab gạch chân trông lạc (CEO 26/11).
+  'relative h-full px-3 font-semibold whitespace-nowrap shrink-0 rounded-(--radius-sm)',
   "after:content-[''] after:absolute after:border-none after:border-current after:bg-foreground after:opacity-0",
   'after:transition-opacity data-[state=active]:after:opacity-100',
   'group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:-bottom-[5px] group-data-[orientation=horizontal]/tabs:after:h-0.5',
@@ -104,7 +105,7 @@ export const tabsTriggerLine = [
 ].join(' ')
 
 /** Nút "+N Thêm ▾" của hàng `line` thu gọn: như tab line (cao 28 = tab trong rãnh 32), không vạch (không phải tab). */
-export const tabsThemLine = [triggerChung, 'h-7 px-3 font-semibold whitespace-nowrap shrink-0'].join(' ')
+export const tabsThemLine = [triggerChung, 'h-7 px-3 font-semibold whitespace-nowrap shrink-0 rounded-(--radius-sm)'].join(' ')
 
 /**
  * Tab pill: cao control-size-md (32), đệm 0 12, 500, không xuống dòng, không co; đang chọn nền alpha-05, không bóng,
@@ -114,7 +115,7 @@ export const tabsThemLine = [triggerChung, 'h-7 px-3 font-semibold whitespace-no
  */
 export const tabsTriggerPill = [
   triggerChung,
-  'h-(--control-size-md) px-3 font-medium whitespace-nowrap shrink-0',
+  'h-(--control-size-md) px-3 font-medium whitespace-nowrap shrink-0 rounded-(--radius-full)',
   'data-[state=active]:bg-(--alpha-05) aria-expanded:bg-(--alpha-05)',
 ].join(' ')
 

@@ -131,6 +131,27 @@ máy 406 · lỗi 186 · trạng thái 106 · phụ trách 102, 80/80 ô không 
 `cot-vua-noi-dung.dom.test`. Khi đẩy lên artifact: README Table mục "Co dãn cột" thêm "mặc định vừa nội dung, `rongToiDa`,
 nhấp đúp về vừa nội dung"; preview Table bỏ độ rộng gõ tay ở cột chữ (khối JS đo như trên — `bundle.css` không đổi).
 
+**Chờ đồng bộ lên artifact** — bổ sung cột tự vừa (26/11): (1) cộng `KHOANG_CUOI_COT` 8px cuối mỗi cột tự vừa trước khi kẹp
+trần (CEO "add thêm 8px spacing ở các đoạn cuối cột" — chữ dài nhất dính sát cột kế); (2) chưa đo lần nào (HTML server,
+trước hydrate) → `useCotBang().choDo` + `<ColCotBang choDo>` gắn `colgroup[data-cho-do]`, `tableFixed` ẩn bảng giữ chỗ
+(`visibility: hidden`) tới lượt đo đầu — hết cảnh cột 120px rồi nhảy (thử `table-layout: auto` thay thế: lệch 20–110px, bỏ).
+
+**Chờ đồng bộ lên artifact** — tab `line` bo `radius-sm` (không `radius-full`): vòng focus ôm tab thành ô chữ nhật bo nhẹ;
+vòng viên thuốc quanh tab gạch chân trông lạc (CEO 26/11 "trạng thái focus tròn này ko hợp lý"). `triggerChung` bỏ bo,
+segmented + pill tự khai `radius-full`, line + nút "+N Thêm" khai `radius-sm`.
+
+**Chờ đồng bộ lên artifact** — chữ tiêu đề bảng cột ghim (44/600 viết hoa) hạ từ `muted` xuống `color-text-tertiary` như
+Twenty (CEO 26/11 "hạ sắc độ label xuống giống twenty"). Đo nền trắng: 3,23:1 — DƯỚI AA 4,5:1 cho chữ 12px (muted cũ
+6,5:1); chấp nhận theo lệnh CEO, ghi lại để quyết khi đẩy artifact.
+
+**Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
+menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
+Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,
+khác nguồn artifact `.ui-menu-search:focus-within`); (b) không outline/ring/box-shadow quanh ô; (c) caret ẩn khi ô trống
+(`placeholder-shown:caret-transparent`). Sửa ở `command-styles.ts` (gốc của 16 chỗ dùng), KHÔNG vá từng màn. Ô tìm đứng
+riêng trên trang (`OTimKiem`, `Input shape="pill"`) vẫn có viền focus alpha-50 như input thường — luật này chỉ cho ô nằm
+TRONG lớp nổi. Kiểm: mở thật menu, `getComputedStyle(hàng).borderBottomColor` lúc focus = lúc không focus.
+
 Kanban học hành vi Twenty (26/11, spec mục F + G, prototype ticket F; giao diện giữ DS — không vạch dọc/lưới): (G) ngưỡng
 kéo chuột 4 → 8px, thêm `TouchSensor` giữ 250ms lệch ≤ 5px (giữ rồi thả tại chỗ → menu "Chuyển sang…"; ContextMenu tắt
 trong lúc kéo), phím dùng `CamBienPhimKeo`; không xếp thứ tự thẻ trong cột. (F) `KanbanBoard menuCot` → nút ⋯ (Button ghost

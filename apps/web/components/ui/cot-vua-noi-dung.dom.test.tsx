@@ -109,9 +109,9 @@ const DONG: Dong[] = [
 
 test('cột không khai rong = max(tiêu đề, mọi ô đang vẽ), sàn 56; cột có rong giữ số khai; minWidth = tổng (không bóp)', () => {
   render(<Man dong={DONG} />)
-  // khach: ô dài nhất 180 > tiêu đề "Khách" 40 · may: ô 30, tiêu đề 24 → sàn 56 · han: khai 96.
-  expect(rong()).toEqual(['36px', '180px', '56px', '96px', ''])
-  expect(document.querySelector('table')!.style.minWidth).toBe(`${36 + 180 + 56 + 96}px`)
+  // khach: ô dài nhất 180 > tiêu đề "Khách" 40, + 8 khoảng cuối · may: ô 30 + 8 → sàn 56 · han: khai 96.
+  expect(rong()).toEqual(['36px', '188px', '56px', '96px', ''])
+  expect(document.querySelector('table')!.style.minWidth).toBe(`${36 + 188 + 56 + 96}px`)
 })
 
 test('tiêu đề dài hơn mọi ô → cột theo tiêu đề', () => {
@@ -131,7 +131,7 @@ test('quá trần rongToiDa → cột = trần, ô bị cắt có title = nội 
 test('dữ liệu đổi → đo lại (MutationObserver), cột nở theo nội dung mới', async () => {
   const { rerender } = render(<Man dong={DONG} />)
   rerender(<Man dong={[...DONG, { id: '3', khach: 190, may: 90 }]} />)
-  await waitFor(() => expect(rong()).toEqual(['36px', '190px', '90px', '96px', '']))
+  await waitFor(() => expect(rong()).toEqual(['36px', '198px', '98px', '96px', '']))
 })
 
 test('kéo tay thắng (cả khi dữ liệu đổi), không đo lại lúc đang kéo; nhấp đúp → về vừa nội dung', async () => {
@@ -144,13 +144,13 @@ test('kéo tay thắng (cả khi dữ liệu đổi), không đo lại lúc đan
   fireEvent.pointerUp(t, { clientX: 530, pointerId: 1 })
   await act(() => new Promise((r) => requestAnimationFrame(r)))
   expect(soLanDo).toBe(0)
-  expect(rong()[1]).toBe('210px')
-  rerender(<Man dong={[...DONG, { id: '3', khach: 195, may: 20 }]} />)
+  expect(rong()[1]).toBe('218px') // 188 + kéo 30
+  rerender(<Man dong={[...DONG, { id: '3', khach: 185, may: 20 }]} />)
   await act(() => new Promise((r) => requestAnimationFrame(r)))
-  expect(rong()[1]).toBe('210px')
+  expect(rong()[1]).toBe('218px') // 188 + kéo 30
   fireEvent.doubleClick(t)
-  // Về vừa nội dung hiện tại (195), không phải một số cố định cũ.
-  await waitFor(() => expect(rong()[1]).toBe('195px'))
+  // Về vừa nội dung hiện tại (185 + 8, dưới trần 200), không phải một số cố định cũ.
+  await waitFor(() => expect(rong()[1]).toBe('193px'))
 })
 
 test('bảng đang ẩn (display:none) → không đo (không kẹp về sàn); hiện ra (ResizeObserver) → đo', async () => {
@@ -162,7 +162,7 @@ test('bảng đang ẩn (display:none) → không đo (không kẹp về sàn); 
   expect(document.querySelector('table')!.className).toContain('has-[>colgroup[data-cho-do]]:invisible')
   bangHien = true
   act(() => ro.forEach((cb) => cb()))
-  await waitFor(() => expect(rong()[1]).toBe('180px'))
+  await waitFor(() => expect(rong()[1]).toBe('188px'))
   expect(document.querySelector('colgroup')!.hasAttribute('data-cho-do')).toBe(false)
 })
 
@@ -180,7 +180,7 @@ test('cộng đệm trái/phải của ô; nội dung nhiều con nằm ngang = 
     return this === a ? ({ ...r, left: 180, right: 480 } as DOMRect) : r
   }
   const ra = doVuaNoiDung(document.querySelector('table')!, [{ ...COT[0], rongToiDa: undefined }])
-  expect(ra.khach).toBe(480 + 12)
+  expect(ra.khach).toBe(480 + 12 + 8) // + đệm ô 6×2 + khoảng cuối 8
 })
 
 test('URL: cot_rong ghi CHỈ cột kéo tay; mở lại giữ đúng số đã kéo', () => {

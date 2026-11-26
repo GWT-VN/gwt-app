@@ -69,6 +69,8 @@ export const th = cn(
   // chữ 600 VIẾT HOA, giãn chữ nhẹ (chữ hoa cỡ 12 dính nét nếu để 0). Viết hoa ép xuống cả con (`**:`): nút tiêu đề
   // (`TieuDeCot`) bị preflight đặt `text-transform: none`, không thừa kế từ th.
   '[table:has(>thead>tr>th[data-ghim])_&]:h-(--control-size-2xl) [table:has(>thead>tr>th[data-ghim])_&]:font-semibold',
+  // Chữ tiêu đề hạ sắc độ về tertiary như Twenty (CEO 26/11 "hạ sắc độ label xuống giống twenty"; trước muted).
+  '[table:has(>thead>tr>th[data-ghim])_&]:text-(--color-text-tertiary)',
   '[table:has(>thead>tr>th[data-ghim])_&]:uppercase [table:has(>thead>tr>th[data-ghim])_&]:**:uppercase [table:has(>thead>tr>th[data-ghim])_&]:tracking-wide',
   'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
   // `.b-bang-c th`: đệm ngang 6.

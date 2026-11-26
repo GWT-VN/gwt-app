@@ -43,6 +43,8 @@ export const RONG_O_CHON = 36
 export const RONG_THEM_COT = 40
 /** Cột tự vừa trước lần đo đầu (HTML server vẽ, trước khi hydrate). */
 export const RONG_CHO_DO = 120
+/** Khoảng thở cuối cột tự vừa — chữ dài nhất không dính sát cột kế (CEO 26/11 "add thêm 8px spacing ở các đoạn cuối cột"). */
+export const KHOANG_CUOI_COT = 8
 export type BenTha = 'trai' | 'phai'
 
 /**
@@ -159,7 +161,8 @@ export function doVuaNoiDung(bang: HTMLElement, cot: CotBang[]): Record<string, 
   })
   for (const id of Object.keys(ra)) {
     const c = tuVua.get(id)!
-    ra[id] = Math.max(toiThieu(c), c.rongToiDa ? Math.min(ra[id], c.rongToiDa) : ra[id])
+    const vua = ra[id] + KHOANG_CUOI_COT
+    ra[id] = Math.max(toiThieu(c), c.rongToiDa ? Math.min(vua, c.rongToiDa) : vua)
   }
   o.forEach((x, i) => {
     const tran = tuVua.get(x.dataset.cot!)?.rongToiDa

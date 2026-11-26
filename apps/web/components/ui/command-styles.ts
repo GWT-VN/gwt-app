@@ -21,12 +21,14 @@ export const command = [
 ].join(' ')
 
 /**
- * `CommandInput` — hàng bọc (`.ui-menu-search`): cao 32, padding 0 8, gap 8, chỉ kẻ dưới `border`; focus trong ô → gạch
- * alpha-50. Kính lúp 16 muted (shadcn: opacity 50).
+ * `CommandInput` — hàng bọc (`.ui-menu-search`): cao 32, padding 0 8, gap 8, chỉ kẻ dưới `border` — gạch GIỮ NGUYÊN khi
+ * focus (KHÔNG đậm lên alpha-50 như nguồn artifact). Ô tìm trong menu/pop luôn tự focus khi mở → gạch đậm hiện thường trực
+ * như một đường kẻ lỗi; CEO phê 2 lần ("bỏ line đậm ở phần search" 26/11 ×2) — luật NGUON "Ô tìm trong menu". Kính lúp 16
+ * muted (shadcn: opacity 50).
  */
 export const commandInputWrapper = [
   'flex shrink-0 items-center gap-2 h-(--control-size-md) px-2',
-  'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
+  'border-none border-current [border-bottom:1px_solid_var(--border)]',
 ].join(' ')
 export const commandInputIcon = 'size-4 shrink-0 text-muted-foreground'
 /**
@@ -130,10 +132,10 @@ export const goc = 'flex flex-1 min-h-0 flex-col border-none border-current outl
 
 /**
  * `.ui-command-input`: flex giữa, gap 10, padding 0 12 0 16, chỉ kẻ dưới `border`. Icon 16 muted. Phủ mặc định gọn của
- * `CommandInput` (cao 32, gạch alpha-50 khi focus — nguồn không đổi gạch).
+ * `CommandInput` (cao 32). Gạch không đổi khi focus (như `CommandInput`).
  */
 export const hangGo = [
-  'flex shrink-0 items-center gap-2.5 pl-4 pr-3 h-auto focus-within:[border-bottom-color:var(--border)]',
+  'flex shrink-0 items-center gap-2.5 pl-4 pr-3 h-auto',
   'border-none border-current [border-bottom:1px_solid_var(--border)]',
   '[&>svg]:size-(--control-icon-size-sm) [&>svg]:shrink-0 [&>svg]:text-muted-foreground',
 ].join(' ')
