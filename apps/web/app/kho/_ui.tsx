@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { linkTinDiscord, mauTrangThai, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
 import { TuLamMoi } from './_tu-lam-moi'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 /** Google Sheet theo dõi sổ kho NX (cùng dữ liệu) — đổi Sheet thì sửa ở gwt-discord-bot/admin/kho/nx-chay.mjs (SHEET_NX) VÀ ở đây. */
 export const LINK_SHEET_KHO = 'https://docs.google.com/spreadsheets/d/1etncdbnKDQg2jIsJjc556pvT1HI0HTrKnMbNDeRr4d0'
@@ -90,15 +91,11 @@ export function NhanSuaTay({ luc, boi }: { luc: string | null; boi: string | nul
 /** Số đẹp: 1.234; số âm có dấu. */
 export const sl = (n: number) => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(n)
 
-/** 2026-11-03 → 03/11/2026; ISO có giờ → dd/mm/yyyy hh:mm (giờ VN). */
-export function ngayVN(x: string | null | undefined): string {
-  if (!x) return '—'
-  const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(x)
-  if (d) return `${d[3]}/${d[2]}/${d[1]}`
-  const t = new Date(x)
-  if (Number.isNaN(t.getTime())) return x
-  return new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'short' }).format(t)
-}
+/**
+ * Chứng từ kho GIỮ NĂM (không theo mặc định dd/MM của app): 2026-11-03 → 03/11/26; ISO có giờ → 03/11/26 14:30 (giờ VN).
+ * `hienNgay` kiểu 'gio' — ngày thuần tự ra dạng ngắn.
+ */
+export const ngayVN = (x: string | null | undefined): string => hienNgay(x, 'gio')
 
 /** Khi chưa đặt KHO_DB_URL / DB lỗi: báo rõ thay vì trang trắng. */
 export function LoiKho({ loi }: { loi?: string }) {
