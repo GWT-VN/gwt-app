@@ -29,7 +29,8 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaChon, OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
-import { luuLoi, luuTicket } from './sua-ticket'
+import { luuLoi, luuMay, luuTicket } from './sua-ticket'
+import type { MayKhach } from '@/app/ticket/loi-actions'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
@@ -44,12 +45,12 @@ import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTru
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, laDemo, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { HopGanViec } from './the-tab'
-import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, soDongThem, TRUONG_F } from './truong-f'
+import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, maMayNgan, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
 /** Giá trị lạc quan khi kéo thẻ Kanban (đang lưu DB) — bỏ khi lưu xong (dữ liệu server mới về) hoặc trả lại khi lỗi. */
-type Sua = { state?: Ticket['state']; cs_phu_trach?: string | null; cs_ten?: string | null }
+type Sua = Partial<Ticket>
 export type DongF = Ticket
 type Dong = DongF
 
@@ -193,7 +194,14 @@ type Sap = { cot: string; tang: boolean }
 /** Ngữ cảnh ô: mở Xem nhanh + dữ liệu chọn của ô sửa được (null = chỉ đọc: không quyền cs.ticket.tao_sua). */
 type NgCanhO = {
   mo: (ma: string) => void
-  sua: { nhanVien: MucChon[]; loai: MucChon[]; dsLoi: DuLieuTicket['dsLoi'] } | null
+  sua: {
+    nhanVien: MucChon[]
+    loai: MucChon[]
+    dsLoi: DuLieuTicket['dsLoi']
+    mayKhach: Record<string, MayKhach[]>
+    /** Đổi máy: lạc quan cả cặp Máy + Bảo hành (+ Loại lỗi về Chưa phân loại), lỗi thì trả cả cặp. */
+    doiMay: (t: Ticket, serial: string) => Promise<void>
+  } | null
 }
 
 const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
@@ -213,14 +221,34 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   ),
   // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
   // hàng); tên đầy đủ + serial ở title.
-  may: (t) => (
-    <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      <span className={cn('min-w-0 truncate', CHU_CAP)} title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
-        {maMayDong(t)}
+  may: (t, { sua }) => {
+    // CEO 26/11 "Cho sửa Máy": bấm ô → chọn trong máy của khách (mã ngắn + serial). Chưa gắn khách / khách chưa có máy
+    // trong hệ thống / không quyền → chỉ đọc.
+    const ds = sua && t.customer_id ? sua.mayKhach[t.customer_id] : undefined
+    const dangChon = dongDau(t)?.serial ?? t.serial
+    return (
+      <span className="flex min-w-0 items-center gap-2 border-none border-current">
+        {sua && ds?.length ? (
+          <span className={cn('contents', CHU_CAP)}>
+            <OSuaChon
+              ma={t.ticket_code}
+              truong="máy"
+              value={dangChon}
+              mucDangChon={dangChon ? { gt: dangChon, nhan: maMayDong(t) } : undefined}
+              chuaGiao="—"
+              options={ds.map((m) => ({ gt: m.serial, nhan: maMayNgan(m), phu: m.serial, anMa: true }))}
+              onLuu={(v) => (v ? sua.doiMay(t, v) : Promise.reject(new Error('Chọn một máy.')))}
+            />
+          </span>
+        ) : (
+          <span className={cn('min-w-0 truncate', CHU_CAP)} title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
+            {maMayDong(t)}
+          </span>
+        )}
+        <ThemDong t={t} />
       </span>
-      <ThemDong t={t} />
-    </span>
-  ),
+    )
+  },
   // Chỉ TÊN lỗi (không lặp mã máy — CEO 26/11 "tách loại lỗi ra khỏi mã máy"); chưa phân loại = chữ mờ.
   loi: (t, { sua }) => {
     const d = dongDau(t)
@@ -384,6 +412,7 @@ export function TicketF({
   quyenTabChung,
   quyenSua = false,
   nhanVien = [],
+  mayKhach = {},
   dau,
 }: DuLieuTicket & { dau?: ReactNode }) {
   const spRo = useSearchParams()
@@ -532,12 +561,52 @@ export function TicketF({
     ],
   })
 
+  /** Đổi máy ở ô: lạc quan Máy + Bảo hành (+ lỗi dòng đầu nếu không hợp máy mới); xong mà lỗi về Chưa phân loại → mở pop
+   *  Loại lỗi của hàng để chọn tiếp (CEO 26/11 "mã máy thay đổi thì loại lỗi của cột lỗi trong hàng cũng thay đổi"). */
+  const doiMay = async (t: Ticket, serial: string) => {
+    const m = t.customer_id ? mayKhach[t.customer_id]?.find((x) => x.serial === serial) : undefined
+    const ma = t.ticket_code
+    if (m && !laDemo(ma)) {
+      const d = dongDau(t)
+      const veCpl = !!d && !d.chuaPhanLoai && !loiHopVoiMay(dsLoi.find((x) => x.code === d.loi_code) ?? { code: d.loi_code }, m.internal_code)
+      const homNay = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10)
+      setSua((s) => ({
+        ...s,
+        [ma]: {
+          serial,
+          source_serial: serial,
+          product_name: m.product_name,
+          internal_code: m.internal_code,
+          warranty_activated: m.warranty_activated,
+          warranty_full_end: m.warranty_full_end,
+          con_han_may: m.warranty_full_end ? m.warranty_full_end >= homNay : null,
+          ...(d && {
+            dong_may: [
+              { ...d, serial, internal_code: m.internal_code, ...(veCpl && { loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại', chuaPhanLoai: true }) },
+              ...t.dong_may!.slice(1),
+            ],
+          }),
+        },
+      }))
+    }
+    try {
+      if (await luuMay(ma, serial))
+        // Dữ liệu mới về rồi mới mở pop Loại lỗi của hàng (ô tìm tự focus).
+        setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Sửa loại lỗi ${CSS.escape(ma)}"]`)?.click(), 300)
+    } finally {
+      setSua((s) => {
+        const n = { ...s }
+        delete n[ma]
+        return n
+      })
+    }
+  }
   // Ô sửa được (CEO 26/11 "Mở chọn giá trị" — học hành vi Twenty): Trạng thái, Phụ trách, Loại, Loại lỗi. Máy và Tỉnh/TP
   // chỉ đọc (Tỉnh/TP đọc từ KHÁCH; đổi máy cần đọc máy của khách + DB local chưa có ticket_may — báo phiên chính).
   const ng: NgCanhO = {
     mo,
     sua: quyenSua
-      ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi }
+      ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi, mayKhach, doiMay }
       : null,
   }
   const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT

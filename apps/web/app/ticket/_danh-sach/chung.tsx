@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Ticket, TicketTab } from '@/app/actions'
+import type { MayKhach } from '@/app/ticket/loi-actions'
 import { Button } from '@/components/ui/button'
 import { thongBao } from '@/components/ui/sonner'
 
@@ -27,6 +28,8 @@ export type DuLieuTicket = {
   quyenSua?: boolean
   /** F: nhân viên chọn làm Phụ trách (gt = staff id). */
   nhanVien?: { gt: string; nhan: string; anMa?: boolean }[]
+  /** F: máy đã lắp theo khách (customer_id) — pop chọn ô Máy. */
+  mayKhach?: Record<string, MayKhach[]>
 }
 
 /** Hành động chưa nối (bước 4 của docs/rework/2026-11-26-ticket-f-dung-that.md). */

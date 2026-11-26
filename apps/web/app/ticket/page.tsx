@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { danhMucLoi } from '@/app/ticket/loi-actions'
+import { danhMucLoi, mayCuaCacKhach } from '@/app/ticket/loi-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
 import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, listTicketTab, type Ticket } from '@/app/actions'
 import { currentStaff, listStaff } from '@/lib/nen-tang/nhan-su'
@@ -66,6 +66,12 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     dev ? searchTickets('', undefined, false, undefined, { chiDem: true }).then((r) => r.tong) : Promise.resolve(Infinity),
   ])
   const demo = tongDb < 5
+  // Máy của các khách trên trang (pop chọn ô Máy) — một truy vấn; lỗi đọc → ô Máy chỉ đọc.
+  const { data: mayKhach } = await docAnToan(
+    'mayCuaCacKhach',
+    () => mayCuaCacKhach(ketQua.rows.flatMap((r) => (r.customer_id ? [r.customer_id] : []))),
+    {},
+  )
   // Demo: cùng tìm kiếm (locDemo) + bộ lọc trường (apLoc, "Tôi" = TOI_DEMO).
   const locDemoTheo = (d: ReturnType<typeof dieuKien>) => (demo ? apLoc(locDemo({ q: d.q }), d.dk, TRUONG_F, { toi: TOI_DEMO }) : [])
   const demoHien = locDemoTheo(hien)
@@ -83,6 +89,7 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten, ma_may: d.ma_may, ngung: d.trang_thai === 'ngung' })),
     demo,
     quyenSua: sua,
+    mayKhach,
     nhanVien: nhanVien.map((n) => ({ gt: n.id, nhan: n.ten, anMa: true })),
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
     // Khoá số đếm: tab cố định = `v`, tab tự tạo = `t:<id>` (như giá trị TabsTrigger).

@@ -11,6 +11,7 @@ import { boDau } from '@/bang/timkiem'
 import { kiemDangSerial } from '@/lib/loi/serial'
 import { serialBoSungChoTicket } from '@/lib/loi/ticketKhongSerial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
+import { loiHopVoiMay } from '@/app/ticket/_danh-sach/truong-f'
 import { demDoiTrangThai, docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
 import type { DongCa, MauSo } from '@/lib/loi/tanSuat'
 import type { DongMay, DongMayInput, KetQuaTraSerial, KhachVaMay, LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
@@ -282,6 +283,83 @@ export async function suaDongMay(id: string, patch: DongMayInput & { huong_xu_ly
   }
   lamMoi(code)
   return { ok: true }
+}
+
+/** Bảng chưa có trên DB này (DB local thiếu `ticket_may`…) — PostgREST PGRST205 / Postgres 42P01. */
+const thieuBang = (e: { code?: string } | null) => e?.code === 'PGRST205' || e?.code === '42P01'
+
+export type MayKhach = {
+  serial: string; internal_code: string | null; product_name: string | null; customer_id: string
+  warranty_activated: boolean | null; warranty_full_end: string | null
+}
+
+/** Máy đã lắp của nhiều khách (pop chọn ô Máy ở danh sách ticket F) — MỘT truy vấn cho cả trang. */
+export async function mayCuaCacKhach(ids: string[]): Promise<Record<string, MayKhach[]>> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  if (!Array.isArray(ids) || ids.length > GIOI_HAN.soMaTicket) throw new Error('Quá nhiều khách trong một lần tra.')
+  const ds = [...new Set(ids.filter(laUuid))]
+  if (!ds.length) return {}
+  const { data, error } = await dataClient().from('v_installed_base')
+    .select('serial, internal_code, product_name, customer_id, warranty_activated, warranty_full_end')
+    .in('customer_id', ds).order('install_date', { ascending: false, nullsFirst: false })
+  if (error) throw new Error(thongBaoLoiDb(error, 'mayCuaCacKhach'))
+  const ra: Record<string, MayKhach[]> = {}
+  for (const m of (data ?? []) as MayKhach[]) (ra[m.customer_id] ??= []).push(m)
+  return ra
+}
+
+/**
+ * Đổi máy của ticket (ô Máy danh sách F — CEO 26/11 "Cho sửa Máy"). Máy phải thuộc đúng khách của ticket. Ghi serial
+ * của ticket (cột v_tickets đọc ra tên máy / bảo hành) + dòng máy đầu (`ticket_may`, không có dòng thì không tạo). Lỗi
+ * hiện tại của dòng không dùng được cho máy mới (`loi_danh_muc.ma_may`, như DB) → về CHUA_PHAN_LOAI cùng lần ghi.
+ * Dòng máy ghi lỗi → trả serial ticket về cũ. DB chưa có bảng `ticket_may` → chỉ đổi ticket.
+ * ponytail: hai lệnh update (không giao dịch); cần nguyên tử tuyệt đối thì gộp vào một RPC.
+ */
+export async function doiMayTicket(code: string, serial: string): Promise<KQ<{ loiVeChuaPhanLoai: boolean }>> {
+  await requireStaff()
+  await doQuyen('cs.ticket.tao_sua')
+  if (!maTicketHopLe(code)) return { ok: false, error: 'Mã ticket không hợp lệ.' }
+  const sr = typeof serial === 'string' ? serial.trim() : ''
+  if (!sr || sr.length > GIOI_HAN.serialRaw) return { ok: false, error: 'Serial không hợp lệ.' }
+  const db = dataClient()
+  const { data: t, error: e0 } = await db.from('v_tickets').select('customer_id, serial, source_serial').eq('ticket_code', code).maybeSingle()
+  if (e0) return { ok: false, error: thongBaoLoiDb(e0, 'doiMayTicket.ticket') }
+  if (!t) return { ok: false, error: 'Không thấy ticket.' }
+  const tk = t as { customer_id: string | null; serial: string | null; source_serial: string | null }
+  if (!tk.customer_id) return { ok: false, error: 'Ticket chưa gắn khách — gắn khách trước.' }
+  const { data: m, error: e1 } = await db.from('installed_base').select('serial, internal_code, customer_id').eq('serial', sr).maybeSingle()
+  if (e1) return { ok: false, error: thongBaoLoiDb(e1, 'doiMayTicket.may') }
+  const may = m as { serial: string; internal_code: string | null; customer_id: string | null } | null
+  if (!may || may.customer_id !== tk.customer_id) return { ok: false, error: 'Máy này không thuộc khách của ticket.' }
+  if (sr === tk.serial) return { ok: true, loiVeChuaPhanLoai: false }
+
+  const { error: e2 } = await db.from('tickets').update({ serial: sr, source_serial: sr }).eq('ticket_code', code)
+  if (e2) return { ok: false, error: thongBaoLoiDb(e2, 'doiMayTicket.capNhat') }
+  const traVe = async (loi: string) => {
+    await db.from('tickets').update({ serial: tk.serial, source_serial: tk.source_serial }).eq('ticket_code', code)
+    return { ok: false as const, error: loi }
+  }
+
+  let loiVeChuaPhanLoai = false
+  const { data: d, error: e3 } = await db.from('ticket_may').select('id, loi_code').eq('ticket_code', code).order('thu_tu').limit(1).maybeSingle()
+  if (e3 && !thieuBang(e3)) return traVe(thongBaoLoiDb(e3, 'doiMayTicket.dong'))
+  const dong = e3 ? null : (d as { id: string; loi_code: string } | null)
+  if (dong) {
+    const up: Record<string, unknown> = { serial: sr, source_serial: sr, internal_code: may.internal_code, cs_sua: true }
+    if (dong.loi_code !== CHUA_PHAN_LOAI) {
+      const { data: l } = await db.from('loi_danh_muc').select('code, ma_may').eq('code', dong.loi_code).maybeSingle()
+      if (!loiHopVoiMay((l as { code: string; ma_may: string[] } | null) ?? { code: dong.loi_code }, may.internal_code)) {
+        up.loi_code = CHUA_PHAN_LOAI
+        loiVeChuaPhanLoai = true
+      }
+    }
+    const { error: e4 } = await db.from('ticket_may').update(up).eq('id', dong.id)
+    if (e4) return traVe(thongBaoLoiDb(e4, 'doiMayTicket.capNhatDong'))
+  }
+  await ghiAudit('doi_may_ticket', `ticket:${code}`, { serial_cu: tk.serial, serial_moi: sr, loi_ve_chua_phan_loai: loiVeChuaPhanLoai })
+  lamMoi(code)
+  return { ok: true, loiVeChuaPhanLoai }
 }
 
 export async function xoaDongMay(id: string): Promise<KQ> {

@@ -2,7 +2,7 @@
 // suaDongMay / themDongMay). Lỗi → NÉM để ô InlineEdit trả giá trị cũ + báo (lưu lạc quan của DS). Ticket Demo (bộ nhớ)
 // không lưu: ném "Demo — không lưu" thay vì gọi action.
 import { updateTicket, type Ticket } from '@/app/actions'
-import { suaDongMay, themDongMay } from '@/app/ticket/loi-actions'
+import { doiMayTicket, suaDongMay, themDongMay } from '@/app/ticket/loi-actions'
 import { DEMO_KHONG_LUU, laDemo } from './chung'
 import { dongDau } from './truong-f'
 
@@ -24,4 +24,12 @@ export async function luuLoi(t: Ticket, loiCode: string): Promise<void> {
       ? await themDongMay(t.ticket_code, { loi_code: loiCode, ...(t.serial ? { serial: t.serial } : {}) })
       : { ok: false as const, error: 'Chưa đọc được dòng máy — sửa ở trang chi tiết.' }
   if (!r.ok) throw new Error(r.error)
+}
+
+/** Đổi máy (ô Máy): trả `loiVeChuaPhanLoai` — lỗi cũ không dùng được cho máy mới, dòng máy đã về Chưa phân loại. */
+export async function luuMay(ma: string, serial: string): Promise<boolean> {
+  if (laDemo(ma)) throw new Error(DEMO_KHONG_LUU)
+  const r = await doiMayTicket(ma, serial)
+  if (!r.ok) throw new Error(r.error)
+  return r.loiVeChuaPhanLoai
 }

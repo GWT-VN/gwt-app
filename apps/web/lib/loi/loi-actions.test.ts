@@ -319,3 +319,45 @@ describe('I2: xem trước đếm mã sẽ đổi trạng thái', () => {
     expect(r.ok && r.soDoiTrangThai).toBe(1)
   })
 })
+
+describe('doiMayTicket — ô Máy danh sách ticket F (CEO 26/11 "Cho sửa Máy")', () => {
+  const KH = '33333333-3333-4333-8333-333333333333'
+  const ticket = (customer_id: string | null) => ({ data: { customer_id, serial: 'S-CU', source_serial: 'S-CU' } })
+  it('doQuyen trước lần chạm DB đầu tiên', async () => {
+    phan = { v_tickets: ticket(KH), installed_base: { data: { serial: 'S2', internal_code: 'CTS20NG', customer_id: KH } } }
+    await A.doiMayTicket('TK-1', 'S2')
+    expect(chuoi.indexOf('doQuyen')).toBeLessThan(chuoi.findIndex((x) => x.startsWith('db:')))
+  })
+  it('ticket chưa gắn khách → báo, không ghi', async () => {
+    phan = { v_tickets: ticket(null) }
+    expect(await A.doiMayTicket('TK-1', 'S2')).toEqual({ ok: false, error: 'Ticket chưa gắn khách — gắn khách trước.' })
+    expect(ghi).toEqual([])
+  })
+  it('máy không thuộc khách của ticket → từ chối, không ghi', async () => {
+    phan = { v_tickets: ticket(KH), installed_base: { data: { serial: 'S2', internal_code: 'X', customer_id: '44444444-4444-4444-8444-444444444444' } } }
+    expect((await A.doiMayTicket('TK-1', 'S2')).ok).toBe(false)
+    expect(ghi).toEqual([])
+  })
+  it('đổi serial ticket + dòng máy đầu; lỗi không hợp máy mới → CHUA_PHAN_LOAI', async () => {
+    phan = {
+      v_tickets: ticket(KH),
+      installed_base: { data: { serial: 'S2', internal_code: 'GN610X', customer_id: KH } },
+      'select:ticket_may': { data: { id: 'd1', loi_code: 'E3' } },
+      loi_danh_muc: { data: { code: 'E3', ma_may: ['CTS20%'] } },
+    }
+    const r = await A.doiMayTicket('TK-1', 'S2')
+    expect(r).toEqual({ ok: true, loiVeChuaPhanLoai: true })
+    expect(ghi.find((g) => g.bang === 'tickets')!.arg).toEqual({ serial: 'S2', source_serial: 'S2' })
+    expect(ghi.find((g) => g.bang === 'ticket_may')!.arg).toMatchObject({ serial: 'S2', internal_code: 'GN610X', loi_code: 'CHUA_PHAN_LOAI' })
+  })
+  it('lỗi vẫn hợp máy mới → giữ lỗi', async () => {
+    phan = {
+      v_tickets: ticket(KH),
+      installed_base: { data: { serial: 'S2', internal_code: 'CTS20NG', customer_id: KH } },
+      'select:ticket_may': { data: { id: 'd1', loi_code: 'E3' } },
+      loi_danh_muc: { data: { code: 'E3', ma_may: ['CTS20%'] } },
+    }
+    expect(await A.doiMayTicket('TK-1', 'S2')).toEqual({ ok: true, loiVeChuaPhanLoai: false })
+    expect(ghi.find((g) => g.bang === 'ticket_may')!.arg).not.toHaveProperty('loi_code')
+  })
+})
