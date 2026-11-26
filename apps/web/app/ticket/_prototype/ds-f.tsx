@@ -3,7 +3,7 @@
 // PROTOTYPE vứt đi — PA F "Đề xuất theo nghiên cứu" (docs/rework/2026-11-25-nghien-cuu-cskh-ho-so-may.md mục 4b):
 // L1 Bảng + thẻ Xem nhanh (dải máy + bảo hành, sửa trạng thái / người phụ trách, Hẹn KTV) · L3 view mặc định có số đếm,
 // hạn/SLA bằng tag màu · L2 Kanban theo khâu là dạng xem phụ. Không gọi mutation thật — sửa chỉ đổi state trên màn.
-import { Suspense, useRef, useState } from 'react'
+import { Suspense, useCallback, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowsClockwise, CalendarPlus, UserPlus } from '@phosphor-icons/react/ssr'
@@ -138,14 +138,33 @@ function TrangThaiO({ t }: { t: Ticket }) {
   )
 }
 
+/**
+ * Bề rộng thật của khung chứa (ResizeObserver); null trước lần đo đầu. Ref dạng callback: khung chỉ mount khi đang ở
+ * dạng Bảng (đổi từ Danh sách/Kanban sang thì vẫn bắt được).
+ */
+function useRongKhung() {
+  const [w, setW] = useState<number | null>(null)
+  const ro = useRef<ResizeObserver | null>(null)
+  const ref = useCallback((el: HTMLDivElement | null) => {
+    ro.current?.disconnect()
+    if (!el) return
+    ro.current = new ResizeObserver(([e]) => setW(Math.floor(e.contentRect.width)))
+    ro.current.observe(el)
+  }, [])
+  return [ref, w] as const
+}
+
+/** Vùng chứa hẹp hơn mức này (điện thoại) → ListView thay Bảng. */
+const RONG_BANG_TOI_THIEU = 640
+
 // ── Bảng (L1) ───────────────────────────────────────────────────────────────────────────────────────────────────────
 // Cột theo DS (`CotBang`, useCotBang): thứ tự / độ rộng / ẩn ghi lên URL (`cot_thu_tu`, `cot_rong`, `cot_an`). Cột đầu
 // "Ticket · khách" khoá (không kéo, không ẩn) và ăn phần dư; `rong` của nó = sàn để tính bề rộng tối thiểu bảng.
 // Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
 const COT: CotBang[] = [
-  // Sàn 160 (không phải 200): cột "+" (RONG_THEM_COT 40) cuối hàng tiêu đề → tổng mặc định vẫn 936 ≤ ngưỡng 952 dưới.
+  // Mặc định 36 + 40 ("+") + 844 = 920 ≤ 927 = vùng nội dung ở 1440 có sidebar → khổ 1440 hiện Bảng (đo 26/11).
   { id: 'khach', ten: 'Ticket · khách', rong: 160, kieu: 'thuong', khoa: true },
-  { id: 'may', ten: 'Máy · bảo hành', rong: 224, kieu: 'thuong' },
+  { id: 'may', ten: 'Máy · bảo hành', rong: 208, kieu: 'thuong' },
   { id: 'loi', ten: 'Loại lỗi', rong: 152, kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', rong: 136, kieu: 'loc' },
   { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },
@@ -368,6 +387,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
   ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
 
   const tongRong = 36 + RONG_THEM_COT + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
+  const [khungRef, rongKhung] = useRongKhung()
   const bang = (
     <TableWrap>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
@@ -518,11 +538,11 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
             ) : dangXem === 'danh-sach' ? (
               ds
             ) : (
-              // Bảng là dạng xem chính; vùng nội dung hẹp hơn bề rộng tối thiểu của bảng (RONG_TOI_THIEU = 952: 900 có
-              // sidebar, mở Xem nhanh, điện thoại) → ListView (1 dòng, ≤ 480 hai dòng) thay vì bảng cuộn ngang bóp cột tên.
-              <div className="@container border-none border-current">
-                <div className="@max-[952px]:hidden border-none border-current">{bang}</div>
-                <div className="@min-[952px]:hidden border-none border-current">{ds}</div>
+              // Bảng là dạng xem chính; hết chỗ thì CUỘN NGANG (Twenty) — không đổi sang ListView khi vừa thêm/giãn cột
+              // (cột vừa thêm biến mất, mất focus: đo 26/11). Chỉ vùng chứa < 640 (điện thoại) mới dùng ListView 1–2 dòng.
+              // Đo bằng ResizeObserver; mốc container cố định 952 cũ giấu Bảng ở 1440 (vùng 927).
+              <div ref={khungRef} className="border-none border-current">
+                {rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU ? bang : ds}
               </div>
             )}
             <ThanhDaChon nhan="ticket">
