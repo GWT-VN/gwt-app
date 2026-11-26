@@ -29,7 +29,7 @@ import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
 import { chuanMaLoi, MA_LOI } from '@/lib/loi/kiemDauVao'
 import type { DieuKienLoc } from '@/bang/locTruong'
-import { dieuKienOrTicket, homNayVN } from '@/app/ticket/_danh-sach/loc-db'
+import { dieuKienOrTicket } from '@/app/ticket/_danh-sach/loc-db'
 import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
@@ -2471,32 +2471,10 @@ export type TuyChonTicketF = {
   locTruong?: DieuKienLoc[]
   /** Giá trị "Tôi" của Phụ trách trong `locTruong` = staff id này. */
   toiId?: string
-  /** Tab "Chưa giao": chưa có CS phụ trách. */
-  chuaGiao?: boolean
-  /** Tab "Hẹn hôm nay": có việc loại ticket trong chuyến kỹ thuật NGÀY HÔM NAY (giờ VN) còn trạng thái 'hen'. */
-  henHomNay?: boolean
   /** Chỉ đếm (count head, không lấy dòng, không tính mốc hoạt động) — số trên tab. */
   chiDem?: boolean
   /** Khẩn lên đầu trước cột sắp (mặc định true). F tắt khi người dùng chọn cột sắp. */
   khanTruoc?: boolean
-}
-
-/** Mã ticket có trong chuyến kỹ thuật hôm nay (giờ VN) còn 'hen'. Lỗi đọc (bảng chưa có) → [] + log, không vỡ trang. */
-async function maTicketHenHomNay(): Promise<string[]> {
-  await requireStaff()
-  await doQuyen('cs.ticket.xem')
-  const { data, error } = await dataClient()
-    .from('lich_ky_thuat_viec')
-    .select('ref, lich_ky_thuat!inner(ngay, trang_thai)')
-    .eq('loai_viec', 'ticket')
-    .not('ref', 'is', null)
-    .eq('lich_ky_thuat.ngay', homNayVN())
-    .eq('lich_ky_thuat.trang_thai', 'hen')
-  if (error) {
-    console.error('[searchTickets] đọc lịch KT hôm nay lỗi — tab Hẹn hôm nay rỗng', error.message)
-    return []
-  }
-  return [...new Set(((data ?? []) as { ref: string }[]).map((r) => r.ref))]
 }
 
 /** Tra ticket theo mã / serial / tên khách / SĐT / nội dung. Rỗng -> 50 ticket mới nhất.
@@ -2531,8 +2509,6 @@ export async function searchTickets(
   const maLoiF = (dkLoi?.giaTri ?? []).map(chuanMaLoi).filter((m) => MA_LOI.test(m))
   const orTruong = dieuKienOrTicket(tuyChon.locTruong ?? [], { toiId: tuyChon.toiId })
   const dungViLoi = !!maLoi || !!dkLoi
-  const henNay = tuyChon.henHomNay ? await maTicketHenHomNay() : null
-  if (henNay && !henNay.length) return { rows: [], tong: 0, trang, soTrang: 1, sapXep: sx }
   // View v_tickets_loi chưa có / lỗi (migration chưa áp) → không vỡ trang: log server, trả rỗng cho bộ lọc này.
   const rongVi = (e: { message: string }) => {
     console.error('[searchTickets] lọc theo loại lỗi (v_tickets_loi) lỗi — trả rỗng', e.message)
@@ -2552,8 +2528,6 @@ export async function searchTickets(
       else if (dkLoi.phep === 'co') truyVan = truyVan.neq('loi_codes', '{}')
     }
     for (const dk of orTruong) truyVan = truyVan.or(dk)
-    if (tuyChon.chuaGiao) truyVan = truyVan.is('cs_phu_trach', null)
-    if (henNay) truyVan = truyVan.in('ticket_code', henNay)
 
     const term = q.trim()
     if (term) {

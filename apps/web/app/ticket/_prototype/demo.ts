@@ -68,12 +68,3 @@ export function locDemo(sp: { state?: string; khan?: string; mine?: string; q?: 
 
 /** "Của tôi" / "Tôi" của ticket Demo (Demo không gắn người thật đang đăng nhập). */
 export const TOI_DEMO = 'CS Demo Lan'
-const laHomNay = (iso: string | null | undefined) => !!iso && new Date(iso).toDateString() === new Date().toDateString()
-/** Tab F trên ticket Demo — cùng nghĩa với điều kiện DB ở page.tsx (Hẹn hôm nay: Demo không có lịch KT → có KT + hoạt động hôm nay). */
-export const VIEW_DEMO: Record<string, (t: Ticket) => boolean> = {
-  'cua-toi': (t) => t.state === 'Open' && t.cs_ten === TOI_DEMO,
-  'chua-giao': (t) => t.state === 'Open' && !t.cs_ten,
-  khan: (t) => t.state === 'Open' && t.khan,
-  mo: (t) => t.state === 'Open',
-  'hen-nay': (t) => t.state === 'Open' && !!t.ky_thuat && laHomNay(t.hoat_dong_cuoi),
-}

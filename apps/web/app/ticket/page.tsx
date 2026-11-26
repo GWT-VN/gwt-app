@@ -21,71 +21,62 @@ import { redirect } from 'next/navigation'
 import { ManV2 } from '@/components/khung/ManV2'
 import { cotLocTicket } from '@/app/actions'
 import { TrangTicketPrototype } from './_prototype/trang'
-import { locDemo, TICKET_DEMO, TOI_DEMO, VIEW_DEMO } from './_prototype/demo'
+import { locDemo, TICKET_DEMO, TOI_DEMO } from './_prototype/demo'
 import { TicketF } from './_danh-sach/ds-f'
 import type { DuLieuTicket } from './_danh-sach/chung'
-import { docViewF, TRUONG_F, tuyChonF, VIEW_F, type ViewF } from './_danh-sach/truong-f'
+import { queryTab, TRUONG_F, tuyChonF, VIEW_F } from './_danh-sach/truong-f'
 import { apLoc, docTatCa } from '@/bang/locTruong'
 
 type SP = Record<string, string | string[] | undefined>
 const mot = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
-const UUID_RONG = '00000000-0000-0000-0000-000000000000'
 
 /**
- * Dữ liệu danh sách F (/ticket): tab + lọc theo trường + tìm + sắp + trang ở DB (searchTickets), số mỗi tab đếm ở DB,
- * giá trị ô lọc chọn = distinct trên mọi ticket xem được (cotLocTicket). Dev + DB < 5 ticket → nối ticket Demo trong bộ
- * nhớ (lọc bằng cùng TRUONG_F); production không bao giờ có Demo. Không ghi DB.
+ * Dữ liệu danh sách F (/ticket): lọc theo trường + tìm + sắp + trang ở DB (searchTickets); tab = bộ lọc chọn sẵn (VIEW_F
+ * `loc`), số mỗi tab = đếm ở DB với đúng bộ lọc của tab. Giá trị ô lọc chọn = distinct trên mọi ticket xem được
+ * (cotLocTicket). Dev + DB < 5 ticket → nối ticket Demo trong bộ nhớ (lọc bằng cùng TRUONG_F); production không có Demo.
  */
 async function duLieuF(sp: SP): Promise<DuLieuTicket> {
-  const q = mot(sp.q) ?? ''
   const trang = Math.max(1, Number(mot(sp.trang)) || 1)
-  const view = docViewF(mot(sp.view))
-  const kanban = mot(sp.bo_cuc) === 'kanban'
-  const dk = docTatCa(sp, TRUONG_F)
-  // Cột "Ngày tạo" của F (`cot=tao`) = created_at. Chọn cột sắp → sắp đúng cột đó (Khẩn không chen lên đầu, như prototype).
-  const cotF = mot(sp.cot) === 'tao' ? 'created_at' : undefined
-  const chieu = mot(sp.chieu)
   const me = await currentStaff()
-  const chung = { locTruong: dk, toiId: me?.id, khanTruoc: !cotF }
-  // Tab → điều kiện DB. Kanban không có tab (mọi ticket qua bộ lọc trường).
-  const theoView = (v: ViewF | null) =>
-    [
-      v ? 'Open' : undefined,
-      v === 'khan',
-      v === 'cua-toi' ? (me?.id ?? UUID_RONG) : undefined,
-      { ...chung, chuaGiao: v === 'chua-giao', henHomNay: v === 'hen-nay' },
-    ] as const
-  const [st, kh, mine, tc] = theoView(kanban ? null : view)
   const dev = process.env.NODE_ENV !== 'production'
+  // Một bộ lọc (query) → điều kiện DB. Cột "Ngày tạo" (`cot=tao`) = created_at; chọn cột sắp → Khẩn không chen lên đầu.
+  const dieuKien = (p: URLSearchParams) => {
+    const cot = p.get('cot') === 'tao' ? 'created_at' : undefined
+    return { q: p.get('q') ?? '', dk: docTatCa(p, TRUONG_F), cot, chieu: p.get('chieu') ?? undefined }
+  }
+  const dem = async (loc: string) => {
+    const d = dieuKien(new URLSearchParams(loc))
+    return (await searchTickets(d.q, undefined, false, undefined, { locTruong: d.dk, toiId: me?.id, chiDem: true })).tong
+  }
+  const hien = dieuKien(new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === 'string' ? [[k, v]] : []))))
   const [ketQua, demDb, cotDb, { data: dsLoi }, tongDb] = await Promise.all([
-    searchTickets(q, st, kh, mine, { ...tc, trang, cot: cotF, chieu }),
-    Promise.all(VIEW_F.map(async (x) => {
-      const [s, k, m, t] = theoView(x.v)
-      return (await searchTickets(q, s, k, m, { ...t, chiDem: true })).tong
-    })),
+    searchTickets(hien.q, undefined, false, undefined, {
+      locTruong: hien.dk, toiId: me?.id, khanTruoc: !hien.cot, trang, cot: hien.cot, chieu: hien.chieu,
+    }),
+    Promise.all(VIEW_F.map((x) => dem(x.loc))),
     cotLocTicket(),
     docAnToan('danhMucLoi', () => danhMucLoi(), []),
     dev ? searchTickets('', undefined, false, undefined, { chiDem: true }).then((r) => r.tong) : Promise.resolve(Infinity),
   ])
   const demo = tongDb < 5
-  // Demo: cùng tìm kiếm (locDemo) + bộ lọc trường (apLoc, "Tôi" = TOI_DEMO) + điều kiện tab.
-  const demoLoc = demo ? apLoc(locDemo({ q }), dk, TRUONG_F, { toi: TOI_DEMO }) : []
-  const demoView = kanban ? demoLoc : demoLoc.filter(VIEW_DEMO[view])
-  let rows = [...ketQua.rows, ...demoView]
-  if (demo && cotF) {
-    const tang = chieu !== 'desc'
+  // Demo: cùng tìm kiếm (locDemo) + bộ lọc trường (apLoc, "Tôi" = TOI_DEMO).
+  const locDemoTheo = (d: ReturnType<typeof dieuKien>) => (demo ? apLoc(locDemo({ q: d.q }), d.dk, TRUONG_F, { toi: TOI_DEMO }) : [])
+  const demoHien = locDemoTheo(hien)
+  let rows = [...ketQua.rows, ...demoHien]
+  if (demo && hien.cot) {
+    const tang = hien.chieu !== 'desc'
     rows = rows.sort((a, b) => (Date.parse(a.created_at) - Date.parse(b.created_at)) * (tang ? 1 : -1) || a.ticket_code.localeCompare(b.ticket_code))
   }
   return {
     rows,
-    tong: ketQua.tong + demoView.length,
+    tong: ketQua.tong + demoHien.length,
     trang,
     soTrang: demo ? 1 : ketQua.soTrang,
     loaiList: [],
     dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten })),
     demo,
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
-    demTab: Object.fromEntries(VIEW_F.map((x, i) => [x.v, demDb[i] + demoLoc.filter(VIEW_DEMO[x.v]).length])),
+    demTab: Object.fromEntries(VIEW_F.map((x, i) => [x.v, demDb[i] + locDemoTheo(dieuKien(new URLSearchParams(x.loc))).length])),
   }
 }
 
@@ -102,11 +93,15 @@ export default async function TicketsPage({
   const dev = process.env.NODE_ENV !== 'production'
   // Mặc định = danh sách F (dữ liệu thật). `?cu=1` = màn cũ (giữ tới khi CEO bỏ). `?variant=` = prototype, chỉ dev.
   if (sp.cu !== '1' && (!dev || !sp.variant || sp.variant === 'F')) {
-    // Link cũ (Tổng quan "Ticket đang mở" = ?state=Open, ?khan=1, ?mine=1) → đúng tab F.
-    const cuSangView = sp.khan === '1' ? 'khan' : sp.mine === '1' ? 'cua-toi' : sp.state === 'Open' ? 'mo' : null
-    if (cuSangView && !sp.view) {
-      const p = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === 'string' && !['state', 'khan', 'mine'].includes(k) ? [[k, v]] : [])))
-      p.set('view', cuSangView)
+    // Link cũ (màn khác: Tổng quan ?state=Open, /tim, Tần suất lỗi ?loi=…; tab cũ ?view=cua-toi|chua-giao|mo|hen-nay) → tab
+    // F (CEO 26/11 còn 4 tab): khan=1 → Khẩn, state=Done|Cancel → Đã xong|Đã huỷ (áp bộ lọc của tab), còn lại → Tất cả.
+    // Giữ q/loi/lọc khác. `khan` cũ = "1"; `khan` của F là trường lọc (co/khong) — không nhầm.
+    const viewCu = mot(sp.view)
+    const tabCu = ['cua-toi', 'chua-giao', 'mo', 'hen-nay'].includes(viewCu ?? '')
+    if (sp.state || sp.khan === '1' || sp.mine || tabCu) {
+      const giu = Object.entries(sp).flatMap(([k, v]) => (typeof v === 'string' && !['state', 'khan', 'mine', 'view'].includes(k) ? [[k, v]] : []))
+      const tab = VIEW_F.find((x) => x.v === (sp.khan === '1' ? 'khan' : sp.state === 'Done' ? 'xong' : sp.state === 'Cancel' ? 'huy' : ''))
+      const p = new URLSearchParams(tab ? queryTab(new URLSearchParams(giu), tab.loc, tab.v, ['tt', 'khan']) : new URLSearchParams(giu).toString())
       redirect(`/ticket?${p}`)
     }
     const du = await duLieuF(sp)

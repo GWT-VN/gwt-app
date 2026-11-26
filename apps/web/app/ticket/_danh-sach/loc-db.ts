@@ -3,7 +3,7 @@
 // "không là"/"không chứa" vẫn giữ dòng trống). `loi` không ở đây — mảng loi_codes lọc bằng phép mảng (searchTickets).
 import { TOI, type DieuKienLoc } from '@/bang/locTruong'
 import { antoanChoOr, boDau } from '@/bang/timkiem'
-import { CHUA_GIAO } from './truong-f'
+import { CHUA_GIAO, KHAN_CO, KHAN_KHONG } from './truong-f'
 
 /** Trường chọn → cột v_tickets. */
 const COT_CHON: Record<string, string> = { tt: 'state', loai: 'ticket_type', tinh: 'province' }
@@ -78,10 +78,19 @@ function chu(cot: string[], d: DieuKienLoc, khongDau: boolean): string[] {
   return []
 }
 
+/** Khẩn (cột boolean): Có / Không. Chọn cả hai = không lọc; "trống"/"có giá trị" vô nghĩa (luôn có giá trị). */
+function khan(d: DieuKienLoc): string[] {
+  const co = d.giaTri.includes(KHAN_CO)
+  const khong = d.giaTri.includes(KHAN_KHONG)
+  if (co === khong || (d.phep !== 'la' && d.phep !== 'khong-la')) return []
+  return [`khan.is.${co === (d.phep === 'la')}`]
+}
+
 export function dieuKienOrTicket(dk: DieuKienLoc[], opts: { toiId?: string; homNay?: string } = {}): string[] {
   const homNay = opts.homNay ?? homNayVN()
   return dk.flatMap((d) => {
     if (d.truong in COT_CHON) return chon(COT_CHON[d.truong], d)
+    if (d.truong === 'khan') return khan(d)
     if (d.truong === 'cs') return nguoi(d, opts.toiId)
     if (d.truong === 'tao') return ngay('created_at', d, homNay)
     if (d.truong === 'khach') return chu(['ten_kd'], d, true)

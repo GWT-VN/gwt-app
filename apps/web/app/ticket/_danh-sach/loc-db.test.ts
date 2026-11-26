@@ -37,6 +37,12 @@ describe('dieuKienOrTicket — TRUONG_F → .or() của v_tickets', () => {
     expect(or({ may: 'khong-chua~E3' })).toEqual(['product_name.is.null,product_name.not.ilike.%E3%', 'source_serial.is.null,source_serial.not.ilike.%E3%'])
   })
 
+  it('Khẩn: Có / Không / cả hai = không lọc', () => {
+    expect(or({ khan: 'co' })).toEqual(['khan.is.true'])
+    expect(or({ khan: 'khong-la~co' })).toEqual(['khan.is.false'])
+    expect(or({ khan: 'co,khong' })).toEqual([])
+  })
+
   it('loi không dịch ở đây (mảng loi_codes)', () => {
     expect(or({ loi: 'E3' })).toEqual([])
   })

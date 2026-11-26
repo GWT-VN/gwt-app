@@ -4,6 +4,10 @@
 import type { Ticket } from '@/app/actions'
 import type { TruongDuLieu } from '@/bang/locTruong'
 
+/** Giá trị của trường Khẩn. */
+export const KHAN_CO = 'co'
+export const KHAN_KHONG = 'khong'
+
 /** Giá trị "Chưa giao" của Phụ trách (tên người không bao giờ là "-"). */
 export const CHUA_GIAO = '-'
 /** "Máy · lỗi": dòng máy đầu tiên (ticket_may), không có thì tên máy. */
@@ -18,6 +22,8 @@ export const maMayNgan = (t: Pick<Ticket, 'product_name' | 'internal_code'>) =>
  *  `loi` ở DB = mã loại lỗi (v_tickets_loi.loi_codes); `lay` của nó (nhãn dòng máy) chỉ còn cho ticket Demo. */
 export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [
   { id: 'tt', ten: 'Trạng thái', kieu: 'chon', lay: (t) => t.state },
+  // Khẩn: chọn Có / Không (DB: cột boolean `khan`, loc-db.ts). Tab "Khẩn" = tt=Open & khan=co.
+  { id: 'khan', ten: 'Khẩn', kieu: 'chon', lay: (t) => (t.khan ? KHAN_CO : KHAN_KHONG) },
   { id: 'cs', ten: 'Phụ trách', kieu: 'nguoi', lay: (t) => t.cs_ten ?? CHUA_GIAO },
   { id: 'loi', ten: 'Loại lỗi', kieu: 'chon', lay: (t) => t.dong_may?.[0]?.nhan },
   { id: 'loai', ten: 'Loại', kieu: 'chon', lay: (t) => t.ticket_type },
@@ -28,23 +34,24 @@ export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [
 ]
 
 /**
- * Tab (view mặc định, URL `view`; mặc định `cua-toi` không ghi). CEO 26/11: bỏ "Quá hạn" (hạn theo dõi ở Việc đã gắn,
- * bước 4) và "Chờ vật tư" (DB không có trạng thái chờ); thêm "Khẩn". Điều kiện từng tab: page.tsx (DB) + demo.
+ * Tab = BỘ LỌC CHỌN SẴN (CEO 26/11: "Các tab ở đây là tab được chọn sẵn filter ấy. mặc định sẽ là 4 cái kia cố định. view
+ * thứ 5 thì tùy customize"; trước đó: "Chỉ cần tab tất cả/khẩn/đã xong/đã hủy thế thôi"). `loc` = query của các tham số lọc
+ * (cùng cơ chế lọc theo trường): bấm tab → URL = `view` + `loc`, chip lọc hiện như lọc thường, sửa/thêm được. URL `view`
+ * chỉ đánh dấu tab đang chọn (mặc định `tat-ca` không ghi). Của tôi / Chưa giao: lọc trường Phụ trách ("Tôi" / "Chưa giao").
  */
 export const VIEW_F = [
-  { v: 'cua-toi', ten: 'Của tôi' },
-  { v: 'chua-giao', ten: 'Chưa giao' },
-  { v: 'khan', ten: 'Khẩn' },
-  { v: 'mo', ten: 'Tất cả đang mở' },
-  { v: 'hen-nay', ten: 'Hẹn hôm nay' },
+  { v: 'tat-ca', ten: 'Tất cả', loc: '' },
+  { v: 'khan', ten: 'Khẩn', loc: `tt=Open&khan=${KHAN_CO}` },
+  { v: 'xong', ten: 'Đã xong', loc: 'tt=Done' },
+  { v: 'huy', ten: 'Đã huỷ', loc: 'tt=Cancel' },
 ] as const
 export type ViewF = (typeof VIEW_F)[number]['v']
-export const docViewF = (v: string | null | undefined): ViewF => VIEW_F.find((x) => x.v === v)?.v ?? 'cua-toi'
+export const docViewF = (v: string | null | undefined): ViewF => VIEW_F.find((x) => x.v === v)?.v ?? 'tat-ca'
 
 /** Giá trị có trong dữ liệu (CHƯA lọc) cho trường chọn — danh sách giá trị không co lại theo chính bộ lọc đang bật. */
 export function tuyChonF(rows: Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' | 'province'>[]): Record<string, string[]> {
   return Object.fromEntries(
-    TRUONG_F.filter((x) => (x.kieu === 'chon' || x.kieu === 'nguoi') && x.id !== 'loi').map((x) => [
+    TRUONG_F.filter((x) => (x.kieu === 'chon' || x.kieu === 'nguoi') && x.id !== 'loi' && x.id !== 'khan').map((x) => [
       x.id,
       // "Chưa giao" cuối danh sách (sau tên người).
       [...new Set(rows.map((r) => x.lay(r as Ticket)).filter((v): v is string => !!v))].sort(
@@ -52,4 +59,28 @@ export function tuyChonF(rows: Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' |
       ),
     ]),
   )
+}
+
+/** Tham số URL thuộc "bộ lọc" của một tab: lọc trường + tìm + sắp. */
+export const KHOA_LOC: string[] = [...TRUONG_F.map((x) => x.id), 'q', 'cot', 'chieu']
+/** Tham số cột (thứ tự / độ rộng / ẩn) — tab tự tạo lưu cả phần này. */
+export const KHOA_COT = ['cot_thu_tu', 'cot_rong', 'cot_an']
+
+/** Chuẩn hoá query của các khoá cho trước (bỏ rỗng, sắp theo khoá) — so "tab đã đổi chưa" và lưu tab. */
+export function locCua(sp: URLSearchParams, khoa: string[] = KHOA_LOC): string {
+  const p = new URLSearchParams()
+  for (const k of [...khoa].sort()) {
+    const v = sp.get(k)
+    if (v) p.set(k, v)
+  }
+  return p.toString()
+}
+
+/** URL khi bấm tab: giữ tham số không thuộc bộ lọc (dạng xem, cột, variant…), thay bộ lọc bằng `loc` của tab. */
+export function queryTab(sp: URLSearchParams, loc: string, view: string | null, bo: string[] = KHOA_LOC): string {
+  const p = new URLSearchParams(sp.toString())
+  for (const k of [...bo, 'view', 'tab', 'xem', 'xem_tab', 'trang']) p.delete(k)
+  for (const [k, v] of new URLSearchParams(loc)) p.set(k, v)
+  if (view) p.set('view', view)
+  return p.toString()
 }
