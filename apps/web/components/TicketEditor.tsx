@@ -1,21 +1,26 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateTicket } from '@/app/actions'
 import { datNgayBao } from '@/app/ticket/dau-ticket-actions'
-import { KhungCap, O2Cot, ONgay } from '@/components/loi/CapLoiXuLy'
+import { LanLoiTiepTheo, MucLanLoi, NoiDungLanLoi, O2Cot, ONgay } from '@/components/loi/CapLoiXuLy'
 import { ChonLoaiTicket } from '@/components/ticket/ChonLoaiTicket'
 import { ngayCuaLan, ngayVNHomNay } from '@/lib/loi/ngayTicket'
+import { lanTiepTheo, type LanLoi } from '@/lib/loi/lanLoi'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { DetailHeading } from '@/components/ui/detail-layout'
 
 /**
  * Khối "Các lần lỗi": Lần 1 (tickets.description ↔ last_note, ngày = ngay_bao | ngày tạo) +
- * các lần sau (children). Mặc định XEM; "Sửa" sửa tại chỗ loại + Lần 1 + ngày khách báo.
+ * các lần sau. Mặc định mở lần gần nhất; sửa loại, nội dung và ngày báo trong lần 1.
  * Trạng thái / Khẩn / CS / Kỹ thuật nằm ở thanh đầu trang (DauTicket), không ở đây.
  */
 export function TicketEditor({
   code, lastNote, ticketType, description, loaiList = [], ngayBao, ngayTao = null,
-  choSua = true, coNgayBao = true, children,
+  choSua = true, coNgayBao = true, lanLoi = [], thieuLanLoi = false,
 }: {
   code: string
   lastNote: string | null
@@ -28,7 +33,8 @@ export function TicketEditor({
   choSua?: boolean
   // false = DB chưa có cột ngay_bao (chưa áp migration) → ẩn ô chọn ngày.
   coNgayBao?: boolean
-  children?: ReactNode
+  lanLoi?: LanLoi[]
+  thieuLanLoi?: boolean
 }) {
   const ngayLan1 = ngayCuaLan(ngayBao, ngayTao)
   const [edit, setEdit] = useState(false)
@@ -56,42 +62,43 @@ export function TicketEditor({
     setErr(null); setEdit(false)
   }
 
-  if (!edit) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-medium text-slate-900">Các lần lỗi</h2>
-          {choSua && <button onClick={() => setEdit(true)} className="text-sm text-slate-600 underline flex-none">Sửa loại / lần 1</button>}
+  const lanDau = (
+    <MucLanLoi id="lan-1" lan={1} ngay={ngayLan1} moTa={description} xuLy={lastNote}>
+      {edit && choSua ? (
+        <Card className="space-y-3">
+          <DetailHeading cap={3}>Sửa loại &amp; lần 1</DetailHeading>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="w-full sm:w-56">
+              <span className="text-muted-foreground">Phân loại *</span>
+              <ChonLoaiTicket value={loai} onChange={setLoai} loaiList={loaiList} className="mt-1" />
+            </div>
+            {coNgayBao && <ONgay ngay={ngay} setNgay={setNgay} homNay={ngayVNHomNay()} />}
+          </div>
+          <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={note} setXuLy={setNote} />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={save} loading={busy}>Lưu</Button>
+            <Button variant="outline" onClick={huy} disabled={busy}>Huỷ</Button>
+          </div>
+          {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          <NoiDungLanLoi moTa={description} xuLy={lastNote} />
+          {choSua && <Button size="sm" variant="outline" onClick={() => setEdit(true)}>Sửa loại / lần 1</Button>}
         </div>
-        <KhungCap lan={1} ngay={ngayLan1} moTa={moTa} xuLy={note} />
-        {children}
-      </div>
-    )
-  }
+      )}
+    </MucLanLoi>
+  )
 
   return (
-    <div className="space-y-3">
-      <h2 className="font-medium text-slate-900">Sửa loại &amp; lần 1</h2>
-      <div className="flex items-end gap-4 flex-wrap">
-        <div className="block min-w-56">
-          <span className="text-sm text-slate-700">Phân loại *</span>
-          {/* Giữ giá trị lạ (loại cũ ngoài danh sách) để không mất dữ liệu; có "+ Thêm loại mới…". */}
-          <ChonLoaiTicket value={loai} onChange={setLoai} loaiList={loaiList} className="mt-1" />
-        </div>
-        {coNgayBao && <ONgay ngay={ngay} setNgay={setNgay} homNay={ngayVNHomNay()} />}
-      </div>
-      <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={note} setXuLy={setNote} />
-      <div className="flex items-center gap-3">
-        <button onClick={save} disabled={busy}
-          className="rounded-lg bg-slate-900 text-white px-4 py-2 font-medium disabled:opacity-50">
-          {busy ? 'Đang lưu…' : 'Lưu'}
-        </button>
-        <button type="button" onClick={huy} disabled={busy}
-          className="rounded-lg border px-4 py-2 font-medium text-slate-600 disabled:opacity-50 hover:bg-slate-50">
-          Huỷ
-        </button>
-      </div>
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
-    </div>
+    <section className="space-y-2" aria-labelledby="cac-lan-loi">
+      <DetailHeading id="cac-lan-loi">Các lần lỗi · {lanLoi.length + 1}</DetailHeading>
+      <LanLoiTiepTheo code={code} ds={lanLoi} choSua={choSua && !thieuLanLoi} lanKe={lanTiepTheo(lanLoi)} lanDau={lanDau} />
+      {thieuLanLoi && (
+        <Alert color="warning">
+          <AlertDescription>Chưa tải được các lần lỗi sau. Báo kỹ thuật nếu tình trạng kéo dài.</AlertDescription>
+        </Alert>
+      )}
+    </section>
   )
 }

@@ -1,8 +1,13 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
+import { ManV2 } from '@/components/khung/ManV2'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { Button } from '@/components/ui/button'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
 import { nhomLoiChon } from '@/app/actions'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
-import { DauTrang } from '@/components/DauTrang'
 import { OTimKiem, BoLocChon, ThanhDangLoc, boDau } from '@/bang'
 import { DanhMucLoiBang } from '@/components/loi/DanhMucLoiBang'
 import { NhapDanhMuc } from '@/components/loi/NhapDanhMuc'
@@ -26,16 +31,24 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
     ...(tt ? [{ nhan: 'Trạng thái', giaTri: TT.find((t) => t.giaTri === tt)?.nhan ?? tt }] : []),
   ]
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4">
-        <DauTrang tieuDe="Danh mục lỗi" phuDe={`${tatCa.length} mã lỗi · ${tatCa.filter((d) => d.trang_thai === 'cho_duyet').length} chờ duyệt`} />
-        {quyen.sua && <div className="flex gap-2 flex-wrap items-start"><NhapDanhMuc /><NutXuatChuyenGia /><PhanLoaiLai /></div>}
-        <Suspense><OTimKiem placeholder="Gõ mã, tên lỗi, cách ghi, mã máy…" /></Suspense>
-        <Suspense><BoLocChon param="tt" nhan="Trạng thái" tuyChon={TT} /></Suspense>
-        <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={tatCa.length} nhan="mã lỗi" />
-        <DanhMucLoiBang rows={rows} choSua={quyen.sua}
-          nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))} />
-      </div>
-    </main>
+    <ManV2>
+      <CauHinhBangDs>
+        <TrangDuLieu className="space-y-4">
+          <PageHeader
+            tieuDe="Danh mục lỗi"
+            meta={[`${tatCa.length} mã lỗi`, `${tatCa.filter((d) => d.trang_thai === 'cho_duyet').length} chờ duyệt`]}
+            hanhDong={<Button asChild variant="outline"><Link href="/bao-cao-loi">Báo cáo lỗi</Link></Button>}
+          />
+          {quyen.sua && <div className="flex flex-wrap items-start gap-2"><NhapDanhMuc /><NutXuatChuyenGia /><PhanLoaiLai /></div>}
+          <div className="flex flex-wrap items-center gap-2">
+            <Suspense><OTimKiem placeholder="Gõ mã, tên lỗi, cách ghi, mã máy…" /></Suspense>
+            <Suspense><BoLocChon param="tt" nhan="Trạng thái" tuyChon={TT} /></Suspense>
+          </div>
+          <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={tatCa.length} nhan="mã lỗi" />
+          <DanhMucLoiBang rows={rows} choSua={quyen.sua}
+            nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))} />
+        </TrangDuLieu>
+      </CauHinhBangDs>
+    </ManV2>
   )
 }

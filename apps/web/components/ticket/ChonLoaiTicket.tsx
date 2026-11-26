@@ -10,8 +10,8 @@ const MOI = '__them_loai_moi__'
  * Bảo trì / thay lõi lọc không có trong danh sách (không phải lỗi). Giá trị lạ đang có (ticket cũ) vẫn giữ.
  * `onChange('')` khi tên mới chưa hợp lệ → form cha chặn Lưu như khi chưa chọn loại.
  */
-export function ChonLoaiTicket({ value, onChange, loaiList, className = '' }: {
-  value: string; onChange: (loai: string) => void; loaiList: string[]; className?: string
+export function ChonLoaiTicket({ value, onChange, loaiList, className = '', id, required }: {
+  value: string; onChange: (loai: string) => void; loaiList: string[]; className?: string; id?: string; required?: boolean
 }) {
   const ds = loaiChoChon(loaiList)
   const [dangThem, setDangThem] = useState(false)
@@ -26,7 +26,7 @@ export function ChonLoaiTicket({ value, onChange, loaiList, className = '' }: {
 
   return (
     <div className={className}>
-      <select value={dangThem ? MOI : value}
+      <select id={id} required={required} value={dangThem ? MOI : value}
         onChange={(e) => {
           if (e.target.value === MOI) { setDangThem(true); setChu(''); onChange('') }
           else { setDangThem(false); onChange(e.target.value) }

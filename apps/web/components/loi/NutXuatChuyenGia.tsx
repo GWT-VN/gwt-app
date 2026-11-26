@@ -2,9 +2,9 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { nhapPhuongAnDuyet, xuatFileChuyenGia, type XemTruocDuyet } from '@/app/ticket/xuat-chuyen-gia-actions'
-
-const nut = 'rounded-lg border bg-white px-3 py-1.5 text-sm disabled:opacity-50'
 
 /**
  * Duyệt phương án xử lý qua chuyên gia (chị Trang 18/11):
@@ -59,50 +59,50 @@ export function NutXuatChuyenGia() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2 flex-wrap">
-        <button type="button" onClick={tai} disabled={busy} className={nut}
+        <Button type="button" onClick={tai} disabled={busy} variant="outline" size="sm"
           title="File Excel: mỗi loại lỗi + phương án đề xuất + ticket thật (đã che SĐT) để chuyên gia duyệt / sửa.">
           {dangXuat ? 'Đang tạo file…' : 'Xuất cho chuyên gia'}
-        </button>
-        <label className={`${nut} ${busy ? '' : 'cursor-pointer'}`}>
+        </Button>
+        <label className={buttonVariants({ variant: "outline", size: "sm", className: "cursor-pointer focus-within:outline-2 focus-within:outline-ring has-disabled:cursor-default has-disabled:opacity-50" })}>
           Nhập phương án đã duyệt
-          <input type="file" accept=".xlsx" className="hidden" disabled={busy} onChange={(e) => chonFile(e.target)} />
+          <input type="file" accept=".xlsx" className="sr-only" disabled={busy} onChange={(e) => chonFile(e.target)} />
         </label>
       </div>
 
       {xem && (
-        <div className="rounded-lg border bg-white p-3 text-sm space-y-2 max-w-3xl">
-          <div className="font-medium text-slate-900">Xem trước — chưa ghi gì</div>
+        <Card className="max-w-3xl space-y-2 text-sm">
+          <div className="font-medium text-foreground">Xem trước — chưa ghi gì</div>
           {xem.loi.length > 0 && (
-            <ul className="text-red-700 bg-red-50 rounded p-2 text-xs space-y-0.5">
+            <ul className="text-destructive bg-muted rounded p-2 text-xs space-y-0.5">
               {xem.loi.map((l, i) => <li key={i}>{l}</li>)}
               <li className="font-medium">Sửa file rồi chọn lại — có lỗi thì không ghi dòng nào.</li>
             </ul>
           )}
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             {xem.duyet.length} phương án <strong>duyệt</strong> (sẽ hiện trên ticket) · {xem.boDuyet.length} <strong>thôi hiện</strong>
-            {xem.chuaDanhDau > 0 && <> · <span className="text-amber-700">{xem.chuaDanhDau} dòng có sửa / ý kiến nhưng chưa đánh x — sẽ bỏ qua</span></>}
+            {xem.chuaDanhDau > 0 && <> · <span className="text-(--color-text-warning)">{xem.chuaDanhDau} dòng có sửa / ý kiến nhưng chưa đánh x — sẽ bỏ qua</span></>}
           </p>
           {xem.duyet.length > 0 && (
             <ul className="space-y-1 max-h-72 overflow-auto">
               {xem.duyet.map((d) => (
-                <li key={d.code} className="border-l-2 border-emerald-400 pl-2">
-                  <span className="font-mono text-xs">{d.code}</span>{d.doi && <span className="ml-1 text-xs text-amber-700">(chuyên gia sửa)</span>}
-                  {d.doi && d.truoc && <div className="text-xs text-slate-400 line-through whitespace-pre-wrap">{d.truoc}</div>}
-                  <div className="text-xs text-slate-800 whitespace-pre-wrap">{d.sau}</div>
+                <li key={d.code} className="border-l-2 border-(--color-text-success) pl-2">
+                  <span className="font-mono text-xs">{d.code}</span>{d.doi && <span className="ml-1 text-xs text-(--color-text-warning)">(chuyên gia sửa)</span>}
+                  {d.doi && d.truoc && <div className="text-xs text-muted-foreground line-through whitespace-pre-wrap">{d.truoc}</div>}
+                  <div className="text-xs text-foreground whitespace-pre-wrap">{d.sau}</div>
                 </li>
               ))}
             </ul>
           )}
-          {xem.boDuyet.length > 0 && <p className="text-xs text-slate-600">Thôi hiện: <span className="font-mono">{xem.boDuyet.join(', ')}</span></p>}
+          {xem.boDuyet.length > 0 && <p className="text-xs text-muted-foreground">Thôi hiện: <span className="font-mono">{xem.boDuyet.join(', ')}</span></p>}
           <div className="flex gap-2">
-            <button type="button" disabled={busy || !coGhi} onClick={() => chay(true)}
-              className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">Ghi vào app</button>
-            <button type="button" disabled={busy} onClick={() => { setXem(null); fdRef.current = null }} className={nut}>Huỷ</button>
+            <Button type="button" disabled={busy || !coGhi} onClick={() => chay(true)}
+              size="sm">Ghi vào app</Button>
+            <Button type="button" disabled={busy} onClick={() => { setXem(null); fdRef.current = null }} variant="outline" size="sm">Huỷ</Button>
           </div>
-        </div>
+        </Card>
       )}
-      {xong && <p className="text-sm text-emerald-700">{xong}</p>}
-      {err && <p className="text-sm text-red-600 whitespace-pre-wrap">{err}</p>}
+      {xong && <p className="text-sm text-(--color-text-success)">{xong}</p>}
+      {err && <p className="text-sm text-destructive whitespace-pre-wrap">{err}</p>}
     </div>
   )
 }

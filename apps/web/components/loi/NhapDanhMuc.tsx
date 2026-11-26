@@ -2,6 +2,9 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { nhapDanhMuc, xemTruocNhapDanhMuc } from '@/app/ticket/loi-actions'
 import { chayNhap, chayXemTruoc, duocNhap, nhanDoiTrangThai, nhanNutNhap, NHAN_TRANG_THAI, type TomTatXemTruoc } from '@/lib/loi/giaoDienDanhMuc'
 
@@ -36,18 +39,18 @@ export function NhapDanhMuc() {
     setXong(r.thongBao); setTomTat(null); setLoi(''); router.refresh()
   })
 
-  if (!mo) return <button type="button" onClick={() => setMo(true)} className="rounded-lg border bg-white px-3 py-1.5 text-sm">Nhập từ Sheet</button>
+  if (!mo) return <Button type="button" onClick={() => setMo(true)} variant="outline" size="sm">Nhập từ Sheet</Button>
   return (
-    <div className="w-full bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+    <Card className="w-full space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="font-medium text-slate-900">Nhập danh mục từ Sheet đã duyệt</h2>
-        <button type="button" onClick={() => setMo(false)} className="text-sm text-slate-500">Đóng</button>
+        <h2 className="font-medium text-foreground">Nhập danh mục từ Sheet đã duyệt</h2>
+        <Button type="button" onClick={() => setMo(false)} variant="ghost" size="sm">Đóng</Button>
       </div>
-      <input type="file" accept=".xlsx,.csv" onChange={(e) => chonFile(e.target)} />
-      {coFile && <button type="button" disabled={ban} onClick={() => xemTruoc(fdRef.current!)} className="ml-2 rounded-lg border px-2 py-1 text-sm">Xem trước lại</button>}
-      {ban && <p className="text-sm text-slate-500">Đang xử lý…</p>}
-      {loi && <p className="text-sm text-red-600 whitespace-pre-line">{loi}</p>}
-      {xong && <p className="text-sm text-emerald-700">{xong}</p>}
+      <input aria-label="Tệp danh mục từ Sheet" type="file" accept=".xlsx,.csv" onChange={(e) => chonFile(e.target)} />
+      {coFile && <Button type="button" disabled={ban} onClick={() => xemTruoc(fdRef.current!)} variant="outline" size="sm" className="ml-2">Xem trước lại</Button>}
+      {ban && <p className="text-sm text-muted-foreground">Đang xử lý…</p>}
+      {loi && <p className="text-sm text-destructive whitespace-pre-line">{loi}</p>}
+      {xong && <p className="text-sm text-(--color-text-success)">{xong}</p>}
       {tomTat && (
         <div className="space-y-2">
           <p className="text-sm">
@@ -55,28 +58,28 @@ export function NhapDanhMuc() {
             <strong>{tomTat.soDongSeDoi} dòng máy sẽ đổi</strong>
             {nhanDoiTrangThai(tomTat) && <> · <strong>{nhanDoiTrangThai(tomTat)}</strong></>}
           </p>
-          <p className="text-xs text-slate-500">Mã đã có mà cột Duyệt để trống thì giữ nguyên trạng thái; chỉ ghi Duyệt / Ngừng mới đổi.</p>
+          <p className="text-xs text-muted-foreground">Mã đã có mà cột Duyệt để trống thì giữ nguyên trạng thái; chỉ ghi Duyệt / Ngừng mới đổi.</p>
           {tomTat.coLoi && (
-            <ul className="text-sm text-red-600 list-disc pl-5">
+            <ul className="text-sm text-destructive list-disc pl-5">
               {tomTat.loi.map((l) => <li key={l}>{l}</li>)}
               {tomTat.soLoiKhac > 0 && <li>+{tomTat.soLoiKhac} lỗi khác</li>}
             </ul>
           )}
-          <table className="w-full text-xs">
-            <thead className="text-left text-slate-500"><tr><th>Mã</th><th>Tên chuẩn</th><th>Nhóm</th><th>Trạng thái</th></tr></thead>
-            <tbody>
+          <Table variant="thuong">
+            <TableHeader><TableRow><TableHead scope="col">Mã</TableHead><TableHead scope="col">Tên chuẩn</TableHead><TableHead scope="col">Nhóm</TableHead><TableHead scope="col">Trạng thái</TableHead></TableRow></TableHeader>
+            <TableBody>
               {tomTat.mau.map((m) => (
-                <tr key={m.code} className="border-t"><td className="font-mono">{m.code}</td><td>{m.ten}</td><td>{m.nhom ?? '—'}</td><td>{NHAN_TRANG_THAI[m.trang_thai]}</td></tr>
+                <TableRow key={m.code}><TableCell className="font-mono">{m.code}</TableCell><TableCell>{m.ten}</TableCell><TableCell>{m.nhom ?? '—'}</TableCell><TableCell>{NHAN_TRANG_THAI[m.trang_thai]}</TableCell></TableRow>
               ))}
-            </tbody>
-          </table>
-          {tomTat.soMa > tomTat.mau.length && <p className="text-xs text-slate-500">Chỉ hiện {tomTat.mau.length} mã đầu.</p>}
-          <button type="button" disabled={ban || !duocNhap(tomTat)} onClick={nhap}
-            className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-40">
+            </TableBody>
+          </Table>
+          {tomTat.soMa > tomTat.mau.length && <p className="text-xs text-muted-foreground">Chỉ hiện {tomTat.mau.length} mã đầu.</p>}
+          <Button type="button" disabled={ban || !duocNhap(tomTat)} onClick={nhap}
+            size="sm">
             {nhanNutNhap(tomTat)}
-          </button>
+          </Button>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

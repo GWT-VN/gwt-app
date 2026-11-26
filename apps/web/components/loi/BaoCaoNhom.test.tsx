@@ -18,6 +18,7 @@ describe('TheoNhom', () => {
   it('chọn nhóm + máy: bảng máy và danh sách ticket có link mở ticket', () => {
     const h = renderToStaticMarkup(<TheoNhom ca={DS} n="RO-RI-NUOC" s="CTS20NG" href={href} />)
     expect(h).toContain('Rò rỉ nước: máy nào gặp lỗi này')
+    expect(h.match(/data-slot="table"/g)).toHaveLength(2)
     expect(h).toContain('href="/ticket/GWT-2"')
     expect(h).toContain('Đã xong')
     expect(h).not.toContain('GWT-3')
@@ -30,6 +31,7 @@ describe('TheoMay', () => {
     expect(h).toContain('47')
     expect(h).toContain('4%')
     expect(h).toContain('S1')
+    expect(h.match(/data-slot="table"/g)).toHaveLength(2)
     expect(h).toContain('href="/ticket/GWT-1"')
   })
 })

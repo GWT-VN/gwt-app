@@ -1,7 +1,15 @@
 'use client'
 
 import { ChonLoaiTicket } from '@/components/ticket/ChonLoaiTicket'
-import { useState } from 'react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
+import { Field, FieldDescription, FieldLabel, FieldSet, FieldLegend } from '@/components/ui/field'
+import { FormFooter, FormGrid, FormLayout, FormRequiredNote, FormSection } from '@/components/ui/form-layout'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
+import { useId, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createTicket, machinesOfCustomer, type Machine } from '@/app/actions'
@@ -41,6 +49,7 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const router = useRouter()
+  const id = useId()
 
   async function chonKhach(id: string) {
     setKhachId(id); setMay(null); setDangTaiMay(true)
@@ -83,122 +92,116 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
     router.push(duongDanSauTao(r.code, 'canhBao' in r ? r.canhBao : undefined))
   }
 
+  const chuaDuDieuKien = !khachId || !loai.trim() || !moTa.trim()
+    || !dongDuDieuKien(dong, Object.fromEntries(Object.entries(ketQua).map(([k, v]) => [k, v.loai])))
+
   return (
-    <div className="bg-white rounded-xl border p-5 space-y-4 max-w-2xl">
-      <div>
-        <label className="text-sm font-medium text-slate-700">Tra nhanh theo tên/SĐT khách</label>
-        <div className="mt-1"><KhachMayTraCuu onChonMay={(m) => chonTuTraNhanh(m)} /></div>
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-slate-700">1. Khách hàng *</label>
-        <KhachPicker onPick={(id) => { setKhachNhan(null); chonKhach(id) }} />
-        {khachNhan && <p className="text-xs text-slate-500 mt-1">Đã chọn từ tra nhanh: {khachNhan}</p>}
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-slate-700">2. Máy báo lỗi (serial)</label>
-        <p className="text-xs text-slate-500">Chưa có serial thì bỏ trống — thợ kiểm tra xong, vào ticket bấm <strong>Sửa dòng</strong> ở Máy &amp; lỗi để bổ sung.</p>
-        {may !== null && may.length === 0 && (
-          <p className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mt-1">
-            ⚠️ Khách này <strong>chưa có máy nào được kích hoạt</strong>. Vẫn lưu được với serial chưa đăng ký; hoặc{' '}
-            <Link href="/dang-ky-bh" className="underline font-medium">Đăng ký bảo hành</Link>{' '}cho máy.
-          </p>
-        )}
-        {may !== null && may.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1.5">
-            {may.map((m) => (
-              <button key={m.serial} type="button" onClick={() => datSerialDong1(m.serial)}
-                className="text-xs rounded-full border px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700">
-                {m.product_name ?? m.internal_code} · {m.serial}{m.warranty_activated ? '' : ' (chưa kích hoạt)'}
-              </button>
-            ))}
-          </div>
-        )}
-        {lechKhach.map((l) => (
-          <p key={l.serial} className="text-sm bg-amber-50 text-amber-900 rounded-lg px-3 py-2 mt-1">
-            ⚠️ Serial <span className="font-mono">{l.serial}</span> đang gắn với khách <strong>{l.khach}</strong>, không phải khách đã chọn. Kiểm tra lại trước khi tạo.
-          </p>
-        ))}
-        {dangTaiMay && <p className="text-xs text-slate-400 mt-1">Đang tải máy của khách…</p>}
-        <div className="mt-2">
+    <FormLayout onSubmit={(e) => e.preventDefault()}>
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
+      <FormSection tieuDe="Khách hàng và máy">
+        <FormRequiredNote />
+        <FieldSet>
+          <FieldLegend>Tra nhanh theo tên/SĐT khách</FieldLegend>
+          <KhachMayTraCuu onChonMay={(m) => chonTuTraNhanh(m)} />
+        </FieldSet>
+        <FieldSet>
+          <FieldLegend required>Khách hàng</FieldLegend>
+          <KhachPicker onPick={(id) => { setKhachNhan(null); chonKhach(id) }} />
+          {khachNhan && <FieldDescription>Đã chọn từ tra nhanh: {khachNhan}</FieldDescription>}
+        </FieldSet>
+        <FieldSet>
+          <FieldLegend>Máy báo lỗi (serial)</FieldLegend>
+          <FieldDescription>Chưa có serial thì bỏ trống — thợ kiểm tra xong, vào ticket bấm <strong>Sửa dòng</strong> ở Máy &amp; lỗi để bổ sung.</FieldDescription>
+          {may !== null && may.length === 0 && (
+            <Alert color="warning">
+              <AlertDescription>
+                Khách này <strong>chưa có máy nào được kích hoạt</strong>. Vẫn lưu được với serial chưa đăng ký; hoặc{' '}
+                <Link href="/dang-ky-bh" className="font-medium underline">Đăng ký bảo hành</Link>{' '}cho máy.
+              </AlertDescription>
+            </Alert>
+          )}
+          {may !== null && may.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {may.map((m) => (
+                <Button key={m.serial} size="sm" variant="outline" onClick={() => datSerialDong1(m.serial)}>
+                  {m.product_name ?? m.internal_code} · {m.serial}{m.warranty_activated ? '' : ' (chưa kích hoạt)'}
+                </Button>
+              ))}
+            </div>
+          )}
+          {lechKhach.map((l) => (
+            <Alert key={l.serial} color="warning">
+              <AlertDescription>
+                Serial <span className="font-mono">{l.serial}</span> đang gắn với khách <strong>{l.khach}</strong>, không phải khách đã chọn. Kiểm tra lại trước khi tạo.
+              </AlertDescription>
+            </Alert>
+          ))}
+          {dangTaiMay && <FieldDescription role="status">Đang tải máy của khách…</FieldDescription>}
           <DongMayNhap dong={dong} onChange={setDong} dsLoi={dsLoi}
             onKetQua={(_, k) => { if (k) setKetQua((o) => ({ ...o, [k.serial]: k })) }} />
-        </div>
-      </div>
+        </FieldSet>
+      </FormSection>
 
-      <div className="grid sm:grid-cols-2 gap-3">
-        <div className="block">
-          <span className="text-sm font-medium text-slate-700">Loại ticket *</span>
-          <ChonLoaiTicket value={loai} onChange={setLoai} loaiList={loaiList} className="mt-1" />
-        </div>
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Ngày tạo</span>
-          <input type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)}
-            className="mt-1 block rounded-lg border px-3 py-2 text-sm text-slate-900" />
-        </label>
-      </div>
+      <FormSection tieuDe="Thông tin ticket">
+        <FormGrid>
+          <Field>
+            <FieldLabel htmlFor={`${id}-loai`} required>Loại ticket</FieldLabel>
+            <ChonLoaiTicket id={`${id}-loai`} required value={loai} onChange={setLoai} loaiList={loaiList} />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${id}-ngay`}>Ngày tạo</FieldLabel>
+            <Input id={`${id}-ngay`} type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)} />
+          </Field>
+          <Field data-span="full">
+            <FieldLabel htmlFor={`${id}-mo-ta`} required>Mô tả sự cố</FieldLabel>
+            <Textarea id={`${id}-mo-ta`} required value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={3}
+              placeholder="Khách báo lỗi gì…" />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${id}-trang-thai`}>Trạng thái</FieldLabel>
+            <NativeSelect id={`${id}-trang-thai`} value={state} onChange={(e) => setState(e.target.value)}>
+              {STATES.map((s) => <NativeSelectOption key={s.k} value={s.k}>{s.l}</NativeSelectOption>)}
+            </NativeSelect>
+          </Field>
+          <ChoiceLabel nhan="Khẩn" className="self-end pb-1.5">
+            <Checkbox checked={khan} onCheckedChange={(value) => setKhan(value === true)} />
+          </ChoiceLabel>
+        </FormGrid>
+      </FormSection>
 
-      <label className="block">
-        <span className="text-sm font-medium text-slate-700">Mô tả sự cố *</span>
-        <textarea value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={3}
-          placeholder="Khách báo lỗi gì…"
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
-      </label>
+      <FormSection tieuDe="Phân công và xử lý">
+        <FormGrid>
+          <Field>
+            <FieldLabel htmlFor={`${id}-cs`}>CS phụ trách</FieldLabel>
+            <NativeSelect id={`${id}-cs`} value={cs} onChange={(e) => setCs(e.target.value)}>
+              <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
+              {staff.map((s) => <NativeSelectOption key={s.id} value={s.id}>{s.ten}</NativeSelectOption>)}
+            </NativeSelect>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${id}-kt`}>Kỹ thuật phụ trách</FieldLabel>
+            <NativeSelect id={`${id}-kt`} value={kt} onChange={(e) => setKt(e.target.value)}
+              aria-describedby={dsKt ? `${id}-kt-mo-ta` : undefined}>
+              <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
+              {dsKt
+                ? dsKt.filter((x) => x.hoat_dong).map((x) => <NativeSelectOption key={x.id} value={x.id}>{x.ten}{x.la_ctv ? ' (CTV)' : ''}</NativeSelectOption>)
+                : staff.map((s) => <NativeSelectOption key={s.id} value={s.id}>{s.ten}</NativeSelectOption>)}
+            </NativeSelect>
+            {dsKt && <FieldDescription id={`${id}-kt-mo-ta`}>Thiếu thợ? Thêm ở ô Kỹ thuật trên trang ticket sau khi tạo.</FieldDescription>}
+          </Field>
+          <Field data-span="full">
+            <FieldLabel htmlFor={`${id}-ghi-chu`}>Ghi chú xử lý (tuỳ chọn)</FieldLabel>
+            <Textarea id={`${id}-ghi-chu`} value={note} onChange={(e) => setNote(e.target.value)} rows={2}
+              placeholder="Đã xử lý gì, kết quả…" />
+          </Field>
+        </FormGrid>
+      </FormSection>
 
-      <div className="flex items-end gap-4 flex-wrap">
-        <div>
-          <span className="text-sm font-medium text-slate-700">Trạng thái</span>
-          <div className="mt-1 flex gap-2">
-            {STATES.map((s) => (
-              <button key={s.k} type="button" onClick={() => setState(s.k)}
-                className={`px-3 py-1.5 rounded-lg text-sm border ${state === s.k ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
-                {s.l}
-              </button>
-            ))}
-          </div>
-        </div>
-        <label className="flex items-center gap-1.5 text-sm text-slate-700 pb-1.5">
-          <input type="checkbox" checked={khan} onChange={(e) => setKhan(e.target.checked)} /> 🔴 Khẩn
-        </label>
-      </div>
-
-      <div className="grid sm:grid-cols-2 gap-3">
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">CS phụ trách</span>
-          <select value={cs} onChange={(e) => setCs(e.target.value)}
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white text-slate-900">
-            <option value="">— Chưa gán —</option>
-            {staff.map((s) => <option key={s.id} value={s.id}>{s.ten}</option>)}
-          </select>
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Kỹ thuật phụ trách</span>
-          <select value={kt} onChange={(e) => setKt(e.target.value)}
-            className="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white text-slate-900">
-            <option value="">— Chưa gán —</option>
-            {dsKt
-              ? dsKt.filter((x) => x.hoat_dong).map((x) => <option key={x.id} value={x.id}>{x.ten}{x.la_ctv ? ' (CTV)' : ''}</option>)
-              : staff.map((s) => <option key={s.id} value={s.id}>{s.ten}</option>)}
-          </select>
-          {dsKt && <span className="mt-1 block text-xs text-slate-500">Thiếu thợ? Thêm ở ô Kỹ thuật trên trang ticket sau khi tạo.</span>}
-        </label>
-      </div>
-
-      <label className="block">
-        <span className="text-sm font-medium text-slate-700">Ghi chú xử lý (tuỳ chọn)</span>
-        <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2}
-          placeholder="Đã xử lý gì, kết quả…"
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
-      </label>
-
-      <div className="flex items-center gap-3">
-        <button onClick={luu} disabled={busy || !khachId || !dongDuDieuKien(dong, Object.fromEntries(Object.entries(ketQua).map(([k, v]) => [k, v.loai]))) || !loai.trim() || !moTa.trim()}
-          className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-medium disabled:opacity-50">
-          {busy ? 'Đang tạo…' : 'Tạo ticket'}
-        </button>
-        {err && <span className="text-sm text-red-600">{err}</span>}
-      </div>
-    </div>
+      <FormFooter trangThai={busy ? 'Đang tạo…' : undefined}>
+        <Button onClick={luu} loading={busy} disabled={busy || chuaDuDieuKien}>
+          Tạo ticket
+        </Button>
+      </FormFooter>
+    </FormLayout>
   )
 }

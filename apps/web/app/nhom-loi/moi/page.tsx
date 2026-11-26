@@ -1,6 +1,9 @@
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { NutQuayLai } from '@/components/NutQuayLai'
 import { NhomLoiForm } from '@/components/NhomLoiForm'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Card } from '@/components/ui/card'
+import { PageHeader } from '@/components/ui/page-header'
 
 export default async function TaoNhomLoiPage({
   searchParams,
@@ -12,12 +15,13 @@ export default async function TaoNhomLoiPage({
   const dsTicket = tickets ? tickets.split(',').filter(Boolean) : []
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4">
-        <NutQuayLai macDinh="/nhom-loi" />
-        <h1 className="text-xl font-semibold text-slate-900">Tạo nhóm lỗi</h1>
-        <NhomLoiForm goiYMau={goi_y} goiYTen={ten} goiYTickets={dsTicket} />
-      </div>
-    </main>
+    <ManV2>
+      <main className="mx-auto w-full max-w-3xl space-y-5 px-4 py-5 sm:px-6">
+        <PageHeader duongDan={<NutQuayLai macDinh="/nhom-loi" />} tieuDe="Tạo nhóm lỗi" />
+        <Card>
+          <NhomLoiForm goiYMau={goi_y} goiYTen={ten} goiYTickets={dsTicket} />
+        </Card>
+      </main>
+    </ManV2>
   )
 }

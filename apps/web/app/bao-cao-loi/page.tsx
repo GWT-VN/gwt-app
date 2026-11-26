@@ -1,7 +1,12 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { duLieuTanSuat, soMayDangChay } from '@/app/ticket/loi-actions'
-import { DauTrang } from '@/components/DauTrang'
+import { ManV2 } from '@/components/khung/ManV2'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { Button } from '@/components/ui/button'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { Input } from '@/components/ui/input'
+import { PageHeader } from '@/components/ui/page-header'
 import { BoLocGoiY } from '@/bang'
 import { BangTanSuat } from '@/components/loi/BangTanSuat'
 import { TheoMay, TheoNhom } from '@/components/loi/BaoCaoNhom'
@@ -55,54 +60,64 @@ export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Pr
   const n = mot(sp.n) || null
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-4">
-        <DauTrang tieuDe="Báo cáo lỗi" phuDe={tab === 'thang'
-          ? `${rows.reduce((s, r) => s + r.so_ca, 0)} ca · ${rows.length} dòng · ${tu} đến ${den}`
-          : `${soLoi} ticket lỗi · ${tu} đến ${den}${gomHuy ? ' · gồm ticket đã huỷ' : ''}`} />
+    <ManV2>
+      <CauHinhBangDs>
+        <TrangDuLieu className="space-y-4">
+          <PageHeader
+            tieuDe="Báo cáo lỗi"
+            meta={[
+              tab === 'thang' ? `${rows.reduce((s, r) => s + r.so_ca, 0)} ca` : `${soLoi} ticket lỗi`,
+              ...(tab === 'thang' ? [`${rows.length} dòng`] : []),
+              `${tu} đến ${den}`,
+              ...(tab !== 'thang' && gomHuy ? ['gồm ticket đã huỷ'] : []),
+            ]}
+            hanhDong={<Button asChild variant="outline"><Link href="/danh-muc-loi">Danh mục lỗi</Link></Button>}
+          />
 
-        <nav className="flex gap-1 border-b border-slate-200 overflow-x-auto" aria-label="Cách xem">
-          {TABS.map((t) => (
-            <Link key={t.key} href={`/bao-cao-loi?tab=${t.key}`} prefetch={false} aria-current={tab === t.key ? 'page' : undefined}
-              className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 ${tab === t.key ? 'border-teal-600 text-teal-800' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-              {t.nhan}
-            </Link>
-          ))}
-        </nav>
+          <nav className="flex flex-wrap gap-1" aria-label="Cách xem">
+            {TABS.map((t) => (
+              <Button key={t.key} asChild variant={tab === t.key ? 'secondary' : 'ghost'} size="sm">
+                <Link href={`/bao-cao-loi?tab=${t.key}`} prefetch={false} aria-current={tab === t.key ? 'page' : undefined}>
+                  {t.nhan}
+                </Link>
+              </Button>
+            ))}
+          </nav>
 
-        <form method="get" className="flex flex-wrap items-end gap-3">
-          <input type="hidden" name="tab" value={tab} />
-          <label className="text-sm text-slate-600">Từ tháng
-            <input type="month" name="tu" defaultValue={tu} className="block rounded-lg border border-slate-300 px-2 py-1 text-sm" />
-          </label>
-          <label className="text-sm text-slate-600">Đến tháng
-            <input type="month" name="den" defaultValue={den} className="block rounded-lg border border-slate-300 px-2 py-1 text-sm" />
-          </label>
-          {tab !== 'thang' && (
-            <label className="flex items-center gap-1.5 text-sm text-slate-600 pb-1">
-              <input type="checkbox" name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
+          <form method="get" className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="tab" value={tab} />
+            <label className="text-sm text-muted-foreground">Từ tháng
+              <Input type="month" name="tu" defaultValue={tu} className="mt-1" />
             </label>
-          )}
-          {tab === 'thang' && nhom && <input type="hidden" name="nhom" value={nhom} />}
-          {tab === 'thang' && may && <input type="hidden" name="may" value={may} />}
-          {tab === 'thang' && loi && <input type="hidden" name="loi" value={loi} />}
-          {tab === 'nhom' && n && <input type="hidden" name="n" value={n} />}
-          <button type="submit" className="rounded-lg bg-slate-800 text-white text-sm px-3 py-1.5">Xem</button>
-        </form>
+            <label className="text-sm text-muted-foreground">Đến tháng
+              <Input type="month" name="den" defaultValue={den} className="mt-1" />
+            </label>
+            {tab !== 'thang' && (
+              <label className="flex items-center gap-1.5 text-sm text-muted-foreground pb-1">
+                <input type="checkbox" name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
+              </label>
+            )}
+            {tab === 'thang' && nhom && <input type="hidden" name="nhom" value={nhom} />}
+            {tab === 'thang' && may && <input type="hidden" name="may" value={may} />}
+            {tab === 'thang' && loi && <input type="hidden" name="loi" value={loi} />}
+            {tab === 'nhom' && n && <input type="hidden" name="n" value={n} />}
+            <Button type="submit">Xem</Button>
+          </form>
 
-        {tab === 'nhom' && <TheoNhom ca={loc} n={n} s={mot(sp.s) || null} href={href} />}
-        {tab === 'may' && <TheoMay ca={loc} dangChay={dangChay} m={mot(sp.m) || null} mn={mot(sp.mn) || null} href={href} />}
-        {tab === 'thang' && (
-          <>
-            <div className="flex flex-wrap gap-3">
-              <Suspense><BoLocGoiY param="nhom" nhan="Nhóm lỗi" tuyChon={[...nhomCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
-              <Suspense><BoLocGoiY param="may" nhan="Model" tuyChon={[...mayCo].sort().map((g) => ({ giaTri: g, nhan: g }))} /></Suspense>
-              <Suspense><BoLocGoiY param="loi" nhan="Loại lỗi" tuyChon={[...loiCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
-            </div>
-            <BangTanSuat rows={rows} thang={thang} />
-          </>
-        )}
-      </div>
-    </main>
+          {tab === 'nhom' && <TheoNhom ca={loc} n={n} s={mot(sp.s) || null} href={href} />}
+          {tab === 'may' && <TheoMay ca={loc} dangChay={dangChay} m={mot(sp.m) || null} mn={mot(sp.mn) || null} href={href} />}
+          {tab === 'thang' && (
+            <>
+              <div className="flex flex-wrap gap-3">
+                <Suspense><BoLocGoiY param="nhom" nhan="Nhóm lỗi" tuyChon={[...nhomCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
+                <Suspense><BoLocGoiY param="may" nhan="Model" tuyChon={[...mayCo].sort().map((g) => ({ giaTri: g, nhan: g }))} /></Suspense>
+                <Suspense><BoLocGoiY param="loi" nhan="Loại lỗi" tuyChon={[...loiCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
+              </div>
+              <BangTanSuat rows={rows} thang={thang} />
+            </>
+          )}
+        </TrangDuLieu>
+      </CauHinhBangDs>
+    </ManV2>
   )
 }

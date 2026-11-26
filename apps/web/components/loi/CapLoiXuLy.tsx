@@ -5,29 +5,53 @@ import { useRouter } from 'next/navigation'
 import { themLanLoi, suaLanLoi, xoaLanLoi } from '@/app/ticket/lan-loi-actions'
 import type { LanLoi } from '@/lib/loi/lanLoi'
 import { ngayCuaLan, ngayVNHienThi, ngayVNHomNay } from '@/lib/loi/ngayTicket'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 /** 'YYYY-MM-DD' (ngày khách báo) hoặc ISO (ngày tạo) → dd/mm/yyyy giờ VN. */
 const ngayVN = (s: string | null) => (s ? ngayVNHienThi(/^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ngayCuaLan(null, s)) : '')
 
-/** Một cặp "Khách báo ↔ Xử lý" ở chế độ xem: hai cột cạnh nhau (mobile xếp dọc). */
-export function KhungCap({ lan, ngay, moTa, xuLy, nut }: {
-  lan: number; ngay: string | null; moTa: string | null; xuLy: string | null; nut?: ReactNode
-}) {
+type LanBao = {
+  lan: number
+  ngay: string | null
+  moTa: string | null
+  xuLy: string | null
+}
+
+export function MucLanLoi({ id, lan, ngay, moTa, xuLy, children }: LanBao & { id: string; children?: ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-200">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-3 py-1.5 rounded-t-lg">
-        <span className="text-xs font-medium text-slate-700">Lần {lan}{ngay && <span className="font-normal text-slate-500"> · {ngayVN(ngay)}</span>}</span>
-        {nut}
+    <AccordionItem value={id}>
+      <AccordionTrigger>
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="flex flex-wrap items-center gap-2">
+            Lần {lan}
+            {ngay && <span className="font-normal text-muted-foreground tabular-nums">· khách báo {ngayVN(ngay)}</span>}
+            <Badge variant="soft" color={xuLy ? 'success' : 'warning'}>{xuLy ? 'Đã xử lý' : 'Chờ xử lý'}</Badge>
+          </span>
+          {moTa && <span className="truncate font-normal text-muted-foreground">{moTa}</span>}
+        </span>
+      </AccordionTrigger>
+      <AccordionContent>{children}</AccordionContent>
+    </AccordionItem>
+  )
+}
+
+export function NoiDungLanLoi({ moTa, xuLy }: Pick<LanBao, 'moTa' | 'xuLy'>) {
+  return (
+    <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+      <div className="min-w-0">
+        <span className="text-muted-foreground">Khách báo</span>
+        <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{moTa || '—'}</p>
       </div>
-      <div className="grid sm:grid-cols-2 sm:divide-x divide-slate-100 text-sm">
-        <div className="p-3 min-w-0">
-          <span className="text-xs text-slate-500">Khách báo</span>
-          <p className="text-slate-900 whitespace-pre-wrap [overflow-wrap:anywhere]">{moTa || '—'}</p>
-        </div>
-        <div className="p-3 min-w-0">
-          <span className="text-xs text-slate-500">Xử lý</span>
-          <p className={`whitespace-pre-wrap [overflow-wrap:anywhere] ${xuLy ? 'text-slate-900' : 'text-amber-600'}`}>{xuLy || 'chưa có'}</p>
-        </div>
+      <div className="min-w-0">
+        <span className="text-muted-foreground">Xử lý</span>
+        <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{xuLy || 'chưa có'}</p>
       </div>
     </div>
   )
@@ -40,15 +64,15 @@ export function O2Cot({ moTa, setMoTa, xuLy, setXuLy, batBuoc = true }: {
   return (
     <div className="grid sm:grid-cols-2 gap-3">
       <label className="block">
-        <span className="text-sm text-slate-700">Mô tả khách báo{batBuoc && ' *'}</span>
-        <textarea value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={4}
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
+        <span className="text-muted-foreground">Mô tả khách báo{batBuoc && ' *'}</span>
+        <Textarea value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={4}
+          className="mt-1" />
       </label>
       <label className="block">
-        <span className="text-sm text-slate-700">Tóm tắt xử lý</span>
-        <textarea value={xuLy} onChange={(e) => setXuLy(e.target.value)} rows={4}
+        <span className="text-muted-foreground">Tóm tắt xử lý</span>
+        <Textarea value={xuLy} onChange={(e) => setXuLy(e.target.value)} rows={4}
           placeholder="Kỹ thuật đã làm gì, nguyên nhân, kết quả…"
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
+          className="mt-1" />
       </label>
     </div>
   )
@@ -57,10 +81,9 @@ export function O2Cot({ moTa, setMoTa, xuLy, setXuLy, batBuoc = true }: {
 /** Ô chọn ngày khách báo (cho phép ngày lùi, chặn tương lai bằng `max`). */
 export function ONgay({ ngay, setNgay, homNay }: { ngay: string; setNgay: (s: string) => void; homNay: string }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-700">
+    <label className="flex flex-wrap items-center gap-2 text-muted-foreground">
       Ngày khách báo
-      <input type="date" value={ngay} max={homNay} min="2020-01-01" onChange={(e) => setNgay(e.target.value)}
-        className="rounded-lg border px-2 py-1 text-sm text-slate-900" />
+      <Input type="date" value={ngay} max={homNay} min="2020-01-01" onChange={(e) => setNgay(e.target.value)} className="w-auto" />
     </label>
   )
 }
@@ -83,67 +106,94 @@ export function FormCap({ dau, moTa0 = '', xuLy0 = '', ngay0 = '', homNay = ngay
     if (!r.ok) setErr(r.error)
   }
   return (
-    <div className="rounded-lg border border-slate-300 p-3 space-y-3">
+    <Card className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <p className="text-xs font-medium text-slate-700">{dau}</p>
+        <p className="font-medium">{dau}</p>
         <ONgay ngay={ngay} setNgay={setNgay} homNay={homNay} />
       </div>
       <O2Cot moTa={moTa} setMoTa={setMoTa} xuLy={xuLy} setXuLy={setXuLy} />
       <div className="flex items-center gap-3">
-        <button onClick={luu} disabled={busy}
-          className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-medium disabled:opacity-50">
-          {busy ? 'Đang lưu…' : 'Lưu'}
-        </button>
-        <button type="button" onClick={onHuy} disabled={busy}
-          className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 disabled:opacity-50 hover:bg-slate-50">Huỷ</button>
+        <Button onClick={luu} loading={busy}>Lưu</Button>
+        <Button variant="outline" onClick={onHuy} disabled={busy}>Huỷ</Button>
       </div>
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
-    </div>
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
+    </Card>
   )
 }
 
-/** Lần lỗi thứ 2+ (bảng ticket_lan_loi): xem, sửa, xoá từng cặp; thêm cặp mới khi khách báo lỗi lần sau. */
-export function LanLoiTiepTheo({ code, ds, choSua, lanKe }: { code: string; ds: LanLoi[]; choSua: boolean; lanKe: number }) {
+/** Lần 1 do TicketEditor cung cấp. Lần 2+ vẫn lưu qua các action của ticket_lan_loi. */
+export function LanLoiTiepTheo({ code, ds, choSua, lanKe, lanDau }: {
+  code: string; ds: LanLoi[]; choSua: boolean; lanKe: number; lanDau?: ReactNode
+}) {
   const [dangSua, setDangSua] = useState<string | null>(null)
   const [dangThem, setDangThem] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
+  const [canXoa, setCanXoa] = useState<LanLoi | null>(null)
+  const [loiXoa, setLoiXoa] = useState<string | null>(null)
   const router = useRouter()
+  const moiNhat = ds.at(-1)?.id ?? 'lan-1'
 
-  const xong = <T extends { ok: boolean }>(r: T) => { if (r.ok) { setDangSua(null); setDangThem(false); router.refresh() } return r }
+  function xong<T extends { ok: boolean }>(r: T): T {
+    if (r.ok) {
+      setDangSua(null)
+      setDangThem(false)
+      router.refresh()
+    }
+    return r
+  }
 
-  async function xoa(l: LanLoi) {
-    if (!window.confirm(`Xoá lần ${l.lan}?`)) return
-    setErr(null)
-    const r = await xoaLanLoi(l.id, code)
-    if (!r.ok) setErr(r.error); else router.refresh()
+  async function xoa() {
+    if (!canXoa) return
+    setLoiXoa(null)
+    const r = await xoaLanLoi(canXoa.id, code)
+    if (!r.ok) {
+      setLoiXoa(r.error)
+      throw new Error(r.error)
+    }
+    router.refresh()
   }
 
   return (
     <div className="space-y-3">
-      {ds.map((l) => dangSua === l.id ? (
-        <FormCap key={l.id} dau={`Sửa lần ${l.lan}`} moTa0={l.mo_ta} xuLy0={l.xu_ly ?? ''}
-          ngay0={ngayCuaLan(l.ngay, l.created_at) ?? ''}
-          onLuu={async (v) => xong(await suaLanLoi(l.id, code, v))} onHuy={() => setDangSua(null)} />
-      ) : (
-        <KhungCap key={l.id} lan={l.lan} ngay={ngayCuaLan(l.ngay, l.created_at)} moTa={l.mo_ta} xuLy={l.xu_ly}
-          nut={choSua && (
-            <span className="flex gap-3 text-xs">
-              <button onClick={() => setDangSua(l.id)} className="text-slate-600 underline">Sửa</button>
-              <button onClick={() => xoa(l)} className="text-red-600 underline">Xoá</button>
-            </span>
-          )} />
-      ))}
+      <Accordion key={moiNhat} type="multiple" defaultValue={[moiNhat]}>
+        {[...ds].reverse().map((l) => (
+          <MucLanLoi key={l.id} id={l.id} lan={l.lan} ngay={ngayCuaLan(l.ngay, l.created_at)} moTa={l.mo_ta} xuLy={l.xu_ly}>
+            {dangSua === l.id ? (
+              <FormCap dau={`Sửa lần ${l.lan}`} moTa0={l.mo_ta} xuLy0={l.xu_ly ?? ''}
+                ngay0={ngayCuaLan(l.ngay, l.created_at) ?? ''}
+                onLuu={async (v) => xong(await suaLanLoi(l.id, code, v))} onHuy={() => setDangSua(null)} />
+            ) : (
+              <div className="space-y-3">
+                <NoiDungLanLoi moTa={l.mo_ta} xuLy={l.xu_ly} />
+                {choSua && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" aria-label={`Sửa lần ${l.lan}`} onClick={() => setDangSua(l.id)}>Sửa</Button>
+                    <Button size="sm" variant="ghost" aria-label={`Xoá lần ${l.lan}`} onClick={() => { setLoiXoa(null); setCanXoa(l) }}>Xoá</Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </MucLanLoi>
+        ))}
+        {lanDau}
+      </Accordion>
 
       {choSua && (dangThem ? (
         <FormCap dau={`Lần ${lanKe} — khách báo lỗi tiếp`} ngay0={ngayVNHomNay()}
           onLuu={async (v) => xong(await themLanLoi(code, v))} onHuy={() => setDangThem(false)} />
       ) : (
-        <button onClick={() => setDangThem(true)}
-          className="rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
-          + Thêm lần lỗi mới
-        </button>
+        <Button size="sm" variant="outline" onClick={() => setDangThem(true)}>+ Thêm lần lỗi mới</Button>
       ))}
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
+
+      <ConfirmDialog
+        open={canXoa !== null}
+        onOpenChange={(open) => { if (!open) setCanXoa(null) }}
+        pha
+        tieuDe={`Xoá lần ${canXoa?.lan}?`}
+        moTa="Mô tả khách báo và tóm tắt xử lý của lần này sẽ bị xoá khỏi ticket."
+        nutXacNhan="Xoá lần lỗi"
+        loi={loiXoa}
+        onXacNhan={xoa}
+      />
     </div>
   )
 }

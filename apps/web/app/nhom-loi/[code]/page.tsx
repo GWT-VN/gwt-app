@@ -6,6 +6,16 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { MucDoBadge, BaoHangBadge, NguonBadge } from '@/components/NhomLoiBadge'
 import { StateBadge, vnDateTime } from '@/components/TicketBadge'
 import { NhomLoiForm } from '@/components/NhomLoiForm'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { DetailHeading, DetailLayout } from '@/components/ui/detail-layout'
+import { PageHeader } from '@/components/ui/page-header'
+import { PropertyList, PropertyRow } from '@/components/ui/property-list'
+import { BangTrangThai, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 
 export default async function NhomLoiDetail({
   params,
@@ -28,116 +38,116 @@ export default async function NhomLoiDetail({
   const models = [...theoModel.entries()].sort((a, b) => b[1] - a[1])
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4">
-        <header className="space-y-2">
-          <div className="flex items-center justify-between gap-4">
-            <NutQuayLai macDinh="/nhom-loi" />
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-semibold text-slate-900">{nhom.ten}</h1>
-            <MucDoBadge muc_do={nhom.muc_do} />
-            {nhom.bao_hang && <BaoHangBadge />}
-          </div>
-          {nhom.mo_ta && <p className="text-sm text-slate-600 max-w-3xl">{nhom.mo_ta}</p>}
-        </header>
+    <ManV2>
+      <main className="mx-auto w-full max-w-[1584px] space-y-5 px-4 py-5 sm:px-6">
+        <PageHeader
+          duongDan={<NutQuayLai macDinh="/nhom-loi" />}
+          tieuDe={nhom.ten}
+          meta={[
+            <MucDoBadge key="muc-do" muc_do={nhom.muc_do} />,
+            ...(nhom.bao_hang ? [<BaoHangBadge key="bao-hang" />] : []),
+          ]}
+        />
+        {nhom.mo_ta && <p className="max-w-3xl text-sm text-muted-foreground">{nhom.mo_ta}</p>}
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {[
-            { l: 'Ticket', v: nhom.so_ticket },
-            { l: 'Đang mở', v: nhom.dang_mo, hot: nhom.dang_mo > 0 },
-            { l: '90 ngày qua', v: nhom.trong_90_ngay },
-            { l: 'Khách dính', v: nhom.so_khach },
-            { l: 'Máy dính', v: nhom.so_may },
-          ].map((s) => (
-            <div key={s.l} className="bg-white rounded-xl border p-3">
-              <div className="text-xs text-slate-500">{s.l}</div>
-              <div className={`text-2xl font-semibold ${s.hot ? 'text-amber-700' : 'text-slate-900'}`}>{s.v}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-xl border p-4">
-          <h2 className="font-medium text-slate-900 mb-2">Model dính lỗi</h2>
-          <div className="flex flex-wrap gap-2">
-            {models.map(([m, n]) => (
-              <span key={m} className="px-2 py-1 rounded-lg bg-slate-100 text-xs">
-                <span className="font-mono text-slate-800">{m}</span>
-                <span className="text-slate-500"> × {n}</span>
-              </span>
-            ))}
-          </div>
-          {theoModel.has('(chưa gắn máy)') && (
-            <p className="text-xs text-amber-700 mt-2">
-              ⚠️ {theoModel.get('(chưa gắn máy)')} ticket chưa gắn serial nên không biết model —
-              báo hãng sẽ thiếu bằng chứng. Gắn serial ở trang ticket để số này chính xác.
-            </p>
-          )}
-        </div>
-
-        <div className="bg-white rounded-xl border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium">Ticket</th>
-                <th className="text-left px-4 py-3 font-medium">Ngày</th>
-                <th className="text-left px-4 py-3 font-medium">Trạng thái</th>
-                <th className="text-left px-4 py-3 font-medium">Máy</th>
-                <th className="text-left px-4 py-3 font-medium">Khách</th>
-                <th className="text-left px-4 py-3 font-medium">Khách báo gì</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {tickets.map((t) => (
-                <tr key={t.ticket_code} className="hover:bg-slate-50 align-top">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <Link href={`/ticket/${t.ticket_code}`} prefetch={false} className="font-mono text-xs text-slate-900 underline">
-                      {t.ticket_code}
-                    </Link>
-                    <div className="mt-1"><NguonBadge nguon={t.nguon} /></div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{vnDateTime(t.created_at)}</td>
-                  <td className="px-4 py-3"><StateBadge state={t.state} /></td>
-                  <td className="px-4 py-3">
-                    {t.serial ? (
-                      <>
-                        <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="text-slate-900 underline">
-                          {t.product_name ?? t.internal_code}
-                        </Link>
-                        <div className="font-mono text-[10px] text-slate-400">{t.serial}</div>
-                      </>
-                    ) : (
-                      <span className="text-amber-600 text-xs">chưa gắn máy</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {t.customer_id ? (
-                      <Link href={`/khach/${t.customer_id}`} prefetch={false} className="text-slate-900 underline">{t.customer_name}</Link>
-                    ) : <span className="text-slate-400">—</span>}
-                    <div className="font-mono text-xs text-slate-500">{t.primary_phone ?? ''}</div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-700 max-w-md">
-                    {t.description ?? <span className="text-slate-400 italic">không ghi mô tả</span>}
-                    <div className="text-[10px] text-slate-400 mt-0.5">loại Odoo: {t.ticket_type ?? '—'}</div>
-                  </td>
-                </tr>
-              ))}
-              {tickets.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-400">Nhóm này chưa có ticket nào.</td></tr>
+        <DetailLayout
+          nhanBen="Thống kê nhóm lỗi"
+          ben={
+            <Card className="space-y-4">
+              <PropertyList tieuDe="Thống kê nhóm lỗi">
+                <PropertyRow nhan="Ticket">{nhom.so_ticket}</PropertyRow>
+                <PropertyRow nhan="Đang mở">{nhom.dang_mo}</PropertyRow>
+                <PropertyRow nhan="90 ngày qua">{nhom.trong_90_ngay}</PropertyRow>
+                <PropertyRow nhan="Khách dính">{nhom.so_khach}</PropertyRow>
+                <PropertyRow nhan="Máy dính">{nhom.so_may}</PropertyRow>
+              </PropertyList>
+              <DetailHeading cap={3}>Model dính lỗi</DetailHeading>
+              <div className="flex flex-wrap gap-2">
+                {models.map(([m, n]) => <Badge key={m} variant="outline">{m} × {n}</Badge>)}
+                {!models.length && <span className="text-sm text-muted-foreground">Chưa có</span>}
+              </div>
+              {theoModel.has('(chưa gắn máy)') && (
+                <Alert color="warning">
+                  <AlertDescription>
+                    {theoModel.get('(chưa gắn máy)')} ticket chưa gắn serial. Gắn serial ở trang ticket để xác định model khi báo hãng.
+                  </AlertDescription>
+                </Alert>
               )}
-            </tbody>
-          </table>
-        </div>
-
-        {quyen.cauHinh && chiTiet && (
-          <details className="bg-white rounded-xl border p-4">
-            <summary className="cursor-pointer font-medium text-slate-900">Sửa nhóm / mẫu gom / xoá</summary>
-            <div className="pt-3">
-              <NhomLoiForm nhom={chiTiet} />
-            </div>
-          </details>
-        )}
-      </div>
-    </main>
+            </Card>
+          }
+          chinh={
+            <>
+              <DetailHeading>Ticket trong nhóm</DetailHeading>
+              {tickets.length === 0 ? (
+                <BangTrangThai trangThai="rongThat" tieuDe="Nhóm này chưa có ticket nào." />
+              ) : (
+                <TableWrap vien className="min-w-0">
+                  <Table aria-label="Ticket trong nhóm" variant="thuong" className="min-w-[680px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead scope="col">Ticket</TableHead>
+                        <TableHead scope="col">Ngày</TableHead>
+                        <TableHead scope="col">Trạng thái</TableHead>
+                        <TableHead scope="col">Máy</TableHead>
+                        <TableHead scope="col">Khách</TableHead>
+                        <TableHead scope="col">Khách báo gì</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tickets.map((t) => (
+                        <TableRow key={t.ticket_code} className="align-top">
+                          <TableCell className="whitespace-nowrap">
+                            <Link href={`/ticket/${t.ticket_code}`} prefetch={false} className="font-mono text-xs text-foreground underline">
+                              {t.ticket_code}
+                            </Link>
+                            <div className="mt-1"><NguonBadge nguon={t.nguon} /></div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground whitespace-nowrap">{vnDateTime(t.created_at)}</TableCell>
+                          <TableCell><StateBadge state={t.state} /></TableCell>
+                          <TableCell>
+                            {t.serial ? (
+                              <>
+                                <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="text-foreground underline">
+                                  {t.product_name ?? t.internal_code}
+                                </Link>
+                                <div className="font-mono text-[10px] text-muted-foreground">{t.serial}</div>
+                              </>
+                            ) : (
+                              <span className="text-(--color-text-warning) text-xs">chưa gắn máy</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {t.customer_id ? (
+                              <Link href={`/khach/${t.customer_id}`} prefetch={false} className="text-foreground underline">{t.customer_name}</Link>
+                            ) : <span className="text-muted-foreground">—</span>}
+                            <div className="font-mono text-xs text-muted-foreground">{t.primary_phone ?? ''}</div>
+                          </TableCell>
+                          <TableCell className="max-w-md whitespace-normal break-words">
+                            {t.description ?? <span className="text-muted-foreground italic">không ghi mô tả</span>}
+                            <div className="text-[10px] text-muted-foreground mt-0.5">loại Odoo: {t.ticket_type ?? '—'}</div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableWrap>
+              )}
+              {quyen.cauHinh && chiTiet && (
+                <Card>
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="outline">Sửa nhóm / mẫu gom / xoá</Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent forceMount className="pt-4 data-[state=closed]:hidden">
+                      <NhomLoiForm nhom={chiTiet} />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </Card>
+              )}
+            </>
+          }
+        />
+      </main>
+    </ManV2>
   )
 }

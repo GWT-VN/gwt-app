@@ -18,6 +18,7 @@ const rows = [
 describe('DanhMucLoiBang', () => {
   it('hiện danh sách, cách ghi rút gọn, phương án cắt 80 ký tự', () => {
     const h = renderToStaticMarkup(<DanhMucLoiBang rows={rows} choSua={false} />)
+    expect(h).toContain('data-slot="table"')
     expect(h).toContain('Rò nước')
     expect(h).toContain('a, b, c +1')
     expect(h).toContain('x'.repeat(80) + '…')

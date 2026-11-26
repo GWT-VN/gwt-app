@@ -6,7 +6,7 @@ vi.mock('@/app/ticket/lan-loi-actions', () => ({ themLanLoi: vi.fn(), suaLanLoi:
 vi.mock('@/app/actions', () => ({ updateTicket: vi.fn() }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ datNgayBao: vi.fn() }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
-import { FormCap, KhungCap, LanLoiTiepTheo } from './CapLoiXuLy'
+import { FormCap, NoiDungLanLoi, LanLoiTiepTheo } from './CapLoiXuLy'
 import { TicketEditor } from '@/components/TicketEditor'
 
 // Mặc định `hienNgay` (CEO 26/11): cùng năm dd/MM, khác năm dd/MM/yy — khoá "bây giờ" ở 26/11/2026 để chữ ngày trong
@@ -19,25 +19,20 @@ const lan = (p: Partial<LanLoi> = {}): LanLoi => ({
   mo_ta: 'Lại báo E4 sau khi hãng trả máy', xu_ly: 'Thay bo mạch', tao_boi: null, created_at: '2026-11-16T03:00:00Z', ...p,
 })
 
-describe('KhungCap', () => {
-  it('hiện Lần N + ngày, khách báo và xử lý cạnh nhau', () => {
-    const h = renderToStaticMarkup(<KhungCap lan={2} ngay="2026-11-16T03:00:00Z" moTa="Rò nước đáy" xuLy="Thay gioăng" />)
-    expect(h).toContain('Lần 2')
-    expect(h).toContain('16/11')
+describe('Nội dung lần lỗi', () => {
+  it('hiện khách báo và xử lý cạnh nhau', () => {
+    const h = renderToStaticMarkup(<NoiDungLanLoi moTa="Rò nước đáy" xuLy="Thay gioăng" />)
     expect(h).toContain('Khách báo')
     expect(h).toContain('Rò nước đáy')
     expect(h).toContain('Thay gioăng')
     expect(h).toContain('sm:grid-cols-2')
   })
-  it('ngày khách báo dạng YYYY-MM-DD (ngày lùi) hiện đúng dd/MM', () => {
-    expect(renderToStaticMarkup(<KhungCap lan={2} ngay="2026-10-14" moTa="x" xuLy={null} />)).toContain('14/10')
-  })
   it('link/chữ dài tự xuống dòng, không tràn khung', () => {
-    const h = renderToStaticMarkup(<KhungCap lan={1} ngay={null} moTa="a" xuLy="https://drive.google.com/file/d/rat-dai/view?usp=sharing" />)
+    const h = renderToStaticMarkup(<NoiDungLanLoi moTa="a" xuLy="https://drive.google.com/file/d/rat-dai/view?usp=sharing" />)
     expect(h).toContain('[overflow-wrap:anywhere]')
   })
   it('chưa có xử lý → "chưa có"', () => {
-    expect(renderToStaticMarkup(<KhungCap lan={1} ngay={null} moTa="E4" xuLy={null} />)).toContain('chưa có')
+    expect(renderToStaticMarkup(<NoiDungLanLoi moTa="E4" xuLy={null} />)).toContain('chưa có')
   })
 })
 
@@ -61,7 +56,7 @@ describe('LanLoiTiepTheo', () => {
     const h = renderToStaticMarkup(<LanLoiTiepTheo code="TK-2611-003" ds={[lan(), lan({ id: '22222222-2222-4222-8222-222222222222', lan: 3, xu_ly: null })]} choSua lanKe={4} />)
     expect(h).toContain('Lần 2')
     expect(h).toContain('Lần 3')
-    expect(h).toContain('Thay bo mạch')
+    expect(h).not.toContain('Thay bo mạch')
     expect(h).toContain('>Sửa<')
     expect(h).toContain('>Xoá<')
     expect(h).toContain('+ Thêm lần lỗi mới')
@@ -74,16 +69,13 @@ describe('LanLoiTiepTheo', () => {
 })
 
 describe('TicketEditor (chế độ xem)', () => {
-  it('Lần 1 là cặp mô tả ↔ tóm tắt xử lý, các lần sau nằm ngay dưới', () => {
+  it('mở lần 1 khi chưa có lần khác', () => {
     const h = renderToStaticMarkup(
       <TicketEditor code="TK-2611-003" lastNote="Đã gửi hãng" ticketType="Khác"
-        description="Lỗi E4" ngayBao={null} ngayTao="2026-11-15T17:00:00Z" choSua>
-        <p>LAN_SAU</p>
-      </TicketEditor>,
+        description="Lỗi E4" ngayBao={null} ngayTao="2026-11-15T17:00:00Z" choSua />,
     )
     expect(h).toContain('Lần 1')
     expect(h.indexOf('Lỗi E4')).toBeLessThan(h.indexOf('Đã gửi hãng'))
-    expect(h.indexOf('Đã gửi hãng')).toBeLessThan(h.indexOf('LAN_SAU'))
     expect(h).not.toContain('Tóm tắt xử lý (hiện tại)')
     expect(h).toContain('16/11')
   })

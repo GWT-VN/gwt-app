@@ -23,6 +23,7 @@ describe('BangTanSuat', () => {
   })
   it('có chân bảng tổng và chú thích định nghĩa', () => {
     const h = renderToStaticMarkup(<BangTanSuat rows={[dong({}), dong({ loi_code: 'L2', so_ca: 3, theo_thang: { '2026-10': 3 } })]} thang={['2026-10']} />)
+    expect(h).toContain('data-slot="table-footer"')
     expect(h).toContain('Tổng cộng')
     expect(h).toContain('>5<')
     expect(h).toContain('một ca cho mỗi dòng máy')
