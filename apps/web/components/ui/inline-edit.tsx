@@ -148,12 +148,14 @@ function MucRadio({
   /**
    * Nội dung là chip (Badge): dòng KHÔNG tô nền khi rê / phím đánh dấu — chính chip đậm lên (Badge soft
    * `in-data-highlighted`). CEO 26/11: "khi chọn trạng thái ko cần cho hover thế này mà phải hiện hover ở chip".
+   * Không dấu ✓ (CEO 26/11 "thừa" — giá trị đang chọn đã hiện ngay trên ô mở menu); trình đọc màn hình vẫn có
+   * `aria-checked` của mục radio.
    */
   chip?: boolean
   onSelect(e: Event): void
 }) {
   return (
-    <DropdownMenuRadioItem value={value} onSelect={onSelect} indicator={phai} className={cn(chip && 'data-highlighted:bg-transparent')}>
+    <DropdownMenuRadioItem value={value} onSelect={onSelect} indicator={chip ? false : phai} className={cn(chip && 'data-highlighted:bg-transparent')}>
       {children}
     </DropdownMenuRadioItem>
   )
