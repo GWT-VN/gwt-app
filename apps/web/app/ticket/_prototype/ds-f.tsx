@@ -171,12 +171,14 @@ const COT: CotBang[] = [
   // Hạn: "Quá 12 ngày" 76; Phụ trách: nhãn 54 + 20, ô chỉ avatar) → phần dư dồn cho cột khoá: tên khách có ~170px
   // (trước 73). Ô chọn nay nằm TRONG mép nội dung (1f5cf5e) → khung 1440 chỉ còn 927 (trước 963): khách 280 + máy 167
   // → 36 + 280 + 167 + 404 + 40 ("+") = 927 — nút "+" không bị đẩy khuất ngoài mép. Khung hẹp hơn thì cuộn ngang.
+  // Tiêu đề VIẾT HOA (CEO 26/11) rộng hơn: TRẠNG THÁI 77,5 + 4 + mũi 12 + đệm 12 → 106; PHỤ TRÁCH 73,05 → 104 (101 hụt
+  // 0,05px là đã hiện "…") → lấy từ Loại lỗi (128 → 104) và Hạn (96 → 90, "Quá 12 ngày" 76 + 12 vẫn vừa); tổng 927.
   { id: 'khach', ten: 'Ticket · khách', rong: 280, kieu: 'thuong', khoa: true },
   { id: 'may', ten: 'Máy · bảo hành', rong: 167, kieu: 'thuong' },
-  { id: 'loi', ten: 'Loại lỗi', rong: 128, kieu: 'thuong' },
-  { id: 'tt', ten: 'Trạng thái', rong: 96, kieu: 'loc' },
-  { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },
-  { id: 'han', ten: 'Hạn', rong: 96, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
+  { id: 'loi', ten: 'Loại lỗi', rong: 104, kieu: 'thuong' },
+  { id: 'tt', ten: 'Trạng thái', rong: 106, kieu: 'loc' },
+  { id: 'cs', ten: 'Phụ trách', rong: 104, kieu: 'loc' },
+  { id: 'han', ten: 'Hạn', rong: 90, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
   { id: 'loai', ten: 'Loại', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tinh', ten: 'Tỉnh/TP', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tao', ten: 'Ngày tạo', rong: 104, kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },

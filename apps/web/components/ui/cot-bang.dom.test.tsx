@@ -184,9 +184,11 @@ describe('B — menu tiêu đề: Dời sang trái / phải, Ẩn cột', () => 
     const cd = await screen.findByRole('dialog', { name: 'Cài đặt hiển thị' })
     await user.click(within(cd).getByRole('button', { name: /Cột hiển thị/ }))
     const an = within(cd).getByRole('group', { name: 'Đang ẩn' })
-    expect(within(an).getAllByRole('button').map((b) => b.getAttribute('aria-label'))).toEqual(
+    expect(within(an).getAllByRole('button', { name: /^Hiện / }).map((b) => b.getAttribute('aria-label'))).toEqual(
       ['Hiện Hạn', 'Hiện Trạng thái', 'Hiện Nguồn', 'Hiện Tỉnh/TP'],
     )
+    // Cột ẩn cũng có tay kéo (kéo được lên nhóm Đang hiện — CEO 26/11).
+    expect(within(an).getByRole('button', { name: 'Đổi chỗ cột Hạn' })).toBeTruthy()
   })
 })
 
@@ -259,6 +261,49 @@ describe('C — ⚙ Cột hiển thị: Đang hiện (kéo + mắt) / Đang ẩn
     await nhan(user, ' ')
     await waitFor(() => expect(tenCot()).toEqual(['ma', 'han', 'khach', 'tt']))
     expect(await screen.findByText('Đã thả cột Hạn trước cột Khách.')).toBeTruthy()
+  })
+
+  test('bấm THẲNG vào dòng (tên cột) cũng ẩn/hiện như bấm mắt (CEO 26/11)', async () => {
+    const user = userEvent.setup()
+    render(<Man />)
+    const cd = await moCot(user)
+    await user.click(within(within(cd).getByRole('group', { name: 'Đang hiện' })).getByText('Khách'))
+    expect(tenCot()).toEqual(['ma', 'han', 'tt'])
+    await user.click(within(within(cd).getByRole('group', { name: 'Đang ẩn' })).getByText('Khách'))
+    expect(tenCot()).toEqual(['ma', 'khach', 'han', 'tt'])
+    // Bấm tay kéo không đổi ẩn/hiện.
+    await user.click(within(cd).getByRole('button', { name: 'Đổi chỗ cột Hạn' }))
+    expect(tenCot()).toEqual(['ma', 'khach', 'han', 'tt'])
+  })
+
+  test('kéo phím QUA nhóm: cột ẩn ↑ qua nhãn "Đang ẩn" → hiện ở cuối nhóm Đang hiện; cột hiện ↓ qua nhãn → ẩn', async () => {
+    // Hộp theo thứ tự TOÀN danh sách (hai nhóm nối nhau) để cảm biến phím đi qua được nhãn mốc.
+    vi.restoreAllMocks()
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const d = this.closest('[data-cot-cd]')
+      if (!d) return new DOMRect(0, 0, 0, 0)
+      const tat = [...document.querySelectorAll('[data-cot-cd]')]
+      return new DOMRect(0, tat.indexOf(d) * 32, 280, 32)
+    })
+    const user = userEvent.setup()
+    render(<Man />)
+    const cd = await moCot(user)
+    // Ẩn Hạn trước (đang hiện: Khách, Hạn, Tt).
+    await user.click(within(cd).getByRole('button', { name: 'Ẩn Hạn' }))
+    expect(tenCot()).toEqual(['ma', 'khach', 'tt'])
+    within(cd).getByRole('button', { name: 'Đổi chỗ cột Hạn' }).focus()
+    await nhan(user, ' ')
+    await nhan(user, '{ArrowUp}')
+    await nhan(user, ' ')
+    await waitFor(() => expect(tenCot()).toEqual(['ma', 'khach', 'tt', 'han']))
+    expect(await screen.findByText(/Đã thả cột Hạn sang Đang hiện/)).toBeTruthy()
+    // Cột hiện cuối (Hạn) ↓ qua nhãn → ẩn.
+    within(cd).getByRole('button', { name: 'Đổi chỗ cột Hạn' }).focus()
+    await nhan(user, ' ')
+    await nhan(user, '{ArrowDown}')
+    await nhan(user, ' ')
+    await waitFor(() => expect(tenCot()).toEqual(['ma', 'khach', 'tt']))
+    expect(await screen.findByText('Đã thả cột Hạn sang Đang ẩn.')).toBeTruthy()
   })
 
   test('Esc khi đang nhấc: huỷ kéo, giữ thứ tự, KHÔNG đóng ⚙', async () => {
