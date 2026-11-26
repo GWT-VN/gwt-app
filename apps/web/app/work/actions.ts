@@ -140,6 +140,15 @@ export async function bangTeam(loc: {
   })) ?? []
 }
 
+/**
+ * Việc đang gắn một bản ghi ERP (vd ticket CSKH — Xem nhanh "Việc đã gắn"), đọc từ work_bang_team (việc người này
+ * xem được + links) rồi lọc theo liên kết. Không migration.
+ * ponytail: đọc mọi việc xem được rồi lọc ở server app — có RPC tra ngược task_link theo mã thì đổi sang RPC đó.
+ */
+export async function viecGanErp(loai: string, ma: string): Promise<KQ<ViecTeamRow[]>> {
+  return boc(async () => (await bangTeam()).filter((v) => v.links?.some((l) => l.loai === loai && l.ma === ma)))
+}
+
 export async function chiTietViec(id: number): Promise<KQ<ChiTietViec>> {
   return boc(() => goi<ChiTietViec>('work_chi_tiet_viec', { p_task_id: id }))
 }

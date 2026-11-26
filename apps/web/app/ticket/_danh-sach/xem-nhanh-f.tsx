@@ -29,6 +29,7 @@ import {
   UserCircle,
   Wrench,
   ArrowSquareOut,
+  LinkSimple,
 } from '@phosphor-icons/react/ssr'
 import type { ReactNode } from 'react'
 import type { Ticket } from '@/app/actions'
@@ -44,8 +45,13 @@ import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
-import { chuaLuu, cheSdt, mayLoi, ngayNgan, tenKhach } from './chung'
-import { CHU_DO, ChuBaoHanh, laKhan, SrKhan, TT, type DongF, type SuaF } from './ds-f'
+import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
+import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
+import { CHU_DO, ChuBaoHanh, laKhan, SrKhan, TT, type DongF } from './ds-f'
+import type { SuaTruong } from './sua-ticket'
+
+type Luu = ((patch: SuaTruong) => Promise<void>) | null
+type NhanVien = { gt: string; nhan: string; anMa?: boolean }[]
 
 /** Tab của thẻ — `xem_tab` trên URL (mặc định `tong` không ghi). */
 export const TAB_XEM = ['tong', 'lan', 'nk', 'vt', 'khac'] as const
@@ -80,25 +86,43 @@ function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; child
   )
 }
 
-function TongQuan({ t, nguoi, sua }: { t: DongF; nguoi: { gt: string; nhan: string }[]; sua: (s: SuaF) => void }) {
+function TongQuan({ t, nhanVien, luu, lanViec, moGanViec }: { t: DongF; nhanVien: NhanVien; luu: Luu; lanViec: number; moGanViec: () => void }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
-    <Accordion type="multiple" defaultValue={['ticket', 'may', 'khach', 'he-thong']}>
+    <Accordion type="multiple" defaultValue={['ticket', 'may', 'khach', 'viec', 'he-thong']}>
       <AccordionItem value="ticket">
         <AccordionTrigger>Ticket</AccordionTrigger>
         <AccordionContent>
           <PropertyList>
             <Truong icon={ic(CircleHalf)} nhan="Trạng thái">
-              <OSuaTrangThai ma={t.ticket_code} value={{ tt: t.state }} muc={TT} onLuu={(v) => sua({ state: v.tt as Ticket['state'] })} />
+              {/* Lưu DB thật (updateTicket) — lạc quan + Hoàn tác của InlineEdit; không quyền sửa → chỉ đọc. */}
+              {luu ? (
+                <OSuaTrangThai ma={t.ticket_code} value={{ tt: t.state }} muc={TT} onLuu={(v) => luu({ state: v.tt as Ticket['state'] })} />
+              ) : (
+                <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
+                  {TT.find((m) => m.gt === t.state)?.nhan}
+                </Badge>
+              )}
             </Truong>
             <Truong icon={ic(User)} nhan="Phụ trách">
-              <OSuaNguoi ma={t.ticket_code} truong="người phụ trách" value={t.cs_ten} options={nguoi} onLuu={(v) => sua({ cs: v })} />
+              {luu ? (
+                <OSuaNguoi
+                  ma={t.ticket_code}
+                  truong="người phụ trách"
+                  value={t.cs_phu_trach}
+                  mucDangChon={t.cs_phu_trach ? { gt: t.cs_phu_trach, nhan: t.cs_ten ?? '—' } : undefined}
+                  options={nhanVien}
+                  onLuu={(v) => luu({ cs_phu_trach: v })}
+                />
+              ) : (
+                t.cs_ten
+              )}
             </Truong>
             <Truong icon={ic(Tag)} nhan="Loại">
               {t.ticket_type}
             </Truong>
             <Truong icon={ic(Wrench)} nhan="Kỹ thuật">
-              {t.ky_thuat_ten ?? (t.hen ? 'Đã hẹn (chưa lưu)' : null)}
+              {t.ky_thuat_ten}
             </Truong>
           </PropertyList>
         </AccordionContent>
@@ -141,6 +165,24 @@ function TongQuan({ t, nguoi, sua }: { t: DongF; nguoi: { gt: string; nhan: stri
           </PropertyList>
         </AccordionContent>
       </AccordionItem>
+      {!laDemo(t.ticket_code) && (
+        <AccordionItem value="viec">
+          <AccordionTrigger>Việc đã gắn</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col items-start gap-3 border-none border-current">
+              <div className="self-stretch border-none border-current">
+                <ViecDaGan t={t} lan={lanViec} />
+              </div>
+              {luu && (
+                <Button variant="outline" size="sm" onClick={moGanViec}>
+                  <LinkSimple aria-hidden="true" />
+                  Gắn việc
+                </Button>
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      )}
       <AccordionItem value="he-thong">
         <AccordionTrigger>Hệ thống</AccordionTrigger>
         <AccordionContent>
@@ -304,8 +346,9 @@ function TicketKhac({ t, rows, moDuoc, onMo }: { t: DongF; rows: DongF[]; moDuoc
   )
 }
 
-/** Thanh dính đáy: ⋮ (mở trang chi tiết, sao chép mã) · Hẹn KTV. */
-function ThanhThaoTac({ t, sua }: { t: DongF; sua: (s: SuaF) => void }) {
+/** Thanh dính đáy: ⋮ (mở trang chi tiết, sao chép mã) · Gắn việc · Hẹn KTV (luồng hẹn có sẵn ở trang chi tiết). */
+function ThanhThaoTac({ t, moGanViec }: { t: DongF; moGanViec: (() => void) | null }) {
+  const chiTiet = `/ticket/${encodeURIComponent(t.ticket_code)}${laDemo(t.ticket_code) ? '?variant=G' : ''}`
   return (
     <>
       <DropdownMenu>
@@ -316,7 +359,7 @@ function ThanhThaoTac({ t, sua }: { t: DongF; sua: (s: SuaF) => void }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" side="top">
           <DropdownMenuItem asChild>
-            <Link href={`/ticket/${encodeURIComponent(t.ticket_code)}?variant=G`}>
+            <Link href={chiTiet}>
               <ArrowSquareOut aria-hidden="true" />
               Mở trang chi tiết
             </Link>
@@ -332,16 +375,17 @@ function ThanhThaoTac({ t, sua }: { t: DongF; sua: (s: SuaF) => void }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button
-        size="sm"
-        disabled={t.hen}
-        onClick={() => {
-          sua({ hen: true })
-          thongBao.xong(`${t.ticket_code}: đã hẹn KTV — chưa lưu`)
-        }}
-      >
-        <CalendarPlus aria-hidden="true" />
-        {t.hen ? 'Đã hẹn KTV' : 'Hẹn KTV'}
+      {moGanViec && (
+        <Button variant="outline" size="sm" onClick={moGanViec}>
+          <LinkSimple aria-hidden="true" />
+          Gắn việc
+        </Button>
+      )}
+      <Button size="sm" asChild>
+        <Link href={chiTiet} prefetch={false}>
+          <CalendarPlus aria-hidden="true" />
+          Hẹn KTV
+        </Link>
       </Button>
     </>
   )
@@ -353,22 +397,29 @@ type The = NonNullable<Parameters<typeof XemNhanh>[0]['the']>
 export function theXemNhanhF({
   t,
   rows,
-  nguoi,
-  sua,
+  nhanVien,
+  luu,
   tab,
   onTab,
   moDuoc,
   onMo,
+  lanViec,
+  moGanViec,
 }: {
   t: DongF
   rows: DongF[]
-  nguoi: { gt: string; nhan: string }[]
-  sua: (s: SuaF) => void
+  nhanVien: NhanVien
+  /** Lưu trạng thái / phụ trách (updateTicket); null = không quyền sửa → chỉ đọc. */
+  luu: Luu
   tab: TabXem
   onTab: (v: TabXem) => void
   moDuoc: (ma: string) => boolean
   onMo: (ma: string) => void
+  /** Tăng sau mỗi lần Gắn việc → khối "Việc đã gắn" đọc lại. */
+  lanViec: number
+  moGanViec: () => void
 }): The {
+  const demo = laDemo(t.ticket_code)
   return {
     ma: t.ticket_code,
     phuTruoc: true,
@@ -385,13 +436,24 @@ export function theXemNhanhF({
       value: tab,
       onDoi: (v) => onTab(v as TabXem),
       ds: [
-        { gt: 'tong', nhan: 'Tổng quan', icon: <House aria-hidden="true" />, noiDung: <TongQuan key={t.ticket_code} t={t} nguoi={nguoi} sua={sua} /> },
-        { gt: 'lan', nhan: 'Lần lỗi', icon: <Wrench aria-hidden="true" />, noiDung: <LanLoi key={t.ticket_code} t={t} /> },
-        { gt: 'nk', nhan: 'Nhật ký', icon: <ChatText aria-hidden="true" />, noiDung: <NhatKy t={t} /> },
-        { gt: 'vt', nhan: 'Vật tư', icon: <Package aria-hidden="true" />, noiDung: <VatTu t={t} /> },
-        { gt: 'khac', nhan: 'Ticket khác', icon: <IconTicket aria-hidden="true" />, noiDung: <TicketKhac t={t} rows={rows} moDuoc={moDuoc} onMo={onMo} /> },
+        {
+          gt: 'tong',
+          nhan: 'Tổng quan',
+          icon: <House aria-hidden="true" />,
+          noiDung: <TongQuan key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} lanViec={lanViec} moGanViec={moGanViec} />,
+        },
+        // Ticket thật: đọc DB (the-tab.tsx); ticket Demo (bộ nhớ): khối Demo bên dưới.
+        { gt: 'lan', nhan: 'Lần lỗi', icon: <Wrench aria-hidden="true" />, noiDung: demo ? <LanLoi key={t.ticket_code} t={t} /> : <LanLoiThat key={t.ticket_code} t={t} /> },
+        { gt: 'nk', nhan: 'Nhật ký', icon: <ChatText aria-hidden="true" />, noiDung: demo ? <NhatKy t={t} /> : <NhatKyThat key={t.ticket_code} t={t} choGhi={!!luu} /> },
+        { gt: 'vt', nhan: 'Vật tư', icon: <Package aria-hidden="true" />, noiDung: demo ? <VatTu t={t} /> : <VatTuThat key={t.ticket_code} t={t} /> },
+        {
+          gt: 'khac',
+          nhan: 'Ticket khác',
+          icon: <IconTicket aria-hidden="true" />,
+          noiDung: demo ? <TicketKhac t={t} rows={rows} moDuoc={moDuoc} onMo={onMo} /> : <TicketKhacThat key={t.ticket_code} t={t} moDuoc={moDuoc} onMo={onMo} />,
+        },
       ],
     },
-    chan: <ThanhThaoTac t={t} sua={sua} />,
+    chan: <ThanhThaoTac t={t} moGanViec={luu && !demo ? moGanViec : null} />,
   }
 }
