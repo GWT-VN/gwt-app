@@ -14,7 +14,9 @@
 
 Mã giao diện của các đợt 1–7 đã được chuyển trên `rework/v2.0.0`. Bốn màn đã dùng v2 tiếp tục là mốc hồi quy. Hai lượt review của Matt Pocock đối chiếu yêu cầu và chuẩn repo, tập trung vào thao tác hiện có, quyền, khả năng tìm trong danh sách dài và chế độ tối.
 
-Kiểm trên trình duyệt với dữ liệu nghiệp vụ cần Supabase local và tài khoản theo vai. Theo dõi phần đó tại mục nghiệm thu bên dưới. Các test route dùng dữ liệu giả.
+- Đã đối chiếu 89/89 file trang nghiệp vụ với các vỏ UI v2. Bốn màn đã chuyển từ trước được kiểm hồi quy.
+- Chrome headless kiểm bố cục mặc định của chi tiết ticket và báo cáo doanh số ở 1440, 900 và 390 px, cả hai theme. Cả 12 trường hợp dùng dữ liệu giả đều vừa chiều ngang trang.
+- Kiểm đăng nhập, ghi dữ liệu và luồng theo vai trên trình duyệt cần Supabase local. Các test luồng trong repo dùng dữ liệu giả.
 
 ## 1. Phạm vi và mốc hoàn thành
 
