@@ -206,6 +206,7 @@ export function CtRef({ d }: { d: DuLieuCt }) {
       />
       <DetailLayout
         nhanBen="Người, máy & khách"
+        benKhiHep="duoi"
         chinh={
           <>
             <CanhBao d={d} />

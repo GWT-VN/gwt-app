@@ -40,6 +40,13 @@ ListView, PropertyList, Sidebar, Table. Preview Table: khung mẫu chừa lề t
 không bị cắt. Cổng so khớp bỏ lớp bật lại cv11 (hai bên cùng ss03); bỏ `lyDo` đã hết lệch (Table cột chọn ×6,
 BulkActionBar width 0,5px). 50/50 cổng 0 lệch chưa giải thích.
 
+**Chờ đồng bộ lên artifact** (26/11, CEO: "Thêm vào DS" — từ prototype trang ticket theo ref Shopify): biến thể
+DetailLayout `benKhiHep="duoi"` — ≤960 cột thuộc tính ở DƯỚI nội dung (giữ thứ tự DOM, chỉ bỏ `order: -1`), cho trang mà
+nội dung chính phải thấy trước. Code: `detailAsideDuoi` (`notif-styles.ts`) + prop `benKhiHep` (`detail-layout.tsx`, gốc
+mang `data-ben-hep="duoi"`), test ở `detail-layout.test.tsx`. Khi đẩy lên artifact: `bundle.css` thêm
+`@media (max-width: 960px) { .ui-detail[data-ben-hep="duoi"] > .ui-detail-aside { order: 0 } }`; README DetailLayout thêm
+một dòng; preview không đổi (mặc định vẫn "trên") → so khớp không ảnh hưởng.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ

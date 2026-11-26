@@ -22,6 +22,12 @@ export const detailMain = `${kv} flex min-w-0 flex-col gap-5`
  * nội dung trước (trình đọc màn hình + thứ tự Tab theo logic bản ghi).
  */
 export const detailAside = `${kv} sticky top-4 min-w-0 [@media(max-width:960px)]:static [@media(max-width:960px)]:[order:-1]`
+/**
+ * Biến thể `benKhiHep="duoi"` (`.ui-detail[data-ben-hep="duoi"]`, chờ đồng bộ lên artifact): ≤960 cột thuộc tính ở DƯỚI
+ * nội dung (theo DOM, không `order`) — trang mà nội dung chính phải thấy trước (ticket: lần lỗi mới nhất), như Details
+ * template của Shopify (cột phụ xuống dưới cột chính).
+ */
+export const detailAsideDuoi = `${kv} sticky top-4 min-w-0 [@media(max-width:960px)]:static`
 /** `.ui-detail-heading`: heading-xs 16/24 600, không lề. */
 export const detailHeading = `${kv} m-0 text-[16px] leading-[24px] font-semibold`
 
