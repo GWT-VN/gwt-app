@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  createContext,
+  useCallback,
   useContext,
   useEffect,
   useId,
@@ -26,7 +28,8 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
-import { ArrowDown, ArrowUp, CaretDown, Funnel } from '@phosphor-icons/react/ssr'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CaretDown, EyeSlash, Funnel } from '@phosphor-icons/react/ssr'
+import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { Badge, BadgeDot } from './badge'
 import { useDsPortal } from './ds-root'
@@ -41,9 +44,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu'
+import { VungDoc } from './skeleton'
 import { KeoCtx, useOKeo } from './table'
 import * as s from './table-styles'
-import { toiThieu, type BenTha, type CotBang } from './use-cot-bang'
+import { toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
+
+/**
+ * Câu đọc cho thao tác cột KHÔNG qua kéo (menu tiêu đề Dời trái/phải/Ẩn, nút "+" `ThemCot`): `KeoCot` giữ một vùng
+ * `VungDoc` (role status) trong ô portal DS — vùng có sẵn từ lúc mở trang nên câu mới được đọc. Ngoài `KeoCot` = im.
+ */
+export const BaoCotCtx = createContext<((cau: string) => void) | null>(null)
 
 type Chieu = 'tang' | 'giam'
 /** Một tag trong menu lọc — vẽ bằng `Badge` outline (+ chấm màu) như trong ô. Có cả "Chưa phân loại" nếu dữ liệu có. */
@@ -69,6 +79,12 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
   coDan?: { rong: number; onDoi: (rong: number) => void }
   /** Menu canh phải ô (cột sát mép phải bảng, vd Chủ). Cột `phai` tự canh phải. */
   menuPhai?: boolean
+  /**
+   * Có → menu tiêu đề thêm (sau vạch) "Dời sang trái" · "Dời sang phải" · "Ẩn cột" — `useCotBang().menuCot(cot.id)`
+   * (cột khoá trả `undefined` = không mục). Mép / kề cột khoá → mục dời hiện nhưng tắt. Cột `thuong` có `menuCot` cũng
+   * có menu. Dời / ẩn có câu đọc (trong `KeoCot`); ẩn xong focus sang tiêu đề kế bên (hết thì tiêu đề trước).
+   */
+  menuCot?: MenuCot
   /** `div` → `role="columnheader"` (ListView lưới CSS). */
   la?: 'th' | 'div'
   className?: string
@@ -80,6 +96,7 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
  * mở) + "Bỏ lọc cột này", KHÔNG có mục sắp (cột lọc nhận `sap` → ném lỗi lúc chạy); `thuong` → nhãn trần.
  * Trong `KeoCot`: kéo cả ô để đổi chỗ (chuột) / Space nhấc · ←→ dời · Space thả · Esc huỷ (bàn phím, câu đọc tiếng Việt);
  * Enter / ↓ mở menu. Một lớp hover: cả ô sáng, nút menu phủ kín ô; không icon tay cầm (con trỏ grab).
+ * `menuCot` (26/11, học Twenty) → menu thêm Dời sang trái / Dời sang phải / Ẩn cột cho cột không khoá.
  */
 export function TieuDeCot<C extends CotBang>(props: PropsTieuDeCot<C>) {
   const p = props as PropsTieuDeCot
@@ -130,16 +147,44 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const coKeo = !!keo
   const { datO, datTay, onPointerDown: nhanKeo, onKeyDown: phimKeo, moTa, dangKeo } = keo ?? {}
   const { cot, sap, loc, coDan, viTri = 0, menuPhai, la = 'th', className } = p
+  const menuCot = cot.khoa ? undefined : p.menuCot
   const [mo, setMo] = useState(false)
   const bd = useRef<{ x: number; w: number } | null>(null)
   const oKeo = useOKeo(cot.id)
   const ketThuc = useContext(KeoCtx)?.ketThuc
+  const bao = useContext(BaoCotCtx)
+  // Ô tiêu đề (để tìm ô kế bên khi ẩn cột) + ref kéo của dnd-kit — gộp trong một callback ổn định.
+  const oRef = useRef<HTMLElement | null>(null)
+  const datOGop = useCallback(
+    (el: HTMLElement | null) => {
+      oRef.current = el
+      datO?.(el)
+    },
+    [datO],
+  )
   const Tag = la
   const soLoc = loc?.daChon.length ?? 0
-  const coMenu = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
+  const coSapLoc = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
+  const coMenu = coSapLoc || !!menuCot
   const min = toiThieu(cot)
   const nghia = cot.kieu === 'sap' && sap?.chieu ? cot.nghia[sap.chieu] : null
   const tenNho = cot.ten.toLowerCase()
+
+  const doiCot = (ben: BenTha) => {
+    const ke = ben === 'trai' ? menuCot?.trai : menuCot?.phai
+    if (!menuCot || !ke) return
+    menuCot.onDoi(ben)
+    bao?.(`Đã dời cột ${cot.ten} sang ${ben === 'trai' ? 'trái, trước' : 'phải, sau'} cột ${ke}.`)
+  }
+  const anCot = () => {
+    if (!menuCot) return
+    // Ô này sắp bị gỡ (Radix trả focus về nút đã mất) → đưa focus sang tiêu đề kế bên sau khi dựng lại.
+    const o = oRef.current
+    const ke = (o?.nextElementSibling ?? o?.previousElementSibling) as HTMLElement | null
+    menuCot.onAn()
+    bao?.(`Đã ẩn cột ${cot.ten}.`)
+    requestAnimationFrame(() => ke?.querySelector<HTMLElement>('button, input, [tabindex="0"]')?.focus())
+  }
 
   const nhan = (
     <>
@@ -202,7 +247,9 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
         <DropdownMenuContent
           align={cot.phai || menuPhai ? 'end' : 'start'}
           aria-labelledby={undefined}
-          aria-label={cot.kieu === 'sap' ? `Sắp xếp theo ${tenNho}` : `Lọc theo ${tenNho}`}
+          aria-label={
+            cot.kieu === 'sap' && sap ? `Sắp xếp theo ${tenNho}` : cot.kieu === 'loc' && loc ? `Lọc theo ${tenNho}` : `Cột ${tenNho}`
+          }
           // preview khối "Menu tiêu đề cột": menu rộng 240.
           className="w-[240px]"
         >
@@ -253,6 +300,23 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
               )}
             </>
           )}
+          {menuCot && (
+            <>
+              {coSapLoc && <DropdownMenuSeparator />}
+              <DropdownMenuItem disabled={!menuCot.trai} onSelect={() => doiCot('trai')}>
+                <ArrowLeft aria-hidden="true" />
+                Dời sang trái
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={!menuCot.phai} onSelect={() => doiCot('phai')}>
+                <ArrowRight aria-hidden="true" />
+                Dời sang phải
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={anCot}>
+                <EyeSlash aria-hidden="true" />
+                Ẩn cột
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     )
@@ -277,7 +341,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
 
   return (
     <Tag
-      ref={datO}
+      ref={datOGop}
       data-slot="table-head"
       data-cot={cot.id}
       role={la === 'div' ? 'columnheader' : undefined}
@@ -367,6 +431,7 @@ export function KeoCot({
   const portal = useDsPortal()
   const [keo, setKeo] = useState<string | null>(null)
   const [tren, setTren] = useState<{ id: string; ben: BenTha } | null>(null)
+  const [cauBao, setCauBao] = useState('')
   const trenRef = useRef(tren)
   const ketThuc = useRef(0)
   useEscKhiKeo(!!keo)
@@ -425,40 +490,43 @@ export function KeoCot({
 
   return (
     <KeoCtx.Provider value={{ keo, tren, ketThuc }}>
-      <DndContext
-        id={id}
-        sensors={sensors}
-        collisionDetection={vaCham}
-        accessibility={{
-          announcements,
-          container: portal ?? undefined,
-          screenReaderInstructions: {
-            draggable:
-              'Nhấn Space để nhấc cột. Khi đang nhấc: mũi tên trái phải để dời, Space để thả, Esc để huỷ. Enter mở menu của cột.',
-          },
-        }}
-        onDragStart={(e) => setKeo(String(e.active.id))}
-        onDragMove={capNhat}
-        onDragOver={capNhat}
-        onDragEnd={(e) => {
-          const t = trenRef.current
-          if (t) doiCho(String(e.active.id), t.id, t.ben)
-          xong()
-        }}
-        onDragCancel={xong}
-      >
-        <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
-          {children}
-        </SortableContext>
-        {/* z 90 = lớp menu (thang z NGUON) — bóng kéo nổi trên header dính và mọi lớp trang. */}
-        <DragOverlay dropAnimation={null} zIndex={90}>
-          {keo ? (
-            <span data-slot="keo-bong" className={s.keoBong}>
-              {ten(keo)}
-            </span>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+      <BaoCotCtx.Provider value={setCauBao}>
+        {portal && createPortal(<VungDoc chu={cauBao} />, portal)}
+        <DndContext
+          id={id}
+          sensors={sensors}
+          collisionDetection={vaCham}
+          accessibility={{
+            announcements,
+            container: portal ?? undefined,
+            screenReaderInstructions: {
+              draggable:
+                'Nhấn Space để nhấc cột. Khi đang nhấc: mũi tên trái phải để dời, Space để thả, Esc để huỷ. Enter mở menu của cột.',
+            },
+          }}
+          onDragStart={(e) => setKeo(String(e.active.id))}
+          onDragMove={capNhat}
+          onDragOver={capNhat}
+          onDragEnd={(e) => {
+            const t = trenRef.current
+            if (t) doiCho(String(e.active.id), t.id, t.ben)
+            xong()
+          }}
+          onDragCancel={xong}
+        >
+          <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
+            {children}
+          </SortableContext>
+          {/* z 90 = lớp menu (thang z NGUON) — bóng kéo nổi trên header dính và mọi lớp trang. */}
+          <DragOverlay dropAnimation={null} zIndex={90}>
+            {keo ? (
+              <span data-slot="keo-bong" className={s.keoBong}>
+                {ten(keo)}
+              </span>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      </BaoCotCtx.Provider>
     </KeoCtx.Provider>
   )
 }

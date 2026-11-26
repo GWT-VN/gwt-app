@@ -11,7 +11,7 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Font: trang artifact nạp đúng Inter của /ds và đặt `--font-sans` = token `--font-sans` của gốc `[data-ds]` trên /ds = `"inter", "inter Fallback", ui-sans-serif, -apple-system, system-ui, "Segoe UI", "Noto Sans", "Helvetica", "Arial", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif` (nguồn khai font hệ thống; bỏ `@import` Google Fonts vô tác dụng).
 - Ảnh: `ds/so-khop/anh/DataViewToolbar-{sang,toi}-{1440,390}-{artifact,ds}.png` (gitignore).
 
-**2752/2780 khớp** · 28 lệch có lý do · 0 lệch chưa có lý do · 0 thiếu phần tử · 0 ngoài vùng DS · 0 lyDo thừa · 14 mục CHƯA ĐO
+**2730/2756 khớp** · 24 lệch có lý do · 2 lệch chưa có lý do · 12 thiếu phần tử · 0 ngoài vùng DS · 2 lyDo thừa · 14 mục CHƯA ĐO
 
 **Chưa đo** (khớp ở trên KHÔNG nói gì về các mục này — `chuaDo` trong config):
 
@@ -30,6 +30,19 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 - Khoá `xemNhanh`: bỏ thuộc tính chữ (fontFamily, fontSize, fontWeight, lineHeight, letterSpacing, fontFeatureSettings, textDecorationLine, color) và màu viền/outline khi kiểu none — phần tử không vẽ chữ (lọc trong config).
 - Khoá `tip`: chỉ đo height, paddingTop, paddingRight, paddingBottom, paddingLeft, borderRadius, fontFamily, fontSize, fontWeight, lineHeight, color, backgroundColor, zIndex (lọc trong config).
 
+## THIẾU PHẦN TỬ (không lyDo nào miễn được)
+
+| khoá | bên | selector | ở |
+|---|---|---|---|
+| trangCon › muc | ds | `[data-ds-portal] [data-slot="cai-dat-hien-thi"] > label:nth-of-type(1)` | sang 1440, sang 390, toi 1440, toi 390 |
+| trangCon › o | ds | `[data-ds-portal] [data-slot="cai-dat-hien-thi"] > label:nth-of-type(1) > button` | sang 1440, sang 390, toi 1440, toi 390 |
+| trangCon › mucKhoa | ds | `[data-ds-portal] [data-slot="cai-dat-hien-thi"] > label:nth-of-type(3)` | sang 1440, sang 390, toi 1440, toi 390 |
+
+## lyDo thừa (không còn dòng lệch nào khớp — xoá hoặc sửa)
+
+- trangCon · muc.width@390
+- trangCon · mucKhoa.width@390
+
 | khoá | thuộc tính | artifact | ds | ở | lý do |
 |---|---|---|---|---|---|
 | dem | width | 97.5px | 101px | sang 1440, sang 390, toi 1440, toi 390 | Luật DS (kế hoạch lát 4–6, Global Constraints): số đếm tabular-nums — chữ số "19 / 22" đều bề ngang nên rộng hơn 3.5px; `.ui-caption` của preview để chữ số tỷ lệ. |
@@ -40,7 +53,6 @@ Windows này Chrome không phân giải `localhost` nên chạy với `127.0.0.1
 | caiDat | muc.width | 193px | 362px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
 | caiDat | ngan.width | 205px | 374px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
 | trangCon | width | 236px | 374px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
+| trangCon | height | 462px | 522px | sang 390, toi 390 | **CHƯA CÓ** |
 | trangCon | dau.width | 224px | 362px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
 | trangCon | nhan.width | 224px | 362px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
-| trangCon | muc.width | 224px | 362px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |
-| trangCon | mucKhoa.width | 224px | 362px | sang 390, toi 390 | Preview vẽ menu TĨNH trong `.ds-hang` (`.ds-tinh .b-noi { position: static }`) → ô flex co theo nội dung. Menu thật ≤ 767 của nguồn là sheet đáy `.b-caidat.b-noi-phai { position: fixed; left: 8px; right: 8px }` = 390 − 16 = 374 — DS đúng số đó (Popover neo vào dải đáy cách mép 8). |

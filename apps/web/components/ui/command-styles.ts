@@ -66,6 +66,15 @@ export const commandItem = cn(
   'data-[disabled=true]:pointer-events-none data-[disabled=true]:text-(--color-text-disabled)',
 )
 
+/**
+ * Command nằm TRONG pop (Combobox, ThemCot): gốc là khối thường KHÔNG cắt tràn như `.ui-menu` của nguồn (flex-row trả
+ * flex-direction về mặc định cho cổng so khớp khoá mat-tinh); hàng tìm tràn mép pop (margin −6 −6 6 = --menu-gutter);
+ * danh sách không đệm (đệm nằm ở khung pop).
+ */
+export const trongPopGoc = 'block flex-row overflow-visible'
+export const trongPopHangTim = '-mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)'
+export const trongPopDs = 'p-0'
+
 /** `CommandShortcut` (`.ui-menu-shortcut`): căn phải, 12/18 muted. */
 export const commandShortcut = menuShortcut
 

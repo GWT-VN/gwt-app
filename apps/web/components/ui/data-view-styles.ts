@@ -89,6 +89,18 @@ export const cdDau = cn(kv, 'flex items-center gap-1 pt-0.5 pr-1 pb-1.5 pl-0 tex
  * `:hover` như `.ui-menu-item:hover` của nguồn (mỗi lúc chỉ một mục dưới chuột; phím dùng vòng focus của menuItem).
  */
 export const cdMuc = cn(menuItem, 'hover:bg-(--menu-item-bg)')
+/**
+ * Dòng cột trong ⚙ → Cột hiển thị (`CotHienThi`, thêm 26/11 — artifact chưa có): khung mục menu nhưng chứa nút icon-sm
+ * (tay kéo, mắt) → đệm dọc/ngang 2 để dòng vẫn cao 32 như mục menu; KHÔNG nền rê ở dòng (một lớp hover: nút tự sáng).
+ * Đang kéo (`data-keo`): nổi trên dòng khác, nền như mục sáng.
+ */
+export const cdDongCot = cn(
+  menuItem,
+  'cursor-default py-0.5 px-0.5',
+  'data-keo:z-1 data-keo:bg-(--menu-item-bg) data-keo:[box-shadow:var(--shadow-hairline),var(--shadow-300)]',
+)
+/** Chỗ trống bằng nút icon-sm (dòng không có tay kéo) — tên các dòng thẳng cột. */
+export const cdKeChua = 'size-(--control-size-sm) shrink-0 border-none border-current'
 /** `.b-cd-gt`: giá trị hiện tại dồn phải, 12/18 tertiary. `.b-cd-mui`: › 12 tertiary. `.b-tick`: ✓ 14 foreground. */
 export const cdGiaTri = cn(kv, 'ml-auto text-[12px] leading-[18px] text-(--color-text-tertiary) tabular-nums')
 export const cdMui = 'size-3! shrink-0 text-(--color-text-tertiary)!'

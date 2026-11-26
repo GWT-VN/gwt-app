@@ -47,6 +47,19 @@ mang `data-ben-hep="duoi"`), test ở `detail-layout.test.tsx`. Khi đẩy lên 
 `@media (max-width: 960px) { .ui-detail[data-ben-hep="duoi"] > .ui-detail-aside { order: 0 } }`; README DetailLayout thêm
 một dòng; preview không đổi (mặc định vẫn "trên") → so khớp không ảnh hưởng.
 
+Cột Bảng học hành vi Twenty (26/11, spec `docs/rework/2026-11-26-f-hoc-hanh-vi-twenty.md` A–C, dùng ở prototype ticket
+F): (A) `ThemCot` (`them-cot.tsx`) — ô "+" cuối hàng tiêu đề, pop Popover + Command: ô "Tìm cột" · cột đang ẩn · vạch ·
+"Tuỳ chỉnh cột…" (mở ⚙ qua `CaiDatRef.mo('cot')`); cột `<col>` rộng `RONG_THEM_COT` 40. (B) `TieuDeCot menuCot` — menu
+tiêu đề thêm (sau vạch) Dời sang trái / Dời sang phải / Ẩn cột, tắt ở mép (`itemDisabled`), câu đọc qua `BaoCotCtx` của
+`KeoCot`. (C) ⚙ → Cột hiển thị = `CotHienThi` (`cot-hien-thi.tsx`): nhóm "Đang hiện" (tay kéo dnd-kit + mắt "Ẩn …") /
+"Đang ẩn" (mắt gạch "Hiện …") thay cho danh sách checkbox; dòng `cdDongCot`/`cdKeChua` (`data-view-styles.ts`). Kèm
+`useGanMucSang` + `trongPop*` (command.tsx / command-styles.ts, gom từ Combobox). Khi đẩy lên artifact: `bundle.css` thêm
+`.b-th-them` (ô "+": nút ghost icon-sm trong `th` rộng 40) và `.b-cd-cot` (dòng `.ui-menu-item` đệm 2, không nền rê, cao
+32; `[data-keo]` nền mục sáng + `--shadow-hairline, --shadow-300`; ô trống bằng nút icon-sm); README Table thêm mục "Nút +
+thêm cột" + 3 mục menu tiêu đề; README DataViewToolbar sửa trang "Cột hiển thị" (hai nhóm, kéo, mắt); preview
+DataViewToolbar vẽ lại trang con Cột hiển thị (hiện là checkbox → so khớp `trangCon › muc/o/mucKhoa` báo thiếu phần tử tới
+khi preview đổi), preview Table thêm ô "+" + menu cột có mục dời/ẩn.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ

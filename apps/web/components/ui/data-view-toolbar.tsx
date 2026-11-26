@@ -1,6 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type ReactNode } from 'react'
+import {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+  type ReactNode,
+  type Ref,
+} from 'react'
 import {
   ArrowLeft,
   CaretRight,
@@ -24,7 +33,7 @@ import type { Icon } from '@phosphor-icons/react'
 import { Popover as PopoverPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { Checkbox } from './checkbox'
+import { CotHienThi } from './cot-hien-thi'
 import {
   cdDau,
   cdGiaTri,
@@ -55,7 +64,7 @@ import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popove
 import { Toggle } from './toggle'
 import { ToggleGroup, ToggleGroupItem } from './toggle-group'
 import { TooltipNhanh } from './tooltip'
-import type { CotBang } from './use-cot-bang'
+import type { BenTha, CotBang } from './use-cot-bang'
 
 export { DANG_XEM, type DangXem }
 
@@ -191,6 +200,8 @@ export function TrangDuLieu({ className, children, ...p }: ComponentProps<'main'
 // ======================= ⚙ Cài đặt hiển thị =======================
 
 type Trang = '' | 'bocuc' | 'cot' | 'loc' | 'sap' | 'nhom'
+/** Mở ⚙ từ ngoài (vd "Tuỳ chỉnh cột…" của `ThemCot`): `mo('cot')` mở thẳng trang Cột hiển thị. */
+export type CaiDatRef = { mo: (trang?: Exclude<Trang, ''>) => void }
 
 const NHO = '(max-width: 767px)' // `@media (max-width: 767px)` của nguồn: ⚙ thành sheet đáy
 const nghe = (f: () => void) => {
@@ -239,6 +250,8 @@ function MucChon({ chon, onClick, children, dau }: { chon: boolean; onClick: () 
 
 /**
  * CaiDatHienThi — nút ⚙ + Popover "Cài đặt hiển thị" kiểu Notion View settings (README DataViewToolbar):
+ * - `ref` (`CaiDatRef`): `mo(trang)` mở thẳng một trang con (← vẫn về gốc, focus mục của trang đó).
+ * - Cột hiển thị = `CotHienThi`: nhóm Đang hiện (kéo đổi thứ tự khi có `onDoiChoCot`, mắt ẩn) / Đang ẩn (mắt hiện).
  * - Trang gốc: Bố cục · Cột hiển thị (chỉ dạng Bảng) · Lọc · Sắp xếp · Nhóm theo (không ở Kanban) — mỗi dòng giá trị
  *   hiện tại + ›; dưới: Sao chép link view · Lưu view của tôi · Lưu view chung · Xuất Excel. Mục không có hàm thì ẩn.
  * - Trang con có ← "Quay lại": vào trang con → focus ←; ← → về gốc, focus về đúng mục đã mở. State trang nằm trong
@@ -261,10 +274,15 @@ export function CaiDatHienThi({
   onLuuView,
   luuChung,
   onXuatExcel,
+  onDoiChoCot,
+  ref,
 }: {
   dangXem: DangXem
   onDoiXem: (v: DangXem) => void
-  /** Cột của Table (`CotBang`, use-cot-bang.ts): `khoa` luôn hiện; `kieu: 'sap'` vào trang Sắp xếp với `nghia`. */
+  /**
+   * Cột của Table (`CotBang`, use-cot-bang.ts) THEO THỨ TỰ đang dùng (`useCotBang().thuTu`): `khoa` luôn hiện; `kieu:
+   * 'sap'` vào trang Sắp xếp với `nghia`.
+   */
   cot?: CotBang[]
   /** id cột đang ẩn. */
   cotAn?: string[]
@@ -281,6 +299,9 @@ export function CaiDatHienThi({
   /** Có quyền lưu view chung → hiện mục "Lưu view chung". */
   luuChung?: boolean
   onXuatExcel?: () => void
+  /** `useCotBang().doiCho` → trang Cột hiển thị kéo đổi thứ tự được (cùng trạng thái với kéo tiêu đề trên bảng). */
+  onDoiChoCot?: (id: string, dich: string, ben: BenTha) => void
+  ref?: Ref<CaiDatRef>
 }) {
   const [mo, setMo] = useState(false)
   const [trang, setTrang] = useState<Trang>('')
@@ -312,6 +333,13 @@ export function CaiDatHienThi({
     setTrang(t)
   }
   const ve = () => setTrang('')
+  useImperativeHandle(ref, () => ({
+    mo: (t) => {
+      vuaMo.current = t ?? ''
+      setTrang(t ?? '')
+      setMo(true)
+    },
+  }))
   // Gọi trong handler (không dựng sẵn closure lúc render): doiMo ghi ref `vuaMo` → Compiler cấm gọi hàm chứa nó khi render.
   const lam = (f: () => void) => {
     f()
@@ -354,9 +382,14 @@ export function CaiDatHienThi({
         side={nho ? 'top' : 'bottom'}
         sideOffset={nho ? 0 : 4}
         className={cdKhung}
+        // Đang kéo dòng trong Cột hiển thị (useEscKhiKeo gắn `data-dang-keo`): Esc chỉ huỷ kéo, không đóng ⚙.
+        onEscapeKeyDown={(e) => {
+          if (document.body.hasAttribute('data-dang-keo')) e.preventDefault()
+        }}
         onOpenAutoFocus={(e) => {
           e.preventDefault()
-          khung.current?.querySelector<HTMLElement>('[data-trang]')?.focus()
+          // Mở thẳng trang con (`ref.mo('cot')`): khung vừa dựng (Portal dựng sau một nhịp) → ← nhận focus ở đây.
+          khung.current?.querySelector<HTMLElement>(trang ? '[data-slot="cd-lui"]' : '[data-trang]')?.focus()
         }}
       >
         {trang === '' && (
@@ -427,19 +460,8 @@ export function CaiDatHienThi({
         {trang === 'cot' && (
           <>
             {dau('Cột hiển thị')}
-            <div className={menuLabel}>Kéo tiêu đề cột trên bảng để đổi chỗ</div>
-            {cot.map((c) => (
-              <label key={c.id} className={cn(cdMuc, 'has-disabled:cursor-not-allowed')}>
-                <Checkbox
-                  checked={!cotAn.includes(c.id)}
-                  disabled={c.khoa}
-                  onCheckedChange={() =>
-                    onCotAn?.(cotAn.includes(c.id) ? cotAn.filter((x) => x !== c.id) : [...cotAn, c.id])
-                  }
-                />
-                {c.ten}
-              </label>
-            ))}
+            {!onDoiChoCot && <div className={menuLabel}>Kéo tiêu đề cột trên bảng để đổi chỗ</div>}
+            <CotHienThi cot={cot} an={cotAn} onAn={onCotAn} onDoiCho={onDoiChoCot} />
           </>
         )}
         {trang === 'loc' && loc && (

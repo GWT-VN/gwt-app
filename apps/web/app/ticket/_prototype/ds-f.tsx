@@ -3,7 +3,7 @@
 // PROTOTYPE vứt đi — PA F "Đề xuất theo nghiên cứu" (docs/rework/2026-11-25-nghien-cuu-cskh-ho-so-may.md mục 4b):
 // L1 Bảng + thẻ Xem nhanh (dải máy + bảo hành, sửa trạng thái / người phụ trách, Hẹn KTV) · L3 view mặc định có số đếm,
 // hạn/SLA bằng tag màu · L2 Kanban theo khâu là dạng xem phụ. Không gọi mutation thật — sửa chỉ đổi state trên màn.
-import { Suspense, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowsClockwise, CalendarPlus, UserPlus } from '@phosphor-icons/react/ssr'
@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { CaiDatHienThi, DANG_XEM, DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
+import { CaiDatHienThi, DANG_XEM, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type CotKanban } from '@/components/ui/kanban-board'
@@ -26,7 +26,8 @@ import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tieu-de-cot'
-import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
+import { ThemCot } from '@/components/ui/them-cot'
+import { RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 
@@ -142,7 +143,8 @@ function TrangThaiO({ t }: { t: Ticket }) {
 // "Ticket · khách" khoá (không kéo, không ẩn) và ăn phần dư; `rong` của nó = sàn để tính bề rộng tối thiểu bảng.
 // Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
 const COT: CotBang[] = [
-  { id: 'khach', ten: 'Ticket · khách', rong: 200, kieu: 'thuong', khoa: true },
+  // Sàn 160 (không phải 200): cột "+" (RONG_THEM_COT 40) cuối hàng tiêu đề → tổng mặc định vẫn 936 ≤ ngưỡng 952 dưới.
+  { id: 'khach', ten: 'Ticket · khách', rong: 160, kieu: 'thuong', khoa: true },
   { id: 'may', ten: 'Máy · bảo hành', rong: 224, kieu: 'thuong' },
   { id: 'loi', ten: 'Loại lỗi', rong: 152, kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', rong: 136, kieu: 'loc' },
@@ -196,6 +198,8 @@ function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) 
           {O[c.id](t, mo)}
         </TableCell>
       ))}
+      {/* Ô dưới cột "+" (ThemCot). */}
+      <TableCell aria-hidden="true" />
     </TableRow>
   )
 }
@@ -300,6 +304,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
   const dat = useDatUrl()
   const [sua, setSua] = useState<Record<string, Sua>>({})
   const c = useCotBang(COT, { url: true })
+  const caiDat = useRef<CaiDatRef>(null)
   // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem.
   const dangXem: DangXem = DANG_XEM.find((x) => x.id === sp.get('bo_cuc'))?.id ?? 'bang'
   const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
@@ -362,7 +367,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
     },
   ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
 
-  const tongRong = 36 + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
+  const tongRong = 36 + RONG_THEM_COT + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
   const bang = (
     <TableWrap>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
@@ -373,6 +378,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
               // Cột khoá (Ticket · khách) ăn phần dư.
               <col key={x.id} style={x.khoa ? undefined : { width: c.doRong[x.id] }} />
             ))}
+            <col style={{ width: RONG_THEM_COT }} />
           </colgroup>
           <TableHeader>
             <TableRow>
@@ -383,8 +389,9 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
                   cot={x}
                   viTri={j}
                   menuPhai={j === c.hien.length - 1}
-                  // Cột cuối không có tay co dãn: tay thò 8px qua mép phải → khung bảng cuộn ngang 8px (như Bảng team).
-                  coDan={x.khoa || j === c.hien.length - 1 ? undefined : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                  // Cột cuối vẫn co dãn được: cột "+" phía sau đỡ tay co (không thò qua mép phải bảng).
+                  coDan={x.khoa ? undefined : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                  menuCot={c.menuCot(x.id)}
                   sap={
                     x.kieu === 'sap'
                       ? {
@@ -396,6 +403,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
                   loc={x.kieu === 'loc' ? LOC[x.id] : undefined}
                 />
               ))}
+              <ThemCot cot={COT} an={c.an} onHien={c.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -453,9 +461,11 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
             }
             caiDat={
               <CaiDatHienThi
+                ref={caiDat}
                 dangXem={dangXem}
                 onDoiXem={doiXem}
-                cot={COT}
+                cot={c.thuTu.map((id) => COT.find((x) => x.id === id)!)}
+                onDoiChoCot={c.doiCho}
                 cotAn={c.an}
                 onCotAn={(an) => COT.forEach((x) => c.anHien(x.id, !an.includes(x.id)))}
                 sapXep={sap ?? undefined}

@@ -136,16 +136,21 @@ test('⚙ mở trang gốc; trang con có ← và focus vào ←; ← về gốc
   await waitFor(() => expect(document.activeElement).toBe(lai))
 })
 
-test('⚙ Cột hiển thị: tick bỏ ẩn/hiện cột, cột khoá (Mã) tắt', async () => {
+test('⚙ Cột hiển thị: nhóm Đang hiện / Đang ẩn, nút mắt ẩn/hiện cột, cột khoá (Mã) không có mắt', async () => {
   const user = userEvent.setup()
   const onCotAn = vi.fn()
   render(<Man onCotAn={onCotAn} />)
   await user.click(screen.getByRole('button', { name: 'Cài đặt hiển thị' }))
   const pop = await screen.findByRole('dialog', { name: 'Cài đặt hiển thị' })
   await user.click(within(pop).getByRole('button', { name: /Cột hiển thị/ }))
-  expect(within(pop).getByRole('checkbox', { name: 'Mã' }).hasAttribute('disabled')).toBe(true)
-  expect(within(pop).getByRole('checkbox', { name: 'Khách' }).getAttribute('aria-checked')).toBe('false')
-  await user.click(within(pop).getByRole('checkbox', { name: 'Hạn' }))
+  const hien = within(pop).getByRole('group', { name: 'Đang hiện' })
+  expect(within(hien).getByText('Mã')).toBeTruthy()
+  expect(within(pop).queryByRole('button', { name: 'Ẩn Mã' })).toBeNull()
+  expect(within(within(pop).getByRole('group', { name: 'Đang ẩn' })).getByRole('button', { name: 'Hiện Khách' })).toBeTruthy()
+  // Màn không truyền onDoiChoCot → không có tay kéo, còn câu gợi ý kéo trên bảng.
+  expect(within(pop).queryByRole('button', { name: /Đổi chỗ cột/ })).toBeNull()
+  expect(within(pop).getByText('Kéo tiêu đề cột trên bảng để đổi chỗ')).toBeTruthy()
+  await user.click(within(hien).getByRole('button', { name: 'Ẩn Hạn' }))
   expect(onCotAn).toHaveBeenLastCalledWith(['khach', 'han'])
 })
 

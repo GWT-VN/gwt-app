@@ -3,13 +3,13 @@
 // C có chủ đích (R21, docs/rework/2026-11-21-chep-shadcn-ke-hoach.md): Combobox của shadcn new-york-v4 dựng trên
 // `@base-ui/react` (16 export) — DS chưa cài thư viện đó, giữ bản ghép kiểu shadcn cũ: Popover + Command (cmdk). Hỏi lại CEO
 // khi màn nghiệp vụ cần chip chọn nhiều.
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { CaretUpDown, Check, MagnifyingGlass, X } from '@phosphor-icons/react/ssr'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { locMucChon } from '@/bang/timkiem'
 import { TOI_THIEU_KY_TU, useTimXa } from '@/bang/useTimXa'
 import { cn } from '@/lib/utils'
-import { Command, CommandInput, CommandItem, CommandList } from './command'
+import { Command, CommandInput, CommandItem, CommandList, useGanMucSang } from './command'
 import * as cs from './command-styles'
 import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
@@ -199,17 +199,7 @@ export function ComboboxPanel({
   const tu = q.trim()
   const sangThat = ds.some((m) => m.gt === sang) ? sang : (ds[0]?.gt ?? '')
 
-  // cmdk 1.1.1 chỉ tính aria-activedescendant khi mục sáng đổi bằng phím ↑/↓; mục sáng đặt từ ngoài (mở pop, danh sách
-  // đổi) thì để trống → trình đọc màn hình không đọc mục sáng. Gắn lại từ `data-value` của mục (cmdk tự gắn lúc mount).
-  useLayoutEffect(() => {
-    const goc = gocRef.current
-    if (!goc) return
-    const id = [...goc.querySelectorAll('[cmdk-item]')].find((el) => el.getAttribute('data-value') === sangThat)?.id
-    for (const el of goc.querySelectorAll('[cmdk-input], [cmdk-list]')) {
-      if (id) el.setAttribute('aria-activedescendant', id)
-      else el.removeAttribute('aria-activedescendant')
-    }
-  })
+  useGanMucSang(gocRef, sangThat)
 
   let ghiChu: ReactNode
   if (!options && xa.loi) ghiChu = <span className="text-(--color-text-danger)">{xa.loi}</span>
@@ -222,12 +212,10 @@ export function ComboboxPanel({
     ghiChu = tong >= max ? `${ds.length} kết quả đầu — gõ thêm để thu hẹp` : `${tong} kết quả`
   else ghiChu = tong > ds.length ? `Đang hiện ${ds.length} / ${tong} mục — gõ thêm để thu hẹp` : `${tong} mục`
 
-  // Phần Command mặc định đã là `.ui-menu*` (command-styles.ts). Combobox chỉ thêm: gốc là khối thường KHÔNG cắt tràn như
-  // `.ui-menu` của nguồn (hàng tìm tràn mép pop; flex-row trả flex-direction về mặc định cho cổng so khớp khoá mat-tinh),
-  // hàng tìm tràn mép menu (margin −6 −6 6 = --menu-gutter), danh sách không đệm (đệm nằm ở khung pop).
-  const lopGoc = cn('block flex-row overflow-visible', className)
-  const lopHang = '-mx-(--menu-gutter) -mt-(--menu-gutter) mb-(--menu-gutter)'
-  const lopDs = 'p-0'
+  // Phần Command mặc định đã là `.ui-menu*` (command-styles.ts); Combobox chỉ thêm phần "Command trong pop" (`trongPop*`).
+  const lopGoc = cn(cs.trongPopGoc, className)
+  const lopHang = cs.trongPopHangTim
+  const lopDs = cs.trongPopDs
   const noiDung = (m: MucChon) => (
     <>
       {m.nhan !== m.gt && (

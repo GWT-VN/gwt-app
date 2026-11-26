@@ -1,7 +1,7 @@
 // Nguồn: shadcn/ui new-york-v4 @45bbf9b (MIT) — xem THIRD-PARTY-NOTICES.md
 'use client'
 
-import type { ComponentProps } from 'react'
+import { useLayoutEffect, type ComponentProps, type RefObject } from 'react'
 import { MagnifyingGlass } from '@phosphor-icons/react/ssr'
 import { Command as CommandPrimitive } from 'cmdk'
 import { cn } from '@/lib/utils'
@@ -92,6 +92,24 @@ function CommandItem({ className, ...props }: ComponentProps<typeof CommandPrimi
 
 function CommandShortcut({ className, ...props }: ComponentProps<'span'>) {
   return <span data-slot="command-shortcut" className={cn(s.commandShortcut, className)} {...props} />
+}
+
+/**
+ * Phần GWT: cmdk 1.1.1 chỉ tính `aria-activedescendant` khi mục sáng đổi bằng ↑/↓ — mục sáng đặt từ ngoài (mở pop, danh
+ * sách lọc ngoài `shouldFilter={false}` đổi) thì để trống → trình đọc màn hình không đọc mục sáng. Bên gọi tự giữ `value`
+ * (mục sáng) của `Command`, gọi hook này với gốc `Command` (ref) + mục sáng: gắn lại id theo `data-value` mỗi lần render.
+ * Dùng ở Combobox, ThemCot.
+ */
+export function useGanMucSang(goc: RefObject<HTMLElement | null>, sang: string) {
+  useLayoutEffect(() => {
+    const g = goc.current
+    if (!g) return
+    const id = [...g.querySelectorAll('[cmdk-item]')].find((el) => el.getAttribute('data-value') === sang)?.id
+    for (const el of g.querySelectorAll('[cmdk-input], [cmdk-list]')) {
+      if (id) el.setAttribute('aria-activedescendant', id)
+      else el.removeAttribute('aria-activedescendant')
+    }
+  })
 }
 
 export {

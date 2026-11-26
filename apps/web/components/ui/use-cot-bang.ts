@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 /**
@@ -9,7 +9,8 @@ import { useSearchParams } from 'next/navigation'
  *   lỗi kiểu (`nghia?: never`) và `TieuDeCot` ném lỗi lúc chạy — sắp nhãn theo chữ cái là vô nghĩa;
  * - `thuong`: không menu (Việc tiếp theo, Máy · serial).
  * `rong` = độ rộng mặc định (px, nhấp đúp tay co dãn về số này) · `toiThieu` mặc định 56 · `khoa` = không kéo đổi chỗ,
- * không ẩn · `anMacDinh` = ẩn sẵn (bật lại trong ⚙ → Cột hiển thị) · `phai` = căn phải (số, hạn).
+ * không ẩn · `anMacDinh` = ẩn sẵn (bật lại trong ⚙ → Cột hiển thị hoặc nút "+" `ThemCot`) · `phai` = căn phải (số, hạn) ·
+ * `icon` = icon đứng trước tên ở danh sách chọn cột (`ThemCot`), không bắt buộc.
  */
 export type NghiaSap = {
   /** Câu nói nghĩa chiều tăng dần của giá trị, vd "Gần hạn nhất trước" — không ghi "Tăng dần". */
@@ -24,6 +25,7 @@ type CotChung = {
   khoa?: boolean
   anMacDinh?: boolean
   phai?: boolean
+  icon?: ReactNode
 }
 export type CotBang =
   | (CotChung & { kieu: 'sap'; nghia: NghiaSap })
@@ -31,7 +33,15 @@ export type CotBang =
   | (CotChung & { kieu: 'thuong'; nghia?: never })
 
 export const RONG_TOI_THIEU = 56
+/** Bề rộng cột "+" (`ThemCot`) ở cuối hàng tiêu đề: nút icon-sm 28 + đệm ngang 6 × 2 của `.b-bang-c`. */
+export const RONG_THEM_COT = 40
 export type BenTha = 'trai' | 'phai'
+
+/**
+ * Mục dời / ẩn trong menu tiêu đề cột (`TieuDeCot` prop `menuCot`, lấy từ `useCotBang().menuCot(id)`). `trai`/`phai` =
+ * tên cột đang hiện kề bên mà cột này dời qua được; `null` = ở mép hoặc kề cột khoá → mục hiện nhưng tắt.
+ */
+export type MenuCot = { trai: string | null; phai: string | null; onDoi: (ben: BenTha) => void; onAn: () => void }
 
 export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
 
@@ -112,6 +122,20 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     () => s.thuTu.filter((id) => !s.an.includes(id)).map((id) => cot.find((c) => c.id === id)!).filter(Boolean),
     [s, cot],
   )
+  const doiCho = (id: string, dich: string, ben: BenTha) => setS((t) => ({ ...t, thuTu: doiChoMang(t.thuTu, id, dich, ben) }))
+  const anHien = (id: string, hienCot?: boolean) =>
+    setS((t) => {
+      if (cot.find((c) => c.id === id)?.khoa) return t
+      const dangAn = t.an.includes(id)
+      const an = (hienCot ?? dangAn) ? t.an.filter((x) => x !== id) : dangAn ? t.an : [...t.an, id]
+      return { ...t, an }
+    })
+  /** Cột đang hiện kề bên trái/phải mà `id` dời qua được (không vượt cột khoá). */
+  const ke = (id: string, ben: BenTha) => {
+    const i = hien.findIndex((c) => c.id === id)
+    const k = i < 0 ? undefined : hien[ben === 'trai' ? i - 1 : i + 1]
+    return k && !k.khoa ? k : null
+  }
 
   return {
     thuTu: s.thuTu,
@@ -119,7 +143,7 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     an: s.an,
     /** Cột đang hiện, đúng thứ tự. */
     hien,
-    doiCho: (id: string, dich: string, ben: BenTha) => setS((t) => ({ ...t, thuTu: doiChoMang(t.thuTu, id, dich, ben) })),
+    doiCho,
     /** Đặt độ rộng (px), kẹp ≥ tối thiểu của cột. */
     coDan: (id: string, rong: number) =>
       setS((t) => {
@@ -129,13 +153,30 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     /** Về mặc định cả thứ tự, độ rộng, ẩn hiện. */
     datLai: () => setS(macDinh(cot)),
     /** Bật/tắt hiện một cột (`hien` bỏ trống = đảo). Cột `khoa` luôn hiện. */
-    anHien: (id: string, hienCot?: boolean) =>
-      setS((t) => {
-        if (cot.find((c) => c.id === id)?.khoa) return t
-        const dangAn = t.an.includes(id)
-        const an = (hienCot ?? dangAn) ? t.an.filter((x) => x !== id) : dangAn ? t.an : [...t.an, id]
-        return { ...t, an }
-      }),
+    anHien,
+    /** "Thêm cột" (`ThemCot`): hiện cột đang ẩn và đưa nó về CUỐI bảng (sau cột đang hiện cuối cùng). */
+    themCot: (id: string) =>
+      setS((t) =>
+        cot.some((c) => c.id === id && !c.khoa)
+          ? { ...t, thuTu: [...t.thuTu.filter((x) => x !== id), id], an: t.an.filter((x) => x !== id) }
+          : t,
+      ),
+    /** Mục Dời trái / Dời phải / Ẩn cho menu tiêu đề cột `id` (`TieuDeCot menuCot`); cột khoá → `undefined` (không mục). */
+    menuCot: (id: string): MenuCot | undefined => {
+      const x = hien.find((c) => c.id === id)
+      if (!x || x.khoa) return undefined
+      const trai = ke(id, 'trai')
+      const phai = ke(id, 'phai')
+      return {
+        trai: trai?.ten ?? null,
+        phai: phai?.ten ?? null,
+        onDoi: (ben) => {
+          const k = ben === 'trai' ? trai : phai
+          if (k) doiCho(id, k.id, ben)
+        },
+        onAn: () => anHien(id, false),
+      }
+    },
   }
 }
 export type CotBangState = ReturnType<typeof useCotBang>
