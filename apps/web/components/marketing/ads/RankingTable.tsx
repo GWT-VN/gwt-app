@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import { costPerNewMessage, costPerOrder, costPerSdt } from "@/lib/marketing/ads-analysis";
 import type { Judged } from "./DecisionPanel";
-import { campLabel, CprPill, DecisionBadge, dec1, Delta, money, pct } from "./shared";
+import { CampNameButton, campLabel, CprPill, DecisionBadge, dec1, Delta, money, pct } from "./shared";
 
 /** Camp đang chạy, xếp theo CPR so với chuẩn nhóm của nó — để WH và CTS/CTD so được với nhau. */
 export default function RankingTable({
@@ -48,7 +48,7 @@ export default function RankingTable({
                 <TableRow key={camp.key} className="ads-row" onClick={() => onOpen(camp.key)}>
                   <TableCell className="num-cell">{i + 1}</TableCell>
                   <TableCell className="td-title ad-name-col">
-                    {campLabel(camp)}
+                    <CampNameButton onOpen={() => onOpen(camp.key)}>{campLabel(camp)}</CampNameButton>
                     {v.flags.length > 0 && <small className="ads-flag">{v.flags.join(" · ")}</small>}
                   </TableCell>
                   <TableCell className="num-cell"><CprPill cpr={v.cpr!} benchmark={v.benchmark} /></TableCell>

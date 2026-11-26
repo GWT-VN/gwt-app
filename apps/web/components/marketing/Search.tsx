@@ -68,7 +68,7 @@ export default function Search({ index }: { index: SearchItem[] }) {
           className="wiki-search-input"
           role="combobox"
           aria-autocomplete="list"
-          aria-expanded={showResults}
+          aria-expanded={showResults && hits.length > 0}
           aria-controls={showResults && hits.length ? listId : undefined}
           aria-activedescendant={showResults && hits.length ? `${listId}-${active}` : undefined}
           ref={input}

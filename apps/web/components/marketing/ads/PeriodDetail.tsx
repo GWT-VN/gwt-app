@@ -13,7 +13,7 @@ import {
   type PeriodStat,
 } from "@/lib/marketing/ads-analysis";
 import type { AdResult, AdsWeek } from "@/lib/marketing/data/ads-results";
-import { CprPill, dec1, money, pct } from "./shared";
+import { CampNameButton, campLabel, CprPill, dec1, money, pct } from "./shared";
 
 const isRunning = (a: AdResult) => a.status === "active" || a.status === "new";
 const statOf = (a: AdResult): PeriodStat | null =>
@@ -70,12 +70,13 @@ export default function PeriodDetail({
     benchmark: number,
     sub: boolean,
     note?: string,
+    label?: string,
   ) => {
     const perSdt = costPerSdt(p);
     return (
       <TableRow key={key} className={`ads-row${sub ? " ads-sub" : ""}`} onClick={() => onOpen(key)}>
         <TableCell className={`ad-name-col${sub ? "" : " td-title"}`}>
-          {name}
+          <CampNameButton onOpen={() => onOpen(key)} label={label}>{name}</CampNameButton>
           {note && <small className="ads-note">{note}</small>}
         </TableCell>
         <TableCell className="num-cell">
@@ -132,6 +133,7 @@ export default function PeriodDetail({
         b.benchmark,
         false,
         a.note,
+        campLabel(a),
       );
     }
     return [
@@ -159,6 +161,7 @@ export default function PeriodDetail({
           b.benchmark,
           true,
           a.note,
+          campLabel(a),
         ),
       ),
     ];

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import type { Camp, Decision } from "@/lib/marketing/ads-analysis";
 
 /** Tiền (đồng) → "689k" / "12,6tr". */
@@ -17,6 +19,25 @@ export function pct(v: number): string {
 
 export function campLabel(c: Pick<Camp, "creative" | "name" | "startDate">): string {
   return c.name === c.creative ? `${c.name} · lên ${c.startDate}` : `${c.creative} · ${c.name} · lên ${c.startDate}`;
+}
+
+/** Mở từ tên bằng chuột hoặc bàn phím; hàng vẫn nhận chuột ở các ô khác. */
+export function CampNameButton({ onOpen, children, label }: { onOpen: () => void; children: ReactNode; label?: string }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      aria-label={label}
+      className="h-auto max-w-full whitespace-normal px-0 text-left leading-normal underline underline-offset-2"
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen();
+      }}
+    >
+      <span>{children}</span>
+    </Button>
+  );
 }
 
 type Tone = "good" | "ok" | "warn" | "bad";

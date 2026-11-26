@@ -2,6 +2,7 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
@@ -44,14 +45,16 @@ function O({ children }: { children: string }) {
  */
 export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; congBoBanDau?: string }) {
   const [tim, setTim] = useState("");
-  const [nhom, setNhom] = useState<string>("");
+  const [nhom, setNhom] = useState<string | null>(null);
   const [hang, setHang] = useState<string>("");
   const [congBo, setCongBo] = useState<string>(congBoBanDau ?? "");
 
   const nhomCo = useMemo(() => {
     const m = new Map<string, string>();
     facts.forEach((f) => m.set(f.nhom, f.tenNhom));
-    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    return [...m.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([gt, ten]) => ({ gt, nhan: `${gt}. ${ten}`, anMa: true }));
   }, [facts]);
 
   const hangCo = useMemo(
@@ -85,14 +88,14 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
         />
 
         <div className="w-full sm:w-44">
-          <NativeSelect value={nhom} onChange={(e) => setNhom(e.target.value)} aria-label="Lọc theo nhóm dữ kiện">
-            <NativeSelectOption value="">Mọi nhóm ({facts.length})</NativeSelectOption>
-            {nhomCo.map(([chu, ten]) => (
-              <NativeSelectOption key={chu} value={chu}>
-                {chu}. {ten}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <Combobox
+            aria-label="Lọc theo nhóm dữ kiện"
+            value={nhom}
+            onValueChange={setNhom}
+            options={nhomCo}
+            placeholder={`Mọi nhóm (${facts.length})`}
+            searchPlaceholder="Tìm nhóm dữ kiện…"
+          />
         </div>
 
         <div className="w-full sm:w-44">
@@ -123,7 +126,7 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
             variant="outline"
             onClick={() => {
               setTim("");
-              setNhom("");
+              setNhom(null);
               setHang("");
               setCongBo("");
             }}

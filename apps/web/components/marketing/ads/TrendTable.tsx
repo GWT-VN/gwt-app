@@ -7,7 +7,7 @@ import {
   type Verdict,
 } from "@/lib/marketing/ads-analysis";
 import type { AdsWeek } from "@/lib/marketing/data/ads-results";
-import { CprPill, DecisionBadge, OffBadge } from "./shared";
+import { CampNameButton, campLabel, CprPill, DecisionBadge, OffBadge } from "./shared";
 
 function sdtTotal(periods: (PeriodStat | null)[]) {
   const t = periods.reduce((s, p) => s + (p?.sdt ?? 0), 0);
@@ -44,7 +44,7 @@ export default function TrendTable({
       return (
         <TableRow key={c.key} className="ads-row" onClick={() => onOpen(c.key)}>
           <TableCell className="td-title ad-name-col">
-            {g.name}
+            <CampNameButton onOpen={() => onOpen(c.key)} label={campLabel(c)}>{g.name}</CampNameButton>{" "}
             {badge(c)} <span className="ads-muted">lên {c.startDate}</span>
           </TableCell>
           {cells(c.periods, b)}
@@ -55,7 +55,8 @@ export default function TrendTable({
     return [
       <TableRow key={g.key} className="ads-row" onClick={() => onOpen(g.key)}>
         <TableCell className="td-title ad-name-col">
-          {g.name} <span className="ads-muted">{g.camps.length} camp</span>
+          <CampNameButton onOpen={() => onOpen(g.key)}>{g.name}</CampNameButton>{" "}
+          <span className="ads-muted">{g.camps.length} camp</span>
         </TableCell>
         {cells(g.periods, b)}
         <TableCell className="num-cell">{sdtTotal(g.periods)}</TableCell>
@@ -63,8 +64,9 @@ export default function TrendTable({
       ...g.camps.map((c) => (
         <TableRow key={c.key} className="ads-row ads-sub" onClick={() => onOpen(c.key)}>
           <TableCell className="ad-name-col">
-            ↳ lên {c.startDate}
-            {c.name !== g.name && ` · ${c.name}`}
+            <CampNameButton onOpen={() => onOpen(c.key)} label={campLabel(c)}>
+              ↳ lên {c.startDate}{c.name !== g.name && ` · ${c.name}`}
+            </CampNameButton>{" "}
             {badge(c)}
           </TableCell>
           {cells(c.periods, b)}
