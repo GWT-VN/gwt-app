@@ -155,6 +155,12 @@ khác TRƯỚC cột khoá → mất `th[data-ghim]` → mất cả bộ kiểu 
 `giuCotKhoa` (use-cot-bang.ts) đưa cột khoá về đúng vị trí khai báo ở MỌI đường đổi thứ tự (kéo thả, menu dời, URL
 `cot_thu_tu` cũ). Đổi gì ở bảng ghim: đo lại mép ô tick = mép chữ tab đầu, mép khung = mép chữ tiêu đề trang.
 
+**Chờ đồng bộ lên artifact** — mục chọn dạng CHIP (26/11, CEO "khi chọn trạng thái ko cần cho hover thế này mà phải hiện
+hover ở chip", commit 9d88415): `MucRadio chip` — dòng rê/được phím đánh dấu nền trong suốt; `Badge` soft trong dòng đang
+đánh dấu hiện viền 1px inset cùng màu chữ chip (không đậm nền: nền `*-soft-alpha-hover` làm "Đã xong" còn ~3,5:1). Mục chữ
+thường (người, loại lỗi) giữ nền dòng. Badge "Đang mở" dùng `warning` — token ra CAM, tối 4,37:1 (dưới AA): chờ CEO quyết
+màu vàng riêng.
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,
