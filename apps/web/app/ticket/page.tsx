@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
 import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, listTicketTab, type Ticket } from '@/app/actions'
-import { currentStaff } from '@/lib/nen-tang/nhan-su'
+import { currentStaff, listStaff } from '@/lib/nen-tang/nhan-su'
 import type { KetQuaTrang } from '@/bang'
 import { ExportTicketButton } from '@/components/ExportTicketButton'
 import { BangTicket } from '@/components/BangTicket'
@@ -37,11 +37,13 @@ const mot = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
  */
 async function duLieuF(sp: SP): Promise<DuLieuTicket> {
   const trang = Math.max(1, Number(mot(sp.trang)) || 1)
-  const [me, tabRieng, { viewChung }] = await Promise.all([
+  const [me, tabRieng, { viewChung, sua }, nhanVien] = await Promise.all([
     currentStaff(),
     // Tab tự tạo (bang_view 'ticket_tab'). Đọc lỗi → chỉ 4 tab cố định, không vỡ trang.
     docAnToan('listTicketTab', () => listTicketTab(), []).then((r) => r.data),
-    hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
+    hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'], sua: ['cs.ticket.tao_sua', 'NHANVIEN'] }),
+    // Người phụ trách chọn được ở ô bảng / Xem nhanh (như form Tạo ticket).
+    listStaff(),
   ])
   const dev = process.env.NODE_ENV !== 'production'
   // Một bộ lọc (query) → điều kiện DB. Cột "Ngày tạo" (`cot=tao`) = created_at; chọn cột sắp → Khẩn không chen lên đầu.
@@ -78,8 +80,10 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     trang,
     soTrang: demo ? 1 : ketQua.soTrang,
     loaiList: [],
-    dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten })),
+    dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten, ma_may: d.ma_may, ngung: d.trang_thai === 'ngung' })),
     demo,
+    quyenSua: sua,
+    nhanVien: nhanVien.map((n) => ({ gt: n.id, nhan: n.ten, anMa: true })),
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
     // Khoá số đếm: tab cố định = `v`, tab tự tạo = `t:<id>` (như giá trị TabsTrigger).
     demTab: Object.fromEntries(

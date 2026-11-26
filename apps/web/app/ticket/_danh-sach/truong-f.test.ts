@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Ticket } from '@/app/actions'
-import { bhCua, locCua, maMayDong, maMayNgan, queryTab, soDongThem } from './truong-f'
+import { bhCua, locCua, loiHopVoiMay, maMayDong, maMayNgan, queryTab, soDongThem } from './truong-f'
 
 // Tên lấy đúng dạng product_name trên prod (đo 26/11, v_installed_base).
 describe('maMayNgan', () => {
@@ -43,5 +43,19 @@ describe('Máy ↔ Loại lỗi cùng dòng máy đầu, Bảo hành', () => {
     expect(bhCua({ serial: 'S', warranty_activated: false, con_han_may: null })).toBe('chua')
     expect(bhCua({ serial: 'S', warranty_activated: true, con_han_may: true })).toBe('con')
     expect(bhCua({ serial: 'S', warranty_activated: true, con_han_may: null })).toBe('het')
+  })
+})
+
+describe('loiHopVoiMay — pop Loại lỗi theo máy cùng hàng (ILIKE như DB)', () => {
+  it('rỗng = mọi máy; mẫu % / _ / \_; hoa thường; Chưa phân loại luôn được', () => {
+    expect(loiHopVoiMay({ code: 'E3' }, 'GN610')).toBe(true)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: [] }, null)).toBe(true)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['CTS20%'] }, 'cts20ng')).toBe(true)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['CTS20%'] }, 'GPUN-4000XEN-G')).toBe(false)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['GTUN-8600HP-G%'] }, 'GTUN-8600HP-G')).toBe(true)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['AB\\_C%'] }, 'ABXC1')).toBe(false)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['AB\\_C%'] }, 'AB_C1')).toBe(true)
+    expect(loiHopVoiMay({ code: 'E3', ma_may: ['CTS20%'] }, null)).toBe(false)
+    expect(loiHopVoiMay({ code: 'CHUA_PHAN_LOAI', ma_may: ['CTS20%'] }, 'GN610')).toBe(true)
   })
 })

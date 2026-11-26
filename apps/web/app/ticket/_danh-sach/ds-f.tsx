@@ -25,7 +25,10 @@ import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
-import type { MucTrangThai } from '@/components/ui/inline-edit'
+import { OSuaChon, OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
+import type { MucChon } from '@/bang/OChonGoiY'
+import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
+import { luuLoi, luuTicket } from './sua-ticket'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
@@ -39,7 +42,7 @@ import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
-import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, maMayDong, soDongThem, TRUONG_F } from './truong-f'
+import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
@@ -99,6 +102,13 @@ function NguoiPhuTrach({ ten }: { ten: string | null }) {
   ) : (
     <span className="text-muted-foreground">—</span>
   )
+}
+
+/** Mục pop Loại lỗi: lỗi còn dùng (không "ngưng") của máy cùng hàng + "Chưa phân loại" (luôn có). */
+function mucLoi(ds: DuLieuTicket['dsLoi'], t: Ticket): MucChon[] {
+  const may = maCuaMay(t)
+  const co = ds.filter((d) => !d.ngung && loiHopVoiMay(d, may)).map((d) => ({ gt: d.code, nhan: d.ten }))
+  return co.some((m) => m.gt === CHUA_PHAN_LOAI) ? co : [...co, { gt: CHUA_PHAN_LOAI, nhan: 'Chưa phân loại' }]
 }
 
 /** "+N" dòng máy khác — như nhau ở cột Máy và Loại lỗi (cặp đọc ngang cùng hàng). */
@@ -166,10 +176,16 @@ const TEN_COT = { tao: 'Ngày tạo' }
 const NGHIA = { tao: { asc: 'cũ nhất trước', desc: 'mới tạo trước' } }
 type Sap = { cot: string; tang: boolean }
 
-const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
+/** Ngữ cảnh ô: mở Xem nhanh + dữ liệu chọn của ô sửa được (null = chỉ đọc: không quyền cs.ticket.tao_sua). */
+type NgCanhO = {
+  mo: (ma: string) => void
+  sua: { nhanVien: MucChon[]; loai: MucChon[]; dsLoi: DuLieuTicket['dsLoi'] } | null
+}
+
+const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   // CEO 26/11 "Tách cột mã ticket ra riêng cho dễ xem": ô Khách chỉ tên (nút mở Xem nhanh; khẩn = chữ đỏ, kể cả lúc
   // rê/focus) — mã ở cột "Mã ticket" riêng.
-  khach: (t, mo) => (
+  khach: (t, { mo }) => (
     <button type="button" className={cn(nutMoTen, 'block max-w-full', laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
       {laKhan(t) && <SrKhan />}
       {tenKhach(t)}
@@ -187,8 +203,24 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
     </span>
   ),
   // Chỉ TÊN lỗi (không lặp mã máy — CEO 26/11 "tách loại lỗi ra khỏi mã máy"); chưa phân loại = chữ mờ.
-  loi: (t) => {
+  loi: (t, { sua }) => {
     const d = dongDau(t)
+    if (sua)
+      // Bấm ô → chọn lỗi CỦA MÁY cùng hàng (danh mục ma_may, như DB) + "Chưa phân loại"; lưu vào dòng máy đầu.
+      return (
+        <span className="flex min-w-0 items-center gap-2 border-none border-current">
+          <OSuaChon
+            ma={t.ticket_code}
+            truong="loại lỗi"
+            value={d?.loi_code ?? null}
+            mucDangChon={d ? { gt: d.loi_code, nhan: d.loi_ten } : undefined}
+            chuaGiao="—"
+            options={mucLoi(sua.dsLoi, t)}
+            onLuu={(v) => luuLoi(t, v ?? CHUA_PHAN_LOAI)}
+          />
+          <ThemDong t={t} />
+        </span>
+      )
     return (
       <span className="flex min-w-0 items-center gap-2 border-none border-current">
         <span className={cn('min-w-0 truncate', (!d || d.chuaPhanLoai) && 'text-muted-foreground')}>{d?.loi_ten ?? '—'}</span>
@@ -198,21 +230,51 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
   },
   // Bảo hành dạng CHỮ (một nhãn màu mỗi hàng là Trạng thái); hết BH chữ đỏ, chưa kích hoạt mờ, không serial "—".
   bh: (t) => (t.serial ? <span className="whitespace-nowrap"><ChuBaoHanh t={t} ngan /></span> : <span className="text-muted-foreground">—</span>),
-  tt: (t) => <TrangThaiO t={t} />,
-  cs: (t) => <NguoiPhuTrach ten={t.cs_ten} />,
-  loai: (t) => <span className="block truncate">{t.ticket_type ?? '—'}</span>,
+  tt: (t, { sua }) =>
+    sua ? (
+      <OSuaTrangThai ma={t.ticket_code} value={{ tt: t.state }} muc={TT} onLuu={(v) => luuTicket(t.ticket_code, { state: v.tt as Ticket['state'] })} />
+    ) : (
+      <TrangThaiO t={t} />
+    ),
+  cs: (t, { sua }) =>
+    sua ? (
+      <OSuaNguoi
+        gon
+        ma={t.ticket_code}
+        truong="người phụ trách"
+        value={t.cs_phu_trach}
+        mucDangChon={t.cs_phu_trach ? { gt: t.cs_phu_trach, nhan: t.cs_ten ?? '—' } : undefined}
+        options={sua.nhanVien}
+        onLuu={(v) => luuTicket(t.ticket_code, { cs_phu_trach: v })}
+      />
+    ) : (
+      <NguoiPhuTrach ten={t.cs_ten} />
+    ),
+  loai: (t, { sua }) =>
+    sua ? (
+      <OSuaChon
+        ma={t.ticket_code}
+        truong="loại"
+        value={t.ticket_type}
+        chuaGiao="—"
+        options={sua.loai}
+        onLuu={(v) => (v ? luuTicket(t.ticket_code, { ticket_type: v }) : Promise.reject(new Error('Loại không được trống.')))}
+      />
+    ) : (
+      <span className="block truncate">{t.ticket_type ?? '—'}</span>
+    ),
   tinh: (t) => <span className="block truncate">{t.province ?? '—'}</span>,
   tao: (t) => <span className="tabular-nums text-muted-foreground">{ngayNgan(t.created_at)}</span>,
 }
 
-function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) => void }) {
+function DongBang({ t, hien, ng }: { t: Dong; hien: CotBang[]; ng: NgCanhO }) {
   const { daChon } = useDaChon()
   return (
     <TableRow chon={daChon.includes(t.ticket_code)}>
       <OChonDong khoa={t.ticket_code} moTa={`ticket ${t.ticket_code}`} />
       {hien.map((c, i) => (
         <TableCell key={c.id} cot={c.id} phai={c.phai} ghim={laGhim(c, i)}>
-          {O[c.id](t, mo)}
+          {O[c.id](t, ng)}
         </TableCell>
       ))}
       {/* Ô dưới cột "+" (ThemCot). */}
@@ -300,6 +362,8 @@ export function TicketF({
   demTab = {},
   tabRieng,
   quyenTabChung,
+  quyenSua = false,
+  nhanVien = [],
   dau,
 }: DuLieuTicket & { dau?: ReactNode }) {
   const spRo = useSearchParams()
@@ -428,6 +492,14 @@ export function TicketF({
     ],
   })
 
+  // Ô sửa được (CEO 26/11 "Mở chọn giá trị" — học hành vi Twenty): Trạng thái, Phụ trách, Loại, Loại lỗi. Máy và Tỉnh/TP
+  // chỉ đọc (Tỉnh/TP đọc từ KHÁCH; đổi máy cần đọc máy của khách + DB local chưa có ticket_may — báo phiên chính).
+  const ng: NgCanhO = {
+    mo,
+    sua: quyenSua
+      ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi }
+      : null,
+  }
   const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT
   const [khungRef, rongKhung] = useRongKhung()
   const bang = (
@@ -468,7 +540,7 @@ export function TicketF({
           </TableHeader>
           <TableBody>
             {dong.map((d) => (
-              <DongBang key={d.ticket_code} t={d} hien={c.hien} mo={mo} />
+              <DongBang key={d.ticket_code} t={d} hien={c.hien} ng={ng} />
             ))}
           </TableBody>
         </Table>

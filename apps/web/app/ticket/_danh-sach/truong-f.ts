@@ -3,6 +3,7 @@
 // lọc trong bộ nhớ bằng `lay`; ds-f.tsx dựng bộ lọc + tab.
 import type { Ticket } from '@/app/actions'
 import type { TruongDuLieu } from '@/bang/locTruong'
+import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 
 /** Giá trị của trường Khẩn. */
 export const KHAN_CO = 'co'
@@ -29,6 +30,31 @@ export function maMayDong(t: Ticket): string {
   const cungMay = !d?.internal_code || d.internal_code === t.internal_code || (!!d.serial && d.serial === t.serial)
   return cungMay ? maMayNgan(t) : maMayNgan({ product_name: null, internal_code: d.internal_code })
 }
+/** Một mẫu ILIKE của Postgres (`%`, `_`, `\` thoát) có khớp chuỗi không — không phân biệt hoa thường. */
+const thoat = (c: string) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+function ilike(mau: string, s: string): boolean {
+  let re = ''
+  for (let i = 0; i < mau.length; i++) {
+    const c = mau[i]
+    if (c === '\\' && i + 1 < mau.length) re += thoat(mau[++i])
+    else if (c === '%') re += '.*'
+    else if (c === '_') re += '.'
+    else re += thoat(c)
+  }
+  return new RegExp(`^${re}$`, 'is').test(s)
+}
+
+/**
+ * Lỗi có dùng được cho máy này không — cùng luật DB (`loi_danh_muc.ma_may` = mẫu ILIKE trên internal_code, rỗng = mọi
+ * model; migration 20261109120000). Pop Loại lỗi chỉ liệt kê lỗi của máy cùng hàng. "Chưa phân loại" luôn được.
+ */
+export function loiHopVoiMay(loi: { code: string; ma_may?: string[] }, internalCode: string | null | undefined): boolean {
+  if (loi.code === CHUA_PHAN_LOAI || !loi.ma_may?.length) return true
+  return loi.ma_may.some((m) => ilike(m, internalCode ?? ''))
+}
+/** internal_code của máy ở cột Máy cùng hàng (dòng máy đầu, không có → máy của ticket). */
+export const maCuaMay = (t: Ticket) => dongDau(t)?.internal_code ?? t.internal_code
+
 /** Số dòng máy khác ngoài dòng đầu ("+N" ở cả hai cột Máy và Loại lỗi). */
 export const soDongThem = (t: Ticket) => Math.max(0, (t.dong_may?.length ?? 0) - 1)
 

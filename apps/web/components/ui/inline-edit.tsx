@@ -557,6 +557,7 @@ export function OSuaNguoi({
   gon,
   max,
   chuaGiao = 'Chưa giao',
+  avatar: coAvatar = true,
 }: {
   ma: string
   truong: string
@@ -568,6 +569,8 @@ export function OSuaNguoi({
   gon?: boolean
   max?: number
   chuaGiao?: string
+  /** false = ô chọn chữ thường (không avatar) — `OSuaChon`. */
+  avatar?: boolean
 }) {
   // Mọi mục đã chọn trong phiên (chế độ `tim`: không có danh sách ở client) — Hoàn tác / Thử lại về mục CŨ vẫn hiện tên.
   const [nho, setNho] = useState<ReadonlyMap<string, MucChon>>(() => new Map())
@@ -581,7 +584,7 @@ export function OSuaNguoi({
   const [mo, setMo] = useState(false)
   const ten = tenCua(gt)
   const avatar =
-    gt === null ? null : (
+    gt === null || !coAvatar ? null : (
       <Avatar aria-hidden="true">
         <AvatarFallback>{chuDau(ten)}</AvatarFallback>
       </Avatar>
@@ -615,7 +618,8 @@ export function OSuaNguoi({
         </PopoverTrigger>
         <PopoverContent
           aria-label={`Chọn ${truong}`}
-         
+          // Pop của ô bảng bám ô nhưng cách mép màn ≥ 16 (luật lớp nổi, tu-kiem A — 8 bị phê "sát viền").
+          collisionPadding={16}
           className={cn(
             menuContent,
             'w-auto min-w-[240px] max-w-[calc(100vw-16px)] max-h-(--radix-popover-content-available-height)',
@@ -637,6 +641,15 @@ export function OSuaNguoi({
       </Popover>
     </NeoO>
   )
+}
+
+/**
+ * Ô chọn MỘT giá trị chữ có tìm (loại ticket, loại lỗi, máy…): như `OSuaNguoi` nhưng không avatar — Popover +
+ * `ComboboxPanel` (gõ để tìm, CHUAN-FILTER), lưu lạc quan + Hoàn tác / Thử lại. Thêm 26/11 (danh sách ticket F: bấm ô để
+ * chọn giá trị, học hành vi Twenty).
+ */
+export function OSuaChon(props: Omit<Parameters<typeof OSuaNguoi>[0], 'avatar' | 'gon'>) {
+  return <OSuaNguoi {...props} avatar={false} />
 }
 
 // ======================= Khách (RecordPicker) =======================

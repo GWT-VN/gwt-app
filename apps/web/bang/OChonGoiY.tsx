@@ -15,7 +15,8 @@ import { locMucChon } from './timkiem'
  *
  * Khớp không dấu ở cả hai đầu, tìm theo `gt` (mã) LẪN `nhan` (tên) LẪN `phu`.
  */
-export type MucChon = { gt: string; nhan: string; phu?: string }
+/** `anMa`: `gt` là khoá máy (uuid…) không phải mã người đọc — pop không hiện cột mã (ô Phụ trách theo staff id). */
+export type MucChon = { gt: string; nhan: string; phu?: string; anMa?: boolean }
 
 export function OChonGoiY({
   giaTri,
