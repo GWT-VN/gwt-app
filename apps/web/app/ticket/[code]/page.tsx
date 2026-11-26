@@ -64,6 +64,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
     return (
       <ManV2>
         <CtPrototype
+          variant={sp.variant}
           d={{
             t, ngayBao: them.ngay_bao, csTheoDoi: them.cs_theo_doi, nhom, notes, items,
             tenCatalog: Object.fromEntries(catalog.filter((c) => ma.has(c.code)).map((c) => [c.code, c.ten ?? c.code])),

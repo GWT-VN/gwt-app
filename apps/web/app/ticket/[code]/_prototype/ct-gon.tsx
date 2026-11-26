@@ -181,7 +181,7 @@ function LoiTruoc() {
 }
 
 // ───────────── nhật ký: ô soạn 2 chế độ (CEO chốt 25/11: app CHỈ GHI NHẬN trao đổi, không gửi tin cho khách) ─────────────
-function NhatKy({ d }: { d: DuLieuCt }) {
+export function NhatKy({ d }: { d: DuLieuCt }) {
   const [cheDo, setCheDo] = useState<'noi-bo' | 'khach'>('noi-bo')
   const [moi, setMoi] = useState<MucTimeline[]>([])
   const noiBo = cheDo === 'noi-bo'
