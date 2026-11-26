@@ -18,6 +18,30 @@ export const mayLoi = (t: Ticket) => t.dong_may?.[0]?.nhan ?? t.product_name ?? 
 export const maMayNgan = (t: Pick<Ticket, 'product_name' | 'internal_code'>) =>
   t.product_name?.match(/\bGE\s+([A-Z0-9][\w-]*)/)?.[1] ?? t.internal_code ?? t.product_name ?? '—'
 
+/**
+ * Máy · Loại lỗi là MỘT CẶP của cùng dòng máy đầu (CEO 26/11 "tách loại lỗi ra khỏi mã máy" · "cột mã máy sẽ liên kết
+ * với mã lỗi"). Mã ngắn của dòng: dòng cùng máy với ticket (cùng serial / internal_code) → tên máy của ticket
+ * (maMayNgan); dòng máy khác → internal_code của dòng (DB dòng máy không kèm tên máy). Chưa có dòng → máy của ticket.
+ */
+export const dongDau = (t: Ticket) => t.dong_may?.[0]
+export function maMayDong(t: Ticket): string {
+  const d = dongDau(t)
+  const cungMay = !d?.internal_code || d.internal_code === t.internal_code || (!!d.serial && d.serial === t.serial)
+  return cungMay ? maMayNgan(t) : maMayNgan({ product_name: null, internal_code: d.internal_code })
+}
+/** Số dòng máy khác ngoài dòng đầu ("+N" ở cả hai cột Máy và Loại lỗi). */
+export const soDongThem = (t: Ticket) => Math.max(0, (t.dong_may?.length ?? 0) - 1)
+
+/** Bảo hành của ticket (cột + trường lọc "Bảo hành"); cùng nghĩa với ChuBaoHanh và điều kiện DB ở loc-db.ts. */
+export const BH_F = [
+  { gt: 'con', nhan: 'Còn BH' },
+  { gt: 'het', nhan: 'Hết BH' },
+  { gt: 'chua', nhan: 'Chưa kích hoạt' },
+  { gt: 'khong', nhan: 'Chưa có serial' },
+] as const
+export const bhCua = (t: Pick<Ticket, 'serial' | 'warranty_activated' | 'con_han_may'>) =>
+  !t.serial ? 'khong' : !t.warranty_activated ? 'chua' : t.con_han_may ? 'con' : 'het'
+
 /** Thứ tự = thứ tự trong danh sách "Tìm trường". `id` = tên tham số URL (CHUAN-FILTER: `tt`, `cs`, `loai`, `tinh` dùng lại).
  *  `loi` ở DB = mã loại lỗi (v_tickets_loi.loi_codes); `lay` của nó (nhãn dòng máy) chỉ còn cho ticket Demo. */
 export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [
@@ -25,7 +49,9 @@ export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [
   // Khẩn: chọn Có / Không (DB: cột boolean `khan`, loc-db.ts). Tab "Khẩn" = tt=Open & khan=co.
   { id: 'khan', ten: 'Khẩn', kieu: 'chon', lay: (t) => (t.khan ? KHAN_CO : KHAN_KHONG) },
   { id: 'cs', ten: 'Phụ trách', kieu: 'nguoi', lay: (t) => t.cs_ten ?? CHUA_GIAO },
-  { id: 'loi', ten: 'Loại lỗi', kieu: 'chon', lay: (t) => t.dong_may?.[0]?.nhan },
+  // Lọc theo MÃ lỗi (DB: v_tickets_loi.loi_codes), nhãn = tên lỗi; `lay` chỉ cho ticket Demo.
+  { id: 'loi', ten: 'Loại lỗi', kieu: 'chon', lay: (t) => t.dong_may?.[0]?.loi_code },
+  { id: 'bh', ten: 'Bảo hành', kieu: 'chon', lay: bhCua },
   { id: 'loai', ten: 'Loại', kieu: 'chon', lay: (t) => t.ticket_type },
   { id: 'tinh', ten: 'Tỉnh/TP', kieu: 'chon', lay: (t) => t.province },
   { id: 'tao', ten: 'Ngày tạo', kieu: 'ngay', lay: (t) => t.created_at },
@@ -51,7 +77,7 @@ export const docViewF = (v: string | null | undefined): ViewF => VIEW_F.find((x)
 /** Giá trị có trong dữ liệu (CHƯA lọc) cho trường chọn — danh sách giá trị không co lại theo chính bộ lọc đang bật. */
 export function tuyChonF(rows: Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' | 'province'>[]): Record<string, string[]> {
   return Object.fromEntries(
-    TRUONG_F.filter((x) => (x.kieu === 'chon' || x.kieu === 'nguoi') && x.id !== 'loi' && x.id !== 'khan').map((x) => [
+    TRUONG_F.filter((x) => (x.kieu === 'chon' || x.kieu === 'nguoi') && !['loi', 'khan', 'bh'].includes(x.id)).map((x) => [
       x.id,
       // "Chưa giao" cuối danh sách (sau tên người).
       [...new Set(rows.map((r) => x.lay(r as Ticket)).filter((v): v is string => !!v))].sort(

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { locCua, maMayNgan, queryTab } from './truong-f'
+import type { Ticket } from '@/app/actions'
+import { bhCua, locCua, maMayDong, maMayNgan, queryTab, soDongThem } from './truong-f'
 
 // Tên lấy đúng dạng product_name trên prod (đo 26/11, v_installed_base).
 describe('maMayNgan', () => {
@@ -24,5 +25,23 @@ describe('tab = bộ lọc chọn sẵn', () => {
       'bo_cuc=kanban&cot_an=tinh&tt=Open&khan=co&view=khan',
     )
     expect(queryTab(new URLSearchParams('tt=Done'), '', null)).toBe('')
+  })
+})
+
+describe('Máy ↔ Loại lỗi cùng dòng máy đầu, Bảo hành', () => {
+  const t = (x: Partial<Ticket>) => ({ product_name: 'Máy lọc nước GE GN610', internal_code: 'GPUN-4000XEN-G', serial: 'S1', ...x }) as Ticket
+  const dong = (internal_code: string | null, serial: string | null = null) => ({ nhan: '', serial, chuaPhanLoai: false, loi_code: 'E3', loi_ten: 'Báo lỗi E3', internal_code })
+  it('maMayDong: dòng cùng máy ticket → mã ngắn từ tên; dòng máy khác → internal_code của dòng; chưa có dòng → máy ticket', () => {
+    expect(maMayDong(t({ dong_may: [dong('GPUN-4000XEN-G')] }))).toBe('GN610')
+    expect(maMayDong(t({ dong_may: [dong('X9', 'S1')] }))).toBe('GN610')
+    expect(maMayDong(t({ dong_may: [dong('CTS20NG', 'S2')] }))).toBe('CTS20NG')
+    expect(maMayDong(t({ dong_may: [] }))).toBe('GN610')
+    expect(soDongThem(t({ dong_may: [dong('A'), dong('B'), dong('C')] }))).toBe(2)
+  })
+  it('bhCua', () => {
+    expect(bhCua({ serial: null, warranty_activated: true, con_han_may: true })).toBe('khong')
+    expect(bhCua({ serial: 'S', warranty_activated: false, con_han_may: null })).toBe('chua')
+    expect(bhCua({ serial: 'S', warranty_activated: true, con_han_may: true })).toBe('con')
+    expect(bhCua({ serial: 'S', warranty_activated: true, con_han_may: null })).toBe('het')
   })
 })

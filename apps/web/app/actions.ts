@@ -2462,8 +2462,11 @@ export type Ticket = {
   hoat_dong_cuoi?: string | null
   /** Chỉ có ở kết quả searchTickets: hoạt động trong 24 giờ qua -> badge "Mới". */
   moi?: boolean
-  /** Chỉ có ở kết quả searchTickets: các dòng máy "MÃ · lỗi" (ticket_may). */
-  dong_may?: { nhan: string; serial: string | null; chuaPhanLoai: boolean }[]
+  /** Chỉ có ở kết quả searchTickets: các dòng máy (ticket_may) — `nhan` "MÃ · lỗi" + trường tách (lib/loi/dongMay tomTatMayTicket). */
+  dong_may?: {
+    nhan: string; serial: string | null; chuaPhanLoai: boolean
+    id?: string; loi_code: string; loi_ten: string; internal_code: string | null
+  }[]
 }
 
 /** Tuỳ chọn thêm của searchTickets cho danh sách F (/ticket). Mọi trường tuỳ chọn — caller cũ không truyền thì như cũ. */

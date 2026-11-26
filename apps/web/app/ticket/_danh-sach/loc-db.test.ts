@@ -43,6 +43,14 @@ describe('dieuKienOrTicket — TRUONG_F → .or() của v_tickets', () => {
     expect(or({ khan: 'co,khong' })).toEqual([])
   })
 
+  it('Bảo hành: là / không là (phần bù) / trống = chưa có serial / cả 4 = không lọc', () => {
+    expect(or({ bh: 'con' })).toEqual(['and(serial.not.is.null,warranty_activated.is.true,con_han_may.is.true)'])
+    expect(or({ bh: 'khong-la~con,het' })).toEqual(['and(serial.not.is.null,warranty_activated.not.is.true),serial.is.null'])
+    expect(or({ bh: 'trong~' })).toEqual(['serial.is.null'])
+    expect(or({ bh: 'con,het,chua,khong' })).toEqual([])
+    expect(or({ bh: 'khong-la~con,het,chua,khong' })).toEqual(['ticket_code.is.null'])
+  })
+
   it('loi không dịch ở đây (mảng loi_codes)', () => {
     expect(or({ loi: 'E3' })).toEqual([])
   })

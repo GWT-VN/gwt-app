@@ -5,8 +5,7 @@ export const CHUA_PHAN_LOAI = 'CHUA_PHAN_LOAI'
 
 export function nhanDongMay(d: { internal_code: string | null; loi_code: string; loi_ten: string | null }): string {
   const may = d.internal_code?.trim() || 'Chưa rõ máy'
-  const loi = d.loi_ten?.trim() || (d.loi_code === CHUA_PHAN_LOAI ? 'Chưa phân loại' : d.loi_code)
-  return `${may} · ${loi}`
+  return `${may} · ${tenLoiDong(d)}`
 }
 
 /**
@@ -27,11 +26,27 @@ export function goiYHuongXuLy(
   return nd
 }
 
-/** Dòng máy rút gọn cho cột "Máy" ở bảng ticket (giữ thứ tự dòng). */
+/** Tên lỗi để hiện (không kèm máy): tên danh mục, CHUA_PHAN_LOAI → "Chưa phân loại", không tên → mã. */
+export const tenLoiDong = (d: { loi_code: string; loi_ten: string | null }) =>
+  d.loi_ten?.trim() || (d.loi_code === CHUA_PHAN_LOAI ? 'Chưa phân loại' : d.loi_code)
+
+/**
+ * Dòng máy rút gọn cho bảng ticket (giữ thứ tự dòng). `nhan` = "máy · lỗi" (màn cũ, BangTicket); F dùng các trường
+ * TÁCH RIÊNG (CEO 26/11 "tách loại lỗi ra khỏi mã máy"): `loi_ten` (cột Loại lỗi), `internal_code` (cột Máy cùng dòng),
+ * `loi_code` (lọc / sửa tại ô), `id` (dòng máy để suaDongMay).
+ */
 export function tomTatMayTicket(
-  dong: Pick<DongMay, 'internal_code' | 'loi_code' | 'loi_ten' | 'serial' | 'source_serial'>[],
-): { nhan: string; serial: string | null; chuaPhanLoai: boolean }[] {
-  return dong.map((d) => ({ nhan: nhanDongMay(d), serial: d.serial ?? d.source_serial ?? null, chuaPhanLoai: d.loi_code === CHUA_PHAN_LOAI }))
+  dong: (Pick<DongMay, 'internal_code' | 'loi_code' | 'loi_ten' | 'serial' | 'source_serial'> & { id?: string })[],
+): { nhan: string; serial: string | null; chuaPhanLoai: boolean; id?: string; loi_code: string; loi_ten: string; internal_code: string | null }[] {
+  return dong.map((d) => ({
+    nhan: nhanDongMay(d),
+    serial: d.serial ?? d.source_serial ?? null,
+    chuaPhanLoai: d.loi_code === CHUA_PHAN_LOAI,
+    ...(d.id ? { id: d.id } : {}),
+    loi_code: d.loi_code,
+    loi_ten: tenLoiDong(d),
+    internal_code: d.internal_code,
+  }))
 }
 
 /** Chuẩn hoá tham số `?loi=`: loc=false -> không lọc; ma=null -> mã sai dạng (kết quả rỗng). */

@@ -52,7 +52,9 @@ export const TICKET_DEMO: Ticket[] = MAU.map(([ma, khach, may, loi, state, khan,
   ky_thuat_ten: kt,
   hoat_dong_cuoi: ngay(truoc, 10 + (i % 6)),
   moi: truoc === 0,
-  dong_may: [{ nhan: loi, serial: `DEMO-SN-${2400 + i}`, chuaPhanLoai: false }],
+  dong_may: [
+    { nhan: loi, serial: `DEMO-SN-${2400 + i}`, chuaPhanLoai: false, loi_code: `DEMO-LOI-${i}`, loi_ten: loi.split(' · ')[1], internal_code: loi.split(' · ')[0] },
+  ],
 }))
 
 /** Lọc Demo theo đúng tham số tab của server (state / khan / mine) + từ khoá, để tab trong prototype có hiệu lực. */

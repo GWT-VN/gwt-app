@@ -39,7 +39,7 @@ describe('kemDongMayAnToan — cột Máy trong danh sách ticket', () => {
   })
   it('đọc được -> gắn dong_may theo từng ticket', async () => {
     const r = await kemDongMayAnToan(rows, async () => ({ T1: [dong('T1')] }))
-    expect(r[0].dong_may).toEqual([{ nhan: 'M1 · Chưa phân loại', serial: 'S1', chuaPhanLoai: true }])
+    expect(r[0].dong_may).toMatchObject([{ nhan: 'M1 · Chưa phân loại', serial: 'S1', chuaPhanLoai: true }])
     expect(r[1].dong_may).toEqual([])
   })
   it('không có dòng -> không gọi đọc', async () => {

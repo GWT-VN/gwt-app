@@ -39,7 +39,7 @@ import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
-import { CHUA_GIAO, docViewF, KHAN_CO, KHAN_KHONG, maMayNgan, TRUONG_F } from './truong-f'
+import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, maMayDong, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
@@ -55,7 +55,8 @@ type Dong = DongF
 
 // ── Nhãn ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 export const TT: MucTrangThai[] = [
-  { gt: 'Open', nhan: 'Đang mở', color: 'info' },
+  // CEO 26/11: "trạng thái đang mở là màu vàng vì là ticket support KH" (đang hỗ trợ khách, chờ xử lý).
+  { gt: 'Open', nhan: 'Đang mở', color: 'warning' },
   { gt: 'Done', nhan: 'Đã xong', color: 'success' },
   { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary' },
 ]
@@ -100,6 +101,16 @@ function NguoiPhuTrach({ ten }: { ten: string | null }) {
   )
 }
 
+/** "+N" dòng máy khác — như nhau ở cột Máy và Loại lỗi (cặp đọc ngang cùng hàng). */
+function ThemDong({ t }: { t: Ticket }) {
+  const n = soDongThem(t)
+  return n ? (
+    <span className="shrink-0 tabular-nums text-muted-foreground" title={t.dong_may?.slice(1).map((d) => d.nhan).join(' · ')}>
+      +{n}
+    </span>
+  ) : null
+}
+
 function TrangThaiO({ t }: { t: Ticket }) {
   return (
     <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
@@ -140,8 +151,9 @@ const RONG_BANG_TOI_THIEU = 640
 // trị cực dài không kéo cột rộng vô lý — quá trần mới cắt (ô có title). Tổng vượt khung → bảng cuộn ngang.
 const COT: CotBang[] = [
   { id: 'khach', ten: 'Khách · ticket', kieu: 'thuong', khoa: true, rongToiDa: 400 },
-  { id: 'may', ten: 'Máy · bảo hành', kieu: 'thuong', rongToiDa: 480 },
+  { id: 'may', ten: 'Máy', kieu: 'thuong', rongToiDa: 240 },
   { id: 'loi', ten: 'Loại lỗi', kieu: 'thuong', rongToiDa: 240 },
+  { id: 'bh', ten: 'Bảo hành', kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', kieu: 'loc' },
   { id: 'cs', ten: 'Phụ trách', kieu: 'loc' },
   { id: 'loai', ten: 'Loại', kieu: 'thuong', anMacDinh: true, rongToiDa: 240 },
@@ -165,21 +177,28 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
       <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
     </span>
   ),
+  // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
+  // hàng); tên đầy đủ + serial ở title.
   may: (t) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      {/* Chỉ chừa khe khi có serial — khe rỗng + gap làm chữ máy thụt 8px so với tiêu đề cột (đo 26/11). */}
-      {t.serial && (
-        <span className="shrink-0 border-none border-current">
-          <ChuBaoHanh t={t} ngan />
-        </span>
-      )}
-      {/* Chỉ mã máy ngắn (CEO 26/11); tên đầy đủ + serial xem ở title / Xem nhanh. */}
       <span className="min-w-0 truncate" title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
-        {maMayNgan(t)}
+        {maMayDong(t)}
       </span>
+      <ThemDong t={t} />
     </span>
   ),
-  loi: (t) => <span className="block truncate text-muted-foreground">{t.dong_may?.[0] ? mayLoi(t) : '—'}</span>,
+  // Chỉ TÊN lỗi (không lặp mã máy — CEO 26/11 "tách loại lỗi ra khỏi mã máy"); chưa phân loại = chữ mờ.
+  loi: (t) => {
+    const d = dongDau(t)
+    return (
+      <span className="flex min-w-0 items-center gap-2 border-none border-current">
+        <span className={cn('min-w-0 truncate', (!d || d.chuaPhanLoai) && 'text-muted-foreground')}>{d?.loi_ten ?? '—'}</span>
+        <ThemDong t={t} />
+      </span>
+    )
+  },
+  // Bảo hành dạng CHỮ (một nhãn màu mỗi hàng là Trạng thái); hết BH chữ đỏ, chưa kích hoạt mờ, không serial "—".
+  bh: (t) => (t.serial ? <span className="whitespace-nowrap"><ChuBaoHanh t={t} ngan /></span> : <span className="text-muted-foreground">—</span>),
   tt: (t) => <TrangThaiO t={t} />,
   cs: (t) => <NguoiPhuTrach ten={t.cs_ten} />,
   loai: (t) => <span className="block truncate">{t.ticket_type ?? '—'}</span>,
@@ -267,7 +286,7 @@ const truongThe = (d: Dong): TruongThe[] => [
       </>
     ),
   },
-  { id: 'loi', icon: <Wrench />, ten: 'Lỗi gần nhất', giaTri: d.dong_may?.[0]?.nhan },
+  { id: 'loi', icon: <Wrench />, ten: 'Loại lỗi', giaTri: dongDau(d)?.loi_ten },
   { id: 'bh', icon: <ShieldCheck />, ten: 'Bảo hành', giaTri: d.serial ? <ChuBaoHanh t={d} /> : null },
   { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
 ]
@@ -320,7 +339,9 @@ export function TicketF({
         : x.id === 'loi'
           ? // Loại lỗi = mã danh mục lỗi (DB lọc theo mã), nhãn = tên lỗi.
             dsLoi.map((d) => ({ giaTri: d.code, nhan: d.ten }))
-          : x.id === 'khan'
+          : x.id === 'bh'
+            ? BH_F.map((b) => ({ giaTri: b.gt, nhan: b.nhan }))
+            : x.id === 'khan'
             ? [
                 { giaTri: KHAN_CO, nhan: 'Có' },
                 { giaTri: KHAN_KHONG, nhan: 'Không' },

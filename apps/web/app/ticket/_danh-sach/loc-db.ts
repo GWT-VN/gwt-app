@@ -3,7 +3,7 @@
 // "không là"/"không chứa" vẫn giữ dòng trống). `loi` không ở đây — mảng loi_codes lọc bằng phép mảng (searchTickets).
 import { TOI, type DieuKienLoc } from '@/bang/locTruong'
 import { antoanChoOr, boDau } from '@/bang/timkiem'
-import { CHUA_GIAO, KHAN_CO, KHAN_KHONG } from './truong-f'
+import { BH_F, CHUA_GIAO, KHAN_CO, KHAN_KHONG } from './truong-f'
 
 /** Trường chọn → cột v_tickets. */
 const COT_CHON: Record<string, string> = { tt: 'state', loai: 'ticket_type', tinh: 'province' }
@@ -86,11 +86,30 @@ function khan(d: DieuKienLoc): string[] {
   return [`khan.is.${co === (d.phep === 'la')}`]
 }
 
+/** Bảo hành (suy từ serial / warranty_activated / con_han_may, cùng nghĩa bhCua): mỗi giá trị một nhóm and(); "không là" =
+ *  "là" phần bù; "trống" = chưa có serial, "có giá trị" = có serial. */
+const DK_BH: Record<string, string> = {
+  khong: 'serial.is.null',
+  chua: 'and(serial.not.is.null,warranty_activated.not.is.true)',
+  con: 'and(serial.not.is.null,warranty_activated.is.true,con_han_may.is.true)',
+  het: 'and(serial.not.is.null,warranty_activated.is.true,or(con_han_may.is.false,con_han_may.is.null))',
+}
+function baoHanh(d: DieuKienLoc): string[] {
+  const tat = BH_F.map((b) => b.gt as string)
+  const gt =
+    d.phep === 'la' ? d.giaTri : d.phep === 'khong-la' ? tat.filter((g) => !d.giaTri.includes(g)) : d.phep === 'trong' ? ['khong'] : ['con', 'het', 'chua']
+  const ds = gt.filter((g) => g in DK_BH)
+  if (ds.length === tat.length) return []
+  // Không giá trị nào khớp (vd "không là" cả 4) → điều kiện luôn sai (mã ticket không bao giờ trống).
+  return [ds.length ? ds.map((g) => DK_BH[g]).join(',') : 'ticket_code.is.null']
+}
+
 export function dieuKienOrTicket(dk: DieuKienLoc[], opts: { toiId?: string; homNay?: string } = {}): string[] {
   const homNay = opts.homNay ?? homNayVN()
   return dk.flatMap((d) => {
     if (d.truong in COT_CHON) return chon(COT_CHON[d.truong], d)
     if (d.truong === 'khan') return khan(d)
+    if (d.truong === 'bh') return baoHanh(d)
     if (d.truong === 'cs') return nguoi(d, opts.toiId)
     if (d.truong === 'tao') return ngay('created_at', d, homNay)
     if (d.truong === 'khach') return chu(['ten_kd'], d, true)

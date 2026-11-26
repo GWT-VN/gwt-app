@@ -28,7 +28,18 @@ describe('lib/loi/dongMay', () => {
     expect(tomTatMayTicket([
       { internal_code: 'CTS20NG', loi_code: 'A', loi_ten: 'Rò nước đáy', serial: null, source_serial: 'Z1' },
       { internal_code: null, loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại', serial: 'Z2', source_serial: 'Z2' },
-    ])).toEqual([{ nhan: 'CTS20NG · Rò nước đáy', serial: 'Z1', chuaPhanLoai: false }, { nhan: 'Chưa rõ máy · Chưa phân loại', serial: 'Z2', chuaPhanLoai: true }])
+    ])).toEqual([
+      { nhan: 'CTS20NG · Rò nước đáy', serial: 'Z1', chuaPhanLoai: false, loi_code: 'A', loi_ten: 'Rò nước đáy', internal_code: 'CTS20NG' },
+      { nhan: 'Chưa rõ máy · Chưa phân loại', serial: 'Z2', chuaPhanLoai: true, loi_code: CHUA_PHAN_LOAI, loi_ten: 'Chưa phân loại', internal_code: null },
+    ])
+  })
+  it('tóm tắt dòng máy: lỗi TÁCH khỏi máy (F) — tên lỗi, mã máy của dòng, id dòng', () => {
+    const [a, b] = tomTatMayTicket([
+      { id: 'd1', internal_code: 'GPUN-4000XEN-G', loi_code: 'E3', loi_ten: ' Báo lỗi E3 ', serial: 'S1', source_serial: 'S1' },
+      { internal_code: 'CTS20NG', loi_code: CHUA_PHAN_LOAI, loi_ten: null, serial: null, source_serial: null },
+    ])
+    expect([a.id, a.loi_ten, a.internal_code, a.loi_code]).toEqual(['d1', 'Báo lỗi E3', 'GPUN-4000XEN-G', 'E3'])
+    expect([b.id, b.loi_ten, b.nhan]).toEqual([undefined, 'Chưa phân loại', 'CTS20NG · Chưa phân loại'])
   })
   it('locLoiHopLe: mã hợp lệ giữ nguyên (chuẩn hoá), rỗng = không lọc, sai dạng = chặn', () => {
     expect(locLoiHopLe('')).toEqual({ loc: false })
