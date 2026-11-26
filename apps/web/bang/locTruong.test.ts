@@ -108,3 +108,17 @@ describe('nhãn chip (gọn kiểu Twenty)', () => {
     expect(nhanChip({ phep: 'khong-chua', giaTri: ['E3'] }, 'Máy', ten)).toEqual({ truoc: 'Máy: Không chứa', giaTri: 'E3' })
   })
 })
+
+describe('trường nhiều giá trị (người làm của một việc)', () => {
+  type V = { nguoi: string[] }
+  const T: TruongDuLieu<V>[] = [{ id: 'nguoi', kieu: 'nguoi', lay: (v) => v.nguoi }]
+  const R: V[] = [{ nguoi: ['a', 'b'] }, { nguoi: ['c'] }, { nguoi: [] }]
+  const so = (r: V[]) => r.map((v) => R.indexOf(v))
+  test('"là" = có ít nhất một người khớp; "Tôi" thay bằng người đăng nhập', () => {
+    expect(so(apLoc(R, [{ truong: 'nguoi', phep: 'la', giaTri: ['b'] }], T))).toEqual([0])
+    expect(so(apLoc(R, [{ truong: 'nguoi', phep: 'la', giaTri: [TOI, 'c'] }], T, { toi: 'a' }))).toEqual([0, 1])
+  })
+  test('"không là" = không người nào khớp (kể cả việc chưa giao)', () => {
+    expect(so(apLoc(R, [{ truong: 'nguoi', phep: 'khong-la', giaTri: ['a'] }], T))).toEqual([1, 2])
+  })
+})

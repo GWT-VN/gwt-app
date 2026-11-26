@@ -15,7 +15,7 @@ import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-
 import { MaCho, NutMoMa, NutMoTen } from '@/components/ui/list-view'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { cotDem, hangNhap as hangNhapBang } from '@/components/ui/table-styles'
-import { ColCotBang, TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
+import { ColCotBang, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { hienNgay, KIEU_NGAY_MAC_DINH, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
@@ -301,7 +301,7 @@ export function BangViec({
   c,
   sap,
   onSap,
-  loc,
+  moLoc,
   o,
   dongNhap,
 }: {
@@ -309,8 +309,8 @@ export function BangViec({
   c: ReturnType<typeof useCotBang>
   sap: Sap
   onSap: (s: Sap | null) => void
-  /** Lọc cột kiểu `loc` (Trạng thái). */
-  loc?: { tuyChon: MucLoc[]; daChon: string[]; onDoi: (gt: string[]) => void }
+  /** "Lọc…" trong menu tiêu đề cột → pop bộ lọc theo trường (bo-loc-truong) của cột đó; undefined = cột không lọc. */
+  moLoc?: (cotId: string) => { dang: boolean; onMo: (neo: HTMLElement) => void } | undefined
   o: (v: ViecXem, id: string, kieu?: KieuNgay) => ReactNode
   /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
   dongNhap?: (cotId: string) => ReactNode
@@ -342,7 +342,7 @@ export function BangViec({
                       }
                     : undefined
                 }
-                loc={x.kieu === 'loc' ? loc : undefined}
+                moLoc={moLoc?.(x.id)}
               />
             ))}
             <TableHead aria-hidden="true" className={cotDem} />

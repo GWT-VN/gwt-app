@@ -103,17 +103,36 @@ test('chọn 2 dòng → Đánh dấu xong gọi hangLoat một lượt, báo s�
   xong.mockRestore()
 })
 
-test('lọc team từ URL: chỉ việc thuộc team đó, chip "Team" có link bỏ; "Thêm team" ghi thêm id vào URL', async () => {
+test('lọc team từ URL (link cũ `?team=`): chỉ việc thuộc team đó, chip Team bỏ được; nút Lọc → Team → tick thêm', async () => {
   m.sp = new URLSearchParams('team=10')
   const user = userEvent.setup()
   man()
   expect(ma()).toEqual(['VIEC-1'])
   const chip = within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' }))
   expect(chip.getByText('Team A')).toBeTruthy()
-  expect(screen.getByRole('link', { name: 'Bỏ lọc Team' }).getAttribute('href')).toBe('/work/team')
-  await user.click(screen.getByRole('button', { name: 'Thêm team' }))
+  await user.click(screen.getByRole('button', { name: 'Bỏ lọc Team' }))
+  expect(m.replace).toHaveBeenLastCalledWith('/work/team', { scroll: false })
+  // Nút Lọc (phễu) thay "Thêm team" · "Thêm người" (CEO 26/11 "Thay bằng nút Lọc").
+  expect(screen.queryByRole('button', { name: 'Thêm team' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Thêm người' })).toBeNull()
+  await user.click(screen.getByRole('button', { name: 'Lọc' }))
+  await user.click(await screen.findByRole('option', { name: /^Team$/ }))
   await user.click(await screen.findByRole('option', { name: /Team B/ }))
-  expect(m.replace).toHaveBeenCalledWith('/work/team?team=10%2C20', { scroll: false })
+  expect(m.replace).toHaveBeenLastCalledWith('/work/team?team=10%2C20', { scroll: false })
+})
+
+test('trường lọc mới: Ưu tiên "là Gấp", Tiêu đề chứa, Người làm "Chưa giao" (chưa có ai)', () => {
+  m.sp = new URLSearchParams('uu=1')
+  const { unmount } = man()
+  expect(ma()).toEqual(['VIEC-1', 'VIEC-4'])
+  unmount()
+  m.sp = new URLSearchParams('ten=chua~demo 3')
+  const r2 = man()
+  expect(ma()).toEqual(['VIEC-3'])
+  r2.unmount()
+  m.sp = new URLSearchParams('nguoi=-')
+  man()
+  expect(ma()).toEqual(['VIEC-4', 'VIEC-3', 'VIEC-2'])
 })
 
 test('id team lạ trên URL bị bỏ qua (không lọc rỗng cả bảng)', () => {

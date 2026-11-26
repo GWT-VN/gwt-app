@@ -2,19 +2,22 @@
 
 /**
  * "Bảng team" v2 — ghép Data view DS theo canvas WorkBangTeam (CEO duyệt 23/11): DataViewToolbar (tìm bo tròn, + Việc
- * mới = mở dòng "+ Việc mới" tạo tại chỗ ở tab Mọi việc — CEO 25/11 bỏ hộp Tạo việc, tab Mọi người · Gấp, ⚙ + dạng xem) · FilterBar (chip điều kiện + "Thêm team" · "Thêm người") · Table /
- * ListView / KanbanBoard · thanh hàng loạt mặt nổi (`ThanhHangLoatViec`). Lọc / sắp / tab ở URL (docs/CHUAN-FILTER.md):
- * `tab`, `q`, `nguoi` (staff id, phẩy), `tt` (trạng thái, phẩy), `team` (team id, phẩy), `cot`/`chieu`. Dữ liệu + quyền
- * qua server action (app/work/actions.ts); lọc chạy trên các việc RPC đã cho xem. Ô / Table / Kanban: DangXemViec.
+ * mới = mở dòng "+ Việc mới" tạo tại chỗ ở tab Mọi việc — CEO 25/11 bỏ hộp Tạo việc, tab Mọi người · Gấp, ⚙ + dạng xem,
+ * nút Lọc theo trường) · FilterBar (chip điều kiện) · Table / ListView / KanbanBoard · thanh hàng loạt mặt nổi
+ * (`ThanhHangLoatViec`). Lọc / sắp / tab ở URL (docs/CHUAN-FILTER.md): `tab`, `q`, trường lọc `TRUONG_VIEC` (bang/locTruong),
+ * `cot`/`chieu`. Dữ liệu + quyền qua server action (app/work/actions.ts); lọc chạy trên các việc RPC đã cho xem. Ô / Table
+ * / Kanban: DangXemViec.
  *
  * ponytail: tab "Lâu không đụng" + cột "Cập nhật" chưa làm — `work_bang_team` chưa trả `updated_at`.
  */
 import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Plus, UserPlus, UsersThree } from '@phosphor-icons/react/ssr'
+import { Plus } from '@phosphor-icons/react/ssr'
 import { boDau, hrefBoLoc, KhungChon, OChonO, OTimKiem, ThanhDaChon, ThanhDangLoc } from '@/bang'
+import { apLoc, canGiaTri, docTatCa, ghiDieuKien, TOI, type DieuKienLoc, type TruongDuLieu } from '@/bang/locTruong'
 import type { NenTang, ViecTeamRow } from '@/app/work/actions'
+import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
@@ -24,10 +27,9 @@ import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/compon
 import { BangTrangThai } from '@/components/ui/table'
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type { MucLoc } from '@/components/ui/tieu-de-cot'
 import { useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanChip, soNgayToiHan } from '@/lib/work'
-import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT, type GiaTriNhap } from './chung'
+import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT, UU, type GiaTriNhap } from './chung'
 import {
   BangViec,
   COT_TEAM as COT,
@@ -41,7 +43,7 @@ import {
   useViecNhap,
   type Sap,
 } from './DangXemViec'
-import { ChonMuc, ThanhHangLoatViec } from './HangLoat'
+import { ThanhHangLoatViec } from './HangLoat'
 
 type Tab = 'moi' | 'gap' | 'lau'
 const TAB: { v: Tab; ten: string }[] = [
@@ -72,9 +74,27 @@ const chuoiTim = (v: ViecTeamRow) =>
       ...v.assignees.map((a) => a.ten),
     ].join(' '),
   )
-const dsUrl = (s: string | null) => (s ? s.split(',').filter(Boolean) : [])
-/** Khoá ô chọn team = TÊN: ComboboxPanel hiện `gt` làm cột mã khi khác `nhan` — mã kỹ thuật (`ky_thuat`) không cho người xem. */
-const gtTeam = (t: NenTang['teams'][number]) => t.name
+/** Giá trị "Chưa giao" của Người làm (mã người là uuid, không bao giờ là "-"). */
+const CHUA_GIAO = '-'
+/**
+ * Trường lọc (CEO 26/11, hỏi 2 nút "Thêm team" · "Thêm người": "Thay bằng nút Lọc") — cùng bộ lọc theo trường của ticket F.
+ * `id` = tham số URL. `nguoi` · `team` · `tt` giữ đúng tên + dạng giá trị của bộ lọc cũ (staff id / team id / mã trạng
+ * thái, phẩy) — ngữ pháp mới đọc chuỗi không tiền tố là "là" → link cũ `?nguoi=<id>`, `?team=<id>`, `?tt=…` ra đúng
+ * điều kiện, không cần đổi. Người làm = MỌI vai của việc (như lọc cũ), việc chưa giao = "Chưa giao".
+ * ponytail: lọc trên `rows` client đã nạp (work_bang_team trả hết việc được xem); danh sách lớn thì đẩy điều kiện xuống RPC.
+ */
+const TRUONG_VIEC: (TruongDuLieu<ViecTeamRow> & { ten: string })[] = [
+  { id: 'nguoi', ten: 'Người làm', kieu: 'nguoi', lay: (v) => (v.assignees.length ? v.assignees.map((a) => a.staff_id) : [CHUA_GIAO]) },
+  { id: 'team', ten: 'Team', kieu: 'chon', lay: (v) => (v.team_id == null ? null : String(v.team_id)) },
+  { id: 'tt', ten: 'Trạng thái', kieu: 'chon', lay: (v) => v.status },
+  { id: 'uu', ten: 'Ưu tiên', kieu: 'chon', lay: (v) => String(v.priority) },
+  { id: 'han', ten: 'Hạn', kieu: 'ngay', lay: (v) => v.due_at },
+  { id: 'cn', ten: 'Cập nhật', kieu: 'ngay', lay: (v) => v.touched_at },
+  { id: 'ten', ten: 'Tiêu đề', kieu: 'chu', lay: (v) => v.title },
+]
+const KHOA_TRUONG = TRUONG_VIEC.map((x) => x.id)
+/** Cột bảng → trường lọc ("Lọc…" trong menu tiêu đề cột). */
+const LOC_COT: Record<string, string> = { uu: 'uu', viec: 'ten', tt: 'tt', nguoi: 'nguoi', han: 'han', cn: 'cn' }
 
 export function BangTeam({
   rows,
@@ -97,7 +117,7 @@ export function BangTeam({
     xemViec.mo(id)
     onMo?.(id)
   }
-  const { options, idCua, tenCua, lamMoi, o } = useOViec(nenTang, moViec, c.doRong.nguoi)
+  const { tenCua, lamMoi, o } = useOViec(nenTang, moViec, c.doRong.nguoi)
   const themRef = useRef<DongThemRef>(null)
   // Bấm nút chính khi đang ở tab khác: đổi tab trước, dòng thêm dựng xong mới mở (ref, không setState trong effect).
   const moSau = useRef(false)
@@ -105,14 +125,21 @@ export function BangTeam({
   // ── URL → điều kiện ──
   const tab: Tab = TAB.find((t) => t.v === sp.get('tab'))?.v ?? 'moi'
   const q = sp.get('q') ?? ''
-  const nguoiLoc = dsUrl(sp.get('nguoi'))
-  const ttLoc = dsUrl(sp.get('tt')).filter((t) => TT.some((x) => x.gt === t))
-  const teamLoc = dsUrl(sp.get('team'))
-    .map(Number)
-    .filter((id) => nenTang.teams.some((t) => t.id === id))
+  // Mã lạ trên URL (team đã xoá, trạng thái gõ tay…) bị bỏ — như bộ lọc cũ: link hỏng không lọc rỗng cả bảng.
+  const hop: Record<string, (g: string) => boolean> = {
+    team: (g) => nenTang.teams.some((t) => String(t.id) === g),
+    tt: (g) => TT.some((x) => x.gt === g),
+    uu: (g) => UU.some((x) => x.gt === g),
+  }
+  const dk = docTatCa(sp, TRUONG_VIEC).flatMap((d) => {
+    const h = hop[d.truong]
+    if (!h || !canGiaTri(d.phep)) return [d]
+    const giaTri = d.giaTri.filter(h)
+    return giaTri.length ? [{ ...d, giaTri }] : []
+  })
   // "+ Việc mới" chỉ ở tab Mọi việc KHÔNG lọc: việc vừa tạo (mình là Chính, không team, Cần làm, chưa gấp/lâu) phải
   // hiện ngay — đang lọc người/trạng thái/team/từ khoá thì nó lọt khỏi màn sau toast "Đã tạo" (review 25/11).
-  const choThem = tab === 'moi' && !q && !nguoiLoc.length && !ttLoc.length && !teamLoc.length
+  const choThem = tab === 'moi' && !q && !dk.length
   const { cotUrl, sap } = docSap(sp, { cot: tab === 'gap' ? 'han' : tab === 'lau' ? 'cn' : 'uu', tang: true })
 
   const datUrl = (sua: Record<string, string | null>) => {
@@ -170,21 +197,13 @@ export function BangTeam({
   // ── Lọc + sắp ──
   const tim = boDau(q.trim())
   const nguon = { moi: rows, gap: rows.filter(laGap), lau: rows.filter(laLau) }
-  const dong = nguon[tab]
-    .filter(
-      (v) =>
-        (!tim || chuoiTim(v).includes(tim)) &&
-        (!nguoiLoc.length || v.assignees.some((a) => nguoiLoc.includes(a.staff_id))) &&
-        (!ttLoc.length || ttLoc.includes(v.status)) &&
-        (!teamLoc.length || (v.team_id != null && teamLoc.includes(v.team_id))),
-    )
+  const dong = apLoc(nguon[tab], dk, TRUONG_VIEC, { toi: nenTang.me?.id })
+    .filter((v) => !tim || chuoiTim(v).includes(tim))
     .sort(soSanh(sap))
   const thamSo = {
     tab,
     q: q || undefined,
-    nguoi: nguoiLoc.join(',') || undefined,
-    tt: ttLoc.join(',') || undefined,
-    team: teamLoc.join(',') || undefined,
+    ...Object.fromEntries(KHOA_TRUONG.map((k) => [k, sp.get(k) ?? undefined])),
     cot: cotUrl ?? undefined,
     chieu: cotUrl ? (sap.tang ? 'asc' : 'desc') : undefined,
     // Màn không phân trang → dòng nào biến khỏi màn (sửa tại chỗ sang Xong ở tab Gấp…) thì bỏ chọn hết, để thao tác
@@ -204,29 +223,38 @@ export function BangTeam({
       href: hrefBoLoc(pathname, sp, 'tab'),
     },
     q && { nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, sp, 'q') },
-    nguoiLoc.length > 0 && {
-      nhan: 'Người làm',
-      giaTri: nguoiLoc.map(tenCua).join(', '),
-      href: hrefBoLoc(pathname, sp, 'nguoi'),
-    },
-    ttLoc.length > 0 && {
-      nhan: 'Trạng thái',
-      giaTri: ttLoc.map((t) => TT.find((x) => x.gt === t)!.nhan).join(', '),
-      href: hrefBoLoc(pathname, sp, 'tt'),
-    },
-    teamLoc.length > 0 && {
-      nhan: 'Team',
-      giaTri: teamLoc.map((id) => nenTang.teams.find((t) => t.id === id)!.name).join(', '),
-      href: hrefBoLoc(pathname, sp, 'team'),
-    },
   ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
 
-  const tuyChonTt = TT.filter((t) => rows.some((v) => v.status === t.gt)).map((t) => ({
-    giaTri: t.gt,
-    nhan: t.nhan,
-    color: t.color as MucLoc['color'],
-  }))
-  const teamCon = nenTang.teams.filter((t) => !teamLoc.includes(t.id))
+  // ── Bộ lọc theo trường: giá trị chọn lấy từ dữ liệu CHƯA lọc (danh sách không co lại theo chính bộ lọc đang bật) ──
+  const dangChon = (id: string) => dk.find((d) => d.truong === id)?.giaTri ?? []
+  const idNguoi = [...new Set([...rows.flatMap((v) => v.assignees.map((a) => a.staff_id)), ...dangChon('nguoi')])]
+    .filter((id) => id !== CHUA_GIAO && id !== TOI)
+    .sort((a, b) => tenCua(a).localeCompare(tenCua(b), 'vi'))
+  const idTeam = [...new Set([...rows.flatMap((v) => (v.team_id == null ? [] : [String(v.team_id)])), ...dangChon('team')])]
+  const tenTeam = (id: string) =>
+    nenTang.teams.find((t) => String(t.id) === id)?.name ?? rows.find((v) => String(v.team_id) === id)?.team_name ?? id
+  const tuyChon: Record<string, TruongLoc['tuyChon']> = {
+    nguoi: [
+      ...idNguoi.map((id) => ({ giaTri: id, nhan: tenCua(id) })),
+      // "Chưa giao" cuối danh sách, chỉ khi có việc chưa giao (hoặc đang lọc theo nó).
+      ...(rows.some((v) => !v.assignees.length) || dangChon('nguoi').includes(CHUA_GIAO) ? [{ giaTri: CHUA_GIAO, nhan: 'Chưa giao' }] : []),
+    ],
+    team: idTeam.map((id) => ({ giaTri: id, nhan: tenTeam(id) })).sort((a, b) => a.nhan.localeCompare(b.nhan, 'vi')),
+    tt: TT.filter((t) => rows.some((v) => v.status === t.gt)).map((t) => ({ giaTri: t.gt, nhan: t.nhan })),
+    uu: UU.filter((u) => rows.some((v) => String(v.priority) === u.gt)).map((u) => ({ giaTri: u.gt, nhan: u.chu ?? u.gt })),
+  }
+  const truongLoc: TruongLoc[] = TRUONG_VIEC.map((x) => ({ id: x.id, ten: x.ten, kieu: x.kieu, tuyChon: tuyChon[x.id] }))
+  const datLoc = (id: string, d: DieuKienLoc | null) =>
+    datUrl({ [id]: ghiDieuKien(d, TRUONG_VIEC.find((x) => x.id === id)!.kieu) })
+  // Menu tiêu đề cột → "Lọc…" mở pop lọc của đúng trường; đã có chip → mở chip đó (như ticket F).
+  const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
+  const dieuKienLoc = [
+    ...dieuKien,
+    ...dk.map((d) => {
+      const x = truongLoc.find((y) => y.id === d.truong)!
+      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
+    }),
+  ]
 
   const cotDs: CotDanhSach<ViecTeamRow>[] = [
     {
@@ -285,7 +313,7 @@ export function BangTeam({
         tieuDe="Chưa có việc nào"
         moTa="Việc bạn được xem sẽ hiện ở đây. Tạo việc đầu tiên bằng nút + Việc mới."
       />
-    ) : dong.length === 0 && tab === 'lau' && dieuKien.length === 1 ? (
+    ) : dong.length === 0 && tab === 'lau' && dieuKienLoc.length === 1 ? (
       // Chỉ có điều kiện của tab → đây là tin TỐT, không phải "lọc sai".
       <BangTrangThai
         trangThai="rongThat"
@@ -323,7 +351,10 @@ export function BangTeam({
         c={c}
         sap={sap}
         onSap={datSap}
-        loc={{ tuyChon: tuyChonTt, daChon: ttLoc, onDoi: (gt) => datUrl({ tt: gt.join(',') || null }) }}
+        moLoc={(cot) => {
+          const id = LOC_COT[cot]
+          return id ? { dang: dk.some((d) => d.truong === id), onMo: (neo) => moLocTruong(id, neo) } : undefined
+        }}
         o={o}
         dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}
       />
@@ -352,7 +383,7 @@ export function BangTeam({
                   if (choThem) return themRef.current?.mo()
                   // Đổi về tab Mọi việc + bỏ lọc (giữ sắp xếp) để việc vừa tạo hiện ngay; dòng dựng xong mới mở.
                   moSau.current = true
-                  datUrl({ tab: null, q: null, nguoi: null, tt: null, team: null })
+                  datUrl({ tab: null, q: null, ...Object.fromEntries(KHOA_TRUONG.map((k) => [k, null])) })
                 }}
               >
                 <Plus aria-hidden="true" />
@@ -373,6 +404,7 @@ export function BangTeam({
                 </TabsList>
               </Tabs>
             }
+            loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
             caiDat={
               <CaiDatHienThi
                 dangXem={dangXem}
@@ -391,48 +423,13 @@ export function BangTeam({
           />
 
           <ThanhDangLoc
-            dieuKien={dieuKien}
+            dieuKien={dieuKienLoc}
             hienThi={dong.length}
             tong={rows.length}
             nhan="việc"
+            // Số "đang thấy x / y" đã ở cạnh tiêu đề (như ticket F — CEO 26/11 "bỏ vì thừa").
+            anSoDong
             sapXep={cotUrl ? { ...sap, macDinh: false } : undefined}
-            phai={
-              <>
-                {teamCon.length > 0 && (
-                  <ChonMuc
-                    nhan="Lọc theo team"
-                    side="bottom"
-                    goiY="Gõ tên team…"
-                    options={teamCon.map((t) => ({ gt: gtTeam(t), nhan: t.name }))}
-                    onChon={(m) => {
-                      const t = nenTang.teams.find((x) => gtTeam(x) === m.gt)
-                      if (t) datUrl({ team: [...teamLoc, t.id].join(',') })
-                    }}
-                    nut={
-                      <Button variant="outline" size="sm">
-                        <UsersThree aria-hidden="true" />
-                        Thêm team
-                      </Button>
-                    }
-                  />
-                )}
-                <ChonMuc
-                  nhan="Lọc theo người làm"
-                  side="bottom"
-                  options={options.filter((m) => !nguoiLoc.includes(idCua(m.gt) ?? ''))}
-                  onChon={(m) => {
-                    const id = idCua(m.gt)
-                    if (id) datUrl({ nguoi: [...nguoiLoc, id].join(',') })
-                  }}
-                  nut={
-                    <Button variant="outline" size="sm">
-                      <UserPlus aria-hidden="true" />
-                      Thêm người
-                    </Button>
-                  }
-                />
-              </>
-            }
           />
 
           <KhungChon

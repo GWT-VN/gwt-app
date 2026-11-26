@@ -15,8 +15,12 @@ import { boDau } from './timkiem'
 export type KieuTruong = 'chon' | 'nguoi' | 'ngay' | 'chu'
 export type PhepLoc = 'la' | 'khong-la' | 'trong' | 'co' | 'hom-nay' | 'khoang' | 'truoc' | 'sau' | 'chua' | 'khong-chua'
 export type DieuKienLoc = { truong: string; phep: PhepLoc; giaTri: string[] }
-/** Trường phía dữ liệu: `lay` trả giá trị thô (chọn/người = mã, ngày = 'YYYY-MM-DD' hoặc timestamp ISO, chữ = chuỗi). */
-export type TruongDuLieu<T> = { id: string; kieu: KieuTruong; lay: (r: T) => string | null | undefined }
+/**
+ * Trường phía dữ liệu: `lay` trả giá trị thô (chọn/người = mã, ngày = 'YYYY-MM-DD' hoặc timestamp ISO, chữ = chuỗi).
+ * Chọn/người nhiều giá trị (vd người làm của một việc) → mảng: "là" = có ÍT NHẤT một giá trị khớp, "không là" = không
+ * giá trị nào khớp, "trống" = mảng rỗng.
+ */
+export type TruongDuLieu<T> = { id: string; kieu: KieuTruong; lay: (r: T) => string | string[] | null | undefined }
 
 /** Giá trị đặc biệt "Tôi" của trường người — server thay bằng người đang đăng nhập (`apLoc` `toi`). */
 export const TOI = '@toi'
@@ -104,9 +108,11 @@ export function docTatCa(
 /** Ngày của giá trị thô: 'YYYY-MM-DD' giữ nguyên; timestamp → ngày theo giờ máy (không `toISOString()`). */
 const ngayCua = (v: string) => (v.length > 10 ? isoNgay(new Date(v)) : v.slice(0, 10))
 
-function khop(v: string, kieu: KieuTruong, d: DieuKienLoc, toi: string | undefined, homNay: Date): boolean {
-  if (d.phep === 'trong') return !v
-  if (d.phep === 'co') return !!v
+function khop(gt: string | string[], kieu: KieuTruong, d: DieuKienLoc, toi: string | undefined, homNay: Date): boolean {
+  const ds = (Array.isArray(gt) ? gt : [gt]).filter(Boolean)
+  if (d.phep === 'trong') return !ds.length
+  if (d.phep === 'co') return !!ds.length
+  const v = ds[0] ?? ''
   if (kieu === 'chu') {
     const co = boDau(v).includes(boDau(d.giaTri[0].trim()))
     return d.phep === 'chua' ? co : !co
@@ -118,7 +124,7 @@ function khop(v: string, kieu: KieuTruong, d: DieuKienLoc, toi: string | undefin
     if (d.phep === 'khoang') return n >= d.giaTri[0] && n <= d.giaTri[1]
     return d.phep === 'truoc' ? n < d.giaTri[0] : n >= d.giaTri[0]
   }
-  const co = d.giaTri.some((g) => (g === TOI ? toi : g) === v)
+  const co = d.giaTri.some((g) => ds.includes((g === TOI ? toi : g) ?? ''))
   return d.phep === 'la' ? co : !co
 }
 
