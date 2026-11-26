@@ -47,7 +47,7 @@ import {
 import { VungDoc } from './skeleton'
 import { KeoCtx, useOKeo } from './table'
 import * as s from './table-styles'
-import { laGhim, toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
+import { laGhim, RONG_O_CHON, toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
 
 /**
  * Câu đọc cho thao tác cột KHÔNG qua kéo (menu tiêu đề Dời trái/phải/Ẩn, nút "+" `ThemCot`): `KeoCot` giữ một vùng
@@ -458,13 +458,33 @@ export function useEscKhiKeo(dangKeo: boolean) {
   }, [dangKeo])
 }
 
+/**
+ * `<colgroup>` của bảng dùng `useCotBang` — học Twenty (`useResizeTableHeader`): MỌI cột, kể cả cột khoá đầu, rộng cố
+ * định theo `doRong`; một `<col>` CUỐI không đặt rộng = cột trống ăn phần dư của khung (cột "+" `ThemCot`, hoặc ô trống
+ * `cotDem`). Kéo tay co mép phải cột X → chỉ X đổi, các cột sau dời theo, mép tay co luôn dưới chuột; tổng vượt khung →
+ * bảng cuộn ngang (`<Table layout="fixed" style={{ minWidth: RONG_O_CHON + tongRong + <cột cuối> }}>`). KHÔNG để một cột
+ * thật "ăn phần dư": kéo cột khác thì cột đó co bù → mép trái cột đang kéo chạy ngược (CEO 26/11). Hàng tiêu đề và mọi
+ * hàng thân cần ô cuối tương ứng để kẻ ngang hết bề rộng.
+ */
+export function ColCotBang({ hien, doRong, chon = true }: { hien: CotBang[]; doRong: Record<string, number>; chon?: boolean }) {
+  return (
+    <colgroup>
+      {chon && <col style={{ width: RONG_O_CHON }} />}
+      {hien.map((x) => (
+        <col key={x.id} data-cot={x.id} style={{ width: doRong[x.id] }} />
+      ))}
+      <col data-cot-cuoi="" />
+    </colgroup>
+  )
+}
+
 const vaCham: CollisionDetection = (a) => {
   const tro = pointerWithin(a)
   return tro.length ? tro : closestCenter(a)
 }
 
 /**
- * KeoCot — bọc `<Table>` để kéo đổi chỗ cột (dnd-kit cổ điển, ruling R8): chuột kéo cả ô tiêu đề (nhích 4px mới tính
+ * KeoCot — bọc `<Table>` để kéo đổi chỗ cột (dnd-kit cổ điển, ruling R8): chuột kéo cả ô tiêu đề (nhích 8px mới tính
  * kéo — bấm thường vẫn mở menu), bàn phím Space nhấc · ←→ dời · Space/Enter thả · Esc huỷ. Cột nguồn mờ, vạch thả 2px
  * ring suốt chiều cao bảng: chuột theo nửa ô đang rê, phím theo hướng dời. Bóng kéo = thẻ nhỏ tên cột (`.b-keo-bong`).
  * `cot` = cột ĐANG HIỆN đúng thứ tự (`useCotBang().hien`), `doiCho` = `useCotBang().doiCho`.
@@ -487,7 +507,8 @@ export function KeoCot({
   const ketThuc = useRef(0)
   useEscKhiKeo(!!keo)
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    // 8px như Twenty: bấm gần mép mà lệch khỏi tay co dãn không thành kéo đổi chỗ cột (nền xám + vạch 2px) quá dễ.
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(CamBienPhimKeo, {
       coordinateGetter: sortableKeyboardCoordinates,
       // Enter để mở menu tiêu đề → chỉ Space nhấc; thả bằng Space/Enter/Tab.

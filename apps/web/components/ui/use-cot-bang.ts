@@ -33,6 +33,8 @@ export type CotBang =
   | (CotChung & { kieu: 'thuong'; nghia?: never })
 
 export const RONG_TOI_THIEU = 56
+/** Bề rộng cột ô chọn dòng (`OChonDong` / `OChonTatCa`) đầu bảng. */
+export const RONG_O_CHON = 36
 /** Bề rộng cột "+" (`ThemCot`) ở cuối hàng tiêu đề: nút icon-sm 28 + đệm ngang 6 × 2 của `.b-bang-c`. */
 export const RONG_THEM_COT = 40
 export type BenTha = 'trai' | 'phai'
@@ -145,6 +147,11 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     an: s.an,
     /** Cột đang hiện, đúng thứ tự. */
     hien,
+    /**
+     * Tổng bề rộng các cột đang hiện (chưa gồm ô chọn / cột cuối). Bảng `layout="fixed"` đặt `minWidth` = số này + phần
+     * cố định khác → vượt khung thì cuộn ngang. Dùng cùng `ColCotBang` (tieu-de-cot.tsx).
+     */
+    tongRong: hien.reduce((t, x) => t + s.doRong[x.id], 0),
     doiCho,
     /** Đặt độ rộng (px), kẹp ≥ tối thiểu của cột. */
     coDan: (id: string, rong: number) =>

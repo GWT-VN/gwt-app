@@ -93,6 +93,14 @@ mục "Lọc…" (Funnel) đầu menu, menu đóng xong mới gọi `onMo(nút t
 theo trường. Test `bo-loc-truong-cot.dom.test`. Khi đẩy lên artifact: preview Table thêm mục "Lọc…" đầu menu cột + README
 Table một dòng; không đổi `bundle.css`.
 
+Co dãn cột học Twenty (26/11, CEO: "sao interaction resize ngược thế?"): trước đây một cột thật (khách ở F, Việc ở Work)
+không đặt `<col>` rộng → ăn phần dư; kéo cột khác thì nó co bù, mép trái cột đang kéo chạy ngược, tay co không theo
+chuột. Giờ `ColCotBang` (`tieu-de-cot.tsx`): MỌI cột (kể cả cột khoá đầu, cũng co dãn được) rộng cố định theo `doRong`, một
+`<col>` CUỐI không đặt rộng ăn phần dư (F: cột "+"; Work: ô trống `cotDem` ở tiêu đề + mọi hàng); `Table minWidth =
+RONG_O_CHON + useCotBang().tongRong (+ cột cuối)` → vượt khung thì cuộn ngang. Đo 1440: kéo Máy +60 → chỉ Máy 184→244,
+cột sau dời +60, tâm tay co lệch chuột 0,2px. Ngưỡng kéo đổi chỗ cột (KeoCot) 4 → 8px như Twenty. Giữ tối thiểu 56 (Twenty
+104) — cột chỉ avatar/ưu tiên của DS hẹp hơn 104 có chủ đích. Không đổi `bundle.css` (artifact không có co dãn).
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ

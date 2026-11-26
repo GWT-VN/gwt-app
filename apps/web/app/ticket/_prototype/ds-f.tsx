@@ -26,9 +26,9 @@ import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { recordPickerLuuY } from '@/components/ui/inline-edit-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
+import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
-import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
+import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
@@ -167,13 +167,15 @@ const RONG_BANG_TOI_THIEU = 640
 
 // ── Bảng (L1) ───────────────────────────────────────────────────────────────────────────────────────────────────────
 // Cột theo DS (`CotBang`, useCotBang): thứ tự / độ rộng / ẩn ghi lên URL (`cot_thu_tu`, `cot_rong`, `cot_an`). Cột đầu
-// "Ticket · khách" khoá (không kéo, không ẩn) và ăn phần dư; `rong` của nó = sàn để tính bề rộng tối thiểu bảng.
+// "Ticket · khách" khoá (không kéo, không ẩn) nhưng co dãn được như mọi cột; phần dư của khung do cột "+" cuối ăn
+// (`ColCotBang`, học Twenty) — kéo tay co cột nào chỉ cột đó đổi.
 // Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
 const COT: CotBang[] = [
   // Đo 26/11 ở 1440 (bảng 963): cột khác vừa đủ nội dung + tiêu đề có mũi menu (Trạng thái: badge 66 / nhãn 57 + 20;
   // Hạn: "Quá 12 ngày" 76; Phụ trách: nhãn 54 + 20, ô chỉ avatar) → phần dư dồn cho cột khoá: tên khách có ~170px
-  // (trước 73). Mặc định 36 + 40 ("+") + 828 = 904 ≤ 963 → 1440 vẫn hiện Bảng; khung hẹp hơn thì cuộn ngang.
-  { id: 'khach', ten: 'Ticket · khách', rong: 240, kieu: 'thuong', khoa: true },
+  // (trước 73). Cột khách 296: 36 + 296 + 588 + 40 ("+") = 960 ≤ 963 → 1440 hiện Bảng không cuộn, tên khách có ~167px;
+  // khung hẹp hơn thì cuộn ngang.
+  { id: 'khach', ten: 'Ticket · khách', rong: 296, kieu: 'thuong', khoa: true },
   { id: 'may', ten: 'Máy · bảo hành', rong: 184, kieu: 'thuong' },
   { id: 'loi', ten: 'Loại lỗi', rong: 128, kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', rong: 96, kieu: 'loc' },
@@ -392,20 +394,14 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   ]
   const thamSoLoc = TRUONG_F.map((x) => x.id)
 
-  const tongRong = 36 + RONG_THEM_COT + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
+  const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT
   const [khungRef, rongKhung] = useRongKhung()
   const bang = (
     <TableWrap>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
         <Table layout="fixed" style={{ minWidth: tongRong }}>
-          <colgroup>
-            <col style={{ width: 36 }} />
-            {c.hien.map((x) => (
-              // Cột khoá (Ticket · khách) ăn phần dư.
-              <col key={x.id} style={x.khoa ? undefined : { width: c.doRong[x.id] }} />
-            ))}
-            <col style={{ width: RONG_THEM_COT }} />
-          </colgroup>
+          {/* Cột cuối (dưới ô "+") ăn phần dư của khung. */}
+          <ColCotBang hien={c.hien} doRong={c.doRong} />
           <TableHeader>
             <TableRow>
               <OChonTatCa nhan="ticket" />
@@ -416,7 +412,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                   viTri={j}
                   menuPhai={j === c.hien.length - 1}
                   // Cột cuối vẫn co dãn được: cột "+" phía sau đỡ tay co (không thò qua mép phải bảng).
-                  coDan={x.khoa ? undefined : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                  coDan={{ rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
                   menuCot={c.menuCot(x.id)}
                   sap={
                     x.kieu === 'sap'

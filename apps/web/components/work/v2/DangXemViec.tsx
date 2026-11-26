@@ -13,9 +13,9 @@ import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaNhap, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
 import { MaCho, NutMoMa, NutMoTen } from '@/components/ui/list-view'
-import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
-import { hangNhap as hangNhapBang } from '@/components/ui/table-styles'
-import { TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { cotDem, hangNhap as hangNhapBang } from '@/components/ui/table-styles'
+import { ColCotBang, TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
 import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type GiaTriNhap, type Uu } from './chung'
@@ -305,17 +305,11 @@ export function BangViec({
   /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
   dongNhap?: (cotId: string) => ReactNode
 }) {
-  const tongRong = 36 + c.hien.reduce((t, x) => t + c.doRong[x.id], 0)
   return (
     <TableWrap>
-      <Table layout="fixed" style={{ minWidth: tongRong }}>
-        <colgroup>
-          <col style={{ width: 36 }} />
-          {c.hien.map((x) => (
-            // Cột Việc ăn phần dư (canvas `<col>` không rộng).
-            <col key={x.id} style={x.id === 'viec' ? undefined : { width: c.doRong[x.id] }} />
-          ))}
-        </colgroup>
+      {/* Mọi cột rộng cố định (kể cả Việc), cột trống cuối ăn phần dư — kéo tay co cột nào chỉ cột đó đổi (học Twenty). */}
+      <Table layout="fixed" style={{ minWidth: 36 + c.tongRong }}>
+        <ColCotBang hien={c.hien} doRong={c.doRong} />
         <TableHeader>
           <TableRow>
             <OChonTatCa nhan="việc" />
@@ -325,12 +319,7 @@ export function BangViec({
                 cot={x}
                 viTri={i}
                 menuPhai={i === c.hien.length - 1}
-                // Cột cuối không có tay kéo: tay kéo thò 8px qua mép phải → khung bảng cuộn ngang 8px (đo 1440).
-                coDan={
-                  x.id === 'viec' || i === c.hien.length - 1
-                    ? undefined
-                    : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }
-                }
+                coDan={{ rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
                 sap={
                   x.kieu === 'sap'
                     ? {
@@ -342,6 +331,7 @@ export function BangViec({
                 loc={x.kieu === 'loc' ? loc : undefined}
               />
             ))}
+            <TableHead aria-hidden="true" className={cotDem} />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -352,6 +342,7 @@ export function BangViec({
                   {o(v, x.id)}
                 </TableCell>
               ))}
+              <TableCell aria-hidden="true" className={cotDem} />
             </DongBang>
           ))}
           {dongNhap && (
@@ -362,6 +353,7 @@ export function BangViec({
                   {dongNhap(x.id)}
                 </TableCell>
               ))}
+              <TableCell aria-hidden="true" className={cotDem} />
             </TableRow>
           )}
         </TableBody>
