@@ -63,7 +63,7 @@ khi bảng cuộn ngang — `thGhim`/`oGhim` + `CHON_BANG_GHIM` (`table-styles.t
 `--background` + màu trạng thái dòng qua biến `--nen-dong` mà `tr` đặt. Khi đẩy lên artifact: `bundle.css` thêm
 `.b-bang [data-ghim] { position: sticky; left: 0 }` (+ `left: 36px` khi bảng có `.b-cot-chon`, cột chọn cũng sticky
 `left: 0`, tiêu đề cột chọn z 30), nền `linear-gradient(var(--nen-dong), var(--nen-dong)), var(--background)`, và
-`--nen-dong` theo hover/chọn/đang trỏ trên `tr`; README Table thêm mục "Cột ghim"; chưa có bóng mép phải khi đang cuộn.
+`--nen-dong` theo hover/chọn/đang trỏ trên `tr`; README Table thêm mục "Cột ghim"; KHÔNG kẻ vạch dọc mép phải (CEO 26/11 bỏ vạch học từ Twenty — bảng DS chỉ kẻ ngang).
 
 Bộ lọc theo trường học hành vi Twenty (26/11, cùng spec mục D, dùng ở prototype ticket F): `NutLoc` + `ChipLoc`
 (`bo-loc-truong.tsx`), logic thuần `bang/locTruong.ts` (URL `[phép~]giá trị` — CHUAN-FILTER mục "Lọc theo trường").

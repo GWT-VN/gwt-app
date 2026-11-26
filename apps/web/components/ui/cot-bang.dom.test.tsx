@@ -288,8 +288,8 @@ describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang
     expect(oGhim).toContain('_&]:left-9')
     expect(oGhim).toContain('bg-background!')
     expect(oGhim).toContain('var(--nen-dong')
-    // Vạch mép phải luôn có, cùng token ở tiêu đề và ô thân.
-    for (const l of [thGhim, oGhim]) expect(l).toContain('border-r-(--alpha-08)')
+    // Không kẻ vạch dọc (CEO 26/11: bảng DS chỉ kẻ ngang).
+    for (const l of [thGhim, oGhim]) expect(l).not.toContain('border-r')
     expect(document.querySelectorAll('[data-ghim]')).toHaveLength(2)
     unmount()
     // Cột khoá bị cột khác vượt lên trước (kéo thả) → không còn là cột đầu, không ghim.

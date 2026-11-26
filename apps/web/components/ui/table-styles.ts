@@ -187,13 +187,9 @@ export const anChoReO =
  * `TieuDeCot` tự gắn, ô thân truyền `TableCell ghim`). Lệch trái 36 khi bảng có cột ô chọn (cột đó cũng dính — dùng
  * `CHON_BANG_GHIM`), không thì 0. Nền ĐỤC: `--background` + màu trạng thái dòng (`--nen-dong` của `tr`) vẽ đè — MỘT lớp,
  * không lộ ô đang cuộn bên dưới. Tiêu đề: z do `TieuDeCot` đặt (cột đầu cao nhất), ô thân z 1.
- * Mép phải: vạch 1px `--alpha-08` LUÔN hiện (như Twenty) ở cả tiêu đề lẫn ô thân — chữ cột đang cuộn bên dưới không
- * dính sát tên khách. Không đổi theo trạng thái cuộn (cần JS).
+ * Mép phải: KHÔNG kẻ vạch dọc — CEO 26/11 "bỏ mấy cái line lẫn từ Twenty, giữ UI như cũ" (bảng DS chỉ kẻ ngang).
  */
-const ghimTrai = cn(
-  'sticky left-0 [table:has(>thead>tr>th:first-child>input[type=checkbox])_&]:left-9',
-  'border-r [border-style:none_solid_solid_none] border-r-(--alpha-08)',
-)
+const ghimTrai = 'sticky left-0 [table:has(>thead>tr>th:first-child>input[type=checkbox])_&]:left-9'
 const nenDuc = 'bg-background! bg-[image:linear-gradient(var(--nen-dong,transparent),var(--nen-dong,transparent))]!'
 export const thGhim = ghimTrai
 export const oGhim = cn(ghimTrai, 'z-1', nenDuc)
