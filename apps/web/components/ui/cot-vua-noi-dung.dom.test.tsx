@@ -219,3 +219,11 @@ test('định dạng ngày theo cột (CEO 26/11 "cho phép chọn định dạn
   expect(docUrlCot(sp, COT_NGAY).ngay).toEqual({ tao: 'gio' })
   expect(docUrlCot(new URLSearchParams('cot_ngay=tao:xx,tao:ngay-thang'), COT_NGAY).ngay).toEqual({})
 })
+
+test('mặc định ngày riêng từng cột (ngayMacDinh): không ghi URL khi bằng mặc định của cột; chọn dd/MM thì ghi', () => {
+  const COT_CN: CotBang[] = [...COT, { id: 'cn', ten: 'Cập nhật', kieu: 'thuong', ngay: true, ngayMacDinh: 'tuong-doi' }]
+  const md = docUrlCot(new URLSearchParams(''), COT_CN)
+  expect(ghiUrlCot(new URLSearchParams(''), { ...md, ngay: { cn: 'tuong-doi' } }, COT_CN).get('cot_ngay')).toBeNull()
+  expect(ghiUrlCot(new URLSearchParams(''), { ...md, ngay: { cn: 'ngay-thang' } }, COT_CN).get('cot_ngay')).toBe('cn:ngay-thang')
+  expect(docUrlCot(new URLSearchParams('cot_ngay=cn:ngay-thang'), COT_CN).ngay).toEqual({ cn: 'ngay-thang' })
+})

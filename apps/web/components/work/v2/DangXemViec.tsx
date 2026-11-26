@@ -57,6 +57,8 @@ export const COT_TEAM: CotBang[] = [
     kieu: 'sap',
     phai: true,
     ngay: true,
+    // CEO 26/11 "Để Tương đối": cột lần cuối động vào đọc theo khoảng cách (3 ngày trước) dễ hơn ngày.
+    ngayMacDinh: 'tuong-doi',
     nghia: { tang: 'Lâu nhất trước', giam: 'Mới nhất trước' },
   },
 ]

@@ -16,7 +16,8 @@ import { KIEU_NGAY_MAC_DINH, laKieuNgay, type KieuNgay } from '@/lib/dinh-dang-n
  * không ẩn · `anMacDinh` = ẩn sẵn (bật lại trong ⚙ → Cột hiển thị hoặc nút "+" `ThemCot`) · `phai` = căn phải (số, hạn) ·
  * `icon` = icon đứng trước tên ở danh sách chọn cột (`ThemCot`), không bắt buộc · `ngay` = cột hiện NGÀY → menu tiêu đề có
  * "Định dạng ngày" (CEO 26/11 "cho phép chọn định dạng date ở ô label cột"); ô đọc `useCotBang().kieuNgay(id)` rồi gọi
- * `hienNgay(v, kieu)` (lib/dinh-dang-ngay), URL `cot_ngay=tao:gio` (chỉ ghi cột khác mặc định dd/MM).
+ * `hienNgay(v, kieu)` (lib/dinh-dang-ngay), URL `cot_ngay=tao:gio` (chỉ ghi cột khác mặc định) · `ngayMacDinh` = kiểu
+ * mặc định riêng của cột (vd Cập nhật = 'tuong-doi', CEO 26/11 "Để Tương đối"); không khai = dd/MM của toàn app.
  */
 export type NghiaSap = {
   /** Câu nói nghĩa chiều tăng dần của giá trị, vd "Gần hạn nhất trước" — không ghi "Tăng dần". */
@@ -34,6 +35,7 @@ type CotChung = {
   phai?: boolean
   icon?: ReactNode
   ngay?: boolean
+  ngayMacDinh?: KieuNgay
 }
 export type CotBang =
   | (CotChung & { kieu: 'sap'; nghia: NghiaSap })
@@ -65,6 +67,7 @@ export type MenuCot = {
 export type NgayCot = { kieu: KieuNgay; onDoi: (k: KieuNgay) => void }
 
 export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
+const ngayMd = (c: CotBang | undefined) => c?.ngayMacDinh ?? KIEU_NGAY_MAC_DINH
 /** Cột GHIM trái khi bảng cuộn ngang: cột `khoa` đứng ĐẦU hàng (vị trí 0 trong `hien`) — như cột nhãn của Twenty. */
 export const laGhim = (c: CotBang, viTri: number) => !!c.khoa && viTri === 0
 
@@ -131,7 +134,8 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
   const ngay: Record<string, KieuNgay> = {}
   for (const cap of (sp.get(P_NGAY) ?? '').split(',')) {
     const [id, k] = cap.split(':')
-    if (theoId.get(id)?.ngay && k && laKieuNgay(k) && k !== KIEU_NGAY_MAC_DINH) ngay[id] = k
+    const c = theoId.get(id)
+    if (c?.ngay && k && laKieuNgay(k) && k !== ngayMd(c)) ngay[id] = k
   }
   return { thuTu, keoTay, an, ngay }
 }
@@ -149,7 +153,7 @@ export function ghiUrlCot(sp: URLSearchParams, s: TrangThaiCot, cot: CotBang[]):
   const an = [...s.an].sort().join(',')
   dat(P_AN, an === [...md.an].sort().join(',') ? null : an)
   const ngay = Object.entries(s.ngay)
-    .filter(([id, k]) => k !== KIEU_NGAY_MAC_DINH && cot.some((c) => c.id === id && c.ngay))
+    .filter(([id, k]) => cot.some((c) => c.id === id && c.ngay && k !== ngayMd(c)))
     .map(([id, k]) => `${id}:${k}`)
   dat(P_NGAY, ngay.length ? ngay.join(',') : null)
   return ra
@@ -368,10 +372,10 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     /** "Định dạng ngày" cho tiêu đề cột `id` (`TieuDeCot ngay`); cột không phải cột ngày → `undefined`. */
     ngayCot: (id: string): NgayCot | undefined =>
       cot.find((c) => c.id === id)?.ngay
-        ? { kieu: s.ngay[id] ?? KIEU_NGAY_MAC_DINH, onDoi: (k) => setS((t) => ({ ...t, ngay: { ...t.ngay, [id]: k } })) }
+        ? { kieu: s.ngay[id] ?? ngayMd(cot.find((c) => c.id === id)), onDoi: (k) => setS((t) => ({ ...t, ngay: { ...t.ngay, [id]: k } })) }
         : undefined,
     /** Định dạng ngày đang chọn của cột `id` (mặc định dd/MM) — ô gọi `hienNgay(v, c.kieuNgay(id))`. */
-    kieuNgay: (id: string): KieuNgay => s.ngay[id] ?? KIEU_NGAY_MAC_DINH,
+    kieuNgay: (id: string): KieuNgay => s.ngay[id] ?? ngayMd(cot.find((c) => c.id === id)),
   }
 }
 export type CotBangState = ReturnType<typeof useCotBang>
