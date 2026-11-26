@@ -1,5 +1,9 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { syncCatalogNow, type CatalogSyncLog } from '@/app/actions'
@@ -39,36 +43,33 @@ export function NutDongBoCatalog({ logs }: { logs: CatalogSyncLog[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 flex-wrap">
-        <button onClick={chay} disabled={busy}
-          className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-medium disabled:opacity-50">
-          {busy ? 'Đang đồng bộ…' : '⟳ Đồng bộ catalog ngay'}
-        </button>
-        <span className="text-xs text-slate-500">Tự chạy hàng ngày 02:00 (giờ VN). Nút này để chạy ngay khi cần.</span>
+        <Button onClick={chay} loading={busy}>
+          {busy ? 'Đang đồng bộ…' : 'Đồng bộ catalog ngay'}
+        </Button>
+        <span className="text-xs text-muted-foreground">Tự chạy hàng ngày 02:00 (giờ VN). Nút này để chạy ngay khi cần.</span>
       </div>
-      {ok && <p className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">{ok}</p>}
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
+      {ok && <Alert color="success"><AlertDescription>{ok}</AlertDescription></Alert>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
 
       <div>
-        <h2 className="text-sm font-medium text-slate-700 mb-2">Nhật ký gần đây</h2>
+        <h2 className="text-sm font-medium text-foreground mb-2">Nhật ký gần đây</h2>
         {logs.length === 0 ? (
-          <p className="text-sm text-slate-400">Chưa có lần chạy nào.</p>
+          <p className="text-sm text-muted-foreground">Chưa có lần chạy nào.</p>
         ) : (
           <ul className="divide-y border rounded-lg">
             {logs.map((l) => (
               <li key={l.id} className="px-3 py-2.5 text-sm flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className={l.ok ? 'text-emerald-700' : 'text-red-600'}>
-                    {l.ok ? '✓ OK' : '✗ Lỗi'}
-                  </span>
-                  <span className="text-slate-500 ml-2">{khiNao(l.chay_luc)}</span>
-                  {l.thong_bao && <div className="text-xs text-amber-700 mt-0.5">{l.thong_bao}</div>}
+                  <Badge color={l.ok ? 'success' : 'danger'}>{l.ok ? 'Thành công' : 'Lỗi'}</Badge>
+                  <span className="text-muted-foreground ml-2">{khiNao(l.chay_luc)}</span>
+                  {l.thong_bao && <div className="text-xs text-(--color-text-warning) mt-0.5">{l.thong_bao}</div>}
                   {l.chi_tiet && (
-                    <div className="font-mono text-xs text-slate-500 mt-0.5 truncate">
+                    <div className="font-mono text-xs text-muted-foreground mt-0.5 break-all">
                       {JSON.stringify(l.chi_tiet)}
                     </div>
                   )}
                 </div>
-                {l.ms != null && <span className="text-xs text-slate-400 flex-none">{l.ms}ms</span>}
+                {l.ms != null && <span className="text-xs text-muted-foreground flex-none">{l.ms}ms</span>}
               </li>
             ))}
           </ul>

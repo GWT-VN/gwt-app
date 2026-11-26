@@ -1,5 +1,11 @@
 'use client'
 
+import { Card } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+
 import { useState, useTransition } from 'react'
 import { moiNhanSu } from '@/lib/nen-tang/nhan-su'
 import { MatKhauVuaCap } from './MatKhauVuaCap'
@@ -35,60 +41,59 @@ export function MoiNhanSu() {
   }
 
   return (
-    <div className="bg-white rounded-xl border p-4 space-y-3">
+    <Card className="space-y-3">
       <div>
-        <p className="font-medium text-slate-900">Mời người ngoài @gwt.vn</p>
-        <p className="text-sm text-slate-500">
+        <p className="font-medium text-foreground">Mời người ngoài @gwt.vn</p>
+        <p className="text-sm text-muted-foreground">
           Dành cho cộng tác viên lắp đặt và người dùng email cá nhân. Hệ thống tạo luôn tài khoản
           kèm <b>mật khẩu ban đầu</b> hiện ngay dưới đây để bạn gửi cho họ; lần đăng nhập đầu họ
           bắt buộc tự đổi. Gõ sai email là mời nhầm người lạ — kiểm lại trước khi bấm.
         </p>
       </div>
 
-      {loi && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{loi}</p>}
-      {xong && <p className="text-sm text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2">{xong}</p>}
-      {ghiChu && <p className="text-sm text-slate-700 bg-slate-100 rounded-lg px-3 py-2">{ghiChu}</p>}
+      {loi && <Alert color="danger"><AlertDescription>{loi}</AlertDescription></Alert>}
+      {xong && <Alert color="success"><AlertDescription>{xong}</AlertDescription></Alert>}
+      {ghiChu && <Alert color="info"><AlertDescription>{ghiChu}</AlertDescription></Alert>}
       {capMk && <MatKhauVuaCap email={capMk.email} matKhau={capMk.matKhau} />}
 
-      <input
+      <Input
+        aria-label="Email người được mời"
         type="email"
         value={email}
         disabled={dangChay}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="ctv.nam@gmail.com"
-        className="w-full max-w-80 rounded-lg border px-3 py-2 text-slate-900"
+        className="w-full max-w-80"
       />
 
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {VAI_TRO_MOI_DUOC.map((v) => (
-          <label key={v} className="inline-flex items-center gap-1.5 text-sm text-slate-800 cursor-pointer select-none">
-            <input
-              type="checkbox"
+          <label key={v} className="inline-flex items-center gap-1.5 text-sm text-foreground cursor-pointer select-none">
+            <Checkbox
               checked={chon.includes(v)}
               disabled={dangChay}
-              onChange={() =>
+              onCheckedChange={() =>
                 setChon((truoc) =>
                   truoc.includes(v)
                     ? truoc.filter((x) => x !== v)
                     : apDungLoaiTruCapBac([...truoc, v])
                 )
               }
-              className="rounded border-slate-300"
             />
             {NHAN_VAI_TRO[v]}
-            <span className="text-xs text-slate-400">({NHAN_BO_PHAN[HO_SO_VAI_TRO[v].boPhan]})</span>
+            <span className="text-xs text-muted-foreground">({NHAN_BO_PHAN[HO_SO_VAI_TRO[v].boPhan]})</span>
           </label>
         ))}
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={gui}
-        disabled={dangChay || !email.trim() || chon.length === 0}
-        className="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm disabled:opacity-40"
+        loading={dangChay}
+        disabled={!email.trim() || chon.length === 0}
       >
         {dangChay ? 'Đang thêm…' : 'Mời vào hệ thống'}
-      </button>
-    </div>
+      </Button>
+    </Card>
   )
 }

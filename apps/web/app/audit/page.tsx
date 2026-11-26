@@ -1,3 +1,10 @@
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { BangTrangThai, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { auditLog } from '@/app/actions'
@@ -42,56 +49,53 @@ export default async function AuditPage({
   const conNua = rows.length === soDong
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4">
-        <header className="flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-slate-900">Nhật ký thao tác</h1>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="space-y-4">
+        <PageHeader tieuDe="Nhật ký thao tác" />
 
-        <p className="text-sm bg-sky-50 text-sky-900 rounded-lg px-3 py-2">
+        <Alert color="info"><AlertDescription>
           Vết mọi thao tác nhạy cảm: duyệt/kích hoạt/sửa/xoá + chi tiết. Đang hiện {rows.length} dòng gần nhất.
-        </p>
+        </AlertDescription></Alert>
 
         {rows.length === 0 ? (
-          <p className="text-sm text-slate-400">Chưa có thao tác nào được ghi.</p>
+          <BangTrangThai trangThai="rongThat" tieuDe="Chưa có thao tác nào được ghi." />
         ) : (
-          <div className="bg-white rounded-xl border overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-slate-600">
-                <tr>
-                  <th className="text-left px-3 py-3 font-medium whitespace-nowrap">Lúc</th>
-                  <th className="text-left px-3 py-3 font-medium">Người</th>
-                  <th className="text-left px-3 py-3 font-medium">Hành động</th>
-                  <th className="text-left px-3 py-3 font-medium">Đối tượng</th>
-                  <th className="text-left px-3 py-3 font-medium">Chi tiết</th>
-                  <th className="text-left px-3 py-3 font-medium">Kết quả</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
+          <TableWrap vien>
+            <Table variant="thuong" className="min-w-[700px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">Lúc</TableHead>
+                  <TableHead scope="col">Người</TableHead>
+                  <TableHead scope="col">Hành động</TableHead>
+                  <TableHead scope="col">Đối tượng</TableHead>
+                  <TableHead scope="col">Chi tiết</TableHead>
+                  <TableHead scope="col">Kết quả</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {rows.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50 align-top">
-                    <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{khiNao(r.luc)}</td>
-                    <td className="px-3 py-2 text-slate-700 whitespace-nowrap">{r.actor ?? '—'}</td>
-                    <td className="px-3 py-2 text-slate-900 whitespace-nowrap">{nhanHanhDong(r.hanh_dong)}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-slate-500 break-all">{r.doi_tuong ?? '—'}</td>
-                    <td className="px-3 py-2 font-mono text-[11px] text-slate-500 break-all max-w-md">{chiTiet(r.chi_tiet)}</td>
-                    <td className="px-3 py-2">
-                      <span className={r.ket_qua === 'ok' ? 'text-emerald-700' : 'text-red-600'}>{r.ket_qua}</span>
-                    </td>
-                  </tr>
+                  <TableRow key={r.id} className="align-top">
+                    <TableCell className="text-muted-foreground whitespace-nowrap">{khiNao(r.luc)}</TableCell>
+                    <TableCell className="text-foreground whitespace-nowrap">{r.actor ?? '—'}</TableCell>
+                    <TableCell className="text-foreground whitespace-nowrap">{nhanHanhDong(r.hanh_dong)}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground break-all">{r.doi_tuong ?? '—'}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground whitespace-normal break-all max-w-md">{chiTiet(r.chi_tiet)}</TableCell>
+                    <TableCell>
+                      <Badge color={r.ket_qua === 'ok' ? 'success' : 'danger'}>{r.ket_qua}</Badge>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </TableWrap>
         )}
 
         {conNua && (
-          <Link href={`/audit?n=${soDong + 300}`}
-            className="inline-block rounded-lg border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-            Xem thêm 300 dòng
-          </Link>
+          <Button asChild variant="outline">
+            <Link href={`/audit?n=${soDong + 300}`}>Xem thêm 300 dòng</Link>
+          </Button>
         )}
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

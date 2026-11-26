@@ -1,3 +1,7 @@
+import { Card } from '@/components/ui/card'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { chanNeuThieuQuyen, coQuyenHienNut } from '@/lib/nen-tang/kiem-quyen'
 import { listKhachChoDuyet, listYeuCauThayDoi, listYeuCauExport } from '@/app/actions'
 import { KhachChoDuyetList } from '@/components/KhachChoDuyetList'
@@ -16,30 +20,28 @@ export default async function DuyetPage() {
   ])
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
-        <header className="flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-slate-900">Chờ duyệt</h1>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="space-y-4">
+        <PageHeader tieuDe="Chờ duyệt" />
 
-        <section className="space-y-2">
-          <h2 className="font-medium text-slate-900">Khách mới ({khachCho.length})</h2>
-          <p className="text-xs text-slate-400">Khách do CS tạo, chờ duyệt để chính thức.</p>
+        <Card className="space-y-2">
+          <h2 className="font-medium text-foreground">Khách mới ({khachCho.length})</h2>
+          <p className="text-xs text-muted-foreground">Khách do CS tạo, chờ duyệt để chính thức.</p>
           <KhachChoDuyetList items={khachCho} />
-        </section>
+        </Card>
 
-        <section className="space-y-2">
-          <h2 className="font-medium text-slate-900">Yêu cầu sửa/xoá ({yeuCau.length})</h2>
-          <p className="text-xs text-slate-400">CS đề xuất sửa/xoá khách · SĐT phụ · lịch thay lõi · máy đã lắp. Duyệt là áp thật.</p>
+        <Card className="space-y-2">
+          <h2 className="font-medium text-foreground">Yêu cầu sửa/xoá ({yeuCau.length})</h2>
+          <p className="text-xs text-muted-foreground">CS đề xuất sửa/xoá khách · SĐT phụ · lịch thay lõi · máy đã lắp. Duyệt là áp thật.</p>
           <DuyetList items={yeuCau} />
-        </section>
+        </Card>
 
-        <section className="space-y-2">
-          <h2 className="font-medium text-slate-900">Yêu cầu xuất có SĐT/địa chỉ ({yeuCauExport.length})</h2>
-          <p className="text-xs text-slate-400">Duyệt xong người gửi mới tải được bản có PII.</p>
+        <Card className="space-y-2">
+          <h2 className="font-medium text-foreground">Yêu cầu xuất có SĐT/địa chỉ ({yeuCauExport.length})</h2>
+          <p className="text-xs text-muted-foreground">Duyệt xong người gửi mới tải được bản có PII.</p>
           <DuyetExportList items={yeuCauExport} />
-        </section>
-      </div>
-    </main>
+        </Card>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

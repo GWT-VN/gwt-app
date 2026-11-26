@@ -1,3 +1,8 @@
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { BangLechQuyen } from '@/components/BangLechQuyen'
@@ -13,51 +18,48 @@ export default async function PhanQuyenPage() {
   const lamLuat = maTranDangLamLuat()
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-full mx-auto p-4 sm:p-6 space-y-4">
-        <header className="space-y-1">
-          <Link href="/nhan-vien" className="text-sm text-slate-500 hover:text-slate-800">
-            ← Nhân viên
-          </Link>
-          <h1 className="text-xl font-semibold text-slate-900">Phân quyền theo vai trò</h1>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="space-y-4">
+        <PageHeader tieuDe="Phân quyền theo vai trò"
+          duongDan={<Button asChild variant="ghost"><Link href="/nhan-vien">← Nhân viên</Link></Button>}
+        />
 
         {lamLuat ? (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-900 space-y-1">
-            <p className="font-medium">⚡ Ma trận ĐANG LÀ LUẬT THẬT — bỏ tick một ô là người đó mất việc đó ngay.</p>
-            <p>
+          <Alert color="danger">
+            <AlertTitle>⚡ Ma trận ĐANG LÀ LUẬT THẬT — bỏ tick một ô là người đó mất việc đó ngay.</AlertTitle>
+            <AlertDescription>
               Không còn chạy thử. Muốn quay về luật cũ thì đặt biến môi trường
               <code className="mx-1 text-[11px]">MA_TRAN_QUYEN=off</code> rồi khởi động lại — mất khoảng một
               phút, không cần deploy lại.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900 space-y-1">
-            <p className="font-medium">Ma trận đang CHẠY THỬ — tick ở đây chưa đổi quyền thật của ai.</p>
-            <p>
+          <Alert color="warning">
+            <AlertTitle>Ma trận đang CHẠY THỬ — tick ở đây chưa đổi quyền thật của ai.</AlertTitle>
+            <AlertDescription>
               Luật quyết định hiện vẫn là luật cũ trong code. Bảng này được lưu lại và
               đối chiếu, để anh chỉnh cho đúng ý trước khi bật làm luật thật. Bật rồi thì mỗi ô
               bỏ tick là một người mất một việc — nên chỉnh xong hãy báo.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           {QUYEN.length} việc trong app, gom từ 149 thao tác thật. Cột <b>Quản trị</b> khoá cứng
           toàn quyền — bỏ tick là khoá chết chính màn hình này. Kéo ngang để thấy hết vai trò;
           cột việc luôn dính bên trái. Di chuột vào tên cột để xem tên vai trò đầy đủ.
         </p>
 
         <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-slate-900">Lệch — ma trận nói khác luật đang chạy</h2>
+          <h2 className="text-lg font-semibold text-foreground">Lệch — ma trận nói khác luật đang chạy</h2>
           <BangLechQuyen ds={lech} />
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-slate-900">Ma trận</h2>
+          <h2 className="text-lg font-semibold text-foreground">Ma trận</h2>
           <MaTranQuyen maTran={maTran} />
         </section>
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

@@ -1,5 +1,10 @@
 'use client'
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+
 import { useRef, useState, useTransition } from 'react'
 import {
   capMatKhauMoi, demThamChieuNhanSu, doiTenNhanVien, guiLaiMatKhau, suaNhanVien, xoaNhanSu,
@@ -109,95 +114,88 @@ export function BangNhanVien({
     <div className="space-y-2">
       {mkVuaCap && <MatKhauVuaCap email={mkVuaCap.email} matKhau={mkVuaCap.matKhau} />}
 
-      <div className="bg-white rounded-xl border overflow-x-auto">
-        <table className="text-sm border-separate border-spacing-0">
-          <thead className="text-slate-600">
-            <tr className="bg-slate-100">
-              <th className={`${GHIM} bg-slate-100 text-left px-3 py-2 font-medium border-b`}>Người</th>
+      <TableWrap vien tabIndex={0} aria-label="Nhân viên theo bộ phận">
+        <Table variant="thuong" aria-label="Nhân viên theo bộ phận">
+          <TableHeader className="text-muted-foreground">
+            <TableRow className="bg-muted">
+              <TableHead className={`${GHIM} bg-muted text-left px-3 py-2 font-medium border-b`}>Người</TableHead>
               {NHOM.map((n) => (
-                <th
+                <TableHead
                   key={n.boPhan}
                   colSpan={n.vaiTro.length}
                   className="px-2 py-1.5 text-xs font-medium border-b border-l text-center whitespace-nowrap"
                 >
                   {NHAN_BO_PHAN[n.boPhan]}
-                </th>
+                </TableHead>
               ))}
-              <th className="px-3 py-2 font-medium border-b border-l text-left">Trạng thái</th>
-            </tr>
-            <tr className="bg-slate-50">
-              <th className={`${GHIM} bg-slate-50 border-b`} />
+              <TableHead className="px-3 py-2 font-medium border-b border-l text-left">Trạng thái</TableHead>
+            </TableRow>
+            <TableRow className="bg-muted/70">
+              <TableHead className={`${GHIM} bg-muted/70 border-b`} />
               {VAI_TRO.map((v) => (
-                <th
+                <TableHead
                   key={v}
                   title={NHAN_VAI_TRO[v]}
-                  className="px-2 py-1.5 text-[11px] font-normal text-slate-500 border-b border-l text-center whitespace-nowrap"
+                  className="px-2 py-1.5 text-[11px] font-normal text-muted-foreground border-b border-l text-center whitespace-nowrap"
                 >
                   {TEN_COT[v]}
-                </th>
+                </TableHead>
               ))}
-              <th className="border-b border-l" />
-            </tr>
-          </thead>
+              <TableHead className="border-b border-l" />
+            </TableRow>
+          </TableHeader>
 
-          <tbody>
+          <TableBody>
             {ds.map((nv) => {
               const vaiTro = vaiTroCua(nv)
               const dangChay = dangLuu[nv.id] ?? false
-              const nen = nv.hoat_dong ? 'bg-white' : 'bg-slate-50'
+              const nen = nv.hoat_dong ? 'bg-card' : 'bg-muted/70'
               return (
-                <tr
+                <TableRow
                   key={nv.id}
-                  className={`${nen} ${nv.hoat_dong ? '' : 'text-slate-400'} ${dangChay ? 'opacity-70' : ''}`}
+                  className={`${nen} ${nv.hoat_dong ? '' : 'text-muted-foreground'} ${dangChay ? 'opacity-70' : ''}`}
                 >
-                  <td className={`${GHIM} ${nen} px-3 py-2 border-b align-top`}>
-                    <input
+                  <TableCell className={`${GHIM} ${nen} px-3 py-2 border-b align-top`}>
+                    <Input
+                      aria-label={`Tên nhân viên ${nv.email ?? nv.ten}`}
                       defaultValue={nv.ten}
                       disabled={dangChay}
                       onBlur={(e) => {
                         const t = e.target.value.trim()
                         if (t && t !== nv.ten) luu(nv.id, null, () => doiTenNhanVien(nv.id, t))
                       }}
-                      className="w-44 rounded-lg border px-2 py-1 text-slate-900"
+                      className="w-44"
                     />
-                    <div className="text-[11px] font-mono text-slate-500 mt-0.5 truncate max-w-44">
-                      {nv.email ?? <span className="text-amber-600">chưa có email</span>}
-                      {nv.id === toiId && <span className="ml-1 text-slate-400">← bạn</span>}
+                    <div className="text-[11px] font-mono text-muted-foreground mt-0.5 truncate max-w-44">
+                      {nv.email ?? <span className="text-(--color-text-warning)">chưa có email</span>}
+                      {nv.id === toiId && <span className="ml-1 text-muted-foreground">← bạn</span>}
                     </div>
                     {vaiTro.length === 0 && (
-                      <div className="text-[11px] text-amber-600">chưa gán vai trò</div>
+                      <div className="text-[11px] text-(--color-text-warning)">chưa gán vai trò</div>
                     )}
                     {loi[nv.id] && (
-                      <div className="text-[11px] text-red-600 mt-0.5 max-w-44">{loi[nv.id]}</div>
+                      <div className="text-[11px] text-(--color-text-danger) mt-0.5 max-w-44">{loi[nv.id]}</div>
                     )}
-                  </td>
+                  </TableCell>
 
                   {VAI_TRO.map((v) => (
-                    <td key={v} className="px-2 py-2 border-b border-l text-center">
-                      <input
-                        type="checkbox"
+                    <TableCell key={v} className="px-2 py-2 border-b border-l text-center">
+                      <Checkbox
                         aria-label={`${nv.email ?? nv.ten} — ${NHAN_VAI_TRO[v]}`}
                         checked={vaiTro.includes(v)}
-                        onChange={() => tick(nv, v)}
-                        className="rounded border-slate-300"
+                        onCheckedChange={() => tick(nv, v)}
                       />
-                    </td>
+                    </TableCell>
                   ))}
 
-                  <td className="px-3 py-2 border-b border-l whitespace-nowrap space-y-1">
-                    <button
-                      type="button"
+                  <TableCell className="px-3 py-2 border-b border-l whitespace-nowrap space-y-1">
+                    <Button
+                      type="button" variant={nv.hoat_dong ? 'outline' : 'secondary'} size="sm"
                       disabled={dangChay}
                       onClick={() => luu(nv.id, null, () => suaNhanVien(nv.id, { hoat_dong: !nv.hoat_dong }))}
-                      className={
-                        'rounded-lg border px-3 py-1 disabled:opacity-50 ' +
-                        (nv.hoat_dong
-                          ? 'text-emerald-700 border-emerald-200 hover:bg-emerald-50'
-                          : 'text-slate-500 hover:bg-slate-100')
-                      }
                     >
                       {nv.hoat_dong ? 'Đang hoạt động' : 'Đã khoá'}
-                    </button>
+                    </Button>
                     <div>
                       <button
                         type="button"
@@ -211,7 +209,7 @@ export function BangNhanVien({
                             return r
                           })
                         }}
-                        className="text-[11px] text-slate-500 underline hover:text-slate-800 disabled:opacity-40 disabled:no-underline"
+                        className="text-[11px] text-muted-foreground underline hover:text-foreground disabled:opacity-40 disabled:no-underline"
                       >
                         gửi lại mật khẩu
                       </button>
@@ -233,7 +231,7 @@ export function BangNhanVien({
                               return r
                             })
                           }}
-                          className="text-[11px] text-slate-500 underline hover:text-slate-800 disabled:opacity-40 disabled:no-underline"
+                          className="text-[11px] text-muted-foreground underline hover:text-foreground disabled:opacity-40 disabled:no-underline"
                         >
                           cấp mật khẩu mới
                         </button>
@@ -243,7 +241,7 @@ export function BangNhanVien({
                     {choXoa && nv.id !== toiId && (
                       <div>
                         {hoiXoa[nv.id] ? (
-                          <span className="text-[11px] text-red-700">
+                          <span className="text-[11px] text-(--color-text-danger)">
                             Xoá hẳn?{' '}
                             <button
                               type="button" disabled={dangChay}
@@ -263,7 +261,7 @@ export function BangNhanVien({
                             <button
                               type="button"
                               onClick={() => setHoiXoa((h) => ({ ...h, [nv.id]: false }))}
-                              className="underline text-slate-500"
+                              className="underline text-muted-foreground"
                             >
                               huỷ
                             </button>
@@ -289,7 +287,7 @@ export function BangNhanVien({
                                 return { ok: true }
                               })
                             }}
-                            className="text-[11px] text-red-600 underline hover:text-red-800 disabled:opacity-40 disabled:no-underline"
+                            className="text-[11px] text-(--color-text-danger) underline hover:text-(--color-text-danger) disabled:opacity-40 disabled:no-underline"
                           >
                             xoá
                           </button>
@@ -298,17 +296,17 @@ export function BangNhanVien({
                     )}
 
                     {xong[nv.id] && (
-                      <div className="text-[11px] text-emerald-700">{xong[nv.id]}</div>
+                      <div className="text-[11px] text-(--color-text-success)">{xong[nv.id]}</div>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableWrap>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         Kéo ngang để thấy hết bộ phận — cột người luôn dính bên trái. Di chuột vào tên cột để xem
         tên vai trò đầy đủ. Trong cùng một bộ phận, ô bạn <b>vừa bấm</b> là ô thắng: đang Trưởng CSKH
         mà bấm NV CSKH thì thành nhân viên. Khoá một người là họ mất đường vào ngay lần tải trang kế
@@ -316,7 +314,7 @@ export function BangNhanVien({
       </p>
 
       {choXoa && (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-muted-foreground">
           <b>Khoá</b> và <b>xoá</b> khác nhau: khoá là chặn đường vào, mọi ticket và việc của họ còn
           nguyên — dùng cho người nghỉ việc. Xoá là bỏ hẳn khỏi hệ thống, <b>chỉ làm được khi họ chưa
           có dữ liệu gì</b>, dành đúng cho ca gõ nhầm email lúc mời. Xoá thì mất luôn cả tài khoản

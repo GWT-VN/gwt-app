@@ -1,5 +1,11 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { duyetYeuCau, duyetNhieuYeuCau, tuChoiYeuCau, type YeuCauThayDoi } from '@/app/actions'
@@ -39,6 +45,7 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
   // kind quyết định màu: thành công toàn bộ (emerald), có phần lỗi (amber),
   // thất bại toàn bộ (red) — để người dùng nhận ra kết quả mà không cần đọc số.
   const [msg, setMsg] = useState<{ text: string; kind: 'ok' | 'partial' | 'fail' } | null>(null)
+  const [xacNhan, setXacNhan] = useState(false)
   const [chon, setChon] = useState<Set<string>>(new Set())
 
   // Danh sách items đổi sau mỗi lần duyệt (đơn lẻ hoặc hàng loạt), có thể còn id
@@ -64,10 +71,9 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
 
   async function duyetHangLoat() {
     const ids = [...chonHopLe]
-    if (!window.confirm(`Duyệt ${ids.length} yêu cầu đã chọn? Thao tác này áp thay đổi thật lên dữ liệu.`)) return
-    setBusy('hangloat'); setErr(null); setMsg(null)
     const r = await duyetNhieuYeuCau(ids)
-    setBusy(null)
+    setErr(null)
+    setMsg(null)
     // Không xoá lựa chọn ở đây: duyetNhieuYeuCau chỉ trả số lượng + thông điệp lỗi,
     // không trả id nào lỗi, nên không thể biết chính xác mục nào vẫn còn "cho_duyet".
     // Cứ để nguyên `chon` — mục đã duyệt xong sẽ tự rớt khỏi `items` sau router.refresh(),
@@ -80,68 +86,69 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
     router.refresh()
   }
 
-  if (!items.length) return <p className="text-sm text-slate-400">Không có yêu cầu sửa/xoá nào chờ duyệt.</p>
+  if (!items.length) return <p className="text-sm text-muted-foreground">Không có yêu cầu sửa/xoá nào chờ duyệt.</p>
   return (
     <div className="space-y-2">
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
       {msg && (
-        <p className={
-          'text-sm rounded-lg px-3 py-2 ' +
-          (msg.kind === 'ok' ? 'text-emerald-700 bg-emerald-50'
-            : msg.kind === 'fail' ? 'text-red-600 bg-red-50' : 'text-amber-800 bg-amber-50')
-        }>{msg.text}</p>
+        <Alert color={msg.kind === 'ok' ? 'success' : msg.kind === 'fail' ? 'danger' : 'warning'}>
+          <AlertDescription>{msg.text}</AlertDescription>
+        </Alert>
       )}
       {items.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap text-sm">
-          <label className="flex items-center gap-1.5 text-slate-600">
-            <input type="checkbox"
-              checked={chonHopLe.size === items.length && items.length > 0}
-              onChange={(e) => setChon(e.target.checked ? new Set(items.map((x) => x.id)) : new Set())} />
+          <label className="flex items-center gap-1.5 text-muted-foreground">
+            <Checkbox
+              checked={chonHopLe.size === items.length}
+              onCheckedChange={(checked) => setChon(checked ? new Set(items.map((x) => x.id)) : new Set())} />
             Chọn tất cả ({items.length})
           </label>
           {chonHopLe.size > 0 && (
-            <button disabled={busy !== null} onClick={duyetHangLoat}
-              className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 font-medium disabled:opacity-50">
+            <Button size="sm" disabled={busy !== null} onClick={() => setXacNhan(true)}>
               Duyệt {chonHopLe.size} mục đã chọn
-            </button>
+            </Button>
           )}
         </div>
       )}
       <ul className="divide-y border rounded-lg">
         {items.map((y) => (
           <li key={y.id} className="px-3 py-2.5 flex items-start justify-between gap-3">
-            <input type="checkbox" checked={chon.has(y.id)} onChange={() => doiChon(y.id)} className="mt-1" />
+            <Checkbox checked={chonHopLe.has(y.id)} onCheckedChange={() => doiChon(y.id)}
+              aria-label={`Chọn yêu cầu ${NHAN_BANG[y.doi_tuong] ?? y.doi_tuong} của ${y.nguoi_gui ?? 'người gửi không rõ'}`} className="mt-1" />
             <div className="min-w-0 text-sm flex-1">
-              <div className="text-slate-900">
-                <span className={
-                  'text-[10px] font-medium px-1.5 py-0.5 rounded mr-1.5 ' +
-                  // Gộp khách ẩn mềm + dời dữ liệu 5 bảng — không đảo ngược dễ dàng như SỬA,
-                  // nên xếp cùng màu "nguy hiểm" với XOÁ thay vì màu SỬA trung tính.
-                  (y.loai === 'xoa' || y.loai === 'gop' ? 'bg-red-100 text-red-700'
-                    : y.loai === 'doi_serial' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-700')
-                }>{NHAN_LOAI[y.loai] ?? y.loai}</span>
+              <div className="text-foreground">
+                <Badge className="mr-1.5" color={y.loai === 'xoa' || y.loai === 'gop' ? 'danger' : y.loai === 'doi_serial' ? 'warning' : 'info'}>
+                  {NHAN_LOAI[y.loai] ?? y.loai}
+                </Badge>
                 {NHAN_BANG[y.doi_tuong] ?? y.doi_tuong}
               </div>
-              <div className="text-slate-600 mt-0.5 break-words">{tomTat(y)}</div>
+              <div className="text-muted-foreground mt-0.5 break-words">{tomTat(y)}</div>
               {/* Với gop, ly_do đã hiện làm dòng tóm tắt chính ở trên — không lặp lại nhỏ xám bên dưới. */}
-              {y.ly_do && y.loai !== 'gop' && <div className="text-xs text-slate-400 mt-0.5">{y.ly_do}</div>}
-              <div className="text-[11px] text-slate-400 mt-0.5">
+              {y.ly_do && y.loai !== 'gop' && <div className="text-xs text-muted-foreground mt-0.5">{y.ly_do}</div>}
+              <div className="text-[11px] text-muted-foreground mt-0.5">
                 {y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}
               </div>
             </div>
             <div className="flex gap-2 flex-none">
-              <button onClick={() => lam(y.id, true)} disabled={busy !== null}
-                className="rounded-lg bg-emerald-600 text-white px-3 py-1 text-xs font-medium disabled:opacity-50">
+              <Button size="sm" onClick={() => lam(y.id, true)} disabled={busy !== null}>
                 {busy === y.id ? '…' : 'Duyệt'}
-              </button>
-              <button onClick={() => lam(y.id, false)} disabled={busy !== null}
-                className="rounded-lg border px-3 py-1 text-xs text-slate-600 disabled:opacity-50">
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => lam(y.id, false)} disabled={busy !== null}>
                 Từ chối
-              </button>
+              </Button>
             </div>
           </li>
         ))}
       </ul>
+      <ConfirmDialog
+        open={xacNhan}
+        onOpenChange={setXacNhan}
+        tieuDe={`Duyệt ${chonHopLe.size} yêu cầu đã chọn?`}
+        moTa="Thao tác này áp thay đổi thật lên dữ liệu."
+        nutXacNhan="Duyệt yêu cầu"
+        khoaXacNhan={chonHopLe.size === 0}
+        onXacNhan={duyetHangLoat}
+      />
     </div>
   )
 }

@@ -1,5 +1,10 @@
 'use client'
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Button } from '@/components/ui/button'
+
 import { Fragment, useRef, useState, useTransition } from 'react'
 import { datLaiVaiTro, datQuyen } from '@/lib/nen-tang/ma-tran'
 import {
@@ -64,92 +69,89 @@ export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
 
   return (
     <div className="space-y-2">
-      {loi && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{loi}</p>}
+      {loi && <Alert color="danger"><AlertDescription>{loi}</AlertDescription></Alert>}
 
-      <div className="bg-white rounded-xl border overflow-x-auto">
-        <table className="text-sm border-separate border-spacing-0">
-          <thead>
-            <tr className="bg-slate-100">
-              <th className={`${GHIM} bg-slate-100 text-left px-3 py-2 font-medium border-b`}>
+      <TableWrap vien tabIndex={0} aria-label="Ma trận quyền">
+        <Table variant="thuong" aria-label="Ma trận quyền">
+          <TableHeader>
+            <TableRow className="bg-muted">
+              <TableHead className={`${GHIM} bg-muted text-left px-3 py-2 font-medium border-b`}>
                 Được làm gì
-              </th>
+              </TableHead>
               {VAI_TRO.map((v) => (
-                <th
+                <TableHead
                   key={v}
                   title={`${NHAN_VAI_TRO[v]} · ${NHAN_BO_PHAN[HO_SO_VAI_TRO[v].boPhan]}`}
                   className="px-2 py-2 text-[11px] font-medium border-b border-l text-center whitespace-nowrap"
                 >
                   {TEN_COT[v]}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
+            </TableRow>
+          </TableHeader>
 
-          <tbody>
+          <TableBody>
             {NHOM_QUYEN.map(({ nhom, ds }) => (
               <Fragment key={nhom}>
-                  <tr className="bg-slate-50">
-                    <td
-                      className={`${GHIM} bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 border-b`}
+                  <TableRow className="bg-muted/70">
+                    <TableCell
+                      className={`${GHIM} bg-muted/70 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b`}
                     >
                       {NHAN_NHOM[nhom]}
-                    </td>
-                    <td colSpan={VAI_TRO.length} className="border-b border-l bg-slate-50" />
-                  </tr>
+                    </TableCell>
+                    <TableCell colSpan={VAI_TRO.length} className="border-b border-l bg-muted/70" />
+                  </TableRow>
                   {ds.map((q) => (
-                    <tr key={q} className="bg-white hover:bg-slate-50">
-                      <td className={`${GHIM} bg-white px-3 py-1.5 border-b`}>
-                        <div className="text-slate-800">{HO_SO_QUYEN[q].nhan}</div>
-                        <div className="text-[10px] font-mono text-slate-400">{q}</div>
-                      </td>
+                    <TableRow key={q} className="bg-card hover:bg-muted/70">
+                      <TableCell className={`${GHIM} bg-card px-3 py-1.5 border-b`}>
+                        <div className="text-foreground">{HO_SO_QUYEN[q].nhan}</div>
+                        <div className="text-[10px] font-mono text-muted-foreground">{q}</div>
+                      </TableCell>
                       {VAI_TRO.map((v) =>
                         // Cột Quản trị: vẽ dấu tích đặc thay vì ô khoá. Ô checkbox bị
                         // disabled render mờ tới mức đọc nhầm thành "không có quyền".
                         v === 'admin' ? (
-                          <td
+                          <TableCell
                             key={v}
                             title="Quản trị hệ thống luôn có toàn quyền"
-                            className="px-2 py-1.5 border-b border-l text-center bg-slate-100 text-slate-500"
+                            className="px-2 py-1.5 border-b border-l text-center bg-muted text-muted-foreground"
                           >
                             ✓
-                          </td>
+                          </TableCell>
                         ) : (
-                          <td key={v} className="px-2 py-1.5 border-b border-l text-center">
-                            <input
-                              type="checkbox"
+                          <TableCell key={v} className="px-2 py-1.5 border-b border-l text-center">
+                            <Checkbox
                               aria-label={`${NHAN_VAI_TRO[v]} — ${HO_SO_QUYEN[q].nhan}`}
                               checked={coQuyen(v, q)}
-                              onChange={() => tick(v, q)}
-                              className="rounded border-slate-300"
+                              onCheckedChange={() => tick(v, q)}
                             />
-                          </td>
+                          </TableCell>
                         )
                       )}
-                    </tr>
+                    </TableRow>
                   ))}
               </Fragment>
             ))}
 
-            <tr className="bg-slate-50">
-              <td className={`${GHIM} bg-slate-50 px-3 py-2 text-xs text-slate-500 border-t`}>
+            <TableRow className="bg-muted/70">
+              <TableCell className={`${GHIM} bg-muted/70 px-3 py-2 text-xs text-muted-foreground border-t`}>
                 Trả vai trò về mặc định
-              </td>
+              </TableCell>
               {VAI_TRO.map((v) => (
-                <td key={v} className="px-1 py-2 border-t border-l text-center">
-                  <button
+                <TableCell key={v} className="px-1 py-2 border-t border-l text-center">
+                  <Button variant="ghost" size="sm"
                     type="button"
                     disabled={v === 'admin'}
                     onClick={() => datLai(v)}
-                    className="text-[11px] text-slate-500 underline hover:text-slate-800 disabled:opacity-30 disabled:no-underline"
                   >
                     đặt lại
-                  </button>
-                </td>
+                  </Button>
+                </TableCell>
               ))}
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableWrap>
     </div>
   )
 }

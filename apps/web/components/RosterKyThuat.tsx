@@ -1,5 +1,12 @@
 'use client'
 
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -105,29 +112,28 @@ export function RosterKyThuat({
     router.refresh()
   }
 
-  const oInput = 'rounded-lg border px-2.5 py-1.5 text-sm'
 
   return (
     <div className="space-y-3">
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
 
       {/* Thêm mới */}
-      <div className="bg-white rounded-xl border p-4 space-y-2">
-        <p className="text-sm font-medium text-slate-800">Thêm kỹ thuật</p>
+      <Card className="space-y-2">
+        <p className="text-sm font-medium text-foreground">Thêm kỹ thuật</p>
         <div className="flex flex-wrap gap-2">
-          <input value={ten} onChange={(e) => setTen(e.target.value)} placeholder="Tên" className={oInput} />
-          <input value={sdt} onChange={(e) => setSdt(e.target.value)} placeholder="SĐT" className={oInput} />
-          <input value={vung} onChange={(e) => setVung(e.target.value)} placeholder="Vùng (vd: bắc/nam)" className={oInput} />
+          <Input value={ten} onChange={(e) => setTen(e.target.value)} aria-label="Tên" placeholder="Tên" className="w-full sm:w-40" />
+          <Input value={sdt} onChange={(e) => setSdt(e.target.value)} aria-label="SĐT" placeholder="SĐT" className="w-full sm:w-40" />
+          <Input value={vung} onChange={(e) => setVung(e.target.value)} aria-label="Vùng (vd: bắc/nam)" placeholder="Vùng (vd: bắc/nam)" className="w-full sm:w-40" />
           {/* Tỉnh phụ trách — dùng ô gõ-để-tìm chung `ChonTinh` (64 tỉnh, luật CEO chốt 22/08).
               KHÁC ô "Vùng" bên cạnh: vùng chỉ để tính lịch tránh ngày nghỉ, tỉnh để điều phối. */}
-          <ChonTinh value={tinh} onChange={setTinh} className={`${oInput} bg-white min-w-44`} />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (để cấp đăng nhập)" className={`${oInput} min-w-56`} />
-          <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={ctv} onChange={(e) => setCtv(e.target.checked)} /> CTV</label>
-          <button onClick={them} disabled={busy === 'them' || !!trungTen} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{busy === 'them' ? '…' : khoiPhuc ? 'Khôi phục' : 'Thêm'}</button>
+          <ChonTinh value={tinh} onChange={setTinh} className="rounded-(--radius-md) border px-3 py-1.5 text-sm bg-card w-full sm:w-44" />
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email (để cấp đăng nhập)" placeholder="Email (để cấp đăng nhập)" className="w-full sm:w-56" />
+          <label className="flex items-center gap-1.5 text-sm text-muted-foreground"><Checkbox checked={ctv} onCheckedChange={(checked) => setCtv(checked === true)} /> CTV</label>
+          <Button size="sm" onClick={them} disabled={busy === 'them' || !!trungTen}>{busy === 'them' ? '…' : khoiPhuc ? 'Khôi phục' : 'Thêm'}</Button>
         </div>
-        {trungTen && <p className="text-xs text-amber-700">Đã có <strong>{trungTen.ten}</strong> trong danh sách.</p>}
-        {khoiPhuc && <p className="text-xs text-slate-600"><strong>{khoiPhuc.ten}</strong> đã xoá trước đây. Bấm Khôi phục để đưa lại hồ sơ cũ (ô nào điền sẽ cập nhật).</p>}
-      </div>
+        {trungTen && <p className="text-xs text-(--color-text-warning)">Đã có <strong>{trungTen.ten}</strong> trong danh sách.</p>}
+        {khoiPhuc && <p className="text-xs text-muted-foreground"><strong>{khoiPhuc.ten}</strong> đã xoá trước đây. Bấm Khôi phục để đưa lại hồ sơ cũ (ô nào điền sẽ cập nhật).</p>}
+      </Card>
 
       {/* Danh sách */}
       <ul className="space-y-2">
@@ -136,56 +142,56 @@ export function RosterKyThuat({
           const dangSua = suaId === k.id
           const nTk = soTicket[k.id] ?? 0
           return (
-            <li key={k.id} className="bg-white rounded-xl border p-3">
+            <li key={k.id}><Card>
               {xoaId === k.id ? (
                 <XacNhanXoa ten={k.ten} soTicket={nTk} soLichHen={soLichHen[k.id] ?? 0} coTaiKhoan={!!tt?.hoat_dong}
                   nguoiNhan={dangDung.filter((y) => y.id !== k.id)} busy={busy === k.id}
                   onXoa={(nhan) => xoa(k.id, nhan)} onHuy={() => setXoaId(null)} />
               ) : dangSua ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  <input value={eTen} onChange={(e) => setETen(e.target.value)} placeholder="Tên" className={oInput} />
-                  <input value={eSdt} onChange={(e) => setESdt(e.target.value)} placeholder="SĐT" className={oInput} />
-                  <input value={eVung} onChange={(e) => setEVung(e.target.value)} placeholder="Vùng" className={oInput} />
-                  <ChonTinh value={eTinh} onChange={setETinh} className={`${oInput} bg-white min-w-44`} />
-                  <input value={eEmail} onChange={(e) => setEEmail(e.target.value)} placeholder="Email" className={`${oInput} min-w-56`} />
-                  <label className="flex items-center gap-1.5 text-sm text-slate-600"><input type="checkbox" checked={eCtv} onChange={(e) => setECtv(e.target.checked)} /> CTV</label>
-                  <button onClick={() => luuSua(k.id)} disabled={busy === k.id} className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm disabled:opacity-50">Lưu</button>
-                  <button onClick={() => setSuaId(null)} className="text-sm text-slate-500 underline">Huỷ</button>
+                  <Input value={eTen} onChange={(e) => setETen(e.target.value)} aria-label="Tên" placeholder="Tên" className="w-full sm:w-40" />
+                  <Input value={eSdt} onChange={(e) => setESdt(e.target.value)} aria-label="SĐT" placeholder="SĐT" className="w-full sm:w-40" />
+                  <Input value={eVung} onChange={(e) => setEVung(e.target.value)} aria-label="Vùng" placeholder="Vùng" className="w-full sm:w-40" />
+                  <ChonTinh value={eTinh} onChange={setETinh} className="rounded-(--radius-md) border px-3 py-1.5 text-sm bg-card w-full sm:w-44" />
+                  <Input value={eEmail} onChange={(e) => setEEmail(e.target.value)} aria-label="Email" placeholder="Email" className="w-full sm:w-56" />
+                  <label className="flex items-center gap-1.5 text-sm text-muted-foreground"><Checkbox checked={eCtv} onCheckedChange={(checked) => setECtv(checked === true)} /> CTV</label>
+                  <Button size="sm" onClick={() => luuSua(k.id)} disabled={busy === k.id}>Lưu</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setSuaId(null)}>Huỷ</Button>
                 </div>
               ) : (
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
-                    <span className="text-sm font-medium text-slate-900">{k.ten}</span>
-                    {k.la_ctv && <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-700">CTV</span>}
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <span className="text-sm font-medium text-foreground">{k.ten}</span>
+                    {k.la_ctv && <Badge className="ml-1.5" color="info">CTV</Badge>}
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {[k.sdt, k.vung, k.tinh, k.email].filter(Boolean).join(' · ') || '—'}
                     </div>
                     {choTaiKhoanKT && (
                       <div className="mt-1 text-xs">
                         {tt?.hoat_dong
-                          ? <span className="text-emerald-700">● Có tài khoản đăng nhập</span>
+                          ? <span className="text-(--color-text-success)">● Có tài khoản đăng nhập</span>
                           : k.email
-                            ? <span className="text-slate-400">○ Chưa cấp đăng nhập</span>
-                            : <span className="text-slate-400">Thêm email để cấp đăng nhập</span>}
+                            ? <span className="text-muted-foreground">○ Chưa cấp đăng nhập</span>
+                            : <span className="text-muted-foreground">Thêm email để cấp đăng nhập</span>}
                         {matKhau?.id === k.id && (
-                          <span className="ml-2 text-amber-700">Mật khẩu tạm: <code className="font-mono bg-amber-50 px-1 rounded select-all">{matKhau.mk}</code> (đưa cho kỹ thuật, chỉ hiện 1 lần)</span>
+                          <span className="ml-2 text-(--color-text-warning)">Mật khẩu tạm: <code className="font-mono bg-(--color-background-warning-surface) px-1 rounded select-all">{matKhau.mk}</code> (đưa cho kỹ thuật, chỉ hiện 1 lần)</span>
                         )}
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 flex-none">
-                    <span className="text-xs text-slate-500">{nTk} ticket đang mở</span>
-                    {choTaiKhoanKT && k.email && !tt?.hoat_dong && <button onClick={() => cap(k.id)} disabled={busy === k.id} className="text-xs text-sky-700 underline">cấp đăng nhập</button>}
-                    {choTaiKhoanKT && tt?.hoat_dong && <button onClick={() => thu(k.id)} disabled={busy === k.id} className="text-xs text-amber-700 underline">thu quyền</button>}
-                    <button onClick={() => moSua(k)} className="text-xs text-slate-600 underline">sửa</button>
-                    <button onClick={() => { setErr(null); setXoaId(k.id) }} disabled={busy === k.id} className="text-xs text-red-600 underline">xoá</button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{nTk} ticket đang mở</span>
+                    {choTaiKhoanKT && k.email && !tt?.hoat_dong && <Button size="sm" variant="ghost" onClick={() => cap(k.id)} disabled={busy === k.id}>cấp đăng nhập</Button>}
+                    {choTaiKhoanKT && tt?.hoat_dong && <Button size="sm" variant="ghost" onClick={() => thu(k.id)} disabled={busy === k.id}>thu quyền</Button>}
+                    <Button size="sm" variant="ghost" onClick={() => moSua(k)}>sửa</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setErr(null); setXoaId(k.id) }} disabled={busy === k.id}>xoá</Button>
                   </div>
                 </div>
               )}
-            </li>
+            </Card></li>
           )
         })}
-        {dangDung.length === 0 && <li className="text-sm text-slate-400">Chưa có kỹ thuật nào.</li>}
+        {dangDung.length === 0 && <li className="text-sm text-muted-foreground">Chưa có kỹ thuật nào.</li>}
       </ul>
     </div>
   )

@@ -1,12 +1,15 @@
 'use client'
 
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { themNguoi, xoaNguoi, type NguoiQuanTri } from '@/app/ticket/nguoi-actions'
 import { chuanTenNguoi, DAI_TOI_DA_TEN } from '@/lib/loi/nguoiTicket'
 import { XacNhanXoa } from './XacNhanXoa'
-
-const nut = 'rounded-lg border px-2.5 py-1 text-sm disabled:opacity-50'
 
 /**
  * Tab CS theo dõi của /danh-sach-nguoi (Hiệp 19/11/2026): thêm + xoá (hỏi lại trong khung, nêu số ticket đang gán).
@@ -41,9 +44,9 @@ export function DanhSachCs({ ds }: { ds: NguoiQuanTri[] }) {
   }
 
   return (
-    <section className="bg-white rounded-xl border p-5 space-y-3">
+    <Card className="space-y-3">
       <ul className="divide-y rounded-lg border text-sm">
-        {dangDung.length === 0 && <li className="px-3 py-2 text-slate-400">Chưa có ai.</li>}
+        {dangDung.length === 0 && <li className="px-3 py-2 text-muted-foreground">Chưa có ai.</li>}
         {dangDung.map((x) => (
           <li key={x.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
             {dangXoa === x.id ? (
@@ -51,26 +54,25 @@ export function DanhSachCs({ ds }: { ds: NguoiQuanTri[] }) {
                 onXoa={(nhan) => xoa(x.id, nhan)} onHuy={() => setDangXoa(null)} />
             ) : (
               <>
-                <span className="flex-1 text-slate-900">{x.ten}</span>
-                <span className="text-xs text-slate-500">{x.so_ticket} ticket đang mở</span>
-                <button type="button" disabled={busy} onClick={() => { setErr(null); setDangXoa(x.id) }} className={`${nut} text-red-600`}>Xoá</button>
+                <span className="flex-1 text-foreground">{x.ten}</span>
+                <span className="text-xs text-muted-foreground">{x.so_ticket} ticket đang mở</span>
+                <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => { setErr(null); setDangXoa(x.id) }}>Xoá</Button>
               </>
             )}
           </li>
         ))}
       </ul>
       <div className="flex flex-wrap items-center gap-2">
-        <input value={ten} onChange={(e) => setTen(e.target.value)} maxLength={DAI_TOI_DA_TEN + 10} disabled={busy}
+        <Input aria-label="Tên CS mới" value={ten} onChange={(e) => setTen(e.target.value)} maxLength={DAI_TOI_DA_TEN + 10} disabled={busy}
           onKeyDown={(e) => { if (e.key === 'Enter' && kiem?.ok && (!trung || khoiPhuc)) them() }}
           placeholder="Tên CS mới, vd: Thanh Hiền"
-          className="flex-1 min-w-48 rounded-lg border px-3 py-1.5 text-sm text-slate-900" />
-        <button type="button" disabled={busy || !kiem?.ok || (!!trung && !khoiPhuc)} onClick={them}
-          className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{khoiPhuc ? 'Khôi phục' : '+ Thêm'}</button>
+          className="flex-1 min-w-48" />
+        <Button type="button" disabled={busy || !kiem?.ok || (!!trung && !khoiPhuc)} onClick={them}>{khoiPhuc ? 'Khôi phục' : '+ Thêm'}</Button>
       </div>
-      {kiem && !kiem.ok && <p className="text-xs text-red-600">{kiem.error}</p>}
-      {trung && !khoiPhuc && <p className="text-xs text-amber-700">Đã có <strong>{trung.ten}</strong> trong danh sách.</p>}
-      {khoiPhuc && <p className="text-xs text-slate-600"><strong>{trung.ten}</strong> đã xoá trước đây. Bấm Khôi phục để đưa lại vào danh sách.</p>}
-      {err && <p className="text-sm text-red-600">{err}</p>}
-    </section>
+      {kiem && !kiem.ok && <p className="text-xs text-(--color-text-danger)">{kiem.error}</p>}
+      {trung && !khoiPhuc && <p className="text-xs text-(--color-text-warning)">Đã có <strong>{trung.ten}</strong> trong danh sách.</p>}
+      {khoiPhuc && <p className="text-xs text-muted-foreground"><strong>{trung.ten}</strong> đã xoá trước đây. Bấm Khôi phục để đưa lại vào danh sách.</p>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
+    </Card>
   )
 }

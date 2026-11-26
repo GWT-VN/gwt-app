@@ -1,5 +1,8 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { duyetExport, tuChoiExport, type YeuCauExport } from '@/app/actions'
@@ -19,25 +22,23 @@ export function DuyetExportList({ items }: { items: YeuCauExport[] }) {
     else router.refresh()
   }
 
-  if (!items.length) return <p className="text-sm text-slate-400">Không có yêu cầu xuất nào chờ duyệt.</p>
+  if (!items.length) return <p className="text-sm text-muted-foreground">Không có yêu cầu xuất nào chờ duyệt.</p>
   return (
     <div className="space-y-2">
-      {err && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
       <ul className="divide-y border rounded-lg">
         {items.map((y) => (
           <li key={y.id} className="px-3 py-2.5 flex items-start justify-between gap-3 text-sm">
             <div className="min-w-0">
-              <div className="text-slate-900">Xuất khách <strong>có SĐT/địa chỉ</strong></div>
-              {y.tieu_chi?.q ? <div className="text-slate-500 text-xs">lọc: “{String(y.tieu_chi.q)}”</div> : <div className="text-slate-400 text-xs">toàn bộ</div>}
-              <div className="text-[11px] text-slate-400">{y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}</div>
+              <div className="text-foreground">Xuất khách <strong>có SĐT/địa chỉ</strong></div>
+              {y.tieu_chi?.q ? <div className="text-muted-foreground text-xs">lọc: “{String(y.tieu_chi.q)}”</div> : <div className="text-muted-foreground text-xs">toàn bộ</div>}
+              <div className="text-[11px] text-muted-foreground">{y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}</div>
             </div>
             <div className="flex gap-2 flex-none">
-              <button onClick={() => lam(y.id, true)} disabled={busy === y.id}
-                className="rounded-lg bg-emerald-600 text-white px-3 py-1 text-xs font-medium disabled:opacity-50">
+              <Button size="sm" onClick={() => lam(y.id, true)} disabled={busy === y.id}>
                 {busy === y.id ? '…' : 'Duyệt'}
-              </button>
-              <button onClick={() => lam(y.id, false)} disabled={busy === y.id}
-                className="rounded-lg border px-3 py-1 text-xs text-slate-600 disabled:opacity-50">Từ chối</button>
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => lam(y.id, false)} disabled={busy === y.id}>Từ chối</Button>
             </div>
           </li>
         ))}
