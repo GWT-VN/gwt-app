@@ -1,6 +1,16 @@
 import Link from 'next/link'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { EmptyState } from '@/components/ui/empty-state'
+import { PageHeader } from '@/components/ui/page-header'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import type { ReactNode } from 'react'
-import { linkTinDiscord, mauTrangThai, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
+import { linkTinDiscord, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
 import { TuLamMoi } from './_tu-lam-moi'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
 
@@ -9,83 +19,80 @@ export const LINK_SHEET_KHO = 'https://docs.google.com/spreadsheets/d/1etncdbnKD
 
 export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe: string; moTa?: ReactNode; phai?: ReactNode; children: ReactNode; kho?: string }) {
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-[1200px] space-y-4 p-4 sm:p-6">
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">{tieuDe} <span className="text-base font-normal text-slate-400">· {tenKho(kho)}</span></h1>
-            {moTa && <p className="text-sm text-slate-500">{moTa}</p>}
-          </div>
-          <div className="flex items-center gap-2">
+    <ManV2>
+      <CauHinhBangDs>
+        <TrangDuLieu className="max-w-[1200px] space-y-4">
+          <PageHeader
+            tieuDe={tieuDe}
+            meta={[tenKho(kho), ...(moTa ? [moTa] : [])]}
+            hanhDong={<Button asChild variant="outline"><a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Mở Google Sheet ↗</a></Button>}
+          />
+          <div className="flex flex-wrap items-center gap-2">
             <TuLamMoi />
             {phai}
-            <a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer"
-              className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-              Mở Google Sheet ↗
-            </a>
           </div>
-        </header>
-        <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-800">
-          Sổ do bot <b>Bắp</b> ghi từ tin nhắn kênh Discord kho (anh kỹ thuật nhắn “<i>ngày kho xuất/nhập</i> + tên : số lượng”), cập nhật liên tục (~20 giây).
-          Người có quyền <b>Sửa sổ kho</b> sửa / huỷ dòng, duyệt mã, kiểm kê được ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào{' '}
-          <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự cập nhật trong ~20 giây.
-        </p>
-        {children}
-      </div>
-    </main>
+          <Alert color="info">
+            <AlertDescription>
+              Bắp ghi sổ từ tin nhắn Discord kho và cập nhật khoảng mỗi 20 giây. Người có quyền Sửa sổ kho có thể sửa, huỷ dòng, duyệt mã và kiểm kê.
+              Mọi thay đổi được ghi vào <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>.
+            </AlertDescription>
+          </Alert>
+          {children}
+        </TrangDuLieu>
+      </CauHinhBangDs>
+    </ManV2>
   )
 }
 
 export function TrangThai({ ma }: { ma: string | null | undefined }) {
   if (!ma) return null
-  return <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium ${mauTrangThai(ma)}`}>{nhanTrangThai(ma)}</span>
+  const color = ma === 'need_review' ? 'warning' : ma === 'rejected' ? 'secondary' : 'success'
+  return <Badge variant="soft" color={color}>{nhanTrangThai(ma)}</Badge>
 }
 
-/** `cuon={false}`: bảng có ô chọn gợi ý (danh sách thả xuống) — khung cuộn ngang sẽ cắt mất danh sách, nên để tràn tự nhiên. */
-export function Bang({ dau, children, trong, phai = [], cuon = true }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; phai?: number[]; cuon?: boolean }) {
+export function Bang({ dau, children, trong, phai = [] }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; phai?: number[] }) {
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white shadow-sm ${cuon ? 'overflow-hidden' : ''}`}>
-      <div className={cuon ? 'overflow-x-auto' : ''}>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-            <tr>{dau.map((d, i) => <th key={i} className={`whitespace-nowrap px-3 py-2.5 font-medium ${phai.includes(i) ? 'text-right' : ''}`}>{d}</th>)}</tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {trong ? <tr><td colSpan={dau.length} className="px-3 py-10 text-center text-slate-400">Chưa có dữ liệu.</td></tr> : children}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <TableWrap vien>
+      {trong ? <EmptyState kieu="loc" capTieuDe={2} tieuDe="Chưa có dữ liệu." /> : (
+        <Table variant="thuong">
+          <TableHeader>
+            <TableRow>{dau.map((d, i) => <TableHead key={i} scope="col" phai={phai.includes(i)}>{d}</TableHead>)}</TableRow>
+          </TableHeader>
+          <TableBody>{children}</TableBody>
+        </Table>
+      )}
+    </TableWrap>
   )
 }
 
-export const O = ({ children, cls = '' }: { children?: ReactNode; cls?: string }) => <td className={`px-3 py-2 align-top ${cls}`}>{children}</td>
+export const O = ({ children, cls = '' }: { children?: ReactNode; cls?: string }) => <TableCell className={`align-top py-2 ${cls}`}>{children}</TableCell>
 
 export function TheSo({ nhan, so, phu, mau = '' }: { nhan: string; so: number | string; phu?: ReactNode; mau?: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-      <div className="text-xs text-slate-500">{nhan}</div>
-      <div className={`text-2xl font-semibold text-slate-900 ${mau}`}>{so}</div>
-      {phu && <div className="text-[11px] text-slate-400">{phu}</div>}
-    </div>
+    <Card className="space-y-1">
+      <div className="text-xs text-muted-foreground">{nhan}</div>
+      <div className={`text-2xl font-semibold tabular-nums ${mau}`}>{so}</div>
+      {phu && <div className="text-xs text-muted-foreground">{phu}</div>}
+    </Card>
   )
 }
 
+
 export function LinkMa({ ma, kho = 'NX' }: { ma: string | null; kho?: string }) {
-  if (!ma) return <span className="text-slate-400">—</span>
-  return <Link href={`/kho/ma/${encodeURIComponent(ma)}${kho !== 'NX' ? `?kho=${kho}` : ''}`} className="font-mono text-[13px] text-indigo-700 hover:underline">{ma}</Link>
+  if (!ma) return <span className="text-muted-foreground">—</span>
+  return <Link href={`/kho/ma/${encodeURIComponent(ma)}${kho !== 'NX' ? `?kho=${kho}` : ''}`} className="font-mono text-[13px] text-(--color-text-info) hover:underline">{ma}</Link>
 }
 
 export function LinkTin({ id }: { id: string | null }) {
   const u = linkTinDiscord(id)
-  return u ? <a href={u} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 underline">tin ↗</a> : null
+  return u ? <a href={u} target="_blank" rel="noreferrer" className="text-xs text-(--color-text-info) underline">tin ↗</a> : null
 }
 
 /** "sửa tay · <người> · <ngày>" — dòng đã sửa tay (app / Sheet), bot không ghi đè. */
 export function NhanSuaTay({ luc, boi }: { luc: string | null; boi: string | null }) {
   if (!luc) return null
   const ten = (boi ?? '').split('@')[0] || '?'
-  return <div className="mt-0.5 whitespace-nowrap text-[10px] text-slate-400" title={`Sửa tay bởi ${boi ?? '?'} lúc ${ngayVN(luc)} — bot không ghi đè dòng này`}>sửa tay · {ten} · {ngayVN(luc)}</div>
+  return <div className="mt-0.5 whitespace-nowrap text-[10px] text-muted-foreground" title={`Sửa tay bởi ${boi ?? '?'} lúc ${ngayVN(luc)} — bot không ghi đè dòng này`}>sửa tay · {ten} · {ngayVN(luc)}</div>
 }
 
 /** Số đẹp: 1.234; số âm có dấu. */
@@ -100,13 +107,16 @@ export const ngayVN = (x: string | null | undefined): string => hienNgay(x, 'gio
 /** Khi chưa đặt KHO_DB_URL / DB lỗi: báo rõ thay vì trang trắng. */
 export function LoiKho({ loi }: { loi?: string }) {
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-      <b>Chưa đọc được sổ kho.</b>{' '}
-      {loi ? loi : 'Chưa cấu hình KHO_DB_URL (kết nối chỉ đọc tới DB Masterdata, role kho_app_doc).'}
-      <div className="mt-1 text-xs">Trong lúc chờ, xem bảng theo dõi trên <a className="underline" href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Google Sheet</a>.</div>
-    </div>
+    <Alert color="warning">
+      <AlertTitle>Chưa đọc được sổ kho</AlertTitle>
+      <AlertDescription>
+        {loi ?? 'Chưa cấu hình KHO_DB_URL (kết nối chỉ đọc tới DB Masterdata, role kho_app_doc).'}
+        {' '}Trong lúc chờ, xem bảng theo dõi trên <a className="underline" href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Google Sheet</a>.
+      </AlertDescription>
+    </Alert>
   )
 }
+
 
 /** Gọi đọc kho; lỗi → trả {loi} để trang hiện LoiKho thay vì vỡ. */
 export async function thu<T>(fn: () => Promise<T>): Promise<{ ok: true; v: T } | { ok: false; loi: string }> {

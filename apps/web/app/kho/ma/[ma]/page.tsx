@@ -1,3 +1,4 @@
+import { TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
 import { mauLoai } from '@/lib/kho/nhan'
@@ -20,7 +21,7 @@ export default async function KhoTheKhoPage({ params, searchParams }: { params: 
   if (!r.ok) return <KhungKho tieuDe={`Thẻ kho ${ma}`} kho={k}><LoiKho loi={r.loi} /></KhungKho>
   const t = r.v
   const dong = t?.dong ?? []
-  const quayLai = <Link href={`/kho${k !== 'NX' ? `?kho=${k}` : ''}`} className="text-indigo-700 hover:underline">← Tồn kho</Link>
+  const quayLai = <Link href={`/kho${k !== 'NX' ? `?kho=${k}` : ''}`} className="text-(--color-text-info) hover:underline">← Tồn kho</Link>
 
   return (
     <KhungKho tieuDe={`Thẻ kho ${ma}`} kho={k} moTa={<>{quayLai} · {t?.ten ?? 'mã không có trong danh mục'}</>}>
@@ -32,21 +33,21 @@ export default async function KhoTheKhoPage({ params, searchParams }: { params: 
       </div>
       <Bang dau={['Ngày', 'Loại', 'Tên ghi trong tin', 'SL', 'Số dư', 'Lý do / cho ai', 'Ghi chú', 'Người nhắn', '']} trong={!dong.length} phai={[3, 4]}>
         {[...dong].reverse().map((d) => (
-          <tr key={d.id} className="hover:bg-slate-50">
+          <TableRow key={d.id}>
             <O cls="whitespace-nowrap">{ngayVN(d.ngay)}</O>
             <O cls={`font-medium ${mauLoai(d.loai)}`}>{d.loai}</O>
             <O>{d.raw_name}</O>
             <O cls={`text-right font-semibold ${mauLoai(d.loai)}`}>{d.loai === 'Xuất' ? '−' : d.loai === 'Nhập' ? '+' : ''}{sl(d.qty)}</O>
-            <O cls={`text-right font-semibold ${d.so_du < 0 ? 'text-red-700' : ''}`}>{sl(d.so_du)}</O>
-            <O cls="max-w-[220px] text-slate-600">{d.purpose ?? ''}</O>
-            <O cls="max-w-[220px] text-xs text-slate-500">{d.note ?? ''}</O>
+            <O cls={`text-right font-semibold ${d.so_du < 0 ? 'text-destructive' : ''}`}>{sl(d.so_du)}</O>
+            <O cls="max-w-[220px] text-muted-foreground">{d.purpose ?? ''}</O>
+            <O cls="max-w-[220px] text-xs text-muted-foreground">{d.note ?? ''}</O>
             <O cls="whitespace-nowrap">{d.keeper ?? ''}</O>
             <O><LinkTin id={d.discord_msg_id} /></O>
-          </tr>
+          </TableRow>
         ))}
       </Bang>
       {rs.ok ? rs.v.length > 0 && <SerialCuaMa ds={rs.v} />
-        : <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">Chưa đọc được danh sách serial: {rs.loi}</p>}
+        : <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning-surface)">Chưa đọc được danh sách serial: {rs.loi}</p>}
     </KhungKho>
   )
 }
@@ -58,26 +59,26 @@ function SerialCuaMa({ ds }: { ds: Awaited<ReturnType<typeof serialTheoMa>> }) {
   return (
     <section className="space-y-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-base font-semibold text-slate-900">Serial · {ds.length} máy</h2>
-        <p className="text-xs text-slate-500">{[...dem].map(([k, v]) => `${k}: ${v}`).join(' · ')}</p>
+        <h2 className="text-base font-semibold text-foreground">Serial · {ds.length} máy</h2>
+        <p className="text-xs text-muted-foreground">{[...dem].map(([k, v]) => `${k}: ${v}`).join(' · ')}</p>
       </div>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         Trạng thái do CSKH đặt trên app (“Tồn kho” = chưa lắp cho khách). Bot kho chỉ ghi lịch sử nhập / xuất / tình trạng từ tin Discord.
       </p>
       <Bang dau={['Serial', 'Trạng thái', 'Sự kiện gần nhất', 'Ngày', 'Ghi chú']} trong={!ds.length}>
         {ds.map((d) => (
-          <tr key={d.serial} className="hover:bg-slate-50">
+          <TableRow key={d.serial}>
             <O cls="whitespace-nowrap">
               {d.cho_duyet ? <span className="font-mono text-[13px]">{d.serial}</span>
-                : <Link href={`/may/${encodeURIComponent(d.serial)}`} className="font-mono text-[13px] text-indigo-700 hover:underline">{d.serial}</Link>}
+                : <Link href={`/may/${encodeURIComponent(d.serial)}`} className="font-mono text-[13px] text-(--color-text-info) hover:underline">{d.serial}</Link>}
             </O>
             <O cls="whitespace-nowrap">{d.cho_duyet
-              ? <Link href="/serial?tab=cho" className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 ring-1 ring-amber-200">Chờ duyệt</Link>
+              ? <Link href="/serial?tab=cho" className="rounded-full bg-(--color-background-warning-surface) px-2 py-0.5 text-[11px] font-medium text-(--color-text-warning-surface) ring-1 ring-border">Chờ duyệt</Link>
               : d.trang_thai_nhan}</O>
             <O cls="whitespace-nowrap">{nhanSuKien(d.su_kien_cuoi)}</O>
             <O cls="whitespace-nowrap">{d.luc_cuoi ? ngayVN(d.luc_cuoi) : ''}</O>
-            <O cls="max-w-[420px] text-xs text-slate-600">{d.ghi_chu_cuoi ?? ''}</O>
-          </tr>
+            <O cls="max-w-[420px] text-xs text-muted-foreground">{d.ghi_chu_cuoi ?? ''}</O>
+          </TableRow>
         ))}
       </Bang>
     </section>

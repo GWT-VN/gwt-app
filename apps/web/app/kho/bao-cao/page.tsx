@@ -1,3 +1,6 @@
+import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/components/ui/button'
+import { TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
 import { chanKho } from '../_gac'
@@ -25,31 +28,31 @@ export default async function KhoBaoCaoPage({ searchParams }: { searchParams: Pr
   const ds = r.v.filter((d) => d.dau_ky || d.nhap || d.xuat || d.dieu_chinh || d.cuoi_ky)
   const tong = (f: (d: (typeof ds)[number]) => number) => ds.reduce((s, d) => s + f(d), 0)
   const qs = (t: string) => `?thang=${t}${k !== 'NX' ? `&kho=${k}` : ''}`
-  const nut = 'rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50'
+  const nut = cn(buttonVariants({ variant: "outline", size: "sm" }))
 
   return (
     <KhungKho tieuDe={tieuDe} kho={k} moTa="Đầu kỳ + nhập − xuất + điều chỉnh = cuối kỳ · chỉ dòng sổ đã duyệt mã"
       phai={<><Link href={qs(lechThang(thang, -1))} className={nut}>← Tháng trước</Link>{thang < thangNay() && <Link href={qs(lechThang(thang, 1))} className={nut}>Tháng sau →</Link>}</>}>
       <Bang dau={['Mã', 'Tên', 'ĐVT', 'Đầu kỳ', 'Nhập', 'Xuất', 'Điều chỉnh', 'Cuối kỳ']} trong={!ds.length} phai={[3, 4, 5, 6, 7]}>
         {ds.map((d) => (
-          <tr key={d.internal_code} className="hover:bg-slate-50">
+          <TableRow key={d.internal_code}>
             <O><LinkMa ma={d.internal_code} kho={k} /></O>
             <O>{d.ten ?? ''}</O>
-            <O cls="text-slate-500">{d.don_vi ?? ''}</O>
+            <O cls="text-muted-foreground">{d.don_vi ?? ''}</O>
             <O cls="text-right">{sl(d.dau_ky)}</O>
-            <O cls="text-right text-emerald-700">{d.nhap ? sl(d.nhap) : ''}</O>
-            <O cls="text-right text-red-700">{d.xuat ? sl(d.xuat) : ''}</O>
-            <O cls="text-right text-indigo-700">{d.dieu_chinh ? sl(d.dieu_chinh) : ''}</O>
-            <O cls={`text-right font-semibold ${d.cuoi_ky < 0 ? 'text-red-700' : ''}`}>{sl(d.cuoi_ky)}</O>
-          </tr>
+            <O cls="text-right text-(--color-text-success)">{d.nhap ? sl(d.nhap) : ''}</O>
+            <O cls="text-right text-destructive">{d.xuat ? sl(d.xuat) : ''}</O>
+            <O cls="text-right text-(--color-text-info)">{d.dieu_chinh ? sl(d.dieu_chinh) : ''}</O>
+            <O cls={`text-right font-semibold ${d.cuoi_ky < 0 ? 'text-destructive' : ''}`}>{sl(d.cuoi_ky)}</O>
+          </TableRow>
         ))}
         {ds.length > 0 && (
-          <tr className="bg-slate-50 font-semibold">
+          <TableRow className="bg-muted font-semibold">
             <O>Tổng</O><O /><O />
             <O cls="text-right">{sl(tong((d) => d.dau_ky))}</O><O cls="text-right">{sl(tong((d) => d.nhap))}</O>
             <O cls="text-right">{sl(tong((d) => d.xuat))}</O><O cls="text-right">{sl(tong((d) => d.dieu_chinh))}</O>
             <O cls="text-right">{sl(tong((d) => d.cuoi_ky))}</O>
-          </tr>
+          </TableRow>
         )}
       </Bang>
     </KhungKho>

@@ -8,6 +8,14 @@
  */
 import { createContext, useContext, useMemo, useState, useTransition, type ReactNode } from 'react'
 import { OChonGoiY, type MucChon } from '@/bang'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/ui/combobox'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { controlOutline } from '@/components/ui/control-styles'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import type { MucDanhMuc } from '@/lib/kho/doc'
 import { LOAI } from '@/lib/kho/nhan'
 import { chuanTen, thayDoiSua } from '@/lib/kho/sua'
@@ -21,29 +29,25 @@ export function KhuSuaKho({ danhMuc, children }: { danhMuc: MucDanhMuc[]; childr
 }
 const useDanhMuc = () => useContext(NgucCanh)
 
-const O_NHAP = 'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100'
-const NUT = 'rounded-lg px-2.5 py-1 text-xs font-medium disabled:opacity-50'
 
 function Nhan({ ten, children, rong = false }: { ten: string; children: ReactNode; rong?: boolean }) {
-  return <label className={`block space-y-1 ${rong ? 'sm:col-span-2' : ''}`}><span className="text-xs font-medium text-slate-600">{ten}</span>{children}</label>
+  return <label className={`block space-y-1 ${rong ? 'sm:col-span-2' : ''}`}><span className="text-xs font-medium text-muted-foreground">{ten}</span>{children}</label>
 }
 
 function HopNoi({ tieuDe, phu, onDong, children }: { tieuDe: string; phu?: ReactNode; onDong: () => void; children: ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/30 p-4 sm:items-center" onMouseDown={(e) => { if (e.target === e.currentTarget) onDong() }}>
-      <div className="w-full max-w-xl space-y-3 rounded-xl bg-white p-4 shadow-xl" role="dialog" aria-modal="true">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold text-slate-900">{tieuDe}</h2>
-            {phu && <div className="text-xs text-slate-500">{phu}</div>}
-          </div>
-          <button type="button" onClick={onDong} className="text-slate-400 hover:text-slate-700" aria-label="Đóng">✕</button>
-        </div>
-        {children}
-      </div>
-    </div>
+    <Dialog open onOpenChange={(open) => { if (!open) onDong() }}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{tieuDe}</DialogTitle>
+          {phu && <DialogDescription>{phu}</DialogDescription>}
+        </DialogHeader>
+        <DialogBody className="space-y-3">{children}</DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }
+
 
 export type DongSuaDuoc = {
   id: number; ngay: string; loai: string; internal_code: string | null; raw_name: string; qty: number
@@ -56,8 +60,8 @@ export function NutSuaDong({ dong }: { dong: DongSuaDuoc }) {
   if (dong.trang_thai === 'rejected') return null
   return (
     <div className="flex gap-1">
-      <button type="button" onClick={() => setMo('sua')} className={`${NUT} border border-slate-200 text-slate-700 hover:bg-slate-50`}>Sửa</button>
-      <button type="button" onClick={() => setMo('huy')} className={`${NUT} border border-red-200 text-red-700 hover:bg-red-50`}>Huỷ</button>
+      <Button type="button" onClick={() => setMo('sua')} variant="outline" size="sm">Sửa</Button>
+      <Button type="button" onClick={() => setMo('huy')} variant="outline" size="sm" className="text-destructive">Huỷ</Button>
       {mo === 'sua' && <HopSua dong={dong} onDong={() => setMo(null)} />}
       {mo === 'huy' && <HopHuy dong={dong} onDong={() => setMo(null)} />}
     </div>
@@ -89,28 +93,28 @@ function HopSua({ dong, onDong }: { dong: DongSuaDuoc; onDong: () => void }) {
     <HopNoi tieuDe={`Sửa dòng sổ #${dong.id}`} onDong={onDong}
       phu={<>Tên trong tin: <b>{dong.raw_name}</b>{dong.trang_thai === 'need_review' && ' · đang chờ duyệt — chọn mã là duyệt luôn'}</>}>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Nhan ten="Ngày"><input type="date" className={O_NHAP} value={f.ngay} onChange={(e) => dat('ngay')(e.target.value)} /></Nhan>
+        <Nhan ten="Ngày"><Input type="date" value={f.ngay} onChange={(e) => dat('ngay')(e.target.value)} /></Nhan>
         <Nhan ten="Loại">
-          <select className={O_NHAP} value={f.loai} onChange={(e) => dat('loai')(e.target.value)}>
-            {LOAI.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
+          <NativeSelect className="w-full" value={f.loai} onChange={(e) => dat('loai')(e.target.value)}>
+            {LOAI.map((x) => <NativeSelectOption key={x} value={x}>{x}</NativeSelectOption>)}
+          </NativeSelect>
         </Nhan>
-        <Nhan ten="Mã hàng" rong><OChonGoiY giaTri={f.internal_code || null} onChon={dat('internal_code')} tuyChon={danhMuc} choTrong="Gõ mã hoặc tên để tìm…" choPhepXoa={false} /></Nhan>
+        <Nhan ten="Mã hàng" rong><OChonGoiY giaTri={f.internal_code || null} onChon={dat('internal_code')} tuyChon={danhMuc} choTrong="Gõ mã hoặc tên để tìm…" choPhepXoa={false} className={controlOutline} /></Nhan>
         <Nhan ten={f.loai === 'Điều chỉnh' ? 'Số lượng (âm = giảm tồn)' : 'Số lượng'}>
-          <input inputMode="decimal" className={O_NHAP} value={f.qty} onChange={(e) => dat('qty')(e.target.value)} />
+          <Input inputMode="decimal" value={f.qty} onChange={(e) => dat('qty')(e.target.value)} />
         </Nhan>
-        <Nhan ten="Lý do / cho ai"><input className={O_NHAP} value={f.purpose} onChange={(e) => dat('purpose')(e.target.value)} /></Nhan>
-        <Nhan ten="Ghi chú" rong><input className={O_NHAP} value={f.note} onChange={(e) => dat('note')(e.target.value)} /></Nhan>
+        <Nhan ten="Lý do / cho ai"><Input value={f.purpose} onChange={(e) => dat('purpose')(e.target.value)} /></Nhan>
+        <Nhan ten="Ghi chú" rong><Input value={f.note} onChange={(e) => dat('note')(e.target.value)} /></Nhan>
         <Nhan ten="Lý do sửa (ghi vào lịch sử)" rong>
-          <input className={O_NHAP} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="vd: anh kỹ thuật nhắn nhầm SL" />
+          <Input value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="vd: anh kỹ thuật nhắn nhầm SL" />
         </Nhan>
       </div>
-      <p className="text-[11px] text-slate-500">Sửa xong dòng bị khoá: bot không ghi đè dù tin Discord gốc bị sửa. Sheet tự cập nhật trong ~20 giây.</p>
-      {loi && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{loi}</p>}
+      <p className="text-[11px] text-muted-foreground">Sửa xong dòng bị khoá: bot không ghi đè dù tin Discord gốc bị sửa. Sheet tự cập nhật trong ~20 giây.</p>
+      {loi && <Alert color="danger"><AlertDescription>{loi}</AlertDescription></Alert>}
       <div className="flex items-center justify-end gap-2">
-        <span className="mr-auto text-xs text-slate-500">{soDoi ? `Đổi ${soDoi} trường` : 'Chưa đổi gì'}</span>
-        <button type="button" onClick={onDong} className={`${NUT} border border-slate-200 text-slate-600 hover:bg-slate-50`}>Thôi</button>
-        <button type="button" onClick={luu} disabled={dang || !soDoi} className={`${NUT} bg-indigo-600 text-white hover:bg-indigo-700`}>{dang ? 'Đang lưu…' : 'Lưu'}</button>
+        <span className="mr-auto text-xs text-muted-foreground">{soDoi ? `Đổi ${soDoi} trường` : 'Chưa đổi gì'}</span>
+        <Button type="button" onClick={onDong} variant="outline" size="sm">Thôi</Button>
+        <Button type="button" onClick={luu} disabled={dang || !soDoi} size="sm">{dang ? 'Đang lưu…' : 'Lưu'}</Button>
       </div>
     </HopNoi>
   )
@@ -119,33 +123,37 @@ function HopSua({ dong, onDong }: { dong: DongSuaDuoc; onDong: () => void }) {
 function HopHuy({ dong, onDong }: { dong: DongSuaDuoc; onDong: () => void }) {
   const [lyDo, setLyDo] = useState('')
   const [loi, setLoi] = useState<string | null>(null)
-  const [dang, batDau] = useTransition()
 
-  function huy() {
+  async function huy() {
     setLoi(null)
-    if (!lyDo.trim()) { setLoi('Cần ghi lý do huỷ.'); return }
-    if (!window.confirm(`Huỷ dòng #${dong.id} (${dong.loai} ${dong.qty} · ${dong.raw_name})? Dòng không bị xoá, chỉ đánh dấu huỷ và không tính vào tồn nữa.`)) return
-    batDau(async () => {
-      const r = await huyDongKho(dong.id, lyDo)
-      if (!r.ok) setLoi(r.error)
-      else onDong()
-    })
+    const r = await huyDongKho(dong.id, lyDo)
+    if (!r.ok) {
+      setLoi(r.error)
+      throw new Error(r.error)
+    }
   }
 
   return (
-    <HopNoi tieuDe={`Huỷ dòng sổ #${dong.id}`} onDong={onDong} phu={<>{dong.loai} <b>{dong.qty}</b> · {dong.raw_name}{dong.internal_code ? ` · ${dong.internal_code}` : ''}</>}>
+    <ConfirmDialog
+      open
+      onOpenChange={(open) => { if (!open) onDong() }}
+      tieuDe={`Huỷ dòng sổ #${dong.id}?`}
+      moTa={<>{dong.loai} <b>{dong.qty}</b> · {dong.raw_name}{dong.internal_code ? ` · ${dong.internal_code}` : ''}</>}
+      hauQua={['Dòng huỷ không tính vào tồn và vẫn xuất hiện trong nhật ký và Lịch sử sửa.']}
+      nutXacNhan="Huỷ dòng"
+      nutHuy="Quay lại"
+      pha
+      loi={loi}
+      khoaXacNhan={!lyDo.trim()}
+      onXacNhan={huy}
+    >
       <Nhan ten="Lý do huỷ (bắt buộc)">
-        <input autoFocus className={O_NHAP} value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="vd: ghi trùng với tin hôm trước" />
+        <Input data-autofocus required value={lyDo} onChange={(e) => setLyDo(e.target.value)} placeholder="Ví dụ: ghi trùng với tin hôm trước" />
       </Nhan>
-      <p className="text-[11px] text-slate-500">Dòng huỷ không bị xoá — vẫn thấy trong nhật ký (trạng thái “bỏ qua”) và trong Lịch sử sửa.</p>
-      {loi && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{loi}</p>}
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={onDong} className={`${NUT} border border-slate-200 text-slate-600 hover:bg-slate-50`}>Thôi</button>
-        <button type="button" onClick={huy} disabled={dang} className={`${NUT} bg-red-600 text-white hover:bg-red-700`}>{dang ? 'Đang huỷ…' : 'Huỷ dòng này'}</button>
-      </div>
-    </HopNoi>
+    </ConfirmDialog>
   )
 }
+
 
 /** Ô chọn mã + "Nhớ tên" + Duyệt / Bỏ qua cho một dòng chờ duyệt. */
 export function DuyetDong({ id, rawName, goiY }: { id: number; rawName: string; goiY: string | null }) {
@@ -175,18 +183,18 @@ export function DuyetDong({ id, rawName, goiY }: { id: number; rawName: string; 
 
   return (
     <div className="min-w-[260px] space-y-1.5">
-      <OChonGoiY giaTri={ma || null} onChon={setMa} tuyChon={danhMuc} choTrong="Gõ mã / tên để chọn…"
-        className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
+      <Combobox aria-label={`Mã hàng cho ${rawName}`} value={ma || null} onValueChange={(gt) => setMa(gt ?? '')} options={danhMuc}
+        placeholder="Chọn mã hàng…" />
       <div className="flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-1 text-xs text-slate-600" title={`Bot nhớ “${chuanTen(rawName)}” = mã này, lần sau tự nhận`}>
+        <label className="flex items-center gap-1 text-xs text-muted-foreground" title={`Bot nhớ “${chuanTen(rawName)}” = mã này, lần sau tự nhận`}>
           <input type="checkbox" checked={nho} onChange={(e) => setNho(e.target.checked)} /> Nhớ tên này cho lần sau
         </label>
         <span className="ml-auto flex gap-1">
-          <button type="button" onClick={duyet} disabled={dang || !ma} className={`${NUT} bg-emerald-600 text-white hover:bg-emerald-700`}>{dang ? '…' : 'Duyệt'}</button>
-          <button type="button" onClick={boQua} disabled={dang} className={`${NUT} border border-slate-200 text-slate-600 hover:bg-slate-50`}>Bỏ qua</button>
+          <Button type="button" onClick={duyet} disabled={dang || !ma} size="sm">{dang ? '…' : 'Duyệt'}</Button>
+          <Button type="button" onClick={boQua} disabled={dang} variant="outline" size="sm">Bỏ qua</Button>
         </span>
       </div>
-      {loi && <p className="text-xs text-red-700">{loi}</p>}
+      {loi && <p className="text-xs text-destructive">{loi}</p>}
     </div>
   )
 }
