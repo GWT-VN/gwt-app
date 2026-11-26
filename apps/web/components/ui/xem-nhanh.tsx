@@ -67,8 +67,10 @@ export function XemNhanh({
   the: {
     ma: string
     phu?: ReactNode
-    /** `phu` (tên) đứng TRƯỚC mã: "Công ty An Phát · DEMO-1001" (danh sách ticket, CEO 26/11). */
+    /** `phu` (tên) đứng TRƯỚC mã: "Công ty An Phát · DEMO-1001". */
     phuTruoc?: boolean
+    /** Bản ghi khẩn: MÃ chữ đỏ (--color-text-danger) + "Khẩn: " cho trình đọc màn hình (danh sách ticket, CEO 26/11). */
+    khan?: boolean
     /** Cờ ngay sau mã (icon Khẩn… — icon có tên đọc được). */
     co?: ReactNode
     noiDung?: ReactNode
@@ -135,7 +137,10 @@ export function XemNhanh({
               </>
             ) : (
               <>
-                <span className={xnMa}>{the.ma}</span>
+                <span className={cn(xnMa, the.khan && 'text-(--color-text-danger)')}>
+                  {the.khan && <span className="sr-only">Khẩn: </span>}
+                  {the.ma}
+                </span>
                 {the.co}
                 {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
               </>

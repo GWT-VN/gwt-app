@@ -169,8 +169,9 @@ const RONG_BANG_TOI_THIEU = 640
 // vừa tiêu đề + ô dài nhất của trang đang xem (`useCotBang` đo, `refBang`); cột chữ tự do có trần `rongToiDa` để một giá
 // trị cực dài không kéo cột rộng vô lý — quá trần mới cắt (ô có title). Tổng vượt khung → bảng cuộn ngang.
 const COT: CotBang[] = [
-  { id: 'khach', ten: 'Khách', kieu: 'thuong', khoa: true, rongToiDa: 400 },
-  { id: 'ma', ten: 'Mã ticket', kieu: 'thuong' },
+  // CEO 26/11 "thế đổi lại ticket ở đầu bảng đi": cột đầu (khoá, ghim) = Mã ticket; Khách là cột thường.
+  { id: 'ma', ten: 'Mã ticket', kieu: 'thuong', khoa: true },
+  { id: 'khach', ten: 'Khách', kieu: 'thuong', rongToiDa: 400 },
   { id: 'may', ten: 'Máy', kieu: 'thuong', rongToiDa: 240 },
   { id: 'loi', ten: 'Loại lỗi', kieu: 'thuong', rongToiDa: 240 },
   { id: 'bh', ten: 'Bảo hành', kieu: 'thuong' },
@@ -194,13 +195,18 @@ type NgCanhO = {
 const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   // CEO 26/11 "Tách cột mã ticket ra riêng cho dễ xem": ô Khách chỉ tên (nút mở Xem nhanh; khẩn = chữ đỏ, kể cả lúc
   // rê/focus) — mã ở cột "Mã ticket" riêng.
-  khach: (t, { mo }) => (
-    <button type="button" className={cn(nutMoTen, 'block max-w-full', laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
+  // Mã = định danh chính: nút mở Xem nhanh, chữ thường; khẩn đang mở → MÃ chữ đỏ (kể cả lúc rê/focus) + sr-only.
+  ma: (t, { mo }) => (
+    <button type="button" className={cn(nutMoTen, 'block max-w-full tabular-nums', laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
       {laKhan(t) && <SrKhan />}
-      {tenKhach(t)}
+      {t.ticket_code}
     </button>
   ),
-  ma: (t) => <span className="whitespace-nowrap tabular-nums text-muted-foreground">{t.ticket_code}</span>,
+  khach: (t) => (
+    <span className="block truncate" title={tenKhach(t)}>
+      {tenKhach(t)}
+    </span>
+  ),
   // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
   // hàng); tên đầy đủ + serial ở title.
   may: (t) => (
@@ -297,21 +303,21 @@ function DongBang({ t, hien, ng }: { t: Dong; hien: CotBang[]; ng: NgCanhO }) {
 const COT_DS: CotDanhSach<Dong>[] = [
   {
     id: 'ticket',
-    ten: 'Khách · ticket',
+    ten: 'Ticket · khách',
     rong: 'minmax(0,2fr)',
     dienThoai: 'tren',
+    // "MÃ · Tên khách" (mã trước, CEO 26/11); khẩn → MÃ đỏ (chữ mã của DS là màu phụ → đè màu trong khung này).
     o: (t) => (
       <>
         {laKhan(t) ? (
-          // NutMoTen chữ `text-inherit` → bọc span đỏ (flex min-w-0 giữ cắt …).
-          <span className={cn('flex min-w-0', CHU_DO)}>
+          <span className="contents [&_span]:text-(--color-text-danger)">
             <SrKhan />
-            <NutMoTen ten={tenKhach(t)} />
+            <NutMoMa ma={t.ticket_code} luonHien />
           </span>
         ) : (
-          <NutMoTen ten={tenKhach(t)} />
+          <NutMoMa ma={t.ticket_code} luonHien />
         )}
-        <NutMoMa ma={t.ticket_code} luonHien />
+        <NutMoTen ten={tenKhach(t)} />
       </>
     ),
   },
@@ -674,17 +680,19 @@ export function TicketF({
                 the={theKanban.map((d) => ({
                   id: d.ticket_code,
                   cot: cotCuaThe(d),
-                  ten: `${tenKhach(d)} · ${d.ticket_code}`,
+                  ten: `${d.ticket_code} · ${tenKhach(d)}`,
                   noiDung: (
                     <NoiDungTheTruong
                       dau={
-                        // Tên khách rồi mã (CEO 26/11); khẩn → tên đỏ như ô bảng.
+                        // Mã rồi tên khách (CEO 26/11 "đổi lại ticket ở đầu"); khẩn → MÃ đỏ như ô bảng.
                         <>
-                          <span title={tenKhach(d)} className={cn('min-w-0 truncate', laKhan(d) && CHU_DO)}>
+                          <span className={cn('shrink-0', laKhan(d) && CHU_DO)}>
                             {laKhan(d) && <SrKhan />}
+                            {d.ticket_code}
+                          </span>
+                          <span title={tenKhach(d)} className="min-w-0 truncate font-normal text-muted-foreground">
                             {tenKhach(d)}
                           </span>
-                          <span className="shrink-0 font-normal text-muted-foreground">{d.ticket_code}</span>
                         </>
                       }
                       truong={truongThe(d)}

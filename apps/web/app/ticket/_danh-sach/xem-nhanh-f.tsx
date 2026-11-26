@@ -47,7 +47,7 @@ import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
 import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
-import { CHU_DO, ChuBaoHanh, laKhan, SrKhan, TT, type DongF } from './ds-f'
+import { ChuBaoHanh, laKhan, TT, type DongF } from './ds-f'
 import type { SuaTruong } from './sua-ticket'
 
 type Luu = ((patch: SuaTruong) => Promise<void>) | null
@@ -422,16 +422,9 @@ export function theXemNhanhF({
   const demo = laDemo(t.ticket_code)
   return {
     ma: t.ticket_code,
-    phuTruoc: true,
-    // Khẩn = tên khách ở tiêu đề màu đỏ (CEO 26/11), không icon.
-    phu: laKhan(t) ? (
-      <span className={CHU_DO}>
-        <SrKhan />
-        {tenKhach(t)}
-      </span>
-    ) : (
-      tenKhach(t)
-    ),
+    // "MÃ · Tên khách" (CEO 26/11 "đổi lại ticket ở đầu"); khẩn → MÃ đỏ + sr-only "Khẩn: ".
+    khan: laKhan(t),
+    phu: tenKhach(t),
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabXem),
