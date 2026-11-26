@@ -16,6 +16,8 @@ const kv = 'border-none border-current'
  * (36 — khớp `<col>` 36 của các bảng) và nở thêm 36, nên cột dữ liệu đầu thẳng mép nội dung trang, ô chọn nằm ở lề. Chỉ từ md (lề trang ≥ 46);
  * dưới md lề 24 không đủ chỗ → cột chọn ở trong bảng như cũ. Khung có viền (`tableWrapVien`) không lùi.
  * (Lớp viết nguyên chuỗi ở từng chỗ — Tailwind chỉ quét chuỗi literal.)
+ * NGOẠI LỆ bảng có cột GHIM (`th[data-ghim]`, bản ticket F — CEO 26/11 "align lại" + ô chọn luôn hiện như Twenty): ô
+ * chọn nằm TRONG mép nội dung, mép trái ô tick thẳng tiêu đề trang (cặp `:has` → đè được lớp lùi ở trên).
  */
 
 /** `.b-bang-khung`: tự cuộn hai chiều (header sticky dính trong khung), thanh cuộn ẩn — vẫn cuộn bằng chuột/phím. */
@@ -24,6 +26,8 @@ export const tableWrap = cn(
   'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
   'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:-ml-9',
   'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-[calc(100%+36px)]',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:has-[>table>thead>tr>th[data-ghim]]:ml-0',
+  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:has-[>table>thead>tr>th[data-ghim]]:w-full',
 )
 /** `table-container` của shadcn (`Table` đứng ngoài `TableWrap`): cuộn ngang, thanh cuộn ẩn như `TableWrap`. */
 export const tableContainer = cn(
@@ -213,8 +217,9 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
  */
 export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
   ...CHON_BANG,
-  chon_oTh: cn(th, cotChon, 'md:border-b-(--alpha-08) left-0 z-30'),
-  chon_oTd: cn(td, cotChon, 'md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
+  // Ô chọn trong mép nội dung (xem `tableWrap`): đệm trái 0 → mép ô tick = mép tiêu đề trang.
+  chon_oTh: cn(th, cotChon, 'md:pl-0! md:border-b-(--alpha-08) left-0 z-30'),
+  chon_oTd: cn(td, cotChon, 'md:pl-0! md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
 }
 
 /*
