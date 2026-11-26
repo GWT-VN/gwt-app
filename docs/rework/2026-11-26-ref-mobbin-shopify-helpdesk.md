@@ -55,6 +55,20 @@ thay vì nút cuối form. Rỗng = minh hoạ + 2 nút (Tạo / Nhập).
 | Nút gửi gộp trạng thái: "Gửi & đặt Open ▾" | Zendesk | ghi nhận + chuyển trạng thái 1 lần bấm |
 | Trường phân loại ca ở đầu nội dung (lý do liên hệ, sản phẩm, kết quả) | Gorgias | ≈ loại ticket / máy / kết quả xử lý |
 
+## Intercom — vì sao trông gọn (flow "Updating ticket status", "Help desk")
+
+Link: https://mobbin.com/flows/2cf39fd1-7f28-4a30-b52c-a2c01b617c05 · https://mobbin.com/flows/dc3d8590-28fd-4161-9287-9a1ed177cff9
+
+- **Trạng thái là NÚT ở góc phải tiêu đề** (tô màu theo trạng thái: Submitted / In progress / Resolved), bấm → bảng
+  chọn nhỏ có ô gõ + phím tắt. Đóng xong có toast "Đã đóng · Hoàn tác". Nổi nhất trang mà không cần badge to.
+- Dưới tiêu đề **một dòng meta dạng chip**: loại ticket, mã, "1 báo cáo của khách", "không chia sẻ với khách".
+- **Thuộc tính ticket là danh sách nhãn : giá trị** ngay trong thân (Loại, Ngày gửi, Mã đơn…), trường trống hiện
+  "+ Thêm" mờ — không có form, không ô viền.
+- Panel phải "Details": Phụ trách, Team → Liên kết (ticket liên quan có badge trạng thái) → Dữ liệu khách → **Hội thoại
+  gần đây** (mỗi dòng badge Open / In progress). Mỗi nhóm thu gọn được.
+- Danh sách: đầu cột chỉ 2 ô chọn "**3 Đang mở ▾**" + "**Mới nhất ▾**"; mỗi dòng: tên, `#mã · loại`, 1 dòng trích, giờ.
+- Rất ít đường viền: phân vùng bằng nền xám nhạt và khoảng trắng, chữ nhỏ đều một cỡ.
+
 ## Áp vào GWT CSKH v2 (đề xuất, chưa dựng)
 
 | # yêu cầu | Học từ | Đề xuất cho ticket |
