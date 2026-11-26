@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CS_THEO_DOI, kiemCsTheoDoi, kiemNgay, ngayCuaLan, ngayVNHomNay, soNgayMo } from './ngayTicket'
+import { CS_THEO_DOI, GHI_CHU_TOI_DA, kiemCsTheoDoi, kiemGhiChu, kiemNgay, ngayCuaLan, ngayVNHomNay, soNgayMo } from './ngayTicket'
 
 describe('ngayVNHomNay', () => {
   it('lấy ngày theo giờ VN (UTC+7)', () => {
@@ -51,5 +51,21 @@ describe('soNgayMo', () => {
   it('đếm số ngày giữa 2 ngày', () => {
     expect(soNgayMo('2026-09-13', '2026-11-17')).toBe(65)
     expect(soNgayMo('2026-11-17', '2026-11-17')).toBe(0)
+  })
+})
+
+describe('kiemGhiChu', () => {
+  it('rỗng / chỉ khoảng trắng → null (xoá ghi chú)', () => {
+    expect(kiemGhiChu('')).toEqual({ ok: true, note: null })
+    expect(kiemGhiChu('  \n ')).toEqual({ ok: true, note: null })
+    expect(kiemGhiChu(null)).toEqual({ ok: true, note: null })
+  })
+  it('giữ nguyên xuống dòng bên trong, chỉ cắt khoảng trắng hai đầu, CRLF → LF', () => {
+    expect(kiemGhiChu('  dòng 1\r\n\r\ndòng 2  ')).toEqual({ ok: true, note: 'dòng 1\n\ndòng 2' })
+  })
+  it('chặn quá giới hạn và kiểu sai', () => {
+    expect(kiemGhiChu('a'.repeat(GHI_CHU_TOI_DA)).ok).toBe(true)
+    expect(kiemGhiChu('a'.repeat(GHI_CHU_TOI_DA + 1)).ok).toBe(false)
+    expect(kiemGhiChu(123).ok).toBe(false)
   })
 })

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
+import { docGhiChuNhieu } from '@/app/ticket/dau-ticket-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
 import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, type Ticket } from '@/app/actions'
 import { currentStaff } from '@/lib/nen-tang/nhan-su'
@@ -52,8 +53,13 @@ export default async function TicketsPage({
       xuat: ['cs.bao_cao.xuat', 'QUANLY'],
     }),
   ])
-  const views = await listBangView('tickets')
-  const { rows: tickets, tong, soTrang, sapXep } = ketQua
+  const { rows, tong, soTrang, sapXep } = ketQua
+  // Cột Ghi chú (tickets.note, 26/11) — chưa áp migration thì cột để trống, bảng chạy như cũ.
+  const [views, { data: ghiChu }] = await Promise.all([
+    listBangView('tickets'),
+    docAnToan('docGhiChuNhieu', () => docGhiChuNhieu(rows.map((t) => t.ticket_code)), {} as Record<string, string>),
+  ])
+  const tickets = rows.map((t) => ({ ...t, note: ghiChu[t.ticket_code] ?? null }))
 
   const tabs = [
     { key: '', label: 'Tất cả' },

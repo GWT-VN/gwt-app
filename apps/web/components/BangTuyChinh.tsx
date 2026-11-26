@@ -23,7 +23,7 @@ export type CotDef<T> = {
  * Bọc trong <KhungChon> ở trang để có chọn-nhiều-dòng.
  */
 export function BangTuyChinh<T>({
-  rows, keyOf, moTaOf, nhan, bang, cot, macDinh, sapMacDinh, views, choViewChung, congCu, lopDong,
+  rows, keyOf, moTaOf, nhan, bang, cot, macDinh, sapMacDinh, views, choViewChung, congCu, lopDong, motDong = false,
 }: {
   rows: T[]
   keyOf: (r: T) => string
@@ -41,6 +41,8 @@ export function BangTuyChinh<T>({
    * kiểu đó chính là thứ làm giao diện lệch khỏi rào thật: đọc code không ai biết
    * nó gác cái gì, nên tick lại ma trận là nút hiện/ẩn sai mà không ai ngờ.
    */
+  /** true = mọi ô (kể cả tiêu đề) giữ MỘT dòng, tràn thì cuộn ngang (CEO 26/11, bảng ticket). */
+  motDong?: boolean
   choViewChung: boolean
   /** Nút/điều khiển thêm (Xuất Excel, Lọc ngày…) gom chung 1 hàng với View + Cột. */
   congCu?: ReactNode
@@ -154,7 +156,7 @@ export function BangTuyChinh<T>({
       )}
 
       <div className="bg-white rounded-xl border overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className={`w-full text-sm ${motDong ? 'whitespace-nowrap' : ''}`}>
           <thead className="bg-slate-50 text-slate-600">
             <tr>
               <OChonTatCa nhan={nhan} />
