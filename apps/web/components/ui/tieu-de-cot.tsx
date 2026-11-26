@@ -28,7 +28,8 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CaretDown, EyeSlash, Funnel } from '@phosphor-icons/react/ssr'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, EyeSlash, Funnel } from '@phosphor-icons/react/ssr'
+import { KIEU_NGAY, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { Badge, BadgeDot } from './badge'
@@ -42,6 +43,10 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import { VungDoc } from './skeleton'
@@ -354,6 +359,24 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           {menuCot && (
             <>
               {coSapLoc && <DropdownMenuSeparator />}
+              {menuCot.ngay && (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <CalendarBlank aria-hidden="true" />
+                    Định dạng ngày
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup value={menuCot.ngay.kieu} onValueChange={(v) => menuCot.ngay?.onDoi(v as KieuNgay)}>
+                      {KIEU_NGAY.map((k) => (
+                        <DropdownMenuRadioItem key={k.kieu} value={k.kieu}>
+                          {k.nhan}
+                          <DropdownMenuShortcut>{k.vd}</DropdownMenuShortcut>
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              )}
               <DropdownMenuItem disabled={!menuCot.trai} onSelect={() => doiCot('trai')}>
                 <ArrowLeft aria-hidden="true" />
                 Dời sang trái

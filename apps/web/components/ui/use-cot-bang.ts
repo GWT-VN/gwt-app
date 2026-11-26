@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { KIEU_NGAY_MAC_DINH, laKieuNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
 
 /**
  * Cột của dạng xem Bảng (Table) / Danh sách (ListView) — README Table "Nhãn cột: lọc + sắp xếp".
@@ -13,7 +14,9 @@ import { useSearchParams } from 'next/navigation'
  * `rongToiDa` = trần cho cột tự vừa (cột chữ dài như tên khách) — quá trần mới cắt, ô bị cắt có `title` · nhấp đúp tay co
  * dãn = bỏ số kéo tay, về mặc định (`rong` hoặc vừa nội dung) · `toiThieu` mặc định 56 · `khoa` = không kéo đổi chỗ,
  * không ẩn · `anMacDinh` = ẩn sẵn (bật lại trong ⚙ → Cột hiển thị hoặc nút "+" `ThemCot`) · `phai` = căn phải (số, hạn) ·
- * `icon` = icon đứng trước tên ở danh sách chọn cột (`ThemCot`), không bắt buộc.
+ * `icon` = icon đứng trước tên ở danh sách chọn cột (`ThemCot`), không bắt buộc · `ngay` = cột hiện NGÀY → menu tiêu đề có
+ * "Định dạng ngày" (CEO 26/11 "cho phép chọn định dạng date ở ô label cột"); ô đọc `useCotBang().kieuNgay(id)` rồi gọi
+ * `hienNgay(v, kieu)` (lib/dinh-dang-ngay), URL `cot_ngay=tao:gio` (chỉ ghi cột khác mặc định dd/MM).
  */
 export type NghiaSap = {
   /** Câu nói nghĩa chiều tăng dần của giá trị, vd "Gần hạn nhất trước" — không ghi "Tăng dần". */
@@ -30,6 +33,7 @@ type CotChung = {
   anMacDinh?: boolean
   phai?: boolean
   icon?: ReactNode
+  ngay?: boolean
 }
 export type CotBang =
   | (CotChung & { kieu: 'sap'; nghia: NghiaSap })
@@ -51,7 +55,14 @@ export type BenTha = 'trai' | 'phai'
  * Mục dời / ẩn trong menu tiêu đề cột (`TieuDeCot` prop `menuCot`, lấy từ `useCotBang().menuCot(id)`). `trai`/`phai` =
  * tên cột đang hiện kề bên mà cột này dời qua được; `null` = ở mép hoặc kề cột khoá → mục hiện nhưng tắt.
  */
-export type MenuCot = { trai: string | null; phai: string | null; onDoi: (ben: BenTha) => void; onAn: () => void }
+export type MenuCot = {
+  trai: string | null
+  phai: string | null
+  onDoi: (ben: BenTha) => void
+  onAn: () => void
+  /** Cột `ngay`: định dạng đang dùng + đổi định dạng. */
+  ngay?: { kieu: KieuNgay; onDoi: (k: KieuNgay) => void }
+}
 
 export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
 /** Cột GHIM trái khi bảng cuộn ngang: cột `khoa` đứng ĐẦU hàng (vị trí 0 trong `hien`) — như cột nhãn của Twenty. */
@@ -79,18 +90,20 @@ export function doiChoMang(thuTu: string[], id: string, dich: string, ben: BenTh
 }
 
 /** `keoTay` = CHỈ cột người dùng đã kéo co dãn (px) — cột vắng mặt dùng `rong` khai sẵn hoặc vừa nội dung. */
-type TrangThaiCot = { thuTu: string[]; keoTay: Record<string, number>; an: string[] }
+type TrangThaiCot = { thuTu: string[]; keoTay: Record<string, number>; an: string[]; ngay: Record<string, KieuNgay> }
 
 const macDinh = (cot: CotBang[]): TrangThaiCot => ({
   thuTu: cot.map((c) => c.id),
   keoTay: {},
   an: cot.filter((c) => c.anMacDinh && !c.khoa).map((c) => c.id),
+  ngay: {},
 })
 
 // Tham số URL (tách khỏi `cot`/`chieu` sắp xếp của bang/): chỉ ghi phần KHÁC mặc định → URL gọn, chép link mở lại y hệt.
 const P_THU_TU = 'cot_thu_tu'
 const P_RONG = 'cot_rong'
 const P_AN = 'cot_an'
+const P_NGAY = 'cot_ngay'
 
 /** Đọc trạng thái cột từ URL. Id lạ bị bỏ, cột thiếu trong thứ tự nối cuối theo mặc định, độ rộng kẹp ≥ tối thiểu. */
 export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
@@ -115,7 +128,12 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
     if (c && so && Number.isFinite(px)) keoTay[id] = Math.max(toiThieu(c), Math.round(px))
   }
   const an = sp.has(P_AN) ? ds(P_AN).filter((x) => !theoId.get(x)?.khoa) : md.an
-  return { thuTu, keoTay, an }
+  const ngay: Record<string, KieuNgay> = {}
+  for (const cap of (sp.get(P_NGAY) ?? '').split(',')) {
+    const [id, k] = cap.split(':')
+    if (theoId.get(id)?.ngay && k && laKieuNgay(k) && k !== KIEU_NGAY_MAC_DINH) ngay[id] = k
+  }
+  return { thuTu, keoTay, an, ngay }
 }
 
 /** Ghi trạng thái cột vào bản sao `sp` (giữ mọi tham số khác). Bằng mặc định → xoá tham số. */
@@ -130,6 +148,10 @@ export function ghiUrlCot(sp: URLSearchParams, s: TrangThaiCot, cot: CotBang[]):
   dat(P_RONG, rong.length ? rong.join(',') : null)
   const an = [...s.an].sort().join(',')
   dat(P_AN, an === [...md.an].sort().join(',') ? null : an)
+  const ngay = Object.entries(s.ngay)
+    .filter(([id, k]) => k !== KIEU_NGAY_MAC_DINH && cot.some((c) => c.id === id && c.ngay))
+    .map(([id, k]) => `${id}:${k}`)
+  dat(P_NGAY, ngay.length ? ngay.join(',') : null)
   return ra
 }
 
@@ -341,8 +363,13 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
           if (k) doiCho(id, k.id, ben)
         },
         onAn: () => anHien(id, false),
+        ngay: x.ngay
+          ? { kieu: s.ngay[id] ?? KIEU_NGAY_MAC_DINH, onDoi: (k) => setS((t) => ({ ...t, ngay: { ...t.ngay, [id]: k } })) }
+          : undefined,
       }
     },
+    /** Định dạng ngày đang chọn của cột `id` (mặc định dd/MM) — ô gọi `hienNgay(v, c.kieuNgay(id))`. */
+    kieuNgay: (id: string): KieuNgay => s.ngay[id] ?? KIEU_NGAY_MAC_DINH,
   }
 }
 export type CotBangState = ReturnType<typeof useCotBang>

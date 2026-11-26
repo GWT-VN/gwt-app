@@ -60,13 +60,11 @@ describe('loiHopVoiMay — pop Loại lỗi theo máy cùng hàng (ILIKE như DB
   })
 })
 
-describe('ngày dd/MM/yy (giờ VN) — CEO 26/11 "ngày tháng format 14/08/24"', () => {
-  it('ngày + giờ, 00:30 VN không lệch ngày, năm khác, ngày thuần, trống', () => {
+describe('ngày (giờ VN) — CEO 26/11 "ngày tháng format 14/08/24" → "mặc định dd/mm đi" (chi tiết: lib/dinh-dang-ngay.test)', () => {
+  it('khác năm hiện tại kèm yy, giờ dd/MM/yy HH:mm, 00:30 VN không lệch ngày, trống', () => {
     expect(ngayNgan('2024-08-14T03:00:00Z')).toBe('14/08/24')
-    expect(ngayNgan('2026-11-25T17:30:00Z')).toBe('26/11/26') // 00:30 ngày 26 giờ VN
     expect(ngayGioNgan('2026-11-25T17:30:00Z')).toBe('26/11/26 00:30')
     expect(ngayNgan('2025-01-02T10:00:00+07:00')).toBe('02/01/25')
-    expect(ngayNgan('2027-03-09')).toBe('09/03/27')
     expect(ngayNgan(null)).toBe('—')
     expect(ngayGioNgan(undefined)).toBe(null)
   })

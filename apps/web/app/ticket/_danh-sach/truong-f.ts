@@ -2,6 +2,7 @@
 // File THƯỜNG (không 'use client'): page.tsx (server) dùng cùng định nghĩa — DB lọc qua loc-db.ts, ticket Demo (dev)
 // lọc trong bộ nhớ bằng `lay`; ds-f.tsx dựng bộ lọc + tab.
 import type { Ticket } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 import type { TruongDuLieu } from '@/bang/locTruong'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 
@@ -12,27 +13,10 @@ export const KHAN_KHONG = 'khong'
 /** Giá trị "Chưa giao" của Phụ trách (tên người không bao giờ là "-"). */
 export const CHUA_GIAO = '-'
 // Ngày của danh sách ticket F — CEO 26/11 "ngày tháng format 14/08/24": dd/MM/yy (cần giờ: dd/MM/yy HH:mm), giờ VN.
-const DINH_DANG = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: '2-digit',
-  year: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-  timeZone: 'Asia/Ho_Chi_Minh',
-})
-function phan(iso: string) {
-  const p = Object.fromEntries(DINH_DANG.formatToParts(new Date(iso)).map((x) => [x.type, x.value]))
-  return { ngay: `${p.day}/${p.month}/${p.year}`, gio: `${p.hour}:${p.minute}` }
-}
-/** dd/MM/yy (giờ VN); trống → "—". Chuỗi 'YYYY-MM-DD' (ngày thuần) giữ đúng ngày đó. */
-export const ngayNgan = (iso: string | null | undefined) => (iso ? phan(iso.length === 10 ? `${iso}T12:00:00+07:00` : iso).ngay : '—')
+/** Ngày mặc định toàn app (dd/MM, khác năm dd/MM/yy — lib/dinh-dang-ngay); trống → "—". */
+export const ngayNgan = (iso: string | null | undefined) => hienNgay(iso)
 /** dd/MM/yy HH:mm (giờ VN); trống → null. */
-export const ngayGioNgan = (iso: string | null | undefined) => {
-  if (!iso) return null
-  const x = phan(iso)
-  return `${x.ngay} ${x.gio}`
-}
+export const ngayGioNgan = (iso: string | null | undefined) => (iso ? hienNgay(iso, 'gio') : null)
 
 /** "Máy · lỗi": dòng máy đầu tiên (ticket_may), không có thì tên máy. */
 export const mayLoi = (t: Ticket) => t.dong_may?.[0]?.nhan ?? t.product_name ?? '—'
@@ -140,7 +124,7 @@ export function tuyChonF(rows: Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' |
 /** Tham số URL thuộc "bộ lọc" của một tab: lọc trường + tìm + sắp. */
 export const KHOA_LOC: string[] = [...TRUONG_F.map((x) => x.id), 'q', 'cot', 'chieu']
 /** Tham số cột (thứ tự / độ rộng / ẩn) — tab tự tạo lưu cả phần này. */
-export const KHOA_COT = ['cot_thu_tu', 'cot_rong', 'cot_an']
+export const KHOA_COT = ['cot_thu_tu', 'cot_rong', 'cot_an', 'cot_ngay']
 
 /** Chuẩn hoá query của các khoá cho trước (bỏ rỗng, sắp theo khoá) — so "tab đã đổi chưa" và lưu tab. */
 export function locCua(sp: URLSearchParams, khoa: string[] = KHOA_LOC): string {

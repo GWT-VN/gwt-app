@@ -208,3 +208,14 @@ test('link cũ thiếu cột mới (URL lưu trước khi cột ra đời) → c
   expect(docUrlCot(new URLSearchParams('cot_thu_tu=han,khach'), COT).thuTu).toEqual(['khach', 'may', 'han'])
   expect(docUrlCot(new URLSearchParams('cot_thu_tu=khach,han'), COT).thuTu).toEqual(['khach', 'may', 'han'])
 })
+
+test('định dạng ngày theo cột (CEO 26/11 "cho phép chọn định dạng date ở ô label cột"): URL cot_ngay chỉ ghi cột ngày khác mặc định', () => {
+  const COT_NGAY: CotBang[] = [...COT, { id: 'tao', ten: 'Ngày tạo', kieu: 'thuong', ngay: true }]
+  const md = docUrlCot(new URLSearchParams(''), COT_NGAY)
+  expect(md.ngay).toEqual({})
+  const sp = ghiUrlCot(new URLSearchParams(''), { ...md, ngay: { tao: 'gio', khach: 'gio' } }, COT_NGAY)
+  // khach không phải cột ngày → bỏ; kiểu mặc định (ngay-thang) không ghi.
+  expect(sp.get('cot_ngay')).toBe('tao:gio')
+  expect(docUrlCot(sp, COT_NGAY).ngay).toEqual({ tao: 'gio' })
+  expect(docUrlCot(new URLSearchParams('cot_ngay=tao:xx,tao:ngay-thang'), COT_NGAY).ngay).toEqual({})
+})

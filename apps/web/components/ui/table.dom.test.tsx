@@ -380,7 +380,7 @@ describe('4 trạng thái + dòng chọn', () => {
 describe('useCotBang — URL', () => {
   test('ghi chỉ phần khác mặc định, đọc lại y hệt; id lạ bị bỏ, kẹp tối thiểu', () => {
     // Kéo tay về đúng số khai (uu 76) = như chưa kéo → không ghi.
-    const s = { thuTu: ['ma', 'uu', 'nhom', 'nguon'], keoTay: { uu: 76, nhom: 200 }, an: [] }
+    const s = { thuTu: ['ma', 'uu', 'nhom', 'nguon'], keoTay: { uu: 76, nhom: 200 }, an: [], ngay: {} }
     const sp = ghiUrlCot(new URLSearchParams('q=may'), s, COT)
     expect(sp.get('q')).toBe('may')
     expect(sp.get('cot_rong')).toBe('nhom:200')

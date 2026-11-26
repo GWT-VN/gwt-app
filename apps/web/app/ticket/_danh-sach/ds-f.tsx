@@ -43,7 +43,8 @@ import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
-import { chuaLuu, laDemo, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
+import { chuaLuu, laDemo, mayLoi, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { HopGanViec } from './the-tab'
 import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, maMayNgan, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
@@ -184,7 +185,7 @@ const COT: CotBang[] = [
   { id: 'cs', ten: 'Phụ trách', kieu: 'loc' },
   { id: 'loai', ten: 'Loại', kieu: 'thuong', anMacDinh: true, rongToiDa: 240 },
   { id: 'tinh', ten: 'Tỉnh/TP', kieu: 'thuong', anMacDinh: true, rongToiDa: 240 },
-  { id: 'tao', ten: 'Ngày tạo', kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
+  { id: 'tao', ten: 'Ngày tạo', kieu: 'sap', anMacDinh: true, ngay: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
 ]
 const COT_SAP = ['tao']
 const TEN_COT = { tao: 'Ngày tạo' }
@@ -194,6 +195,7 @@ type Sap = { cot: string; tang: boolean }
 /** Ngữ cảnh ô: mở Xem nhanh + dữ liệu chọn của ô sửa được (null = chỉ đọc: không quyền cs.ticket.tao_sua). */
 type NgCanhO = {
   mo: (ma: string) => void
+  kieuNgay: (id: string) => KieuNgay
   sua: {
     nhanVien: MucChon[]
     loai: MucChon[]
@@ -313,7 +315,8 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
       <span className="block truncate">{t.ticket_type ?? '—'}</span>
     ),
   tinh: (t) => <span className="block truncate">{t.province ?? '—'}</span>,
-  tao: (t) => <span className="tabular-nums text-muted-foreground">{ngayNgan(t.created_at)}</span>,
+  // Định dạng chọn ở menu tiêu đề cột ("Định dạng ngày", CEO 26/11), mặc định dd/MM.
+  tao: (t, ng) => <span className="tabular-nums text-muted-foreground">{hienNgay(t.created_at, ng.kieuNgay('tao'))}</span>,
 }
 
 function DongBang({ t, hien, ng }: { t: Dong; hien: CotBang[]; ng: NgCanhO }) {
@@ -605,6 +608,7 @@ export function TicketF({
   // chỉ đọc (Tỉnh/TP đọc từ KHÁCH; đổi máy cần đọc máy của khách + DB local chưa có ticket_may — báo phiên chính).
   const ng: NgCanhO = {
     mo,
+    kieuNgay: c.kieuNgay,
     sua: quyenSua
       ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi, mayKhach, doiMay }
       : null,
