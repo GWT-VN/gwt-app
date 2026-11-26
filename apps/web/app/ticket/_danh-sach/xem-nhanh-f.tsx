@@ -59,7 +59,10 @@ export type TabXem = (typeof TAB_XEM)[number]
 
 const ngayGio = ngayGioNgan
 
-/** Một dòng trường: icon + nhãn mờ (cột trái) · giá trị; trống → chính tên trường, mờ (Twenty). */
+/**
+ * Một dòng trường: icon + nhãn mờ (cột trái) · giá trị; trống → "—". Không lặp tên trường ở ô giá trị như Twenty: CEO
+ * duyệt bỏ 26/11 ("Sửa luôn") — chữ mờ "Tên máy" nằm cạnh nhãn "Tên máy" trông như đã có dữ liệu.
+ */
 function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; children?: ReactNode }) {
   return (
     <PropertyRow
@@ -69,14 +72,14 @@ function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; child
           {nhan}
         </>
       }
-      trong={nhan}
+      trong="—"
     >
       {children}
     </PropertyRow>
   )
 }
 
-function TongQuan({ t, nhanVien, luu, lanViec, moGanViec }: { t: DongF; nhanVien: NhanVien; luu: Luu; lanViec: number; moGanViec: () => void }) {
+function TongQuan({ t, nhanVien, luu, lanViec }: { t: DongF; nhanVien: NhanVien; luu: Luu; lanViec: number }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
     <Accordion type="multiple" defaultValue={['ticket', 'may', 'khach', 'viec', 'he-thong']}>
@@ -159,17 +162,8 @@ function TongQuan({ t, nhanVien, luu, lanViec, moGanViec }: { t: DongF; nhanVien
         <AccordionItem value="viec">
           <AccordionTrigger>Việc đã gắn</AccordionTrigger>
           <AccordionContent>
-            <div className="flex flex-col items-start gap-3 border-none border-current">
-              <div className="self-stretch border-none border-current">
-                <ViecDaGan t={t} lan={lanViec} />
-              </div>
-              {luu && (
-                <Button variant="outline" size="sm" onClick={moGanViec}>
-                  <LinkSimple aria-hidden="true" />
-                  Gắn việc
-                </Button>
-              )}
-            </div>
+            {/* Chỉ danh sách — nút "Gắn việc" có một chỗ duy nhất ở thanh đáy (CEO 26/11: bỏ nút trùng). */}
+            <ViecDaGan t={t} lan={lanViec} />
           </AccordionContent>
         </AccordionItem>
       )}
@@ -423,7 +417,7 @@ export function theXemNhanhF({
           gt: 'tong',
           nhan: 'Tổng quan',
           icon: <House aria-hidden="true" />,
-          noiDung: <TongQuan key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} lanViec={lanViec} moGanViec={moGanViec} />,
+          noiDung: <TongQuan key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} lanViec={lanViec} />,
         },
         // Ticket thật: đọc DB (the-tab.tsx); ticket Demo (bộ nhớ): khối Demo bên dưới.
         { gt: 'lan', nhan: 'Lần lỗi', icon: <Wrench aria-hidden="true" />, noiDung: demo ? <LanLoi key={t.ticket_code} t={t} /> : <LanLoiThat key={t.ticket_code} t={t} /> },
