@@ -9,6 +9,7 @@ import type { AnalysisRow } from "@/lib/marketing/supabase-mkt";
 import { Icon } from "@/lib/marketing/icons";
 import Highlights from "./Highlights";
 import { ts } from "@/lib/marketing/transcript";
+import { hienNgay } from "@/lib/dinh-dang-ngay";
 
 const FILTERS = ["all", "A1", "A2", "A3", "A4", "A5"] as const;
 
@@ -173,7 +174,7 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
                   <div style={{ marginTop: 6, fontSize: ".78rem", color: "var(--ink-3)" }}>
                     {current.analyzed_by ? `Phân tích bởi ${current.analyzed_by}` : ""}
                     {current.analyzed_at
-                      ? ` · ${new Date(current.analyzed_at).toLocaleDateString("vi-VN")}`
+                      ? ` · ${hienNgay(current.analyzed_at)}`
                       : ""}
                     {` · id ${current.id}`}
                   </div>

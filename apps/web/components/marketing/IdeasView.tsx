@@ -9,6 +9,7 @@ import type { IdeaRow } from "@/lib/marketing/supabase-mkt";
 import { Icon } from "@/lib/marketing/icons";
 import Highlights from "./Highlights";
 import { ts } from "@/lib/marketing/transcript";
+import { hienNgay } from "@/lib/dinh-dang-ngay";
 
 export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
   const [status, setStatus] = useState<string>("all");
@@ -186,7 +187,7 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
                   ) : "—"}
                   <div style={{ marginTop: 6, fontSize: ".78rem", color: "var(--ink-3)" }}>
                     {current.assigned_to && current.assigned_to !== "None" ? `Giao cho ${current.assigned_to} · ` : ""}
-                    {current.created_at ? new Date(current.created_at).toLocaleDateString("vi-VN") : ""}
+                    {hienNgay(current.created_at, undefined, { rong: "" })}
                   </div>
                 </div>
               </div>

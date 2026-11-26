@@ -8,6 +8,7 @@ import { Icon } from "@/lib/marketing/icons";
 import DataError from "@/components/marketing/DataError";
 import { getIdea, SupabaseConfigError } from "@/lib/marketing/supabase-mkt";
 import { extractFrom, ts } from "@/lib/marketing/transcript";
+import { hienNgay } from "@/lib/dinh-dang-ngay";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -125,7 +126,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <div className="fl">Ghi nhận</div>
             <div className="fv" style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>
               {row.assigned_to && row.assigned_to !== "None" ? `Giao cho ${row.assigned_to} · ` : ""}
-              {row.created_at ? new Date(row.created_at).toLocaleDateString("vi-VN") : ""}
+              {hienNgay(row.created_at, undefined, { rong: "" })}
             </div>
           </div>
         </div>
