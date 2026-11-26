@@ -12,12 +12,12 @@ function gia(status = 204) {
 }
 
 describe("taoBao", () => {
-  it("daGui: một dòng đầu rồi các tin, bỏ U+2063", async () => {
+  it("daGui: dòng đầu rồi khối trích dẫn, bỏ U+2063, tin cách nhau dòng trích trống", async () => {
     const { goi, f } = gia();
     await taoBao("https://d/x", f).daGui({ kenh: "Fanpage", nhom: "hoi_gia", tomTat: "hỏi giá", tin: [`Dạ chào${DAU_BOT}`, "ạ"], thu: false });
     expect(goi).toHaveLength(1);
     expect(goi[0].url).toBe("https://d/x");
-    expect(goi[0].body.content).toBe("✉️ Fanpage · hoi_gia · hỏi giá\nDạ chào\nạ");
+    expect(goi[0].body.content).toBe("✉️ Fanpage · hoi_gia · hỏi giá\n> Dạ chào\n> \u200b\n> ạ");
     expect(goi[0].body.content).not.toContain(DAU_BOT);
     expect(goi[0].body.allowed_mentions).toEqual({ parse: [], roles: [] });
   });
@@ -46,7 +46,12 @@ describe("taoBao", () => {
     await taoBao("w", f).daGui({ kenh: "K", nhom: "n", tomTat: "**a**", tin: ["@everyone [x](y)"], thu: false });
     expect(goi[0].body.content).toContain("\\*\\*a\\*\\*");
     expect(goi[0].body.content).not.toContain("@everyone");
-    expect(goi[0].body.content).toContain("\\[x\\]\\(y\\)");
+    expect(goi[0].body.content).toContain("\\[x\\](y)");
+  });
+  it("giữ xuống dòng + gạch đầu dòng của tin, # đầu dòng không thành tiêu đề", async () => {
+    const { goi, f } = gia();
+    await taoBao("w", f).daGui({ kenh: "K", nhom: "n", tomTat: "t", tin: ["Dạ, giá:\n\n\n\n•  A: 1đ\n# B"], thu: true });
+    expect(goi[0].body.content).toBe("✉️ THỬ — chưa gửi · K · n · t\n> Dạ, giá:\n> \u200b\n> • A: 1đ\n> \\# B");
   });
   it("cắt 2000, không xẻ surrogate", async () => {
     const { goi, f } = gia();
