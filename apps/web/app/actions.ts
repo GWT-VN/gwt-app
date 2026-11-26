@@ -27,6 +27,9 @@ import { capNghiTrung, type CapNghiTrung } from '@/lib/nghiTrung'
 import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
+import { chuanMaLoi, MA_LOI } from '@/lib/loi/kiemDauVao'
+import type { DieuKienLoc } from '@/bang/locTruong'
+import { dieuKienOrTicket, homNayVN } from '@/app/ticket/_danh-sach/loc-db'
 import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
@@ -2462,6 +2465,40 @@ export type Ticket = {
   dong_may?: { nhan: string; serial: string | null; chuaPhanLoai: boolean }[]
 }
 
+/** Tuỳ chọn thêm của searchTickets cho danh sách F (/ticket). Mọi trường tuỳ chọn — caller cũ không truyền thì như cũ. */
+export type TuyChonTicketF = {
+  /** Lọc theo trường (bang/locTruong + TRUONG_F của app/ticket/_danh-sach). `loi` = mã lỗi (v_tickets_loi). */
+  locTruong?: DieuKienLoc[]
+  /** Giá trị "Tôi" của Phụ trách trong `locTruong` = staff id này. */
+  toiId?: string
+  /** Tab "Chưa giao": chưa có CS phụ trách. */
+  chuaGiao?: boolean
+  /** Tab "Hẹn hôm nay": có việc loại ticket trong chuyến kỹ thuật NGÀY HÔM NAY (giờ VN) còn trạng thái 'hen'. */
+  henHomNay?: boolean
+  /** Chỉ đếm (count head, không lấy dòng, không tính mốc hoạt động) — số trên tab. */
+  chiDem?: boolean
+  /** Khẩn lên đầu trước cột sắp (mặc định true). F tắt khi người dùng chọn cột sắp. */
+  khanTruoc?: boolean
+}
+
+/** Mã ticket có trong chuyến kỹ thuật hôm nay (giờ VN) còn 'hen'. Lỗi đọc (bảng chưa có) → [] + log, không vỡ trang. */
+async function maTicketHenHomNay(): Promise<string[]> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  const { data, error } = await dataClient()
+    .from('lich_ky_thuat_viec')
+    .select('ref, lich_ky_thuat!inner(ngay, trang_thai)')
+    .eq('loai_viec', 'ticket')
+    .not('ref', 'is', null)
+    .eq('lich_ky_thuat.ngay', homNayVN())
+    .eq('lich_ky_thuat.trang_thai', 'hen')
+  if (error) {
+    console.error('[searchTickets] đọc lịch KT hôm nay lỗi — tab Hẹn hôm nay rỗng', error.message)
+    return []
+  }
+  return [...new Set(((data ?? []) as { ref: string }[]).map((r) => r.ref))]
+}
+
 /** Tra ticket theo mã / serial / tên khách / SĐT / nội dung. Rỗng -> 50 ticket mới nhất.
  *  onlyKhan=true -> chỉ ticket đánh dấu Khẩn (khách khó chịu / cần gấp). */
 export async function searchTickets(
@@ -2469,7 +2506,7 @@ export async function searchTickets(
   state?: string,
   onlyKhan?: boolean,
   mineStaffId?: string,
-  tuyChon: TuyChonDanhSach & { loaiTicket?: string; loiCode?: string; kemDongMay?: boolean; ngtu?: string; ngden?: string } = {}
+  tuyChon: TuyChonDanhSach & TuyChonTicketF & { loaiTicket?: string; loiCode?: string; kemDongMay?: boolean; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<Ticket>> {
   await requireStaff()
   const sx = sapXepHopLe(tuyChon.cot, tuyChon.chieu, COT_TICKET, SAP_TICKET_MAC_DINH)
@@ -2489,6 +2526,13 @@ export async function searchTickets(
     return { rows: [], tong: 0, trang, soTrang: 1, sapXep: sx }
   }
   const maLoi = locLoi.loc ? locLoi.ma : null
+  // F: điều kiện trường `loi` (mảng mã, mã sai mẫu bị bỏ) + các trường còn lại dịch sang .or() (loc-db.ts).
+  const dkLoi = tuyChon.locTruong?.find((d) => d.truong === 'loi')
+  const maLoiF = (dkLoi?.giaTri ?? []).map(chuanMaLoi).filter((m) => MA_LOI.test(m))
+  const orTruong = dieuKienOrTicket(tuyChon.locTruong ?? [], { toiId: tuyChon.toiId })
+  const dungViLoi = !!maLoi || !!dkLoi
+  const henNay = tuyChon.henHomNay ? await maTicketHenHomNay() : null
+  if (henNay && !henNay.length) return { rows: [], tong: 0, trang, soTrang: 1, sapXep: sx }
   // View v_tickets_loi chưa có / lỗi (migration chưa áp) → không vỡ trang: log server, trả rỗng cho bộ lọc này.
   const rongVi = (e: { message: string }) => {
     console.error('[searchTickets] lọc theo loại lỗi (v_tickets_loi) lỗi — trả rỗng', e.message)
@@ -2496,8 +2540,20 @@ export async function searchTickets(
   }
 
   const dungTruyVan = () => {
-    let truyVan = dataClient().from(maLoi ? 'v_tickets_loi' : 'v_tickets').select('*', { count: 'exact' })
+    let truyVan = dataClient()
+      .from(dungViLoi ? 'v_tickets_loi' : 'v_tickets')
+      .select('*', { count: 'exact', head: !!tuyChon.chiDem })
     if (maLoi) truyVan = truyVan.contains('loi_codes', [maLoi])
+    if (dkLoi) {
+      const mang = `{${maLoiF.join(',')}}`
+      if (dkLoi.phep === 'la') truyVan = truyVan.overlaps('loi_codes', maLoiF)
+      else if (dkLoi.phep === 'khong-la') truyVan = truyVan.not('loi_codes', 'ov', mang)
+      else if (dkLoi.phep === 'trong') truyVan = truyVan.eq('loi_codes', '{}')
+      else if (dkLoi.phep === 'co') truyVan = truyVan.neq('loi_codes', '{}')
+    }
+    for (const dk of orTruong) truyVan = truyVan.or(dk)
+    if (tuyChon.chuaGiao) truyVan = truyVan.is('cs_phu_trach', null)
+    if (henNay) truyVan = truyVan.in('ticket_code', henNay)
 
     const term = q.trim()
     if (term) {
@@ -2560,6 +2616,13 @@ export async function searchTickets(
     return ra
   }
 
+  if (tuyChon.chiDem) {
+    const { count, error } = await dungTruyVan()
+    if (error && dungViLoi) return rongVi(error)
+    if (error) throw new Error(error.message)
+    return { rows: [], tong: count ?? 0, trang: 1, soTrang: 1, sapXep: sx }
+  }
+
   // Mốc hoạt động gắn cho MỌI cách sắp (badge "Mới" + tô dòng vừa đổi cần nó), chạy
   // song song với truy vấn chính.
   const hoatDong = bangHoatDongTicket()
@@ -2579,7 +2642,7 @@ export async function searchTickets(
     const lo = 1000
     for (let i = 0; ; i += lo) {
       const { data, error } = await dungTruyVan().order('ticket_code', { ascending: true }).range(i, i + lo - 1)
-      if (error && maLoi) return rongVi(error)
+      if (error && dungViLoi) return rongVi(error)
       if (error) throw new Error(error.message)
       const d = (data ?? []) as Ticket[]
       tatCa.push(...d)
@@ -2591,15 +2654,15 @@ export async function searchTickets(
   } else {
     // Khẩn lên đầu, rồi theo cột sắp xếp đã kiểm tra, rồi ticket_code (khoá chính,
     // duy nhất) làm khoá phụ -> .range() không nhảy/lặp dòng giữa các trang.
+    const coBan = dungTruyVan()
     const [{ data, error, count }, map] = await Promise.all([
-      dungTruyVan()
-        .order('khan', { ascending: false })
+      (tuyChon.khanTruoc === false ? coBan : coBan.order('khan', { ascending: false }))
         .order(sx.cot, { ascending: sx.tang, nullsFirst: false })
         .order('ticket_code', { ascending: true })
         .range(tu, tu + moi - 1),
       hoatDong,
     ])
-    if (error && maLoi) return rongVi(error)
+    if (error && dungViLoi) return rongVi(error)
     if (error) throw new Error(error.message)
     tong = count ?? 0
     rows = ((data ?? []) as Ticket[]).map(ganHoatDong(map))
@@ -4389,6 +4452,30 @@ export async function ticketTypes(): Promise<string[]> {
     .from('tickets').select('ticket_type').not('ticket_type', 'is', null)
   if (error) throw new Error(error.message)
   return [...new Set((data ?? []).map((r) => (r as { ticket_type: string }).ticket_type))].sort()
+}
+
+type CotLocTicket = Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' | 'province'>
+/**
+ * Cột của trường chọn/người (F /ticket) trên MỌI ticket người này xem được — page.tsx rút giá trị distinct
+ * (`tuyChonF`) cho ô lọc, không lấy từ trang đang hiện. PostgREST không có DISTINCT → đọc theo lô (bảng vài trăm dòng).
+ */
+export async function cotLocTicket(): Promise<CotLocTicket[]> {
+  await requireStaff()
+  await doQuyen('cs.ticket.xem')
+  const xemTatCa = await coQuyen('cs.ticket.xem_tat_ca', 'QUANLY')
+  const meId = xemTatCa ? null : ((await layNhanVien())?.id ?? '00000000-0000-0000-0000-000000000000')
+  const ra: CotLocTicket[] = []
+  const lo = 1000
+  for (let i = 0; ; i += lo) {
+    let tv = dataClient().from('v_tickets').select('state, cs_ten, ticket_type, province')
+    // Cùng miền phụ trách với searchTickets: NV thường không thấy tên/tỉnh của ticket người khác.
+    if (meId) tv = tv.or(`cs_phu_trach.is.null,cs_phu_trach.eq.${meId},ky_thuat.eq.${meId}`)
+    const { data, error } = await tv.order('ticket_code', { ascending: true }).range(i, i + lo - 1)
+    if (error) throw new Error(error.message)
+    ra.push(...((data ?? []) as CotLocTicket[]))
+    if ((data ?? []).length < lo) break
+  }
+  return ra
 }
 
 // ── Data cần dọn (gộp: ticket thiếu máy/khách · khách cần dọn · bộ thiếu con) ──

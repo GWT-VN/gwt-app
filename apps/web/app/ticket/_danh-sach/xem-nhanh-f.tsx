@@ -1,9 +1,10 @@
 'use client'
 
-// PROTOTYPE vứt đi — thẻ Xem nhanh của PA F theo bố cục panel bản ghi của Twenty (CEO duyệt 26/11 "Duyệt, dựng đi"):
+// Thẻ Xem nhanh của danh sách ticket F (/ticket) theo bố cục panel bản ghi của Twenty (CEO duyệt 26/11 "Duyệt, dựng đi"):
 // đầu thẻ mã + khách (+ Khẩn) · hàng tab line có icon (gom "+N Thêm") · Tổng quan = các nhóm trường gập/mở, dòng icon +
 // nhãn + giá trị, trống hiện tên trường mờ · thanh thao tác dính đáy (⋮ + Hẹn KTV). Học BỐ CỤC + HÀNH VI, giao diện là DS
-// (XemNhanh `tab`/`chan`/`co`, Tabs line `thuGon`, Accordion, PropertyList `trong`). Không gọi mutation thật.
+// (XemNhanh `tab`/`chan`/`co`, Tabs line `thuGon`, Accordion, PropertyList `trong`). Chưa gọi mutation — nối ở bước 4
+// (docs/rework/2026-11-26-ticket-f-dung-that.md). Lần lỗi mượn khối của prototype chi tiết (ct-gon) tới khi chi tiết dựng thật.
 import Link from 'next/link'
 import {
   AddressBook,
@@ -97,7 +98,7 @@ function TongQuan({ t, nguoi, sua }: { t: DongF; nguoi: { gt: string; nhan: stri
               {t.ticket_type}
             </Truong>
             <Truong icon={ic(Wrench)} nhan="Kỹ thuật">
-              {t.ky_thuat_ten ?? (t.hen ? 'Đã hẹn (prototype)' : null)}
+              {t.ky_thuat_ten ?? (t.hen ? 'Đã hẹn (chưa lưu)' : null)}
             </Truong>
           </PropertyList>
         </AccordionContent>
@@ -336,7 +337,7 @@ function ThanhThaoTac({ t, sua }: { t: DongF; sua: (s: SuaF) => void }) {
         disabled={t.hen}
         onClick={() => {
           sua({ hen: true })
-          thongBao.xong(`${t.ticket_code}: đã hẹn KTV — prototype, chưa lưu`)
+          thongBao.xong(`${t.ticket_code}: đã hẹn KTV — chưa lưu`)
         }}
       >
         <CalendarPlus aria-hidden="true" />

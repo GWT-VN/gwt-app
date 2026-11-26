@@ -17,10 +17,77 @@ import { LocNgay } from '@/bang'
 import { docLocNgay, moTaLocNgay, SAP_TICKET_MAC_DINH } from '@/lib/danhSach'
 import { TuLamMoi } from '@/components/TuLamMoi'
 import { KhungChon, ThanhDaChon } from '@/bang'
+import { redirect } from 'next/navigation'
+import { ManV2 } from '@/components/khung/ManV2'
+import { cotLocTicket } from '@/app/actions'
 import { TrangTicketPrototype } from './_prototype/trang'
-import { locDemo, TICKET_DEMO } from './_prototype/demo'
-import { TOI_F, TRUONG_F, tuyChonF } from './_prototype/truong-f'
+import { locDemo, TICKET_DEMO, TOI_DEMO, VIEW_DEMO } from './_prototype/demo'
+import { TicketF } from './_danh-sach/ds-f'
+import type { DuLieuTicket } from './_danh-sach/chung'
+import { docViewF, TRUONG_F, tuyChonF, VIEW_F, type ViewF } from './_danh-sach/truong-f'
 import { apLoc, docTatCa } from '@/bang/locTruong'
+
+type SP = Record<string, string | string[] | undefined>
+const mot = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
+const UUID_RONG = '00000000-0000-0000-0000-000000000000'
+
+/**
+ * Dữ liệu danh sách F (/ticket): tab + lọc theo trường + tìm + sắp + trang ở DB (searchTickets), số mỗi tab đếm ở DB,
+ * giá trị ô lọc chọn = distinct trên mọi ticket xem được (cotLocTicket). Dev + DB < 5 ticket → nối ticket Demo trong bộ
+ * nhớ (lọc bằng cùng TRUONG_F); production không bao giờ có Demo. Không ghi DB.
+ */
+async function duLieuF(sp: SP): Promise<DuLieuTicket> {
+  const q = mot(sp.q) ?? ''
+  const trang = Math.max(1, Number(mot(sp.trang)) || 1)
+  const view = docViewF(mot(sp.view))
+  const kanban = mot(sp.bo_cuc) === 'kanban'
+  const dk = docTatCa(sp, TRUONG_F)
+  // Cột "Ngày tạo" của F (`cot=tao`) = created_at. Chọn cột sắp → sắp đúng cột đó (Khẩn không chen lên đầu, như prototype).
+  const cotF = mot(sp.cot) === 'tao' ? 'created_at' : undefined
+  const chieu = mot(sp.chieu)
+  const me = await currentStaff()
+  const chung = { locTruong: dk, toiId: me?.id, khanTruoc: !cotF }
+  // Tab → điều kiện DB. Kanban không có tab (mọi ticket qua bộ lọc trường).
+  const theoView = (v: ViewF | null) =>
+    [
+      v ? 'Open' : undefined,
+      v === 'khan',
+      v === 'cua-toi' ? (me?.id ?? UUID_RONG) : undefined,
+      { ...chung, chuaGiao: v === 'chua-giao', henHomNay: v === 'hen-nay' },
+    ] as const
+  const [st, kh, mine, tc] = theoView(kanban ? null : view)
+  const dev = process.env.NODE_ENV !== 'production'
+  const [ketQua, demDb, cotDb, { data: dsLoi }, tongDb] = await Promise.all([
+    searchTickets(q, st, kh, mine, { ...tc, trang, cot: cotF, chieu }),
+    Promise.all(VIEW_F.map(async (x) => {
+      const [s, k, m, t] = theoView(x.v)
+      return (await searchTickets(q, s, k, m, { ...t, chiDem: true })).tong
+    })),
+    cotLocTicket(),
+    docAnToan('danhMucLoi', () => danhMucLoi(), []),
+    dev ? searchTickets('', undefined, false, undefined, { chiDem: true }).then((r) => r.tong) : Promise.resolve(Infinity),
+  ])
+  const demo = tongDb < 5
+  // Demo: cùng tìm kiếm (locDemo) + bộ lọc trường (apLoc, "Tôi" = TOI_DEMO) + điều kiện tab.
+  const demoLoc = demo ? apLoc(locDemo({ q }), dk, TRUONG_F, { toi: TOI_DEMO }) : []
+  const demoView = kanban ? demoLoc : demoLoc.filter(VIEW_DEMO[view])
+  let rows = [...ketQua.rows, ...demoView]
+  if (demo && cotF) {
+    const tang = chieu !== 'desc'
+    rows = rows.sort((a, b) => (Date.parse(a.created_at) - Date.parse(b.created_at)) * (tang ? 1 : -1) || a.ticket_code.localeCompare(b.ticket_code))
+  }
+  return {
+    rows,
+    tong: ketQua.tong + demoView.length,
+    trang,
+    soTrang: demo ? 1 : ketQua.soTrang,
+    loaiList: [],
+    dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten })),
+    demo,
+    tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
+    demTab: Object.fromEntries(VIEW_F.map((x, i) => [x.v, demDb[i] + demoLoc.filter(VIEW_DEMO[x.v]).length])),
+  }
+}
 
 export default async function TicketsPage({
   searchParams,
@@ -28,10 +95,29 @@ export default async function TicketsPage({
   searchParams: Promise<{
     q?: string; state?: string; khan?: string; mine?: string; trang?: string
     cot?: string; chieu?: string; loai?: string; loi?: string; ngtu?: string; ngden?: string
-    variant?: string
+    variant?: string; cu?: string
   } & Record<string, string | string[] | undefined>>
 }) {
   const sp = await searchParams
+  const dev = process.env.NODE_ENV !== 'production'
+  // Mặc định = danh sách F (dữ liệu thật). `?cu=1` = màn cũ (giữ tới khi CEO bỏ). `?variant=` = prototype, chỉ dev.
+  if (sp.cu !== '1' && (!dev || !sp.variant || sp.variant === 'F')) {
+    // Link cũ (Tổng quan "Ticket đang mở" = ?state=Open, ?khan=1, ?mine=1) → đúng tab F.
+    const cuSangView = sp.khan === '1' ? 'khan' : sp.mine === '1' ? 'cua-toi' : sp.state === 'Open' ? 'mo' : null
+    if (cuSangView && !sp.view) {
+      const p = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === 'string' && !['state', 'khan', 'mine'].includes(k) ? [[k, v]] : [])))
+      p.set('view', cuSangView)
+      redirect(`/ticket?${p}`)
+    }
+    const du = await duLieuF(sp)
+    return dev && sp.variant === 'F' ? (
+      <TrangTicketPrototype variant="F" {...du} />
+    ) : (
+      <ManV2>
+        <TicketF {...du} />
+      </ManV2>
+    )
+  }
   const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden, variant } = sp
   const onlyKhan = khan === '1'
   const isMine = mine === '1'
@@ -48,9 +134,7 @@ export default async function TicketsPage({
           sapXep: { ...SAP_TICKET_MAC_DINH, macDinh: true },
         })
       : searchTickets(q, onlyKhan ? undefined : state || undefined, onlyKhan, me?.id, {
-          // PA F: `loai`/`loi` mang ngữ pháp lọc theo trường (bang/locTruong) → lọc ở nhánh prototype dưới, không đưa vào SQL.
-          trang, cot, chieu, ngtu, ngden,
-          ...(variant !== 'F' && { loaiTicket: loai || undefined, loiCode: loi || undefined }),
+          trang, cot, chieu, ngtu, ngden, loaiTicket: loai || undefined, loiCode: loi || undefined,
         })),
     ticketTypes(),
     docAnToan('danhMucLoi', () => danhMucLoi(), []),
@@ -63,26 +147,18 @@ export default async function TicketsPage({
   const views = await listBangView('tickets')
   const { rows: tickets, tong, soTrang, sapXep } = ketQua
 
-  // PROTOTYPE vứt đi (25/11): ?variant=A–F, T → 7 phương án DS v2 (app/ticket/_prototype), chỉ chạy dev. Không variant = màn cũ.
-  if (variant && ['A', 'B', 'C', 'D', 'E', 'F', 'T'].includes(variant) && process.env.NODE_ENV !== 'production') {
+  // PROTOTYPE vứt đi (25/11): ?variant=A–E, T → phương án DS v2 (app/ticket/_prototype), chỉ chạy dev. F ở nhánh trên.
+  if (variant && ['A', 'B', 'C', 'D', 'E', 'T'].includes(variant) && dev) {
     // DB local gần như trống (< 5 ticket) → thêm ticket Demo trong bộ nhớ (lọc theo tab/từ khoá) sau ticket thật.
     const dbIt = tong < 5 && (await searchTickets('', undefined, false, undefined, { trang: 1, kemDongMay: false })).tong < 5
     const demo = dbIt ? [...tickets, ...locDemo({ state, khan, mine, q })] : null
-    let rows = demo ?? tickets
-    let tuyChonLoc: Record<string, string[]> | undefined
-    // F: lọc theo trường (bang/locTruong) chạy THẬT ở server trên đúng tham số URL client ghi. "Tôi" = TOI_F (prototype).
-    // ponytail: DB thật (không demo) chỉ lọc được dòng của trang hiện tại — lọc đúng phải đẩy điều kiện xuống truy vấn
-    // searchTickets khi F thành màn thật.
-    if (variant === 'F') {
-      tuyChonLoc = tuyChonF(rows)
-      rows = apLoc(rows, docTatCa(sp, TRUONG_F), TRUONG_F, { toi: TOI_F })
-    }
+    const rows = demo ?? tickets
     return (
       <TrangTicketPrototype
-        variant={variant} rows={rows} tong={demo || variant === 'F' ? rows.length : tong} trang={trang}
+        variant={variant} rows={rows} tong={demo ? rows.length : tong} trang={trang}
         soTrang={demo ? 1 : soTrang}
         loaiList={demo ? [...new Set(TICKET_DEMO.map((t) => t.ticket_type!))] : loaiList} demo={!!demo}
-        dsLoi={dsLoi.map((d) => ({ code: d.code, ten: d.ten }))} tuyChonLoc={tuyChonLoc}
+        dsLoi={dsLoi.map((d) => ({ code: d.code, ten: d.ten }))}
       />
     )
   }
@@ -98,7 +174,7 @@ export default async function TicketsPage({
   // state/khan/mine là tab điều hướng riêng (không phải chip ở ThanhDangLoc) nên vẫn
   // giữ nguyên — bỏ "Từ khoá" hay "Loại lỗi" không có nghĩa là rời khỏi tab đang chọn.
   function hrefBoDieuKien(bo: 'q' | 'loai' | 'loi' | 'ngay') {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams({ cu: '1' })
     if (q && bo !== 'q') params.set('q', q)
     if (state) params.set('state', state)
     if (khan) params.set('khan', khan)
@@ -109,8 +185,7 @@ export default async function TicketsPage({
     if (ngden && bo !== 'ngay') params.set('ngden', ngden)
     if (cot) params.set('cot', cot)
     if (chieu) params.set('chieu', chieu)
-    const qs = params.toString()
-    return qs ? `/ticket?${qs}` : '/ticket'
+    return `/ticket?${params}`
   }
 
   const tenLoi = dsLoi.find((d) => d.code === loi)?.ten ?? loi
@@ -140,7 +215,7 @@ export default async function TicketsPage({
             {tabs.map((t) => (
               <Link
                 key={t.key}
-                href={`/ticket?${new URLSearchParams({ ...(q && { q }), ...(t.key && { state: t.key }) })}`}
+                href={`/ticket?${new URLSearchParams({ cu: '1', ...(q && { q }), ...(t.key && { state: t.key }) })}`}
                 className={`px-3 py-1.5 rounded-lg text-sm border ${
                   !onlyKhan && !isMine && state === t.key ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'
                 }`}
@@ -149,7 +224,7 @@ export default async function TicketsPage({
               </Link>
             ))}
             <Link
-              href={`/ticket?${new URLSearchParams({ ...(q && { q }), khan: '1' })}`}
+              href={`/ticket?${new URLSearchParams({ cu: '1', ...(q && { q }), khan: '1' })}`}
               className={`px-3 py-1.5 rounded-lg text-sm border ${
                 onlyKhan ? 'bg-red-600 text-white border-red-600' : 'bg-white text-red-600 border-red-200'
               }`}
@@ -157,7 +232,7 @@ export default async function TicketsPage({
               🔴 Khẩn
             </Link>
             <Link
-              href={`/ticket?${new URLSearchParams({ ...(q && { q }), mine: '1' })}`}
+              href={`/ticket?${new URLSearchParams({ cu: '1', ...(q && { q }), mine: '1' })}`}
               className={`px-3 py-1.5 rounded-lg text-sm border ${
                 isMine ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'
               }`}
@@ -188,6 +263,7 @@ export default async function TicketsPage({
           hienThi={tickets.length}
           tong={tong}
           nhan="ticket"
+          hrefXoaLoc="/ticket?cu=1"
           // Câu lệnh luôn .order('khan') TRƯỚC cột người dùng chọn -> phải nói ra,
           // không thì bấm "Ngày" thấy ticket cũ nằm trên ticket mới lại tưởng hỏng.
           sapXep={{ ...sapXep, ghiChu: 'Khẩn luôn lên đầu' }}

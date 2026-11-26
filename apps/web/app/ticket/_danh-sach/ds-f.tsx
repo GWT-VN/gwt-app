@@ -1,9 +1,11 @@
 'use client'
 
-// PROTOTYPE vứt đi — PA F "Đề xuất theo nghiên cứu" (docs/rework/2026-11-25-nghien-cuu-cskh-ho-so-may.md mục 4b):
-// L1 Bảng + thẻ Xem nhanh (bố cục Twenty, xem-nhanh-f.tsx: tab, nhóm trường, sửa trạng thái / phụ trách, Hẹn KTV) · L3 view mặc định có số đếm,
-// hạn/SLA bằng tag màu · L2 Kanban theo khâu là dạng xem phụ. Không gọi mutation thật — sửa chỉ đổi state trên màn.
-import { Suspense, useCallback, useRef, useState } from 'react'
+// Danh sách ticket F — màn thật /ticket (docs/rework/2026-11-26-ticket-f-dung-that.md; gốc: PA F
+// docs/rework/2026-11-25-nghien-cuu-cskh-ho-so-may.md mục 4b). Prototype /ticket?variant=F dựng CHÍNH component này (+ `dau`).
+// L1 Bảng + thẻ Xem nhanh (bố cục Twenty, xem-nhanh-f.tsx) · L3 tab view có số đếm · L2 Kanban là dạng xem phụ.
+// Dữ liệu: server (page.tsx → searchTickets) đã lọc theo tab + trường + tìm, sắp, cắt trang; số tab đếm ở DB.
+// Sửa tại chỗ (Xem nhanh, kéo thẻ, hàng loạt) CHƯA nối mutation — chỉ đổi state trên màn (bước 4 của kế hoạch).
+import { Suspense, useCallback, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   AddressBook,
@@ -37,45 +39,21 @@ import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
-import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
+import { docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
-import { chuaLuu, DauPrototype, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
-import { CHUA_GIAO, han, maMayNgan, TOI_F as TOI, TRUONG_F } from './truong-f'
+import { chuaLuu, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { CHUA_GIAO, docViewF, maMayNgan, TRUONG_F, VIEW_F } from './truong-f'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
-// ── Giả định (DB chưa có trường) — ghi trên màn ─────────────────────────────────────────────────────────────────────
-// "Của tôi" = TOI · hạn = ngày tạo + 3 ngày (khẩn + 1): truong-f.ts (server lọc dùng chung).
-const NGAY = 86_400_000
-/** Chờ vật tư = đang mở, đã có KT, loại Thay lõi / Sửa chữa. */
+// Khâu (Kanban) là giá trị SUY RA, chưa có trường DB. Chờ vật tư = đang mở, đã có KT, loại Thay lõi / Sửa chữa.
+// ponytail: suy đoán — bước 4 đổi Kanban mặc định sang Trạng thái (kế hoạch), Khâu chỉ xem.
 const choVatTu = (t: Ticket) => t.state === 'Open' && !!t.ky_thuat && (t.ticket_type === 'Thay lõi' || t.ticket_type === 'Sửa chữa')
-/** Hẹn hôm nay = đang mở, đã có KT (không chờ vật tư), hoạt động cuối là hôm nay — hoặc vừa bấm "Hẹn KTV". */
-const laHomNay = (iso: string | null) => !!iso && new Date(iso).toDateString() === new Date().toDateString()
 
-/** Sửa tại chỗ (prototype). `khau`: thả thẻ vào cột Khâu — Khâu là giá trị SUY RA, chưa có trường DB → ghi đè trên màn. */
+/** Sửa tại chỗ (chưa lưu DB). `khau`: thả thẻ vào cột Khâu — Khâu là giá trị SUY RA, chưa có trường DB → ghi đè trên màn. */
 export type SuaF = { state?: Ticket['state']; cs?: string | null; hen?: boolean; khau?: string }
 export type DongF = Ticket & { hen: boolean; khau?: string }
 type Sua = SuaF
 type Dong = DongF
-
-const henNay = (t: Dong) => t.state === 'Open' && (t.hen || (!!t.ky_thuat && !choVatTu(t) && laHomNay(t.hoat_dong_cuoi ?? null)))
-const sla = (t: Ticket): 'qua' | 'sap' | null => {
-  if (t.state !== 'Open') return null
-  const con = han(t) - Date.now()
-  return con < 0 ? 'qua' : con < NGAY ? 'sap' : null
-}
-const soNgayQua = (t: Ticket) => Math.max(1, Math.floor((Date.now() - han(t)) / NGAY))
-
-// ── View mặc định (L3) ──────────────────────────────────────────────────────────────────────────────────────────────
-const VIEW = [
-  { v: 'cua-toi', ten: 'Của tôi', loc: (t: Dong) => t.state === 'Open' && t.cs_ten === TOI },
-  { v: 'chua-giao', ten: 'Chưa giao', loc: (t: Dong) => t.state === 'Open' && !t.cs_ten },
-  { v: 'qua-han', ten: 'Quá hạn', loc: (t: Dong) => sla(t) === 'qua' },
-  { v: 'mo', ten: 'Tất cả đang mở', loc: (t: Dong) => t.state === 'Open' },
-  // Hai view ít dùng đứng cuối → hàng tab thu gọn (TabsList `thuGon`) đẩy chúng vào "Thêm ▾" trước (đo 1440: 729/679px).
-  { v: 'vat-tu', ten: 'Chờ vật tư', loc: (t: Dong) => choVatTu(t) },
-  { v: 'hen-nay', ten: 'Hẹn hôm nay', loc: henNay },
-] as const
-type View = (typeof VIEW)[number]['v']
 
 // ── Nhãn ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 export const TT: MucTrangThai[] = [
@@ -84,8 +62,8 @@ export const TT: MucTrangThai[] = [
   { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary' },
 ]
 
-// Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành, hạn = chữ;
-// màu chữ chỉ cho ngoại lệ (hết BH, quá hạn, sắp hạn). Khẩn = icon đỏ đầu hàng. Xem nhanh cũng vậy (xem-nhanh-f.tsx).
+// Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành = chữ;
+// màu chữ chỉ cho ngoại lệ (hết BH). Khẩn = icon đỏ đầu hàng. Xem nhanh cũng vậy (xem-nhanh-f.tsx).
 const CHU_DO = 'text-(--color-text-danger)'
 
 /** Khẩn: icon đỏ (kiểu ưu tiên của Linear) thay badge — tên đọc được cho trình đọc màn hình. */
@@ -102,14 +80,6 @@ export function ChuBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
   ) : (
     <span className={CHU_DO}>{ngan ? 'Hết BH' : 'Hết bảo hành'}</span>
   )
-}
-
-/** Hạn/SLA dạng chữ: đỏ quá hạn, cam sắp hạn (< 24 giờ); còn lại chữ ngày mờ. */
-export function NhanHan({ t }: { t: Ticket }) {
-  const s = sla(t)
-  if (s === 'qua') return <span className={`tabular-nums ${CHU_DO}`}>Quá {soNgayQua(t)} ngày</span>
-  if (s === 'sap') return <span className="tabular-nums text-(--color-text-warning)">Hạn {ngayNgan(new Date(han(t)).toISOString())}</span>
-  return <span className="tabular-nums text-muted-foreground">{t.state === 'Open' ? ngayNgan(new Date(han(t)).toISOString()) : '—'}</span>
 }
 
 const chuDau = (ten: string) =>
@@ -211,7 +181,6 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
   loi: (t) => <span className="block truncate text-muted-foreground">{t.dong_may?.[0] ? mayLoi(t) : '—'}</span>,
   tt: (t) => <TrangThaiO t={t} />,
   cs: (t) => <NguoiPhuTrach ten={t.cs_ten} />,
-  han: (t) => <NhanHan t={t} />,
   loai: (t) => <span className="block truncate">{t.ticket_type ?? '—'}</span>,
   tinh: (t) => <span className="block truncate">{t.province ?? '—'}</span>,
   tao: (t) => <span className="tabular-nums text-muted-foreground">{ngayNgan(t.created_at)}</span>,
@@ -233,10 +202,6 @@ function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) 
   )
 }
 
-/** Khoá phụ mã ticket (CHUAN-FILTER luật 2) — không đảo theo chiều. */
-const soSanh = ({ cot, tang }: Sap) => (a: Ticket, b: Ticket) =>
-  (cot === 'han' ? han(a) - han(b) : Date.parse(a.created_at) - Date.parse(b.created_at)) * (tang ? 1 : -1) ||
-  a.ticket_code.localeCompare(b.ticket_code)
 
 // ── Danh sách (điện thoại + dạng xem Danh sách) ────────────────────────────────────────────────────────────────────
 const COT_DS: CotDanhSach<Dong>[] = [
@@ -304,7 +269,7 @@ const truongThe = (d: Dong): TruongThe[] => [
   { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
 ]
 
-export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {} }: DuLieuTicket) {
+export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {}, demTab = {}, dau }: DuLieuTicket & { dau?: ReactNode }) {
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
   const pathname = usePathname()
@@ -321,18 +286,13 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const dangXem: DangXem = XEM_F.find((x) => x === sp.get('bo_cuc')) ?? 'bang'
   const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
 
-  // ── Lọc theo trường (bang/locTruong, URL = tham số mang tên trường): server đã lọc thật; lọc lại ở đây để sửa tại chỗ
-  // (prototype, chưa lưu) cũng ra/vào bộ lọc ngay.
+  // ── Lọc theo trường (bang/locTruong, URL = tham số mang tên trường): server lọc ở DB (searchTickets) — ở đây chỉ đọc
+  // điều kiện để dựng chip. Sửa tại chỗ (chưa lưu) đè lên dòng server gửi.
   const dk = docTatCa(sp, TRUONG_F)
-  const rows: Dong[] = apLoc(
-    goc.map((t) => {
-      const s = sua[t.ticket_code]
-      return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen, khau: s?.khau }
-    }),
-    dk,
-    TRUONG_F,
-    { toi: TOI },
-  )
+  const rows: Dong[] = goc.map((t) => {
+    const s = sua[t.ticket_code]
+    return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen, khau: s?.khau }
+  })
   // Danh sách giá trị lấy từ dữ liệu CHƯA lọc (server gửi) — không co lại theo chính bộ lọc đang bật.
   const nguoi = (tuyChonLoc.cs ?? []).filter((n) => n !== CHUA_GIAO).map((n) => ({ gt: n, nhan: n }))
   const ttCo = TT.filter((m) => tuyChonLoc.tt?.includes(m.gt))
@@ -343,7 +303,10 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
     tuyChon:
       x.id === 'tt'
         ? ttCo.map((m) => ({ giaTri: m.gt, nhan: m.nhan }))
-        : tuyChonLoc[x.id]?.map((g) => ({ giaTri: g, nhan: x.id === 'cs' && g === CHUA_GIAO ? 'Chưa giao' : g })),
+        : x.id === 'loi'
+          ? // Loại lỗi = mã danh mục lỗi (DB lọc theo mã), nhãn = tên lỗi.
+            dsLoi.map((d) => ({ giaTri: d.code, nhan: d.ten }))
+          : tuyChonLoc[x.id]?.map((g) => ({ giaTri: g, nhan: x.id === 'cs' && g === CHUA_GIAO ? 'Chưa giao' : g })),
   }))
   const datLoc = (id: string, d: DieuKienLoc | null) => dat({ [id]: ghiDieuKien(d, TRUONG_F.find((x) => x.id === id)!.kieu) })
   // Menu tiêu đề cột → "Lọc…" mở pop lọc của đúng trường (đủ phép + "Tôi"); đã có chip → mở chip đó (học Twenty).
@@ -354,9 +317,9 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const cotUrl = COT_SAP.includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
   const sap: Sap | null = cotUrl ? { cot: cotUrl, tang: sp.get('chieu') !== 'desc' } : null
   const datSap = (s: Sap | null) => dat({ cot: s?.cot ?? null, chieu: s ? (s.tang ? 'asc' : 'desc') : null })
-  const view = (VIEW.find((x) => x.v === sp.get('view'))?.v ?? 'cua-toi') as View
-  const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc)
-  if (sap) dong.sort(soSanh(sap))
+  const view = docViewF(sp.get('view'))
+  // Server đã lọc theo tab + sắp (cột "Ngày tạo" ↔ created_at).
+  const dong = rows
 
   // ── Kanban: nhóm theo + nhóm ẩn (URL) ──
   const docKb = (k: string) => (k in kbTam ? kbTam[k] : sp.get(k))
@@ -379,7 +342,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
     dat(sua, true)
   }
   const datNhomAn = (ds: string[]) => datNgay({ nhom_an: ds.length ? ds.join(',') : null })
-  /** Kéo thẻ / "Chuyển sang…" → cập nhật lạc quan (chỉ state trên màn, prototype không mutation). */
+  /** Kéo thẻ / "Chuyển sang…" → cập nhật lạc quan (chỉ state trên màn, chưa mutation — bước 4). */
   const chuyenThe = (id: string, cot: string) => {
     if (nhomTheo === 'tt') return doi(id)({ state: cot as Ticket['state'] })
     if (nhomTheo === 'cs') return doi(id)({ cs: cot === KHONG_GT ? null : cot })
@@ -419,7 +382,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
         <Table ref={refBang} layout="fixed" style={{ minWidth: tongRong }}>
           {/* Cột cuối (dưới ô "+") ăn phần dư của khung. */}
-          <ColCotBang hien={c.hien} doRong={c.doRong} />
+          <ColCotBang hien={c.hien} doRong={c.doRong} choDo={c.choDo} />
           <TableHeader>
             <TableRow>
               <OChonTatCa nhan="ticket" />
@@ -484,11 +447,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
       onSau={i >= 0 && i < nguon.length - 1 ? () => mo(nguon[i + 1].ticket_code) : undefined}
     >
       <TrangDuLieu>
-        <DauPrototype
-          ma="F"
-          demo={demo}
-          cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; nút "Lọc" (cạnh ⚙): chọn trường → điều kiện → giá trị = một chip (bấm chip sửa, × gỡ; server lọc thật theo URL) — hoặc bấm tiêu đề cột → "Lọc…" mở đúng trường đó; bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
-        />
+        {dau}
         <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
@@ -503,11 +462,11 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
               dangXem === 'kanban' ? undefined : (
                 <Tabs value={view} onValueChange={(v) => dat({ view: v, xem: null })}>
                   <TabsList variant="pill" thuGon aria-label="View ticket">
-                    {VIEW.map((x) => {
-                      const n = rows.filter(x.loc).length
+                    {VIEW_F.map((x) => {
+                      const n = demTab[x.v] ?? 0
                       return (
                         <TabsTrigger key={x.v} value={x.v}>
-                          {x.ten} <TabsCount color={x.v === 'qua-han' && n ? 'danger' : undefined}>{n}</TabsCount>
+                          {x.ten} <TabsCount color={x.v === 'khan' && n ? 'danger' : undefined}>{n}</TabsCount>
                         </TabsTrigger>
                       )
                     })}
@@ -553,7 +512,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
             nhan="ticket"
             anSoDong
             sapXep={sap ? { ...sap, macDinh: false } : undefined}
-            // "Xoá lọc" giữ prototype (`variant`), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
+            // "Xoá lọc" giữ `variant` (prototype), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
             hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}
           />
           <KhungChon

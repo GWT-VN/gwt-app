@@ -1,28 +1,19 @@
 'use client'
 
-// PROTOTYPE vứt đi — phần chung 3 phương án danh sách ticket (/ticket?variant=A|B|C). Không gọi mutation thật.
+// PROTOTYPE vứt đi — phần chung các phương án danh sách ticket (/ticket?variant=A–E, T). Không gọi mutation thật.
+// Phần F (màn thật /ticket) cũng dùng nằm ở _danh-sach/chung.tsx, xuất lại ở đây.
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import type { Ticket } from '@/app/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cheSdt, ngayNgan, useDatUrl } from '../_danh-sach/chung'
 
-export type DuLieuTicket = {
-  rows: Ticket[]
-  tong: number
-  trang: number
-  soTrang: number
-  loaiList: string[]
-  dsLoi: { code: string; ten: string }[]
-  /** DB local gần như trống → có thêm ticket Demo trong bộ nhớ. */
-  demo?: boolean
-  /** PA F: giá trị có trong dữ liệu CHƯA lọc của từng trường chọn/người (truong-f.ts `tuyChonF`). */
-  tuyChonLoc?: Record<string, string[]>
-}
+export { cheSdt, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from '../_danh-sach/chung'
 
 export const PHUONG_AN = [
   { ma: 'T', ten: 'Theo Twenty (bảng + panel)' },
@@ -35,17 +26,6 @@ export const PHUONG_AN = [
 ]
 
 export const chuaLuu = () => thongBao.xong('Prototype — chưa lưu')
-
-/** SĐT che, chỉ giữ 4 số cuối (không PII trên màn demo). */
-export const cheSdt = (s: string | null) => (s ? `•••${s.replace(/\D/g, '').slice(-4)}` : null)
-
-/** dd/mm từ ISO (ngày giờ VN). */
-export const ngayNgan = (iso: string | null | undefined) =>
-  iso ? new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }) : '—'
-
-export const tenKhach = (t: Ticket) => t.customer_name ?? 'Chưa gắn khách'
-
-export { mayLoi } from './truong-f'
 
 const TT: Record<Ticket['state'], { nhan: string; color: 'info' | 'success' | 'secondary' }> = {
   Open: { nhan: 'Đang mở', color: 'info' },
@@ -67,22 +47,6 @@ export function NhanKhan() {
       Khẩn
     </Badge>
   )
-}
-
-/** Ghi tham số URL (giữ `variant` + mọi tham số khác, đổi lọc → bỏ `trang`). */
-export function useDatUrl() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const sp = useSearchParams()
-  return (sua: Record<string, string | null>, giuTrang = false) => {
-    const p = new URLSearchParams(sp.toString())
-    if (!giuTrang) p.delete('trang')
-    for (const [k, v] of Object.entries(sua)) {
-      if (v) p.set(k, v)
-      else p.delete(k)
-    }
-    router.replace(`${pathname}?${p}`, { scroll: false })
-  }
 }
 
 /** Tab hàng đợi ↔ tham số server có sẵn (state / khan / mine). */
@@ -112,14 +76,6 @@ export function TabTicket({ tong }: { tong: number }) {
         ))}
       </TabsList>
     </Tabs>
-  )
-}
-
-export function NutTaoTicket() {
-  return (
-    <Button asChild>
-      <Link href="/tao-ticket">Tạo ticket</Link>
-    </Button>
   )
 }
 
