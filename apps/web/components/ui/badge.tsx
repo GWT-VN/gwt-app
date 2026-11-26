@@ -57,7 +57,10 @@ const badgeVariants = cva(
           'bg-transparent [box-shadow:inset_0_0_0_1px_var(--color-border-secondary-outline)] text-(--color-text-secondary-outline) [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         ghost: 'bg-transparent text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
         link: 'bg-transparent text-(--blue-500) in-data-[theme=dark]:text-(--blue-300) underline-offset-4 [a&]:hover:underline',
-        soft: '',
+        // Trong mục menu đang được rê / phím đánh dấu (`data-highlighted` ở tổ tiên): viền mảnh 1px cùng màu chữ chip thay
+        // cho nền dòng (InlineEdit MucRadio `chip`; CEO 26/11 "phải hiện hover ở chip"). Chọn VIỀN, không nền đậm hơn:
+        // nền *-soft-alpha-hover làm tương phản chữ success còn ~3,5:1 (đo 26/11) — viền giữ nguyên tương phản của chip.
+        soft: 'in-data-highlighted:[box-shadow:inset_0_0_0_1px_currentColor]',
         solid: 'bg-(--color-background-secondary-solid) text-(--color-text-secondary-solid)',
       },
     },

@@ -137,16 +137,22 @@ function MucRadio({
   value,
   children,
   phai,
+  chip,
   onSelect,
 }: {
   value: string
   children: ReactNode
   /** Thay ✓ bằng icon khác (vd ▸ của mục mở bước 2). */
   phai?: ReactNode
+  /**
+   * Nội dung là chip (Badge): dòng KHÔNG tô nền khi rê / phím đánh dấu — chính chip đậm lên (Badge soft
+   * `in-data-highlighted`). CEO 26/11: "khi chọn trạng thái ko cần cho hover thế này mà phải hiện hover ở chip".
+   */
+  chip?: boolean
   onSelect(e: Event): void
 }) {
   return (
-    <DropdownMenuRadioItem value={value} onSelect={onSelect} indicator={phai}>
+    <DropdownMenuRadioItem value={value} onSelect={onSelect} indicator={phai} className={cn(chip && 'data-highlighted:bg-transparent')}>
       {children}
     </DropdownMenuRadioItem>
   )
@@ -202,7 +208,7 @@ export function OSuaNhan<T extends string>({
         <DropdownMenuContent align="start" className={cn(rong && 'min-w-[240px]')}>
           <DropdownMenuRadioGroup value={gt}>
             {muc.map((m) => (
-              <MucRadio key={m.gt} value={m.gt} onSelect={() => luu(m.gt)}>
+              <MucRadio key={m.gt} value={m.gt} chip={typeof m.nhan !== 'string'} onSelect={() => luu(m.gt)}>
                 {m.nhan}
               </MucRadio>
             ))}
@@ -327,6 +333,7 @@ export function OSuaTrangThai({
                 <MucRadio
                   key={m.gt}
                   value={m.gt}
+                  chip
                   phai={
                     m.hoiLyDo ? (
                       <>
