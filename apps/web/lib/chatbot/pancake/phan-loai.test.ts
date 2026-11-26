@@ -85,7 +85,7 @@ describe("phanLoai", () => {
   it("có đoạn chat trước → gửi kèm làm bối cảnh, tin mới đứng riêng; luật cứng chỉ xét tin mới", async () => {
     const goi = traVe({ nhom: "su_co", gap: true, tom_tat: "x", ma_may: null });
     await phanLoai("ok em", false, ["Khách: máy em rò nước", "GWT: anh gửi giúp em video và số serial ạ"], goi as never);
-    expect(nguoiOf(goi)).toBe("Đoạn chat trước (chỉ để hiểu bối cảnh):\nKhách: máy em rò nước\nGWT: anh gửi giúp em video và số serial ạ\n\nTin mới của khách (phân loại tin này):\nok em");
+    expect(nguoiOf(goi)).toBe("Đoạn chat trước (đọc để hiểu mạch):\nKhách: máy em rò nước\nGWT: anh gửi giúp em video và số serial ạ\n\nTin mới của khách (phân loại Ý của tin này trong mạch chat trên):\nok em");
     expect(sysOf(goi)).toContain("ca đó CHƯA xong");
     // đo tag Ticket thật 2026-10-28: "khi nào qua thay máy cho anh" bị xếp don_hang; NV xin serial kiểm tra bảo hành bị xếp khac
     expect(sysOf(goi)).toContain("thay máy / đổi máy đã mua cũng là su_co");
