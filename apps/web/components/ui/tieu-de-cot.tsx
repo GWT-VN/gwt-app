@@ -91,6 +91,12 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
   sap?: C extends { kieu: 'sap' } ? SapCot : never
   /** Chỉ cột `kieu: 'loc'`: tag có trong dữ liệu + đang chọn. */
   loc?: C extends { kieu: 'loc' } ? LocCot : never
+  /**
+   * Lọc theo trường (bo-loc-truong, học Twenty: menu cột → "Filter"): menu thêm "Lọc…" ở đầu → menu đóng rồi gọi
+   * `onMo(nút tiêu đề)` — thường là `useMoLoc().mo(id, neo)`. `dang` = trường đang có điều kiện → dấu phễu trên tiêu đề.
+   * Mọi kiểu cột dùng được (kể cả cột khoá). Dùng thay `loc` (tick nhanh "là") khi màn có bộ lọc theo trường.
+   */
+  moLoc?: { dang: boolean; onMo: (neo: HTMLElement) => void }
   /** Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp về `cot.rong`). */
   coDan?: { rong: number; onDoi: (rong: number) => void }
   /** Menu canh phải ô (cột sát mép phải bảng, vd Chủ). Cột `phai` tự canh phải. */
@@ -162,7 +168,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   // Tách sẵn: luật react-hooks/refs coi cả object `keo` là ref vì một trường của nó gắn vào `ref=`.
   const coKeo = !!keo
   const { datO, datTay, onPointerDown: nhanKeo, onKeyDown: phimKeo, moTa, dangKeo } = keo ?? {}
-  const { cot, sap, loc, coDan, viTri = 0, menuPhai, la = 'th', className } = p
+  const { cot, sap, loc, moLoc, coDan, viTri = 0, menuPhai, la = 'th', className } = p
   const menuCot = cot.khoa ? undefined : p.menuCot
   const [mo, setMo] = useState(false)
   const bd = useRef<{ x: number; w: number } | null>(null)
@@ -181,7 +187,10 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const Tag = la
   const soLoc = loc?.daChon.length ?? 0
   const coSapLoc = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
-  const coMenu = coSapLoc || !!menuCot
+  const coMenu = coSapLoc || !!menuCot || !!moLoc
+  // "Lọc…" chọn xong: chờ menu đóng hẳn (Radix trả focus) rồi mới mở pop lọc — không để focus của menu giành lại.
+  const choMoLoc = useRef(false)
+  const dangLoc = soLoc > 0 || !!moLoc?.dang
   const min = toiThieu(cot)
   const nghia = cot.kieu === 'sap' && sap?.chieu ? cot.nghia[sap.chieu] : null
   const tenNho = cot.ten.toLowerCase()
@@ -211,16 +220,16 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           <span className="sr-only">, đang sắp {nghia.toLowerCase()}</span>
         </>
       )}
-      {soLoc > 0 && (
+      {dangLoc && (
         <span className={s.thLoc}>
           <Funnel weight="fill" aria-hidden="true" />
-          <span aria-hidden="true">{soLoc}</span>
-          <span className="sr-only">, đang lọc {soLoc}</span>
+          {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
+          <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
         </span>
       )}
       {/* Mũi menu (hiện 50% khi rê) chỉ khi chưa có dấu sắp/lọc — dấu đó đã báo cột có menu; cột hẹp (Ưu tiên 76) không
           phải cắt chữ để chừa chỗ cho cả hai. */}
-      {coMenu && !nghia && !soLoc && <CaretDown data-an="" aria-hidden="true" />}
+      {coMenu && !nghia && !dangLoc && <CaretDown data-an="" aria-hidden="true" />}
     </>
   )
 
@@ -234,7 +243,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
             type="button"
             ref={datTay}
             className={nutLop}
-            data-on={nghia || soLoc ? '' : undefined}
+            data-on={nghia || dangLoc ? '' : undefined}
             aria-describedby={moTa}
             onKeyDown={phimKeo}
             // Trong KeoCot: nhấn chuột là bắt đầu KÉO — menu mở khi nhả (click), không mở lúc nhấn như Radix mặc định
@@ -264,11 +273,34 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           align={cot.phai || menuPhai ? 'end' : 'start'}
           aria-labelledby={undefined}
           aria-label={
-            cot.kieu === 'sap' && sap ? `Sắp xếp theo ${tenNho}` : cot.kieu === 'loc' && loc ? `Lọc theo ${tenNho}` : `Cột ${tenNho}`
+            moLoc
+              ? `Cột ${tenNho}`
+              : cot.kieu === 'sap' && sap
+                ? `Sắp xếp theo ${tenNho}`
+                : cot.kieu === 'loc' && loc
+                  ? `Lọc theo ${tenNho}`
+                  : `Cột ${tenNho}`
           }
           // preview khối "Menu tiêu đề cột": menu rộng 240.
           className="w-[240px]"
+          onCloseAutoFocus={(e) => {
+            if (!choMoLoc.current || !moLoc) return
+            choMoLoc.current = false
+            const nut = oRef.current?.querySelector<HTMLElement>('button')
+            if (!nut) return
+            e.preventDefault()
+            moLoc.onMo(nut)
+          }}
         >
+          {moLoc && (
+            <>
+              <DropdownMenuItem onSelect={() => (choMoLoc.current = true)}>
+                <Funnel aria-hidden="true" />
+                Lọc…
+              </DropdownMenuItem>
+              {(coSapLoc || menuCot) && <DropdownMenuSeparator />}
+            </>
+          )}
           {cot.kieu === 'sap' && sap && (
             <>
               <DropdownMenuLabel>Sắp xếp</DropdownMenuLabel>

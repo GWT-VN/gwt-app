@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefCallback } from 'react'
 import { ArrowLeft, CalendarBlank, Check, Funnel, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
 import {
   canGiaTri,
@@ -44,6 +44,9 @@ import { TooltipNhanh } from './tooltip'
  * - Phím: cmdk ↑/↓ + Enter (chọn trường / tick giá trị); Tab đi qua ← · Điều kiện · ô giá trị; Esc đóng (lớp lồng trong —
  *   Select, lịch — chỉ đóng lớp đó), focus về nút mở (Radix).
  * - Pop cách mép khung nhìn ≥ 16 (`collisionPadding`), rộng 280 (tối đa 100vw − 32).
+ * - Mở từ NGOÀI (menu tiêu đề cột "Lọc…", học Twenty): `useMoLoc()` → `mo(trường, neo)`. Trường đã có chip → mở chip đó;
+ *   chưa có → pop của NutLoc mở thẳng trang sửa trường đó, neo vào `neo` (tiêu đề cột — Radix `virtualRef`; chip thì pop
+ *   vẫn neo ở chip). Đóng → focus về `neo` (kể cả khi chip bị gỡ vì rỗng).
  */
 
 export type TruongLoc = {
@@ -54,6 +57,64 @@ export type TruongLoc = {
   tuyChon?: { giaTri: string; nhan: string }[]
 }
 type OnDoi = (truong: string, d: DieuKienLoc | null) => void
+/** Mở pop lọc của một trường từ ngoài; `neo` = nơi neo pop + nhận lại focus khi đóng (vd nút tiêu đề cột). */
+export type MoLocRef = { mo: (truong: string, neo?: HTMLElement | null) => void }
+
+/**
+ * Nối nút "Lọc" + các chip với chỗ mở từ ngoài (menu tiêu đề cột): `<NutLoc ref={x.nut}>`, `<ChipLoc ref={x.chip(id)}>`,
+ * rồi `x.mo(id, nútTiêuĐề)` — có chip của trường thì mở chip, không thì mở NutLoc ở trường đó.
+ */
+export function useMoLoc() {
+  // Một object ổn định giữ nút + chip trong closure (không phải ref: React Compiler cấm truyền object chứa ref lúc render).
+  const [x] = useState(() => {
+    let nut: MoLocRef | null = null
+    const chip = new Map<string, MoLocRef>()
+    const cb = new Map<string, RefCallback<MoLocRef>>()
+    return {
+      nut: ((r) => {
+        nut = r
+      }) as RefCallback<MoLocRef>,
+      chip: (id: string): RefCallback<MoLocRef> => {
+        let f = cb.get(id)
+        if (!f) {
+          f = (r) => {
+            if (r) chip.set(id, r)
+            else chip.delete(id)
+          }
+          cb.set(id, f)
+        }
+        return f
+      },
+      mo: (id: string, neo?: HTMLElement | null) => (chip.get(id) ?? nut)?.mo(id, neo),
+    }
+  })
+  return x
+}
+
+/** Neo ngoài của pop (mở từ tiêu đề cột): neo ảo Radix theo khung phần tử + trả focus về nó khi đóng. */
+function useNeoNgoai() {
+  const neo = useRef<HTMLElement | null>(null)
+  const [co, setCo] = useState(false)
+  return {
+    neo,
+    dat: (el?: HTMLElement | null) => {
+      neo.current = el ?? null
+      setCo(!!el)
+    },
+    /** Đặt trong PopoverContent: neo ảo khi đang mở từ ngoài. */
+    anchor: co ? <PopoverAnchor virtualRef={neo} /> : null,
+    /** onCloseAutoFocus: có neo ngoài → focus về đó (true = đã xử lý). */
+    traFocus: (e: Event) => {
+      const el = neo.current
+      if (!el) return false
+      e.preventDefault()
+      neo.current = null
+      setCo(false)
+      el.focus()
+      return true
+    },
+  }
+}
 
 const ICON: Record<KieuTruong, ReactNode> = {
   chon: <ListBullets aria-hidden="true" />,
@@ -261,10 +322,30 @@ function focusKeBen(g: HTMLElement | null) {
 }
 
 /** Nút "Lọc" (thanh công cụ DataViewToolbar, khe `loc`) + pop chọn trường → sửa điều kiện. */
-export function NutLoc({ truong, dieuKien, onDoi }: { truong: TruongLoc[]; dieuKien: DieuKienLoc[]; onDoi: OnDoi }) {
+export function NutLoc({
+  truong,
+  dieuKien,
+  onDoi,
+  ref,
+}: {
+  truong: TruongLoc[]
+  dieuKien: DieuKienLoc[]
+  onDoi: OnDoi
+  ref?: Ref<MoLocRef>
+}) {
   const [mo, setMo] = useState(false)
   const { nhap, setNhap, doi, dong } = useNhap(dieuKien, onDoi)
   const khung = useRef<HTMLDivElement>(null)
+  const ngoai = useNeoNgoai()
+  useImperativeHandle(ref, () => ({
+    mo: (id, neo) => {
+      const x = truong.find((y) => y.id === id)
+      if (!x) return
+      ngoai.dat(neo)
+      setNhap(dieuKien.find((d) => d.truong === id) ?? moi(x))
+      setMo(true)
+    },
+  }))
   const t = nhap && truong.find((x) => x.id === nhap.truong)
   // Đổi trang trong pop đang mở (danh sách ↔ sửa) → focus ô đầu của trang mới.
   useEffect(() => {
@@ -284,17 +365,19 @@ export function NutLoc({ truong, dieuKien, onDoi }: { truong: TruongLoc[]; dieuK
           </Button>
         </PopoverTrigger>
       </TooltipNhanh>
+      {ngoai.anchor}
       <PopoverContent
         ref={khung}
         aria-label="Lọc"
         data-slot="bo-loc-truong"
-        align="end"
+        align={ngoai.anchor ? 'start' : 'end'}
         collisionPadding={16}
         className={khungPop}
         onOpenAutoFocus={(e) => {
           e.preventDefault()
           focusTrong(khung.current)
         }}
+        onCloseAutoFocus={(e) => void ngoai.traFocus(e)}
       >
         {t && nhap ? (
           <SuaDieuKien
@@ -327,24 +410,46 @@ export function NutLoc({ truong, dieuKien, onDoi }: { truong: TruongLoc[]; dieuK
 }
 
 /** Một điều kiện đang áp = một chip (`.ui-chip` có ×): bấm chữ → sửa; × → gỡ. Đặt trong ThanhDangLoc (`dieuKien[].chip`). */
-export function ChipLoc({ truong: t, dieuKien: d, onDoi }: { truong: TruongLoc; dieuKien: DieuKienLoc; onDoi: OnDoi }) {
+export function ChipLoc({
+  truong: t,
+  dieuKien: d,
+  onDoi,
+  ref,
+}: {
+  truong: TruongLoc
+  dieuKien: DieuKienLoc
+  onDoi: OnDoi
+  ref?: Ref<MoLocRef>
+}) {
   const [mo, setMo] = useState(false)
   const { nhap, setNhap, doi, dong } = useNhap([d], onDoi)
   const goc = useRef<HTMLSpanElement>(null)
   const khung = useRef<HTMLDivElement>(null)
+  const ngoai = useNeoNgoai()
   const n = nhanChip(d, t.ten, tenGiaTri(t))
-  // Đóng khi rỗng = chip sắp mất → không trả focus về chữ chip (Radix) mà sang chỗ còn lại (`focusKeBen`).
+  // Đóng khi rỗng = chip sắp mất → không trả focus về chữ chip (Radix) mà sang chỗ còn lại (`focusKeBen`) — mở từ tiêu
+  // đề cột thì về tiêu đề đó.
   const seGo = useRef(false)
   const doiMo = (o: boolean) => {
     if (o) setNhap(d)
     else {
       seGo.current = !!nhap && laRong(nhap)
       // Chuyển focus TRƯỚC khi gỡ (bên gọi có thể gỡ chip ngay trong `onDoi`, Popover mất luôn, không còn onCloseAutoFocus).
-      if (seGo.current) focusKeBen(goc.current)
+      if (seGo.current) {
+        const neo = ngoai.neo.current
+        if (neo) neo.focus()
+        else focusKeBen(goc.current)
+      }
       dong()
     }
     setMo(o)
   }
+  useImperativeHandle(ref, () => ({
+    mo: (_id, neo) => {
+      ngoai.dat(neo)
+      doiMo(true)
+    },
+  }))
   const go = () => {
     focusKeBen(goc.current)
     onDoi(t.id, null)
@@ -382,9 +487,13 @@ export function ChipLoc({ truong: t, dieuKien: d, onDoi }: { truong: TruongLoc; 
           focusTrong(khung.current)
         }}
         onCloseAutoFocus={(e) => {
-          if (!seGo.current) return
-          seGo.current = false
-          e.preventDefault()
+          if (seGo.current) {
+            seGo.current = false
+            e.preventDefault()
+            ngoai.dat(null)
+            return
+          }
+          ngoai.traFocus(e)
         }}
       >
         {nhap && <SuaDieuKien truong={t} nhap={nhap} onNhap={doi} onXong={() => doiMo(false)} />}

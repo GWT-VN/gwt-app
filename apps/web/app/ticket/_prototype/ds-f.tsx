@@ -26,12 +26,12 @@ import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { recordPickerLuuY } from '@/components/ui/inline-edit-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tieu-de-cot'
+import { KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
-import { ChipLoc, NutLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { CHUA_GIAO, han, TOI_F as TOI, TRUONG_F } from './truong-f'
 
@@ -364,34 +364,14 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
         : tuyChonLoc[x.id]?.map((g) => ({ giaTri: g, nhan: x.id === 'cs' && g === CHUA_GIAO ? 'Chưa giao' : g })),
   }))
   const datLoc = (id: string, d: DieuKienLoc | null) => dat({ [id]: ghiDieuKien(d, TRUONG_F.find((x) => x.id === id)!.kieu) })
-  /** Giá trị "là" của trường (menu lọc ở tiêu đề cột chỉ có "là"; phép khác → menu cột trống, chip vẫn đúng). */
-  const la = (id: string) => dk.find((d) => d.truong === id && d.phep === 'la')?.giaTri ?? []
+  // Menu tiêu đề cột → "Lọc…" mở pop lọc của đúng trường (đủ phép + "Tôi"); đã có chip → mở chip đó (học Twenty).
+  const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
   const doi = (ma: string) => (s: Sua) => setSua((m) => ({ ...m, [ma]: { ...m[ma], ...s } }))
 
-  // ── URL → lọc theo cột (menu tiêu đề `kieu: 'loc'`) + sắp (`cot`/`chieu`, CHUAN-FILTER) ──
+  // ── URL → sắp (`cot`/`chieu`, CHUAN-FILTER) ──
   const cotUrl = COT_SAP.includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
   const sap: Sap | null = cotUrl ? { cot: cotUrl, tang: sp.get('chieu') !== 'desc' } : null
   const datSap = (s: Sap | null) => dat({ cot: s?.cot ?? null, chieu: s ? (s.tang ? 'asc' : 'desc') : null })
-  const LOC: Record<string, LocCot> = {
-    tt: {
-      tuyChon: ttCo.map((m) => ({
-        giaTri: m.gt,
-        nhan: m.nhan,
-        color: m.color === 'secondary' ? undefined : (m.color as MucLoc['color']),
-      })),
-      daChon: la('tt'),
-      onDoi: (gt) => datLoc('tt', { truong: 'tt', phep: 'la', giaTri: gt }),
-    },
-    cs: {
-      tuyChon: [
-        ...nguoi.map((n) => ({ giaTri: n.gt, nhan: n.nhan })),
-        ...(tuyChonLoc.cs?.includes(CHUA_GIAO) ? [{ giaTri: CHUA_GIAO, nhan: 'Chưa giao' }] : []),
-      ],
-      daChon: la('cs'),
-      onDoi: (gt) => datLoc('cs', { truong: 'cs', phep: 'la', giaTri: gt }),
-    },
-  }
-
   const view = (VIEW.find((x) => x.v === sp.get('view'))?.v ?? 'cua-toi') as View
   const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc)
   if (sap) dong.sort(soSanh(sap))
@@ -407,7 +387,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
     // Mỗi điều kiện = một ChipLoc (bấm sửa, × gỡ).
     ...dk.map((d) => {
       const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc truong={x} dieuKien={d} onDoi={datLoc} /> }
+      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
     }),
   ]
   const thamSoLoc = TRUONG_F.map((x) => x.id)
@@ -446,7 +426,11 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                         }
                       : undefined
                   }
-                  loc={x.kieu === 'loc' ? LOC[x.id] : undefined}
+                  moLoc={
+                    TRUONG_F.some((y) => y.id === x.id)
+                      ? { dang: dk.some((d) => d.truong === x.id), onMo: (neo) => moLocTruong(x.id, neo) }
+                      : undefined
+                  }
                 />
               ))}
               <ThemCot cot={COT} an={c.an} onHien={c.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -477,7 +461,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
         <DauPrototype
           ma="F"
           demo={demo}
-          cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; nút "Lọc" (cạnh ⚙): chọn trường → điều kiện → giá trị = một chip (bấm chip sửa, × gỡ; server lọc thật theo URL); bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
+          cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; nút "Lọc" (cạnh ⚙): chọn trường → điều kiện → giá trị = một chip (bấm chip sửa, × gỡ; server lọc thật theo URL) — hoặc bấm tiêu đề cột → "Lọc…" mở đúng trường đó; bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
         />
         <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
@@ -505,7 +489,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                 </Tabs>
               )
             }
-            loc={<NutLoc truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
+            loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
             caiDat={
               <CaiDatHienThi
                 ref={caiDat}

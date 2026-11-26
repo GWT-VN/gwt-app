@@ -85,6 +85,14 @@ lên artifact:** `.b-thanh` thêm `flex-wrap`, `.b-tabs-cuon` `min-width: min(10
 `margin-left: auto` (`data-view-styles.ts` `dvThanh/dvTabs/dvThanhPhai`) — khung hẹp (375: hàng tab còn 79px, 900: 204px)
 thì cụm công cụ xuống dòng canh phải thay vì bóp hàng tab; 1440 không đổi. README DataViewToolbar thêm một dòng.
 
+Lọc từ menu tiêu đề cột (26/11, học Twenty "menu cột → Filter", prototype ticket F): `TieuDeCot moLoc={{ dang, onMo }}` →
+mục "Lọc…" (Funnel) đầu menu, menu đóng xong mới gọi `onMo(nút tiêu đề)`; `dang` → phễu trên tiêu đề (không số). Nối bằng
+`useMoLoc()` (`bo-loc-truong.tsx`): `<NutLoc ref={nut}>`, `<ChipLoc ref={chip(id)}>`, `mo(id, neo)` — trường đã có chip
+→ mở chip đó; chưa có → pop NutLoc mở thẳng trang sửa trường đó (đủ phép + "Tôi"), neo dưới tiêu đề cột (Radix
+`virtualRef`). Đóng (kể cả chip bị gỡ vì rỗng) → focus về tiêu đề cột. Thay cho `loc` (tick nhanh "là") ở màn có bộ lọc
+theo trường. Test `bo-loc-truong-cot.dom.test`. Khi đẩy lên artifact: preview Table thêm mục "Lọc…" đầu menu cột + README
+Table một dòng; không đổi `bundle.css`.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
