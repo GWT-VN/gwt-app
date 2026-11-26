@@ -150,7 +150,8 @@ const RONG_BANG_TOI_THIEU = 640
 // vừa tiêu đề + ô dài nhất của trang đang xem (`useCotBang` đo, `refBang`); cột chữ tự do có trần `rongToiDa` để một giá
 // trị cực dài không kéo cột rộng vô lý — quá trần mới cắt (ô có title). Tổng vượt khung → bảng cuộn ngang.
 const COT: CotBang[] = [
-  { id: 'khach', ten: 'Khách · ticket', kieu: 'thuong', khoa: true, rongToiDa: 400 },
+  { id: 'khach', ten: 'Khách', kieu: 'thuong', khoa: true, rongToiDa: 400 },
+  { id: 'ma', ten: 'Mã ticket', kieu: 'thuong' },
   { id: 'may', ten: 'Máy', kieu: 'thuong', rongToiDa: 240 },
   { id: 'loi', ten: 'Loại lỗi', kieu: 'thuong', rongToiDa: 240 },
   { id: 'bh', ten: 'Bảo hành', kieu: 'thuong' },
@@ -166,17 +167,15 @@ const NGHIA = { tao: { asc: 'cũ nhất trước', desc: 'mới tạo trước' 
 type Sap = { cot: string; tang: boolean }
 
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
+  // CEO 26/11 "Tách cột mã ticket ra riêng cho dễ xem": ô Khách chỉ tên (nút mở Xem nhanh; khẩn = chữ đỏ, kể cả lúc
+  // rê/focus) — mã ở cột "Mã ticket" riêng.
   khach: (t, mo) => (
-    <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      {/* CEO 26/11 "Cho tên KH trước rồi -> Mã ticket": tên đầu ô (thẳng mép chữ tiêu đề cột), tên dài thì cắt; mã sau,
-          không cắt. Khẩn = tên đỏ (kể cả lúc rê/focus). */}
-      <button type="button" className={cn(nutMoTen, laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
-        {laKhan(t) && <SrKhan />}
-        {tenKhach(t)}
-      </button>
-      <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
-    </span>
+    <button type="button" className={cn(nutMoTen, 'block max-w-full', laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
+      {laKhan(t) && <SrKhan />}
+      {tenKhach(t)}
+    </button>
   ),
+  ma: (t) => <span className="whitespace-nowrap tabular-nums text-muted-foreground">{t.ticket_code}</span>,
   // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
   // hàng); tên đầy đủ + serial ở title.
   may: (t) => (

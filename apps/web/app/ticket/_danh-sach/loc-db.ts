@@ -113,6 +113,7 @@ export function dieuKienOrTicket(dk: DieuKienLoc[], opts: { toiId?: string; homN
     if (d.truong === 'cs') return nguoi(d, opts.toiId)
     if (d.truong === 'tao') return ngay('created_at', d, homNay)
     if (d.truong === 'khach') return chu(['ten_kd'], d, true)
+    if (d.truong === 'ma') return chu(['ticket_code'], d, false)
     if (d.truong === 'may') return chu(['product_name', 'source_serial'], d, false)
     return []
   })

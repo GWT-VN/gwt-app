@@ -33,6 +33,7 @@ describe('dieuKienOrTicket — TRUONG_F → .or() của v_tickets', () => {
 
   it('Chữ: khách bỏ dấu (ten_kd); máy = tên HOẶC serial; ký tự phá .or() bị bỏ', () => {
     expect(or({ khach: 'chua~An Phát' })).toEqual(['ten_kd.ilike.%an phat%'])
+    expect(or({ ma: 'chua~TK-1' })).toEqual(['ticket_code.ilike.%TK-1%'])
     expect(or({ may: 'chua~CTS(20)' })).toEqual(['product_name.ilike.%CTS 20%,source_serial.ilike.%CTS 20%'])
     expect(or({ may: 'khong-chua~E3' })).toEqual(['product_name.is.null,product_name.not.ilike.%E3%', 'source_serial.is.null,source_serial.not.ilike.%E3%'])
   })

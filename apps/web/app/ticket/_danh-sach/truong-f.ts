@@ -56,6 +56,7 @@ export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [
   { id: 'tinh', ten: 'Tỉnh/TP', kieu: 'chon', lay: (t) => t.province },
   { id: 'tao', ten: 'Ngày tạo', kieu: 'ngay', lay: (t) => t.created_at },
   { id: 'khach', ten: 'Khách', kieu: 'chu', lay: (t) => t.customer_name },
+  { id: 'ma', ten: 'Mã ticket', kieu: 'chu', lay: (t) => t.ticket_code },
   { id: 'may', ten: 'Máy · serial', kieu: 'chu', lay: (t) => [t.product_name, t.source_serial].filter(Boolean).join(' ') },
 ]
 
