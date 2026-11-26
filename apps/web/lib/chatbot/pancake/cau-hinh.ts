@@ -92,7 +92,8 @@ export function docCauHinh(env: Record<string, string | undefined>): { ch: CauHi
     modelTraLoi: env.PANCAKE_TRA_LOI_MODEL?.trim() ?? "",
     webhook: env.DISCORD_WEBHOOK_PANCAKE_BAO?.trim() ?? "",
     ...(baoThread ? { baoThread } : {}),
-    ...(env.PANCAKE_PING_KHIEU_NAI?.trim() ? { pingKhieuNai: env.PANCAKE_PING_KHIEU_NAI.trim() } : {}),
+    // id role (chữ số) như bot ERP; sai dạng (vd "@everyone") → như vắng: Discord trả 400 cho role lạ, mất cả báo chuyển người
+    ...(/^\d{5,25}$/.test(env.PANCAKE_PING_KHIEU_NAI?.trim() ?? "") ? { pingKhieuNai: env.PANCAKE_PING_KHIEU_NAI!.trim() } : {}),
   } satisfies Omit<CauHinh, "trang" | "trangGui">;
   if (che === "tat") return { ch: { ...chung, trang: [], trangGui: new Set() } };
 
