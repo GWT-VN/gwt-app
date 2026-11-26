@@ -1,5 +1,11 @@
 'use client'
 
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+
+import { Input } from '@/components/ui/input'
+import { Combobox } from '@/components/ui/combobox'
+import { Button } from '@/components/ui/button'
+
 import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -17,15 +23,15 @@ type CotDef = { key: string; nhan: string; batBuoc?: boolean; sapXep?: string; p
 /** Đăng ký cột của bảng KHÁCH — thêm cột mới ở đây là picker + view tự có. */
 const COT: CotDef[] = [
   { key: 'full_name', nhan: 'Khách', sapXep: 'full_name',
-    render: (c) => <Link href={`/khach/${c.id}`} prefetch={false} className="text-slate-900 underline font-medium">{c.full_name}</Link> },
+    render: (c) => <Link href={`/khach/${c.id}`} prefetch={false} className="text-foreground underline font-medium">{c.full_name}</Link> },
   // CEO 24/08: cầm mã khách trong tay mà bảng không hiện mã, ô tìm cũng không nhận mã
   // ⇒ không mở nổi hồ sơ. Bật sẵn cột này thay vì giấu trong picker cột.
   { key: 'ma_kh', nhan: 'Mã KH', sapXep: 'ma_kh',
-    render: (c) => <span className="font-mono text-xs text-slate-500">{c.ma_kh ?? '—'}</span> },
+    render: (c) => <span className="tabular-nums text-xs text-muted-foreground">{c.ma_kh ?? '—'}</span> },
   { key: 'customer_code', nhan: 'Mã Sales',
-    render: (c) => <span className="font-mono text-xs text-slate-500">{c.customer_code ?? '—'}</span> },
+    render: (c) => <span className="tabular-nums text-xs text-muted-foreground">{c.customer_code ?? '—'}</span> },
   { key: 'primary_phone', nhan: 'SĐT', batBuoc: true,
-    render: (c) => <span className="font-mono text-xs text-slate-700">{c.primary_phone ?? <span className="text-amber-600">—</span>}</span> },
+    render: (c) => <span className="tabular-nums text-xs text-foreground">{c.primary_phone ?? <span className="text-(--color-text-warning)">—</span>}</span> },
   { key: 'address', nhan: 'Địa chỉ', render: (c) => c.address ?? '—' },
   { key: 'province', nhan: 'Tỉnh/TP', sapXep: 'province', render: (c) => c.province ?? '—' },
   { key: 'machines', nhan: 'Máy', phai: true, render: (c) => c.machines },
@@ -46,6 +52,7 @@ export function BangKhach({ rows, choViewChung, views }: { rows: Kh[]; choViewCh
   const router = useRouter()
   const [hien, setHien] = useState<string[]>([...MAC_DINH])
   const [moCot, setMoCot] = useState(false)
+  const [viewId, setViewId] = useState<string | null>(null)
   const [tenView, setTenView] = useState('')
   const [chung, setChung] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -82,19 +89,23 @@ export function BangKhach({ rows, choViewChung, views }: { rows: Kh[]; choViewCh
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <select defaultValue=""
-          onChange={(e) => setHien(chuanHoa(views.find((v) => v.id === e.target.value)?.cot ?? MAC_DINH))}
-          className="rounded-lg border px-2 py-1.5 text-sm bg-white text-slate-700">
-          <option value="">View: Mặc định</option>
-          {views.map((v) => <option key={v.id} value={v.id}>{v.ten}{v.chu === 'chung' ? ' (chung)' : ''}</option>)}
-        </select>
-        <button onClick={() => setMoCot((v) => !v)}
-          className="rounded-lg border bg-white px-3 py-1.5 text-sm text-slate-700">Cột ▾</button>
+        <div className="w-56 max-w-full">
+          <Combobox aria-label="Chế độ xem" placeholder="View: Mặc định" searchPlaceholder="Tìm chế độ xem…"
+            value={views.some((v) => v.id === viewId) ? viewId : null}
+            options={views.map((v) => ({ gt: v.id, nhan: v.ten + (v.chu === 'chung' ? ' (chung)' : '') }))}
+            onValueChange={(id) => {
+              setViewId(id)
+              setHien(chuanHoa(views.find((v) => v.id === id)?.cot ?? MAC_DINH))
+            }}
+          />
+        </div>
+        <Button onClick={() => setMoCot((v) => !v)}
+          className="rounded-lg border bg-card px-3 py-1.5 text-sm text-foreground">Cột ▾</Button>
       </div>
 
       {moCot && (
-        <div className="mb-2 rounded-lg border bg-white p-3 space-y-2 max-w-md">
-          <p className="text-xs font-medium text-slate-600">Cột hiển thị (▲▼ đổi thứ tự)</p>
+        <div className="mb-2 rounded-lg border bg-card p-3 space-y-2 max-w-md">
+          <p className="text-xs font-medium text-muted-foreground">Cột hiển thị (▲▼ đổi thứ tự)</p>
           <ul className="space-y-1">
             {hien.map((k, i) => {
               const c = COT.find((x) => x.key === k)
@@ -102,38 +113,38 @@ export function BangKhach({ rows, choViewChung, views }: { rows: Kh[]; choViewCh
               return (
                 <li key={k} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked disabled={c.batBuoc} onChange={() => toggle(k)} />
-                  <span className="flex-1">{c.nhan}{c.batBuoc && <span className="text-[10px] text-slate-400"> (bắt buộc)</span>}</span>
-                  <button onClick={() => doiCho(i, -1)} className="text-slate-400 hover:text-slate-700">▲</button>
-                  <button onClick={() => doiCho(i, 1)} className="text-slate-400 hover:text-slate-700">▼</button>
+                  <span className="flex-1">{c.nhan}{c.batBuoc && <span className="text-[10px] text-muted-foreground"> (bắt buộc)</span>}</span>
+                  <Button onClick={() => doiCho(i, -1)} className="text-muted-foreground hover:text-foreground">▲</Button>
+                  <Button onClick={() => doiCho(i, 1)} className="text-muted-foreground hover:text-foreground">▼</Button>
                 </li>
               )
             })}
           </ul>
           {COT.some((c) => !hien.includes(c.key)) && (
             <div className="pt-1 border-t">
-              <p className="text-xs text-slate-500 mb-1">Cột ẩn — bấm để thêm:</p>
+              <p className="text-xs text-muted-foreground mb-1">Cột ẩn — bấm để thêm:</p>
               <div className="flex flex-wrap gap-1.5">
                 {COT.filter((c) => !hien.includes(c.key)).map((c) => (
-                  <button key={c.key} onClick={() => toggle(c.key)}
-                    className="rounded border px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-50">+ {c.nhan}</button>
+                  <Button key={c.key} onClick={() => toggle(c.key)}
+                    className="rounded border px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted">+ {c.nhan}</Button>
                 ))}
               </div>
             </div>
           )}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
-            <input value={tenView} onChange={(e) => setTenView(e.target.value)} placeholder="Tên view…"
-              className="rounded border px-2 py-1 text-sm w-32 text-slate-900" />
-            {choViewChung && <label className="flex items-center gap-1 text-xs text-slate-600"><input type="checkbox" checked={chung} onChange={(e) => setChung(e.target.checked)} /> Chung (mọi người)</label>}
-            <button onClick={luu} disabled={busy || !tenView.trim()}
-              className="rounded-lg bg-slate-900 text-white px-3 py-1 text-sm disabled:opacity-50">Lưu view</button>
-            {err && <span className="text-xs text-red-600">{err}</span>}
+            <Input value={tenView} onChange={(e) => setTenView(e.target.value)} placeholder="Tên view…"
+              className="rounded border px-2 py-1 text-sm w-32 text-foreground" />
+            {choViewChung && <label className="flex items-center gap-1 text-xs text-muted-foreground"><input type="checkbox" checked={chung} onChange={(e) => setChung(e.target.checked)} /> Chung (mọi người)</label>}
+            <Button onClick={luu} disabled={busy || !tenView.trim()}
+              className="rounded-lg bg-primary text-primary-foreground px-3 py-1 text-sm disabled:opacity-50">Lưu view</Button>
+            {err && <span className="text-xs text-(--color-text-danger)">{err}</span>}
           </div>
           {views.length > 0 && (
-            <div className="pt-1 text-xs text-slate-500 border-t">
+            <div className="pt-1 text-xs text-muted-foreground border-t">
               View đã lưu:{' '}
               {views.map((v) => (
                 <span key={v.id} className="mr-2 whitespace-nowrap">{v.ten}{v.chu === 'chung' && ' (chung)'}
-                  <button onClick={() => xoa(v.id)} className="text-red-500 ml-0.5" title="Xoá view">✕</button>
+                  <Button onClick={() => xoa(v.id)} className="text-(--color-text-danger) ml-0.5" title="Xoá view">✕</Button>
                 </span>
               ))}
             </div>
@@ -141,26 +152,26 @@ export function BangKhach({ rows, choViewChung, views }: { rows: Kh[]; choViewCh
         </div>
       )}
 
-      <div className="bg-white rounded-xl border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600">
-            <tr>
+      <div className="bg-card rounded-(--radius-xl) border">
+        <Table>
+          <TableHeader>
+            <TableRow>
               <OChonTatCa nhan="khách" />
               {cols.map((c) => c.sapXep
                 ? <TieuDeCotSapXep key={c.key} cot={c.sapXep} nhan={c.nhan} chieuMacDinh="asc" dangMacDinh={c.key === 'full_name'} />
-                : <th key={c.key} className={`px-4 py-3 font-medium ${c.phai ? 'text-right' : 'text-left'}`}>{c.nhan}</th>)}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
+                : <TableHead key={c.key} className={`px-4 py-3 font-medium ${c.phai ? 'text-right' : 'text-left'}`}>{c.nhan}</TableHead>)}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.map((r) => (
-              <tr key={r.id} className="hover:bg-slate-50 align-top">
+              <TableRow key={r.id} className="hover:bg-muted align-top">
                 <OChonDong khoa={r.id} moTa={`khách ${r.full_name}`} />
-                {cols.map((c) => <td key={c.key} className={`px-4 py-3 text-slate-700 ${c.phai ? 'text-right' : ''}`}>{c.render(r)}</td>)}
-              </tr>
+                {cols.map((c) => <TableCell key={c.key} className={`px-4 py-3 text-foreground ${c.phai ? 'text-right' : ''}`}>{c.render(r)}</TableCell>)}
+              </TableRow>
             ))}
-            {rows.length === 0 && <tr><td colSpan={cols.length + 1} className="px-4 py-10 text-center text-slate-400">Không tìm thấy khách nào.</td></tr>}
-          </tbody>
-        </table>
+            {rows.length === 0 && <TableRow><TableCell colSpan={cols.length + 1} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy khách nào.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
       </div>
     </div>
   )

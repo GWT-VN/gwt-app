@@ -1,5 +1,9 @@
 'use client'
 
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+
+import { Button } from '@/components/ui/button'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -49,33 +53,33 @@ export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="bg-white rounded-xl border px-4 py-10 text-center text-slate-400">
+      <div className="bg-card rounded-(--radius-xl) border px-4 py-10 text-center text-muted-foreground">
         Không còn máy nào chờ kích hoạt bảo hành.
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50 text-slate-600">
-          <tr>
-            <th className="text-left px-4 py-3 font-medium">Khách</th>
-            <th className="text-left px-4 py-3 font-medium">Máy</th>
-            <th className="text-left px-4 py-3 font-medium">Đơn / ngày lắp</th>
-            <th className="text-left px-4 py-3 font-medium">Serial</th>
-            <th className="text-left px-4 py-3 font-medium w-px whitespace-nowrap">Kích hoạt</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y">
+    <div className="bg-card rounded-(--radius-xl) border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-left px-4 py-3 font-medium">Khách</TableHead>
+            <TableHead className="text-left px-4 py-3 font-medium">Máy</TableHead>
+            <TableHead className="text-left px-4 py-3 font-medium">Đơn / ngày lắp</TableHead>
+            <TableHead className="text-left px-4 py-3 font-medium">Serial</TableHead>
+            <TableHead className="text-left px-4 py-3 font-medium w-px whitespace-nowrap">Kích hoạt</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {items.map((r) => {
             const k = khoa(r)
             const daCoSerial = Boolean(r.serial)
             const sn = r.serial ?? serial[k] ?? ''
             const chayDuoc = Boolean(r.customer_id) && sn.trim().length > 0
             return (
-              <tr key={k} className="hover:bg-slate-50 align-top">
-                <td className="px-4 py-2.5 text-slate-700">
+              <TableRow key={k} className="hover:bg-muted align-top">
+                <TableCell className="px-4 py-2.5 text-foreground">
                   {r.customer_id ? (
                     <Link href={`/khach/${r.customer_id}`} className="hover:underline">
                       {r.ten_khach ?? '—'}
@@ -83,33 +87,33 @@ export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
                   ) : (
                     <span>{r.ten_khach ?? '—'}</span>
                   )}
-                  {r.sdt_khach && <div className="font-mono text-[10px] text-slate-400">{r.sdt_khach}</div>}
+                  {r.sdt_khach && <div className="tabular-nums text-[10px] text-muted-foreground">{r.sdt_khach}</div>}
                   {!r.customer_id && (
-                    <div className="text-[10px] text-amber-700">chưa có hồ sơ khách CSKH</div>
+                    <div className="text-[10px] text-(--color-text-warning)">chưa có hồ sơ khách CSKH</div>
                   )}
-                </td>
-                <td className="px-4 py-2.5 text-slate-700">
+                </TableCell>
+                <TableCell className="px-4 py-2.5 text-foreground">
                   {r.ten_noi_bo ?? '—'}
                   {!daCoSerial && (r.so_luong ?? 1) > 1 && (
-                    <span className="ml-1.5 rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-medium">
+                    <span className="ml-1.5 rounded bg-(--color-background-warning-surface) text-(--color-text-warning) px-1.5 py-0.5 text-[10px] font-medium">
                       còn {r.so_luong} máy
                     </span>
                   )}
-                  <div className="font-mono text-[10px] text-slate-400">{r.ma_noi_bo ?? '—'}</div>
-                </td>
-                <td className="px-4 py-2.5 text-slate-600 whitespace-nowrap">
+                  <div className="tabular-nums text-[10px] text-muted-foreground">{r.ma_noi_bo ?? '—'}</div>
+                </TableCell>
+                <TableCell className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
                   {daCoSerial ? (
                     <>lắp {vnDate(r.ngay_lap)}</>
                   ) : (
                     <>
                       {r.ma_don ?? '—'}
-                      <div className="text-[10px] text-slate-400">{vnDate(r.ngay_dat_hang)}</div>
+                      <div className="text-[10px] text-muted-foreground">{vnDate(r.ngay_dat_hang)}</div>
                     </>
                   )}
-                </td>
-                <td className="px-4 py-2.5">
+                </TableCell>
+                <TableCell className="px-4 py-2.5">
                   {daCoSerial ? (
-                    <span className="font-mono text-xs text-slate-900">{r.serial}</span>
+                    <span className="tabular-nums text-xs text-foreground">{r.serial}</span>
                   ) : (
                     <div className="flex min-w-56">
                       <SerialPicker
@@ -119,28 +123,28 @@ export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
                       />
                     </div>
                   )}
-                  {loi[k] && <p className="text-xs text-red-600 mt-1">{loi[k]}</p>}
-                </td>
-                <td className="px-4 py-2.5 whitespace-nowrap">
+                  {loi[k] && <p className="text-xs text-(--color-text-danger) mt-1">{loi[k]}</p>}
+                </TableCell>
+                <TableCell className="px-4 py-2.5 whitespace-nowrap">
                   {r.customer_id ? (
-                    <button
+                    <Button
                       onClick={() => chay(r)}
                       disabled={!chayDuoc || busy === k}
-                      className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-xs font-medium disabled:opacity-40">
+                      className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium disabled:opacity-40">
                       {busy === k ? 'Đang kích hoạt…' : 'Kích hoạt BH'}
-                    </button>
+                    </Button>
                   ) : (
                     <Link href="/dang-ky-bh"
-                      className="rounded-lg border px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50">
+                      className="rounded-lg border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted">
                       Chọn khách…
                     </Link>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

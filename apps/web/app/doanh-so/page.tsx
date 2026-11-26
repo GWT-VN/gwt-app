@@ -1,5 +1,12 @@
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { doanhSoCskh } from '@/app/actions'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 
 function tien(n: number | null) {
   return (n ?? 0).toLocaleString('vi-VN') + ' đ'
@@ -23,60 +30,60 @@ export default async function DoanhSoPage() {
   const tongTatCa = rows.reduce((s, r) => s + (r.tong_tien ?? 0), 0)
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
-        <header className="flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold text-slate-900">Doanh số CSKH</h1>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="max-w-5xl">
+        <div className="min-w-0 space-y-4">
+          <PageHeader tieuDe="Doanh số CSKH" />
 
-        <p className="text-sm bg-sky-50 text-sky-900 rounded-lg px-3 py-2">
-          Tổng hợp các hạng mục <strong>có thu phí</strong> ghi trong ticket, theo tháng × mã nội bộ.
-          Mục miễn phí và đổi máy không tính vào đây.
-        </p>
+          <Alert color="info"><AlertDescription>
+            Tổng hợp các hạng mục <strong>có thu phí</strong> ghi trong ticket, theo tháng × mã nội bộ.
+            Mục miễn phí và đổi máy không tính vào đây.
+          </AlertDescription></Alert>
 
-        <div className="bg-white rounded-xl border p-4 flex items-baseline justify-between">
-          <span className="text-slate-600">Tổng doanh số (tất cả)</span>
-          <span className="text-2xl font-semibold text-slate-900">{tien(tongTatCa)}</span>
+          <Card className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-muted-foreground">Tổng doanh số (tất cả)</span>
+            <span className="text-2xl font-semibold text-foreground">{tien(tongTatCa)}</span>
+          </Card>
+
+          {rows.length === 0 ? (
+            <EmptyState tieuDe="Chưa có hạng mục thu phí nào" />
+          ) : (
+            [...theoThang.entries()].map(([thang, ds]) => {
+              const tongThang = ds.reduce((s, r) => s + (r.tong_tien ?? 0), 0)
+              return (
+                <section key={thang} className="bg-card rounded-(--radius-xl) border overflow-hidden">
+                  <div className="flex items-baseline justify-between px-4 py-2.5 bg-muted border-b">
+                    <h2 className="font-medium text-foreground">{thangVN(thang)}</h2>
+                    <span className="font-semibold text-foreground">{tien(tongThang)}</span>
+                  </div>
+                  <Table>
+                    <TableHeader className="text-muted-foreground">
+                      <TableRow>
+                        <TableHead className="text-left px-4 py-2 font-medium">Hạng mục</TableHead>
+                        <TableHead className="text-left px-4 py-2 font-medium">Mã</TableHead>
+                        <TableHead className="text-right px-4 py-2 font-medium">Lượt</TableHead>
+                        <TableHead className="text-right px-4 py-2 font-medium">SL</TableHead>
+                        <TableHead className="text-right px-4 py-2 font-medium">Thành tiền</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ds.map((r) => (
+                        <TableRow key={r.catalog_code ?? 'x'}>
+                          <TableCell className="px-4 py-2 text-foreground">{r.ten_hang_muc ?? '(không rõ)'}</TableCell>
+                          <TableCell className="px-4 py-2 tabular-nums text-xs text-muted-foreground">{r.catalog_code ?? '—'}</TableCell>
+                          <TableCell className="px-4 py-2 text-right text-muted-foreground">{r.so_luot}</TableCell>
+                          <TableCell className="px-4 py-2 text-right text-muted-foreground">{r.tong_so_luong ?? '—'}</TableCell>
+                          <TableCell className="px-4 py-2 text-right font-medium text-foreground">{tien(r.tong_tien)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </section>
+              )
+            })
+          )}
         </div>
-
-        {rows.length === 0 ? (
-          <p className="text-sm text-slate-400">Chưa có hạng mục thu phí nào.</p>
-        ) : (
-          [...theoThang.entries()].map(([thang, ds]) => {
-            const tongThang = ds.reduce((s, r) => s + (r.tong_tien ?? 0), 0)
-            return (
-              <section key={thang} className="bg-white rounded-xl border overflow-hidden">
-                <div className="flex items-baseline justify-between px-4 py-2.5 bg-slate-50 border-b">
-                  <h2 className="font-medium text-slate-900">{thangVN(thang)}</h2>
-                  <span className="font-semibold text-slate-900">{tien(tongThang)}</span>
-                </div>
-                <table className="w-full text-sm">
-                  <thead className="text-slate-500">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-medium">Hạng mục</th>
-                      <th className="text-left px-4 py-2 font-medium">Mã</th>
-                      <th className="text-right px-4 py-2 font-medium">Lượt</th>
-                      <th className="text-right px-4 py-2 font-medium">SL</th>
-                      <th className="text-right px-4 py-2 font-medium">Thành tiền</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {ds.map((r) => (
-                      <tr key={r.catalog_code ?? 'x'}>
-                        <td className="px-4 py-2 text-slate-800">{r.ten_hang_muc ?? '(không rõ)'}</td>
-                        <td className="px-4 py-2 font-mono text-xs text-slate-400">{r.catalog_code ?? '—'}</td>
-                        <td className="px-4 py-2 text-right text-slate-600">{r.so_luot}</td>
-                        <td className="px-4 py-2 text-right text-slate-600">{r.tong_so_luong ?? '—'}</td>
-                        <td className="px-4 py-2 text-right font-medium text-slate-900">{tien(r.tong_tien)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </section>
-            )
-          })
-        )}
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

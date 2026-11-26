@@ -12,7 +12,10 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { ExportMayButton } from '@/components/ExportMayButton'
 import { BangMay } from '@/components/BangMay'
-import { DauTrang } from '@/components/DauTrang'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
 
 export default async function Home({
   searchParams,
@@ -70,69 +73,73 @@ export default async function Home({
   const moTaNgay = moTaLocNgay(ngtuOk, ngdenOk, 'Ngày lắp')
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4">
-        <DauTrang
-          tieuDe="Máy đã lắp"
-          phuDe={`${tong.toLocaleString('vi-VN')} máy · lọc theo sản phẩm, bảo hành, ngày lắp`}
-        />
-
-        <Suspense>
-          <OTimKiem placeholder="Gõ SĐT, serial hoặc tên khách…" />
-        </Suspense>
-
-        <Suspense>
-          <div className="flex gap-2 flex-wrap">
-            <BoLocChon
-              param="sp"
-              nhan="Sản phẩm"
-              // Ô chọn hiện MÃ MÁY cho gọn ("GN610"), còn chip lọc bên dưới vẫn
-              // hiện tên đầy đủ — chỗ nào cần đọc kỹ thì có, chỗ nào cần liếc
-              // nhanh thì ngắn.
-              tuyChon={models.map((m) => ({
-                giaTri: m.internal_code,
-                nhan: tenModel(m.product_name, m.internal_code),
-              }))}
+    <ManV2>
+      <TrangDuLieu>
+        <CauHinhBangDs>
+          <div className="min-w-0 space-y-4">
+            <PageHeader
+              tieuDe="Máy đã lắp"
+              meta={[`${tong.toLocaleString('vi-VN')} máy · lọc theo sản phẩm, bảo hành, ngày lắp`]}
             />
-            <BoLocChon
-              param="bh"
-              nhan="Bảo hành"
-              tuyChon={TINH_TRANG_BH.map((k) => ({ giaTri: k, nhan: NHAN_TINH_TRANG_BH[k] }))}
+
+            <Suspense>
+              <OTimKiem placeholder="Gõ SĐT, serial hoặc tên khách…" />
+            </Suspense>
+
+            <Suspense>
+              <div className="flex gap-2 flex-wrap">
+                <BoLocChon
+                  param="sp"
+                  nhan="Sản phẩm"
+                  // Ô chọn hiện MÃ MÁY cho gọn ("GN610"), còn chip lọc bên dưới vẫn
+                  // hiện tên đầy đủ — chỗ nào cần đọc kỹ thì có, chỗ nào cần liếc
+                  // nhanh thì ngắn.
+                  tuyChon={models.map((m) => ({
+                    giaTri: m.internal_code,
+                    nhan: tenModel(m.product_name, m.internal_code),
+                  }))}
+                />
+                <BoLocChon
+                  param="bh"
+                  nhan="Bảo hành"
+                  tuyChon={TINH_TRANG_BH.map((k) => ({ giaTri: k, nhan: NHAN_TINH_TRANG_BH[k] }))}
+                />
+                <LocNgay nhan="Ngày lắp" />
+              </div>
+            </Suspense>
+
+            <ThanhDangLoc
+              dieuKien={[
+                ...(q ? [{ nhan: 'Từ khoá', giaTri: q, href: hrefBoDieuKien('q') }] : []),
+                ...(sp ? [{ nhan: 'Sản phẩm', giaTri: tenSanPham ?? sp, href: hrefBoDieuKien('sp') }] : []),
+                ...(bh ? [{ nhan: 'Bảo hành', giaTri: tenBaoHanh ?? bh, href: hrefBoDieuKien('bh') }] : []),
+                ...(moTaNgay ? [{ nhan: 'Ngày lắp', giaTri: moTaNgay.replace(/^Ngày lắp\s*[:=]?\s*/, ''), href: hrefBoDieuKien('ngay') }] : []),
+              ]}
+              hienThi={machines.length}
+              tong={tong}
+              nhan="máy"
+              sapXep={sapXep}
             />
-            <LocNgay nhan="Ngày lắp" />
+
+            <KhungChon
+              khoaTrang={machines.map((m) => m.serial)}
+              tong={tong}
+              bat={quyen.hangLoat}
+              // KHÔNG có `trang`: lật trang không được coi là đổi bộ lọc, xem ChonDong.tsx
+              thamSo={{ q, sp, bh, cot, chieu, ngtu, ngden }}
+              layTatCaKhoa={khoaTatCaMay}
+            >
+            <ThanhDaChon nhan="máy" />
+            <BangMay rows={machines} choViewChung={quyen.viewChung} views={views}
+              congCu={quyen.xuat && <ExportMayButton q={q} sp={sp} bh={bh} ngtu={ngtu} ngden={ngden} />} />
+            </KhungChon>
+
+            <Suspense>
+              <PhanTrang trang={trang} soTrang={soTrang} />
+            </Suspense>
           </div>
-        </Suspense>
-
-        <ThanhDangLoc
-          dieuKien={[
-            ...(q ? [{ nhan: 'Từ khoá', giaTri: q, href: hrefBoDieuKien('q') }] : []),
-            ...(sp ? [{ nhan: 'Sản phẩm', giaTri: tenSanPham ?? sp, href: hrefBoDieuKien('sp') }] : []),
-            ...(bh ? [{ nhan: 'Bảo hành', giaTri: tenBaoHanh ?? bh, href: hrefBoDieuKien('bh') }] : []),
-            ...(moTaNgay ? [{ nhan: 'Ngày lắp', giaTri: moTaNgay.replace(/^Ngày lắp\s*[:=]?\s*/, ''), href: hrefBoDieuKien('ngay') }] : []),
-          ]}
-          hienThi={machines.length}
-          tong={tong}
-          nhan="máy"
-          sapXep={sapXep}
-        />
-
-        <KhungChon
-          khoaTrang={machines.map((m) => m.serial)}
-          tong={tong}
-          bat={quyen.hangLoat}
-          // KHÔNG có `trang`: lật trang không được coi là đổi bộ lọc, xem ChonDong.tsx
-          thamSo={{ q, sp, bh, cot, chieu, ngtu, ngden }}
-          layTatCaKhoa={khoaTatCaMay}
-        >
-        <ThanhDaChon nhan="máy" />
-        <BangMay rows={machines} choViewChung={quyen.viewChung} views={views}
-          congCu={quyen.xuat && <ExportMayButton q={q} sp={sp} bh={bh} ngtu={ngtu} ngden={ngden} />} />
-        </KhungChon>
-
-        <Suspense>
-          <PhanTrang trang={trang} soTrang={soTrang} />
-        </Suspense>
-      </div>
-    </main>
+        </CauHinhBangDs>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

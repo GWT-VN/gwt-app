@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { Kenh } from '@/app/actions'
 import { TaoKhachForm } from '@/components/TaoKhachForm'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 /**
  * MỘT nút tạo khách duy nhất.
@@ -27,40 +29,16 @@ export function TaoKhachButton({ kenh }: { kenh: Kenh[] }) {
   const router = useRouter()
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setMo(true)}
-        className="rounded-[9px] bg-[#b5642a] px-4 py-2 text-sm font-medium text-white hover:bg-[#8a4a1c]"
-      >
-        ＋ Tạo khách
-      </button>
-
-      {mo && (
-        // overflow-y-auto: khi bung hết phần chi tiết thì form cao hơn màn hình, phải cuộn được.
-        <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Tạo khách mới"
-        >
-          <div className="mx-auto w-full max-w-2xl">
-            <div className="flex items-center justify-between gap-3 rounded-t-xl bg-white px-5 py-3">
-              <h2 className="font-semibold text-slate-900">Tạo khách mới</h2>
-              <button
-                type="button"
-                onClick={() => setMo(false)}
-                className="text-slate-400 hover:text-slate-900"
-                aria-label="Đóng"
-              >
-                ✕
-              </button>
-            </div>
-
-            <TaoKhachForm kenh={kenh} onXong={() => { setMo(false); router.refresh() }} />
-          </div>
-        </div>
-      )}
-    </>
+    <Dialog open={mo} onOpenChange={setMo}>
+      <DialogTrigger asChild>
+        <Button>＋ Tạo khách</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader><DialogTitle>Tạo khách mới</DialogTitle></DialogHeader>
+        <DialogBody>
+          <TaoKhachForm kenh={kenh} onXong={() => { setMo(false); router.refresh() }} />
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }

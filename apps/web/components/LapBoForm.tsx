@@ -1,5 +1,9 @@
 'use client'
 
+import { Input } from '@/components/ui/input'
+import { Combobox } from '@/components/ui/combobox'
+import { Button } from '@/components/ui/button'
+
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
@@ -46,34 +50,34 @@ function ChonSerialThietBi({
   function chon(s: SerialKho) { setQ(s.serial); setOpen(false); onChange(s.serial) }
 
   return (
-    <div className="rounded-lg border p-3 bg-white space-y-1">
-      <div className="text-sm font-medium text-slate-800">{ten ?? internalCode}</div>
-      <div className="font-mono text-[11px] text-slate-400">{internalCode}</div>
+    <div className="rounded-lg border p-3 bg-card space-y-1">
+      <div className="text-sm font-medium text-foreground">{ten ?? internalCode}</div>
+      <div className="tabular-nums text-[11px] text-muted-foreground">{internalCode}</div>
       {tai ? (
-        <p className="text-xs text-slate-400">Đang tải serial…</p>
+        <p className="text-xs text-muted-foreground">Đang tải serial…</p>
       ) : ds.length === 0 ? (
-        <p className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1">
+        <p className="text-xs text-(--color-text-warning) bg-(--color-background-warning-surface) rounded px-2 py-1">
           Không còn serial tồn kho cho thiết bị này — nhập kho trước.
         </p>
       ) : (
         <div className="relative">
-          <input value={q} onChange={(e) => go(e.target.value)}
+          <Input value={q} onChange={(e) => go(e.target.value)}
             onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 200)}
             placeholder={`Chọn hoặc gõ số CUỐI serial (còn ${ds.length})…`}
-            className={`w-full rounded-lg border px-3 py-2 text-sm bg-white font-mono text-slate-900 ${value ? 'border-emerald-400' : ''}`} />
+            className={`w-full rounded-lg border px-3 py-2 text-sm bg-card tabular-nums text-foreground ${value ? 'border-(--color-border-success-surface)' : ''}`} />
           {open && loc.length > 0 && (
-            <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-white shadow-lg">
+            <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-card shadow-lg">
               {loc.map((s) => (
                 <li key={s.serial}>
-                  <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chon(s)}
-                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-mono">
+                  <Button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chon(s)}
+                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted tabular-nums">
                     {s.serial}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
           )}
-          {value && <div className="text-xs text-slate-500 mt-1">Đã chọn: <SerialRo serial={value} /></div>}
+          {value && <div className="text-xs text-muted-foreground mt-1">Đã chọn: <SerialRo serial={value} /></div>}
         </div>
       )}
     </div>
@@ -147,34 +151,31 @@ export function LapBoForm() {
   }
 
   return (
-    <div className="bg-white rounded-xl border p-5 space-y-4 max-w-2xl">
+    <div className="bg-card rounded-(--radius-xl) border p-5 space-y-4 max-w-2xl">
       {/* 1. Combo */}
       <div>
-        <label className="text-sm font-medium text-slate-700">1. Bộ hệ thống (combo)</label>
-        <select value={combo} onChange={(e) => chonCombo(e.target.value)}
-          className="mt-1 w-full rounded-lg border px-3 py-2 text-sm bg-white text-slate-900">
-          <option value="">— Chọn bộ —</option>
-          {combos.map((c) => (
-            <option key={c.combo} value={c.combo}>{c.ten ? `${c.ten} (${c.combo})` : c.combo}</option>
-          ))}
-        </select>
-        {tienMa && <p className="text-xs text-slate-400 mt-1">Mã bộ sẽ sinh dạng <span className="font-mono">{tienMa.replace('###', 'xxx')}</span></p>}
+        <label htmlFor="lap-bo-kieu" className="text-sm font-medium">1. Bộ hệ thống (combo)</label>
+        <Combobox id="lap-bo-kieu" value={combo || null} placeholder="Chọn bộ" searchPlaceholder="Gõ tên hoặc mã bộ…"
+          options={combos.map((c) => ({ gt: c.combo, nhan: c.ten ? `${c.ten} (${c.combo})` : c.combo }))}
+          onValueChange={(code) => chonCombo(code ?? '')}
+        />
+        {tienMa && <p className="text-xs text-muted-foreground mt-1">Mã bộ sẽ sinh dạng <span className="tabular-nums">{tienMa.replace('###', 'xxx')}</span></p>}
       </div>
 
       {/* 2. Serial từng thiết bị (mỗi slot 1 serial; ECO có 2× UPF10) */}
       {slots.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-baseline justify-between gap-2">
-            <label className="text-sm font-medium text-slate-700">2. Serial thiết bị ({slots.length})</label>
-            <button type="button" className="text-xs underline text-slate-600"
+            <label className="text-sm font-medium text-foreground">2. Serial thiết bị ({slots.length})</label>
+            <Button variant="ghost" size="sm" type="button" className="text-xs underline text-muted-foreground"
               onClick={() => setChuaSerial(Object.fromEntries(slots.map((s) => [s.key, true])))}>
               Chưa có serial cả bộ
-            </button>
+            </Button>
           </div>
           {slots.map((s) => (
             <div key={s.key} className="space-y-1">
               {chuaSerial[s.key] ? (
-                <p className="text-sm rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+                <p className="text-sm rounded-lg border border-(--color-border-warning-surface) bg-(--color-background-warning-surface) px-3 py-2 text-(--color-text-warning)">
                   <strong>{s.ten ?? s.internal_code}</strong> — chưa có serial: app cấp mã tạm, bổ sung serial sau ở trang máy.
                 </p>
               ) : (
@@ -182,7 +183,7 @@ export function LapBoForm() {
                   value={chon[s.key] ?? ''}
                   onChange={(v) => setChon((p) => ({ ...p, [s.key]: v }))} />
               )}
-              <label className="flex items-center gap-1.5 text-xs text-slate-600">
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <input type="checkbox" checked={!!chuaSerial[s.key]}
                   onChange={(e) => setChuaSerial((p) => ({ ...p, [s.key]: e.target.checked }))} />
                 Chưa có serial — kích hoạt trước, bổ sung sau
@@ -194,28 +195,28 @@ export function LapBoForm() {
 
       {/* 3. Khách */}
       <div>
-        <label className="text-sm font-medium text-slate-700">3. Khách hàng</label>
-        <p className="text-xs text-slate-400 mb-1">Tìm khách đã có; không có thì tạo mới (admin duyệt sau).</p>
+        <label className="text-sm font-medium text-foreground">3. Khách hàng</label>
+        <p className="text-xs text-muted-foreground mb-1">Tìm khách đã có; không có thì tạo mới (admin duyệt sau).</p>
         <KhachPicker onPick={chonKhach} />
       </div>
 
       {/* 4. Địa chỉ */}
       <div>
-        <label className="text-sm font-medium text-slate-700">4. Địa chỉ lắp đặt</label>
-        <p className="text-xs text-slate-400">Địa chỉ khách: {khachAddr || '—'}</p>
+        <label className="text-sm font-medium text-foreground">4. Địa chỉ lắp đặt</label>
+        <p className="text-xs text-muted-foreground">Địa chỉ khách: {khachAddr || '—'}</p>
         {/* Hỏi theo chiều KHẲNG ĐỊNH — xem chú thích cùng khối ở DangKyBHForm. */}
-        <label className="flex items-center gap-1.5 text-sm text-slate-700 mt-1">
+        <label className="flex items-center gap-1.5 text-sm text-foreground mt-1">
           <input type="checkbox" checked={!dungDcKhach} onChange={(e) => setDungDcKhach(!e.target.checked)} />
           Địa chỉ lắp khác địa chỉ khách
         </label>
         {!dungDcKhach && (
           <>
-            <input value={dcLap} onChange={(e) => setDcLap(e.target.value)} placeholder="Số nhà, thôn/xã, quận/huyện…"
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-slate-900" />
+            <Input value={dcLap} onChange={(e) => setDcLap(e.target.value)} placeholder="Số nhà, thôn/xã, quận/huyện…"
+              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm text-foreground" />
             <div className="mt-2">
-              <span className="text-sm font-medium text-slate-700">Tỉnh / TP</span>
+              <span className="text-sm font-medium text-foreground">Tỉnh / TP</span>
               <ChonTinh value={tinhLap} onChange={setTinhLap} />
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Ô riêng để khỏi gõ lẫn vào địa chỉ — địa chỉ lắp có thể khác địa chỉ khách.
               </p>
             </div>
@@ -225,22 +226,22 @@ export function LapBoForm() {
 
       {/* 5. Ngày bắt đầu BH */}
       <label className="block">
-        <span className="text-sm font-medium text-slate-700">5. Ngày bắt đầu bảo hành</span>
-        <input type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)}
-          className="mt-1 block rounded-lg border px-3 py-2 text-sm text-slate-900" />
+        <span className="text-sm font-medium text-foreground">5. Ngày bắt đầu bảo hành</span>
+        <Input type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)}
+          className="mt-1 block rounded-lg border px-3 py-2 text-sm text-foreground" />
       </label>
 
       <div className="flex items-center gap-3">
-        <button onClick={luu} disabled={busy || !sanSang}
-          className="rounded-lg bg-slate-900 text-white px-5 py-2.5 font-medium disabled:opacity-50">
+        <Button onClick={luu} disabled={busy || !sanSang}
+          className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 font-medium disabled:opacity-50">
           {busy ? 'Đang lắp…' : 'Lắp bộ + kích hoạt bảo hành'}
-        </button>
-        {err && <span className="text-sm text-red-600">{err}</span>}
+        </Button>
+        {err && <span className="text-sm text-(--color-text-danger)">{err}</span>}
       </div>
 
       {maBo && (
-        <p className="text-sm bg-emerald-50 text-emerald-800 rounded-lg px-3 py-2">
-          ✅ Đã lắp bộ <span className="font-mono font-medium">{maBo}</span> + kích hoạt BH từng thiết bị.
+        <p className="text-sm bg-(--color-background-success-surface) text-(--color-text-success) rounded-lg px-3 py-2">
+          ✅ Đã lắp bộ <span className="tabular-nums font-medium">{maBo}</span> + kích hoạt BH từng thiết bị.
           {soChoSerial > 0 && <> {soChoSerial} thiết bị <strong>chờ bổ sung serial</strong> — xem ở Bảo hành › Chờ kích hoạt BH.</>}
         </p>
       )}

@@ -4,12 +4,15 @@ import { listKhachHang, khoaTatCaKhachHang, exportCuaToi, listBangView, kenhChon
 import { ExportKhachButton } from '@/components/ExportKhachButton'
 import { ThaoTacHangLoat } from '@/components/ThaoTacHangLoat'
 import { BangKhach } from '@/components/BangKhach'
-import { DauTrang } from '@/components/DauTrang'
 import { TaoKhachButton } from '@/components/TaoKhachButton'
 import { SUA_HL_KHACH } from '@/lib/danhSach'
 import { OTimKiem, ThanhDangLoc, PhanTrang } from '@/bang'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
 
 export default async function KhachHangPage({
   searchParams,
@@ -37,82 +40,84 @@ export default async function KhachHangPage({
   ])
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
-        <DauTrang tieuDe="Khách hàng" phuDe={`${tong.toLocaleString('vi-VN')} khách`}>
-          <TaoKhachButton kenh={kenh} />
-        </DauTrang>
+    <ManV2>
+      <TrangDuLieu>
+        <CauHinhBangDs>
+          <div className="min-w-0 space-y-4">
+            <PageHeader tieuDe="Khách hàng" meta={[`${tong.toLocaleString('vi-VN')} khách`]} hanhDong={<TaoKhachButton kenh={kenh} />} />
 
-        <Suspense>
-          <OTimKiem placeholder="Gõ tên khách, SĐT, mã KH…" />
-        </Suspense>
+            <Suspense>
+              <OTimKiem placeholder="Gõ tên khách, SĐT, mã KH…" />
+            </Suspense>
 
-        {/* Chip lọc "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải
-            có chỗ lọc ra danh sách phải gọi xin số. Hiện SỐ ngay trên chip để CS thấy mà làm,
-            chứ chip trống thì không ai bấm. */}
-        <div className="flex flex-wrap gap-2">
-          {(soThieuSdt > 0 || locThieuSdt) && (
-            <Link
-              href={locThieuSdt ? '/khach-hang' : '/khach-hang?thieu_sdt=1'}
-              prefetch={false}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                locThieuSdt
-                  ? 'bg-amber-600 text-white'
-                  : 'border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'}`}
+            {/* Chip lọc "Cần xin lại SĐT" — CEO chốt 22/08: cho tạo khách không SĐT, đổi lại phải
+                có chỗ lọc ra danh sách phải gọi xin số. Hiện SỐ ngay trên chip để CS thấy mà làm,
+                chứ chip trống thì không ai bấm. */}
+            <div className="flex flex-wrap gap-2">
+              {(soThieuSdt > 0 || locThieuSdt) && (
+                <Link
+                  href={locThieuSdt ? '/khach-hang' : '/khach-hang?thieu_sdt=1'}
+                  prefetch={false}
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                    locThieuSdt
+                      ? 'bg-(--color-background-warning-solid) text-primary-foreground'
+                      : 'border border-(--color-border-warning-surface) bg-(--color-background-warning-surface) text-(--color-text-warning) hover:bg-(--color-background-warning-surface)'}`}
+                >
+                  {locThieuSdt ? '✕ Bỏ lọc · ' : '☎ '}Cần xin lại SĐT ({soThieuSdt})
+                </Link>
+              )}
+              {/* Chip "Kênh máy tự điền" — CEO 24/08: *"highlight đc kênh nào là anh tự điền cần
+                  tôi check lại"*. Bấm vào ra đúng nhóm mig 54 đã đổ; sửa tay hồ sơ nào là hồ sơ
+                  ấy rơi khỏi đây, nên con số tự giảm dần về 0 khi soát xong. */}
+              {(soKenhTuDong > 0 || locKenhTuDong) && (
+                <Link
+                  href={locKenhTuDong ? '/khach-hang' : '/khach-hang?kenh_tu_dong=1'}
+                  prefetch={false}
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                    locKenhTuDong
+                      ? 'bg-(--color-background-info-solid) text-primary-foreground'
+                      : 'border border-(--color-border-info-surface) bg-(--color-background-info-surface) text-(--color-text-info) hover:bg-(--color-background-info-surface)'}`}
+                >
+                  {locKenhTuDong ? '✕ Bỏ lọc · ' : '🤖 '}Kênh máy tự điền, cần soát ({soKenhTuDong})
+                </Link>
+              )}
+            </div>
+
+            <ThanhDangLoc
+              dieuKien={[
+                ...(q ? [{ nhan: 'Từ khoá', giaTri: q }] : []),
+                ...(locThieuSdt ? [{ nhan: 'Lọc', giaTri: 'Cần xin lại SĐT' }] : []),
+                ...(locKenhTuDong ? [{ nhan: 'Lọc', giaTri: 'Kênh máy tự điền' }] : []),
+              ]}
+              hienThi={list.length}
+              tong={tong}
+              nhan="khách"
+              sapXep={sapXep}
+            />
+
+            <ExportKhachButton q={q} daDuyet={exportDuyet} />
+
+            <KhungChon
+              khoaTrang={list.map((c) => c.id)}
+              tong={tong}
+              bat={quyen.hangLoat}
+              thamSo={{ q, cot, chieu }}
+              layTatCaKhoa={khoaTatCaKhachHang}
             >
-              {locThieuSdt ? '✕ Bỏ lọc · ' : '☎ '}Cần xin lại SĐT ({soThieuSdt})
-            </Link>
-          )}
-          {/* Chip "Kênh máy tự điền" — CEO 24/08: *"highlight đc kênh nào là anh tự điền cần
-              tôi check lại"*. Bấm vào ra đúng nhóm mig 54 đã đổ; sửa tay hồ sơ nào là hồ sơ
-              ấy rơi khỏi đây, nên con số tự giảm dần về 0 khi soát xong. */}
-          {(soKenhTuDong > 0 || locKenhTuDong) && (
-            <Link
-              href={locKenhTuDong ? '/khach-hang' : '/khach-hang?kenh_tu_dong=1'}
-              prefetch={false}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                locKenhTuDong
-                  ? 'bg-sky-600 text-white'
-                  : 'border border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100'}`}
-            >
-              {locKenhTuDong ? '✕ Bỏ lọc · ' : '🤖 '}Kênh máy tự điền, cần soát ({soKenhTuDong})
-            </Link>
-          )}
-        </div>
+              <ThanhDaChon nhan="khách">
+                <ThaoTacHangLoat bang="cs_customers" truong={SUA_HL_KHACH} choPhepXoa={quyen.xoaHangLoat} />
+              </ThanhDaChon>
+              <Suspense>
+                <BangKhach rows={list} choViewChung={quyen.viewChung} views={views} />
+              </Suspense>
+            </KhungChon>
 
-        <ThanhDangLoc
-          dieuKien={[
-            ...(q ? [{ nhan: 'Từ khoá', giaTri: q }] : []),
-            ...(locThieuSdt ? [{ nhan: 'Lọc', giaTri: 'Cần xin lại SĐT' }] : []),
-            ...(locKenhTuDong ? [{ nhan: 'Lọc', giaTri: 'Kênh máy tự điền' }] : []),
-          ]}
-          hienThi={list.length}
-          tong={tong}
-          nhan="khách"
-          sapXep={sapXep}
-        />
-
-        <ExportKhachButton q={q} daDuyet={exportDuyet} />
-
-        <KhungChon
-          khoaTrang={list.map((c) => c.id)}
-          tong={tong}
-          bat={quyen.hangLoat}
-          thamSo={{ q, cot, chieu }}
-          layTatCaKhoa={khoaTatCaKhachHang}
-        >
-          <ThanhDaChon nhan="khách">
-            <ThaoTacHangLoat bang="cs_customers" truong={SUA_HL_KHACH} choPhepXoa={quyen.xoaHangLoat} />
-          </ThanhDaChon>
-          <Suspense>
-            <BangKhach rows={list} choViewChung={quyen.viewChung} views={views} />
-          </Suspense>
-        </KhungChon>
-
-        <Suspense>
-          <PhanTrang trang={trang} soTrang={soTrang} />
-        </Suspense>
-      </div>
-    </main>
+            <Suspense>
+              <PhanTrang trang={trang} soTrang={soTrang} />
+            </Suspense>
+          </div>
+        </CauHinhBangDs>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

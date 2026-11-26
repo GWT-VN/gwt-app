@@ -2,9 +2,11 @@ import { redirect } from 'next/navigation'
 import { coTheVaoCS } from '@/lib/nen-tang/gac-cong'
 import { requireStaff } from '@/lib/nen-tang/phien'
 import { khachDayDu, capKhachNghiTrung } from '@/app/actions'
-import { DauTrang } from '@/components/DauTrang'
 import { GopKhachManHinh } from '@/components/GopKhachManHinh'
 import { GoiYGopKhach } from '@/components/GoiYGopKhach'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 
 export const metadata = { title: 'Gộp khách trùng · GWT CSKH' }
 export const dynamic = 'force-dynamic'
@@ -31,32 +33,34 @@ export default async function GopKhachPage({
   ])
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
-        <DauTrang
-          tieuDe="Gộp khách trùng"
-          phuDe="So sánh hai hồ sơ cạnh nhau rồi mới gộp — hồ sơ bị gộp chỉ bị ẩn, không xoá hẳn"
-        />
+    <ManV2>
+      <TrangDuLieu className="max-w-5xl">
+        <div className="min-w-0 space-y-4">
+          <PageHeader
+            tieuDe="Gộp khách trùng"
+            meta={["So sánh hai hồ sơ cạnh nhau rồi mới gộp — hồ sơ bị gộp chỉ bị ẩn, không xoá hẳn"]}
+          />
 
-        <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
-          Máy, ticket, lịch bảo trì và liên hệ của hồ sơ bị gộp sẽ chuyển hết sang hồ sơ giữ.
-          Trường nào hồ sơ giữ đang trống thì được lấp; trường nào <strong>cả hai đều có</strong>
-          {' '}thì hồ sơ giữ thắng — bảng bên dưới nói rõ từng dòng.
+          <div className="rounded-(--radius-xl) border border-(--color-border-info-surface) bg-(--color-background-info-surface) px-3 py-2 text-sm text-(--color-text-info)">
+            Máy, ticket, lịch bảo trì và liên hệ của hồ sơ bị gộp sẽ chuyển hết sang hồ sơ giữ.
+            Trường nào hồ sơ giữ đang trống thì được lấp; trường nào <strong>cả hai đều có</strong>
+            {' '}thì hồ sơ giữ thắng — bảng bên dưới nói rõ từng dòng.
+          </div>
+
+          {/* `key` theo đúng cặp id: bấm "Xem & gộp" ở danh sách bên dưới là điều
+              hướng trong CÙNG route /khach/gop, React giữ nguyên component cũ nên
+              state khởi tạo từ props (giu/gop) không bao giờ chạy lại — màn hình
+              trống trơn dù server đã trả đúng hai hồ sơ. Đổi key = ép dựng lại. */}
+          <GopKhachManHinh key={`${giu ?? ''}-${gop ?? ''}`} giuBanDau={kGiu} gopBanDau={kGop} />
+
+          {/* Danh sách việc cần làm nằm DƯỚI khu thao tác: vào thẳng từ menu thì
+              cuộn một chút là thấy, còn vào từ nút trong hồ sơ khách (đã có sẵn một
+              bên) thì phần thao tác vẫn ở ngay trên đầu. */}
+          <div className="pt-2">
+            <GoiYGopKhach cap={cap} />
+          </div>
         </div>
-
-        {/* `key` theo đúng cặp id: bấm "Xem & gộp" ở danh sách bên dưới là điều
-            hướng trong CÙNG route /khach/gop, React giữ nguyên component cũ nên
-            state khởi tạo từ props (giu/gop) không bao giờ chạy lại — màn hình
-            trống trơn dù server đã trả đúng hai hồ sơ. Đổi key = ép dựng lại. */}
-        <GopKhachManHinh key={`${giu ?? ''}-${gop ?? ''}`} giuBanDau={kGiu} gopBanDau={kGop} />
-
-        {/* Danh sách việc cần làm nằm DƯỚI khu thao tác: vào thẳng từ menu thì
-            cuộn một chút là thấy, còn vào từ nút trong hồ sơ khách (đã có sẵn một
-            bên) thì phần thao tác vẫn ở ngay trên đầu. */}
-        <div className="pt-2">
-          <GoiYGopKhach cap={cap} />
-        </div>
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

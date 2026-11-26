@@ -1,25 +1,18 @@
 'use client'
 
-import { useState } from 'react'
 import { DangKyBHForm } from '@/components/DangKyBHForm'
 import { LapBoForm } from '@/components/LapBoForm'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-/** Gộp Đăng ký BH: chọn lắp "1 máy lẻ" (DangKyBHForm) hay "1 bộ combo" (LapBoForm). */
 export function ChonKieuLap() {
-  const [kieu, setKieu] = useState<'le' | 'bo'>('le')
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
-        <button onClick={() => setKieu('le')}
-          className={`px-4 py-2 rounded-lg text-sm border ${kieu === 'le' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
-          Lắp 1 máy lẻ
-        </button>
-        <button onClick={() => setKieu('bo')}
-          className={`px-4 py-2 rounded-lg text-sm border ${kieu === 'bo' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
-          Lắp 1 bộ combo (WH15A/WH30A…)
-        </button>
-      </div>
-      {kieu === 'le' ? <DangKyBHForm /> : <LapBoForm />}
-    </div>
+    <Tabs defaultValue="le" className="gap-4">
+      <TabsList variant="line" thuGon aria-label="Kiểu lắp">
+        <TabsTrigger value="le">Lắp 1 máy lẻ</TabsTrigger>
+        <TabsTrigger value="bo">Lắp 1 bộ combo (WH15A/WH30A…)</TabsTrigger>
+      </TabsList>
+      <TabsContent value="le"><DangKyBHForm /></TabsContent>
+      <TabsContent value="bo"><LapBoForm /></TabsContent>
+    </Tabs>
   )
 }
