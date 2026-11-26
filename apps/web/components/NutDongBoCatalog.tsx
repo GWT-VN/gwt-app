@@ -3,14 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { syncCatalogNow, type CatalogSyncLog } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const BANG = ['catalog_item', 'catalog_category', 'supplier_code',
   'product_bundle', 'product_filter', 'product_warranty']
 
-function khiNao(iso: string) {
-  const d = new Date(iso)
-  return d.toLocaleString('vi-VN', { hour12: false })
-}
+const khiNao = (iso: string) => hienNgay(iso, 'gio')
 
 /** Nút bấm tay đồng bộ catalog + nhật ký các lần chạy. Chỉ admin thấy trang này. */
 export function NutDongBoCatalog({ logs }: { logs: CatalogSyncLog[] }) {

@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { xoaLech, type DongLech } from '@/lib/nen-tang/ma-tran'
 import { HO_SO_QUYEN, laMaQuyenHopLe } from '@/lib/nen-tang/quyen'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 export function BangLechQuyen({ ds }: { ds: DongLech[] }) {
   const [dangChay, batDau] = useTransition()
@@ -66,7 +67,7 @@ export function BangLechQuyen({ ds }: { ds: DongLech[] }) {
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">{d.so_lan}</td>
                   <td className="px-3 py-2 text-xs text-slate-500">
-                    {new Date(d.lan_cuoi).toLocaleString('vi-VN')}
+                    {hienNgay(d.lan_cuoi, 'gio')}
                   </td>
                 </tr>
               )

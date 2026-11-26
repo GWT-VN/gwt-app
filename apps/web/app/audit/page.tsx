@@ -1,6 +1,7 @@
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { auditLog } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const NHAN_BANG: Record<string, string> = {
   cs_customers: 'khách', customer_contacts: 'SĐT phụ',
@@ -23,9 +24,7 @@ function nhanHanhDong(hd: string): string {
   return hd
 }
 
-function khiNao(iso: string) {
-  return new Date(iso).toLocaleString('vi-VN', { hour12: false })
-}
+const khiNao = (iso: string) => hienNgay(iso, 'gio')
 function chiTiet(o: Record<string, unknown> | null): string {
   if (!o) return '—'
   return Object.entries(o).map(([k, v]) => `${k}=${v ?? '—'}`).join(' · ')
