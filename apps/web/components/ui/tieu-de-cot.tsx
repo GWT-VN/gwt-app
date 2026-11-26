@@ -55,6 +55,22 @@ import { laGhim, toiThieu, type BenTha, type CotBang, type MenuCot } from './use
  */
 export const BaoCotCtx = createContext<((cau: string) => void) | null>(null)
 
+/**
+ * Cảm biến phím kéo của DS (`KeoCot`, `CotHienThi`) = `KeyboardSensor` của dnd-kit, BỎ việc huỷ kéo khi `visibilitychange`.
+ * dnd-kit 6.3.1 huỷ kéo phím mỗi lần tab đổi hiện/ẩn; khung Browser của app Claude (và trình duyệt nhúng) bắn sự kiện này
+ * liên tục khi khung bị che/hiện → nhấc cột xong bấm ↑ là "Đã huỷ kéo" (đo 26/11). Kéo phím dở dang khi đổi tab không
+ * hỏng gì: quay lại vẫn dời/thả/Esc tiếp được. Huỷ khi đổi cỡ cửa sổ (toạ độ cũ sai) và Esc giữ nguyên.
+ * ponytail: vá phương thức riêng `handleCancel` của dnd-kit 6.3.1 (constructor tự bind theo prototype) — nâng dnd-kit thì
+ * chạy lại test "visibilitychange không huỷ kéo" (table.dom.test, cot-bang.dom.test).
+ */
+export class CamBienPhimKeo extends KeyboardSensor {}
+const huyGoc = (KeyboardSensor.prototype as unknown as { handleCancel(e: Event): void }).handleCancel
+Object.assign(CamBienPhimKeo.prototype, {
+  handleCancel(this: unknown, e: Event) {
+    if (e.type !== 'visibilitychange') huyGoc.call(this, e)
+  },
+})
+
 type Chieu = 'tang' | 'giam'
 /** Một tag trong menu lọc — vẽ bằng `Badge` outline (+ chấm màu) như trong ô. Có cả "Chưa phân loại" nếu dữ liệu có. */
 export type MucLoc = { giaTri: string; nhan: string; color?: 'info' | 'success' | 'warning' | 'danger' | 'discovery' }
@@ -440,7 +456,7 @@ export function KeoCot({
   useEscKhiKeo(!!keo)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, {
+    useSensor(CamBienPhimKeo, {
       coordinateGetter: sortableKeyboardCoordinates,
       // Enter để mở menu tiêu đề → chỉ Space nhấc; thả bằng Space/Enter/Tab.
       keyboardCodes: {

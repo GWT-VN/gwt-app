@@ -5,7 +5,6 @@ import {
   closestCenter,
   DndContext,
   KeyboardCode,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -19,7 +18,7 @@ import { Button } from './button'
 import { cdDongCot, cdKeChua } from './data-view-styles'
 import { useDsPortal } from './ds-root'
 import { menuLabel } from './menu-styles'
-import { useEscKhiKeo } from './tieu-de-cot'
+import { CamBienPhimKeo, useEscKhiKeo } from './tieu-de-cot'
 import type { BenTha, CotBang } from './use-cot-bang'
 
 /**
@@ -50,7 +49,7 @@ export function CotHienThi({
   useEscKhiKeo(keo)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, {
+    useSensor(CamBienPhimKeo, {
       coordinateGetter: sortableKeyboardCoordinates,
       keyboardCodes: {
         start: [KeyboardCode.Space],

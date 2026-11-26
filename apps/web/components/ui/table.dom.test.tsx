@@ -247,6 +247,20 @@ describe('đổi chỗ cột bằng bàn phím (dnd-kit KeyboardSensor)', () => 
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
+  test('visibilitychange giữa chừng (khung bị che/hiện) KHÔNG huỷ kéo: ← rồi Space vẫn đổi chỗ', async () => {
+    const user = userEvent.setup()
+    render(<Bang />)
+    screen.getByRole('button', { name: /^Mã/ }).focus()
+    await nhan(user, ' ')
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange', { bubbles: true }))
+    })
+    await nhan(user, '{ArrowLeft}')
+    expect(screen.queryByText(/Đã huỷ kéo/)).toBeNull()
+    await nhan(user, ' ')
+    await waitFor(() => expect(tenCot()).toEqual(['uu', 'ma', 'nhom']))
+  })
+
   test('Esc giữa chừng → về chỗ cũ', async () => {
     const user = userEvent.setup()
     render(<Bang />)

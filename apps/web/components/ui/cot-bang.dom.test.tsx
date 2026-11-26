@@ -245,6 +245,22 @@ describe('C — ⚙ Cột hiển thị: Đang hiện (kéo + mắt) / Đang ẩn
     expect([...hien.querySelectorAll('[data-cot-cd]')].map((d) => d.getAttribute('data-cot-cd'))).toEqual(['ma', 'han', 'khach', 'tt'])
   })
 
+  test('visibilitychange giữa chừng (khung Browser bị che/hiện) KHÔNG huỷ kéo phím — ↑ rồi Space vẫn đổi chỗ', async () => {
+    const user = userEvent.setup()
+    render(<Man />)
+    const cd = await moCot(user)
+    within(cd).getByRole('button', { name: 'Đổi chỗ cột Hạn' }).focus()
+    await nhan(user, ' ')
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange', { bubbles: true }))
+    })
+    await nhan(user, '{ArrowUp}')
+    expect(screen.queryByText(/Đã huỷ kéo/)).toBeNull()
+    await nhan(user, ' ')
+    await waitFor(() => expect(tenCot()).toEqual(['ma', 'han', 'khach', 'tt']))
+    expect(await screen.findByText('Đã thả cột Hạn trước cột Khách.')).toBeTruthy()
+  })
+
   test('Esc khi đang nhấc: huỷ kéo, giữ thứ tự, KHÔNG đóng ⚙', async () => {
     const user = userEvent.setup()
     render(<Man />)
@@ -272,6 +288,8 @@ describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang
     expect(oGhim).toContain('_&]:left-9')
     expect(oGhim).toContain('bg-background!')
     expect(oGhim).toContain('var(--nen-dong')
+    // Vạch mép phải luôn có, cùng token ở tiêu đề và ô thân.
+    for (const l of [thGhim, oGhim]) expect(l).toContain('border-r-(--alpha-08)')
     expect(document.querySelectorAll('[data-ghim]')).toHaveLength(2)
     unmount()
     // Cột khoá bị cột khác vượt lên trước (kéo thả) → không còn là cột đầu, không ghim.
