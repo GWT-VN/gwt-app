@@ -39,13 +39,10 @@ export const chuaLuu = () => thongBao.xong('Chưa lưu — hành động này ch
 /** SĐT che, chỉ giữ 4 số cuối. */
 export const cheSdt = (s: string | null) => (s ? `•••${s.replace(/\D/g, '').slice(-4)}` : null)
 
-/** dd/mm từ ISO (ngày giờ VN). */
-export const ngayNgan = (iso: string | null | undefined) =>
-  iso ? new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }) : '—'
 
 export const tenKhach = (t: Ticket) => t.customer_name ?? 'Chưa gắn khách'
 
-export { mayLoi } from './truong-f'
+export { mayLoi, ngayGioNgan, ngayNgan } from './truong-f'
 
 /** Ghi tham số URL (giữ mọi tham số khác, đổi lọc → bỏ `trang`). */
 export function useDatUrl() {

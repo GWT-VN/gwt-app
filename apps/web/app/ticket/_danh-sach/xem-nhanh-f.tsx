@@ -45,7 +45,7 @@ import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
-import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
+import { chuaLuu, cheSdt, laDemo, mayLoi, ngayGioNgan, ngayNgan, tenKhach } from './chung'
 import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
 import { ChuBaoHanh, laKhan, TT, type DongF } from './ds-f'
 import type { SuaTruong } from './sua-ticket'
@@ -57,17 +57,7 @@ type NhanVien = { gt: string; nhan: string; anMa?: boolean }[]
 export const TAB_XEM = ['tong', 'lan', 'nk', 'vt', 'khac'] as const
 export type TabXem = (typeof TAB_XEM)[number]
 
-const ngayGio = (iso: string | null | undefined) =>
-  iso
-    ? new Date(iso).toLocaleString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Asia/Ho_Chi_Minh',
-      })
-    : null
+const ngayGio = ngayGioNgan
 
 /** Một dòng trường: icon + nhãn mờ (cột trái) · giá trị; trống → chính tên trường, mờ (Twenty). */
 function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; children?: ReactNode }) {
@@ -142,7 +132,7 @@ function TongQuan({ t, nhanVien, luu, lanViec, moGanViec }: { t: DongF; nhanVien
               {t.serial && (
                 <span className="border-none border-current">
                   <ChuBaoHanh t={t} />
-                  {t.warranty_full_end && <span className="tabular-nums text-muted-foreground"> · đến {ngayNgan(t.warranty_full_end)}/{t.warranty_full_end.slice(0, 4)}</span>}
+                  {t.warranty_full_end && <span className="tabular-nums text-muted-foreground"> · đến {ngayNgan(t.warranty_full_end)}</span>}
                 </span>
               )}
             </Truong>

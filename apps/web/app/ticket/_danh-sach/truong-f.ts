@@ -11,6 +11,29 @@ export const KHAN_KHONG = 'khong'
 
 /** Giá trị "Chưa giao" của Phụ trách (tên người không bao giờ là "-"). */
 export const CHUA_GIAO = '-'
+// Ngày của danh sách ticket F — CEO 26/11 "ngày tháng format 14/08/24": dd/MM/yy (cần giờ: dd/MM/yy HH:mm), giờ VN.
+const DINH_DANG = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+  timeZone: 'Asia/Ho_Chi_Minh',
+})
+function phan(iso: string) {
+  const p = Object.fromEntries(DINH_DANG.formatToParts(new Date(iso)).map((x) => [x.type, x.value]))
+  return { ngay: `${p.day}/${p.month}/${p.year}`, gio: `${p.hour}:${p.minute}` }
+}
+/** dd/MM/yy (giờ VN); trống → "—". Chuỗi 'YYYY-MM-DD' (ngày thuần) giữ đúng ngày đó. */
+export const ngayNgan = (iso: string | null | undefined) => (iso ? phan(iso.length === 10 ? `${iso}T12:00:00+07:00` : iso).ngay : '—')
+/** dd/MM/yy HH:mm (giờ VN); trống → null. */
+export const ngayGioNgan = (iso: string | null | undefined) => {
+  if (!iso) return null
+  const x = phan(iso)
+  return `${x.ngay} ${x.gio}`
+}
+
 /** "Máy · lỗi": dòng máy đầu tiên (ticket_may), không có thì tên máy. */
 export const mayLoi = (t: Ticket) => t.dong_may?.[0]?.nhan ?? t.product_name ?? '—'
 /** Mã máy ngắn cho bảng (CEO 26/11: "chỉ cần mã máy ngắn gọn" — CTS20, GN610…). DB không có cột này (đo prod 26/11:

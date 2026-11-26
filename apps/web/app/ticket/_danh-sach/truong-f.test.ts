@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Ticket } from '@/app/actions'
-import { bhCua, locCua, loiHopVoiMay, maMayDong, maMayNgan, queryTab, soDongThem } from './truong-f'
+import { bhCua, locCua, loiHopVoiMay, ngayGioNgan, ngayNgan, maMayDong, maMayNgan, queryTab, soDongThem } from './truong-f'
 
 // Tên lấy đúng dạng product_name trên prod (đo 26/11, v_installed_base).
 describe('maMayNgan', () => {
@@ -57,5 +57,17 @@ describe('loiHopVoiMay — pop Loại lỗi theo máy cùng hàng (ILIKE như DB
     expect(loiHopVoiMay({ code: 'E3', ma_may: ['AB\\_C%'] }, 'AB_C1')).toBe(true)
     expect(loiHopVoiMay({ code: 'E3', ma_may: ['CTS20%'] }, null)).toBe(false)
     expect(loiHopVoiMay({ code: 'CHUA_PHAN_LOAI', ma_may: ['CTS20%'] }, 'GN610')).toBe(true)
+  })
+})
+
+describe('ngày dd/MM/yy (giờ VN) — CEO 26/11 "ngày tháng format 14/08/24"', () => {
+  it('ngày + giờ, 00:30 VN không lệch ngày, năm khác, ngày thuần, trống', () => {
+    expect(ngayNgan('2024-08-14T03:00:00Z')).toBe('14/08/24')
+    expect(ngayNgan('2026-11-25T17:30:00Z')).toBe('26/11/26') // 00:30 ngày 26 giờ VN
+    expect(ngayGioNgan('2026-11-25T17:30:00Z')).toBe('26/11/26 00:30')
+    expect(ngayNgan('2025-01-02T10:00:00+07:00')).toBe('02/01/25')
+    expect(ngayNgan('2027-03-09')).toBe('09/03/27')
+    expect(ngayNgan(null)).toBe('—')
+    expect(ngayGioNgan(undefined)).toBe(null)
   })
 })
