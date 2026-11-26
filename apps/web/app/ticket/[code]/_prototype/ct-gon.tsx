@@ -25,7 +25,7 @@ import { CanhBao, ChiPhi, cheSdt, chuaLuu, dsLan, DuongDan, MUC_DO, mucGhiChu, n
 const NGAY = 86400e3
 
 /** Badge bảo hành: còn N ngày / hết hạn MM/YYYY / chưa kích hoạt; máy chưa có trong hệ thống → chưa rõ (Alert nói lý do). */
-function BadgeBaoHanh({ d }: { d: DuLieuCt }) {
+export function BadgeBaoHanh({ d }: { d: DuLieuCt }) {
   const { t } = d
   const [bay] = useState(Date.now) // mốc "hôm nay" lấy một lần (không gọi Date.now lúc vẽ)
   if (!t.serial) return <Badge variant="soft">Chưa rõ bảo hành</Badge>
@@ -73,7 +73,7 @@ function dongMayKhach(d: DuLieuCt) {
 }
 
 // ───────────── các lần lỗi ─────────────
-function NhanKetQua({ lan }: { lan: Lan }) {
+export function NhanKetQua({ lan }: { lan: Lan }) {
   return lan.xuLy ? (
     <Badge variant="soft" color={lan.ketQua?.color ?? 'success'}>
       {lan.ketQua?.nhan ?? 'Đã xử lý'}
@@ -85,7 +85,7 @@ function NhanKetQua({ lan }: { lan: Lan }) {
   )
 }
 
-function NoiDungLan({ lan, nguoi }: { lan: Lan; nguoi: string }) {
+export function NoiDungLan({ lan, nguoi }: { lan: Lan; nguoi: string }) {
   return (
     <PropertyList>
       <PropertyRow nhan="Khách báo">{lan.khach && <span className="whitespace-pre-line">{lan.khach}</span>}</PropertyRow>
@@ -144,7 +144,7 @@ function CacLan({ d }: { d: DuLieuCt }) {
 
 // ───────────── máy & khách đã lỗi gì trước ─────────────
 // còn mở: page chưa đọc ticket cùng serial / cùng khách — cần truy vấn (serial, customer_id); DB local không có → Demo.
-const TRUOC = [
+export const TRUOC = [
   { ma: 'TK-DEMO-712', ngay: '2026-07-02', viec: 'Rò nước van cấp', vi: 'Cùng máy' },
   { ma: 'TK-DEMO-640', ngay: '2026-03-12', viec: 'Thay lõi định kỳ', vi: 'Cùng máy' },
   { ma: 'TK-DEMO-688', ngay: '2026-05-20', viec: 'Máy nóng lạnh kêu to', vi: 'Cùng khách · máy NL2-DEMO-0417' },

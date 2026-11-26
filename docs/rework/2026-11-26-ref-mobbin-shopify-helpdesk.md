@@ -69,6 +69,46 @@ Link: https://mobbin.com/flows/2cf39fd1-7f28-4a30-b52c-a2c01b617c05 · https://m
 - Danh sách: đầu cột chỉ 2 ô chọn "**3 Đang mở ▾**" + "**Mới nhất ▾**"; mỗi dòng: tên, `#mã · loại`, 1 dòng trích, giờ.
 - Rất ít đường viền: phân vùng bằng nền xám nhạt và khoảng trắng, chữ nhỏ đều một cỡ.
 
+## REA — luật chính thức của Shopify cho trang chi tiết / danh sách
+
+REA (`inspect_web_page`, Chrome headless riêng, chỉ đọc) đọc 3 trang hướng dẫn mẫu trang của Shopify — đây là luật
+Shopify đặt ra cho app muốn "trông như admin Shopify", nên là nguồn sự thật hơn ảnh chụp:
+[Details](https://shopify.dev/docs/api/app-home/latest/patterns/templates/details) ·
+[Resource index](https://shopify.dev/docs/api/app-home/latest/patterns/templates/resource-index) ·
+[Index table](https://shopify.dev/docs/api/app-home/latest/patterns/compositions/index-table).
+(Admin Shopify và Intercom thật cần đăng nhập → REA không vào; phần đó chỉ có ảnh Mobbin.)
+
+REA cũng đọc thẳng Mobbin (Chrome riêng, CEO đăng nhập): trang app Shopify Web có 243 flow chia theo khu (Home, Orders,
+Products, Customers…); các trang flow Customer detail / Order detail / Customers kể cả tab Prototype chỉ là **ảnh
+1512×945 + tiêu đề**, không có DOM, nhãn thành phần hay điểm bấm của Shopify → qua Mobbin, REA không lấy thêm được gì
+ngoài ảnh (đã xem qua connector). Bước tự bấm trên trang (`capture_browser_scenario`) treo 30 phút → bỏ.
+
+**Trang chi tiết (Details):**
+1. **Hai cột**: cột chính = thứ **định nghĩa** bản ghi (sửa được); cột phụ = thứ **hỗ trợ**: trạng thái, metadata, tóm tắt.
+2. **Breadcrumb** để quay lại, không bắt dùng nút Back trình duyệt. Hành động phụ (Nhân bản, Xoá đỏ) ở đầu trang.
+3. Trang chia thành **section**; mọi thứ mô tả hay tác động lên CẢ section nằm ở **đầu section**, không ở thân:
+   tên section · dòng phụ · **số đếm cạnh tên** (vd "Mẫu (2)") · **trạng thái section ở góc** · hành động section ở đầu.
+4. Bảng trong section tràn sát mép section (bỏ đệm).
+5. Thẻ ghi chú: nút sửa **chỉ icon** + nhãn cho trình đọc màn hình.
+6. Xoá → **modal xác nhận** + banner cảnh báo hệ quả. Form → **Save Bar** (Lưu / Bỏ) tự hiện khi có thay đổi chưa lưu.
+
+**Danh sách (Index + index table):** tên trang = danh từ số nhiều; hành động trang (Tạo · Xuất · Nhập); bảng có tìm,
+lọc, sắp, **chọn nhiều bằng ô tick**, **hành động dòng hiện khi rê chuột**, bấm cả dòng → trang chi tiết; đang chọn thì
+hiện "Đã chọn N" + nút hàng loạt; hàng loạt phá huỷ → modal; xong → toast; phân trang chỉ ‹ ›, cần tổng số thì tự ghi
+ngoài bảng. Rỗng → minh hoạ + nút tạo.
+
+**Chỗ trang ticket "Gọn" hiện tại lệch luật trên:**
+
+| Luật | Bản Gọn hiện tại | Sửa |
+|---|---|---|
+| Cột phụ cho trạng thái/metadata | 1 cột; máy·khách·BH dồn thành dòng meta + Alerts giữa luồng | 2 cột (`DetailLayout`, cột 280px): máy, khách, phụ trách, lịch sử sang cột phụ |
+| Đầu section mang số đếm + trạng thái + hành động | "+ Ghi lần lỗi mới" nằm cuối accordion | "Lần lỗi (3)" + nút "+ Ghi lần lỗi" ở đầu section |
+| Không ẩn nội dung chính trong phần gập | Nhật ký / Chi phí / Thông tin khác gập hết | Chỉ gập lần lỗi CŨ; Chi phí, Nhật ký là section mở |
+| ‹ › sang bản ghi kề | không có | `PageHeader` của DS đã có ‹ › |
+
+Khác biệt cố ý với Shopify: **trạng thái** — Shopify để ở cột phụ, nhưng yêu cầu #1 của mình là "thứ rõ nhất" →
+lấy kiểu **Intercom**: nút trạng thái tô màu ở hàng tiêu đề (đổi tại chỗ), cột phụ không lặp lại.
+
 ## Áp vào GWT CSKH v2 (đề xuất, chưa dựng)
 
 | # yêu cầu | Học từ | Đề xuất cho ticket |
