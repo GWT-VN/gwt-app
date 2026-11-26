@@ -164,23 +164,19 @@ const RONG_BANG_TOI_THIEU = 640
 // Cột theo DS (`CotBang`, useCotBang): thứ tự / độ rộng / ẩn ghi lên URL (`cot_thu_tu`, `cot_rong`, `cot_an`). Cột đầu
 // "Ticket · khách" khoá (không kéo, không ẩn) nhưng co dãn được như mọi cột; phần dư của khung do cột "+" cuối ăn
 // (`ColCotBang`, học Twenty) — kéo tay co cột nào chỉ cột đó đổi.
-// Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
+// Mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
+// Độ rộng KHÔNG gõ tay (CEO 26/11 "chiều rộng cột = chiều dài content dài nhất để tránh bị cắt thông tin"): mọi cột tự
+// vừa tiêu đề + ô dài nhất của trang đang xem (`useCotBang` đo, `refBang`); cột chữ tự do có trần `rongToiDa` để một giá
+// trị cực dài không kéo cột rộng vô lý — quá trần mới cắt (ô có title). Tổng vượt khung → bảng cuộn ngang.
 const COT: CotBang[] = [
-  // Đo 26/11 ở 1440 (bảng 963): cột khác vừa đủ nội dung + tiêu đề có mũi menu (Trạng thái: badge 66 / nhãn 57 + 20;
-  // Hạn: "Quá 12 ngày" 76; Phụ trách: nhãn 54 + 20, ô chỉ avatar) → phần dư dồn cho cột khoá: tên khách có ~170px
-  // (trước 73). Ô chọn nay nằm TRONG mép nội dung (1f5cf5e) → khung 1440 chỉ còn 927 (trước 963): khách 280 + máy 167
-  // → 36 + 280 + 167 + 404 + 40 ("+") = 927 — nút "+" không bị đẩy khuất ngoài mép. Khung hẹp hơn thì cuộn ngang.
-  // Tiêu đề VIẾT HOA (CEO 26/11) rộng hơn: TRẠNG THÁI 77,5 + 4 + mũi 12 + đệm 12 → 106; PHỤ TRÁCH 73,05 → 104 (101 hụt
-  // 0,05px là đã hiện "…") → lấy từ Loại lỗi (128 → 104) và Hạn (96 → 90, "Quá 12 ngày" 76 + 12 vẫn vừa); tổng 927.
-  // Bỏ cột Hạn (CEO 26/11 "thường không có hạn") → 90 trả lại: khách 311 (tên dài nhất đo 311), máy 226; tổng vẫn 927.
-  { id: 'khach', ten: 'Ticket · khách', rong: 311, kieu: 'thuong', khoa: true },
-  { id: 'may', ten: 'Máy · bảo hành', rong: 226, kieu: 'thuong' },
-  { id: 'loi', ten: 'Loại lỗi', rong: 104, kieu: 'thuong' },
-  { id: 'tt', ten: 'Trạng thái', rong: 106, kieu: 'loc' },
-  { id: 'cs', ten: 'Phụ trách', rong: 104, kieu: 'loc' },
-  { id: 'loai', ten: 'Loại', rong: 120, kieu: 'thuong', anMacDinh: true },
-  { id: 'tinh', ten: 'Tỉnh/TP', rong: 120, kieu: 'thuong', anMacDinh: true },
-  { id: 'tao', ten: 'Ngày tạo', rong: 104, kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
+  { id: 'khach', ten: 'Ticket · khách', kieu: 'thuong', khoa: true, rongToiDa: 400 },
+  { id: 'may', ten: 'Máy · bảo hành', kieu: 'thuong', rongToiDa: 480 },
+  { id: 'loi', ten: 'Loại lỗi', kieu: 'thuong', rongToiDa: 240 },
+  { id: 'tt', ten: 'Trạng thái', kieu: 'loc' },
+  { id: 'cs', ten: 'Phụ trách', kieu: 'loc' },
+  { id: 'loai', ten: 'Loại', kieu: 'thuong', anMacDinh: true, rongToiDa: 240 },
+  { id: 'tinh', ten: 'Tỉnh/TP', kieu: 'thuong', anMacDinh: true, rongToiDa: 240 },
+  { id: 'tao', ten: 'Ngày tạo', kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
 ]
 const COT_SAP = ['tao']
 const TEN_COT = { tao: 'Ngày tạo' }
@@ -316,6 +312,8 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const [sua, setSua] = useState<Record<string, Sua>>({})
   const [kbTam, setKbTam] = useState<Record<string, string | null>>({})
   const c = useCotBang(COT, { url: true })
+  // Tách sẵn: luật react-hooks/refs coi cả `c` là ref nếu `c.refBang` gắn thẳng vào `ref=`.
+  const { refBang } = c
   const caiDat = useRef<CaiDatRef>(null)
   // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem. CEO 26/11
   // "giữ 2 dạng": chỉ Bảng + Kanban cho chọn; `bo_cuc=danh-sach` cũ → Bảng. Danh sách (ListView) chỉ còn là cách hiện tự
@@ -419,7 +417,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const bang = (
     <TableWrap>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
-        <Table layout="fixed" style={{ minWidth: tongRong }}>
+        <Table ref={refBang} layout="fixed" style={{ minWidth: tongRong }}>
           {/* Cột cuối (dưới ô "+") ăn phần dư của khung. */}
           <ColCotBang hien={c.hien} doRong={c.doRong} />
           <TableHeader>

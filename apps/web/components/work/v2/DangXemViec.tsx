@@ -29,7 +29,8 @@ export type ViecXem = Pick<
 export const COT_VIEC: CotBang[] = [
   { id: 'uu', ten: 'Ưu tiên', rong: 76, kieu: 'sap', nghia: { tang: 'Gấp trước', giam: 'Thấp trước' } },
   { id: 'ma', ten: 'Mã', rong: 104, kieu: 'sap', nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
-  { id: 'viec', ten: 'Việc', rong: 280, kieu: 'thuong', khoa: true },
+  // Không khai `rong` → tự vừa tên việc dài nhất (CEO 26/11, useCotBang đo), trần 480: quá trần mới cắt (ô có title).
+  { id: 'viec', ten: 'Việc', kieu: 'thuong', khoa: true, rongToiDa: 480 },
   { id: 'tt', ten: 'Trạng thái', rong: 124, kieu: 'loc' },
   { id: 'nguoi', ten: 'Người', rong: 160, kieu: 'thuong' },
   {
@@ -42,11 +43,11 @@ export const COT_VIEC: CotBang[] = [
   },
 ]
 /**
- * Bảng team thêm cột "Cập nhật" (lần đụng cuối — chỉ work_bang_team trả `touched_at`), 112 như canvas. Cột Việc ăn phần
- * dư; sàn của nó hạ 280 → 180 để tổng sàn (908) vừa khung nội dung 1440 (927) — không thì bảng cuộn ngang.
+ * Bảng team thêm cột "Cập nhật" (lần đụng cuối — chỉ work_bang_team trả `touched_at`), 112 như canvas. Cột Việc tự vừa
+ * như ở Việc của tôi; tổng vượt khung thì bảng cuộn ngang (không cắt tên việc).
  */
 export const COT_TEAM: CotBang[] = [
-  ...COT_VIEC.map((x) => (x.id === 'viec' ? { ...x, rong: 180 } : x)),
+  ...COT_VIEC,
   {
     id: 'cn',
     ten: 'Cập nhật',
@@ -305,10 +306,13 @@ export function BangViec({
   /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
   dongNhap?: (cotId: string) => ReactNode
 }) {
+  // Tách sẵn: luật react-hooks/refs coi cả `c` là ref nếu `c.refBang` gắn thẳng vào `ref=`.
+  const { refBang } = c
   return (
     <TableWrap>
-      {/* Mọi cột rộng cố định (kể cả Việc), cột trống cuối ăn phần dư — kéo tay co cột nào chỉ cột đó đổi (học Twenty). */}
-      <Table layout="fixed" style={{ minWidth: 36 + c.tongRong }}>
+      {/* Mọi cột rộng cố định theo `c.doRong` (Việc tự vừa nội dung, có trần), cột trống cuối ăn phần dư — kéo tay co cột
+          nào chỉ cột đó đổi (học Twenty). */}
+      <Table ref={refBang} layout="fixed" style={{ minWidth: 36 + c.tongRong }}>
         <ColCotBang hien={c.hien} doRong={c.doRong} />
         <TableHeader>
           <TableRow>

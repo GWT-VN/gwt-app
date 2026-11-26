@@ -116,6 +116,21 @@ RONG_O_CHON + useCotBang().tongRong (+ cột cuối)` → vượt khung thì cu�
 cột sau dời +60, tâm tay co lệch chuột 0,2px. Ngưỡng kéo đổi chỗ cột (KeoCot) 4 → 8px như Twenty. Giữ tối thiểu 56 (Twenty
 104) — cột chỉ avatar/ưu tiên của DS hẹp hơn 104 có chủ đích. Không đổi `bundle.css` (artifact không có co dãn).
 
+**Chờ đồng bộ lên artifact** — độ rộng cột mặc định = nội dung dài nhất (26/11, CEO: "chiều rộng cột sẽ = chiều dài của
+content dài nhất để tránh bị cắt thông tin"; kế hoạch `docs/rework/2026-11-26-ticket-f-dung-that.md` bước 2): `CotBang.rong`
+thành TUỲ CHỌN — không khai = cột tự vừa `max(tiêu đề, mọi ô đang vẽ) + đệm ô`, sàn 56; `rongToiDa` = trần cho cột chữ tự
+do (tên khách, tên việc) — quá trần mới cắt, ô bị cắt có `title`. Đo: `<Table ref={useCotBang().refBang}>` →
+`doVuaNoiDung` (`use-cot-bang.ts`) thả con của ô `width: max-content` một lượt ghi + một lượt đọc rồi trả lại; chạy trước
+khi vẽ khi bảng gắn / cột hiện đổi, gom theo khung hình khi nội dung ô đổi (MutationObserver dòng + chữ) hoặc font tải
+xong; bảng đang ẩn (Suspense `display:none`) thì chờ ResizeObserver báo hiện mới đo; kéo co dãn KHÔNG kích đo lại. Kéo
+tay thắng (`keoTay`, URL `cot_rong` chỉ ghi cột đã kéo); nhấp đúp tay co → `coDan(id, null)` = về mặc định (vừa nội
+dung), không về số cố định cũ. Tổng vượt khung → bảng cuộn ngang (minWidth = tổng), không bóp/cắt; cột trống cuối vẫn ăn
+phần dư khi tổng nhỏ hơn khung. Trước lần đo đầu (HTML server) cột tự vừa rộng `RONG_CHO_DO` 120. Áp: ticket F (mọi cột
+tự vừa; khách trần 400, máy 480, lỗi/loại/tỉnh 240), Work cột Việc (trần 480; cột khác giữ số khai). Đo 1440 F: khách 303 ·
+máy 406 · lỗi 186 · trạng thái 106 · phụ trách 102, 80/80 ô không cắt, bảng 1179 > khung 927 → cuộn ngang. Test
+`cot-vua-noi-dung.dom.test`. Khi đẩy lên artifact: README Table mục "Co dãn cột" thêm "mặc định vừa nội dung, `rongToiDa`,
+nhấp đúp về vừa nội dung"; preview Table bỏ độ rộng gõ tay ở cột chữ (khối JS đo như trên — `bundle.css` không đổi).
+
 Kanban học hành vi Twenty (26/11, spec mục F + G, prototype ticket F; giao diện giữ DS — không vạch dọc/lưới): (G) ngưỡng
 kéo chuột 4 → 8px, thêm `TouchSensor` giữ 250ms lệch ≤ 5px (giữ rồi thả tại chỗ → menu "Chuyển sang…"; ContextMenu tắt
 trong lúc kéo), phím dùng `CamBienPhimKeo`; không xếp thứ tự thẻ trong cột. (F) `KanbanBoard menuCot` → nút ⋯ (Button ghost

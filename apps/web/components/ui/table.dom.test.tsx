@@ -379,17 +379,18 @@ describe('4 trạng thái + dòng chọn', () => {
 
 describe('useCotBang — URL', () => {
   test('ghi chỉ phần khác mặc định, đọc lại y hệt; id lạ bị bỏ, kẹp tối thiểu', () => {
-    const s = { thuTu: ['ma', 'uu', 'nhom', 'nguon'], doRong: { uu: 76, nhom: 200, ma: 60, nguon: 100 }, an: [] }
+    // Kéo tay về đúng số khai (uu 76) = như chưa kéo → không ghi.
+    const s = { thuTu: ['ma', 'uu', 'nhom', 'nguon'], keoTay: { uu: 76, nhom: 200 }, an: [] }
     const sp = ghiUrlCot(new URLSearchParams('q=may'), s, COT)
     expect(sp.get('q')).toBe('may')
     expect(sp.get('cot_rong')).toBe('nhom:200')
-    expect(docUrlCot(sp, COT)).toEqual(s)
+    expect(docUrlCot(sp, COT)).toEqual({ ...s, keoTay: { nhom: 200 } })
     const md = docUrlCot(new URLSearchParams(''), COT)
     expect(ghiUrlCot(new URLSearchParams(''), md, COT).toString()).toBe('')
     expect(md.an).toEqual(['nguon'])
     const la = docUrlCot(new URLSearchParams('cot_thu_tu=xx,ma&cot_rong=ma:10'), COT)
     expect(la.thuTu).toEqual(['ma', 'uu', 'nhom', 'nguon'])
-    expect(la.doRong.ma).toBe(56)
+    expect(la.keoTay.ma).toBe(56)
   })
 
   test('url: true → mở trang đọc trạng thái cột từ URL', () => {

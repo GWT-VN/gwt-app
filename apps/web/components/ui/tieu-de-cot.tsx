@@ -97,8 +97,11 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
    * Mọi kiểu cột dùng được (kể cả cột khoá). Dùng thay `loc` (tick nhanh "là") khi màn có bộ lọc theo trường.
    */
   moLoc?: { dang: boolean; onMo: (neo: HTMLElement) => void }
-  /** Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp về `cot.rong`). */
-  coDan?: { rong: number; onDoi: (rong: number) => void }
+  /**
+   * Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp → `onDoi(null)` = về mặc định: `cot.rong` khai sẵn, không khai thì
+   * vừa nội dung — `useCotBang().coDan`).
+   */
+  coDan?: { rong: number; onDoi: (rong: number | null) => void }
   /** Menu canh phải ô (cột sát mép phải bảng, vd Chủ). Cột `phai` tự canh phải. */
   menuPhai?: boolean
   /**
@@ -425,7 +428,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           onPointerUp={() => {
             bd.current = null
           }}
-          onDoubleClick={() => coDan.onDoi(cot.rong)}
+          onDoubleClick={() => coDan.onDoi(null)}
           onKeyDown={(e) => {
             if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
             e.preventDefault()
