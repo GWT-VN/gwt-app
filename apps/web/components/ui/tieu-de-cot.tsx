@@ -52,7 +52,7 @@ import {
 import { VungDoc } from './skeleton'
 import { KeoCtx, useOKeo } from './table'
 import * as s from './table-styles'
-import { laGhim, RONG_O_CHON, toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
+import { laGhim, RONG_O_CHON, toiThieu, type BenTha, type CotBang, type MenuCot, type NgayCot } from './use-cot-bang'
 
 /**
  * Câu đọc cho thao tác cột KHÔNG qua kéo (menu tiêu đề Dời trái/phải/Ẩn, nút "+" `ThemCot`): `KeoCot` giữ một vùng
@@ -115,6 +115,11 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
    * có menu. Dời / ẩn có câu đọc (trong `KeoCot`); ẩn xong focus sang tiêu đề kế bên (hết thì tiêu đề trước).
    */
   menuCot?: MenuCot
+  /**
+   * Cột ngày (`CotBang.ngay`) → menu có "Định dạng ngày" (CEO 26/11) — `useCotBang().ngayCot(cot.id)`. Tách khỏi `menuCot`:
+   * bảng không cho dời/ẩn cột (Work "Việc của tôi") vẫn chọn được định dạng ngày.
+   */
+  ngay?: NgayCot
   /** `div` → `role="columnheader"` (ListView lưới CSS). */
   la?: 'th' | 'div'
   className?: string
@@ -176,7 +181,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   // Tách sẵn: luật react-hooks/refs coi cả object `keo` là ref vì một trường của nó gắn vào `ref=`.
   const coKeo = !!keo
   const { datO, datTay, onPointerDown: nhanKeo, onKeyDown: phimKeo, moTa, dangKeo } = keo ?? {}
-  const { cot, sap, loc, moLoc, coDan, viTri = 0, menuPhai, la = 'th', className } = p
+  const { cot, sap, loc, moLoc, coDan, viTri = 0, menuPhai, la = 'th', className, ngay } = p
   const menuCot = cot.khoa ? undefined : p.menuCot
   const [mo, setMo] = useState(false)
   const bd = useRef<{ x: number; w: number } | null>(null)
@@ -195,7 +200,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const Tag = la
   const soLoc = loc?.daChon.length ?? 0
   const coSapLoc = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
-  const coMenu = coSapLoc || !!menuCot || !!moLoc
+  const coMenu = coSapLoc || !!menuCot || !!moLoc || !!ngay
   // "Lọc…" chọn xong: chờ menu đóng hẳn (Radix trả focus) rồi mới mở pop lọc — không để focus của menu giành lại.
   const choMoLoc = useRef(false)
   const dangLoc = soLoc > 0 || !!moLoc?.dang
@@ -306,7 +311,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
                 <Funnel aria-hidden="true" />
                 Lọc…
               </DropdownMenuItem>
-              {(coSapLoc || menuCot) && <DropdownMenuSeparator />}
+              {(coSapLoc || menuCot || ngay) && <DropdownMenuSeparator />}
             </>
           )}
           {cot.kieu === 'sap' && sap && (
@@ -356,17 +361,16 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
               )}
             </>
           )}
-          {menuCot && (
+          {ngay && (
             <>
               {coSapLoc && <DropdownMenuSeparator />}
-              {menuCot.ngay && (
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <CalendarBlank aria-hidden="true" />
                     Định dạng ngày
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup value={menuCot.ngay.kieu} onValueChange={(v) => menuCot.ngay?.onDoi(v as KieuNgay)}>
+                    <DropdownMenuRadioGroup value={ngay.kieu} onValueChange={(v) => ngay.onDoi(v as KieuNgay)}>
                       {KIEU_NGAY.map((k) => (
                         <DropdownMenuRadioItem key={k.kieu} value={k.kieu}>
                           {k.nhan}
@@ -376,7 +380,11 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
                     </DropdownMenuRadioGroup>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-              )}
+            </>
+          )}
+          {menuCot && (
+            <>
+              {(coSapLoc || ngay) && <DropdownMenuSeparator />}
               <DropdownMenuItem disabled={!menuCot.trai} onSelect={() => doiCot('trai')}>
                 <ArrowLeft aria-hidden="true" />
                 Dời sang trái

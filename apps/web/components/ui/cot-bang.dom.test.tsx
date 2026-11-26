@@ -359,3 +359,47 @@ describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang
     expect(CHON_BANG_GHIM.chon_oTh).not.toContain('*:opacity-0')
   })
 })
+
+describe('Định dạng ngày ở tiêu đề cột (CEO 26/11 "cho phép chọn định dạng date ở ô label cột")', () => {
+  const COT_NGAY: CotBang[] = [
+    { id: 'ma', ten: 'Mã', kieu: 'thuong', khoa: true },
+    { id: 'tao', ten: 'Ngày tạo', kieu: 'thuong', ngay: true },
+  ]
+  function BangNgay() {
+    const c = useCotBang(COT_NGAY)
+    return (
+      <DsRoot>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {/* Không menuCot (bảng không cho dời/ẩn) — vẫn có menu nhờ `ngay`. */}
+              {c.hien.map((x, i) => (
+                <TieuDeCot key={x.id} cot={x} viTri={i} ngay={c.ngayCot(x.id)} />
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>A</TableCell>
+              <TableCell data-testid="kieu">{c.kieuNgay('tao')}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </DsRoot>
+    )
+  }
+
+  test('cột ngày (không menuCot) có menu "Định dạng ngày"; chọn kiểu → c.kieuNgay đổi; cột thường không có menu', async () => {
+    const user = userEvent.setup()
+    render(<BangNgay />)
+    expect(screen.queryByRole('button', { name: /^Mã/ })).toBeNull()
+    expect(screen.getByTestId('kieu').textContent).toBe('ngay-thang')
+    await user.click(screen.getByRole('button', { name: /^Ngày tạo/ }))
+    // Bàn phím (jsdom không có vùng ân hạn con trỏ của menu con): → mở menu con, ↓↓ tới "Ngày đủ năm", Enter.
+    ;(await screen.findByRole('menuitem', { name: 'Định dạng ngày' })).focus()
+    await user.keyboard('{ArrowRight}')
+    await screen.findByRole('menuitemradio', { name: /Ngày đủ năm/ })
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}')
+    await waitFor(() => expect(screen.getByTestId('kieu').textContent).toBe('day-du'))
+  })
+})

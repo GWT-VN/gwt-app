@@ -633,6 +633,7 @@ export function TicketF({
                   // Cột cuối vẫn co dãn được: cột "+" phía sau đỡ tay co (không thò qua mép phải bảng).
                   coDan={{ rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
                   menuCot={c.menuCot(x.id)}
+                  ngay={c.ngayCot(x.id)}
                   sap={
                     x.kieu === 'sap'
                       ? {

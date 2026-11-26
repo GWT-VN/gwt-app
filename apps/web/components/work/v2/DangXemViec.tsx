@@ -331,6 +331,7 @@ export function BangViec({
                 viTri={i}
                 menuPhai={i === c.hien.length - 1}
                 coDan={{ rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                ngay={c.ngayCot(x.id)}
                 sap={
                   x.kieu === 'sap'
                     ? {

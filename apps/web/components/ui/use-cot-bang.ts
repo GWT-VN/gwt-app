@@ -60,9 +60,9 @@ export type MenuCot = {
   phai: string | null
   onDoi: (ben: BenTha) => void
   onAn: () => void
-  /** Cột `ngay`: định dạng đang dùng + đổi định dạng. */
-  ngay?: { kieu: KieuNgay; onDoi: (k: KieuNgay) => void }
 }
+/** Định dạng ngày của một cột `ngay` cho `TieuDeCot ngay` (`useCotBang().ngayCot(id)`). */
+export type NgayCot = { kieu: KieuNgay; onDoi: (k: KieuNgay) => void }
 
 export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
 /** Cột GHIM trái khi bảng cuộn ngang: cột `khoa` đứng ĐẦU hàng (vị trí 0 trong `hien`) — như cột nhãn của Twenty. */
@@ -363,11 +363,13 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
           if (k) doiCho(id, k.id, ben)
         },
         onAn: () => anHien(id, false),
-        ngay: x.ngay
-          ? { kieu: s.ngay[id] ?? KIEU_NGAY_MAC_DINH, onDoi: (k) => setS((t) => ({ ...t, ngay: { ...t.ngay, [id]: k } })) }
-          : undefined,
       }
     },
+    /** "Định dạng ngày" cho tiêu đề cột `id` (`TieuDeCot ngay`); cột không phải cột ngày → `undefined`. */
+    ngayCot: (id: string): NgayCot | undefined =>
+      cot.find((c) => c.id === id)?.ngay
+        ? { kieu: s.ngay[id] ?? KIEU_NGAY_MAC_DINH, onDoi: (k) => setS((t) => ({ ...t, ngay: { ...t.ngay, [id]: k } })) }
+        : undefined,
     /** Định dạng ngày đang chọn của cột `id` (mặc định dd/MM) — ô gọi `hienNgay(v, c.kieuNgay(id))`. */
     kieuNgay: (id: string): KieuNgay => s.ngay[id] ?? KIEU_NGAY_MAC_DINH,
   }
