@@ -4774,6 +4774,8 @@ async function chanSuaTab(id: string): Promise<string | null> {
 }
 
 async function suaTicketTab(id: string, patch: { ten?: string; cot?: { loc: string } }) {
+  await requireStaff()
+  await doQuyen('he_thong.view_xem')
   const chan = await chanSuaTab(id)
   if (chan) return { ok: false as const, error: chan }
   const { error } = await dataClient().from('bang_view').update(patch).eq('id', id).eq('bang', BANG_TAB)
@@ -4794,6 +4796,8 @@ export async function capNhatTicketTab(id: string, loc: string) {
 }
 
 export async function xoaTicketTab(id: string) {
+  await requireStaff()
+  await doQuyen('he_thong.view_xem')
   const chan = await chanSuaTab(id)
   if (chan) return { ok: false as const, error: chan }
   const { error } = await dataClient().from('bang_view').delete().eq('id', id).eq('bang', BANG_TAB)
