@@ -127,10 +127,13 @@ export function lichSuHoiThoai(
     const nv = !bot && laNhanVien(t.from, pageNgoai);
     if (nv) trongKhoi = false;
     const khach = !bot && !laTinHeThong(t, pageNgoai) && laKhach(t.from, pageId);
+    // Pancake AI soạn (ai_generated) là lời GWT khách đã đọc (đo 2026-11-26: bot không thấy báo giá của nó, bảo khách gửi lại).
+    // Botcake (flow/app) vẫn bỏ như 2026-10-24 — thẻ chào, không phải nội dung tư vấn.
+    const ai = !bot && t.from?.ai_generated === true && !laTinHeThong(t, pageNgoai);
     const tho = chuTin(t).replaceAll(DAU_BOT, "");
     const chu = (bot ? tho.replace(CAU_BAO, "") : tho).trim();
     if (khach && coSdt(chu)) daCoSdt = true;
-    if (!chu || !(khach || nv || bot)) continue;
+    if (!chu || !(khach || nv || bot || ai)) continue;
     if (!khach) gwtMoiNhat ??= t.inserted_at;
     const luc = Date.parse(t.inserted_at);
     const cach = Math.floor((lucSau - luc) / MOT_NGAY); // NaN (tin đầu / giờ hỏng) → không chèn

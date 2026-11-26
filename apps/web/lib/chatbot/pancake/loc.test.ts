@@ -286,6 +286,14 @@ describe("lichSuHoiThoai — đoạn chat trước tin đang chờ cho nháp + B
     ]);
     expect(r.daCoSdt).toBe(true);
   });
+  it("tin Pancake AI (ai_generated) có chữ vào lịch sử là GWT — khách đã đọc báo giá đó (đo 2026-11-26: bot bảo khách gửi lại báo giá)", () => {
+    const AI: NguoiGui = { id: PAGE, ai_generated: true };
+    const r = lichSuHoiThoai([
+      m(9, KHACH, "chi phí như bên trên báo giá đúng k"), m(8, NHAN_VIEN, "Dạ em là chuyên viên tư vấn ạ"),
+      m(7, AI, "Chúng tôi có WH30A giá 249.950.000đ"), m(6, BOTCAKE, "Chào mừng!"), m(5, KHACH, "tư vấn lọc tổng"),
+    ], PAGE, undefined, 1);
+    expect(r.lichSu).toEqual(["Khách: tư vấn lọc tổng", "GWT: Chúng tôi có WH30A giá 249.950.000đ", "GWT: Dạ em là chuyên viên tư vấn ạ"]);
+  });
   it("khối đang chờ dài hơn boQua → tin khách cũ hơn trong khối vào lịch sử; boQua 0 → cả khối", () => {
     expect(lichSuHoiThoai(tinDs, PAGE, undefined, 1).lichSu[3]).toBe("Khách: nhà em ở tầng 3");
     expect(lichSuHoiThoai(tinDs, PAGE).lichSu.slice(-2)).toEqual(["Khách: nhà em ở tầng 3", "Khách: vậy lắp mất bao lâu"]);
