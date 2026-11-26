@@ -24,6 +24,11 @@ const ok = (e: Record<string, string | undefined>) => {
 const VN = (ngay: number, hhmm: string) => new Date(`2026-11-${ngay}T${hhmm}:00+07:00`);
 
 describe("docCauHinh", () => {
+  it("DISCORD_PANCAKE_BAO_THREAD: tuỳ chọn, chỉ chữ số", () => {
+    expect(ok(env()).baoThread).toBeUndefined();
+    expect(ok(env({ DISCORD_PANCAKE_BAO_THREAD: " 1234567890 " })).baoThread).toBe("1234567890");
+    expect(docCauHinh(env({ DISCORD_PANCAKE_BAO_THREAD: "abc" }))).toEqual({ loi: "DISCORD_PANCAKE_BAO_THREAD phải là id thread Discord (chữ số)" });
+  });
   it("vắng PANCAKE_TU_GUI → tat, mặc định giờ/trần/model, không đòi biến khác", () => {
     const ch = ok({});
     expect(ch).toMatchObject({ cheDo: "tat", tranNgay: 20, modelPhanLoai: "claude-sonnet-5-5", gioBot: null });

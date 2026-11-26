@@ -28,7 +28,7 @@ async function main(): Promise<number> {
   const sb = createClient(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!, { db: { schema: "chatbot" }, auth: { persistSession: false } }) as unknown as SupabaseClient; // kho/công cụ gõ kiểu schema "public"; schema thật đặt ở db.schema
   const khoPancake = taoKhoPancake(sb);
   const congCu = taoCongCuTra(sb);
-  const bao = taoBao(ch.webhook);
+  const bao = taoBao(ch.webhook, fetch, ch.baoThread);
   const goiPhanLoai = (system: string, user: string) =>
     goiClaudeJson({ apiKey: env.ANTHROPIC_API_KEY!, model: ch.modelPhanLoai, system, user, schema: SCHEMA_PHAN_LOAI, maxTokens: 600 });
 

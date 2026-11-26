@@ -19,7 +19,7 @@ Stdout: đúng một dòng JSON mỗi page `{"trang":…,"viec":…,"gui":…}`;
 
 Biến env (xem `.env.example`): `PANCAKE_TU_GUI` `PANCAKE_PAGES` `PANCAKE_PAGE_TOKEN_<id>` `PANCAKE_TU_GUI_TRANG` `PANCAKE_GIO_LAM`
 `PANCAKE_GIO_BOT` `PANCAKE_TRAN_NGAY` `PANCAKE_DEM_DIR` `PANCAKE_HOTLINE` `PANCAKE_PHAN_LOAI_MODEL` `PANCAKE_TRA_LOI_MODEL`
-`PANCAKE_PING_KHIEU_NAI` `DISCORD_WEBHOOK_PANCAKE_BAO` `SUPABASE_URL` `SUPABASE_SERVICE_ROLE_KEY` `ANTHROPIC_API_KEY` `OPENAI_API_KEY`.
+`PANCAKE_PING_KHIEU_NAI` `DISCORD_WEBHOOK_PANCAKE_BAO` (+ `DISCORD_PANCAKE_BAO_THREAD` nếu webhook là kênh Forum: id bài để đăng vào, thiếu thì Discord trả 400) `SUPABASE_URL` `SUPABASE_SERVICE_ROLE_KEY` `ANTHROPIC_API_KEY` `OPENAI_API_KEY`.
 Sai / thiếu biến nào → in `{"loi":"…"}` (chỉ nêu tên biến) và thoát 1, không gửi gì.
 
 ## Bật / tắt

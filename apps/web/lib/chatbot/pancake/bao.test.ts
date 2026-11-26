@@ -53,6 +53,11 @@ describe("taoBao", () => {
     await taoBao("w", f).daGui({ kenh: "K", nhom: "n", tomTat: "t", tin: ["😀".repeat(3000)], thu: false });
     expect(goi[0].body.content.length).toBeLessThanOrEqual(2000);
   });
+  it("kênh Forum: có threadId → đăng vào bài đó (?thread_id=)", async () => {
+    const { goi, f } = gia();
+    await taoBao("https://d/x", f, "1234567890").loi({ kenh: "K", ma: "E" });
+    expect(goi[0].url).toBe("https://d/x?thread_id=1234567890");
+  });
   it("HTTP lỗi → DISCORD_HTTP_<status>", async () => {
     const { f } = gia(500);
     await expect(taoBao("w", f).loi({ kenh: "K", ma: "E" })).rejects.toThrow("DISCORD_HTTP_500");

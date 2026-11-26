@@ -14,6 +14,7 @@ export interface CauHinh {
   modelPhanLoai: string;
   modelTraLoi: string;
   webhook: string;
+  baoThread?: string;
   pingKhieuNai?: string;
   demDir: string;
 }
@@ -81,12 +82,16 @@ export function docCauHinh(env: Record<string, string | undefined>): { ch: CauHi
   const demTho = env.PANCAKE_DEM_DIR?.trim() || "~/Bots/state";
   const demDir = demTho === "~" || demTho.startsWith("~/") ? homedir() + demTho.slice(1) : demTho;
 
+  const baoThread = env.DISCORD_PANCAKE_BAO_THREAD?.trim();
+  if (baoThread && !/^\d{5,25}$/.test(baoThread)) return { loi: "DISCORD_PANCAKE_BAO_THREAD phải là id thread Discord (chữ số)" };
+
   const chung = {
     cheDo: che, gioLam, gioBot, tranNgay, demDir,
     hotline: docHotline(env.PANCAKE_HOTLINE),
     modelPhanLoai: env.PANCAKE_PHAN_LOAI_MODEL?.trim() || "claude-sonnet-5-5",
     modelTraLoi: env.PANCAKE_TRA_LOI_MODEL?.trim() ?? "",
     webhook: env.DISCORD_WEBHOOK_PANCAKE_BAO?.trim() ?? "",
+    ...(baoThread ? { baoThread } : {}),
     ...(env.PANCAKE_PING_KHIEU_NAI?.trim() ? { pingKhieuNai: env.PANCAKE_PING_KHIEU_NAI.trim() } : {}),
   } satisfies Omit<CauHinh, "trang" | "trangGui">;
   if (che === "tat") return { ch: { ...chung, trang: [], trangGui: new Set() } };

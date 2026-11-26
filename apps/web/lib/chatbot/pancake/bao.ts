@@ -9,11 +9,13 @@ const thoat = (s: string) =>
 const catDonVi = (s: string, n: number) => { let r = ""; for (const ch of s) { if (r.length + ch.length > n) break; r += ch; } return r; };
 const sach = (s: string) => thoat(s.replaceAll(DAU_BOT, "").replace(/\s+/g, " ").trim());
 
-export function taoBao(webhook: string, fetchImpl: typeof fetch = fetch) {
+/** `threadId`: webhook của kênh Forum bắt buộc đăng vào một bài (thiếu → Discord trả 400). */
+export function taoBao(webhook: string, fetchImpl: typeof fetch = fetch, threadId?: string) {
+  const url = threadId ? `${webhook}?thread_id=${encodeURIComponent(threadId)}` : webhook;
   const gui = async (content: string, ping?: string) => {
     let r: Response;
     try {
-      r = await fetchImpl(webhook, {
+      r = await fetchImpl(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ content: catDonVi(content, 2000), allowed_mentions: { parse: [], roles: ping ? [ping] : [] } }),
