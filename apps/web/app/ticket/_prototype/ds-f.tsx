@@ -6,7 +6,18 @@
 import { Suspense, useCallback, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowsClockwise, CalendarPlus, UserPlus, WarningCircle } from '@phosphor-icons/react/ssr'
+import {
+  AddressBook,
+  ArrowsClockwise,
+  CalendarBlank,
+  CalendarPlus,
+  Cube,
+  ShieldCheck,
+  User,
+  UserPlus,
+  WarningCircle,
+  Wrench,
+} from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
 import { hrefBoLoc, KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, ThanhDangLoc, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -17,7 +28,7 @@ import { Button } from '@/components/ui/button'
 import { CaiDatHienThi, DANG_XEM, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
-import { KanbanBoard, NoiDungThe, type CotKanban } from '@/components/ui/kanban-board'
+import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
@@ -32,7 +43,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
-import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { chuaLuu, cheSdt, DauPrototype, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { CHUA_GIAO, han, TOI_F as TOI, TRUONG_F } from './truong-f'
 
 // ── Giả định (DB chưa có trường) — ghi trên màn ─────────────────────────────────────────────────────────────────────
@@ -43,8 +54,9 @@ const choVatTu = (t: Ticket) => t.state === 'Open' && !!t.ky_thuat && (t.ticket_
 /** Hẹn hôm nay = đang mở, đã có KT (không chờ vật tư), hoạt động cuối là hôm nay — hoặc vừa bấm "Hẹn KTV". */
 const laHomNay = (iso: string | null) => !!iso && new Date(iso).toDateString() === new Date().toDateString()
 
-type Sua = { state?: Ticket['state']; cs?: string | null; hen?: boolean }
-type Dong = Ticket & { hen: boolean }
+/** Sửa tại chỗ (prototype). `khau`: thả thẻ vào cột Khâu — Khâu là giá trị SUY RA, chưa có trường DB → ghi đè trên màn. */
+type Sua = { state?: Ticket['state']; cs?: string | null; hen?: boolean; khau?: string }
+type Dong = Ticket & { hen: boolean; khau?: string }
 
 const henNay = (t: Dong) => t.state === 'Open' && (t.hen || (!!t.ky_thuat && !choVatTu(t) && laHomNay(t.hoat_dong_cuoi ?? null)))
 const sla = (t: Ticket): 'qua' | 'sap' | null => {
@@ -277,7 +289,40 @@ const KHAU: CotKanban[] = [
   { id: 'vat-tu', nhan: 'Chờ vật tư', color: 'warning' },
   { id: 'xong', nhan: 'Xong', color: 'success' },
 ]
-const khauCua = (t: Dong) => (t.state === 'Done' ? 'xong' : !t.cs_ten ? 'moi' : choVatTu(t) ? 'vat-tu' : t.ky_thuat || t.hen ? 'da-hen' : 'cho-hen')
+const khauCua = (t: Dong) =>
+  t.state === 'Done' ? 'xong' : (t.khau ?? (!t.cs_ten ? 'moi' : choVatTu(t) ? 'vat-tu' : t.ky_thuat || t.hen ? 'da-hen' : 'cho-hen'))
+/**
+ * Nhóm cột Kanban (⚙ "Nhóm theo", URL `nhom`; mặc định Khâu không ghi). Twenty chỉ nhóm theo trường chọn / quan hệ một —
+ * ở đây Khâu (suy ra), Trạng thái, Phụ trách. Nhóm đang ẩn: URL `nhom_an` (id cột, phẩy), đổi nhóm theo thì bỏ.
+ */
+const NHOM_KB = [
+  { giaTri: 'khau', nhan: 'Khâu' },
+  { giaTri: 'tt', nhan: 'Trạng thái' },
+  { giaTri: 'cs', nhan: 'Phụ trách' },
+] as const
+type NhomKb = (typeof NHOM_KB)[number]['giaTri']
+/** Cột "Không có giá trị" (Twenty "No Value") khi nhóm theo trường để trống được (Phụ trách). */
+const KHONG_GT = '__trong'
+
+/** Thẻ Kanban dạng trường (Twenty): rỗng hiện tên trường mờ; một nhãn màu tối đa — ở đây 0 badge, ngoại lệ tô màu chữ. */
+const truongThe = (d: Dong): TruongThe[] => [
+  { id: 'khach', icon: <AddressBook />, ten: 'Khách', giaTri: d.customer_name },
+  {
+    id: 'may',
+    icon: <Cube />,
+    ten: 'Máy',
+    giaTri: d.product_name && (
+      <>
+        {d.product_name}
+        {d.source_serial && <span className="tabular-nums text-muted-foreground"> · {d.source_serial}</span>}
+      </>
+    ),
+  },
+  { id: 'loi', icon: <Wrench />, ten: 'Lỗi gần nhất', giaTri: d.dong_may?.[0]?.nhan },
+  { id: 'bh', icon: <ShieldCheck />, ten: 'Bảo hành', giaTri: d.serial ? <ChuBaoHanh t={d} /> : null },
+  { id: 'han', icon: <CalendarBlank />, ten: 'Hạn', giaTri: d.state === 'Open' ? <NhanHan t={d} /> : null },
+  { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
+]
 
 // ── Thẻ Xem nhanh ───────────────────────────────────────────────────────────────────────────────────────────────────
 function NoiDungXem({ t, nguoi, sua }: { t: Dong; nguoi: { gt: string; nhan: string }[]; sua: (s: Sua) => void }) {
@@ -335,6 +380,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const pathname = usePathname()
   const dat = useDatUrl()
   const [sua, setSua] = useState<Record<string, Sua>>({})
+  const [kbTam, setKbTam] = useState<Record<string, string | null>>({})
   const c = useCotBang(COT, { url: true })
   const caiDat = useRef<CaiDatRef>(null)
   // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem.
@@ -347,7 +393,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const rows: Dong[] = apLoc(
     goc.map((t) => {
       const s = sua[t.ticket_code]
-      return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen }
+      return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen, khau: s?.khau }
     }),
     dk,
     TRUONG_F,
@@ -377,7 +423,34 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const view = (VIEW.find((x) => x.v === sp.get('view'))?.v ?? 'cua-toi') as View
   const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc)
   if (sap) dong.sort(soSanh(sap))
-  const theKanban = rows.filter((d) => d.state !== 'Cancel')
+
+  // ── Kanban: nhóm theo + nhóm ẩn (URL) ──
+  const docKb = (k: string) => (k in kbTam ? kbTam[k] : sp.get(k))
+  const nhomTheo: NhomKb = NHOM_KB.find((x) => x.giaTri === docKb('nhom'))?.giaTri ?? 'khau'
+  const nhomAn = (docKb('nhom_an') ?? '').split(',').filter(Boolean)
+  const cotNhom: CotKanban[] =
+    nhomTheo === 'khau'
+      ? KHAU
+      : nhomTheo === 'tt'
+        ? TT.map((m) => ({ id: m.gt, nhan: m.nhan, color: m.color }))
+        : [...nguoi.map((n) => ({ id: n.gt, nhan: n.nhan })), { id: KHONG_GT, nhan: 'Không có giá trị' }]
+  const cotKb = cotNhom.filter((x) => !nhomAn.includes(x.id))
+  const cotCuaThe = (d: Dong) => (nhomTheo === 'khau' ? khauCua(d) : nhomTheo === 'tt' ? d.state : (d.cs_ten ?? KHONG_GT))
+  // Nhóm theo Trạng thái có cột "Đã huỷ"; Khâu / Phụ trách bỏ ticket huỷ (như trước). Thẻ ở nhóm ẩn không tính.
+  const theKanban = rows.filter((d) => (nhomTheo === 'tt' || d.state !== 'Cancel') && cotKb.some((x) => x.id === cotCuaThe(d)))
+  // `nhom` / `nhom_an` chỉ màn dùng: router.replace (gọi lại server) mất 3–5s ở dev (đo 26/11); history.replaceState đổi URL
+  // nhưng useSearchParams không theo → giữ bản tạm trên màn (có hiệu lực ngay, như Twenty "lưu ngay") + ghi URL chạy nền.
+  const datNgay = (sua: Record<string, string | null>) => {
+    setKbTam((m) => ({ ...m, ...sua }))
+    dat(sua, true)
+  }
+  const datNhomAn = (ds: string[]) => datNgay({ nhom_an: ds.length ? ds.join(',') : null })
+  /** Kéo thẻ / "Chuyển sang…" → cập nhật lạc quan (chỉ state trên màn, prototype không mutation). */
+  const chuyenThe = (id: string, cot: string) => {
+    if (nhomTheo === 'tt') return doi(id)({ state: cot as Ticket['state'] })
+    if (nhomTheo === 'cs') return doi(id)({ cs: cot === KHONG_GT ? null : cot })
+    doi(id)(cot === 'xong' ? { state: 'Done', khau: undefined } : { state: 'Open', khau: cot })
+  }
   const xem = sp.get('xem')
   const nguon = dangXem === 'kanban' ? theKanban : dong
   const i = xem ? nguon.findIndex((t) => t.ticket_code === xem) : -1
@@ -497,6 +570,16 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                 onCotAn={(an) => COT.forEach((x) => c.anHien(x.id, !an.includes(x.id)))}
                 sapXep={sap ?? undefined}
                 onSapXep={datSap}
+                nhom={{
+                  kanban: true,
+                  tuyChon: [...NHOM_KB],
+                  giaTri: nhomTheo,
+                  onDoi: (v) => datNgay({ nhom: v === 'khau' ? null : v, nhom_an: null }),
+                }}
+                nhomAn={{
+                  ds: cotNhom.filter((x) => nhomAn.includes(x.id)).map((x) => ({ giaTri: x.id, nhan: x.nhan })),
+                  onHien: (id) => datNhomAn(nhomAn.filter((x) => x !== id)),
+                }}
               />
             }
             dangXem={dangXem}
@@ -527,24 +610,29 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
           >
             {dangXem === 'kanban' ? (
               <KanbanBoard
-                cot={KHAU}
+                cot={cotKb}
                 the={theKanban.map((d) => ({
-                    id: d.ticket_code,
-                    cot: khauCua(d),
-                    ten: d.ticket_code,
-                    noiDung: (
-                      <NoiDungThe
-                        nhan={d.khan && d.state === 'Open' ? <NhanKhan /> : <NhanBaoHanh t={d} />}
-                        khach={tenKhach(d)}
-                        viec={mayLoi(d)}
-                        ma={d.ticket_code}
-                        han={{ chu: ngayNgan(new Date(han(d)).toISOString()) }}
-                        chu={d.cs_ten ?? undefined}
-                      />
-                    ),
-                  }))}
-                onChuyen={(id, cot) => doi(id)(cot === 'xong' ? { state: 'Done' } : cot === 'moi' ? { cs: null, state: 'Open' } : { state: 'Open', hen: cot === 'da-hen' })}
+                  id: d.ticket_code,
+                  cot: cotCuaThe(d),
+                  ten: d.ticket_code,
+                  noiDung: (
+                    <NoiDungTheTruong
+                      dau={
+                        <>
+                          {d.khan && d.state === 'Open' && <IconKhan />}
+                          {d.ticket_code}
+                        </>
+                      }
+                      truong={truongThe(d)}
+                    />
+                  ),
+                }))}
+                onChuyen={chuyenThe}
                 onMo={(ma) => mo(ma)}
+                menuCot={{
+                  them: { nhan: 'Thêm ticket', onThem: chuaLuu },
+                  onAn: (c) => datNhomAn([...nhomAn, c.id]),
+                }}
               />
             ) : !dong.length ? (
               <EmptyState size="sm" kieu="loc" tieuDe="Không có ticket nào trong view này" moTa="Thử view khác hoặc bỏ bớt từ khoá, điều kiện lọc." />

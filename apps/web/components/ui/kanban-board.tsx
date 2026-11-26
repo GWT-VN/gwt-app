@@ -1,15 +1,23 @@
 'use client'
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from 'react'
 import { createPortal } from 'react-dom'
 import {
   DndContext,
   DragOverlay,
   KeyboardCode,
-  KeyboardSensor,
   MouseSensor,
   pointerWithin,
   rectIntersection,
+  TouchSensor,
   useDraggable,
   useDroppable,
   useSensor,
@@ -19,7 +27,7 @@ import {
   type KeyboardCoordinateGetter,
   type UniqueIdentifier,
 } from '@dnd-kit/core'
-import { ArrowCounterClockwise, WarningCircle } from '@phosphor-icons/react/ssr'
+import { ArrowCounterClockwise, DotsThree, EyeSlash, Plus, WarningCircle } from '@phosphor-icons/react/ssr'
 import type { VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, chuCaiDau } from './avatar'
@@ -28,12 +36,13 @@ import { Button } from './button'
 import { Card } from './card'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from './context-menu'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogTitle } from './dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu'
 import { useDsPortal } from './ds-root'
 import { Field, FieldError, FieldLabel } from './field'
 import { cat, khach as lopKhach, LY_DO_CHO, luuY as lopLuuY } from './inline-edit-styles'
 import * as s from './kanban-styles'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
-import { useEscKhiKeo } from './tieu-de-cot'
+import { CamBienPhimKeo, useEscKhiKeo } from './tieu-de-cot'
 import { thongBao } from './sonner'
 
 type MauBadge = NonNullable<VariantProps<typeof badgeVariants>['color']>
@@ -75,6 +84,12 @@ export type PropsKanbanBoard = {
   lyDo?: readonly string[]
   /** Chân cột, dưới danh sách thẻ — thường là `<DongThem kieu="the">` ("+ Việc mới" tạo thẳng vào cột). */
   chanCot?: (c: CotKanban) => ReactNode
+  /**
+   * Menu đầu cột (nút ⋯ "Tuỳ chọn nhóm <cột>", học Twenty): `them` → mục "<nhan>" (tạo thẻ vào cột — bên gọi lo),
+   * `onAn` → "Ẩn nhóm" (bên gọi bỏ cột khỏi `cot`; nhóm ẩn liệt kê ở ⚙ `CaiDatHienThi nhomAn` để hiện lại). Ẩn xong focus
+   * sang nút ⋯ của cột kế bên. Không truyền = không có nút.
+   */
+  menuCot?: { them?: { nhan: string; onThem: (c: CotKanban) => void }; onAn?: (c: CotKanban) => void }
   className?: string
 }
 
@@ -84,10 +99,12 @@ const chuLoi = (e: unknown) => (e instanceof Error && e.message ? e.message : 'l
  * KanbanBoard — dạng xem Kanban theo trạng thái (README KanbanBoard, chốt 18/11): mỗi cột một trạng thái, kéo thẻ sang
  * cột khác để đổi trạng thái. Giá trị từ `.b-kanban`, `.b-k-*`, `.b-the*` của ds/nguon/bundle.css qua kanban-styles.ts.
  *
- * - Kéo (dnd-kit cổ điển, ruling R8): chuột nhích 4px mới tính kéo (bấm thường vẫn mở thẻ); bàn phím Space nhấc · ←→ sang
- *   cột · Space/Enter thả · Esc (hoặc Tab) huỷ, câu đọc tiếng Việt. Thẻ nguồn mờ, cột đích tô nền, bóng kéo = bản sao thẻ
- *   (z 90 lớp menu). Thả đúng cột cũ = không gì xảy ra. Cảm ứng KHÔNG kéo (vuốt là cuộn ngang qua các cột) — nhấn giữ thẻ
- *   mở menu "Chuyển sang…".
+ * - Kéo (dnd-kit cổ điển, ruling R8; ngưỡng học Twenty 26/11): chuột rê ≥ 8px mới tính kéo (bấm thường vẫn mở thẻ); cảm
+ *   ứng giữ 250ms, lệch ≤ 5px (vuốt trước đó vẫn là cuộn ngang qua các cột); giữ rồi thả tại chỗ → menu "Chuyển sang…".
+ *   Bàn phím (`CamBienPhimKeo` — không bị `visibilitychange` huỷ) Space nhấc · ←→ sang cột · Space/Enter thả · Esc (hoặc
+ *   Tab) huỷ, câu đọc tiếng Việt. Thẻ nguồn mờ, cột đích tô nền, bóng kéo = bản sao thẻ (z 90 lớp menu). Thả đúng cột cũ =
+ *   không gì xảy ra. Không xếp thứ tự thẻ trong cột (thứ tự theo dữ liệu).
+ * - `menuCot`: nút ⋯ đầu cột → "Thêm …" · "Ẩn nhóm".
  * - Chuột phải / Shift+F10 / phím Menu trên thẻ → ContextMenu: mục riêng (`menuThe`) + "Chuyển sang…" mọi cột khác — đường
  *   cho người không kéo được.
  * - Vào cột `hoiLyDo`: hộp hỏi lý do (focus nút Huỷ như README Dialog); Huỷ / Esc = thẻ ở nguyên chỗ cũ.
@@ -97,7 +114,7 @@ const chuLoi = (e: unknown) => (e instanceof Error && e.message ? e.message : 'l
  * - Cột rỗng: "Kéo thẻ vào đây". Rỗng do lọc CẢ MÀN: bên gọi vẽ `EmptyState kieu="loc"` thay cho bảng (như Table).
  * - ≤ 767: cột 82% bề ngang, cuộn ngang có snap. Bảng lấp chiều cao khung cha (flex cột) — khung cha đặt chiều cao.
  */
-export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CHO, chanCot, className }: PropsKanbanBoard) {
+export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CHO, chanCot, menuCot, className }: PropsKanbanBoard) {
   const id = useId()
   const portal = useDsPortal()
   const [keo, setKeo] = useState<string | null>(null)
@@ -110,7 +127,21 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   const daRoi = useRef(false)
   const trenRef = useRef<string | null>(null)
   const bangRef = useRef<HTMLDivElement>(null)
+  // Cột vừa ẩn qua menu ⋯ → focus nút ⋯ của cột kế bên khi `cot` đã đổi.
+  const focusMenuCot = useRef<string | null>(null)
   useEscKhiKeo(!!keo)
+
+  useEffect(() => {
+    const x = focusMenuCot.current
+    if (!x) return
+    focusMenuCot.current = null
+    bangRef.current?.querySelector<HTMLElement>(`[data-cot-id="${CSS.escape(x)}"] [data-slot="kanban-menu-cot"]`)?.focus()
+  }, [cot])
+  const anCot = (c: CotKanban) => {
+    const i = cot.findIndex((x) => x.id === c.id)
+    focusMenuCot.current = (cot[i + 1] ?? cot[i - 1])?.id ?? null
+    menuCot?.onAn?.(c)
+  }
 
   // Thẻ chỉ đổi cột khi bên gọi đổi `the` → chạy theo `the`; tìm trong CHÍNH bảng này (trang có hai bảng trùng id thẻ).
   useEffect(() => {
@@ -160,8 +191,9 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   }
 
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, {
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(CamBienPhimKeo, {
       coordinateGetter: (e, a) => toaDoPhim(cot, trenRef.current)(e, a),
       keyboardCodes: {
         start: [KeyboardCode.Space],
@@ -230,6 +262,19 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
         const t = timThe(e.active.id)
         const c = timCot(e.over?.id)
         xong()
+        // Cảm ứng giữ rồi thả tại chỗ (chưa rê) → mở menu "Chuyển sang…" của thẻ — đường cho người không kéo được.
+        if (t && laCham(e.activatorEvent) && Math.hypot(e.delta.x, e.delta.y) <= 5) {
+          const el = bangRef.current?.querySelector<HTMLElement>(`[data-the-id="${CSS.escape(t.id)}"]`)
+          const r = el?.getBoundingClientRect()
+          // Chờ thẻ hết `disabled` (ContextMenu tắt trong lúc kéo) rồi mới mở.
+          if (el && r)
+            setTimeout(() =>
+              el.dispatchEvent(
+                new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: r.left + 16, clientY: r.top + 16 }),
+              ),
+            )
+          return
+        }
         if (t && c) chuyen(t, c, e.activatorEvent instanceof KeyboardEvent)
       }}
       onDragCancel={xong}
@@ -238,7 +283,18 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
         {cot.map((c) => {
           const ds = the.filter((t) => t.cot === c.id)
           return (
-            <Cot key={c.id} cot={c} so={ds.length} tren={tren === c.id} chan={chanCot?.(c)}>
+            <Cot
+              key={c.id}
+              cot={c}
+              so={ds.length}
+              tren={tren === c.id}
+              chan={chanCot?.(c)}
+              menu={
+                menuCot && (menuCot.them || menuCot.onAn) ? (
+                  <MenuCot c={c} them={menuCot.them} onAn={menuCot.onAn && (() => anCot(c))} />
+                ) : undefined
+              }
+            >
               {ds.map((t) => (
                 <The
                   key={t.id}
@@ -282,6 +338,8 @@ export function KanbanBoard({ cot, the, onChuyen, onMo, menuThe, lyDo = LY_DO_CH
   )
 }
 
+const laCham = (e: Event) => typeof TouchEvent !== 'undefined' && e instanceof TouchEvent
+
 /** Chuột: cột dưới con trỏ. Phím (không có con trỏ): cột giao nhiều nhất với bóng kéo. */
 const vaCham: CollisionDetection = (a) => {
   const tro = pointerWithin(a)
@@ -307,17 +365,57 @@ function toaDoPhim(cot: readonly CotKanban[], trenNay: string | null): KeyboardC
   }
 }
 
+/**
+ * Nút ⋯ đầu cột + menu "Thêm …" · "Ẩn nhóm". Ẩn: Radix trả focus về ⋯ như thường (bên gọi có thể ẩn TRỄ — URL qua router);
+ * khi cột thật sự mất, bảng đưa focus sang ⋯ của cột kế bên.
+ */
+function MenuCot({
+  c,
+  them,
+  onAn,
+}: {
+  c: CotKanban
+  them?: { nhan: string; onThem: (c: CotKanban) => void }
+  onAn?: () => void
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon-xs" data-slot="kanban-menu-cot" aria-label={`Tuỳ chọn nhóm ${c.nhan}`} className={s.cotMenu}>
+          <DotsThree weight="bold" aria-hidden="true" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {them && (
+          <DropdownMenuItem onSelect={() => them.onThem(c)}>
+            <Plus aria-hidden="true" />
+            {them.nhan}
+          </DropdownMenuItem>
+        )}
+        {onAn && (
+          <DropdownMenuItem onSelect={onAn}>
+            <EyeSlash aria-hidden="true" />
+            Ẩn nhóm
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 function Cot({
   cot,
   so,
   tren,
   chan,
+  menu,
   children,
 }: {
   cot: CotKanban
   so: number
   tren: boolean
   chan?: ReactNode
+  menu?: ReactNode
   children: ReactNode
 }) {
   const { setNodeRef } = useDroppable({ id: cot.id })
@@ -326,6 +424,7 @@ function Cot({
       <header className={s.cotDau}>
         <Badge variant="soft" color={cot.color ?? 'secondary'}>{cot.nhan}</Badge>
         <span className={s.cotDem}>{so}</span>
+        {menu}
       </header>
       <div className={s.cotDs}>{so ? children : <div className={s.cotRong}>Kéo thẻ vào đây</div>}</div>
       {chan}
@@ -361,7 +460,8 @@ function The({
   const mucRieng = menuThe?.(t)
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
+      {/* Tắt trong lúc kéo: nhấn giữ cảm ứng (700ms của Radix) không mở menu giữa chừng kéo. */}
+      <ContextMenuTrigger asChild disabled={coKeo}>
         <Card
           ref={setNodeRef}
           data-the-id={t.id}
@@ -370,6 +470,7 @@ function The({
           aria-pressed={undefined}
           {...listeners}
           className={s.the}
+          onContextMenu={coKeo ? (e: ReactMouseEvent) => e.preventDefault() : undefined}
           onKeyDown={(e: ReactKeyboardEvent<HTMLDivElement>) => {
             // Đang nhấc: phím thuộc cảm biến kéo (nó nghe ở document) — không để Enter mở thẻ / Space cuộn trang. Esc:
             // `useEscKhiKeo` đã chặn ở document (không tới thanh hàng loạt).
@@ -568,6 +669,48 @@ export function NoiDungThe({
             <span className="sr-only">, chủ {chu}</span>
           </>
         )}
+      </div>
+    </>
+  )
+}
+
+/** Một dòng của thẻ dạng trường (`NoiDungTheTruong`). `giaTri` rỗng (null/undefined/'') → hiện TÊN trường mờ (Twenty). */
+export type TruongThe = { id: string; icon: ReactNode; ten: string; giaTri?: ReactNode }
+
+/**
+ * Ruột thẻ dạng trường — học Twenty (docs/rework/2026-11-26-twenty-hanh-vi.md §3e): dòng đầu `dau` (tên/mã bản ghi), dưới
+ * là mỗi trường một dòng icon + giá trị (tên trường ở `title` của icon + chữ sr-only "tên: giá trị"). Trường rỗng KHÔNG
+ * ẩn: hiện tên trường mờ (`data-rong`) — thẻ cao đều, biết thiếu gì. Màu: thẻ nên có tối đa MỘT nhãn màu (CEO 26/11);
+ * giá trị là chữ, chỉ tô màu chữ cho ngoại lệ (quá hạn, hết bảo hành).
+ */
+export function NoiDungTheTruong({ dau, truong }: { dau: ReactNode; truong: readonly TruongThe[] }) {
+  return (
+    <>
+      <div className={s.theTruongDau}>{dau}</div>
+      <div className={s.theTruongDs}>
+        {truong.map((t) => {
+          const rong = t.giaTri == null || t.giaTri === '' || t.giaTri === false
+          return (
+            <div key={t.id} data-truong={t.id} data-rong={rong || undefined} className={s.theTruongDong}>
+              <span aria-hidden="true" title={t.ten} className={s.theTruongIcon}>
+                {t.icon}
+              </span>
+              {rong ? (
+                <>
+                  <span aria-hidden="true" className={s.theTruongRong}>
+                    {t.ten}
+                  </span>
+                  <span className="sr-only">{t.ten}: trống</span>
+                </>
+              ) : (
+                <span className={s.theTruongGiaTri}>
+                  <span className="sr-only">{t.ten}: </span>
+                  {t.giaTri}
+                </span>
+              )}
+            </div>
+          )
+        })}
       </div>
     </>
   )

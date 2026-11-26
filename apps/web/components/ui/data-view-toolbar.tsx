@@ -16,6 +16,7 @@ import {
   Check,
   Export,
   Eye,
+  EyeSlash,
   FloppyDisk,
   Funnel,
   GearSix,
@@ -36,6 +37,7 @@ import { Button } from './button'
 import { CotHienThi } from './cot-hien-thi'
 import {
   cdDau,
+  cdDongCot,
   cdGiaTri,
   cdKhung,
   cdMuc,
@@ -202,7 +204,7 @@ export function TrangDuLieu({ className, children, ...p }: ComponentProps<'main'
 
 // ======================= ⚙ Cài đặt hiển thị =======================
 
-type Trang = '' | 'bocuc' | 'cot' | 'loc' | 'sap' | 'nhom'
+type Trang = '' | 'bocuc' | 'cot' | 'loc' | 'sap' | 'nhom' | 'nhomAn'
 /** Mở ⚙ từ ngoài (vd "Tuỳ chỉnh cột…" của `ThemCot`): `mo('cot')` mở thẳng trang Cột hiển thị. */
 export type CaiDatRef = { mo: (trang?: Exclude<Trang, ''>) => void }
 
@@ -255,6 +257,8 @@ function MucChon({ chon, onClick, children, dau }: { chon: boolean; onClick: () 
  * CaiDatHienThi — nút ⚙ + Popover "Cài đặt hiển thị" kiểu Notion View settings (README DataViewToolbar):
  * - `ref` (`CaiDatRef`): `mo(trang)` mở thẳng một trang con (← vẫn về gốc, focus mục của trang đó).
  * - Cột hiển thị = `CotHienThi`: nhóm Đang hiện (kéo đổi thứ tự khi có `onDoiChoCot`, mắt ẩn) / Đang ẩn (mắt hiện).
+ * - Kanban (học Twenty): `nhom.kanban` → "Nhóm theo" chỉ ở Kanban, không có "Không nhóm" (Kanban luôn phải nhóm);
+ *   `nhomAn` → "Nhóm đang ẩn" (số) → danh sách + nút mắt "Hiện <nhóm>"; hiện xong focus sang mục còn lại, hết → về gốc.
  * - Trang gốc: Bố cục · Cột hiển thị (chỉ dạng Bảng) · Lọc · Sắp xếp · Nhóm theo (không ở Kanban) — mỗi dòng giá trị
  *   hiện tại + ›; dưới: Sao chép link view · Lưu view của tôi · Lưu view chung · Xuất Excel. Mục không có hàm thì ẩn.
  * - Trang con có ← "Quay lại": vào trang con → focus ←; ← → về gốc, focus về đúng mục đã mở. State trang nằm trong
@@ -273,6 +277,7 @@ export function CaiDatHienThi({
   sapXep,
   onSapXep,
   nhom,
+  nhomAn,
   onSaoChepLink,
   onLuuView,
   luuChung,
@@ -294,8 +299,13 @@ export function CaiDatHienThi({
   loc?: { so: number; noiDung: ReactNode }
   sapXep?: { cot: string; tang: boolean }
   onSapXep?: (s: { cot: string; tang: boolean }) => void
-  /** `giaTri` '' = không nhóm. `tuyChon` không cần mục "Không nhóm" — tự thêm. */
-  nhom?: { tuyChon: { giaTri: string; nhan: string }[]; giaTri: string; onDoi: (v: string) => void }
+  /**
+   * `giaTri` '' = không nhóm. `tuyChon` không cần mục "Không nhóm" — tự thêm. `kanban: true` = nhóm CỘT Kanban: chỉ hiện
+   * ở dạng Kanban, không có "Không nhóm".
+   */
+  nhom?: { tuyChon: { giaTri: string; nhan: string }[]; giaTri: string; onDoi: (v: string) => void; kanban?: boolean }
+  /** Kanban: nhóm (cột) đang ẩn — menu ⋯ đầu cột "Ẩn nhóm" của KanbanBoard; ở đây hiện lại. Rỗng = không có mục. */
+  nhomAn?: { ds: { giaTri: string; nhan: string }[]; onHien: (giaTri: string) => void }
   onSaoChepLink?: () => void
   /** `chung`: lưu view chung (quyền quản lý) hay của tôi. */
   onLuuView?: (chung: boolean) => void
@@ -420,7 +430,7 @@ export function CaiDatHienThi({
                 onClick={() => vao('sap')}
               />
             )}
-            {nhom && dangXem !== 'kanban' && (
+            {nhom && (nhom.kanban ? dangXem === 'kanban' : dangXem !== 'kanban') && (
               <MucCd
                 I={Rows}
                 ten="Nhóm theo"
@@ -429,6 +439,9 @@ export function CaiDatHienThi({
                 trang="nhom"
                 onClick={() => vao('nhom')}
               />
+            )}
+            {nhomAn && dangXem === 'kanban' && nhomAn.ds.length > 0 && (
+              <MucCd I={EyeSlash} ten="Nhóm đang ẩn" gt={nhomAn.ds.length} mui trang="nhomAn" onClick={() => vao('nhomAn')} />
             )}
             {onSaoChepLink && <MucCd I={LinkSimple} ten="Sao chép link view" onClick={() => lam(onSaoChepLink)} />}
             {(onLuuView || onXuatExcel) && <div className={menuSeparator} />}
@@ -499,7 +512,7 @@ export function CaiDatHienThi({
         {trang === 'nhom' && nhom && (
           <>
             {dau('Nhóm theo')}
-            {[{ giaTri: '', nhan: 'Không nhóm' }, ...nhom.tuyChon].map((x) => (
+            {[...(nhom.kanban ? [] : [{ giaTri: '', nhan: 'Không nhóm' }]), ...nhom.tuyChon].map((x) => (
               <MucChon
                 key={x.giaTri || 'khong'}
                 chon={nhom.giaTri === x.giaTri}
@@ -510,6 +523,31 @@ export function CaiDatHienThi({
               >
                 {x.nhan}
               </MucChon>
+            ))}
+          </>
+        )}
+        {trang === 'nhomAn' && nhomAn && (
+          <>
+            {dau('Nhóm đang ẩn')}
+            {nhomAn.ds.map((x, i) => (
+              <div key={x.giaTri} className={cdDongCot}>
+                <span className="min-w-0 flex-1 truncate">{x.nhan}</span>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Hiện ${x.nhan}`}
+                  onClick={(e) => {
+                    // Dòng này sắp mất: focus sang mục kế (sau, không có thì trước); hết → về gốc (focus mục đầu).
+                    const ds = [...(e.currentTarget.closest('[data-slot="cai-dat-hien-thi"]')?.querySelectorAll<HTMLElement>('[aria-label^="Hiện "]') ?? [])]
+                    const ke = ds[i + 1] ?? ds[i - 1]
+                    nhomAn.onHien(x.giaTri)
+                    if (ke) ke.focus()
+                    else ve()
+                  }}
+                >
+                  <EyeSlash aria-hidden="true" />
+                </Button>
+              </div>
             ))}
           </>
         )}

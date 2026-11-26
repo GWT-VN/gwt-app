@@ -14,7 +14,7 @@ import { KhungChon, OChonDong, ThanhDaChon } from '@/bang'
 import { CauHinhBangDs } from './bang-ds'
 import { ContextMenuItem } from './context-menu'
 import { DsRoot } from './ds-root'
-import { KanbanBoard, type CotKanban, type TheKanban } from './kanban-board'
+import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TheKanban } from './kanban-board'
 import { thongBao } from './sonner'
 
 // Toast thật (Sonner) chạy hẹn giờ — ở đây chỉ cần biết bảng GỌI đúng thongBao + bấm được Hoàn tác.
@@ -341,5 +341,163 @@ describe('Hoàn tác + lỗi', () => {
     await user.click(await screen.findByRole('menuitem', { name: 'Đóng' }))
     await waitFor(() => expect(loi).toHaveBeenCalledWith('TK-D1: chưa chuyển được sang Đóng — mất mạng', expect.objectContaining({ thuLai: expect.any(Function) })))
     expect(xong).not.toHaveBeenCalled()
+  })
+})
+
+// ── Học hành vi Twenty (26/11, docs/rework/2026-11-26-f-hoc-hanh-vi-twenty.md mục F + G) ─────────────────────────────
+
+const cho = (ms: number) => act(() => new Promise((r) => setTimeout(r, ms)))
+
+describe('ngưỡng kéo (Twenty): chuột 8px, cảm ứng giữ 250ms lệch ≤ 5px, phím không bị visibilitychange huỷ', () => {
+  test('chuột rê 6px rồi nhả = bấm (mở thẻ), không nhấc; rê ≥ 8px mới nhấc', async () => {
+    const user = userEvent.setup()
+    const onMo = vi.fn()
+    render(<Bang onMo={onMo} />)
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: the('TK-D1'), coords: { clientX: 100, clientY: 80 } },
+      { coords: { clientX: 106, clientY: 80 } },
+      { keys: '[/MouseLeft]' },
+    ])
+    expect(screen.queryByText(/Đã nhấc thẻ/)).toBeNull()
+    expect(onMo).toHaveBeenCalledWith('TK-D1')
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: the('TK-D2'), coords: { clientX: 100, clientY: 180 } },
+      { coords: { clientX: 109, clientY: 180 } },
+    ])
+    expect(await screen.findByText(/Đã nhấc thẻ TK-D2/)).toBeTruthy()
+    await user.pointer({ keys: '[/MouseLeft]' })
+  })
+
+  test('cảm ứng: giữ 250ms (lệch ≤ 5px) → nhấc; rê sang cột khác, thả → onChuyen', async () => {
+    const onChuyen = vi.fn()
+    render(<Bang onChuyen={onChuyen} />)
+    const t = the('TK-D1')
+    fireEvent.touchStart(t, { touches: [{ clientX: 100, clientY: 80 }] })
+    fireEvent.touchMove(t, { touches: [{ clientX: 103, clientY: 82 }] })
+    await cho(300)
+    expect(await screen.findByText(/Đã nhấc thẻ TK-D1/)).toBeTruthy()
+    fireEvent.touchMove(t, { touches: [{ clientX: 380, clientY: 80 }] })
+    await cho(20)
+    fireEvent.touchEnd(t, { changedTouches: [{ clientX: 380, clientY: 80 }] })
+    await waitFor(() => expect(onChuyen).toHaveBeenCalledWith('TK-D1', 'xu-ly', undefined))
+  })
+
+  test('cảm ứng: lệch > 5px trước 250ms = vuốt cuộn, không nhấc', async () => {
+    render(<Bang />)
+    const t = the('TK-D1')
+    fireEvent.touchStart(t, { touches: [{ clientX: 100, clientY: 80 }] })
+    fireEvent.touchMove(t, { touches: [{ clientX: 130, clientY: 80 }] })
+    await cho(300)
+    expect(screen.queryByText(/Đã nhấc thẻ/)).toBeNull()
+    fireEvent.touchEnd(t)
+  })
+
+  test('cảm ứng: giữ rồi thả tại chỗ → mở menu "Chuyển sang…" (đường cho người không kéo được)', async () => {
+    render(<Bang />)
+    const t = the('TK-D1')
+    fireEvent.touchStart(t, { touches: [{ clientX: 100, clientY: 80 }] })
+    await cho(300)
+    fireEvent.touchEnd(t, { changedTouches: [{ clientX: 100, clientY: 80 }] })
+    const menu = await screen.findByRole('menu', { name: 'Thao tác TK-D1' })
+    expect(within(menu).getByRole('menuitem', { name: 'Đang xử lý' })).toBeTruthy()
+  })
+
+  test('phím: visibilitychange giữa chừng (khung Browser bị che/hiện) KHÔNG huỷ kéo — → rồi Space vẫn chuyển', async () => {
+    const user = userEvent.setup()
+    const onChuyen = vi.fn()
+    render(<Bang onChuyen={onChuyen} />)
+    the('TK-D1').focus()
+    await nhan(user, ' ')
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange', { bubbles: true }))
+    })
+    await nhan(user, '{ArrowRight}')
+    expect(screen.queryByText(/Đã huỷ kéo/)).toBeNull()
+    await nhan(user, ' ')
+    expect(onChuyen).toHaveBeenCalledWith('TK-D1', 'xu-ly', undefined)
+  })
+})
+
+describe('menu đầu cột (Twenty): Thêm thẻ · Ẩn nhóm', () => {
+  function BangMenu({ onThem = () => {} }: { onThem?: (c: CotKanban) => void }) {
+    const [an, setAn] = useState<string[]>([])
+    return (
+      <DsRoot>
+        <KanbanBoard
+          cot={COT.filter((c) => !an.includes(c.id))}
+          the={THE}
+          onMo={() => {}}
+          onChuyen={() => {}}
+          menuCot={{ them: { nhan: 'Thêm ticket', onThem }, onAn: (c) => setAn((x) => [...x, c.id]) }}
+        />
+      </DsRoot>
+    )
+  }
+
+  test('nút ⋯ mỗi cột có tên theo cột; "Thêm ticket" → onThem(cột)', async () => {
+    const user = userEvent.setup()
+    const onThem = vi.fn()
+    render(<BangMenu onThem={onThem} />)
+    await user.click(screen.getByRole('button', { name: 'Tuỳ chọn nhóm Đang xử lý' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Thêm ticket' }))
+    expect(onThem).toHaveBeenCalledWith(expect.objectContaining({ id: 'xu-ly' }))
+  })
+
+  test('"Ẩn nhóm" → cột biến khỏi bảng, focus sang nút ⋯ của cột kế bên (không rơi về body)', async () => {
+    const user = userEvent.setup()
+    render(<BangMenu />)
+    await user.click(screen.getByRole('button', { name: 'Tuỳ chọn nhóm Đang xử lý' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Ẩn nhóm' }))
+    expect(screen.queryByRole('region', { name: 'Đang xử lý' })).toBeNull()
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Tuỳ chọn nhóm Chờ' })))
+  })
+})
+
+function BangMenuTre() {
+  const [an, setAn] = useState<string[]>([])
+  return (
+    <DsRoot>
+      <KanbanBoard
+        cot={COT.filter((c) => !an.includes(c.id))}
+        the={THE}
+        onMo={() => {}}
+        onChuyen={() => {}}
+        menuCot={{ onAn: (c) => setTimeout(() => setAn((x) => [...x, c.id]), 50) }}
+      />
+    </DsRoot>
+  )
+}
+
+describe('menu đầu cột — ẩn trễ', () => {
+  test('ẩn về TRỄ: focus ở lại nút ⋯ (không rơi về body) tới khi cột mất, rồi sang ⋯ cột kế bên', async () => {
+    const user = userEvent.setup()
+    render(<BangMenuTre />)
+    const nut = screen.getByRole('button', { name: 'Tuỳ chọn nhóm Đang xử lý' })
+    await user.click(nut)
+    await user.click(await screen.findByRole('menuitem', { name: 'Ẩn nhóm' }))
+    await waitFor(() => expect(document.activeElement).toBe(nut))
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Đang xử lý' })).toBeNull())
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Tuỳ chọn nhóm Chờ' })))
+  })
+})
+
+describe('NoiDungTheTruong — thẻ dạng icon + giá trị (Twenty)', () => {
+  test('trường rỗng vẫn hiện TÊN trường mờ (data-rong), trình đọc màn hình nghe "<tên>: trống"; có giá trị đọc "<tên>: <giá trị>"', () => {
+    render(
+      <DsRoot>
+        <NoiDungTheTruong
+          dau="TK-D1"
+          truong={[
+            { id: 'khach', icon: <span />, ten: 'Khách', giaTri: 'Công ty Demo' },
+            { id: 'may', icon: <span />, ten: 'Máy', giaTri: null },
+          ]}
+        />
+      </DsRoot>,
+    )
+    const may = document.querySelector('[data-truong="may"]')!
+    expect(may.hasAttribute('data-rong')).toBe(true)
+    expect(may.textContent).toContain('Máy')
+    expect(may.textContent).toContain('Máy: trống')
+    expect(document.querySelector('[data-truong="khach"]')!.textContent).toContain('Khách: Công ty Demo')
   })
 })

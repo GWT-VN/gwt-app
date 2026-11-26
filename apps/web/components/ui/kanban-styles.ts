@@ -83,3 +83,18 @@ export const theHan = {
   homNay: `${han} text-foreground font-medium`,
   tre: `${han} text-(--color-text-danger) font-medium`,
 } as const
+
+/** Nút ⋯ đầu cột (menu Thêm · Ẩn nhóm): dồn phải, chữ mờ; lề dọc −1 giữ hàng đầu cột cao như cũ (nút 24, tag 22). */
+export const cotMenu = 'ml-auto -my-px text-muted-foreground'
+
+// ── Thẻ dạng trường (NoiDungTheTruong, học Twenty 26/11) — token DS; bundle.css chưa có (chờ đồng bộ artifact) ──────────
+/** Dòng đầu: mã/tên bản ghi 14/20 500, số thẳng cột; icon Khẩn (nếu có) đứng trước. */
+export const theTruongDau = `${khongVien} flex min-w-0 items-center gap-1.5 ds-text-sm font-medium tabular-nums`
+/** Danh sách trường: cách 4. */
+export const theTruongDs = `${khongVien} flex flex-col gap-1`
+/** Một trường: icon 14 + giá trị, 12/18, một dòng. Icon cao 14 giữa dòng 18 → tâm icon trùng tâm chữ. */
+export const theTruongDong = `${khongVien} flex min-w-0 items-center gap-2 ds-text-xs`
+export const theTruongIcon = `${khongVien} inline-flex shrink-0 text-(--color-text-tertiary) [&>svg]:size-(--control-icon-size-xs)`
+export const theTruongGiaTri = `${khongVien} min-w-0 truncate`
+/** Trường rỗng: tên trường mờ (tertiary) làm chỗ giữ. */
+export const theTruongRong = `${khongVien} min-w-0 truncate text-(--color-text-tertiary)`

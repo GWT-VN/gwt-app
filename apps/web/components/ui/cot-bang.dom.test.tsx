@@ -297,12 +297,20 @@ describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang
     expect(laGhim(COT[1], 0)).toBe(false)
   })
 
-  test('CHON_BANG_GHIM: cột ô chọn cũng dính trái, tiêu đề z trên mọi tiêu đề cột, ô thân đục (từ md bỏ màu dòng)', () => {
+  test('CHON_BANG_GHIM: cột ô chọn dính trái, luôn hiện, kẻ ngang + nền dòng phủ tới ô chọn (CEO 26/11)', () => {
     expect(CHON_BANG_GHIM.chon_oTh).toContain('left-0')
     expect(CHON_BANG_GHIM.chon_oTh).toContain('z-30')
     expect(CHON_BANG_GHIM.chon_oTd).toContain('sticky')
+    // Nền đục + màu trạng thái dòng ở MỌI khổ (không còn bỏ màu dòng từ md).
     expect(CHON_BANG_GHIM.chon_oTd).toContain('bg-background!')
-    expect(CHON_BANG_GHIM.chon_oTd).toContain('md:bg-none!')
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('var(--nen-dong')
+    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('bg-none')
     expect(CHON_BANG_GHIM.chon_oTd).not.toContain('md:bg-transparent')
+    // Kẻ ngang chạy tới ô chọn (không trong suốt ở lề).
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('md:border-b-(--alpha-05)')
+    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('md:border-b-transparent')
+    // Ô chọn luôn hiện — không ẩn chờ rê.
+    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('*:opacity-0')
+    expect(CHON_BANG_GHIM.chon_oTh).not.toContain('*:opacity-0')
   })
 })
