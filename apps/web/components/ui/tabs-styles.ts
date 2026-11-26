@@ -92,12 +92,14 @@ export const tabsTriggerLine = [
 ].join(' ')
 
 /**
- * Tab pill: cao control-size-lg (36), đệm 0 16, 500, không xuống dòng, không co; đang chọn nền alpha-05, không bóng,
+ * Tab pill: cao control-size-md (32), đệm 0 12, 500, không xuống dòng, không co; đang chọn nền alpha-05, không bóng,
  * cả hai theme (rule pill nguồn 0,4,0 thắng rule thumb tối 0,3,0). Dùng chung cho nút "Thêm" của hàng thu gọn.
+ * Siết 26/11 (CEO "siết padding các tab này"): trước là 36 / đệm 16 như nguồn artifact → khi đẩy lên artifact sửa
+ * `.ui-tabs-pill .ui-tabs-trigger` theo (height 32, padding 0 12).
  */
 export const tabsTriggerPill = [
   triggerChung,
-  'h-(--control-size-lg) px-4 font-medium whitespace-nowrap shrink-0',
+  'h-(--control-size-md) px-3 font-medium whitespace-nowrap shrink-0',
   'data-[state=active]:bg-(--alpha-05) aria-expanded:bg-(--alpha-05)',
 ].join(' ')
 
