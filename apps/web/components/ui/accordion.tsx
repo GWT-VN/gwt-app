@@ -35,7 +35,7 @@ function AccordionTrigger({ className, children, ...props }: React.ComponentProp
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'flex flex-1 cursor-pointer items-start justify-between gap-4 rounded-(--radius-md) border-none border-current bg-transparent px-0 py-4',
+          'flex min-w-0 flex-1 cursor-pointer items-start justify-between gap-4 rounded-(--radius-md) border-none border-current bg-transparent px-0 py-4',
           'text-left text-[14px] leading-[20px] font-medium text-foreground transition-[color] duration-150 ease-[ease] hover:underline',
           '[outline:none] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid focus-visible:outline-ring',
           'disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180',
