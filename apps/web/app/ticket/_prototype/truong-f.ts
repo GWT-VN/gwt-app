@@ -12,6 +12,11 @@ const NGAY = 86_400_000
 export const han = (t: Ticket) => new Date(t.created_at).getTime() + (t.khan ? 1 : 3) * NGAY
 /** "Máy · lỗi": dòng máy đầu tiên (ticket_may), không có thì tên máy. */
 export const mayLoi = (t: Ticket) => t.dong_may?.[0]?.nhan ?? t.product_name ?? '—'
+/** Mã máy ngắn cho bảng (CEO 26/11: "chỉ cần mã máy ngắn gọn" — CTS20, GN610…). DB không có cột này (đo prod 26/11:
+ *  internal_code = GPUN-4000XEN-G, serial_registry.model = mã kho) — mã thương mại nằm ngay sau "GE " trong tên.
+ *  ponytail: suy từ tên; catalog có cột mã ngắn thì đọc cột đó. */
+export const maMayNgan = (t: Pick<Ticket, 'product_name' | 'internal_code'>) =>
+  t.product_name?.match(/\bGE\s+([A-Z0-9][\w-]*)/)?.[1] ?? t.internal_code ?? t.product_name ?? '—'
 
 /** Thứ tự = thứ tự trong danh sách "Tìm trường". `id` = tên tham số URL (CHUAN-FILTER: `tt`, `cs`, `loai`, `tinh` dùng lại). */
 export const TRUONG_F: (TruongDuLieu<Ticket> & { ten: string })[] = [

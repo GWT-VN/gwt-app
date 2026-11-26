@@ -40,7 +40,7 @@ import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, DauPrototype, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
-import { CHUA_GIAO, han, TOI_F as TOI, TRUONG_F } from './truong-f'
+import { CHUA_GIAO, han, maMayNgan, TOI_F as TOI, TRUONG_F } from './truong-f'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
 // ── Giả định (DB chưa có trường) — ghi trên màn ─────────────────────────────────────────────────────────────────────
@@ -202,9 +202,9 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
           <ChuBaoHanh t={t} ngan />
         </span>
       )}
-      <span className="min-w-0 truncate">
-        {t.product_name ?? '—'}
-        {t.source_serial && <span className="tabular-nums text-muted-foreground"> · {t.source_serial}</span>}
+      {/* Chỉ mã máy ngắn (CEO 26/11); tên đầy đủ + serial xem ở title / Xem nhanh. */}
+      <span className="min-w-0 truncate" title={[t.product_name, t.source_serial].filter(Boolean).join(' · ') || undefined}>
+        {maMayNgan(t)}
       </span>
     </span>
   ),
