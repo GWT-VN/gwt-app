@@ -65,7 +65,7 @@ export function TheoNhom({ ca, n, s, href }: { ca: CaBaoCao[]; n: string | null;
               <Table variant="thuong">
                 <TableHeader><TableRow><Th>Máy (SKU)</Th><Th so>Ticket</Th><Th /><Th so>Máy lỗi</Th><Th so>Đang mở</Th><Th>Lỗi con</Th></TableRow></TableHeader>
                 <TableBody>{may.map((m) => (
-                  <TableRow key={m.sku} className={`${s === m.sku ? 'bg-teal-50' : ''}`}>
+                  <TableRow key={m.sku} className={`${s === m.sku ? 'bg-accent' : ''}`}>
                     <TableCell><Link href={href({ s: m.sku })} prefetch={false} className="font-semibold text-foreground underline">{m.sku}</Link></TableCell>
                     <TableCell phai className="tabular-nums">{m.ticket}</TableCell>
                     <TableCell className="w-32"><Vach phan={m.ticket / maxT} lop={MAU[n]?.thanh ?? 'bg-teal-500'} /></TableCell>
@@ -119,7 +119,7 @@ export function TheoMay({ ca, dangChay, m, mn, href }: { ca: CaBaoCao[]; dangCha
           <Table variant="thuong">
             <TableHeader><TableRow><Th>Máy (SKU)</Th><Th so>Đang chạy</Th><Th so>Máy từng lỗi</Th><Th so>Tỷ lệ</Th><Th /><Th so>Ticket</Th><Th>Nhóm lỗi</Th></TableRow></TableHeader>
             <TableBody>{rows.map((r) => (
-              <TableRow key={r.sku} className={`${m === r.sku ? 'bg-teal-50' : ''}`}>
+              <TableRow key={r.sku} className={`${m === r.sku ? 'bg-accent' : ''}`}>
                 <TableCell><Link href={href({ m: r.sku, mn: null })} prefetch={false} className="font-semibold text-foreground underline">{r.sku}</Link></TableCell>
                 <TableCell phai className="tabular-nums">{r.dangChay || '—'}</TableCell>
                 <TableCell phai className="tabular-nums">{r.mayLoi}</TableCell>

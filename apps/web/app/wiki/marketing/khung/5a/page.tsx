@@ -46,7 +46,7 @@ export default function Page() {
       </div>
 
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
-        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Tỷ trọng theo giai đoạn thương hiệu</h1>
+        <h2 style={{ fontSize: "1.2rem", margin: 0 }}>Tỷ trọng theo giai đoạn thương hiệu</h2>
         <p style={{ fontSize: ".86rem" }}>
           Thương hiệu càng non càng cần độ phủ; càng trưởng thành càng cần chiều sâu, trust và chuyển đổi hiệu quả.
         </p>
@@ -66,7 +66,7 @@ export default function Page() {
       </div>
 
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
-        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Tỷ trọng theo loại kênh</h1>
+        <h2 style={{ fontSize: "1.2rem", margin: 0 }}>Tỷ trọng theo loại kênh</h2>
         <p style={{ fontSize: ".86rem" }}>Cùng bộ 5A nhưng kênh chính thức và kênh nhân vật chia tỷ trọng rất khác nhau.</p>
       </div>
       <div className="grid grid-2" style={{ alignItems: "start" }}>

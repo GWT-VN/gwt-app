@@ -35,7 +35,8 @@ export function doiLoiGhi(e: unknown): Error {
   if (ma === 'P0001') return new Error(String((e as Error).message))
   if (ma === '42883') return new Error('DB kho chưa có hàm ghi (chưa áp migration Đợt 3 — wh_sua_hai_chieu)')
   if (ma === '42501') return new Error('Kết nối kho chưa được cấp quyền ghi (EXECUTE hàm wh_* cho kho_app_doc)')
-  return new Error(`Chưa ghi được sổ kho (${an(e)})`)
+  console.error('[kho] Ghi sổ kho thất bại', ma, an(e))
+  return new Error('Chưa ghi được sổ kho. Kiểm tra Lịch sử sửa trước khi thử lại.')
 }
 
 export function taoKhoGhi(layKetNoi: LayKetNoi, { nguoi }: { nguoi: string }) {

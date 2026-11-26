@@ -25,11 +25,13 @@ export function OChonTimXa({
   onChon,
   choTrong = 'Gõ để tìm…',
   tuDongMo = false,
+  nhan,
 }: {
   /** Gọi server. Trả tối đa vài mục; ném lỗi thì ô hiện câu lỗi, không im lặng. */
   tim: (tuKhoa: string) => Promise<MucChon[]>
   onChon: (m: MucChon) => void
   choTrong?: string
+  nhan?: string
   tuDongMo?: boolean
 }) {
   const [q, setQ] = useState('')
@@ -44,6 +46,7 @@ export function OChonTimXa({
     <div className="relative">
       <input
         ref={oRef}
+        aria-label={nhan ?? choTrong}
         value={q}
         placeholder={choTrong}
         onChange={(e) => setQ(e.target.value)}
@@ -55,7 +58,7 @@ export function OChonTimXa({
       />
       {s.length >= TOI_THIEU_KY_TU && (
         <div
-          className="absolute z-30 mt-1 max-h-64 w-full min-w-[260px] overflow-auto rounded-lg"
+          className="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg"
           style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}
         >
           {loi ? (

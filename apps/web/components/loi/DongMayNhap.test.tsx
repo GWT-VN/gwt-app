@@ -20,7 +20,8 @@ describe('DongMayNhap', () => {
   })
   it('2 dòng: hiện Bỏ dòng cho mỗi dòng', () => {
     const h = renderToStaticMarkup(<DongMayNhap dong={[{}, {}]} onChange={() => {}} dsLoi={ds} />)
-    expect(h.match(/Bỏ dòng/g)).toHaveLength(2)
+    expect(h.match(/>Bỏ dòng<\/button>/g)).toHaveLength(2)
+    expect(h).toContain('aria-label="Bỏ dòng máy 1"')
   })
   it('20 dòng: khoá Thêm máy', () => {
     const h = renderToStaticMarkup(<DongMayNhap dong={Array.from({ length: 20 }, () => ({}))} onChange={() => {}} dsLoi={ds} />)

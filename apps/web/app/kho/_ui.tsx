@@ -106,12 +106,12 @@ export const ngayVN = (x: string | null | undefined): string => hienNgay(x, 'gio
 
 /** Khi chưa đặt KHO_DB_URL / DB lỗi: báo rõ thay vì trang trắng. */
 export function LoiKho({ loi }: { loi?: string }) {
+  if (loi) console.error('[kho] Chưa đọc được sổ kho', loi)
   return (
     <Alert color="warning">
       <AlertTitle>Chưa đọc được sổ kho</AlertTitle>
       <AlertDescription>
-        {loi ?? 'Chưa cấu hình KHO_DB_URL (kết nối chỉ đọc tới DB Masterdata, role kho_app_doc).'}
-        {' '}Trong lúc chờ, xem bảng theo dõi trên <a className="underline" href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Google Sheet</a>.
+        Thử tải lại trang sau ít phút. Trong lúc chờ, xem bảng theo dõi trên <a className="underline" href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Google Sheet</a>.
       </AlertDescription>
     </Alert>
   )

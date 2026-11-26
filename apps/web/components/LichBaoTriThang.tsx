@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import type { LuotThang } from '@/app/actions'
 import { ngayDayDu, oCuaThang, thangHienTai, thangKe } from '@/lib/lichThang'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
@@ -43,9 +44,9 @@ export function LichBaoTriThang({
   const chip = (r: LuotThang) => {
     const done = !!r.completed_at
     const qua = r.tinh_trang === 'QUÁ HẠN'
-    const mau = done ? 'bg-emerald-100 text-emerald-800' : qua ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'
+    const mau = done ? 'bg-(--color-background-success-surface) text-(--color-text-success)' : qua ? 'bg-(--color-background-danger-surface) text-(--color-text-danger)' : 'bg-(--color-background-warning-surface) text-(--color-text-warning)'
     return (
-      <div key={r.visit_id} className={`truncate rounded px-1 py-0.5 text-[10px] ${mau}`} title={`${r.customer_name ?? '—'} · lần ${r.lan_thu ?? '?'}${done ? ' · đã làm' : ''}`}>
+      <div key={r.visit_id} className={`truncate rounded px-1 py-0.5 text-xs ${mau}`} title={`${r.customer_name ?? '—'} · lần ${r.lan_thu ?? '?'}${done ? ' · đã làm' : ''}`}>
         {r.customer_name ?? r.bo_may ?? '—'}{r.lan_thu ? ` (${r.lan_thu})` : ''}
       </div>
     )
@@ -53,28 +54,29 @@ export function LichBaoTriThang({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, -1)}`} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm hover:bg-slate-50">←</Link>
-          <h2 className="font-medium text-slate-900 min-w-36 text-center">{tenThang(thang)}</h2>
-          <Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, 1)}`} className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm hover:bg-slate-50">→</Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, -1)}`} aria-label="Tháng trước">←</Link></Button>
+          <h2 className="min-w-24 text-center text-sm font-medium text-foreground">{tenThang(thang)}</h2>
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, 1)}`} aria-label="Tháng sau">→</Link></Button>
           <Link
             href={`/bao-tri?tt=lich&thang=${thangHienTai()}`}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-sm hover:bg-slate-50"
+            className="rounded-lg border border-border bg-card px-2.5 py-1 text-sm hover:bg-muted"
           >
             Tháng này
           </Link>
         </div>
-        <span className="text-sm text-slate-500">{rows.length} lượt trong tháng</span>
+        <span className="text-sm text-muted-foreground">{rows.length} lượt trong tháng</span>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-        <div className="grid grid-cols-7 min-w-[42rem]">
+      <div role="region" aria-label="Lịch tháng bảo trì"
+        className="@container overflow-hidden rounded-xl border border-border bg-card">
+        <div className="grid grid-cols-7">
           {THU.map((t) => (
-            <div key={t} className={`px-2 py-2 text-xs font-medium text-center border-b ${t === 'CN' ? 'text-red-500' : t === 'T7' ? 'text-sky-600' : 'text-slate-500'}`}>{t}</div>
+            <div key={t} className={`border-b px-1 py-2 text-center text-xs font-medium ${t === 'CN' ? 'text-(--color-text-danger)' : t === 'T7' ? 'text-(--color-text-info)' : 'text-muted-foreground'}`}>{t}</div>
           ))}
           {o.map((d, i) => {
-            if (!d) return <div key={i} className={`min-h-[5.5rem] border-b border-r p-1 ${i % 7 === 6 ? 'bg-red-50/30' : ''}`} />
+            if (!d) return <div key={i} className={`min-w-0 min-h-13 @min-[42rem]:min-h-[5.5rem] border-b border-r p-1 ${i % 7 === 6 ? 'bg-muted/40' : ''}`} />
             const luot = theoNgay.get(d) ?? []
             const nd = ngayDayDu(thang, d)
             const dangChon = ngay === nd
@@ -83,18 +85,20 @@ export function LichBaoTriThang({
                 key={i}
                 href={`/bao-tri?tt=lich&thang=${thang}&ngay=${nd}`}
                 scroll={false}
+                aria-current={dangChon ? 'date' : undefined}
+                aria-label={`Ngày ${d}, ${luot.length} lượt bảo trì`}
                 className={
-                  `block min-h-[5.5rem] border-b border-r p-1 align-top hover:bg-[#e2f2f3] ` +
-                  (dangChon ? 'bg-[#e2f2f3] ring-2 ring-inset ring-[#0e8c9a] ' : i % 7 === 6 ? 'bg-red-50/30 ' : '')
+                  `block min-w-0 min-h-13 @min-[42rem]:min-h-[5.5rem] border-b border-r p-1 align-top hover:bg-muted ` +
+                  (dangChon ? 'bg-accent ring-2 ring-inset ring-ring ' : i % 7 === 6 ? 'bg-muted/40 ' : '')
                 }
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-400">{d}</span>
-                  {luot.length > 0 && <span className="text-[10px] bg-slate-900 text-white rounded-full px-1.5">{luot.length}</span>}
+                <div className="flex flex-col items-center gap-1 @min-[42rem]:flex-row @min-[42rem]:justify-between">
+                  <span className="text-xs text-muted-foreground">{d}</span>
+                  {luot.length > 0 && <span className="text-xs bg-primary text-primary-foreground rounded-full px-1.5">{luot.length}</span>}
                 </div>
-                <div className="space-y-0.5 mt-0.5">
+                <div className="mt-0.5 hidden space-y-0.5 @min-[42rem]:block">
                   {luot.slice(0, 4).map(chip)}
-                  {luot.length > 4 && <div className="text-[10px] text-slate-400">+{luot.length - 4} nữa</div>}
+                  {luot.length > 4 && <div className="text-xs text-muted-foreground">+{luot.length - 4} nữa</div>}
                 </div>
               </Link>
             )
@@ -102,7 +106,7 @@ export function LichBaoTriThang({
         </div>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 align-middle" /> đã làm ·
         <span className="inline-block w-2 h-2 rounded-full bg-red-400 align-middle ml-2" /> quá hạn ·
         <span className="inline-block w-2 h-2 rounded-full bg-amber-400 align-middle ml-2" /> chưa làm ·
@@ -110,19 +114,19 @@ export function LichBaoTriThang({
       </p>
 
       {ngay && (
-        <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <h3 className="px-4 py-3 border-b border-slate-200 text-sm font-semibold text-slate-900">
+        <section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+          <h3 className="px-4 py-3 border-b border-border text-sm font-semibold text-foreground">
             Ngày {hienNgay(ngay)} · {luotCuaNgay.length} lượt
           </h3>
           {luotCuaNgay.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-slate-400">Không có lượt bảo trì nào ngày này.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">Không có lượt bảo trì nào ngày này.</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {luotCuaNgay.map((r) => (
                 <li key={r.visit_id} className="px-4 py-3 text-sm text-slate-700">
                   <span className="font-medium">{r.customer_name ?? r.bo_may ?? '—'}</span>
-                  {r.lan_thu ? <span className="text-slate-400"> · lần {r.lan_thu}</span> : null}
-                  {r.bo_may && r.customer_name ? <span className="text-slate-400"> · {r.bo_may}</span> : null}
+                  {r.lan_thu ? <span className="text-muted-foreground"> · lần {r.lan_thu}</span> : null}
+                  {r.bo_may && r.customer_name ? <span className="text-muted-foreground"> · {r.bo_may}</span> : null}
                   {r.completed_at
                     ? <span className="ml-2 text-xs text-emerald-700">✓ đã làm</span>
                     : r.tinh_trang === 'QUÁ HẠN'

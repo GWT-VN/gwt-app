@@ -186,7 +186,7 @@ export function DangKyBHForm() {
         ) : mayCode ? (
           serialList.length ? (
             <div className="relative mt-1">
-              <Input value={serialQ} onChange={(e) => goSerial(e.target.value)}
+              <Input aria-label="Chọn hoặc tìm serial máy" value={serialQ} onChange={(e) => goSerial(e.target.value)}
                 onFocus={() => setSerialOpen(true)}
                 onBlur={() => setTimeout(() => setSerialOpen(false), 200)}
                 placeholder="Chọn hoặc gõ số CUỐI serial…"
@@ -290,13 +290,13 @@ export function DangKyBHForm() {
             nhưng đánh dấu rõ đây là ngày đoán để sau này đọc còn biết. */}
         <div className="mt-2">
           <span className="text-sm font-medium text-foreground">Ngày này chắc tới đâu?</span>
-          <NativeSelect value={doChac} onChange={(e) => setDoChac(e.target.value as DoChacNgayLap)}
+          <NativeSelect aria-label="Độ chắc chắn của ngày bắt đầu bảo hành" value={doChac} onChange={(e) => setDoChac(e.target.value as DoChacNgayLap)}
             className="mt-1 block w-full rounded-lg border px-3 py-2 text-sm text-foreground bg-card">
             {DO_CHAC_NGAY_LAP.map((k) => <NativeSelectOption key={k} value={k}>{NHAN_DO_CHAC[k]}</NativeSelectOption>)}
           </NativeSelect>
           {doChac !== 'chinh_xac' && (
             <>
-              <Textarea value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} rows={2}
+              <Textarea aria-label="Ghi chú về ngày bắt đầu bảo hành" value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} rows={2}
                 placeholder="Khách nói gì? vd: chỉ nhớ mùa hè năm ngoái · lấy theo ngày hoá đơn đại lý"
                 className="mt-2 w-full rounded-lg border px-3 py-2 text-sm text-foreground" />
               <p className="text-xs text-(--color-text-warning) mt-1">

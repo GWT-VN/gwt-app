@@ -143,7 +143,7 @@ export function CustomerForm({
     <FormLayout onSubmit={submit} noValidate={false}>
       {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       {khoaSheet && (
-        <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <div className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning)">
           <b>Khách từ Google Sheet.</b> Tên · SĐT · địa chỉ · tỉnh · công ty xuất hoá đơn · MST ·
           ghi chú do Sheet <b>dựng lại từ đơn</b> mỗi lần đồng bộ, nên app khoá lại — sửa ở đây
           cũng bị đè. Muốn đổi thì sửa trong <b>dòng đơn</b> trên Sheet rồi dựng lại DM_KHACH.
@@ -170,7 +170,7 @@ export function CustomerForm({
         {/* Câu nhắc lấy từ hàm DÙNG CHUNG với CSKH: cùng tình huống, hai khu nói cùng một câu. */}
         {cauNhac && (
           <div className={`space-y-1.5 rounded-lg px-3 py-2 text-sm ${
-            khop?.nhieuHoSo ? 'bg-rose-50 text-rose-800' : 'bg-amber-50 text-amber-800'}`}>
+            khop?.nhieuHoSo ? 'bg-(--color-background-danger-surface) text-(--color-text-danger)' : 'bg-(--color-background-warning-surface) text-(--color-text-warning)'}`}>
             <p>{cauNhac}</p>
             {khop?.sales?.customer_code && (
               <Link href={`/sales/khach/${encodeURIComponent(khop.sales.customer_code)}`}
@@ -196,7 +196,7 @@ export function CustomerForm({
           <div>
             <FieldLabel className="mb-1">Tỉnh / TP</FieldLabel>
             {khoaSheet
-              ? <Input value={province} disabled />
+              ? <Input value={province} disabled aria-label="Tỉnh / TP" />
               : <ChonTinh value={province} onChange={setProvince} />}
           </div>
         </FormGrid>
@@ -210,7 +210,7 @@ export function CustomerForm({
       {/* BUNG TẠI CHỖ — không rời màn, không mất chữ đã gõ. */}
       {!chiTiet ? (
         <Button variant="outline" className="self-start" onClick={() => setChiTiet(true)}>
-          ＋ Thêm chi tiết (kênh, email, công ty, sales phụ trách, ghi chú)
+          ＋ Thêm chi tiết
         </Button>
       ) : (
         <Card className="space-y-3">

@@ -1,6 +1,7 @@
 'use client'
 
-import { OChonGoiY } from '@/bang'
+import { Combobox } from '@/components/ui/combobox'
+import { cn } from '@/lib/utils'
 import { TINH_VN } from '@/lib/tinh'
 
 /**
@@ -27,17 +28,20 @@ export function ChonTinh({
   const laLa = hienTai !== '' && !TINH_VN.includes(hienTai)
 
   const tuyChon = [
-    ...(laLa ? [{ gt: hienTai, nhan: `${hienTai} (giữ nguyên)` }] : []),
+    ...(laLa ? [{ gt: hienTai, nhan: `${hienTai} (giữ nguyên)`, anMa: true }] : []),
     ...TINH_VN.map((t) => ({ gt: t, nhan: t })),
   ]
 
   return (
-    <OChonGoiY
-      giaTri={hienTai || null}
-      onChon={onChange}
-      tuyChon={tuyChon}
-      choTrong="Gõ tên tỉnh…"
-      className={className}
-    />
+    <div className={cn('min-w-0', className)}>
+      <Combobox
+        value={hienTai || null}
+        onValueChange={(v) => onChange(v ?? '')}
+        options={tuyChon}
+        aria-label="Tỉnh / TP"
+        placeholder="Chọn tỉnh / TP"
+        searchPlaceholder="Gõ tên tỉnh…"
+      />
+    </div>
   )
 }

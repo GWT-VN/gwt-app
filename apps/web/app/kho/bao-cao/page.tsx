@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button-variants'
 import { TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'

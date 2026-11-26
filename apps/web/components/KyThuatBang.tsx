@@ -103,12 +103,10 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
           <label className="text-xs text-muted-foreground">Ngày<br />
             <Input type="date" value={ngay} onChange={(e) => { setNgay(e.target.value); loadTuan(ktId, e.target.value) }} className="mt-0.5" />
           </label>
-          <label className="text-xs text-muted-foreground">Tỉnh/TP<br />
-            {/* Dùng CHUNG `ChonTinh` như mọi màn khác, thay vì tự dựng `<select>` 64 mục ở đây.
-                Tự dựng là (a) vi phạm luật ">10 mục phải gõ để tìm" và (b) khi `ChonTinh` được
-                nâng cấp thì chỗ này không hưởng — đúng thứ đã xảy ra hôm 22/08. */}
+          <div>
+            <p className="mb-1 text-xs text-muted-foreground">Tỉnh / TP</p>
             <ChonTinh value={tinh} onChange={setTinh} />
-          </label>
+          </div>
           <label className="text-xs text-muted-foreground flex-1 min-w-40">Địa chỉ (tự theo máy → khách; sửa được)<br />
             <Input value={diaChi} onChange={(e) => setDiaChi(e.target.value)} className="mt-0.5 w-full" />
           </label>
@@ -173,7 +171,7 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
                           onValueChange={(id) => setViecAt(i, { mo_ta: id ?? '' })} />
                       </div>
                     ) : (
-                      <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Lõi cần thay (máy chưa có danh mục lõi)" className="flex-1 min-w-40" />
+                      <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} aria-label={`Lõi cần thay của việc ${i + 1}`} placeholder="Lõi cần thay (máy chưa có danh mục lõi)" className="flex-1 min-w-40" />
                     )
                   })()}
                 </>
@@ -185,12 +183,12 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
                 </div>
               ) : v.loai_viec === 'thu_tien' ? (
                 <>
-                  <Input type="number" value={v.so_tien ?? ''} onChange={(e) => setViecAt(i, { so_tien: Number(e.target.value) || undefined })} placeholder="Số tiền (VND)" className="w-36" />
-                  <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Nội dung thu (tuỳ chọn)" className="flex-1 min-w-40" />
+                  <Input type="number" value={v.so_tien ?? ''} onChange={(e) => setViecAt(i, { so_tien: Number(e.target.value) || undefined })} aria-label={`Số tiền của việc ${i + 1}`} placeholder="Số tiền (VND)" className="w-36" />
+                  <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} aria-label={`Nội dung thu của việc ${i + 1}`} placeholder="Nội dung thu (tuỳ chọn)" className="flex-1 min-w-40" />
                 </>
               ) : (
                 <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })}
-                  placeholder={v.loai_viec === 'khac' ? 'Ghi cụ thể việc gì (bắt buộc)' : 'Mô tả (tuỳ chọn)'} className="flex-1 min-w-48" />
+                  aria-label={`Mô tả việc ${i + 1}`} placeholder={v.loai_viec === 'khac' ? 'Ghi cụ thể việc gì (bắt buộc)' : 'Mô tả (tuỳ chọn)'} className="flex-1 min-w-48" />
               )}
               {viec.length > 1 && <Button onClick={() => setViec((vs) => vs.filter((_, j) => j !== i))} variant="ghost" size="icon-sm" aria-label={`Bỏ việc ${i + 1}`} className="text-destructive">✕</Button>}
             </div>
@@ -200,7 +198,7 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú chuyến (tuỳ chọn)" className="flex-1" />
+          <Input aria-label="Ghi chú chuyến" value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú chuyến (tuỳ chọn)" className="flex-1" />
           <Button disabled={busy || !ktId} onClick={taoChuyen} size="sm">Tạo chuyến</Button>
         </div>
       </Card>

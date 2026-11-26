@@ -53,6 +53,7 @@ export default async function BHChoKichHoatPage({
           <FormLayout className="flex gap-2">
             {nguon && <input type="hidden" name="nguon" value={nguon} />}
             <Input name="q" defaultValue={q}
+              aria-label="Tìm bảo hành chờ kích hoạt"
               placeholder="Gõ tên/SĐT khách, serial, mã máy, mã đơn…"
               className="flex-1 rounded-lg border px-4 py-2.5 text-foreground bg-card" />
             <Button type="submit">Tìm</Button>

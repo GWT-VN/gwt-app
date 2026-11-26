@@ -3,6 +3,8 @@
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CaretDown } from '@phosphor-icons/react/ssr'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -103,8 +105,8 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
 
   return (
     <div className="space-y-4">
-      <section className="space-y-3 rounded-(--radius-xl) border border-border bg-card p-5 ">
-        <h2 className="font-medium text-foreground">Thông tin bắt buộc</h2>
+      <section className="space-y-3 rounded-(--radius-xl) border border-border bg-card p-4 sm:p-5">
+        <h2 className="font-medium text-foreground">Thông tin khách hàng</h2>
 
         <label className="block">
           <span className="text-sm text-foreground">SĐT</span>
@@ -166,27 +168,24 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
             <Input value={f.address} onChange={(e) => dat('address', e.target.value)}
               placeholder="Số nhà, đường, phường/xã, quận/huyện" className={oChu} />
           </label>
-          <label className="block">
-            <span className="text-sm text-foreground">Tỉnh / TP</span>
+          <div>
+            <p className="mb-1 text-sm text-foreground">Tỉnh / TP</p>
             <ChonTinh value={f.province} onChange={(v) => dat('province', v)} />
-          </label>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
           Tỉnh chọn ở ô riêng, đừng gõ vào ô địa chỉ — cả app dùng chung một danh mục tỉnh để còn lọc và gom theo vùng.
         </p>
       </section>
 
-      <section className="rounded-(--radius-xl) border border-border bg-card ">
-        <Button type="button" onClick={() => setNangCao(!nangCao)}
-          className="flex w-full items-center justify-between px-5 py-3 text-left">
-          <span className="font-medium text-foreground">Thông tin nâng cao</span>
-          <span className="text-sm text-muted-foreground">
-            {nangCao ? '▲ thu lại' : '▼ ghi chú, thông tin công ty (xuất hoá đơn, hợp đồng)'}
-          </span>
-        </Button>
-
-        {nangCao && (
-          <div className="space-y-3 border-t border-border px-5 py-4">
+      <Collapsible open={nangCao} onOpenChange={setNangCao} className="rounded-(--radius-xl) border border-border bg-card">
+        <CollapsibleTrigger asChild>
+          <Button type="button" variant="ghost" className="h-auto w-full justify-between rounded-(--radius-xl) px-5 py-3">
+            Thông tin nâng cao
+            <CaretDown aria-hidden className={nangCao ? 'rotate-180' : undefined} />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-3 border-t border-border px-5 py-4">
             <ChonKenh kenh={kenh} value={kenhId} onChange={setKenhId} />
 
             <label className="block">
@@ -247,15 +246,14 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
               {dcPhu.length === 0 && <p className="mt-1 text-xs text-muted-foreground">Chưa có. Nhà thứ hai, kho, nơi lắp đặt…</p>}
               {dcPhu.map((x, i) => (
                 <div key={i} className="mt-2 flex flex-wrap items-end gap-2">
-                  <Input value={x.dia_chi} placeholder="Số nhà, đường, phường/xã, quận/huyện"
+                  <Input aria-label={`Địa chỉ phụ ${i + 1}`} value={x.dia_chi} placeholder="Số nhà, đường, phường/xã, quận/huyện"
                     onChange={(e) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, dia_chi: e.target.value } : y))}
-                    className="min-w-[220px] flex-1 rounded-lg border border-border px-2 py-1.5 text-sm" />
-                  <div className="w-44">
+                    className="w-full sm:min-w-[220px] sm:flex-1" />
+                  <div className="w-full sm:w-44">
                     <ChonTinh value={x.tinh}
-                      onChange={(v) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, tinh: v } : y))}
-                      className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-sm text-foreground" />
+                      onChange={(v) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, tinh: v } : y))} />
                   </div>
-                  <NativeSelect value={x.loai}
+                  <NativeSelect aria-label={`Loại địa chỉ phụ ${i + 1}`} value={x.loai}
                     onChange={(e) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, loai: e.target.value } : y))}
                     className="rounded-lg border border-border bg-card px-2 py-1.5 text-sm">
                     <NativeSelectOption value="nha">Nhà</NativeSelectOption>
@@ -265,7 +263,7 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                   {/* Ô ghi chú — màn SỬA vốn có, màn TẠO thì thiếu. CEO bắt được 22/08:
                       hai màn phải y hệt nhau, không thì nhập ở màn này rồi sang màn kia
                       không thấy đâu. */}
-                  <Input value={x.ghi_chu} placeholder="Ghi chú: nhà bố mẹ, kho hàng…"
+                  <Input aria-label={`Ghi chú địa chỉ phụ ${i + 1}`} value={x.ghi_chu} placeholder="Ghi chú: nhà bố mẹ, kho hàng…"
                     onChange={(e) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, ghi_chu: e.target.value } : y))}
                     className="w-40 rounded-lg border border-border px-2 py-1.5 text-sm" />
                   <Button type="button" onClick={() => setDcPhu(dcPhu.filter((_, j) => j !== i))}
@@ -318,9 +316,8 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                 </span>
               </label>
             </div>
-          </div>
-        )}
-      </section>
+        </CollapsibleContent>
+      </Collapsible>
 
       {err && (
         <div className="space-y-1.5 rounded-lg bg-(--color-background-danger-surface) px-3 py-2 text-sm text-(--color-text-danger)">

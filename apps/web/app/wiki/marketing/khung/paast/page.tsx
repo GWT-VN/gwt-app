@@ -33,7 +33,7 @@ export default function Page() {
       </div>
 
       <div className="page-head" style={{ marginTop: 10 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>3 trục nhận xét một video</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>3 trục nhận xét một video</h2>
         <p>Áp dụng sau khi có sản phẩm, để cùng học hỏi — mỗi trục một câu hỏi.</p>
       </div>
       <div className="axis">

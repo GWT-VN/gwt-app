@@ -10,7 +10,7 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Table, TableWrap, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { luuOChinhSach, luuHangLoat, type DongChinhSach, type DongLichSuGia } from './actions'
 import { capGiaVaPct, type Bac } from '../_ctkm'
 
@@ -26,6 +26,8 @@ export function BangChinhSach({
 }: { ds: DongChinhSach[]; lichSu: DongLichSuGia[]; coQuyenSoan: boolean }) {
   const router = useRouter()
   const [dangChay, batDau] = useTransition()
+  const giaKhiFocus = useRef('')
+  const oChuaLuu = useRef(new Set<string>())
   const [loi, setLoi] = useState<string | null>(null)
   /** Giá trị đang gõ, chưa lưu — khoá `${ma}|${bac}|${pct|gia}`. */
   const [nhap, setNhap] = useState<Record<string, string>>({})
@@ -48,7 +50,7 @@ export function BangChinhSach({
     batDau(async () => {
       const r = await luuHangLoat(bacHL, [...tick], 'PCT', so)
       if (!r.ok) setLoi(r.error)
-      else { setTick(new Set()); setPctHL(''); setNhap({}); router.refresh() }
+      else { setTick(new Set()); setPctHL(''); setNhap({}); oChuaLuu.current.clear(); router.refresh() }
     })
   }
 
@@ -78,12 +80,19 @@ export function BangChinhSach({
   function luu(dong: DongChinhSach, bac: Bac, kieu: 'pct' | 'gia') {
     if (!coQuyenSoan) return
     const v = o(dong, bac, kieu)
+    const idO = khoa(dong.ma, bac, kieu)
+    if (v === giaKhiFocus.current && !oChuaLuu.current.has(idO)) return
     const so = v === '' ? null : Number(v)
     setLoi(null)
     batDau(async () => {
       const r = await luuOChinhSach(bac, dong.ma, kieu === 'pct' ? 'PCT' : 'GIA', so, dong.niem_yet)
-      if (!r.ok) setLoi(r.error)
-      else router.refresh()
+      if (!r.ok) {
+        oChuaLuu.current.add(idO)
+        setLoi(`${r.error} Rời ô giá vừa sửa để thử lại.`)
+      } else {
+        oChuaLuu.current.delete(idO)
+        router.refresh()
+      }
     })
   }
 
@@ -96,7 +105,7 @@ export function BangChinhSach({
       {/* SỬA HÀNG LOẠT — CEO chốt 22/08: các mã thường giống nhau, phải đặt được một lượt. */}
       {coQuyenSoan && (
         <div className={`flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 transition ${
-          tick.size ? 'border-teal-300 bg-teal-50' : 'border-border bg-card'}`}>
+          tick.size ? 'border-(--color-border-info-surface) bg-(--color-background-info-surface)' : 'border-border bg-card'}`}>
           <span className="text-sm font-semibold text-foreground">
             {tick.size ? `Đã chọn ${tick.size} mã` : 'Sửa hàng loạt'}
           </span>
@@ -126,8 +135,8 @@ export function BangChinhSach({
       )}
 
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <TableWrap>
-          <Table variant="thuong">
+        <TableWrap tabIndex={0} aria-label="Bảng chính sách giá">
+          <Table variant="thuong" aria-label="Chính sách giá theo sản phẩm và cấp đại lý">
             <TableHeader className="bg-muted text-[10px] uppercase tracking-wide text-muted-foreground">
               <TableRow>
                 {coQuyenSoan && (
@@ -153,7 +162,7 @@ export function BangChinhSach({
             </TableHeader>
             <TableBody>
               {ds.map((d) => (
-                <TableRow key={d.ma} className={tick.has(d.ma) ? 'bg-teal-50/60' : 'hover:bg-muted'}>
+                <TableRow key={d.ma} className={tick.has(d.ma) ? 'bg-(--color-background-info-surface)' : 'hover:bg-muted'}>
                   {coQuyenSoan && (
                     <TableCell className="px-3 py-2">
                       <Checkbox aria-label={`Chọn ${d.ten}`} checked={tick.has(d.ma)} onCheckedChange={() => doiTick(d.ma)} />
@@ -171,14 +180,18 @@ export function BangChinhSach({
                       <div className="flex items-center justify-center gap-1.5">
                         <Input
                           type="number" className={inpO + ' w-[86px]'} disabled={!coQuyenSoan || dangChay}
+                          aria-label={`${d.ten} (${d.ma}) · ${b.nhan} · % giảm`}
                           value={o(d, b.ma, 'pct')}
+                          onFocus={(e) => { giaKhiFocus.current = e.currentTarget.value }}
                           onChange={(e) => goVao(d, b.ma, 'pct', e.target.value)}
                           onBlur={() => luu(d, b.ma, 'pct')}
                           placeholder="%"
                         />
                         <Input
                           type="number" className={inpO + ' w-[118px]'} disabled={!coQuyenSoan || dangChay}
+                          aria-label={`${d.ten} (${d.ma}) · ${b.nhan} · Giá bán`}
                           value={o(d, b.ma, 'gia')}
+                          onFocus={(e) => { giaKhiFocus.current = e.currentTarget.value }}
                           onChange={(e) => goVao(d, b.ma, 'gia', e.target.value)}
                           onBlur={() => luu(d, b.ma, 'gia')}
                           placeholder="₫"

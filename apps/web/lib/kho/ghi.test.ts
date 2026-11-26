@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { HAM_GHI, NGUON_APP, doiLoiGhi, taoKhoGhi, type KetNoi } from './ghi'
 import { HAM_DOC } from './doc'
 
@@ -96,6 +96,17 @@ describe('lib/kho/ghi — ghi sổ kho qua 5 hàm wh_* trong giao dịch READ WR
     const r = await taoKhoGhi(g.lay, { nguoi: 'ai@gwt.vn' }).kiemKe([{ internal_code: 'a', so_dem: '1,5' }, { internal_code: 'C', so_dem: '' }, { internal_code: 'b', so_dem: 2 }])
     expect(g.thamSo()).toEqual({ kho: 'NX', items: [{ internal_code: 'A', so_dem: 1.5 }, { internal_code: 'B', so_dem: 2 }], nguon: 'app', nguoi: 'ai@gwt.vn' })
     expect(r).toEqual([{ internal_code: 'A', ton_truoc: 3, so_dem: 1.5, chenh: -1.5, id: 77 }, { internal_code: 'B', ton_truoc: 2, so_dem: 2, chenh: 0, id: null }])
+  })
+
+  it('lỗi ràng buộc chỉ hiện hướng kiểm tra cho người dùng', () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const e = doiLoiGhi(loiDB('violates check constraint wh_kiemke_nguon_check', '23514'))
+      expect(e.message).toContain('Lịch sử sửa')
+      expect(e.message).not.toContain('wh_kiemke_nguon_check')
+    } finally {
+      log.mockRestore()
+    }
   })
 
   it('doiLoiGhi: thiếu hàm (chưa áp migration) / thiếu quyền EXECUTE → câu dễ hiểu', () => {

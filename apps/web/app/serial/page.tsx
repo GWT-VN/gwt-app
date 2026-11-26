@@ -108,6 +108,7 @@ export default async function SerialPage({
               <>
                 <FormLayout className="flex gap-2">
                   <Input name="q" defaultValue={q}
+                    aria-label="Tìm serial và mã máy"
                     placeholder="Gõ serial, mã nội bộ, model, mã quốc tế…"
                     className="flex-1 rounded-lg border px-4 py-2.5 text-foreground bg-card" />
                   {tt && <input type="hidden" name="tt" value={tt} />}

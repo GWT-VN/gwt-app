@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { searchCustomers, taoKhachChoDuyet, timKhachTheoSdt, type KhachTom, type KhachKhopSdt } from '@/app/actions'
 import { ChonTinh } from '@/components/ChonTinh'
 import { canhBaoSdt, chuanHoaSdt } from '@/lib/sdt'
@@ -28,7 +30,8 @@ export function KhachPicker(
 ) {
   const [q, setQ] = useState('')
   const [chon, setChon] = useState<string | null>(null)   // nhãn khách đã chọn
-  const [sug, setSug] = useState<KhachTom[]>([])
+  const [ketQua, setKetQua] = useState<{ tuKhoa: string; ds: KhachTom[]; loi?: boolean } | null>(null)
+  const oTim = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(false)
   const [taoMo, setTaoMo] = useState(false)
   const [f, setF] = useState({ full_name: '', primary_phone: '', address: '', province: '' })
@@ -45,8 +48,12 @@ export function KhachPicker(
     if (!open || !t) return
     let huy = false
     const id = setTimeout(async () => {
-      const r = await searchCustomers(t, 8)
-      if (!huy) setSug(r)
+      try {
+        const ds = await searchCustomers(t, 8)
+        if (!huy) setKetQua({ tuKhoa: t, ds })
+      } catch {
+        if (!huy) setKetQua({ tuKhoa: t, ds: [], loi: true })
+      }
     }, 250)
     return () => { huy = true; clearTimeout(id) }
   }, [q, open])
@@ -113,99 +120,107 @@ export function KhachPicker(
 
   if (chon) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border px-3 py-2 bg-emerald-50">
-        <span className="text-sm text-slate-900">{chon}</span>
-        <button type="button" onClick={() => { setChon(null); setQ('') }}
-          className="text-xs text-slate-500 underline ml-auto">đổi</button>
+      <div className="flex items-center gap-2 rounded-lg border px-3 py-2 border-border bg-(--color-background-success-surface)">
+        <span className="min-w-0 break-words text-sm text-foreground">{chon}</span>
+        <button type="button" onClick={() => { setChon(null); setQ(''); setKetQua(null) }}
+          className="ml-auto shrink-0 text-sm text-muted-foreground underline">đổi</button>
       </div>
     )
   }
 
+  const tuKhoa = q.trim()
+  const ketQuaHienTai = ketQua?.tuKhoa === tuKhoa ? ketQua : null
+
   return (
     <div className="space-y-2">
-      <div className="relative">
-        <input
+      <div className="relative" onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false)
+      }} onKeyDown={(e) => {
+        if (e.key === 'Escape' && open && tuKhoa) {
+          e.stopPropagation()
+          oTim.current?.focus()
+          setOpen(false)
+        }
+      }}>
+        <Input ref={oTim} aria-label="Tìm khách hàng"
           value={q}
-          onChange={(e) => { setQ(e.target.value); setOpen(true) }}
+          onChange={(e) => { setQ(e.target.value); setKetQua(null); setOpen(true) }}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 200)}
           placeholder="Tìm khách theo tên hoặc SĐT…"
-          className="w-full rounded-lg border px-3 py-2 text-slate-900"
         />
-        {open && q.trim() && (
-          <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-white shadow-lg">
-            {sug.map((k) => (
+        {open && tuKhoa && (
+          <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-border bg-popover text-popover-foreground shadow-lg">
+            {ketQuaHienTai?.ds.map((k) => (
               <li key={k.id}>
                 <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pick(k)}
-                  className="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-100">
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-accent focus-visible:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
                   {k.full_name}
-                  {k.primary_phone && <span className="font-mono text-xs text-slate-400"> · {k.primary_phone}</span>}
-                  {k.trang_thai === 'cho_duyet' && <span className="text-[10px] text-amber-600"> · chờ duyệt</span>}
+                  {k.primary_phone && <span className="font-mono text-xs text-muted-foreground"> · {k.primary_phone}</span>}
+                  {k.trang_thai === 'cho_duyet' && <span className="text-[10px] text-(--color-text-warning)"> · chờ duyệt</span>}
                 </button>
               </li>
             ))}
-            {sug.length === 0 && <li className="px-3 py-1.5 text-xs text-slate-400">Không thấy — tạo khách mới bên dưới.</li>}
+            {!ketQuaHienTai?.ds.length && (
+              <li className="px-3 py-2 text-sm text-muted-foreground" role="status">
+                {!ketQuaHienTai ? 'Đang tìm…' : ketQuaHienTai.loi ? 'Chưa tìm được khách. Hãy thử lại.' : 'Không tìm thấy khách phù hợp.'}
+              </li>
+            )}
           </ul>
         )}
       </div>
 
       {!taoMo ? (
-        <button type="button" onClick={() => setTaoMo(true)}
-          className="text-sm text-slate-600 underline">+ Không có? Tạo khách mới</button>
+        <Button type="button" variant="ghost" onClick={() => setTaoMo(true)}>＋ Tạo khách mới</Button>
       ) : (
-        <div className="rounded-lg border p-3 space-y-2 bg-slate-50">
+        <div className="space-y-2 rounded-lg border border-border bg-muted p-3">
           <div className="grid sm:grid-cols-2 gap-2">
-            <input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })}
-              placeholder="Tên khách *" className="rounded-lg border px-3 py-2 text-sm text-slate-900" />
-            <input value={f.primary_phone}
+            <Input value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })}
+              aria-label="Tên khách" aria-required placeholder="Tên khách *" />
+            <Input value={f.primary_phone}
               onChange={(e) => { setF({ ...f, primary_phone: e.target.value }); setKhop(null) }}
               onBlur={traSdt} inputMode="tel"
-              placeholder="SĐT (để trống được)"
-              className="rounded-lg border px-3 py-2 text-sm text-slate-900 font-mono" />
-            <input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })}
-              placeholder="Địa chỉ" className="rounded-lg border px-3 py-2 text-sm text-slate-900 sm:col-span-2" />
-            <ChonTinh value={f.province} onChange={(v) => setF({ ...f, province: v })}
-              className="rounded-lg border px-3 py-2 text-sm text-slate-900 bg-white" />
+              aria-label="SĐT" placeholder="SĐT (để trống được)" className="font-mono" />
+            <Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })}
+              aria-label="Địa chỉ" placeholder="Địa chỉ" className="sm:col-span-2" />
+            <ChonTinh value={f.province} onChange={(v) => setF({ ...f, province: v })} />
           </div>
 
-          {dangTra && <p className="text-xs text-slate-400">Đang kiểm tra SĐT…</p>}
+          {dangTra && <p className="text-xs text-muted-foreground">Đang kiểm tra SĐT…</p>}
           {coGoSdt && !sdtHopLe(f.primary_phone) && (
-            <p className="text-xs text-amber-700">SĐT chưa đúng định dạng (vd 0xxxxxxxxx).</p>
+            <p className="text-xs text-(--color-text-warning)">SĐT chưa đúng định dạng (vd 0xxxxxxxxx).</p>
           )}
           {/* Cùng câu nhắc với trang `/khach/moi` — một tình huống thì cả app nói một câu. */}
           {!coGoSdt && f.full_name.trim() !== '' && (
-            <p className="rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
+            <p className="rounded-lg bg-(--color-background-warning-surface) px-2 py-1 text-xs text-(--color-text-warning)">
               Chưa có SĐT — vẫn tạo được. Hồ sơ sẽ vào danh sách <strong>“Cần xin lại SĐT”</strong>
               {' '}ở bảng khách để CS gọi xin sau. Đừng gõ số bừa cho qua.
             </p>
           )}
           {/* Cảnh báo mềm: lưu được nhưng chưa đúng chuẩn 10 số bắt đầu bằng 0. */}
           {sdtHopLe(f.primary_phone) && canhBaoSdt(f.primary_phone) && (
-            <p className="text-xs text-amber-600">{canhBaoSdt(f.primary_phone)}</p>
+            <p className="text-xs text-(--color-text-warning)">{canhBaoSdt(f.primary_phone)}</p>
           )}
 
           {khop?.nguon === 'cs' && khop.id && (
-            <div className="rounded-lg bg-amber-50 text-amber-900 px-3 py-2 text-sm space-y-1.5">
+            <div className="rounded-lg bg-(--color-background-warning-surface) text-(--color-text-warning) px-3 py-2 text-sm space-y-1.5">
               <p>SĐT này đã là khách: <strong>{khop.full_name ?? '—'}</strong>
                 {khop.trang_thai === 'cho_duyet' && ' (chờ duyệt)'} — không tạo trùng.</p>
-              <button type="button" onClick={() => chonCoSan(khop)}
-                className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-medium">Chọn khách này</button>
+              <Button type="button" size="sm" onClick={() => chonCoSan(khop)}>Chọn khách này</Button>
             </div>
           )}
           {khop?.nguon === 'sales' && (
-            <p className="text-xs bg-sky-50 text-sky-800 rounded-lg px-3 py-2">
+            <p className="text-xs bg-(--color-background-info-surface) text-(--color-text-info) rounded-lg px-3 py-2">
               Khớp khách đơn Sales — đã điền tên/tỉnh, sửa lại địa chỉ nếu cần rồi bấm Tạo (sẽ tự liên kết mã KH Sales).
             </p>
           )}
 
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={taoMoi}
-              disabled={busy || !f.full_name.trim() || (coGoSdt && !sdtHopLe(f.primary_phone)) || khop?.nguon === 'cs'}
-              className="rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium disabled:opacity-50">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" onClick={taoMoi} loading={busy}
+              disabled={!f.full_name.trim() || (coGoSdt && !sdtHopLe(f.primary_phone)) || khop?.nguon === 'cs'}>
               {busy ? 'Đang tạo…' : 'Tạo khách'}
-            </button>
-            <button type="button" onClick={() => { setTaoMo(false); setKhop(null) }} className="text-sm text-slate-500 underline">Đóng</button>
-            {err && <span className="text-sm text-red-600">{err}</span>}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => { setTaoMo(false); setKhop(null) }}>Đóng</Button>
+            {err && <span role="alert" className="basis-full text-sm text-(--color-text-danger)">{err}</span>}
           </div>
         </div>
       )}

@@ -18,11 +18,11 @@ export const TOI_THIEU_KY_TU = 2
  * `tim` phải GIỮ NGUYÊN tham chiếu giữa các lần render (hàm cấp module hoặc `useCallback`) — đổi tham chiếu là tìm lại.
  * `thieuKyTu` = chữ (đã trim) ngắn hơn `TOI_THIEU_KY_TU` → không gọi `tim`, ô nên nhắc gõ thêm.
  */
-export function useTimXa(
-  tim: (tuKhoa: string) => Promise<MucChon[]>,
+export function useTimXa<T = MucChon>(
+  tim: (tuKhoa: string) => Promise<T[]>,
   q: string
-): { ds: MucChon[]; dangTim: boolean; loi: string | null; thieuKyTu: boolean } {
-  const [ds, setDs] = useState<MucChon[]>([])
+): { ds: T[]; dangTim: boolean; loi: string | null; thieuKyTu: boolean } {
+  const [ds, setDs] = useState<T[]>([])
   const [dangTim, setDangTim] = useState(false)
   const [loi, setLoi] = useState<string | null>(null)
   const luot = useRef(0)

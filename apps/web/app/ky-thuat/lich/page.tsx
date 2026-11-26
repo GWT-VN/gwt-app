@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button-variants'
 import { Input } from '@/components/ui/input'
 import { ManV2 } from '@/components/khung/ManV2'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
@@ -12,6 +13,7 @@ import { LichKyThuatCalendar } from '@/components/LichKyThuatCalendar'
 import { BangDieuPhoiKT } from '@/components/BangDieuPhoiKT'
 import { LOAI_VIEC_KT } from '@/lib/danhSach'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
+import { chuanThang } from '@/lib/loi/tanSuatTrang'
 
 const iso = (d: Date) => d.toISOString().slice(0, 10)
 
@@ -38,7 +40,9 @@ export default async function XemLichKyThuatPage({
   const laCalendar = view === 'calendar'
   const laBoard = view === 'board'
   const now = new Date()
-  const thang = /^\d{4}-\d{2}$/.test(thangRaw ?? '') ? thangRaw! : now.toISOString().slice(0, 7)
+  const thang = chuanThang(thangRaw) ?? now.toISOString().slice(0, 7)
+  const [namLich, thangLich] = thang.split('-').map(Number)
+  const cuoiThang = iso(new Date(Date.UTC(namLich, thangLich, 0)))
   const tu = /^\d{4}-\d{2}-\d{2}$/.test(tuRaw ?? '') ? tuRaw! : iso(new Date(now.getTime() - 7 * 86400000))
   const den = /^\d{4}-\d{2}-\d{2}$/.test(denRaw ?? '') ? denRaw! : iso(new Date(now.getTime() + 45 * 86400000))
 
@@ -57,15 +61,15 @@ export default async function XemLichKyThuatPage({
   const rowsAll = laBoard
     ? await dsLichKyThuat(days[0], days[6], kt || undefined)
     : laCalendar
-      ? await dsLichKyThuat(`${thang}-01`, `${thang}-31`, kt || undefined)
+      ? await dsLichKyThuat(`${thang}-01`, cuoiThang, kt || undefined)
       : await dsLichKyThuat(tu, den, kt || undefined)
 
   // Danh sách tỉnh lấy từ TỈNH CỦA CHUYẾN (nơi có việc), không phải tỉnh của kỹ thuật.
   // Trước 31/08 lấy theo kỹ thuật nên danh sách hiện những tỉnh không có việc nào, còn
   // tỉnh CÓ việc mà chưa ai ở đó thì không hiện.
-  const dsTinh = [...new Set(rowsAll.map((r) => (r.tinh ?? '').trim()).filter(Boolean))]
+  const tinhOk = typeof tinh === 'string' ? tinh.trim() || undefined : undefined
+  const dsTinh = [...new Set([...(tinhOk ? [tinhOk] : []), ...rowsAll.map((r) => (r.tinh ?? '').trim()).filter(Boolean)])]
     .sort((a, b) => a.localeCompare(b, 'vi'))
-  const tinhOk = tinh && dsTinh.includes(tinh) ? tinh : undefined
 
   // Cột kỹ thuật trên bảng điều phối: khi lọc tỉnh thì chỉ giữ KT CÓ VIỆC ở tỉnh đó — bám
   // theo việc thật, chứ không theo tỉnh khai trong hồ sơ KT (một KT hoàn toàn có thể đi
@@ -154,13 +158,14 @@ export default async function XemLichKyThuatPage({
             <BangDieuPhoiKT kts={kt ? ktTrongTinh.filter((k) => k.id === kt) : ktTrongTinh} rows={rows} days={days} />
           </>
         ) : laCalendar ? (
-          <LichKyThuatCalendar thang={thang} rows={rows} kt={kt || undefined} loai={loai || undefined} />
+          <LichKyThuatCalendar thang={thang} rows={rows} kt={kt} loai={loai} tinh={tinhOk} />
         ) : (
           <>
             <form className="flex flex-wrap items-end gap-2 text-xs text-muted-foreground">
               <label>Từ<br /><Input type="date" name="tu" defaultValue={tu} className="mt-1" /></label>
               <label>Đến<br /><Input type="date" name="den" defaultValue={den} className="mt-1" /></label>
               <input type="hidden" name="view" value="list" />
+              {tinhOk && <input type="hidden" name="tinh" value={tinhOk} />}
               {kt && <input type="hidden" name="kt" value={kt} />}
               {loai && <input type="hidden" name="loai" value={loai} />}
               <Button type="submit">Lọc</Button>

@@ -17,7 +17,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition, useId } from 'react'
 import { luuNhap, banHanh, timKhachChoCtkm, type CtkmInput, type KhachCtkm } from './actions'
-import { OChonGoiY, OChonTimXa } from '@/bang'
+import { OChonTimXa } from '@/bang'
+import { Combobox } from '@/components/ui/combobox'
 import { giaSauGiam, mucApDung, type KieuGiam, type NhomTru } from '../_ctkm'
 
 type Kenh = { id: number; l1: string; l2: string }
@@ -63,7 +64,7 @@ function DanhSachKhach({
 }) {
   const the =
     mau === 'tru'
-      ? 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
+      ? 'bg-(--color-background-danger-surface) text-(--color-text-danger) ring-1 ring-(--color-border-danger-surface)'
       : 'bg-(--color-background-info-soft-alpha) text-(--color-text-info-soft) ring-1 ring-(--color-border-info-surface)'
   return (
     <div className="rounded-lg border border-dashed border-border bg-muted p-3">
@@ -72,6 +73,7 @@ function DanhSachKhach({
         <div className="w-full sm:w-[320px]">
           <OChonTimXa
             choTrong={choTrong}
+            nhan={moTa}
             tim={async (kw) => {
               const kq = await timKhachChoCtkm(kw)
               return kq.map((k) => ({
@@ -381,12 +383,12 @@ export function CtkmForm({
               <NativeSelectOption value="KHONG">KHÔNG giảm giá — chỉ tặng quà</NativeSelectOption>
             </NativeSelect></div>
           {!chiTangQua && (
-            <div><FieldLabel className="mb-1">Mức chung {kieu === 'PCT' ? '(%)' : '(₫)'}</FieldLabel>
-              <Input type="number" value={mucChung ?? ''} onChange={(e) => setMucChung(e.target.value === '' ? null : Number(e.target.value))} /></div>
+            <div><FieldLabel htmlFor={fieldId + '-mucChung'} className="mb-1">Mức chung {kieu === 'PCT' ? '(%)' : '(₫)'}</FieldLabel>
+              <Input id={fieldId + '-mucChung'} type="number" value={mucChung ?? ''} onChange={(e) => setMucChung(e.target.value === '' ? null : Number(e.target.value))} /></div>
           )}
           {kieu === 'PCT' && !chiTangQua && (
-            <div><FieldLabel className="mb-1">Giảm tối đa (₫)</FieldLabel>
-              <Input type="number" value={giamToiDa ?? ''} onChange={(e) => setGiamToiDa(e.target.value === '' ? null : Number(e.target.value))} />
+            <div><FieldLabel htmlFor={fieldId + '-giamToiDa'} className="mb-1">Giảm tối đa (₫)</FieldLabel>
+              <Input id={fieldId + '-giamToiDa'} type="number" value={giamToiDa ?? ''} onChange={(e) => setGiamToiDa(e.target.value === '' ? null : Number(e.target.value))} />
               <p className="mt-1 text-xs text-muted-foreground">Trần cho số tiền giảm</p></div>
           )}
         </div>
@@ -397,14 +399,15 @@ export function CtkmForm({
               Sản phẩm ({sp.length === 0 ? 'chưa chọn = áp mọi sản phẩm' : sp.length})
             </span>
                 <div className="w-full sm:w-[320px]">
-              <OChonGoiY
-                giaTri={null}
-                choPhepXoa={false}
-                choTrong="＋ Gõ mã hoặc tên sản phẩm…"
-                tuyChon={spDs
+              <Combobox
+                value={null}
+                aria-label="Chọn sản phẩm"
+                placeholder="Chọn sản phẩm"
+                searchPlaceholder="Gõ mã hoặc tên sản phẩm…"
+                options={spDs
                   .filter((s) => !sp.some((x) => x.internal_code === s.ma))
                   .map((s) => ({ gt: s.ma, nhan: s.ten, phu: s.gia ? tien(s.gia) : undefined }))}
-                onChon={(ma) => {
+                onValueChange={(ma) => {
                   if (ma && !sp.some((s) => s.internal_code === ma)) setSp((ds) => [...ds, { internal_code: ma, muc: null }])
                 }}
               />
@@ -432,7 +435,7 @@ export function CtkmForm({
                         {!chiTangQua && <>
                           <TableCell className="py-1.5 text-center">
                             <Input type="number" className="w-24 rounded border border-border px-2 py-1 text-right text-sm"
-                              placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
+                              aria-label={`Mức giảm riêng của ${s.internal_code}`} placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
                               onChange={(e) => setSp((ds) => ds.map((x, j) => j === i ? { ...x, muc: e.target.value === '' ? null : Number(e.target.value) } : x))} />
                           </TableCell>
                           <TableCell className="py-1.5 text-right font-semibold tabular-nums text-(--color-text-info)">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</TableCell>
@@ -479,12 +482,13 @@ export function CtkmForm({
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">Quà ({qua.length})</span>
                 <div className="w-full sm:w-[320px]">
-              <OChonGoiY
-                giaTri={null}
-                choPhepXoa={false}
-                choTrong="＋ Gõ mã hoặc tên quà tặng…"
-                tuyChon={spDs.map((s) => ({ gt: s.ma, nhan: s.ten, phu: s.gia ? tien(s.gia) : undefined }))}
-                onChon={(ma) => {
+              <Combobox
+                value={null}
+                aria-label="Chọn quà tặng"
+                placeholder="Chọn quà tặng"
+                searchPlaceholder="Gõ mã hoặc tên quà tặng…"
+                options={spDs.map((s) => ({ gt: s.ma, nhan: s.ten, phu: s.gia ? tien(s.gia) : undefined }))}
+                onValueChange={(ma) => {
                   if (ma) setQua((ds) => [...ds, { internal_code_qua: ma, so_luong: 1, gia_tri_quy_doi: giaCua(ma), dieu_kien: null }])
                 }}
               />
@@ -505,12 +509,12 @@ export function CtkmForm({
                     <div className="font-mono text-[11px] text-muted-foreground">{q.internal_code_qua}</div>
                   </div>
                   <Input type="number" className="col-span-3 sm:col-span-1 rounded border border-border px-2 py-1 text-right text-sm"
-                    value={q.so_luong} onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, so_luong: Number(e.target.value) || 1 } : x))} />
+                    aria-label={`Số lượng quà ${i + 1}`} value={q.so_luong} onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, so_luong: Number(e.target.value) || 1 } : x))} />
                   <Input type="number" className="col-span-5 sm:col-span-3 rounded border border-border px-2 py-1 text-right text-sm"
-                    value={q.gia_tri_quy_doi ?? ''} placeholder="giá trị quy đổi"
+                    aria-label={`Giá trị quy đổi quà ${i + 1}`} value={q.gia_tri_quy_doi ?? ''} placeholder="giá trị quy đổi"
                     onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, gia_tri_quy_doi: e.target.value === '' ? null : Number(e.target.value) } : x))} />
                   <Input className="col-span-11 sm:col-span-3 rounded border border-border px-2 py-1 text-sm"
-                    value={q.dieu_kien ?? ''} placeholder="điều kiện nhận"
+                    aria-label={`Điều kiện nhận quà ${i + 1}`} value={q.dieu_kien ?? ''} placeholder="điều kiện nhận"
                     onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, dieu_kien: e.target.value || null } : x))} />
                   <button type="button" className="col-span-1 text-muted-foreground hover:text-rose-600"
                     onClick={() => setQua((ds) => ds.filter((_, j) => j !== i))}>✕</button>

@@ -46,7 +46,7 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
     if (tu || den) di('', '')   // đổi chế độ -> xoá giá trị cũ cho khỏi lẫn
   }
 
-  const oNgay = 'rounded-lg border px-3 py-2 text-sm text-slate-900 bg-white'
+  const oNgay = 'min-w-0 max-w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground'
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Bộ giao diện bơm OChon (CauHinhBang) → dùng ô chọn đó; không thì <select> như cũ. */}
@@ -58,8 +58,8 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
           aria-label={`${nhan}: cách lọc`}
         />
       ) : (
-        <select value={che} onChange={(e) => doiChe(e.target.value as Che)}
-          className="rounded-lg border px-3 py-2 text-sm bg-white text-slate-700">
+        <select aria-label={`${nhan}: cách lọc`} value={che} onChange={(e) => doiChe(e.target.value as Che)}
+          className="max-w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
           {(Object.keys(NHAN_CHE) as Che[]).map((c) => (
             <option key={c} value={c}>{nhan} · {NHAN_CHE[c]}</option>
           ))}
@@ -67,20 +67,20 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
       )}
 
       {che === 'dung' && (
-        <input type="date" value={tu} onChange={(e) => di(e.target.value, e.target.value)} className={oNgay} />
+        <input type="date" aria-label={nhan} value={tu} onChange={(e) => di(e.target.value, e.target.value)} className={oNgay} />
       )}
       {che === 'sau' && (
-        <input type="date" value={tu} onChange={(e) => di(e.target.value, '')} className={oNgay} />
+        <input type="date" aria-label={`${nhan} từ ngày`} value={tu} onChange={(e) => di(e.target.value, '')} className={oNgay} />
       )}
       {che === 'truoc' && (
-        <input type="date" value={den} onChange={(e) => di('', e.target.value)} className={oNgay} />
+        <input type="date" aria-label={`${nhan} đến ngày`} value={den} onChange={(e) => di('', e.target.value)} className={oNgay} />
       )}
       {che === 'khoang' && (
         <>
-          <input type="date" value={tu} max={den || undefined}
+          <input type="date" aria-label={`${nhan} từ ngày`} value={tu} max={den || undefined}
             onChange={(e) => di(e.target.value, den)} className={oNgay} />
-          <span className="text-slate-400 text-sm">→</span>
-          <input type="date" value={den} min={tu || undefined}
+          <span aria-hidden className="text-sm text-muted-foreground">→</span>
+          <input type="date" aria-label={`${nhan} đến ngày`} value={den} min={tu || undefined}
             onChange={(e) => di(tu, e.target.value)} className={oNgay} />
         </>
       )}
@@ -97,7 +97,7 @@ export function LocNgay({ nhan = 'Ngày' }: { nhan?: string }) {
               setChe(k.tu === k.den ? 'dung' : 'khoang')
               di(k.tu, k.den)
             }}
-            className="rounded-full border border-slate-200 px-2.5 py-1 text-xs text-slate-500 hover:border-slate-300 hover:text-slate-700"
+            className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           >
             {p.nhan}
           </button>

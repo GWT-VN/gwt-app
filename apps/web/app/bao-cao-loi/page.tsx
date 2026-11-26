@@ -4,8 +4,10 @@ import { duLieuTanSuat, soMayDangChay } from '@/app/ticket/loi-actions'
 import { ManV2 } from '@/components/khung/ManV2'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { BoLocGoiY } from '@/bang'
 import { BangTanSuat } from '@/components/loi/BangTanSuat'
@@ -26,10 +28,11 @@ const TABS = [
 export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams
   const tab = (TABS.find((t) => t.key === mot(sp.tab))?.key ?? 'nhom') as (typeof TABS)[number]['key']
-  const [{ ca, ban, nhap }, { data: dangChay }] = await Promise.all([
-    duLieuTanSuat(), // gate cs.ticket.xem nằm trong action
-    docAnToan('soMayDangChay', () => soMayDangChay(), {} as Record<string, number>),
+  const [{ data: { ca, ban, nhap }, loi: loiDuLieu }, { data: dangChay, loi: loiDangChay }] = await Promise.all([
+    docAnToan('duLieuTanSuat', duLieuTanSuat, { ca: [], ban: [], nhap: [] }),
+    tab === 'may' ? docAnToan('soMayDangChay', soMayDangChay, {}) : Promise.resolve({ data: {}, loi: false }),
   ])
+  const loiBaoCao = loiDuLieu
   const caBC = ca as CaBaoCao[]
 
   // Theo nhóm / theo máy: mặc định toàn bộ dữ liệu; Theo tháng: 6 tháng gần nhất như trước.
@@ -58,6 +61,7 @@ export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Pr
   const rows = tab === 'thang' && thang.length ? tinhTanSuat(locCa(ca, { nhom, may, loi }), ban, nhap, { tu: thang[0], den: thang[thang.length - 1] }) : []
   const soLoi = new Set(loc.filter((c) => NHOM_CHINH.some((g) => g.code === c.nhom)).map((c) => c.ticket_code)).size
   const n = mot(sp.n) || null
+  const taiLai = new URLSearchParams(Object.entries(sp).map(([k, v]) => [k, mot(v)]))
 
   return (
     <ManV2>
@@ -65,7 +69,7 @@ export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Pr
         <TrangDuLieu className="space-y-4">
           <PageHeader
             tieuDe="Báo cáo lỗi"
-            meta={[
+            meta={loiBaoCao ? undefined : [
               tab === 'thang' ? `${rows.reduce((s, r) => s + r.so_ca, 0)} ca` : `${soLoi} ticket lỗi`,
               ...(tab === 'thang' ? [`${rows.length} dòng`] : []),
               `${tu} đến ${den}`,
@@ -84,36 +88,50 @@ export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Pr
             ))}
           </nav>
 
-          <form method="get" className="flex flex-wrap items-end gap-3">
-            <input type="hidden" name="tab" value={tab} />
-            <label className="text-sm text-muted-foreground">Từ tháng
-              <Input type="month" name="tu" defaultValue={tu} className="mt-1" />
-            </label>
-            <label className="text-sm text-muted-foreground">Đến tháng
-              <Input type="month" name="den" defaultValue={den} className="mt-1" />
-            </label>
-            {tab !== 'thang' && (
-              <label className="flex items-center gap-1.5 text-sm text-muted-foreground pb-1">
-                <input type="checkbox" name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
-              </label>
-            )}
-            {tab === 'thang' && nhom && <input type="hidden" name="nhom" value={nhom} />}
-            {tab === 'thang' && may && <input type="hidden" name="may" value={may} />}
-            {tab === 'thang' && loi && <input type="hidden" name="loi" value={loi} />}
-            {tab === 'nhom' && n && <input type="hidden" name="n" value={n} />}
-            <Button type="submit">Xem</Button>
-          </form>
-
-          {tab === 'nhom' && <TheoNhom ca={loc} n={n} s={mot(sp.s) || null} href={href} />}
-          {tab === 'may' && <TheoMay ca={loc} dangChay={dangChay} m={mot(sp.m) || null} mn={mot(sp.mn) || null} href={href} />}
-          {tab === 'thang' && (
+          {loiBaoCao ? (
+            <EmptyState kieu="loi" capTieuDe={2} tieuDe="Chưa tải được báo cáo lỗi"
+              moTa="Tải lại trang sau ít phút. Nếu tình trạng kéo dài, báo quản trị.">
+              <Button asChild size="sm"><a href={`/bao-cao-loi?${taiLai}`}>Tải lại</a></Button>
+            </EmptyState>
+          ) : (
             <>
-              <div className="flex flex-wrap gap-3">
-                <Suspense><BoLocGoiY param="nhom" nhan="Nhóm lỗi" tuyChon={[...nhomCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
-                <Suspense><BoLocGoiY param="may" nhan="Model" tuyChon={[...mayCo].sort().map((g) => ({ giaTri: g, nhan: g }))} /></Suspense>
-                <Suspense><BoLocGoiY param="loi" nhan="Loại lỗi" tuyChon={[...loiCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
-              </div>
-              <BangTanSuat rows={rows} thang={thang} />
+              <form method="get" className="flex flex-wrap items-end gap-3">
+                <input type="hidden" name="tab" value={tab} />
+                <label className="text-sm text-muted-foreground">Từ tháng
+                  <Input type="month" name="tu" defaultValue={tu} className="mt-1" />
+                </label>
+                <label className="text-sm text-muted-foreground">Đến tháng
+                  <Input type="month" name="den" defaultValue={den} className="mt-1" />
+                </label>
+                {tab !== 'thang' && (
+                  <label className="flex items-center gap-1.5 text-sm text-muted-foreground pb-1">
+                    <input type="checkbox" name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
+                  </label>
+                )}
+                {tab === 'thang' && nhom && <input type="hidden" name="nhom" value={nhom} />}
+                {tab === 'thang' && may && <input type="hidden" name="may" value={may} />}
+                {tab === 'thang' && loi && <input type="hidden" name="loi" value={loi} />}
+                {tab === 'nhom' && n && <input type="hidden" name="n" value={n} />}
+                <Button type="submit">Xem</Button>
+              </form>
+
+              {tab === 'nhom' && <TheoNhom ca={loc} n={n} s={mot(sp.s) || null} href={href} />}
+              {loiDangChay && (
+                <Alert color="warning">
+                  <AlertDescription>Chưa tải được số máy đang chạy. Tỷ lệ theo máy sẽ hiện khi dữ liệu có lại.</AlertDescription>
+                </Alert>
+              )}
+              {tab === 'may' && <TheoMay ca={loc} dangChay={dangChay} m={mot(sp.m) || null} mn={mot(sp.mn) || null} href={href} />}
+              {tab === 'thang' && (
+                <>
+                  <div className="flex flex-wrap gap-3">
+                    <Suspense><BoLocGoiY param="nhom" nhan="Nhóm lỗi" tuyChon={[...nhomCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
+                    <Suspense><BoLocGoiY param="may" nhan="Model" tuyChon={[...mayCo].sort().map((g) => ({ giaTri: g, nhan: g }))} /></Suspense>
+                    <Suspense><BoLocGoiY param="loi" nhan="Loại lỗi" tuyChon={[...loiCo].map(([giaTri, ten]) => ({ giaTri, nhan: ten }))} /></Suspense>
+                  </div>
+                  <BangTanSuat rows={rows} thang={thang} />
+                </>
+              )}
             </>
           )}
         </TrangDuLieu>

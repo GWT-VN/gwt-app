@@ -2,9 +2,9 @@
 import type { DongMay, LoiDanhMuc, TrangThaiDong } from './kieu'
 
 export const CHIP_TRANG_THAI: Record<TrangThaiDong, { nhan: string; lop: string }> = {
-  dang_xu_ly: { nhan: 'Đang xử lý', lop: 'bg-amber-100 text-amber-800' },
-  da_xu_ly: { nhan: 'Đã xử lý', lop: 'bg-emerald-100 text-emerald-800' },
-  khong_loi: { nhan: 'Không phải lỗi', lop: 'bg-slate-100 text-slate-700' },
+  dang_xu_ly: { nhan: 'Đang xử lý', lop: 'bg-(--color-background-warning-surface) text-(--color-text-warning)' },
+  da_xu_ly: { nhan: 'Đã xử lý', lop: 'bg-(--color-background-success-surface) text-(--color-text-success)' },
+  khong_loi: { nhan: 'Không phải lỗi', lop: 'bg-muted text-muted-foreground' },
 }
 export const chipTrangThai = (t: TrangThaiDong) => CHIP_TRANG_THAI[t]
 

@@ -105,10 +105,10 @@ export function DiaChiKhachList({
                       <input value={sua.dia_chi} onChange={(e) => setSua({ ...sua, dia_chi: e.target.value })}
                         className={oNho} />
                     </label>
-                    <label className="block w-44">
-                      <span className="text-xs text-slate-600">Tỉnh / TP</span>
+                    <div className="w-44">
+                      <p className="mb-1 text-xs text-muted-foreground">Tỉnh / TP</p>
                       <ChonTinh value={sua.tinh} onChange={(v) => setSua({ ...sua, tinh: v })} />
-                    </label>
+                    </div>
                     <label className="block">
                       <span className="text-xs text-slate-600">Loại</span>
                       <select value={sua.loai} onChange={(e) => setSua({ ...sua, loai: e.target.value })}
@@ -164,10 +164,10 @@ export function DiaChiKhachList({
           <input value={dc} onChange={(e) => setDc(e.target.value)}
             placeholder="Số nhà, đường, phường/xã, quận/huyện" className={oNho} />
         </label>
-        <label className="block w-44">
-          <span className="text-xs text-slate-600">Tỉnh / TP</span>
+        <div className="w-44">
+          <p className="mb-1 text-xs text-muted-foreground">Tỉnh / TP</p>
           <ChonTinh value={tinh} onChange={setTinh} />
-        </label>
+        </div>
         <label className="block">
           <span className="text-xs text-slate-600">Loại</span>
           <select value={loai} onChange={(e) => setLoai(e.target.value)} className={`${oNho} bg-white`}>

@@ -35,7 +35,7 @@ export default function Page() {
       {LUAT_GROUPS.map((group, gi) => (
         <div key={group.g} style={{ marginTop: 28 }}>
           <div className="page-head" style={{ margin: "0 0 12px" }}>
-            <h1 style={{ fontSize: "1.15rem", margin: "0 0 .2em" }}>{group.g}</h1>
+            <h2 style={{ fontSize: "1.15rem", margin: "0 0 .2em" }}>{group.g}</h2>
             <p style={{ fontSize: ".86rem" }}>{group.sub}</p>
           </div>
           <div className="principles">

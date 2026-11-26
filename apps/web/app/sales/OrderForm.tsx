@@ -6,15 +6,17 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Combobox } from '@/components/ui/combobox'
 import { FieldLabel } from '@/components/ui/field'
 import { FormFooter, FormLayout } from '@/components/ui/form-layout'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import { useEffect, useMemo, useRef, useState, useTransition, useId } from 'react'
+import { useEffect, useMemo, useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChonTinh } from '@/components/ChonTinh'
 import { taoDon, suaDon, timKhachChoDon, boiCanhGia } from './actions'
+import { useTimXa } from '@/bang/useTimXa'
 import { ChannelSelect } from './ChannelSelect'
 import { fmtVnd } from './_ui'
 import { deriveSourceTab } from './_calc'
@@ -73,66 +75,35 @@ function ProductPicker({
   catalog,
   code,
   name,
+  nhan,
   onPick,
 }: {
   catalog: CatalogPick[]
   code: string
   name: string
-  onPick: (c: CatalogPick) => void
+  nhan: string
+  onPick: (c: CatalogPick | null) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [q, setQ] = useState('')
-  const boxRef = useRef<HTMLDivElement>(null)
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase()
-    const arr = !s
-      ? catalog
-      : catalog.filter(
-          (c) =>
-            c.name.toLowerCase().includes(s) ||
-            c.internal_code.toLowerCase().includes(s) ||
-            (c.ma_cu ?? '').toLowerCase().includes(s) ||
-            (c.ma_doitac ?? '').toLowerCase().includes(s)
-        )
-    return arr.slice(0, 40)
-  }, [q, catalog])
-  useEffect(() => {
-    function onDoc(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [])
-  return (
-    <div className="relative" ref={boxRef}>
-      <Input
+  const options = catalog.map((c) => ({
+    gt: c.internal_code,
+    nhan: `${c.name} · ${c.internal_code}`,
+    phu: [c.ma_cu, c.ma_doitac].filter(Boolean).join(' · '),
+    anMa: true,
+  }))
+  if (code && !options.some((m) => m.gt === code)) {
+    options.push({ gt: code, nhan: name ? `${name} · ${code}` : code, phu: '', anMa: true })
+  }
 
-        placeholder="Gõ tên / mã nội bộ / mã cũ… hoặc bấm chọn"
-        value={open ? q : code ? `${name} (${code})` : ''}
-        onFocus={() => { setOpen(true); setQ('') }}
-        onChange={(e) => { setQ(e.target.value); setOpen(true) }}
-      />
-      {open && (
-        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card text-sm shadow-lg">
-          {filtered.length === 0 && <div className="px-3 py-2 text-muted-foreground">Không thấy sản phẩm khớp.</div>}
-          {filtered.map((c) => (
-            <button
-              key={c.internal_code}
-              type="button"
-              onClick={() => { onPick(c); setOpen(false); setQ('') }}
-              className="block w-full px-3 py-2 text-left hover:bg-muted"
-            >
-              <span className="text-foreground">{c.name}</span>
-              <span className="ml-1 font-mono text-xs text-muted-foreground">
-                {c.internal_code}
-                {c.ma_cu ? ` · cũ ${c.ma_cu}` : ''}
-              </span>
-            </button>
-          ))}
-          {filtered.length === 40 && <div className="px-3 py-1.5 text-[11px] text-muted-foreground">Gõ thêm để lọc hẹp hơn…</div>}
-        </div>
-      )}
-    </div>
+  return (
+    <Combobox value={code || null} options={options} aria-label={nhan}
+      placeholder="Chọn sản phẩm" searchPlaceholder="Gõ tên, mã nội bộ, mã cũ…"
+      onValueChange={(ma) => {
+        if (!ma) onPick(null)
+        else {
+          const c = catalog.find((m) => m.internal_code === ma)
+          if (c) onPick(c)
+        }
+      }} />
   )
 }
 
@@ -156,7 +127,8 @@ export function OrderForm({
   const initHasNewCust = !!initial && !initial.customer_code && !!(initial.customer_name || initial.phone)
   const [customerMode, setCustomerMode] = useState<'existing' | 'new'>(initHasNewCust ? 'new' : 'existing')
   const [custQuery, setCustQuery] = useState('')
-  const [custHits, setCustHits] = useState<CustomerHit[]>([])
+  const [custSearchOpen, setCustSearchOpen] = useState(false)
+  const { ds: custHits, dangTim: searching, loi: loiTimKhach, thieuKyTu } = useTimXa(timKhachChoDon, custSearchOpen ? custQuery : '')
   const [selectedCust, setSelectedCust] = useState<CustomerHit | null>(
     initial?.customer_code
       ? { customer_code: initial.customer_code, name: initial.customer_name, phone: initial.phone, phone_chuan: initial.phone, province: null, province_moi: null }
@@ -164,7 +136,6 @@ export function OrderForm({
   )
   const [newName, setNewName] = useState(initHasNewCust ? initial!.customer_name ?? '' : '')
   const [newPhone, setNewPhone] = useState(initHasNewCust ? initial!.phone ?? '' : '')
-  const [searching, startSearch] = useTransition()
 
   const [address, setAddress] = useState(initial?.address ?? '')
   const [province, setProvince] = useState(initial?.province ?? '')
@@ -345,11 +316,6 @@ export function OrderForm({
     ])
   }
 
-  function runSearch(q: string) {
-    setCustQuery(q)
-    if (q.trim().length < 2) return setCustHits([])
-    startSearch(async () => setCustHits((await timKhachChoDon(q)) as CustomerHit[]))
-  }
   const setLine = (key: number, patch: Partial<Line>) => setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)))
   const addLine = () => setLines((ls) => [...ls, emptyLine(Math.max(0, ...ls.map((l) => l.key)) + 1)])
   /**
@@ -455,7 +421,7 @@ export function OrderForm({
       {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       {/* Khách hàng */}
       <Card>
-        <div className="mb-3 flex items-center gap-4">
+        <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <span className="text-sm font-semibold text-foreground">Khách hàng</span>
           <div className="flex gap-1 text-sm">
             {(['existing', 'new'] as const).map((m) => (
@@ -463,6 +429,7 @@ export function OrderForm({
                 key={m}
                 type="button"
                 onClick={() => setCustomerMode(m)}
+                aria-pressed={customerMode === m}
                 className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent')}
               >
                 {m === 'existing' ? 'Khách cũ' : 'Khách mới'}
@@ -473,7 +440,7 @@ export function OrderForm({
 
         {customerMode === 'existing' ? (
           selectedCust ? (
-            <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) px-3 py-2 text-sm text-foreground">
               <span>
                 <b>{selectedCust.name || '(chưa tên)'}</b> · {selectedCust.phone_chuan || selectedCust.phone} ·{' '}
                 <span className="font-mono text-xs text-muted-foreground">{selectedCust.customer_code}</span>
@@ -481,20 +448,28 @@ export function OrderForm({
               <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedCust(null)}>Đổi</button>
             </div>
           ) : (
-            <div className="relative">
-              <Input placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery} onChange={(e) => runSearch(e.target.value)} />
-              {(searching || custHits.length > 0) && (
+            <div className="relative" onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget)) setCustSearchOpen(false)
+            }} onKeyDown={(e) => {
+              if (e.key === 'Escape') setCustSearchOpen(false)
+            }}>
+              <Input aria-label="Tìm khách hàng" placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery}
+                onFocus={() => setCustSearchOpen(true)}
+                onChange={(e) => { setCustQuery(e.target.value); setCustSearchOpen(true) }} />
+              {custSearchOpen && !thieuKyTu && (
                 <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
                   {searching && <div className="px-3 py-2 text-sm text-muted-foreground">Đang tìm…</div>}
-                  {custHits.map((h) => (
-                    <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustHits([]); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
+                  {!searching && !loiTimKhach && custHits.map((h) => (
+                    <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustSearchOpen(false); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
                       <b>{h.name || '(chưa tên)'}</b>{' '}
                       <span className="text-muted-foreground">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
                       <span className="ml-1 font-mono text-xs text-muted-foreground">{h.customer_code}</span>
                     </button>
                   ))}
-                  {!searching && custQuery.length >= 2 && custHits.length === 0 && (
-                    <div className="px-3 py-2 text-sm text-muted-foreground">Không thấy — chuyển sang <b>Khách mới</b>?</div>
+                  {!searching && (loiTimKhach || custHits.length === 0) && (
+                    <div role="status" className="px-3 py-2 text-sm text-muted-foreground">
+                      {loiTimKhach ? 'Chưa tìm được khách. Hãy thử lại.' : 'Không tìm thấy khách phù hợp.'}
+                    </div>
                   )}
                 </div>
               )}
@@ -516,7 +491,7 @@ export function OrderForm({
           <Button variant="outline" size="sm" onClick={addLine}>＋ Thêm dòng</Button>
         </div>
         {/* Hàng tiêu đề: các ô số bên phải rất hẹp, không có nhãn thì không đoán được ô nào là gì. */}
-        <div className="mb-1 hidden grid-cols-12 gap-2 px-2 text-[11px] uppercase tracking-wide text-muted-foreground sm:grid">
+        <div aria-hidden="true" className="mb-1 hidden grid-cols-12 gap-2 px-2 text-xs text-muted-foreground lg:grid">
           <span className="col-span-5">Sản phẩm</span>
           <span className="col-span-2 text-right">Số lượng</span>
           <span className="col-span-2 text-right">Đơn giá (gồm VAT)</span>
@@ -530,7 +505,7 @@ export function OrderForm({
             "rỗng thì thôi". Bản cũ gài điều kiện vào JSX (`bcGia.bac || bcGia.ctkm`) và
             ẩn sạch cả dải khi mọi chương trình đều cộng dồn — CEO gặp 24/08. */}
         {chip.length > 0 && (
-          <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-teal-50 px-3 py-2 text-sm text-teal-900">
+          <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-(--color-background-info-surface) px-3 py-2 text-sm text-(--color-text-info)">
             <span className="font-semibold">Đang áp:</span>
             {chip.map((c, i) => (
               <span
@@ -557,23 +532,25 @@ export function OrderForm({
           </div>
         )}
         <div className="space-y-2">
-          {lines.map((l) => (
-            <div key={l.key} className="rounded-lg border border-border bg-slate-50/50 p-2">
+          {lines.map((l, index) => (
+            <div key={l.key} className="rounded-lg border border-border bg-muted p-2">
               <div className="grid grid-cols-12 items-center gap-2">
-                <div className="col-span-12 sm:col-span-5">
+                <div className="col-span-12 lg:col-span-5">
+                  <span className="mb-1 block text-xs text-muted-foreground lg:hidden">Sản phẩm {index + 1}</span>
                   <ProductPicker
+                    nhan={`Sản phẩm dòng ${index + 1}`}
                     catalog={catalog}
                     code={l.internal_code}
                     name={l.product_name}
                     onPick={(c) =>
                       setLine(l.key, {
-                        internal_code: c.internal_code,
-                        product_name: c.name,
-                        category_l1: c.category_l1,
-                        category_l2: c.category_l2,
+                        internal_code: c?.internal_code ?? '',
+                        product_name: c?.name ?? '',
+                        category_l1: c?.category_l1 ?? null,
+                        category_l2: c?.category_l2 ?? null,
                         // VAT tự điền theo mã nội bộ (CEO chốt 21/08); mã chưa xếp loại VAT → 8% (đổi
                         // 05/11/2026), người nhập vẫn chọn lại được ở ô VAT.
-                        ...vatMacDinh(c.vat_pct, c.vat_loai),
+                        ...vatMacDinh(c?.vat_pct, c?.vat_loai),
                         // Đổi MÃ là đổi cả bảng giá -> trả ô đơn giá về cho app điền lại.
                         // Số cũ là giá của mã CŨ, giữ lại chỉ để lẫn sang mã mới.
                         giaTuGo: false,
@@ -582,8 +559,34 @@ export function OrderForm({
                     }
                   />
                 </div>
-                <Input type="number" min={0} className="col-span-3 sm:col-span-2 text-right" value={l.quantity} onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} title="Số lượng (DVBT = số lần)" />
-                <Input type="number" min={0} step="any" className="col-span-4 sm:col-span-2 text-right" value={l.unit_price_vat} onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} placeholder="Đơn giá (gồm VAT)" disabled={l.is_gift} title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra." />
+                <label className="col-span-6 lg:col-span-2">
+                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">Số lượng</span>
+                  <Input type="number" min={0} className="text-right tabular-nums" value={l.quantity}
+                    onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} />
+                </label>
+                <label className="col-span-6 lg:col-span-2">
+                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">Đơn giá (gồm VAT)</span>
+                  <Input type="number" min={0} step="any" className="text-right tabular-nums" value={l.unit_price_vat}
+                    onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} disabled={l.is_gift} />
+                </label>
+                <label className="col-span-6 lg:col-span-1">
+                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">VAT</span>
+                  <NativeSelect
+                    value={maVat(l.vat_pct, l.vat_loai)}
+                    onChange={(e) => {
+                      const v = VAT_OPTS.find((x) => x.ma === e.target.value)
+                      setLine(l.key, { vat_pct: v?.pct ?? null, vat_loai: v?.loai ?? null })
+                    }}
+                    title="Thuế suất VAT — KCT: không chịu thuế (muối) · KAD: không áp dụng (bình gas)"
+                  >
+                    {VAT_OPTS.map((v) => (
+                      <NativeSelectOption key={v.ma} value={v.ma}>{v.nhan}</NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                </label>
+                <ChoiceLabel className="col-span-4 flex items-center justify-center gap-1 self-end pb-2 text-xs text-muted-foreground lg:col-span-1 lg:self-center lg:pb-0" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
+                <Button type="button" variant="ghost" size="icon-sm" onClick={() => removeLine(l.key)}
+                  className="col-span-2 justify-self-end self-end lg:col-span-1 lg:self-center" aria-label={`Xoá dòng ${index + 1}`}>✕</Button>
                 <LineGiaNhan
                   g={goiY[l.key]}
                   daGo={Number(l.unit_price_vat) || 0}
@@ -591,24 +594,8 @@ export function OrderForm({
                   onApLai={(v) => setLine(l.key, { unit_price_vat: v, giaTuGo: false })}
                   tuDien={!l.giaTuGo}
                 />
-                <div className="col-span-2 sm:col-span-1">
-                  <NativeSelect className="text-right"
-                  value={maVat(l.vat_pct, l.vat_loai)}
-                  onChange={(e) => {
-                    const v = VAT_OPTS.find((x) => x.ma === e.target.value)
-                    setLine(l.key, { vat_pct: v?.pct ?? null, vat_loai: v?.loai ?? null })
-                  }}
-                  title="Thuế suất VAT — KCT: không chịu thuế (muối) · KAD: không áp dụng (bình gas)"
-                >
-                  {VAT_OPTS.map((v) => (
-                    <NativeSelectOption key={v.ma} value={v.ma}>{v.nhan}</NativeSelectOption>
-                  ))}
-                </NativeSelect>
-                </div>
-                <ChoiceLabel className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1 text-xs text-muted-foreground" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
-                <button type="button" onClick={() => removeLine(l.key)} className="col-span-1 text-muted-foreground hover:text-rose-600" title="Xoá dòng">✕</button>
               </div>
-              <Input className="mt-1.5 text-xs" value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
+              <Input aria-label={`Ghi chú dòng ${index + 1}`} className="mt-1.5 text-xs" value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
             </div>
           ))}
         </div>
@@ -616,8 +603,8 @@ export function OrderForm({
             Quà là hàng phải xuất kho thật; app tự đẻ dòng hàng mà nhân viên không để ý
             là kho giao thừa. Hiện ra và để họ bấm, kèm điều kiện nhận để họ đọc trước. */}
         {quaCtkm.length > 0 && (
-          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-emerald-800">
+          <div className="mt-3 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) p-3">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-(--color-text-success)">
               🎁 Quà theo chương trình đang áp
             </div>
             <div className="space-y-1.5">
@@ -626,10 +613,10 @@ export function OrderForm({
                   <span className="font-medium text-foreground">{q.ten}</span>
                   <span className="font-mono text-[11px] text-muted-foreground">{q.ma}</span>
                   <span className="text-muted-foreground">× {q.soLuong}</span>
-                  {q.dieuKien && <span className="text-xs text-amber-700">· điều kiện: {q.dieuKien}</span>}
+                  {q.dieuKien && <span className="text-xs text-(--color-text-warning)">· điều kiện: {q.dieuKien}</span>}
                   <span className="flex-1" />
                   {quaDaThem.has(q.ma) ? (
-                    <span className="text-xs text-emerald-700">✓ đã có trong đơn</span>
+                    <span className="text-xs text-(--color-text-success)">✓ đã có trong đơn</span>
                   ) : (
                     <button type="button" onClick={() => themQua(q)}
                       className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700">
@@ -639,7 +626,7 @@ export function OrderForm({
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-emerald-800/70">
+            <p className="mt-2 text-[11px] text-(--color-text-success)">
               Thêm vào đơn = một dòng hàng tick <b>Quà</b>, tính <b>0 đ</b>. App không tự thêm —
               quà phải xuất kho thật nên để anh chị bấm.
             </p>
@@ -844,7 +831,7 @@ function LineGiaNhan({
   return (
     <div className="col-span-12 -mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-xs">
       {g.nguon === 'KHONG_RO' ? (
-        <span className="text-amber-600">⚠ {g.nhan} — nhập tay giúp.</span>
+        <span className="text-(--color-text-warning)">⚠ {g.nhan} — nhập tay giúp.</span>
       ) : (
         <span className={g.nguon === 'NIEM_YET' ? 'text-muted-foreground' : 'text-(--color-text-info)'}>
           {g.nguon === 'NIEM_YET' ? 'Giá niêm yết' : `Theo ${g.nhan}`}
@@ -857,9 +844,9 @@ function LineGiaNhan({
         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">app tự điền</span>
       )}
       {!tuDien && (
-        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">giá gõ tay — app không tự đổi</span>
+        <span className="rounded bg-(--color-background-warning-surface) px-1.5 py-0.5 text-[10px] text-(--color-text-warning)">giá gõ tay — app không tự đổi</span>
       )}
-      {duoi && <span className="text-rose-600">⚠ đang bán THẤP HƠN mức đã duyệt</span>}
+      {duoi && <span className="text-(--color-text-danger)">⚠ đang bán THẤP HƠN mức đã duyệt</span>}
       {lech && g.gia != null && (
         <button type="button" onClick={() => onApLai(g.gia as number)}
           className="text-(--color-text-info) underline hover:text-teal-900">áp lại giá này</button>

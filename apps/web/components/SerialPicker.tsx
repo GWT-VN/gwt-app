@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { searchSerials, createSerialPending, type SerialRow } from '@/app/actions'
 
 /**
@@ -46,31 +47,32 @@ export function SerialPicker({
   const khop = danhSach.some((s) => s.serial === t)
 
   return (
-    <div className="relative flex-1 min-w-52">
-      <input
+    <div className="relative min-w-0 flex-1" onBlur={(e) => {
+      if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false)
+    }}>
+      <Input aria-label={placeholder ?? 'Serial máy'}
         value={value}
         onChange={(e) => { onChange(e.target.value); setOpen(true); setMsg(null) }}
         onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 200)}
         placeholder={placeholder}
-        className="w-full rounded-lg border px-3 py-2 text-slate-900 font-mono text-sm"
+        className="font-mono"
       />
-      {msg && <p className="text-[10px] text-slate-500 mt-0.5">{msg}</p>}
+      {msg && <p role="status" className="mt-1 text-sm text-muted-foreground">{msg}</p>}
       {hienGoiY && (
-        <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-white shadow-lg">
+        <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-border bg-popover shadow-lg">
           {danhSach.map((s) => (
             <li key={s.serial}>
               <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pick(s)}
-                className="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-mono">
+                className="w-full px-3 py-2 text-left font-mono text-xs hover:bg-accent focus-visible:bg-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
                 {s.serial}
-                <span className="text-slate-400"> · {s.internal_code ?? s.model ?? ''}</span>
+                <span className="text-muted-foreground"> · {s.internal_code ?? s.model ?? ''}</span>
               </button>
             </li>
           ))}
           {!khop && (
             <li className="px-3 py-1.5 text-xs border-t">
               <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={tao} disabled={busy}
-                className="text-amber-700 hover:underline disabled:opacity-50">
+                className="break-words text-left text-(--color-text-warning) hover:underline disabled:opacity-50">
                 {busy ? 'Đang gửi…' : `+ Chưa có — tạo “${t}” (chờ duyệt)`}
               </button>
             </li>

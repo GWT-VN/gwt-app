@@ -1,5 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
 import { createBrowserClient } from '@supabase/ssr'
 import { useState } from 'react'
 import { doiMatKhauBatBuoc } from '@/app/auth/actions'
@@ -64,14 +67,14 @@ export function DoiMatKhau({
 
   return (
     <form onSubmit={luu} className="space-y-2 max-w-sm">
-      <input type="password" value={mk} onChange={(e) => setMk(e.target.value)} placeholder="Mật khẩu mới"
-        autoComplete="new-password" className="w-full rounded-lg border px-3 py-2 text-sm" />
-      <input type="password" value={mk2} onChange={(e) => setMk2(e.target.value)} placeholder="Nhập lại mật khẩu mới"
-        autoComplete="new-password" className="w-full rounded-lg border px-3 py-2 text-sm" />
+      <Input type="password" value={mk} onChange={(e) => setMk(e.target.value)} aria-label="Mật khẩu mới" placeholder="Mật khẩu mới"
+        autoComplete="new-password" />
+      <Input type="password" value={mk2} onChange={(e) => setMk2(e.target.value)} aria-label="Nhập lại mật khẩu mới" placeholder="Nhập lại mật khẩu mới"
+        autoComplete="new-password" />
       <div className="flex items-center gap-2">
-        <button type="submit" disabled={busy} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">{busy ? 'Đang lưu…' : nhan}</button>
-        {ok && <span className="text-sm text-emerald-700">Đã đổi mật khẩu.</span>}
-        {err && <span className="text-sm text-red-600">{err}</span>}
+        <Button type="submit" loading={busy}>{busy ? 'Đang lưu…' : nhan}</Button>
+        {ok && <span role="status" className="text-sm text-(--color-text-success)">Đã đổi mật khẩu.</span>}
+        {err && <span role="alert" className="text-sm text-(--color-text-danger)">{err}</span>}
       </div>
     </form>
   )

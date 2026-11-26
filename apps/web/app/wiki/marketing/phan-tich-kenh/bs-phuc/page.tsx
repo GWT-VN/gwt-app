@@ -99,7 +99,7 @@ export default function Page() {
 
       {/* 1. Hệ 3 kênh */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>1. Hệ thống 3 kênh chạy song song</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>1. Hệ thống 3 kênh chạy song song</h2>
         <p>Cùng một nhân vật + cùng công thức kịch bản, chạy trên 3 kênh đóng 3 vai khác nhau.</p>
       </div>
       <TableWrap vien tabIndex={0} aria-label="Ba kênh">
@@ -128,7 +128,7 @@ export default function Page() {
 
       {/* 2. Flow chung */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>2. Flow chung — công thức 9 bước lặp lại</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>2. Flow chung — công thức 9 bước lặp lại</h2>
         <p>Gần như mọi video chạy trên cùng một khung xương. Nắm được khung này là viết kịch bản mới rất nhanh.</p>
       </div>
       <div className="card">
@@ -155,7 +155,7 @@ export default function Page() {
 
       {/* 3. Kỹ thuật giữ chân */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>3. Kỹ thuật giữ chân người xem</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>3. Kỹ thuật giữ chân người xem</h2>
       </div>
       <TableWrap vien tabIndex={0} aria-label="Kỹ thuật giữ chân">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Kỹ thuật giữ chân">
@@ -174,7 +174,7 @@ export default function Page() {
 
       {/* 4. Mô hình 5A */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>4. Kênh nhìn qua mô hình 5A (Kotler)</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>4. Kênh nhìn qua mô hình 5A (Kotler)</h2>
         <p>A1 Nhận biết → A2 Cuốn hút → A3 Tìm hiểu → A4 Hành động → A5 Ủng hộ. Kênh không chỉ làm video — kênh chạy cả một phễu.</p>
       </div>
       <TableWrap vien tabIndex={0} aria-label="Mô hình 5A">
@@ -201,7 +201,7 @@ export default function Page() {
 
       {/* 5. Đa kênh */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>5. Vì sao chạy nhiều kênh + view chênh nhau</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>5. Vì sao chạy nhiều kênh + view chênh nhau</h2>
       </div>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <div className="card">
@@ -231,7 +231,7 @@ export default function Page() {
 
       {/* 6. Playbook GWT */}
       <div className="page-head" style={{ marginTop: 22 }}>
-        <h1 style={{ fontSize: "1.25rem" }}>6. Rút ra cho GWT — kích comment về nước</h1>
+        <h2 style={{ fontSize: "1.25rem" }}>6. Rút ra cho GWT — kích comment về nước</h2>
         <p>4 đòn kích comment (từ đối chiếu vid trứng vs vid cơm), viết lại theo góc nước. Bản dùng lại đầy đủ ở Kho hook.</p>
       </div>
       <div className="card">

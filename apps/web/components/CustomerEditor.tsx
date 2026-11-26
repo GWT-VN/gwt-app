@@ -90,10 +90,10 @@ export function CustomerEditor({ customer, contacts }: { customer: Customer; con
               <span className="block text-xs text-amber-600 mt-1">{canhBaoSdt(c.primary_phone)}</span>
             )}
           </label>
-          <label className="block">
-            <span className="text-sm text-slate-700">Tỉnh/TP</span>
+          <div>
+            <p className="mb-1 text-sm text-foreground">Tỉnh / TP</p>
             <ChonTinh value={c.province} onChange={(v) => setC({ ...c, province: v })} />
-          </label>
+          </div>
           <label className="block sm:col-span-2">
             <span className="text-sm text-slate-700">Địa chỉ</span>
             <input value={c.address ?? ''} onChange={(e) => setC({ ...c, address: e.target.value })}

@@ -126,7 +126,7 @@ export function RosterKyThuat({
           <Input value={vung} onChange={(e) => setVung(e.target.value)} aria-label="Vùng (vd: bắc/nam)" placeholder="Vùng (vd: bắc/nam)" className="w-full sm:w-40" />
           {/* Tỉnh phụ trách — dùng ô gõ-để-tìm chung `ChonTinh` (64 tỉnh, luật CEO chốt 22/08).
               KHÁC ô "Vùng" bên cạnh: vùng chỉ để tính lịch tránh ngày nghỉ, tỉnh để điều phối. */}
-          <ChonTinh value={tinh} onChange={setTinh} className="rounded-(--radius-md) border px-3 py-1.5 text-sm bg-card w-full sm:w-44" />
+          <ChonTinh value={tinh} onChange={setTinh} className="w-full sm:w-44" />
           <Input value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Email (để cấp đăng nhập)" placeholder="Email (để cấp đăng nhập)" className="w-full sm:w-56" />
           <label className="flex items-center gap-1.5 text-sm text-muted-foreground"><Checkbox checked={ctv} onCheckedChange={(checked) => setCtv(checked === true)} /> CTV</label>
           <Button size="sm" onClick={them} disabled={busy === 'them' || !!trungTen}>{busy === 'them' ? '…' : khoiPhuc ? 'Khôi phục' : 'Thêm'}</Button>
@@ -152,7 +152,7 @@ export function RosterKyThuat({
                   <Input value={eTen} onChange={(e) => setETen(e.target.value)} aria-label="Tên" placeholder="Tên" className="w-full sm:w-40" />
                   <Input value={eSdt} onChange={(e) => setESdt(e.target.value)} aria-label="SĐT" placeholder="SĐT" className="w-full sm:w-40" />
                   <Input value={eVung} onChange={(e) => setEVung(e.target.value)} aria-label="Vùng" placeholder="Vùng" className="w-full sm:w-40" />
-                  <ChonTinh value={eTinh} onChange={setETinh} className="rounded-(--radius-md) border px-3 py-1.5 text-sm bg-card w-full sm:w-44" />
+                  <ChonTinh value={eTinh} onChange={setETinh} className="w-full sm:w-44" />
                   <Input value={eEmail} onChange={(e) => setEEmail(e.target.value)} aria-label="Email" placeholder="Email" className="w-full sm:w-56" />
                   <label className="flex items-center gap-1.5 text-sm text-muted-foreground"><Checkbox checked={eCtv} onCheckedChange={(checked) => setECtv(checked === true)} /> CTV</label>
                   <Button size="sm" onClick={() => luuSua(k.id)} disabled={busy === k.id}>Lưu</Button>

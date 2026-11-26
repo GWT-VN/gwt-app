@@ -208,6 +208,7 @@ function TimKhach({
     <div className="relative">
       <Input
 
+        aria-label="Tìm khách để gán cấp đại lý"
         placeholder="Gõ tên / SĐT / mã khách…"
         value={q}
         onChange={(e) => { setQ(e.target.value); onTim(e.target.value) }}

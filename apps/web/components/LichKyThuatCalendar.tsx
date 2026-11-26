@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import type { LichKyThuatRow } from '@/app/actions'
 
 const THU = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
@@ -27,7 +28,7 @@ function tenThang(thang: string): string {
  * lọc kỹ thuật + loại việc đang chọn. Bấm chip → thấy đúng chuyến đó kèm đủ nút.
  */
 export function LichKyThuatCalendar(
-  { thang, rows, kt, loai }: { thang: string; rows: LichKyThuatRow[]; kt?: string; loai?: string }
+  { thang, rows, kt, loai, tinh }: { thang: string; rows: LichKyThuatRow[]; kt?: string; loai?: string; tinh?: string }
 ) {
   const [y, m] = thang.split('-').map(Number)
   const soNgay = new Date(Date.UTC(y, m, 0)).getUTCDate()
@@ -43,54 +44,56 @@ export function LichKyThuatCalendar(
   for (let d = 1; d <= soNgay; d++) o.push(d)
   while (o.length % 7 !== 0) o.push(null)
 
-  const qs = (t: string) => new URLSearchParams({ thang: t, ...(kt ? { kt } : {}), ...(loai ? { loai } : {}) }).toString()
+  const loc = { ...(kt ? { kt } : {}), ...(loai ? { loai } : {}), ...(tinh ? { tinh } : {}) }
+  const qs = (t: string) => new URLSearchParams({ view: 'calendar', thang: t, ...loc })
   /** Về view Danh sách, thu hẹp đúng MỘT ngày — chỗ duy nhất có nút đổi trạng thái. */
   const linkNgay = (d: number) => {
     const ngay = `${thang}-${String(d).padStart(2, '0')}`
     return `/ky-thuat/lich?${new URLSearchParams({
-      view: 'list', tu: ngay, den: ngay, ...(kt ? { kt } : {}), ...(loai ? { loai } : {}),
+      view: 'list', tu: ngay, den: ngay, ...loc,
     })}`
   }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Link href={`/ky-thuat/lich?view=calendar&${qs(thangKe(thang, -1))}`} className="rounded-lg border px-2.5 py-1 text-sm hover:bg-slate-50">←</Link>
-          <h2 className="font-medium text-slate-900 min-w-36 text-center">{tenThang(thang)}</h2>
-          <Link href={`/ky-thuat/lich?view=calendar&${qs(thangKe(thang, 1))}`} className="rounded-lg border px-2.5 py-1 text-sm hover:bg-slate-50">→</Link>
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/ky-thuat/lich?${qs(thangKe(thang, -1))}`} aria-label="Tháng trước">←</Link></Button>
+          <h2 className="min-w-24 text-center text-sm font-medium text-foreground">{tenThang(thang)}</h2>
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/ky-thuat/lich?${qs(thangKe(thang, 1))}`} aria-label="Tháng sau">→</Link></Button>
         </div>
-        <span className="text-sm text-slate-500">{rows.length} chuyến trong tháng</span>
+        <span className="text-sm text-muted-foreground">{rows.length} chuyến trong tháng</span>
       </div>
 
-      <div className="bg-white rounded-xl border overflow-x-auto">
-        <div className="grid grid-cols-7 min-w-[42rem]">
+      <div role="region" aria-label="Lịch tháng kỹ thuật"
+        className="@container overflow-hidden rounded-xl border border-border bg-card">
+        <div className="grid grid-cols-7">
           {THU.map((t) => (
-            <div key={t} className={`px-2 py-2 text-xs font-medium text-center border-b ${t === 'CN' ? 'text-red-500' : t === 'T7' ? 'text-sky-600' : 'text-slate-500'}`}>{t}</div>
+            <div key={t} className={`border-b px-1 py-2 text-center text-xs font-medium ${t === 'CN' ? 'text-(--color-text-danger)' : t === 'T7' ? 'text-(--color-text-info)' : 'text-muted-foreground'}`}>{t}</div>
           ))}
           {o.map((d, i) => {
             const list = d ? theoNgay.get(d) ?? [] : []
             return (
-              <div key={i} className={`min-h-[5.5rem] border-b border-r p-1 align-top ${i % 7 === 6 ? 'bg-red-50/30' : ''}`}>
+              <div key={i} className={`min-w-0 min-h-13 @min-[42rem]:min-h-[5.5rem] border-b border-r p-1 align-top ${i % 7 === 6 ? 'bg-muted/40' : ''}`}>
                 {d && (
                   <>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400">{d}</span>
+                    <div className="flex flex-col items-center gap-1 @min-[42rem]:flex-row @min-[42rem]:justify-between">
+                      <span className="text-xs text-muted-foreground">{d}</span>
                       {list.length > 0 && (
                         <Link href={linkNgay(d)} prefetch={false}
-                          className="text-[10px] bg-slate-900 text-white rounded-full px-1.5 hover:bg-slate-700">{list.length}</Link>
+                          aria-label={`${list.length} chuyến ngày ${d}`} className="text-xs bg-primary text-primary-foreground rounded-full px-1.5 hover:opacity-80">{list.length}</Link>
                       )}
                     </div>
-                    <div className="space-y-0.5 mt-0.5">
+                    <div className="mt-0.5 hidden space-y-0.5 @min-[42rem]:block">
                       {list.slice(0, 4).map((r) => (
                         <Link key={r.id} href={linkNgay(d)} prefetch={false}
-                          className={`block truncate rounded px-1 py-0.5 text-[10px] hover:ring-1 hover:ring-slate-400 ${r.trang_thai === 'xong' ? 'bg-emerald-100 text-emerald-800' : r.trang_thai === 'huy' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-sky-100 text-sky-800'}`}
+                          className={`block truncate rounded px-1 py-0.5 text-xs hover:ring-1 hover:ring-ring ${r.trang_thai === 'xong' ? 'bg-(--color-background-success-surface) text-(--color-text-success)' : r.trang_thai === 'huy' ? 'bg-muted text-muted-foreground line-through' : 'bg-(--color-background-info-surface) text-(--color-text-info)'}`}
                           title={`${r.ten_ky_thuat ?? ''} · ${r.ten_khach ?? r.dia_chi ?? ''} — bấm để mở ngày này ở Danh sách`}>
                           {r.ten_ky_thuat ?? 'KT'}{r.ten_khach ? ` · ${r.ten_khach}` : ''}
                         </Link>
                       ))}
                       {list.length > 4 && (
-                        <Link href={linkNgay(d)} prefetch={false} className="block text-[10px] text-slate-400 underline">+{list.length - 4} nữa</Link>
+                        <Link href={linkNgay(d)} prefetch={false} className="block text-xs text-muted-foreground underline">+{list.length - 4} nữa</Link>
                       )}
                     </div>
                   </>

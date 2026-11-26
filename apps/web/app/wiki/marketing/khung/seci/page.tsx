@@ -77,7 +77,7 @@ export default function Page() {
       </div>
 
       <div className="page-head" style={{ marginTop: 26 }}>
-        <h1 style={{ fontSize: "1.2rem" }}>Agenda buổi gợi ý</h1>
+        <h2 style={{ fontSize: "1.2rem" }}>Agenda buổi gợi ý</h2>
       </div>
       <div className="steps">
         {AGENDA.map(([t, d]) => (
