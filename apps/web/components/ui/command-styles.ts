@@ -29,9 +29,13 @@ export const commandInputWrapper = [
   'border-none border-current [border-bottom:1px_solid_var(--border)] focus-within:[border-bottom-color:var(--alpha-50)]',
 ].join(' ')
 export const commandInputIcon = 'size-4 shrink-0 text-muted-foreground'
-/** Ô gõ: 14/20 400, placeholder tertiary, không viền/nền; tắt → not-allowed + mờ 50 (shadcn). */
+/**
+ * Ô gõ: 14/20 400, placeholder tertiary, không viền/nền; tắt → not-allowed + mờ 50 (shadcn). Caret ẩn khi ô còn trống
+ * (CEO 26/11 "bỏ line đậm ở phần search" — ô tự focus khi mở nên caret đen nhấp nháy ngay đầu placeholder); gõ chữ là
+ * caret hiện lại để biết chỗ sửa.
+ */
 export const commandInput = [
-  'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none]',
+  'flex-1 min-w-0 h-full border-none border-current bg-transparent [outline:none] placeholder-shown:caret-transparent',
   'text-[14px] leading-[20px] font-normal text-foreground placeholder:text-(--color-text-tertiary)',
   'disabled:cursor-not-allowed disabled:opacity-50',
 ].join(' ')
