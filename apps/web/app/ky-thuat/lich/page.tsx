@@ -5,6 +5,7 @@ import { LichKyThuatList } from '@/components/LichKyThuatList'
 import { LichKyThuatCalendar } from '@/components/LichKyThuatCalendar'
 import { BangDieuPhoiKT } from '@/components/BangDieuPhoiKT'
 import { LOAI_VIEC_KT } from '@/lib/danhSach'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const iso = (d: Date) => d.toISOString().slice(0, 10)
 
@@ -142,7 +143,7 @@ export default async function XemLichKyThuatPage({
           <>
             <div className="flex items-center justify-between gap-2">
               <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanTruoc, ...giuLoc })}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">← Tuần trước</Link>
-              <span className="text-sm text-slate-600">Tuần {days[0].slice(8)}/{days[0].slice(5, 7)} – {days[6].slice(8)}/{days[6].slice(5, 7)}</span>
+              <span className="text-sm text-slate-600">Tuần {hienNgay(days[0])} – {hienNgay(days[6])}</span>
               <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanSau, ...giuLoc })}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">Tuần sau →</Link>
             </div>
             <BangDieuPhoiKT kts={kt ? ktTrongTinh.filter((k) => k.id === kt) : ktTrongTinh} rows={rows} days={days} />

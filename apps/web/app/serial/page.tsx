@@ -11,12 +11,8 @@ import { NhapKhoSerial } from '@/components/NhapKhoSerial'
 import { DoiTrangThaiKho } from '@/components/DoiTrangThaiKho'
 import { TrangThaiCauHinh } from '@/components/TrangThaiCauHinh'
 import { KhungChon, OChonTatCa, OChonDong, ThanhDaChon } from '@/bang'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
-/** Mốc thời gian trạng thái -> dd/mm/yy gọn (luc là timestamptz, chỉ lấy phần ngày). */
-function ngayNgan(luc: string): string {
-  const [y, m, d] = luc.slice(0, 10).split('-')
-  return `${d}/${m}/${y.slice(2)}`
-}
 
 export default async function SerialPage({
   searchParams,
@@ -160,7 +156,7 @@ export default async function SerialPage({
                         {(s.trang_thai_luc || s.trang_thai_ghi_chu) && (
                           <div className="text-[11px] text-slate-500 mt-1">
                             {s.trang_thai_ghi_chu && <span>📍 {s.trang_thai_ghi_chu}</span>}
-                            {s.trang_thai_luc && <span className="text-slate-400">{s.trang_thai_ghi_chu ? ' · ' : ''}{ngayNgan(s.trang_thai_luc)}</span>}
+                            {s.trang_thai_luc && <span className="text-slate-400">{s.trang_thai_ghi_chu ? ' · ' : ''}{hienNgay(s.trang_thai_luc)}</span>}
                           </div>
                         )}
                       </td>

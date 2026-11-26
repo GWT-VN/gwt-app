@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { huyLapMay, suaNgayBaoHanhBo, type ThongTinLap } from '@/app/may/huy-lap-actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
-const vn = (d: string | null) => (d ? d.slice(0, 10).split('-').reverse().join('/') : '—')
+const vn = (d: string | null) => hienNgay(d?.slice(0, 10))
 const nut = 'rounded-lg border bg-white px-3 py-1.5 text-sm disabled:opacity-50'
 
 /**

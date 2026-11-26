@@ -1,13 +1,8 @@
 import type { ReactNode } from 'react'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const TRICH = 70
 
-/** 'YYYY-MM-DDTHH…Z' → 'dd/mm/yyyy' theo giờ Việt Nam. */
-function ngayVN(iso: string): string {
-  const d = new Date(Date.parse(iso) + 7 * 3600_000).toISOString().slice(0, 10)
-  const [y, m, n] = d.split('-')
-  return `${n}/${m}/${y}`
-}
 
 /** Dòng tóm tắt khi khối đóng: số dòng + trích dòng mới nhất (1 dòng, cắt ~70 ký tự). */
 export function tomTatNhatKy(notes: readonly { noi_dung: string; created_at: string }[]): string {
@@ -15,7 +10,7 @@ export function tomTatNhatKy(notes: readonly { noi_dung: string; created_at: str
   const moi = notes.reduce((a, b) => (Date.parse(b.created_at) > Date.parse(a.created_at) ? b : a))
   const gon = moi.noi_dung.replace(/\s+/g, ' ').trim()
   const trich = gon.length > TRICH ? `${gon.slice(0, TRICH).trimEnd()}…` : gon
-  return `${notes.length} dòng · mới nhất ${ngayVN(moi.created_at)}: ${trich}`
+  return `${notes.length} dòng · mới nhất ${hienNgay(moi.created_at)}: ${trich}`
 }
 
 /**

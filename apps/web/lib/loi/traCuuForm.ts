@@ -2,13 +2,12 @@
 import { chuanHoaSerial, kiemDangSerial } from './serial'
 import type { DongMayInput, KetQuaTraSerial, KhachVaMay } from './kieu'
 import type { MucChon } from '@/bang'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 export const SO_DONG_TOI_DA = 20
 
-export const ngayVN = (iso: string | null | undefined): string => {
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? '')
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : '—'
-}
+/** 10 ký tự ngày đầu (cắt, không đổi múi) → mặc định `hienNgay` (dd/MM, khác năm dd/MM/yy); không có → '—'. */
+export const ngayVN = (iso: string | null | undefined): string => hienNgay(/^\d{4}-\d{2}-\d{2}/.exec(iso ?? '')?.[0])
 
 export const dongThem = (d: DongMayInput[]): DongMayInput[] => (d.length >= SO_DONG_TOI_DA ? d : [...d, {}])
 export const dongBo = (d: DongMayInput[], i: number): DongMayInput[] => (d.length <= 1 ? d : d.filter((_, j) => j !== i))

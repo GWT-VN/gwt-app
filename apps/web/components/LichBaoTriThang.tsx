@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { LuotThang } from '@/app/actions'
 import { ngayDayDu, oCuaThang, thangHienTai, thangKe } from '@/lib/lichThang'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const THU = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
@@ -9,9 +10,6 @@ function tenThang(thang: string): string {
   return `Tháng ${Number(m)}/${y}`
 }
 
-function vnNgay(ngay: string): string {
-  return `${ngay.slice(8, 10)}/${ngay.slice(5, 7)}/${ngay.slice(0, 4)}`
-}
 
 /**
  * Calendar bảo trì theo THÁNG — nhìn tháng này có bao nhiêu lượt, rơi ngày nào.
@@ -114,7 +112,7 @@ export function LichBaoTriThang({
       {ngay && (
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <h3 className="px-4 py-3 border-b border-slate-200 text-sm font-semibold text-slate-900">
-            Ngày {vnNgay(ngay)} · {luotCuaNgay.length} lượt
+            Ngày {hienNgay(ngay)} · {luotCuaNgay.length} lượt
           </h3>
           {luotCuaNgay.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-slate-400">Không có lượt bảo trì nào ngày này.</p>

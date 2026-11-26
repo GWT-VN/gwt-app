@@ -1,4 +1,5 @@
 import type { Ticket } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const STATE: Record<string, { label: string; cls: string }> = {
   Open:   { label: 'Đang mở',  cls: 'bg-amber-100 text-amber-800' },
@@ -47,9 +48,5 @@ export function MayThieuBadge({ t }: { t: Ticket }) {
   )
 }
 
-export function vnDateTime(s: string | null) {
-  if (!s) return '—'
-  const d = new Date(s)
-  return d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric',
-                                     hour: '2-digit', minute: '2-digit' })
-}
+/** Mốc có giờ → "dd/MM/yy HH:mm" giờ VN (`hienNgay` kiểu 'gio', CEO 26/11). */
+export const vnDateTime = (s: string | null) => hienNgay(s, 'gio')

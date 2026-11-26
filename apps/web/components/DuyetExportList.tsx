@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { duyetExport, tuChoiExport, type YeuCauExport } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 /** Yêu cầu xuất danh sách CÓ PII (SĐT/địa chỉ) chờ admin duyệt. */
 export function DuyetExportList({ items }: { items: YeuCauExport[] }) {
@@ -28,7 +29,7 @@ export function DuyetExportList({ items }: { items: YeuCauExport[] }) {
             <div className="min-w-0">
               <div className="text-slate-900">Xuất khách <strong>có SĐT/địa chỉ</strong></div>
               {y.tieu_chi?.q ? <div className="text-slate-500 text-xs">lọc: “{String(y.tieu_chi.q)}”</div> : <div className="text-slate-400 text-xs">toàn bộ</div>}
-              <div className="text-[11px] text-slate-400">{y.nguoi_gui ?? '—'} · {new Date(y.created_at).toLocaleString('vi-VN', { hour12: false })}</div>
+              <div className="text-[11px] text-slate-400">{y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}</div>
             </div>
             <div className="flex gap-2 flex-none">
               <button onClick={() => lam(y.id, true)} disabled={busy === y.id}

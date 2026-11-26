@@ -1,5 +1,6 @@
 import type { Machine } from '@/app/actions'
 import { laMaBo } from '@/lib/danhSach'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 /** Trạng thái bảo hành -> badge. Phân biệt rõ 3 ca: còn hạn / hết hạn / không tính được. */
 export function WarrantyBadge({ m }: { m: Machine }) {
@@ -19,8 +20,5 @@ export function WarrantyBadge({ m }: { m: Machine }) {
   return <span className="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700">Hết bảo hành</span>
 }
 
-export function vnDate(d: string | null) {
-  if (!d) return '—'
-  const [y, m, day] = d.split('-')
-  return `${day}/${m}/${y}`
-}
+/** Ngày 'YYYY-MM-DD' → mặc định toàn app (`hienNgay`: dd/MM, khác năm dd/MM/yy — CEO 26/11). */
+export const vnDate = (d: string | null) => hienNgay(d)

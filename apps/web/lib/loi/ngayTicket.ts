@@ -1,3 +1,5 @@
+import { hienNgay } from '@/lib/dinh-dang-ngay'
+
 // Ngày khách báo của từng lần lỗi + CS theo dõi (4 tên) — hàm thuần, dùng chung client/server.
 // Ngày lưu dạng 'YYYY-MM-DD' (cột date); trống → dùng created_at như trước.
 
@@ -42,9 +44,5 @@ export function soNgayMo(tu: string, den: string): number {
   return Math.round((Date.parse(`${den}T00:00:00Z`) - Date.parse(`${tu}T00:00:00Z`)) / 86_400_000)
 }
 
-/** 'YYYY-MM-DD' → 'dd/mm/yyyy'. */
-export function ngayVNHienThi(ngay: string | null): string {
-  if (!ngay) return ''
-  const [y, m, d] = ngay.split('-')
-  return `${d}/${m}/${y}`
-}
+/** 'YYYY-MM-DD' → mặc định toàn app (`hienNgay`: dd/MM, khác năm dd/MM/yy); trống → ''. */
+export const ngayVNHienThi = (ngay: string | null): string => hienNgay(ngay, undefined, { rong: '' })

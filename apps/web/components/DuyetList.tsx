@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { duyetYeuCau, duyetNhieuYeuCau, tuChoiYeuCau, type YeuCauThayDoi } from '@/app/actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const NHAN_BANG: Record<string, string> = {
   cs_customers: 'Khách',
@@ -125,7 +126,7 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
               {/* Với gop, ly_do đã hiện làm dòng tóm tắt chính ở trên — không lặp lại nhỏ xám bên dưới. */}
               {y.ly_do && y.loai !== 'gop' && <div className="text-xs text-slate-400 mt-0.5">{y.ly_do}</div>}
               <div className="text-[11px] text-slate-400 mt-0.5">
-                {y.nguoi_gui ?? '—'} · {new Date(y.created_at).toLocaleString('vi-VN', { hour12: false })}
+                {y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}
               </div>
             </div>
             <div className="flex gap-2 flex-none">

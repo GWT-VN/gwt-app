@@ -5,7 +5,7 @@ import type { KhachVaMay } from './kieu'
 const S1 = 'A12345678ABC12345678'
 describe('ngayVN', () => {
   it('yyyy-mm-dd -> dd/mm/yyyy, rỗng -> —', () => {
-    expect(ngayVN('2026-03-07')).toBe('07/03/2026')
+    expect(ngayVN('2024-03-07')).toBe('07/03/24') // năm đã qua → dd/MM/yy (mặc định hienNgay)
     expect(ngayVN(null)).toBe('—')
   })
 })

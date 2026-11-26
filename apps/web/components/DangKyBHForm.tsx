@@ -13,12 +13,11 @@ import { ChonCatalog } from '@/components/ChonCatalog'
 import { ChonTinh } from '@/components/ChonTinh'
 import Link from 'next/link'
 import { dsMayCatalog, kichHoatChuaSerial } from '@/app/may/chua-serial-actions'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 
-function vn(d: string | null) {
-  return d ? new Date(d).toLocaleDateString('vi-VN') : '—'
-}
+const vn = (d: string | null) => hienNgay(d)
 
 /**
  * Đăng ký + kích hoạt bảo hành (Đợt 1).

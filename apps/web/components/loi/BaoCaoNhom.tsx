@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { theoMay, theoSerial, theoSku, tenNhom, tomTatNhom, type CaBaoCao } from '@/lib/loi/baoCaoNhom'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 // Báo cáo lỗi theo 4 nhóm: server component, đi sâu bằng link (?n=…&s=… / ?m=…&mn=…), không cần JS.
 export type Href = (doi: Record<string, string | null>) => string
@@ -15,7 +16,7 @@ const TT: Record<string, { nhan: string; lop: string }> = {
   Done: { nhan: 'Đã xong', lop: 'bg-emerald-100 text-emerald-800' },
   Cancel: { nhan: 'Đã huỷ', lop: 'bg-slate-100 text-slate-500' },
 }
-const ngayVN = (d: string) => d.slice(0, 10).split('-').reverse().join('/')
+const ngayVN = (d: string) => hienNgay(d.slice(0, 10))
 const ChipTT = ({ st }: { st: string }) => <span className={`rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${TT[st]?.lop ?? 'bg-slate-100'}`}>{TT[st]?.nhan ?? st}</span>
 const LinkTicket = ({ ma }: { ma: string }) => <Link href={`/ticket/${encodeURIComponent(ma)}`} prefetch={false} className="font-mono text-xs text-teal-700 underline">{ma}</Link>
 const Vach = ({ phan, lop }: { phan: number; lop: string }) => (

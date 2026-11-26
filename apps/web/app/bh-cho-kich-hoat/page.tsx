@@ -4,6 +4,7 @@ import { BHChoKichHoatList } from '@/components/BHChoKichHoatList'
 import { dsMayChoSerial } from '@/app/may/chua-serial-actions'
 import { docAnToan } from '@/lib/loi/anToan'
 import { boDau } from '@/bang/timkiem'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const TAB = [
   { key: '', nhan: 'Tất cả' },
@@ -13,7 +14,7 @@ const TAB = [
   { key: 'cho_serial', nhan: 'Đã kích hoạt — chờ bổ sung serial' },
 ] as const
 
-const vnNgay = (d: string | null) => (d ? d.split('-').reverse().join('/') : '—')
+const vnNgay = (d: string | null) => hienNgay(d)
 
 export default async function BHChoKichHoatPage({
   searchParams,

@@ -1,9 +1,14 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/app/may/huy-lap-actions', () => ({ huyLapMay: vi.fn(), suaNgayBaoHanhBo: vi.fn() }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }))
 import { QuanLyLap } from './QuanLyLap'
+
+// Mặc định `hienNgay` (CEO 26/11): cùng năm dd/MM, khác năm dd/MM/yy — khoá "bây giờ" ở 26/11/2026 để chữ ngày trong
+// test không đổi theo năm chạy.
+beforeAll(() => vi.useFakeTimers({ now: new Date('2026-11-26T03:00:00Z'), toFake: ['Date'] }))
+afterAll(() => vi.useRealTimers())
 import type { ThongTinLap } from '@/app/may/huy-lap-actions'
 
 const bo: ThongTinLap = {
@@ -17,8 +22,8 @@ const bo: ThongTinLap = {
 describe('QuanLyLap', () => {
   it('bộ: danh sách thiết bị + hạn BH, nút sửa ngày cả bộ, nút huỷ', () => {
     const h = renderToStaticMarkup(<QuanLyLap serial="WH30AECO202611002" tt={bo} choSua />)
-    for (const t of ['Thiết bị trong bộ (2)', 'F00000214AW1N00040039', '15/11/2027', 'chưa có hạn', 'chờ bổ sung serial',
-      'Sửa ngày bảo hành cả bộ (đang 15/11/2026)', 'Huỷ bộ (nhập nhầm)']) expect(h).toContain(t)
+    for (const t of ['Thiết bị trong bộ (2)', 'F00000214AW1N00040039', '15/11/27', 'chưa có hạn', 'chờ bổ sung serial',
+      'Sửa ngày bảo hành cả bộ (đang 15/11)', 'Huỷ bộ (nhập nhầm)']) expect(h).toContain(t)
   })
   it('huy_duoc = false (thiết bị trong bộ) → không có nút huỷ', () => {
     const h = renderToStaticMarkup(<QuanLyLap serial="B" tt={{ ...bo, huy_duoc: false }} choSua />)

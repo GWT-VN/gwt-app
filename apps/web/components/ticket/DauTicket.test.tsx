@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/app/actions', () => ({ updateTicket: vi.fn() }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ datCsTheoDoi: vi.fn() }))
@@ -8,6 +8,11 @@ vi.mock('@/app/ticket/nguoi-actions', () => ({
 }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
 import { DauTicket } from './DauTicket'
+
+// Mặc định `hienNgay` (CEO 26/11): cùng năm dd/MM, khác năm dd/MM/yy — khoá "bây giờ" ở 26/11/2026 để chữ ngày trong
+// test không đổi theo năm chạy.
+beforeAll(() => vi.useFakeTimers({ now: new Date('2026-11-26T03:00:00Z'), toFake: ['Date'] }))
+afterAll(() => vi.useRealTimers())
 
 const co = {
   code: 'GWT-260024', loai: 'Rò rỉ nước', model: 'CTS20', tinh: 'Đà Nẵng', state: 'Open', khan: false,
@@ -18,7 +23,7 @@ const co = {
 describe('DauTicket', () => {
   it('mã, loại, model, tỉnh + tóm tắt mở N ngày, K lần, lần cuối', () => {
     const h = renderToStaticMarkup(<DauTicket {...co} />)
-    for (const t of ['GWT-260024', 'Rò rỉ nước', 'CTS20', 'Đà Nẵng', 'Mở 65 ngày', '3 lần lỗi', 'lần cuối 14/10/2026']) expect(h).toContain(t)
+    for (const t of ['GWT-260024', 'Rò rỉ nước', 'CTS20', 'Đà Nẵng', 'Mở 65 ngày', '3 lần lỗi', 'lần cuối 14/10']) expect(h).toContain(t)
   })
   it('4 ô sửa nhanh; CS theo dõi đúng 4 tên', () => {
     const h = renderToStaticMarkup(<DauTicket {...co} />)
