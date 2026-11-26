@@ -16,8 +16,12 @@ const doc = (p: string) =>
 // thấy chữ của việc cũ — và bản nháp bình luận còn sót có thể gửi nhầm sang việc
 // vừa mở. Bản vá là `key={mo}` ở MỌI chỗ dựng panel; test này giữ nó ở đó.
 describe('ChiTietViec — mọi chỗ dựng panel đều truyền key', () => {
-  // v2 (23/11): mọi màn Việc (của tôi, Bảng team, Tự sinh) dựng panel qua KhungXemViec (<XemNhanhViec>).
-  const NOI_DUNG = [['components/work/v2/KhungXemViec.tsx', '<XemNhanhViec']]
+  // v2 (23/11): mọi màn Việc (của tôi, Bảng team, Tự sinh) dựng panel qua KhungXemViec → useTheViec. Từ 26/11 thẻ có
+  // tab (bố cục ticket F): mỗi tab + chân là một khối riêng, khối nào cũng phải mang key theo việc.
+  const NOI_DUNG = ['<TongQuan', '<ViecCon', '<HoatDong', '<LienKet', '<Chan'].map((x) => [
+    'components/work/v2/XemNhanh.tsx',
+    x,
+  ])
 
   for (const [f, the0] of NOI_DUNG) {
     it(`${f} truyền key cho ${the0}>`, () => {

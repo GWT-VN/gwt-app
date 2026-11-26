@@ -1,16 +1,49 @@
 'use client'
 
 /**
- * "Xem nhanh một việc" v2 — NỘI DUNG thẻ xem nhanh (canvas WorkChiTiet, CEO duyệt 23/11). Màn đặt nó vào `the.noiDung`
- * của `XemNhanh` DS (components/ui/xem-nhanh.tsx — khung đó lo đầu mã · ‹ › · ✕, Esc, cuộn); file này không vẽ khung.
- * Thứ tự khối theo canvas: ưu tiên + trạng thái → tiêu đề → dòng phụ → Đánh dấu xong → Xử lý → Gắn với → Mô tả → Việc con
- * → Phụ thuộc → Hoạt động → Composer. Chỉ ghép component DS; nghiệp vụ giữ y bản cũ components/work/ChiTietViec.tsx
- * (quyền `co_the_sua`, việc con, chặn/đang chặn, @nhắc tên, nhật ký). Mọi action trả `KQ` (không ném).
+ * "Xem nhanh một việc" v2 — dữ liệu `the` cho khung DS `XemNhanh` (components/ui/xem-nhanh.tsx: đầu "MÃ · tiêu đề", ‹ ›,
+ * ✕, Esc, hàng tab, chân dính đáy). Bố cục theo thẻ Xem nhanh ticket F (CEO 26/11 "làm layout popup công việc cho giống
+ * popup này" — mẫu app/ticket/_danh-sach/xem-nhanh-f.tsx): tab line có icon Tổng quan · Việc con · Hoạt động · Liên kết;
+ * Tổng quan = nhóm gập/mở (Accordion) gồm dòng icon + nhãn mờ · giá trị sửa tại chỗ; chân = ⋮ + Đánh dấu xong.
+ * Khác mẫu có chủ đích: mỗi hành động MỘT chỗ (không lặp ở nhóm và chân); trường trống hiện "—" (không lặp tên nhãn).
+ * Nghiệp vụ giữ y bản trước (quyền `co_the_sua`, việc con, chặn/đang chặn, @nhắc tên, nhật ký). Mọi action trả `KQ`.
  */
-import { xemKhoi, xemPhu, xemTen } from '@/components/ui/detail-styles'
+import { xemPhu } from '@/components/ui/detail-styles'
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Check, PencilSimple, Plus, X } from '@phosphor-icons/react/ssr'
+import {
+  AddressBook,
+  ArrowRight,
+  CalendarBlank,
+  ChatText,
+  Check,
+  CircleHalf,
+  Clock,
+  Copy,
+  DotsThreeVertical,
+  Eye,
+  Flag,
+  Globe,
+  HourglassMedium,
+  House,
+  LinkSimple,
+  ListChecks,
+  PencilSimple,
+  Plus,
+  Prohibit,
+  Receipt,
+  SealCheck,
+  ShieldCheck,
+  Sparkle,
+  TextT,
+  Ticket as IconTicket,
+  TreeStructure,
+  User,
+  UserCircle,
+  Users,
+  UsersThree,
+  X,
+} from '@phosphor-icons/react/ssr'
 import { boDau, type MucChon } from '@/bang'
 import {
   boErp,
@@ -30,6 +63,7 @@ import {
   type KQ,
   type NenTang,
 } from '@/app/work/actions'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Alert, AlertActions, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, chuCaiDau } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -38,7 +72,8 @@ import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { ComboboxPanel } from '@/components/ui/combobox'
 import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Composer } from '@/components/ui/composer'
-import { propsTitle } from '@/components/ui/detail-styles'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { EmptyState } from '@/components/ui/empty-state'
 import { ChipTrangThai, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai, type MucNhan } from '@/components/ui/inline-edit'
 import { cat, nguoi, nutThem } from '@/components/ui/inline-edit-styles'
 import { Input } from '@/components/ui/input'
@@ -50,12 +85,13 @@ import { thongBao } from '@/components/ui/sonner'
 import { Textarea } from '@/components/ui/textarea'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import { TooltipNhanh } from '@/components/ui/tooltip'
+import type { XemNhanh as KhungXemNhanh } from '@/components/ui/xem-nhanh'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 import { cn } from '@/lib/utils'
 import {
   chenNhac,
   chiaTheoNhac,
   duongDanLink,
-  mocThoiGian,
   moTaNhatKy,
   NHAN_LOAI_LINK,
   NHAN_TRANG_THAI,
@@ -67,27 +103,36 @@ import { chac, doiNguoiChinh, HanChu, hanLuu, hanO, TT, UU, type Uu } from './ch
 
 type Ct = ChiTietViec
 type ViecNho = Ct['subtasks'][number]
+type The = NonNullable<Parameters<typeof KhungXemNhanh>[0]['the']>
+
+/** Tab của thẻ (bên gọi giữ — lật ‹ › giữ tab, đóng thẻ về Tổng quan). */
+export const TAB_VIEC = ['tong', 'con', 'hd', 'lk'] as const
+export type TabViec = (typeof TAB_VIEC)[number]
 
 const LOAI: LoaiLink[] = ['khach', 'ticket', 'don']
+const ICON_LOAI: Record<LoaiLink, ReactNode> = {
+  khach: <AddressBook aria-hidden="true" />,
+  ticket: <IconTicket aria-hidden="true" />,
+  don: <Receipt aria-hidden="true" />,
+}
 const CHO_TRONG: Record<LoaiLink, string> = {
   khach: 'Gõ tên khách, mã hoặc số điện thoại…',
   ticket: 'Gõ mã ticket hoặc nội dung…',
   don: 'Gõ mã đơn hoặc tên khách…',
 }
-const PHAM_VI: Record<string, string> = { private: 'chỉ mình tôi', team: 'cả team', company: 'toàn công ty' }
+const PHAM_VI: Record<string, string> = { private: 'Chỉ mình tôi', team: 'Cả team', company: 'Toàn công ty' }
 /** Vai phụ (owner = "Người chính" riêng một dòng). */
 const VAI_PHU = [
-  { v: 'doer', ten: 'Làm cùng' },
-  { v: 'reviewer', ten: 'Duyệt' },
-  { v: 'watcher', ten: 'Theo dõi' },
+  { v: 'doer', ten: 'Làm cùng', icon: <Users aria-hidden="true" /> },
+  { v: 'reviewer', ten: 'Duyệt', icon: <SealCheck aria-hidden="true" /> },
+  { v: 'watcher', ten: 'Theo dõi', icon: <Eye aria-hidden="true" /> },
 ] as const
 const roi = (s: string) => s === 'done' || s === 'cancelled'
 
-/* `.b-ct-*` của DS: components/ui/detail-styles.ts. */
-const KHOI = xemKhoi
-const TEN = xemTen
 const PHU = xemPhu
-/** Hàng chip trong ô PropertyList (người, liên kết): xuống dòng khi hẹp. */
+/** Chữ tiêu đề trong ô giá trị: 14/20 medium, xuống dòng đủ. */
+const TEN = 'min-w-0 font-medium [overflow-wrap:anywhere] border-none border-current'
+/** Hàng chip trong ô PropertyList (liên kết): xuống dòng khi hẹp. */
 const HANG = 'flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-none border-current'
 const CUM = 'inline-flex min-w-0 items-center gap-0.5 border-none border-current'
 /** Danh sách người của một vai: mỗi người một dòng (cao 32 = dòng nhãn), nút "+ Thêm người" dòng riêng bên dưới. */
@@ -100,26 +145,70 @@ const KHUNG_CHON = cn(
   menuContent,
   'w-auto min-w-[240px] max-w-[calc(100vw-16px)] max-h-(--radix-popover-content-available-height)',
 )
+/** Cột dọc của một tab (như khối tab của ticket F). */
+const COT = 'flex flex-col gap-3 border-none border-current'
 
 const mucTT = (s: string) => TT.find((m) => m.gt === s) ?? { gt: s, nhan: NHAN_TRANG_THAI[s] ?? s }
 
-export function XemNhanh({
+/** Một dòng trường như mẫu ticket F: icon + nhãn mờ (cột trái) · giá trị; trống → "—" (không lặp tên trường). */
+function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; children?: ReactNode }) {
+  return (
+    <PropertyRow
+      nhan={
+        <>
+          {icon}
+          {nhan}
+        </>
+      }
+      trong="—"
+    >
+      {children}
+    </PropertyRow>
+  )
+}
+
+/** Mọi tab dùng chung: chi tiết đã tải + hai cách ghi. */
+type Ctx = {
+  ct: Ct
+  nenTang: NenTang
+  sua: boolean
+  /** Ghi một lần: lỗi → toast (thẻ giữ nguyên), trả false; xong → tải lại + báo màn. */
+  chay: (p: Promise<KQ<unknown>>, viec: string) => Promise<boolean>
+  /** Cho ô sửa tại chỗ DS: lỗi phải NÉM (ô trả giá trị cũ + toast Thử lại); ô tự báo xong + Hoàn tác. */
+  luu: (p: Promise<KQ<unknown>>) => Promise<void>
+  sau: () => Promise<void>
+  onMoViec: (id: number) => void
+}
+
+/**
+ * Tải chi tiết việc `taskId` và dựng `the` cho khung DS. `taskId` null → null (thẻ đóng). Đang tải / lỗi → thân thường
+ * (Skeleton / Alert Thử lại), chưa có tab.
+ */
+export function useTheViec({
   taskId,
+  ma,
   nenTang,
+  tab,
+  onTab,
   onDong,
   onMoViec,
   onDoi,
 }: {
-  taskId: number
+  taskId: number | null
+  /** Mã hiện ở đầu thẻ lúc đang tải (ref trong danh sách). */
+  ma: string
   nenTang: NenTang
+  tab: TabViec
+  onTab: (v: TabViec) => void
   onDong: () => void
   /** Bấm việc con / việc cha / việc chặn → mở việc đó (thẻ nhảy sang, không đóng). */
   onMoViec: (id: number) => void
   /** Sau mỗi lần ghi thành công (màn gọi `router.refresh()`). */
   onDoi: () => void
-}) {
+}): The | null {
   const [tai, setTai] = useState<{ id: number; kq: KQ<Ct> } | null>(null)
   useEffect(() => {
+    if (!taskId) return
     let huy = false
     void chiTietViec(taskId).then((kq) => {
       if (!huy) setTai({ id: taskId, kq })
@@ -129,6 +218,7 @@ export function XemNhanh({
     }
   }, [taskId])
   const taiLai = useCallback(async () => {
+    if (!taskId) return
     const kq = await chiTietViec(taskId)
     // Đã nhảy sang việc khác trong lúc chờ → bỏ kết quả cũ.
     setTai((cu) => (cu && cu.id !== taskId ? cu : { id: taskId, kq }))
@@ -138,30 +228,71 @@ export function XemNhanh({
     onDoi()
   }, [taiLai, onDoi])
 
-  if (!tai || tai.id !== taskId) return <DangTai />
+  if (!taskId) return null
+  if (!tai || tai.id !== taskId) return { ma, noiDung: <DangTai /> }
   if (!tai.kq.ok)
-    return (
-      <Alert color="danger">
-        <AlertTitle>Chưa mở được việc</AlertTitle>
-        <AlertDescription>{tai.kq.loi}</AlertDescription>
-        <AlertActions>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              setTai(null)
-              void taiLai()
-            }}
-          >
-            Thử lại
-          </Button>
-          <Button size="sm" variant="ghost" onClick={onDong}>
-            Đóng
-          </Button>
-        </AlertActions>
-      </Alert>
-    )
-  return <NoiDung key={taskId} ct={tai.kq.duLieu} nenTang={nenTang} onMoViec={onMoViec} sau={sau} />
+    return {
+      ma,
+      noiDung: (
+        <Alert color="danger">
+          <AlertTitle>Chưa mở được việc</AlertTitle>
+          <AlertDescription>{tai.kq.loi}</AlertDescription>
+          <AlertActions>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setTai(null)
+                void taiLai()
+              }}
+            >
+              Thử lại
+            </Button>
+            <Button size="sm" variant="ghost" onClick={onDong}>
+              Đóng
+            </Button>
+          </AlertActions>
+        </Alert>
+      ),
+    }
+
+  const ct = tai.kq.duLieu
+  const t = ct.task
+  const c: Ctx = {
+    ct,
+    nenTang,
+    sua: ct.co_the_sua,
+    chay: async (p, viec) => {
+      const kq = await p
+      if (!kq.ok) {
+        thongBao.loi(`${t.ref}: chưa ${viec} — ${kq.loi}`)
+        return false
+      }
+      await sau()
+      return true
+    },
+    luu: async (p) => {
+      await chac(p)
+      await sau()
+    },
+    sau,
+    onMoViec,
+  }
+  return {
+    ma: t.ref,
+    phu: t.title,
+    tab: {
+      value: tab,
+      onDoi: (v) => onTab(v as TabViec),
+      ds: [
+        { gt: 'tong', nhan: 'Tổng quan', icon: <House aria-hidden="true" />, noiDung: <TongQuan key={t.id} c={c} /> },
+        { gt: 'con', nhan: 'Việc con', icon: <ListChecks aria-hidden="true" />, noiDung: <ViecCon key={t.id} c={c} /> },
+        { gt: 'hd', nhan: 'Hoạt động', icon: <ChatText aria-hidden="true" />, noiDung: <HoatDong key={t.id} c={c} /> },
+        { gt: 'lk', nhan: 'Liên kết', icon: <LinkSimple aria-hidden="true" />, noiDung: <LienKet key={t.id} c={c} /> },
+      ],
+    },
+    chan: <Chan key={t.id} c={c} />,
+  }
 }
 
 function DangTai() {
@@ -180,37 +311,11 @@ function DangTai() {
   )
 }
 
-function NoiDung({
-  ct,
-  nenTang,
-  onMoViec,
-  sau,
-}: {
-  ct: Ct
-  nenTang: NenTang
-  onMoViec: (id: number) => void
-  sau: () => Promise<void>
-}) {
+/** Tổng quan: cảnh báo đang bị chặn · nhóm Việc · Mô tả · Hệ thống (gập/mở). */
+function TongQuan({ c }: { c: Ctx }) {
+  const { ct, nenTang, sua, chay, luu, sau, onMoViec } = c
   const t = ct.task
-  const sua = ct.co_the_sua
-  const [dangXong, setDangXong] = useState(false)
-
-  /** Ghi một lần: lỗi → toast (panel giữ nguyên); xong → tải lại + báo màn. */
-  async function chay(p: Promise<KQ<unknown>>, viec: string): Promise<boolean> {
-    const kq = await p
-    if (!kq.ok) {
-      thongBao.loi(`${t.ref}: chưa ${viec} — ${kq.loi}`)
-      return false
-    }
-    await sau()
-    return true
-  }
-  /** Cho ô sửa tại chỗ DS: lỗi phải NÉM (ô trả giá trị cũ + toast Thử lại); ô tự báo xong + Hoàn tác. */
-  const luu = async (p: Promise<KQ<unknown>>) => {
-    await chac(p)
-    await sau()
-  }
-
+  const ic = (I: typeof User) => <I aria-hidden="true" />
   // Ô chọn người: khoá = email (uuid làm mã sẽ hiện ra cột mã của ComboboxPanel).
   const nguoiChon: MucChon[] = nenTang.nhan_su.map((n) => ({ gt: n.email, nhan: n.ten }))
   const idCua = (email: string | null) => nenTang.nhan_su.find((n) => n.email === email)?.id
@@ -224,7 +329,267 @@ function NoiDung({
       await sau()
     }
   }
+  const chanMo = ct.chan_boi.filter((b) => !roi(b.status))
+  const uu = UU.find((u) => u.gt === String(t.priority))?.nhan
+  const cha = t.parent_id
+  const mucTeam: MucNhan<string>[] = [
+    { gt: '', chu: 'Không team', nhan: <Badge variant="outline">Không team</Badge> },
+    ...nenTang.teams.map((tm) => ({ gt: String(tm.id), chu: tm.name, nhan: <Badge variant="soft">{tm.name}</Badge> })),
+  ]
 
+  return (
+    <div className="border-none border-current">
+      {chanMo.length > 0 && (
+        <Alert color="warning" role="note" className="mb-2">
+          <AlertTitle>{chanMo.length === 1 ? `Chờ ${chanMo[0].ref} xong trước` : `Chờ ${chanMo.length} việc xong trước`}</AlertTitle>
+          <AlertDescription>{chanMo.map((b) => b.title).join(' · ')} — chưa đánh dấu xong được việc này.</AlertDescription>
+        </Alert>
+      )}
+      <Accordion type="multiple" defaultValue={['viec', 'mo-ta', 'he-thong']}>
+        <AccordionItem value="viec">
+          <AccordionTrigger>Việc</AccordionTrigger>
+          <AccordionContent>
+            <PropertyList>
+              <Truong icon={ic(TextT)} nhan="Tiêu đề">
+                <TieuDe value={t.title} sua={sua} onLuu={(title) => chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />
+              </Truong>
+              <Truong icon={ic(CircleHalf)} nhan="Trạng thái">
+                <OSuaTrangThai ma={t.ref} value={{ tt: t.status }} muc={TT} onLuu={(g) => luu(doiTrangThai(t.id, g.tt))} />
+              </Truong>
+              <Truong icon={ic(Flag)} nhan="Ưu tiên">
+                {sua ? (
+                  <OSuaNhan
+                    ma={t.ref}
+                    truong="ưu tiên"
+                    value={String(t.priority) as Uu}
+                    muc={UU}
+                    onLuu={(u) => luu(suaViec(t.id, { priority: Number(u) }))}
+                  />
+                ) : (
+                  uu
+                )}
+              </Truong>
+              <Truong icon={ic(CalendarBlank)} nhan="Hạn">
+                {sua ? (
+                  <span className={CUM}>
+                    <OSuaHan
+                      ma={t.ref}
+                      value={hanO(t.due_at)}
+                      onLuu={(h) => luu(suaViec(t.id, { due: hanLuu(h) }))}
+                      hien={(v) => <HanChu due={v ? hanLuu(v) : null} />}
+                    />
+                    {t.due_at && (
+                      <NutIcon nhan="Bỏ hạn" onClick={() => void chay(suaViec(t.id, { xoa_due: true }), 'bỏ hạn')}>
+                        <X aria-hidden="true" />
+                      </NutIcon>
+                    )}
+                  </span>
+                ) : (
+                  t.due_at && <HanChu due={t.due_at} />
+                )}
+              </Truong>
+              <Truong icon={ic(User)} nhan="Người chính">
+                {sua ? (
+                  <OSuaNguoi ma={t.ref} truong="người chính" value={chinh?.email ?? null} options={nguoiChon} onLuu={doiChinh} />
+                ) : (
+                  chinh && <Nguoi ten={chinh.ten} />
+                )}
+              </Truong>
+              {VAI_PHU.map(({ v, ten, icon }) => {
+                const ds = ct.assignees.filter((a) => a.role === v)
+                return (
+                  <Truong key={v} icon={icon} nhan={ten}>
+                    {(ds.length > 0 || sua) && (
+                      <span className={DOC}>
+                        {ds.map((a) => (
+                          <span key={a.staff_id} className={DONG_NGUOI}>
+                            <Nguoi ten={a.ten} />
+                            {sua && ct.assignees.length > 1 && (
+                              <NutIcon
+                                nhan={`Bỏ ${a.ten} khỏi việc`}
+                                className={AN_CHO_RE}
+                                onClick={() => void chay(boNguoi(t.id, a.staff_id), `bỏ ${a.ten}`)}
+                              >
+                                <X aria-hidden="true" />
+                              </NutIcon>
+                            )}
+                          </span>
+                        ))}
+                        {sua && (
+                          <NutChon
+                            nhan={`Thêm người ${ten.toLowerCase()}`}
+                            chu="Thêm người"
+                            options={nguoiChon.filter((m) => m.gt !== chinh?.email && !ds.some((a) => a.email === m.gt))}
+                            onChon={(m) => {
+                              const id = idCua(m.gt)
+                              if (id) void chay(ganNguoi(t.id, id, v), `thêm ${m.nhan}`)
+                            }}
+                          />
+                        )}
+                      </span>
+                    )}
+                  </Truong>
+                )
+              })}
+              <Truong icon={ic(UsersThree)} nhan="Team">
+                {sua ? (
+                  <OSuaNhan
+                    ma={t.ref}
+                    truong="team"
+                    value={String(t.team_id ?? '')}
+                    muc={mucTeam}
+                    onLuu={(v) => luu(suaViec(t.id, v ? { team_id: Number(v) } : { xoa_team: true }))}
+                  />
+                ) : (
+                  t.team_name
+                )}
+              </Truong>
+              {cha !== null && (
+                <Truong icon={ic(TreeStructure)} nhan="Việc cha">
+                  <Button variant="link" className="min-w-0 text-left" onClick={() => onMoViec(cha)}>
+                    <span className={cat}>
+                      {t.parent_ref} {t.parent_title}
+                    </span>
+                  </Button>
+                </Truong>
+              )}
+            </PropertyList>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="mo-ta">
+          <AccordionTrigger>Mô tả</AccordionTrigger>
+          <AccordionContent>
+            {sua ? (
+              <Textarea
+                key={t.description ?? ''}
+                defaultValue={t.description ?? ''}
+                aria-label="Mô tả"
+                placeholder="Thêm mô tả…"
+                rows={3}
+                onBlur={(e) => {
+                  if (e.target.value !== (t.description ?? '')) void chay(suaViec(t.id, { description: e.target.value }), 'lưu mô tả')
+                }}
+              />
+            ) : (
+              <p className="m-0 border-none border-current whitespace-pre-wrap">
+                {t.description || <span className="text-(--color-text-tertiary)">—</span>}
+              </p>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="he-thong">
+          <AccordionTrigger>Hệ thống</AccordionTrigger>
+          <AccordionContent>
+            <PropertyList>
+              <Truong icon={ic(UserCircle)} nhan="Người tạo">
+                {t.creator_ten}
+              </Truong>
+              <Truong icon={ic(Clock)} nhan="Ngày tạo">
+                <span className="tabular-nums">{hienNgay(t.created_at, 'gio')}</span>
+              </Truong>
+              <Truong icon={ic(Sparkle)} nhan="Nguồn">
+                {t.origin === 'manual' ? 'Tạo tay' : 'Tự sinh'}
+              </Truong>
+              <Truong icon={ic(Globe)} nhan="Ai xem được">
+                {PHAM_VI[t.visibility] ?? t.visibility}
+              </Truong>
+              <Truong icon={ic(ShieldCheck)} nhan="Quyền của bạn">
+                {/* Ngắn cho vừa một dòng (dòng nhiều dòng lệch tâm nhãn). */}
+                {sua ? 'Sửa được' : 'Chỉ xem — không phải người làm'}
+              </Truong>
+            </PropertyList>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  )
+}
+
+/** Việc con: tiến độ · tick xong ngay tại đây · mở việc con · thêm việc con. */
+function ViecCon({ c }: { c: Ctx }) {
+  const { ct, sua, chay, onMoViec } = c
+  const t = ct.task
+  const so = ct.subtasks.length
+  const them = sua && <ThemViecCon onThem={(title) => chay(taoViecCon(t.id, title), 'thêm việc con')} />
+  if (!so)
+    return (
+      <EmptyState size="sm" tieuDe="Chưa có việc con" moTa="Chia việc thành các đầu mục nhỏ, tick xong ngay tại đây.">
+        {them}
+      </EmptyState>
+    )
+  return (
+    <div className={COT}>
+      <p className={cn(PHU, 'm-0 tabular-nums')}>
+        {ct.subtasks.filter((s) => s.status === 'done').length}/{so} xong
+      </p>
+      <div className="flex flex-col gap-2 border-none border-current">
+        {ct.subtasks.map((s) => (
+          <div key={s.id} className="flex min-w-0 items-center gap-2 border-none border-current">
+            {/* Tick ngay tại đây — việc con thường là đầu mục 10 giây, không đáng mở thẻ riêng. */}
+            <ChoiceLabel className="min-w-0 flex-1">
+              <Checkbox
+                checked={s.status === 'done'}
+                disabled={!sua}
+                onCheckedChange={(v) =>
+                  void chay(doiTrangThai(s.id, v === true ? 'done' : 'todo'), v === true ? `đánh dấu xong ${s.ref}` : `bỏ xong ${s.ref}`)
+                }
+              />
+              <span className={cn(cat, s.status === 'done' && 'text-muted-foreground')}>{s.title}</span>
+            </ChoiceLabel>
+            <MoViec v={s} onMo={() => onMoViec(s.id)} />
+          </div>
+        ))}
+      </div>
+      {them}
+    </div>
+  )
+}
+
+/** Hoạt động = nhật ký + bình luận (cũ → mới) · ô bình luận @nhắc tên. */
+function HoatDong({ c }: { c: Ctx }) {
+  const { ct, nenTang, sau } = c
+  const t = ct.task
+  // Bỏ dòng nhật ký "bình luận"/"nhắc" — bình luận đã hiện đủ (tên nhắc tô đậm).
+  const muc: MucTimeline[] = [
+    ...ct.activity
+      .filter((a) => a.verb !== 'commented' && a.verb !== 'mentioned')
+      .map((a) => ({ id: `a${a.id}`, ai: a.ten ?? 'Hệ thống', loai: moTaNhatKy(a.verb, a.payload), luc: a.created_at })),
+    ...ct.comments.map((cm) => ({
+      id: `c${cm.id}`,
+      ai: cm.ten ?? '?',
+      loai: 'bình luận',
+      luc: cm.created_at,
+      noiDung: chiaTheoNhac(cm.body, cm.nhac_ten ?? []).map((m, i) =>
+        m.nhac ? (
+          <strong key={i} className="font-semibold">
+            {m.text}
+          </strong>
+        ) : (
+          <Fragment key={i}>{m.text}</Fragment>
+        ),
+      ),
+    })),
+  ].sort((a, b) => Date.parse(a.luc) - Date.parse(b.luc))
+  return (
+    <div className={COT}>
+      <Timeline muc={muc} hien={8} aria-label={`Hoạt động ${t.ref}`} />
+      <BinhLuan
+        nhanSu={nenTang.nhan_su}
+        onGui={async (body, nhac) => {
+          const kq = await themBinhLuan(t.id, body, nhac)
+          if (!kq.ok) throw new Error(kq.loi)
+          await sau()
+        }}
+      />
+    </div>
+  )
+}
+
+/** Liên kết: gắn khách / ticket / đơn ERP · phụ thuộc hai chiều (phải xong trước · đang chặn). */
+function LienKet({ c }: { c: Ctx }) {
+  const { ct, sua, chay, onMoViec } = c
+  const t = ct.task
+  const khachGan = ct.links.find((l) => l.loai === 'khach')
   const chanKhoa = ct.chan_boi.map((b) => b.id).join(',')
   // `tim` của ComboboxPanel phải giữ tham chiếu (useTimXa) → tạo một lần theo việc + danh sách chặn hiện có.
   const tim = useMemo(() => {
@@ -254,367 +619,158 @@ function NoiDung({
     }
   }, [t.id, chanKhoa])
 
-  const xong = t.status === 'done'
-  const chanMo = ct.chan_boi.filter((b) => !roi(b.status))
-  const khachGan = ct.links.find((l) => l.loai === 'khach')
-  const uu = UU.find((u) => u.gt === String(t.priority))?.nhan
-  const cha = t.parent_id
-  const mucTeam: MucNhan<string>[] = [
-    { gt: '', chu: 'Không team', nhan: <Badge variant="outline">Không team</Badge> },
-    ...nenTang.teams.map((tm) => ({ gt: String(tm.id), chu: tm.name, nhan: <Badge variant="soft">{tm.name}</Badge> })),
-  ]
-
-  // Hoạt động = nhật ký + bình luận, cũ → mới. Bỏ dòng nhật ký "bình luận"/"nhắc" — bình luận đã hiện đủ (tên nhắc tô đậm).
-  const muc: MucTimeline[] = [
-    ...ct.activity
-      .filter((a) => a.verb !== 'commented' && a.verb !== 'mentioned')
-      .map((a) => ({ id: `a${a.id}`, ai: a.ten ?? 'Hệ thống', loai: moTaNhatKy(a.verb, a.payload), luc: a.created_at })),
-    ...ct.comments.map((c) => ({
-      id: `c${c.id}`,
-      ai: c.ten ?? '?',
-      loai: 'bình luận',
-      luc: c.created_at,
-      noiDung: chiaTheoNhac(c.body, c.nhac_ten ?? []).map((m, i) =>
-        m.nhac ? (
-          <strong key={i} className="font-semibold">
-            {m.text}
-          </strong>
-        ) : (
-          <Fragment key={i}>{m.text}</Fragment>
-        ),
-      ),
-    })),
-  ].sort((a, b) => Date.parse(a.luc) - Date.parse(b.luc))
-
   return (
-    <>
-      {cha !== null && (
-        <p className={cn(PHU, 'm-0 mb-2')}>
-          Việc con của{' '}
-          <Button variant="link" className="text-[12px] leading-[18px]" onClick={() => onMoViec(cha)}>
-            {t.parent_ref} {t.parent_title}
-          </Button>
-        </p>
-      )}
-
-      <div className="mb-2 flex items-center gap-1.5 border-none border-current">
-        {uu}
-        <OSuaTrangThai ma={t.ref} value={{ tt: t.status }} muc={TT} onLuu={(g) => luu(doiTrangThai(t.id, g.tt))} />
-      </div>
-      <TieuDe value={t.title} sua={sua} onLuu={(title) => chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />
-      <p className={cn(PHU, 'mt-1 mb-0')}>
-        {t.creator_ten ? `${t.creator_ten} tạo` : 'Tạo'} {mocThoiGian(t.created_at)}
-        {t.team_name ? ` · ${t.team_name}` : ''}
-        {t.origin !== 'manual' ? ' · tự sinh' : ''}
-      </p>
-
-      <div className={KHOI}>
-        <Button
-          size="sm"
-          variant={xong ? 'secondary' : 'default'}
-          loading={dangXong}
-          disabled={!xong && chanMo.length > 0}
-          onClick={async () => {
-            setDangXong(true)
-            const ok = await chay(doiTrangThai(t.id, xong ? 'todo' : 'done'), xong ? 'bỏ đánh dấu xong' : 'đánh dấu xong')
-            setDangXong(false)
-            if (ok && !xong)
-              thongBao.xong(`${t.ref}: đã xong`, {
-                hoanTac: () => void chay(doiTrangThai(t.id, t.status), 'hoàn tác'),
-              })
-          }}
-        >
-          <Check aria-hidden="true" />
-          {xong ? 'Bỏ đánh dấu xong' : 'Đánh dấu xong'}
-        </Button>
-      </div>
-
-      <div className={KHOI}>
-        <PropertyList tieuDe="Xử lý">
-          <PropertyRow nhan="Ưu tiên">
-            {sua ? (
-              <OSuaNhan
-                ma={t.ref}
-                truong="ưu tiên"
-                value={String(t.priority) as Uu}
-                muc={UU}
-                onLuu={(u) => luu(suaViec(t.id, { priority: Number(u) }))}
-              />
-            ) : (
-              uu
-            )}
-          </PropertyRow>
-          <PropertyRow nhan="Hạn">
-            {sua ? (
-              <span className={CUM}>
-                <OSuaHan
-                  ma={t.ref}
-                  value={hanO(t.due_at)}
-                  onLuu={(h) => luu(suaViec(t.id, { due: hanLuu(h) }))}
-                  hien={(v) => <HanChu due={v ? hanLuu(v) : null} />}
-                />
-                {t.due_at && (
-                  <NutIcon nhan="Bỏ hạn" onClick={() => void chay(suaViec(t.id, { xoa_due: true }), 'bỏ hạn')}>
-                    <X aria-hidden="true" />
-                  </NutIcon>
-                )}
-              </span>
-            ) : (
-              t.due_at && <HanChu due={t.due_at} />
-            )}
-          </PropertyRow>
-          <PropertyRow nhan="Người chính">
-            {sua ? (
-              <OSuaNguoi ma={t.ref} truong="người chính" value={chinh?.email ?? null} options={nguoiChon} onLuu={doiChinh} />
-            ) : (
-              chinh && <Nguoi ten={chinh.ten} />
-            )}
-          </PropertyRow>
-          {VAI_PHU.map(({ v, ten }) => {
-            const ds = ct.assignees.filter((a) => a.role === v)
-            if (!ds.length && !sua) return null
-            return (
-              <PropertyRow key={v} nhan={ten}>
-                <span className={DOC}>
-                  {ds.map((a) => (
-                    <span key={a.staff_id} className={DONG_NGUOI}>
-                      <Nguoi ten={a.ten} />
-                      {sua && ct.assignees.length > 1 && (
-                        <NutIcon
-                          nhan={`Bỏ ${a.ten} khỏi việc`}
-                          className={AN_CHO_RE}
-                          onClick={() => void chay(boNguoi(t.id, a.staff_id), `bỏ ${a.ten}`)}
-                        >
-                          <X aria-hidden="true" />
-                        </NutIcon>
+    <Accordion type="multiple" defaultValue={['gan', 'phu-thuoc']}>
+      <AccordionItem value="gan">
+        <AccordionTrigger>Gắn với</AccordionTrigger>
+        <AccordionContent>
+          <PropertyList>
+            {LOAI.map((loai) => {
+              const ds = ct.links.filter((l) => l.loai === loai)
+              const ten = NHAN_LOAI_LINK[loai]
+              return (
+                <Truong key={loai} icon={ICON_LOAI[loai]} nhan={ten}>
+                  {(ds.length > 0 || sua) && (
+                    <span className={HANG}>
+                      {ds.map((l) => {
+                        const chip = nhanChip(l)
+                        const href = chip.treo ? null : duongDanLink(l)
+                        return (
+                          <span key={l.id} className={CUM}>
+                            {href ? (
+                              <Link href={href} title={l.phu ?? undefined} className={cn(buttonVariants({ variant: 'link' }), 'min-w-0')}>
+                                <span className={cat}>{chip.ten}</span>
+                              </Link>
+                            ) : (
+                              // Mã treo (khách bị gộp/xoá): giữ để không mất dấu, nói rõ vì sao không bấm được.
+                              <span title={chip.giaiThich ?? l.phu ?? undefined} className={cn(cat, 'text-muted-foreground')}>
+                                {chip.ten} · đã gộp/xoá
+                              </span>
+                            )}
+                            {sua && (
+                              <NutIcon nhan={`Bỏ gắn ${ten.toLowerCase()} ${chip.ten}`} onClick={() => void chay(boErp(l.id), `bỏ gắn ${chip.ten}`)}>
+                                <X aria-hidden="true" />
+                              </NutIcon>
+                            )}
+                          </span>
+                        )
+                      })}
+                      {sua && (
+                        <NutChon
+                          nhan={`Gắn ${ten.toLowerCase()}`}
+                          chu={`Gắn ${ten.toLowerCase()}`}
+                          tim={tim[loai]}
+                          // Ticket/đơn chỉ tìm trong khách đã gắn — không nói ra thì "tìm mãi không thấy" trông như hỏng.
+                          goiY={loai !== 'khach' && khachGan ? `${ten} của khách ${nhanChip(khachGan).ten} — bỏ khách để tìm rộng` : CHO_TRONG[loai]}
+                          onChon={(m) => void chay(ganErp(t.id, loai, m.gt), `gắn ${m.nhan}`)}
+                        />
                       )}
                     </span>
-                  ))}
-                  {sua && (
-                    <NutChon
-                      nhan={`Thêm người ${ten.toLowerCase()}`}
-                      chu="Thêm người"
-                      options={nguoiChon.filter((m) => m.gt !== chinh?.email && !ds.some((a) => a.email === m.gt))}
-                      onChon={(m) => {
-                        const id = idCua(m.gt)
-                        if (id) void chay(ganNguoi(t.id, id, v), `thêm ${m.nhan}`)
-                      }}
-                    />
                   )}
-                </span>
-              </PropertyRow>
-            )
-          })}
-        </PropertyList>
-
-        <PropertyList tieuDe="Gắn với">
-          {LOAI.map((loai) => {
-            const ds = ct.links.filter((l) => l.loai === loai)
-            if (!ds.length && !sua) return null
-            const ten = NHAN_LOAI_LINK[loai]
-            return (
-              <PropertyRow key={loai} nhan={ten}>
-                <span className={HANG}>
-                  {ds.map((l) => {
-                    const chip = nhanChip(l)
-                    const href = chip.treo ? null : duongDanLink(l)
-                    return (
-                      <span key={l.id} className={CUM}>
-                        {href ? (
-                          <Link href={href} title={l.phu ?? undefined} className={cn(buttonVariants({ variant: 'link' }), 'min-w-0')}>
-                            <span className={cat}>{chip.ten}</span>
-                          </Link>
-                        ) : (
-                          // Mã treo (khách bị gộp/xoá): giữ để không mất dấu, nói rõ vì sao không bấm được.
-                          <span title={chip.giaiThich ?? l.phu ?? undefined} className={cn(cat, 'text-muted-foreground')}>
-                            {chip.ten} · đã gộp/xoá
-                          </span>
-                        )}
+                </Truong>
+              )
+            })}
+          </PropertyList>
+        </AccordionContent>
+      </AccordionItem>
+      {(ct.chan_boi.length > 0 || ct.dang_chan.length > 0 || sua) && (
+        <AccordionItem value="phu-thuoc">
+          <AccordionTrigger>Phụ thuộc</AccordionTrigger>
+          <AccordionContent>
+            <PropertyList>
+              {(ct.chan_boi.length > 0 || sua) && (
+                <Truong icon={<HourglassMedium aria-hidden="true" />} nhan="Phải xong trước">
+                  <span className="flex w-full min-w-0 flex-col gap-1 border-none border-current">
+                    {ct.chan_boi.map((b) => (
+                      <DongViec key={b.id} v={b} onMo={() => onMoViec(b.id)}>
                         {sua && (
-                          <NutIcon
-                            nhan={`Bỏ gắn ${ten.toLowerCase()} ${chip.ten}`}
-                            onClick={() => void chay(boErp(l.id), `bỏ gắn ${chip.ten}`)}
-                          >
+                          <NutIcon nhan={`Bỏ phụ thuộc ${b.ref}`} onClick={() => void chay(boPhuThuoc(t.id, b.id), `bỏ phụ thuộc ${b.ref}`)}>
                             <X aria-hidden="true" />
                           </NutIcon>
                         )}
+                      </DongViec>
+                    ))}
+                    {sua && (
+                      <span className={CUM}>
+                        <NutChon
+                          nhan="Thêm việc phải xong trước"
+                          chu="Thêm việc"
+                          tim={tim.viec}
+                          goiY="Tiêu đề hoặc mã việc (việc đã xong/huỷ không hiện)"
+                          onChon={(m) => {
+                            const id = tim.idViec(m.gt)
+                            if (id) void chay(themPhuThuoc(t.id, id), `thêm phụ thuộc ${m.gt}`)
+                          }}
+                        />
                       </span>
-                    )
-                  })}
-                  {sua && (
-                    <NutChon
-                      nhan={`Gắn ${ten.toLowerCase()}`}
-                      chu={`Gắn ${ten.toLowerCase()}`}
-                      tim={tim[loai]}
-                      // Ticket/đơn chỉ tìm trong khách đã gắn — không nói ra thì "tìm mãi không thấy" trông như hỏng.
-                      goiY={
-                        loai !== 'khach' && khachGan
-                          ? `${ten} của khách ${nhanChip(khachGan).ten} — bỏ khách để tìm rộng`
-                          : CHO_TRONG[loai]
-                      }
-                      onChon={(m) => void chay(ganErp(t.id, loai, m.gt), `gắn ${m.nhan}`)}
-                    />
-                  )}
-                </span>
-              </PropertyRow>
-            )
-          })}
-          <PropertyRow nhan="Team">
-            {sua ? (
-              <OSuaNhan
-                ma={t.ref}
-                truong="team"
-                value={String(t.team_id ?? '')}
-                muc={mucTeam}
-                onLuu={(v) => luu(suaViec(t.id, v ? { team_id: Number(v) } : { xoa_team: true }))}
-              />
-            ) : (
-              t.team_name
-            )}
-          </PropertyRow>
-        </PropertyList>
-      </div>
-
-      <Khoi tieuDe="Mô tả">
-        {sua ? (
-          <Textarea
-            key={t.description ?? ''}
-            defaultValue={t.description ?? ''}
-            aria-label="Mô tả"
-            placeholder="Thêm mô tả…"
-            rows={3}
-            onBlur={(e) => {
-              if (e.target.value !== (t.description ?? '')) void chay(suaViec(t.id, { description: e.target.value }), 'lưu mô tả')
-            }}
-          />
-        ) : (
-          <p className="m-0 border-none border-current whitespace-pre-wrap">
-            {t.description || <span className="text-(--color-text-tertiary)">Chưa có mô tả</span>}
-          </p>
-        )}
-      </Khoi>
-
-      <Khoi
-        tieuDe={
-          <>
-            Việc con{' '}
-            {ct.subtasks.length > 0 && (
-              <span className="font-normal text-muted-foreground tabular-nums">
-                {ct.subtasks.filter((s) => s.status === 'done').length}/{ct.subtasks.length}
-              </span>
-            )}
-          </>
-        }
-      >
-        {ct.subtasks.length > 0 && (
-          <div className="flex flex-col gap-2 border-none border-current">
-            {ct.subtasks.map((s) => (
-              <div key={s.id} className="flex min-w-0 items-center gap-2 border-none border-current">
-                {/* Tick ngay tại đây — việc con thường là đầu mục 10 giây, không đáng mở thẻ riêng. */}
-                <ChoiceLabel className="min-w-0 flex-1">
-                  <Checkbox
-                    checked={s.status === 'done'}
-                    disabled={!sua}
-                    onCheckedChange={(c) =>
-                      void chay(doiTrangThai(s.id, c === true ? 'done' : 'todo'), c === true ? `đánh dấu xong ${s.ref}` : `bỏ xong ${s.ref}`)
-                    }
-                  />
-                  <span className={cn(cat, s.status === 'done' && 'text-muted-foreground')}>{s.title}</span>
-                </ChoiceLabel>
-                <MoViec v={s} onMo={() => onMoViec(s.id)} />
-              </div>
-            ))}
-          </div>
-        )}
-        {sua && <ThemViecCon onThem={(title) => chay(taoViecCon(t.id, title), 'thêm việc con')} />}
-      </Khoi>
-
-      {(ct.chan_boi.length > 0 || ct.dang_chan.length > 0 || sua) && (
-        <Khoi tieuDe="Phụ thuộc">
-          {chanMo.length > 0 && (
-            <Alert color="warning" role="note" className="mb-2">
-              <AlertTitle>
-                {chanMo.length === 1 ? `Chờ ${chanMo[0].ref} xong trước` : `Chờ ${chanMo.length} việc xong trước`}
-              </AlertTitle>
-              <AlertDescription>{chanMo.map((b) => b.title).join(' · ')} — chưa đánh dấu xong được việc này.</AlertDescription>
-            </Alert>
-          )}
-          <PropertyList>
-            {(ct.chan_boi.length > 0 || sua) && (
-              <PropertyRow nhan="Phải xong trước">
-                <span className="flex w-full min-w-0 flex-col gap-1 border-none border-current">
-                  {ct.chan_boi.map((b) => (
-                    <DongViec key={b.id} v={b} onMo={() => onMoViec(b.id)}>
-                      {sua && (
-                        <NutIcon nhan={`Bỏ phụ thuộc ${b.ref}`} onClick={() => void chay(boPhuThuoc(t.id, b.id), `bỏ phụ thuộc ${b.ref}`)}>
-                          <X aria-hidden="true" />
-                        </NutIcon>
-                      )}
-                    </DongViec>
-                  ))}
-                  {sua && (
-                    <span className={CUM}>
-                      <NutChon
-                        nhan="Thêm việc phải xong trước"
-                        chu="Thêm việc"
-                        tim={tim.viec}
-                        goiY="Tiêu đề hoặc mã việc (việc đã xong/huỷ không hiện)"
-                        onChon={(m) => {
-                          const id = tim.idViec(m.gt)
-                          if (id) void chay(themPhuThuoc(t.id, id), `thêm phụ thuộc ${m.gt}`)
-                        }}
-                      />
-                    </span>
-                  )}
-                </span>
-              </PropertyRow>
-            )}
-            {ct.dang_chan.length > 0 && (
-              // Chiều ngược lại: không có nó thì hoãn một việc mà không biết mình làm kẹt ai.
-              <PropertyRow nhan="Đang chặn">
-                <span className="flex w-full min-w-0 flex-col gap-1 border-none border-current">
-                  {ct.dang_chan.map((b) => (
-                    <DongViec key={b.id} v={b} onMo={() => onMoViec(b.id)} />
-                  ))}
-                </span>
-              </PropertyRow>
-            )}
-          </PropertyList>
-        </Khoi>
+                    )}
+                  </span>
+                </Truong>
+              )}
+              {/* Chiều ngược lại: không có nó thì hoãn một việc mà không biết mình làm kẹt ai. */}
+              <Truong icon={<Prohibit aria-hidden="true" />} nhan="Đang chặn">
+                {ct.dang_chan.length > 0 && (
+                  <span className="flex w-full min-w-0 flex-col gap-1 border-none border-current">
+                    {ct.dang_chan.map((b) => (
+                      <DongViec key={b.id} v={b} onMo={() => onMoViec(b.id)} />
+                    ))}
+                  </span>
+                )}
+              </Truong>
+            </PropertyList>
+          </AccordionContent>
+        </AccordionItem>
       )}
-
-      <section className={KHOI}>
-        <h3 className={propsTitle}>Hoạt động</h3>
-        <div className="mt-2 border-none border-current">
-          <Timeline muc={muc} hien={8} />
-        </div>
-      </section>
-
-      <div className={KHOI}>
-        <BinhLuan
-          nhanSu={nenTang.nhan_su}
-          onGui={async (body, nhac) => {
-            const kq = await themBinhLuan(t.id, body, nhac)
-            if (!kq.ok) throw new Error(kq.loi)
-            await sau()
-          }}
-        />
-      </div>
-
-      <p className={cn(PHU, 'mt-5 mb-0')}>
-        {sua ? 'Bạn sửa được việc này.' : 'Chỉ xem — bạn không phải người tạo hay người làm.'} Ai xem được:{' '}
-        {PHAM_VI[t.visibility] ?? t.visibility}.
-      </p>
-    </>
+    </Accordion>
   )
 }
 
-function Khoi({ tieuDe, children }: { tieuDe: ReactNode; children: ReactNode }) {
+/** Chân thẻ: ⋮ (sao chép mã) · nút chính Đánh dấu xong / Bỏ đánh dấu xong (viền). */
+function Chan({ c }: { c: Ctx }) {
+  const { ct, chay } = c
+  const t = ct.task
+  const [dang, setDang] = useState(false)
+  const xong = t.status === 'done'
+  const chanMo = ct.chan_boi.some((b) => !roi(b.status))
   return (
-    <section className={KHOI}>
-      <h3 className={propsTitle}>{tieuDe}</h3>
-      {children}
-    </section>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm" aria-label={`Thao tác khác cho ${t.ref}`}>
+            <DotsThreeVertical aria-hidden="true" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" side="top">
+          <DropdownMenuItem
+            onSelect={() => {
+              void navigator.clipboard?.writeText(t.ref)
+              thongBao.xong(`Đã sao chép ${t.ref}`)
+            }}
+          >
+            <Copy aria-hidden="true" />
+            Sao chép mã
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button
+        size="sm"
+        variant={xong ? 'outline' : 'default'}
+        loading={dang}
+        disabled={!xong && chanMo}
+        onClick={async () => {
+          setDang(true)
+          const ok = await chay(doiTrangThai(t.id, xong ? 'todo' : 'done'), xong ? 'bỏ đánh dấu xong' : 'đánh dấu xong')
+          setDang(false)
+          if (ok && !xong)
+            thongBao.xong(`${t.ref}: đã xong`, {
+              hoanTac: () => void chay(doiTrangThai(t.id, t.status), 'hoàn tác'),
+            })
+        }}
+      >
+        <Check aria-hidden="true" />
+        {xong ? 'Bỏ đánh dấu xong' : 'Đánh dấu xong'}
+      </Button>
+    </>
   )
 }
 
@@ -720,7 +876,8 @@ function DongViec({ v, onMo, children }: { v: ViecNho; onMo: () => void; childre
 }
 
 /**
- * Tiêu đề h2 xuống dòng đủ (không cắt) + nút bút → ô nhập DS. Enter / rời ô lưu, Esc huỷ, focus về nút bút.
+ * Giá trị dòng "Tiêu đề": xuống dòng đủ (không cắt — đầu thẻ chỉ hiện một dòng) + nút bút → ô nhập DS. Enter / rời ô
+ * lưu, Esc huỷ, focus về nút bút.
  * Không dùng OSuaChu: ô đó cắt một dòng ≤ 280px (ô bảng), tiêu đề thẻ phải hiện trọn — xem đề xuất DS.
  */
 function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v: string) => Promise<boolean> }) {
@@ -734,7 +891,7 @@ function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v:
       nut.current?.focus()
     }
   }, [nhap])
-  if (!sua) return <h2 className={TEN}>{value}</h2>
+  if (!sua) return <span className={cn(TEN, 'py-1.5')}>{value}</span>
   // Gọi một lần mỗi lượt sửa (Enter rồi ô bị gỡ có thể bắn thêm blur).
   const ket = (luuLai: boolean, focusVe: boolean) => {
     if (!dang.current || nhap === null) return
@@ -765,13 +922,15 @@ function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v:
       />
     )
   return (
-    <div className="flex items-start gap-1 border-none border-current">
-      <h2 className={cn(TEN, 'min-w-0 flex-1')}>{value}</h2>
+    <div className="flex w-full min-w-0 items-start gap-1 border-none border-current">
+      {/* Dòng đầu thẳng tâm nhãn (dòng 32): chữ đệm 6 trên/dưới (6 + 20/2 = 16), nút bút 28 lùi 2 (2 + 28/2 = 16). */}
+      <span className={cn(TEN, 'flex-1 py-1.5')}>{value}</span>
       <TooltipNhanh content={<span aria-hidden="true">Sửa tiêu đề</span>}>
         <Button
           ref={nut}
           variant="ghost"
           size="icon-sm"
+          className="mt-0.5"
           aria-label="Sửa tiêu đề"
           onClick={() => {
             dang.current = true

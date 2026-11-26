@@ -2,13 +2,14 @@
 
 /**
  * Nối thẻ xem nhanh vào màn Việc: việc đang xem ở tham số URL `?xem=<id>` (tải lại / gửi link vẫn mở đúng việc), khung
- * DS `XemNhanh` (‹ › theo thứ tự đang hiện, ✕ / Esc đóng) + nội dung `XemNhanhViec` (components/work/v2/XemNhanh.tsx).
+ * DS `XemNhanh` (‹ › theo thứ tự đang hiện, ✕ / Esc đóng) + `the` dựng bởi `useTheViec` (components/work/v2/XemNhanh.tsx).
+ * Tab của thẻ giữ ở đây: lật ‹ › / mở việc khác giữ tab, đóng thẻ về Tổng quan.
  */
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { NenTang } from '@/app/work/actions'
 import { XemNhanh as KhungXemNhanh } from '@/components/ui/xem-nhanh'
-import { XemNhanh as XemNhanhViec } from './XemNhanh'
+import { useTheViec, type TabViec } from './XemNhanh'
 
 export function useXemViec() {
   const router = useRouter()
@@ -37,19 +38,25 @@ export function KhungXemViec({
   const router = useRouter()
   const { id, mo, dong } = useXemViec()
   const i = id ? ds.findIndex((v) => v.id === id) : -1
+  const [tab, setTab] = useState<TabViec>('tong')
+  const dongThe = () => {
+    setTab('tong')
+    dong()
+  }
+  const the = useTheViec({
+    taskId: id,
+    ma: ds[i]?.ref ?? `#${id}`,
+    nenTang,
+    tab,
+    onTab: setTab,
+    onDong: dongThe,
+    onMoViec: mo,
+    onDoi: () => router.refresh(),
+  })
   return (
     <KhungXemNhanh
-      the={
-        id
-          ? {
-              ma: ds[i]?.ref ?? `#${id}`,
-              noiDung: (
-                <XemNhanhViec key={id} taskId={id} nenTang={nenTang} onDong={dong} onMoViec={mo} onDoi={() => router.refresh()} />
-              ),
-            }
-          : null
-      }
-      onDong={dong}
+      the={the}
+      onDong={dongThe}
       coDinh
       onTruoc={i > 0 ? () => mo(ds[i - 1].id) : undefined}
       onSau={i >= 0 && i < ds.length - 1 ? () => mo(ds[i + 1].id) : undefined}
