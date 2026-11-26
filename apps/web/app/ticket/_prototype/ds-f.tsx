@@ -6,7 +6,7 @@
 import { Suspense, useCallback, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ArrowsClockwise, CalendarPlus, UserPlus } from '@phosphor-icons/react/ssr'
+import { ArrowsClockwise, CalendarPlus, UserPlus, WarningCircle } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
 import { hrefBoLoc, KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, ThanhDangLoc, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -24,6 +24,7 @@ import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { recordPickerLuuY } from '@/components/ui/inline-edit-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
@@ -71,9 +72,28 @@ export const TT: MucTrangThai[] = [
   { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary' },
 ]
 
-/** `ngan` (ô bảng hẹp): "Còn BH" / "Hết BH". */
-export function NhanBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
+// Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành, hạn = chữ;
+// màu chữ chỉ cho ngoại lệ (hết BH, quá hạn, sắp hạn). Khẩn = icon đỏ đầu hàng. Badge bảo hành chỉ còn ở Xem nhanh.
+const CHU_DO = 'text-(--color-text-danger)'
+
+/** Khẩn: icon đỏ (kiểu ưu tiên của Linear) thay badge — tên đọc được cho trình đọc màn hình. */
+function IconKhan() {
+  return <WarningCircle weight="fill" role="img" aria-label="Khẩn" className={recordPickerLuuY} />
+}
+
+/** Bảo hành dạng chữ cho bảng/danh sách; `ngan` (ô bảng hẹp): "Còn BH" / "Hết BH". */
+function ChuBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
   if (!t.serial) return ngan ? null : <span className="text-muted-foreground">—</span>
+  if (!t.warranty_activated) return <span className="text-muted-foreground">Chưa kích hoạt</span>
+  return t.con_han_may ? (
+    <span className="text-muted-foreground">{ngan ? 'Còn BH' : 'Còn bảo hành'}</span>
+  ) : (
+    <span className={CHU_DO}>{ngan ? 'Hết BH' : 'Hết bảo hành'}</span>
+  )
+}
+
+export function NhanBaoHanh({ t }: { t: Ticket }) {
+  if (!t.serial) return <span className="text-muted-foreground">—</span>
   if (!t.warranty_activated)
     return (
       <Badge variant="soft" color="secondary">
@@ -82,30 +102,20 @@ export function NhanBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
     )
   return t.con_han_may ? (
     <Badge variant="soft" color="success">
-      {ngan ? 'Còn BH' : 'Còn bảo hành'}
+      Còn bảo hành
     </Badge>
   ) : (
     <Badge variant="soft" color="warning">
-      {ngan ? 'Hết BH' : 'Hết bảo hành'}
+      Hết bảo hành
     </Badge>
   )
 }
 
-/** Hạn/SLA: tag đỏ quá hạn, cam sắp hạn (< 24 giờ) — kiểu Odoo/Freshdesk; còn lại chữ ngày mờ. */
+/** Hạn/SLA dạng chữ: đỏ quá hạn, cam sắp hạn (< 24 giờ); còn lại chữ ngày mờ. */
 function NhanHan({ t }: { t: Ticket }) {
   const s = sla(t)
-  if (s === 'qua')
-    return (
-      <Badge variant="soft" color="danger">
-        Quá {soNgayQua(t)} ngày
-      </Badge>
-    )
-  if (s === 'sap')
-    return (
-      <Badge variant="soft" color="warning">
-        Hạn {ngayNgan(new Date(han(t)).toISOString())}
-      </Badge>
-    )
+  if (s === 'qua') return <span className={`tabular-nums ${CHU_DO}`}>Quá {soNgayQua(t)} ngày</span>
+  if (s === 'sap') return <span className="tabular-nums text-(--color-text-warning)">Hạn {ngayNgan(new Date(han(t)).toISOString())}</span>
   return <span className="tabular-nums text-muted-foreground">{t.state === 'Open' ? ngayNgan(new Date(han(t)).toISOString()) : '—'}</span>
 }
 
@@ -129,12 +139,9 @@ function NguoiPhuTrach({ ten }: { ten: string | null }) {
 
 function TrangThaiO({ t }: { t: Ticket }) {
   return (
-    <span className="flex items-center gap-1 border-none border-current">
-      {t.khan && t.state === 'Open' && <NhanKhan />}
-      <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
-        {TT.find((m) => m.gt === t.state)?.nhan}
-      </Badge>
-    </span>
+    <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
+      {TT.find((m) => m.gt === t.state)?.nhan}
+    </Badge>
   )
 }
 
@@ -181,6 +188,10 @@ type Sap = { cot: string; tang: boolean }
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
   khach: (t, mo) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
+      {/* Khe icon cố định (như ô ưu tiên Linear) — hàng không khẩn vẫn chừa chỗ để cột mã thẳng hàng. */}
+      <span className="flex size-(--control-icon-size-xs) shrink-0 border-none border-current">
+        {t.khan && t.state === 'Open' && <IconKhan />}
+      </span>
       <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
       <button type="button" className={nutMoTen} onClick={() => mo(t.ticket_code)}>
         {tenKhach(t)}
@@ -190,7 +201,7 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
   may: (t) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
       <span className="shrink-0 border-none border-current">
-        <NhanBaoHanh t={t} ngan />
+        <ChuBaoHanh t={t} ngan />
       </span>
       <span className="min-w-0 truncate">
         {t.product_name ?? '—'}
@@ -239,7 +250,7 @@ const COT_DS: CotDanhSach<Dong>[] = [
       <>
         {t.khan && t.state === 'Open' && (
           <NhanDau gon>
-            <NhanKhan />
+            <IconKhan />
           </NhanDau>
         )}
         <NutMoMa ma={t.ticket_code} />
@@ -249,7 +260,7 @@ const COT_DS: CotDanhSach<Dong>[] = [
   },
   { id: 'may', ten: 'Máy · lỗi', rong: 'minmax(0,1.2fr)', anKhiHep: true, dienThoai: 'duoi', o: (t) => <span className="min-w-0 truncate text-muted-foreground">{mayLoi(t)}</span> },
   { id: 'han', ten: 'Hạn', rong: '112px', dienThoai: 'trenPhai', o: (t) => <NhanHan t={t} /> },
-  { id: 'bh', ten: 'Bảo hành', rong: '132px', dienThoai: 'duoiPhai', o: (t) => <NhanBaoHanh t={t} /> },
+  { id: 'bh', ten: 'Bảo hành', rong: '132px', dienThoai: 'duoiPhai', o: (t) => <ChuBaoHanh t={t} /> },
   { id: 'cs', ten: 'Phụ trách', rong: '72px', anKhiHep: true, o: (t) => <NguoiPhuTrach ten={t.cs_ten} /> },
 ]
 
