@@ -28,16 +28,17 @@ export type ViecXem = Pick<
 > & { sort_order?: number; touched_at?: string | null }
 
 export const COT_VIEC: CotBang[] = [
-  { id: 'uu', ten: 'Ưu tiên', rong: 76, kieu: 'sap', nghia: { tang: 'Gấp trước', giam: 'Thấp trước' } },
-  { id: 'ma', ten: 'Mã', rong: 104, kieu: 'sap', nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
+  // Mọi cột tự vừa nội dung (CEO 26/11 "chiều rộng cột = chiều dài content dài nhất"): số khai cũ 76 làm tiêu đề
+  // "Ưu tiên" bị cắt khi vừa sắp vừa lọc (thêm 2 dấu).
+  { id: 'uu', ten: 'Ưu tiên', kieu: 'sap', nghia: { tang: 'Gấp trước', giam: 'Thấp trước' } },
+  { id: 'ma', ten: 'Mã', kieu: 'sap', nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
   // Không khai `rong` → tự vừa tên việc dài nhất (CEO 26/11, useCotBang đo), trần 480: quá trần mới cắt (ô có title).
   { id: 'viec', ten: 'Việc', kieu: 'thuong', khoa: true, rongToiDa: 480 },
-  { id: 'tt', ten: 'Trạng thái', rong: 124, kieu: 'loc' },
-  { id: 'nguoi', ten: 'Người', rong: 160, kieu: 'thuong' },
+  { id: 'tt', ten: 'Trạng thái', kieu: 'loc' },
+  { id: 'nguoi', ten: 'Người', kieu: 'thuong', rongToiDa: 240 },
   {
     id: 'han',
     ten: 'Hạn',
-    rong: 116,
     kieu: 'sap',
     phai: true,
     ngay: true,
@@ -53,7 +54,6 @@ export const COT_TEAM: CotBang[] = [
   {
     id: 'cn',
     ten: 'Cập nhật',
-    rong: 112,
     kieu: 'sap',
     phai: true,
     ngay: true,
