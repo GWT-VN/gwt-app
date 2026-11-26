@@ -58,7 +58,12 @@ tiêu đề thêm (sau vạch) Dời sang trái / Dời sang phải / Ẩn cột
 32; `[data-keo]` nền mục sáng + `--shadow-hairline, --shadow-300`; ô trống bằng nút icon-sm); README Table thêm mục "Nút +
 thêm cột" + 3 mục menu tiêu đề; README DataViewToolbar sửa trang "Cột hiển thị" (hai nhóm, kéo, mắt); preview
 DataViewToolbar vẽ lại trang con Cột hiển thị (hiện là checkbox → so khớp `trangCon › muc/o/mucKhoa` báo thiếu phần tử tới
-khi preview đổi), preview Table thêm ô "+" + menu cột có mục dời/ẩn.
+khi preview đổi), preview Table thêm ô "+" + menu cột có mục dời/ẩn. (D) Cột GHIM: cột `khoa` đứng đầu (`laGhim`) dính trái
+khi bảng cuộn ngang — `thGhim`/`oGhim` + `CHON_BANG_GHIM` (`table-styles.ts`), `TableCell ghim`, `data-ghim`; nền đục =
+`--background` + màu trạng thái dòng qua biến `--nen-dong` mà `tr` đặt. Khi đẩy lên artifact: `bundle.css` thêm
+`.b-bang [data-ghim] { position: sticky; left: 0 }` (+ `left: 36px` khi bảng có `.b-cot-chon`, cột chọn cũng sticky
+`left: 0`, tiêu đề cột chọn z 30), nền `linear-gradient(var(--nen-dong), var(--nen-dong)), var(--background)`, và
+`--nen-dong` theo hover/chọn/đang trỏ trên `tr`; README Table thêm mục "Cột ghim"; chưa có bóng mép phải khi đang cuộn.
 
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,

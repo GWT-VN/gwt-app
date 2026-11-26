@@ -44,6 +44,8 @@ export type BenTha = 'trai' | 'phai'
 export type MenuCot = { trai: string | null; phai: string | null; onDoi: (ben: BenTha) => void; onAn: () => void }
 
 export const toiThieu = (c: CotBang) => c.toiThieu ?? RONG_TOI_THIEU
+/** Cột GHIM trái khi bảng cuộn ngang: cột `khoa` đứng ĐẦU hàng (vị trí 0 trong `hien`) — như cột nhãn của Twenty. */
+export const laGhim = (c: CotBang, viTri: number) => !!c.khoa && viTri === 0
 
 /** Bỏ `id` khỏi chỗ cũ, chèn trước (`trai`) / sau (`phai`) cột `dich`. Cột lạ hoặc trùng → giữ nguyên. */
 export function doiChoMang(thuTu: string[], id: string, dich: string, ben: BenTha): string[] {

@@ -23,11 +23,11 @@ import { nutMoTen } from '@/components/ui/list-view-styles'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
-import { CHON_BANG } from '@/components/ui/table-styles'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
-import { RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
+import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 
@@ -212,8 +212,8 @@ function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) 
   return (
     <TableRow chon={daChon.includes(t.ticket_code)}>
       <OChonDong khoa={t.ticket_code} moTa={`ticket ${t.ticket_code}`} />
-      {hien.map((c) => (
-        <TableCell key={c.id} cot={c.id} phai={c.phai}>
+      {hien.map((c, i) => (
+        <TableCell key={c.id} cot={c.id} phai={c.phai} ghim={laGhim(c, i)}>
           {O[c.id](t, mo)}
         </TableCell>
       ))}
@@ -453,7 +453,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
           demo={demo}
           cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
         />
-        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
             dem={{ thay: dangXem === 'kanban' ? theKanban.length : dong.length, tong }}

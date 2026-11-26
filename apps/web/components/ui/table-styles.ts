@@ -86,6 +86,10 @@ export const tr = cn(
   'not-data-[state=selected]:hover:[&>td]:bg-(--alpha-02)',
   'data-[state=selected]:[&>td]:bg-(--color-background-info-soft-alpha,var(--alpha-05))',
   'not-data-[state=selected]:data-con-tro:[&>td]:bg-(--alpha-04)',
+  // Cùng màu trạng thái dưới dạng biến `--nen-dong` cho ô GHIM (`oGhim`): ô dính phải đục, nên vẽ màu này đè lên nền.
+  'not-data-[state=selected]:hover:[--nen-dong:var(--alpha-02)]',
+  'data-[state=selected]:[--nen-dong:var(--color-background-info-soft-alpha,var(--alpha-05))]',
+  'not-data-[state=selected]:data-con-tro:[--nen-dong:var(--alpha-04)]',
   '[outline:none] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
 )
 export const tfootTd = 'bg-muted font-semibold border-t border-solid border-(--border) border-b-0'
@@ -178,6 +182,18 @@ export const anChoReDau =
 export const anChoReO =
   '*:opacity-0 [&>:checked]:opacity-100 [&>:focus-visible]:opacity-100 [[data-slot=list-view-row]:hover_&]:*:opacity-100 [[data-slot=list-view-row]:focus-within_&]:*:opacity-100 [[data-co-chon]_&]:*:opacity-100 [@media(hover:none)]:*:opacity-100'
 
+/**
+ * Cột GHIM (học Twenty 26/11): cột nhãn `khoa` đứng ĐẦU bảng dính trái khi bảng cuộn ngang (`laGhim` của use-cot-bang;
+ * `TieuDeCot` tự gắn, ô thân truyền `TableCell ghim`). Lệch trái 36 khi bảng có cột ô chọn (cột đó cũng dính — dùng
+ * `CHON_BANG_GHIM`), không thì 0. Nền ĐỤC: `--background` + màu trạng thái dòng (`--nen-dong` của `tr`) vẽ đè — MỘT lớp,
+ * không lộ ô đang cuộn bên dưới. Tiêu đề: z do `TieuDeCot` đặt (cột đầu cao nhất), ô thân z 1.
+ * ponytail: chưa có vạch/bóng mép phải khi đang cuộn (cần JS nghe cuộn) — thêm khi CEO muốn.
+ */
+const ghimTrai = 'sticky left-0 [table:has(>thead>tr>th:first-child>input[type=checkbox])_&]:left-9'
+const nenDuc = 'bg-background! bg-[image:linear-gradient(var(--nen-dong,transparent),var(--nen-dong,transparent))]!'
+export const thGhim = ghimTrai
+export const oGhim = cn(ghimTrai, 'z-1', nenDuc)
+
 /** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong` / `OChonO`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
 export const CHON_BANG: Partial<GiaoDienBang> = {
   chon_oTh: cn(th, cotChon, anChoReDau),
@@ -186,6 +202,16 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
   // Dòng ListView (relative): từ md ô chọn nằm ở LỀ trái ngoài dòng như cột chọn của Bảng (mép phải ô tick cách mép nội
   // dung 10 = lề âm −8 của danh sách + 2) — tên việc thẳng mép, không bị ô tick xô vào (CEO 25/11).
   chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'),
+}
+/**
+ * Như `CHON_BANG` cho bảng có cột GHIM (`oGhim`): cột ô chọn cũng dính trái (không thì ô đang cuộn lộ ra ở 36px lề trái,
+ * dưới cột ghim). Ô thân đục: dưới md nền + màu trạng thái dòng; từ md (cột chọn ở lề ngoài bảng) chỉ nền trang, không
+ * màu dòng — như `md:bg-transparent` của `CHON_BANG` nhưng che được ô cuộn. Tiêu đề z 30: trên mọi tiêu đề `TieuDeCot`.
+ */
+export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
+  ...CHON_BANG,
+  chon_oTh: cn(th, cotChon, anChoReDau, 'left-0 z-30'),
+  chon_oTd: cn(td, cotChon, anChoRe, 'sticky left-0 z-1', nenDuc, 'md:bg-none!'),
 }
 
 /*

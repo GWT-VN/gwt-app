@@ -47,7 +47,7 @@ import {
 import { VungDoc } from './skeleton'
 import { KeoCtx, useOKeo } from './table'
 import * as s from './table-styles'
-import { toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
+import { laGhim, toiThieu, type BenTha, type CotBang, type MenuCot } from './use-cot-bang'
 
 /**
  * Câu đọc cho thao tác cột KHÔNG qua kéo (menu tiêu đề Dời trái/phải/Ẩn, nút "+" `ThemCot`): `KeoCot` giữ một vùng
@@ -337,6 +337,8 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
     )
   } else noiDung = <span className={cn('flex min-w-0', cot.phai && 'justify-end')}>{nhan}</span>
 
+  // Cột khoá đứng đầu → dính trái khi bảng cuộn ngang (ô thân: `TableCell ghim`). ListView (div) không cuộn ngang.
+  const ghim = la === 'th' && laGhim(cot, viTri)
   const ariaSort = cot.kieu === 'sap' && sap ? (sap.chieu === 'tang' ? 'ascending' : sap.chieu === 'giam' ? 'descending' : 'none') : undefined
 
   return (
@@ -344,10 +346,11 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
       ref={datOGop}
       data-slot="table-head"
       data-cot={cot.id}
+      data-ghim={ghim ? '' : undefined}
       role={la === 'div' ? 'columnheader' : undefined}
       aria-sort={ariaSort}
       {...oKeo}
-      className={cn(s.th, coKeo && !cot.khoa && s.thKeo, s.oKeo, cot.phai && s.phai, className)}
+      className={cn(s.th, coKeo && !cot.khoa && s.thKeo, s.oKeo, cot.phai && s.phai, ghim && s.thGhim, className)}
       style={{ zIndex: Math.max(3, 20 - viTri) }}
       onPointerDown={nhanKeo}
     >

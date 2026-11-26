@@ -14,10 +14,11 @@ vi.mock('next/navigation', () => ({
 
 import { CaiDatHienThi, type CaiDatRef } from './data-view-toolbar'
 import { DsRoot } from './ds-root'
-import { Table, TableBody, TableHeader, TableRow, TableWrap } from './table'
+import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from './table'
+import { CHON_BANG_GHIM, oGhim, thGhim } from './table-styles'
 import { ThemCot } from './them-cot'
 import { KeoCot, TieuDeCot } from './tieu-de-cot'
-import { useCotBang, type CotBang } from './use-cot-bang'
+import { laGhim, useCotBang, type CotBang } from './use-cot-bang'
 
 const COT: CotBang[] = [
   { id: 'ma', ten: 'Mã', rong: 100, kieu: 'thuong', khoa: true },
@@ -59,7 +60,15 @@ function Man({ cot = COT }: { cot?: CotBang[] }) {
                 <ThemCot cot={cot} an={c.an} onHien={c.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
               </TableRow>
             </TableHeader>
-            <TableBody />
+            <TableBody>
+              <TableRow>
+                {c.hien.map((x, i) => (
+                  <TableCell key={x.id} cot={x.id} ghim={laGhim(x, i)}>
+                    x
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
           </Table>
         </KeoCot>
       </TableWrap>
@@ -247,5 +256,35 @@ describe('C — ⚙ Cột hiển thị: Đang hiện (kéo + mắt) / Đang ẩn
     expect(await screen.findByText(/Đã huỷ kéo\. Cột Khách về chỗ cũ/)).toBeTruthy()
     expect(tenCot()).toEqual(['ma', 'khach', 'han', 'tt'])
     expect(screen.getByRole('dialog', { name: 'Cài đặt hiển thị' })).toBeTruthy()
+  })
+})
+
+describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang', () => {
+  test('tiêu đề + ô thân của cột khoá đầu mang data-ghim + lớp dính/nền đục; cột khác và cột khoá không đứng đầu thì không', () => {
+    const { unmount } = render(<Man />)
+    const th = document.querySelector('thead th[data-cot="ma"]')!
+    const td = document.querySelector('tbody td[data-cot="ma"]')!
+    expect(th.hasAttribute('data-ghim')).toBe(true)
+    expect(td.hasAttribute('data-ghim')).toBe(true)
+    for (const lop of thGhim.split(' ')) expect(th.classList.contains(lop)).toBe(true)
+    for (const lop of oGhim.split(' ')) expect(td.classList.contains(lop)).toBe(true)
+    // Lệch 36 chỉ khi bảng có cột ô chọn; nền = --background + màu trạng thái dòng (một lớp, đục).
+    expect(oGhim).toContain('_&]:left-9')
+    expect(oGhim).toContain('bg-background!')
+    expect(oGhim).toContain('var(--nen-dong')
+    expect(document.querySelectorAll('[data-ghim]')).toHaveLength(2)
+    unmount()
+    // Cột khoá bị cột khác vượt lên trước (kéo thả) → không còn là cột đầu, không ghim.
+    expect(laGhim(COT[0], 1)).toBe(false)
+    expect(laGhim(COT[1], 0)).toBe(false)
+  })
+
+  test('CHON_BANG_GHIM: cột ô chọn cũng dính trái, tiêu đề z trên mọi tiêu đề cột, ô thân đục (từ md bỏ màu dòng)', () => {
+    expect(CHON_BANG_GHIM.chon_oTh).toContain('left-0')
+    expect(CHON_BANG_GHIM.chon_oTh).toContain('z-30')
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('sticky')
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('bg-background!')
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('md:bg-none!')
+    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('md:bg-transparent')
   })
 })

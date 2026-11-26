@@ -119,15 +119,25 @@ export function TableHead({ phai, className, ...props }: ComponentProps<'th'> & 
   return <th data-slot="table-head" className={cn(ve === 'thuong' ? s.thThuong : s.th, phai && s.phai, className)} {...props} />
 }
 
-/** `cot` = id cột → ô vẽ theo lúc kéo đổi chỗ (nền mờ cột nguồn, vạch thả suốt chiều cao). `phai` = số / hạn căn phải. */
-export function TableCell({ cot, phai, className, ...props }: ComponentProps<'td'> & { cot?: string; phai?: boolean }) {
+/**
+ * `cot` = id cột → ô vẽ theo lúc kéo đổi chỗ (nền mờ cột nguồn, vạch thả suốt chiều cao). `phai` = số / hạn căn phải.
+ * `ghim` = ô của cột ghim trái (`laGhim(cot, viTri)` — cùng điều kiện `TieuDeCot` dùng cho tiêu đề), xem `oGhim`.
+ */
+export function TableCell({
+  cot,
+  phai,
+  ghim,
+  className,
+  ...props
+}: ComponentProps<'td'> & { cot?: string; phai?: boolean; ghim?: boolean }) {
   const ve = useContext(VeCtx)
   return (
     <td
       data-slot="table-cell"
       data-cot={cot}
+      data-ghim={ghim ? '' : undefined}
       {...useOKeo(cot)}
-      className={cn(ve === 'thuong' ? s.tdThuong : cn(s.td, s.oKeo), phai && s.phai, className)}
+      className={cn(ve === 'thuong' ? s.tdThuong : cn(s.td, s.oKeo), phai && s.phai, ghim && s.oGhim, className)}
       {...props}
     />
   )
