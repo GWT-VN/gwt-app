@@ -1,5 +1,11 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
@@ -85,61 +91,61 @@ export function TicketNotes({ code, notes, teps = [], choTep = false }: {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border p-3 space-y-2 bg-slate-50">
-        <textarea
+      <Card className="space-y-2">
+        <Textarea
           value={text} onChange={(e) => setText(e.target.value)} rows={2}
           placeholder="Nội dung trao đổi với khách…"
-          className="w-full rounded-lg border px-3 py-2 text-slate-900"
+          aria-label="Nội dung trao đổi với khách"
         />
         {files.length > 0 && (
           <ul className="flex flex-wrap gap-2">
             {files.map((f, i) => (
-              <li key={i} className="flex items-center gap-1.5 rounded-lg border bg-white px-2 py-1 text-xs text-slate-700">
+              <li key={i} className="flex items-center gap-1.5 rounded-lg border bg-card px-2 py-1 text-xs text-foreground">
                 <span>{kieuTep(f.type) === 'anh' ? '🖼️' : kieuTep(f.type) === 'video' ? '🎬' : '📄'}</span>
                 <span className="max-w-[12rem] truncate">{f.name}</span>
-                <span className="text-slate-400">{docKichThuoc(f.size)}</span>
-                <button onClick={() => setFiles(files.filter((_, j) => j !== i))} disabled={busy}
-                  className="text-red-500 hover:text-red-700" aria-label={`Bỏ ${f.name}`}>×</button>
+                <span className="text-muted-foreground">{docKichThuoc(f.size)}</span>
+                <Button onClick={() => setFiles(files.filter((_, j) => j !== i))} disabled={busy}
+                  variant="ghost" size="icon-sm" className="text-destructive" aria-label={`Bỏ ${f.name}`}>×</Button>
               </li>
             ))}
           </ul>
         )}
         <div className="flex items-center gap-2 flex-wrap">
-          <label className="text-sm text-slate-600 flex items-center gap-1.5">
+          <label className="text-sm text-muted-foreground flex items-center gap-1.5">
             Thời gian
-            <input type="datetime-local" value={khi} onChange={(e) => setKhi(e.target.value)}
-              className="rounded-lg border px-2 py-1.5 text-sm" />
+            <Input type="datetime-local" value={khi} onChange={(e) => setKhi(e.target.value)}
+              className="w-auto max-w-full" />
           </label>
           {choTep && (
-            <label className={`rounded-lg border bg-white px-3 py-1.5 text-sm text-slate-700 ${busy ? 'opacity-50' : 'cursor-pointer hover:bg-slate-100'}`}>
+            <label className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'cursor-pointer focus-within:outline-2 focus-within:outline-ring has-disabled:cursor-default has-disabled:opacity-50')}>
               📎 Đính kèm
-              <input type="file" accept={NHAN_LOAI} multiple onChange={chon} disabled={busy} className="hidden" />
+              <input type="file" accept={NHAN_LOAI} multiple onChange={chon} disabled={busy} className="sr-only" />
             </label>
           )}
-          <button onClick={add} disabled={busy || (!text.trim() && !files.length)}
-            className="rounded-lg bg-slate-900 text-white px-4 py-1.5 font-medium disabled:opacity-50">
+          <Button onClick={add} disabled={busy || (!text.trim() && !files.length)}
+            size="sm">
             {busy ? (tienDo ?? 'Đang thêm…') : 'Thêm'}
-          </button>
+          </Button>
         </div>
-        {choTep && <p className="text-[11px] text-slate-400">Ảnh, video hoặc PDF · tối đa 50 MB/file, {SO_TEP_TOI_DA} file mỗi lần.</p>}
-        {err && <p className="text-sm text-red-600">{err}</p>}
-      </div>
+        {choTep && <p className="text-[11px] text-muted-foreground">Ảnh, video hoặc PDF · tối đa 50 MB/file, {SO_TEP_TOI_DA} file mỗi lần.</p>}
+        {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
+      </Card>
 
       {notes.length === 0 ? (
-        <p className="text-sm text-slate-400">Chưa có ghi chú nào.</p>
+        <p className="text-sm text-muted-foreground">Chưa có ghi chú nào.</p>
       ) : (
         <ul className="space-y-2">
           {notes.map((n) =>
             suaId === n.id ? (
               <NoteEdit key={n.id} code={code} note={n} teps={tepCua(n.id)} onXong={() => setSuaId(null)} />
             ) : (
-              <li key={n.id} className="border-l-2 border-slate-200 pl-3 py-0.5 group">
-                <div className="text-xs text-slate-400 flex items-center gap-2">
+              <li key={n.id} className="border-l-2 border-border pl-3 py-0.5">
+                <div className="text-xs text-muted-foreground flex items-center gap-2">
                   {vnDateTime(n.created_at)}{n.tac_gia && ` · ${n.tac_gia}`}
-                  <button onClick={() => setSuaId(n.id)}
-                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-900 underline">sửa</button>
+                  <Button onClick={() => setSuaId(n.id)}
+                    variant="ghost" size="sm">sửa</Button>
                 </div>
-                <p className="text-sm text-slate-800 whitespace-pre-wrap">{n.noi_dung}</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]">{n.noi_dung}</p>
                 <DanhSachTep teps={tepCua(n.id)} />
               </li>
             )
@@ -161,10 +167,10 @@ export function DanhSachTep({ teps, onXoa }: { teps: TepNhatKy[]; onXoa?: (t: Te
           // eslint-disable-next-line @next/next/no-img-element -- signed URL Supabase, không qua next/image
           ? <img src={t.url} alt={t.ten} className="h-20 w-20 rounded border object-cover" />
           : (
-            <span className="flex h-20 w-32 flex-col justify-center gap-0.5 rounded border bg-white px-2 text-xs text-slate-700">
+            <span className="flex h-20 w-32 flex-col justify-center gap-0.5 rounded border bg-card px-2 text-xs text-foreground">
               <span>{kieu === 'video' ? '🎬 Video' : kieu === 'pdf' ? '📄 PDF' : '🖼️ Ảnh'}</span>
               <span className="truncate">{t.ten}</span>
-              <span className="text-slate-400">{docKichThuoc(t.kich_thuoc)}</span>
+              <span className="text-muted-foreground">{docKichThuoc(t.kich_thuoc)}</span>
             </span>
           )
         return (
@@ -173,8 +179,8 @@ export function DanhSachTep({ teps, onXoa }: { teps: TepNhatKy[]; onXoa?: (t: Te
               ? <a href={t.url} target="_blank" rel="noopener noreferrer" title={t.ten}>{noiDung}</a>
               : <span title="Không tạo được link xem">{noiDung}</span>}
             {onXoa && (
-              <button onClick={() => onXoa(t)} aria-label={`Xoá ${t.ten}`}
-                className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full border bg-white text-xs leading-none text-red-600">×</button>
+              <Button onClick={() => onXoa(t)} aria-label={`Xoá ${t.ten}`}
+                variant="outline" size="icon-sm" className="absolute -top-1.5 -right-1.5 bg-card text-destructive">×</Button>
             )}
           </li>
         )
@@ -219,20 +225,20 @@ function NoteEdit({ code, note, teps, onXong }: { code: string; note: TicketNote
   }
 
   return (
-    <li className="border-l-2 border-slate-900 pl-3 py-1 space-y-1.5 bg-slate-50 rounded-r-lg">
-      <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2}
-        className="w-full rounded-lg border px-2 py-1 text-sm text-slate-900" />
+    <li className="border-l-2 border-ring pl-3 py-1 space-y-1.5 bg-muted rounded-r-lg">
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2}
+        aria-label="Nội dung ghi chú" />
       <DanhSachTep teps={teps} onXoa={busy ? undefined : xoaTep} />
       <div className="flex items-center gap-2 flex-wrap">
-        <input type="datetime-local" value={khi} onChange={(e) => setKhi(e.target.value)}
-          className="rounded-lg border px-2 py-1 text-sm" />
-        <button onClick={luu} disabled={busy}
-          className="rounded-lg bg-slate-900 text-white px-3 py-1 text-sm disabled:opacity-50">Lưu</button>
-        <button onClick={onXong} className="text-xs text-slate-500 underline">Huỷ</button>
-        <button onClick={xoa} disabled={busy}
-          className="text-xs text-red-500 hover:text-red-700 underline ml-auto">Xoá</button>
+        <Input type="datetime-local" value={khi} onChange={(e) => setKhi(e.target.value)}
+          aria-label="Thời gian" className="w-auto max-w-full" />
+        <Button onClick={luu} disabled={busy}
+          size="sm">Lưu</Button>
+        <Button onClick={onXong} variant="outline" size="sm">Huỷ</Button>
+        <Button onClick={xoa} disabled={busy}
+          variant="destructive" size="sm" className="ml-auto">Xoá</Button>
       </div>
-      {err && <p className="text-xs text-red-600">{err}</p>}
+      {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
     </li>
   )
 }

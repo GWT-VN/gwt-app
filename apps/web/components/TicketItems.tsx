@@ -1,5 +1,11 @@
 'use client'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Combobox } from '@/components/ui/combobox'
+import { Input } from '@/components/ui/input'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { addTicketItem, deleteTicketItem, type TicketMuc, type CatalogItem } from '@/app/actions'
@@ -26,8 +32,6 @@ export function TicketItems(
 ) {
   const [loai, setLoai] = useState<'hang_muc' | 'doi_may'>('hang_muc')
   const [catalogCode, setCatalogCode] = useState('')
-  const [catQuery, setCatQuery] = useState('')
-  const [openSug, setOpenSug] = useState(false)
   const [soLuong, setSoLuong] = useState('1')
   const [moTa, setMoTa] = useState('')
   const [soTien, setSoTien] = useState('')
@@ -50,21 +54,15 @@ export function TicketItems(
   const tenTheoCode = useMemo(
     () => new Map(catalog.map((c) => [c.code, c.ten ?? c.code])), [catalog])
 
-  const khongDau = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd')
-  const goiY = useMemo(() => {
-    const q = khongDau(catQuery.trim())
-    if (!q) return catalog.slice(0, 12)
-    return catalog.filter((c) =>
-      khongDau(c.code).includes(q) || khongDau(c.ten ?? '').includes(q)).slice(0, 12)
-  }, [catQuery, catalog])
+  const tuyChon = useMemo(() => catalog.map((c) => ({
+    gt: c.code,
+    nhan: c.ten ?? c.code,
+    phu: c.danh_muc === 'Services' ? 'DV' : undefined,
+  })), [catalog])
 
-  function chon(c: CatalogItem) {
-    setCatalogCode(c.code); setCatQuery(`${c.ten ?? c.code} · ${c.code}`); setOpenSug(false)
-  }
 
   function reset() {
-    setCatalogCode(''); setCatQuery(''); setSoLuong('1'); setMoTa(''); setSoTien('')
+    setCatalogCode(''); setSoLuong('1'); setMoTa(''); setSoTien('')
     setTinhPhi(true); setNgayThuPhi(HOM_NAY()); setSerialCu(''); setSerialMoi('')
   }
 
@@ -101,38 +99,38 @@ export function TicketItems(
               <div className="min-w-0 space-y-0.5">
                 {it.loai === 'doi_may' ? (
                   <>
-                    <span className="px-2 py-0.5 rounded-full text-xs bg-violet-100 text-violet-800">Đổi máy</span>
-                    <p className="font-mono text-xs text-slate-500">
+                    <Badge variant="soft" color="discovery">Đổi máy</Badge>
+                    <p className="font-mono text-xs text-muted-foreground">
                       {it.serial_cu ?? '—'} → {it.serial_moi ?? '—'}
                     </p>
                   </>
                 ) : (
                   <>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm text-slate-900">
+                      <span className="text-sm text-foreground">
                         {tenTheoCode.get(it.catalog_code ?? '') ?? it.catalog_code ?? 'Hạng mục'}
                       </span>
                       {it.so_luong && it.so_luong > 1 && (
-                        <span className="text-xs text-slate-500">× {it.so_luong}</span>
+                        <span className="text-xs text-muted-foreground">× {it.so_luong}</span>
                       )}
                       {tien(it.so_tien) && (
-                        <span className="text-sm font-medium text-slate-900">{tien(it.so_tien)}</span>
+                        <span className="text-sm font-medium text-foreground">{tien(it.so_tien)}</span>
                       )}
-                      <span className={`text-xs ${it.tinh_phi ? 'text-amber-700' : 'text-emerald-700'}`}>
+                      <Badge variant="soft" color={it.tinh_phi ? 'warning' : 'success'}>
                         {it.tinh_phi ? 'Thu phí' : 'Miễn phí'}
-                      </span>
+                      </Badge>
                       {it.tinh_phi && it.ngay_thu_phi && (
-                        <span className="text-xs text-slate-500">· thu {vnDate(it.ngay_thu_phi)}</span>
+                        <span className="text-xs text-muted-foreground">· thu {vnDate(it.ngay_thu_phi)}</span>
                       )}
                     </div>
-                    {it.catalog_code && <span className="font-mono text-[10px] text-slate-400">{it.catalog_code}</span>}
+                    {it.catalog_code && <span className="font-mono text-[10px] text-muted-foreground">{it.catalog_code}</span>}
                   </>
                 )}
-                {it.mo_ta && <p className="text-sm text-slate-700">{it.mo_ta}</p>}
+                {it.mo_ta && <p className="text-sm text-foreground">{it.mo_ta}</p>}
               </div>
               {choPhepSua && (
-                <button onClick={() => del(it.id)}
-                  className="text-xs text-slate-400 hover:text-red-600 flex-none">Xoá</button>
+                <Button onClick={() => del(it.id)}
+                  variant="ghost" size="sm" className="text-destructive">Xoá</Button>
               )}
             </li>
           ))}
@@ -140,82 +138,58 @@ export function TicketItems(
       )}
 
       {!choPhepSua && (
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted-foreground">
           {items.length === 0 && 'Chưa có mục nào. '}
           Chỉ quản trị mới ghi được chi phí, vật tư, đổi máy.
         </p>
       )}
 
       {choPhepSua && (
-        <div className="rounded-lg border p-3 space-y-2 bg-slate-50">
+        <Card className="space-y-2">
           <div className="flex gap-2 flex-wrap">
-            <button onClick={() => setLoai('hang_muc')}
-              className={`px-3 py-1.5 rounded-lg text-sm border ${
-                loai === 'hang_muc' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
+            <Button onClick={() => setLoai('hang_muc')}
+              size="sm" aria-pressed={loai === 'hang_muc'} variant={loai === 'hang_muc' ? 'default' : 'outline'}>
               Hạng mục (thu phí / vật tư)
-            </button>
-            <button onClick={() => setLoai('doi_may')}
-              className={`px-3 py-1.5 rounded-lg text-sm border ${
-                loai === 'doi_may' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
+            </Button>
+            <Button onClick={() => setLoai('doi_may')}
+              size="sm" aria-pressed={loai === 'doi_may'} variant={loai === 'doi_may' ? 'default' : 'outline'}>
               Đổi máy
-            </button>
+            </Button>
           </div>
 
           {loai === 'hang_muc' ? (
             <>
-              <div className="relative">
-                <input
-                  value={catQuery}
-                  onChange={(e) => { setCatQuery(e.target.value); setCatalogCode(''); setOpenSug(true) }}
-                  onFocus={() => setOpenSug(true)}
-                  onBlur={() => setTimeout(() => setOpenSug(false), 150)}
-                  placeholder="Gõ mã hoặc tên hạng mục (bắt buộc)…"
-                  className={`w-full rounded-lg border px-3 py-2 text-slate-900 bg-white ${
-                    catalogCode ? 'border-emerald-400' : ''}`}
-                />
-                {openSug && goiY.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-lg border bg-white shadow-lg">
-                    {goiY.map((c) => (
-                      <li key={c.code}>
-                        <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chon(c)}
-                          className="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-100">
-                          <span className="text-slate-900">{c.ten ?? c.code}</span>
-                          {c.danh_muc === 'Services' && <span className="text-xs text-amber-600"> · DV</span>}
-                          <span className="font-mono text-xs text-slate-400"> · {c.code}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <Combobox aria-label="Hạng mục (bắt buộc)" required options={tuyChon}
+                value={catalogCode || null} onValueChange={(ma) => setCatalogCode(ma ?? '')}
+                placeholder="Chọn mã hoặc tên hạng mục…" />
               <div className="flex gap-2 flex-wrap items-center">
-                <label className="text-sm text-slate-700 flex items-center gap-1">
+                <label className="text-sm text-foreground flex items-center gap-1">
                   SL
-                  <input value={soLuong} onChange={(e) => setSoLuong(chiSo(e.target.value))} inputMode="numeric"
-                    className={`rounded-lg border px-2 py-2 text-slate-900 w-16 ${slHopLe ? '' : 'border-red-300'}`} />
+                  <Input value={soLuong} onChange={(e) => setSoLuong(chiSo(e.target.value))} inputMode="numeric"
+                    className="w-16" aria-invalid={!slHopLe} />
                 </label>
-                <input value={soTien} onChange={(e) => setSoTien(chiSo(e.target.value))} inputMode="numeric"
+                <Input value={soTien} onChange={(e) => setSoTien(chiSo(e.target.value))} inputMode="numeric"
                   placeholder="Thành tiền (đ)"
-                  className={`rounded-lg border px-3 py-2 text-slate-900 w-40 ${tienNhap && !tienHopLe ? 'border-red-300' : ''}`} />
-                <label className="flex items-center gap-1.5 text-sm text-slate-700">
+                  className="w-40 max-w-full" aria-invalid={tienNhap && !tienHopLe} aria-label="Thành tiền (đ)" />
+                <label className="flex items-center gap-1.5 text-sm text-foreground">
                   <input type="checkbox" checked={tinhPhi} onChange={(e) => setTinhPhi(e.target.checked)} />
                   Thu phí khách
                 </label>
                 {tinhPhi && (
-                  <label className="text-sm text-slate-700 flex items-center gap-1">
+                  <label className="text-sm text-foreground flex items-center gap-1">
                     Ngày thu
-                    <input type="date" value={ngayThuPhi} max={HOM_NAY()}
+                    <Input type="date" value={ngayThuPhi} max={HOM_NAY()}
                       onChange={(e) => setNgayThuPhi(e.target.value)}
-                      className="rounded-lg border px-2 py-2 text-slate-900" />
+                      className="w-auto max-w-full" />
                   </label>
                 )}
               </div>
               {tienNhap && (tienHopLe
-                ? <p className="text-xs text-slate-500">= {tien(tienNum)}</p>
-                : <p className="text-xs text-red-600">Thành tiền không hợp lệ (chỉ nhập số dương).</p>)}
-              <input value={moTa} onChange={(e) => setMoTa(e.target.value)}
+                ? <p className="text-xs text-muted-foreground">= {tien(tienNum)}</p>
+                : <p className="text-xs text-destructive">Thành tiền không hợp lệ (chỉ nhập số dương).</p>)}
+              <Input value={moTa} onChange={(e) => setMoTa(e.target.value)}
                 placeholder="Ghi chú (tuỳ chọn)"
-                className="w-full rounded-lg border px-3 py-2 text-slate-900" />
+                aria-label="Ghi chú (tuỳ chọn)" />
             </>
           ) : (
             <>
@@ -223,21 +197,21 @@ export function TicketItems(
                 <SerialPicker value={serialCu} onChange={setSerialCu} placeholder="Serial máy CŨ (thu hồi)" />
                 <SerialPicker value={serialMoi} onChange={setSerialMoi} placeholder="Serial máy MỚI (đổi cho khách)" />
               </div>
-              <input value={moTa} onChange={(e) => setMoTa(e.target.value)}
+              <Input value={moTa} onChange={(e) => setMoTa(e.target.value)}
                 placeholder="Ghi chú (tuỳ chọn)"
-                className="w-full rounded-lg border px-3 py-2 text-slate-900" />
+                aria-label="Ghi chú (tuỳ chọn)" />
             </>
           )}
 
           <div className="flex items-center gap-3">
-            <button onClick={add}
+            <Button onClick={add}
               disabled={busy || (loai === 'hang_muc' && (!catalogCode || !slHopLe || !tienHopLe))}
-              className="rounded-lg bg-slate-900 text-white px-4 py-2 font-medium disabled:opacity-50">
+              size="sm">
               {busy ? 'Đang thêm…' : '+ Thêm mục'}
-            </button>
-            {err && <span className="text-sm text-red-600">{err}</span>}
+            </Button>
+            {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
           </div>
-        </div>
+        </Card>
       )}
     </div>
   )

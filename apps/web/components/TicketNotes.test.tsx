@@ -16,6 +16,8 @@ const tep = (p: Partial<TepNhatKy> = {}): TepNhatKy => ({
 describe('TicketNotes đính kèm', () => {
   it('choTep: có nút Đính kèm + chỉ nhận ảnh/video/PDF', () => {
     const h = renderToStaticMarkup(<TicketNotes code="TK-1" notes={[]} choTep />)
+    expect(h).toContain('data-slot="textarea"')
+    expect(h).toContain('aria-label="Nội dung trao đổi với khách"')
     expect(h).toContain('Đính kèm')
     expect(h).toContain('accept="image/*,video/*,application/pdf"')
     expect(h).toContain('tối đa 50 MB')

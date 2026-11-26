@@ -3,20 +3,25 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Ticket } from '@/app/actions'
 import TicketPage from './page'
 
-const quyen = vi.hoisted(() => ({ sua: true, lichKT: true, chiPhi: true, xemKhach: true }))
+const quyen = vi.hoisted(() => ({ sua: true, lichKT: true, chiPhi: true, xemKhach: true, xemTatCa: true }))
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({}), notFound: () => { throw new Error('Not found') } }))
 vi.mock('@/app/actions', () => ({
   getTicket: async () => ticket,
   groupsOfTicket: async () => [],
   listTicketNotes: async () => [{ id: 'nk-1', noi_dung: 'Đã gọi khách lần đầu', created_at: '2026-11-24T08:00:00Z' }],
-  ticketsOfSerial: async () => [ticket, { ...ticket, ticket_code: 'TK-2611-008', created_at: '2026-11-18T02:00:00Z' }],
+  ticketsOfSerial: async () => [
+    ticket,
+    { ...ticket, ticket_code: 'TK-2611-008', created_at: '2026-11-18T02:00:00Z' },
+    { ...ticket, ticket_code: 'TK-2611-004', created_at: '2026-11-16T02:00:00Z', cs_phu_trach: 'staff-2' },
+  ],
   ticketsOfCustomer: async () => [{ ...ticket, ticket_code: 'TK-2611-006', created_at: '2026-11-17T02:00:00Z' }],
   listTicketItems: async () => [],
   listCatalogItems: async () => [],
   ticketTypes: async () => ['Rò nước'],
 }))
 vi.mock('@/lib/nen-tang/nhan-su', () => ({ listStaff: async () => [] }))
+vi.mock('@/lib/nen-tang/phien', () => ({ layNhanVien: async () => ({ id: 'staff-1' }) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({ hoiQuyen: async () => quyen }))
 vi.mock('@/lib/nen-tang/sua-danh-sach-server', () => ({ coSuaDanhSach: async () => false }))
 vi.mock('@/app/ticket/loi-actions', () => ({
@@ -62,6 +67,17 @@ describe('Chi tiết ticket ở đường dẫn mặc định', () => {
     expect(html).toContain('Đã gọi khách lần đầu')
     expect(html.indexOf('Lần 2')).toBeLessThan(html.indexOf('Lần 1'))
     expect(html).toContain('/ky-thuat?kh=khach-mau&amp;loai=ticket&amp;ref=TK-2611-042')
+  })
+
+  it('chỉ hiện ticket liên quan trong phạm vi phân công của người xem', async () => {
+    quyen.xemTatCa = false
+    try {
+      const html = await moTicket()
+      expect(html).toContain('/ticket/TK-2611-008')
+      expect(html).not.toContain('/ticket/TK-2611-004')
+    } finally {
+      quyen.xemTatCa = true
+    }
   })
 
   it('ẩn thao tác sửa và hẹn với người không có quyền', async () => {

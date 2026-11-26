@@ -4,6 +4,7 @@ import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { notFound } from 'next/navigation'
 import { getTicket, groupsOfTicket, listTicketNotes, listTicketItems, listCatalogItems, ticketTypes, ticketsOfCustomer, ticketsOfSerial } from '@/app/actions'
 import { listStaff } from '@/lib/nen-tang/nhan-su'
+import { layNhanVien } from '@/lib/nen-tang/phien'
 import { MucDoBadge } from '@/components/NhomLoiBadge'
 import { TicketEditor } from '@/components/TicketEditor'
 import { TicketNotes } from '@/components/TicketNotes'
@@ -54,6 +55,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
       sua: ['cs.ticket.tao_sua', 'NHANVIEN'],
       xemKhach: ['cs.khach.xem', 'NHANVIEN'],
+      xemTatCa: ['cs.ticket.xem_tat_ca', 'QUANLY'],
     }),
     coSuaDanhSach(),
   ])
@@ -85,11 +87,16 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
     )
   }
 
-  const [lichMay, lichKhach] = await Promise.all([
+  const [lichMay, lichKhach, nguoiXem] = await Promise.all([
     docAnToan('ticketsOfSerial', () => t.serial ? ticketsOfSerial(t.serial) : Promise.resolve([]), []),
     docAnToan('ticketsOfCustomer', () => t.customer_id && quyen.xemKhach ? ticketsOfCustomer(t.customer_id) : Promise.resolve([]), []),
+    quyen.xemTatCa ? Promise.resolve(null) : layNhanVien(),
   ])
+  const maNguoiXem = nguoiXem?.id
   const lichSu = [...new Map([...lichMay.data, ...lichKhach.data]
+    // Cùng phạm vi phân công với searchTickets. Lọc trên server trước khi tạo các mục liên kết.
+    .filter((cu) => quyen.xemTatCa || cu.cs_phu_trach == null ||
+      (maNguoiXem != null && (cu.cs_phu_trach === maNguoiXem || cu.ky_thuat === maNguoiXem)))
     .filter((cu) => cu.ticket_code !== t.ticket_code && Date.parse(cu.created_at) <= Date.parse(t.created_at))
     .map((cu) => [cu.ticket_code, cu])).values()]
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
