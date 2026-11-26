@@ -1,10 +1,9 @@
 'use client'
 
 // PROTOTYPE vứt đi — PA F "Đề xuất theo nghiên cứu" (docs/rework/2026-11-25-nghien-cuu-cskh-ho-so-may.md mục 4b):
-// L1 Bảng + thẻ Xem nhanh (dải máy + bảo hành, sửa trạng thái / người phụ trách, Hẹn KTV) · L3 view mặc định có số đếm,
+// L1 Bảng + thẻ Xem nhanh (bố cục Twenty, xem-nhanh-f.tsx: tab, nhóm trường, sửa trạng thái / phụ trách, Hẹn KTV) · L3 view mặc định có số đếm,
 // hạn/SLA bằng tag màu · L2 Kanban theo khâu là dạng xem phụ. Không gọi mutation thật — sửa chỉ đổi state trên màn.
 import { Suspense, useCallback, useRef, useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   AddressBook,
@@ -27,12 +26,10 @@ import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
-import { OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
+import type { MucTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
-import { PropertyList, PropertyRow } from '@/components/ui/property-list'
-import { thongBao } from '@/components/ui/sonner'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { recordPickerLuuY } from '@/components/ui/inline-edit-styles'
@@ -43,8 +40,9 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
-import { chuaLuu, cheSdt, DauPrototype, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { chuaLuu, DauPrototype, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { CHUA_GIAO, han, TOI_F as TOI, TRUONG_F } from './truong-f'
+import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
 // ── Giả định (DB chưa có trường) — ghi trên màn ─────────────────────────────────────────────────────────────────────
 // "Của tôi" = TOI · hạn = ngày tạo + 3 ngày (khẩn + 1): truong-f.ts (server lọc dùng chung).
@@ -55,8 +53,10 @@ const choVatTu = (t: Ticket) => t.state === 'Open' && !!t.ky_thuat && (t.ticket_
 const laHomNay = (iso: string | null) => !!iso && new Date(iso).toDateString() === new Date().toDateString()
 
 /** Sửa tại chỗ (prototype). `khau`: thả thẻ vào cột Khâu — Khâu là giá trị SUY RA, chưa có trường DB → ghi đè trên màn. */
-type Sua = { state?: Ticket['state']; cs?: string | null; hen?: boolean; khau?: string }
-type Dong = Ticket & { hen: boolean; khau?: string }
+export type SuaF = { state?: Ticket['state']; cs?: string | null; hen?: boolean; khau?: string }
+export type DongF = Ticket & { hen: boolean; khau?: string }
+type Sua = SuaF
+type Dong = DongF
 
 const henNay = (t: Dong) => t.state === 'Open' && (t.hen || (!!t.ky_thuat && !choVatTu(t) && laHomNay(t.hoat_dong_cuoi ?? null)))
 const sla = (t: Ticket): 'qua' | 'sap' | null => {
@@ -86,16 +86,16 @@ export const TT: MucTrangThai[] = [
 ]
 
 // Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành, hạn = chữ;
-// màu chữ chỉ cho ngoại lệ (hết BH, quá hạn, sắp hạn). Khẩn = icon đỏ đầu hàng. Badge bảo hành chỉ còn ở Xem nhanh.
+// màu chữ chỉ cho ngoại lệ (hết BH, quá hạn, sắp hạn). Khẩn = icon đỏ đầu hàng. Xem nhanh cũng vậy (xem-nhanh-f.tsx).
 const CHU_DO = 'text-(--color-text-danger)'
 
 /** Khẩn: icon đỏ (kiểu ưu tiên của Linear) thay badge — tên đọc được cho trình đọc màn hình. */
-function IconKhan() {
+export function IconKhan() {
   return <WarningCircle weight="fill" role="img" aria-label="Khẩn" className={recordPickerLuuY} />
 }
 
 /** Bảo hành dạng chữ cho bảng/danh sách; `ngan` (ô bảng hẹp): "Còn BH" / "Hết BH". */
-function ChuBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
+export function ChuBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
   if (!t.serial) return ngan ? null : <span className="text-muted-foreground">—</span>
   if (!t.warranty_activated) return <span className="text-muted-foreground">Chưa kích hoạt</span>
   return t.con_han_may ? (
@@ -105,27 +105,8 @@ function ChuBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
   )
 }
 
-export function NhanBaoHanh({ t }: { t: Ticket }) {
-  if (!t.serial) return <span className="text-muted-foreground">—</span>
-  if (!t.warranty_activated)
-    return (
-      <Badge variant="soft" color="secondary">
-        Chưa kích hoạt
-      </Badge>
-    )
-  return t.con_han_may ? (
-    <Badge variant="soft" color="success">
-      Còn bảo hành
-    </Badge>
-  ) : (
-    <Badge variant="soft" color="warning">
-      Hết bảo hành
-    </Badge>
-  )
-}
-
 /** Hạn/SLA dạng chữ: đỏ quá hạn, cam sắp hạn (< 24 giờ); còn lại chữ ngày mờ. */
-function NhanHan({ t }: { t: Ticket }) {
+export function NhanHan({ t }: { t: Ticket }) {
   const s = sla(t)
   if (s === 'qua') return <span className={`tabular-nums ${CHU_DO}`}>Quá {soNgayQua(t)} ngày</span>
   if (s === 'sap') return <span className="tabular-nums text-(--color-text-warning)">Hạn {ngayNgan(new Date(han(t)).toISOString())}</span>
@@ -328,56 +309,6 @@ const truongThe = (d: Dong): TruongThe[] => [
   { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
 ]
 
-// ── Thẻ Xem nhanh ───────────────────────────────────────────────────────────────────────────────────────────────────
-function NoiDungXem({ t, nguoi, sua }: { t: Dong; nguoi: { gt: string; nhan: string }[]; sua: (s: Sua) => void }) {
-  return (
-    <div className="flex flex-col gap-5 border-none border-current">
-      {/* Dải máy: câu hỏi đầu tiên của mọi ca — "máy nào, còn bảo hành không" (nghiên cứu D1). */}
-      <div className="flex flex-wrap items-center gap-2 border-none border-current">
-        <span className="ds-text-sm font-medium">{t.product_name ?? 'Chưa rõ máy'}</span>
-        {t.source_serial && <span className="ds-text-sm tabular-nums text-muted-foreground">{t.source_serial}</span>}
-        <NhanBaoHanh t={t} />
-      </div>
-      <PropertyList>
-        <PropertyRow nhan="Trạng thái">
-          <OSuaTrangThai ma={t.ticket_code} value={{ tt: t.state }} muc={TT} onLuu={(v) => sua({ state: v.tt as Ticket['state'] })} />
-        </PropertyRow>
-        <PropertyRow nhan="Phụ trách">
-          <OSuaNguoi ma={t.ticket_code} truong="người phụ trách" value={t.cs_ten} options={nguoi} onLuu={(v) => sua({ cs: v })} />
-        </PropertyRow>
-        <PropertyRow nhan="Hạn">
-          <NhanHan t={t} />
-        </PropertyRow>
-        <PropertyRow nhan="Kỹ thuật">{t.ky_thuat_ten ?? (t.hen ? 'Đã hẹn (prototype)' : null)}</PropertyRow>
-        <PropertyRow nhan="Khách">{t.customer_name}</PropertyRow>
-        <PropertyRow nhan="SĐT">{cheSdt(t.primary_phone)}</PropertyRow>
-        <PropertyRow nhan="Tỉnh/TP">{t.province}</PropertyRow>
-        <PropertyRow nhan="Loại">{t.ticket_type}</PropertyRow>
-      </PropertyList>
-      <PropertyList tieuDe="Nội dung" layout="stack">
-        <PropertyRow nhan="Khách báo">{t.description}</PropertyRow>
-        <PropertyRow nhan="Ghi chú cuối">{t.last_note}</PropertyRow>
-      </PropertyList>
-      <div className="flex flex-wrap gap-2 border-none border-current">
-        <Button
-          size="sm"
-          onClick={() => {
-            sua({ hen: true })
-            thongBao.xong(`${t.ticket_code}: đã hẹn KTV — prototype, chưa lưu`)
-          }}
-          disabled={t.hen}
-        >
-          <CalendarPlus aria-hidden="true" />
-          {t.hen ? 'Đã hẹn KTV' : 'Hẹn KTV'}
-        </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/ticket/${encodeURIComponent(t.ticket_code)}?variant=G`}>Mở trang đầy đủ</Link>
-        </Button>
-      </div>
-    </div>
-  )
-}
-
 export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {} }: DuLieuTicket) {
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
@@ -461,7 +392,18 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const nguon = dangXem === 'kanban' ? theKanban : dong
   const i = xem ? nguon.findIndex((t) => t.ticket_code === xem) : -1
   const t = i >= 0 ? nguon[i] : null
-  const mo = (ma: string | null) => dat({ xem: ma }, true)
+  // Tab của thẻ (`xem_tab`): như `nhom` — bản tạm trên màn có hiệu lực ngay, URL ghi chạy nền (router.replace chậm ở dev).
+  // Đóng thẻ (✕, Esc, nút xem nhanh) → bỏ tab; lật / mở bản ghi khác → giữ tab.
+  const [tabTam, setTabTam] = useState<TabXem | null>(null)
+  const mo = (ma: string | null) => {
+    if (!ma) setTabTam(null)
+    dat({ xem: ma, ...(ma ? {} : { xem_tab: null }) }, true)
+  }
+  const tabXem: TabXem = tabTam ?? TAB_XEM.find((x) => x === sp.get('xem_tab')) ?? 'tong'
+  const doiTab = (v: TabXem) => {
+    setTabTam(v)
+    dat({ xem_tab: v === 'tong' ? null : v }, true)
+  }
 
   const dieuKien = [
     ...(sp.get('q') ? [{ nhan: 'Tìm', giaTri: sp.get('q')!, href: hrefBoLoc(pathname, sp, 'q') }] : []),
@@ -527,7 +469,19 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   return (
     <XemNhanh
       coDinh
-      the={t && { ma: t.ticket_code, phu: tenKhach(t), noiDung: <NoiDungXem key={t.ticket_code} t={t} nguoi={nguoi} sua={doi(t.ticket_code)} /> }}
+      the={
+        t &&
+        theXemNhanhF({
+          t,
+          rows,
+          nguoi,
+          sua: doi(t.ticket_code),
+          tab: tabXem,
+          onTab: doiTab,
+          moDuoc: (ma) => nguon.some((x) => x.ticket_code === ma),
+          onMo: mo,
+        })
+      }
       onDong={() => mo(null)}
       onTruoc={i > 0 ? () => mo(nguon[i - 1].ticket_code) : undefined}
       onSau={i >= 0 && i < nguon.length - 1 ? () => mo(nguon[i + 1].ticket_code) : undefined}

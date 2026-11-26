@@ -86,6 +86,19 @@ lên artifact:** `.b-thanh` thêm `flex-wrap`, `.b-tabs-cuon` `min-width: min(10
 thì cụm công cụ xuống dòng canh phải thay vì bóp hàng tab; 1440 không đổi. README DataViewToolbar thêm một dòng.
 **Chờ đồng bộ lên artifact** (CEO 26/11 "siết padding của các tab này", commit ec0a6b6): `.ui-tabs-pill .ui-tabs-trigger
 { height: 32px; padding: 0 12px }` (`tabsTriggerPill` — cả nút "Thêm ▾" của `thuGon`).
+**Chờ đồng bộ lên artifact** (26/11, CEO duyệt thẻ Xem nhanh học bố cục panel bản ghi Twenty — prototype ticket F,
+`app/ticket/_prototype/xem-nhanh-f.tsx`): (1) **Tabs `line`** — icon trước chữ (con đầu của `TabsTrigger`, `[&_svg]`
+cỡ `--control-icon-size-md` 18, icon tự đặt `size-*` giữ cỡ); tab line đệm ngang 12 (trước 16), không xuống dòng/không co;
+rãnh line chỉ đệm dọc (mép tab đầu = mép khung); `thuGon` chạy cả với `line`: khung `tabsKhungLine` (không cuộn,
+`overflow-x: clip` để vạch chọn thò 5px không bị cắt), nút `tabsThemLine` ghi "+N Thêm ▾" (N = số tab đang ẩn; pill vẫn
+"Thêm ▾"). Test `tabs.dom.test` (gom/nhả khi đổi bề rộng, chọn từ menu → focus, ←/→/Home/End). (2) **XemNhanh** —
+`the.tab` (hàng tab line `thuGon` dưới đầu thẻ, đứng yên khi cuộn: `xnTabs`/`xnHangTab`/`xnCuon`; gạch chân 1px alpha-05,
+vạch chọn đè đúng gạch), `the.chan` (thanh thao tác dính đáy `xnChan`: cao 52, đệm 0 24, dồn phải, gạch trên), `the.co`
+(cờ sau mã, vd icon Khẩn). (3) **PropertyRow `trong`** — chữ thay cho "Chưa có" khi rỗng (Xem nhanh: tên trường, mờ;
+sr vẫn "Chưa có"). Khi đẩy lên artifact: `bundle.css` thêm `.ui-tabs-list[data-variant="line"]` + `.ui-tabs-line
+.ui-tabs-trigger` (vạch 2px `::after`, icon 18) và `.b-ct-tabs` / `.b-ct-chan` cho thẻ chi tiết; README Tabs thêm mục
+"Line + icon + thu gọn", README DataViewToolbar mục Xem nhanh thêm tab + thanh đáy, README PropertyList một dòng `trong`;
+preview Tabs thêm mẫu line có icon (hiện CHƯA có → so khớp không ảnh hưởng tới khi thêm).
 
 Lọc từ menu tiêu đề cột (26/11, học Twenty "menu cột → Filter", prototype ticket F): `TieuDeCot moLoc={{ dang, onMo }}` →
 mục "Lọc…" (Funnel) đầu menu, menu đóng xong mới gọi `onMo(nút tiêu đề)`; `dang` → phễu trên tiêu đề (không số). Nối bằng

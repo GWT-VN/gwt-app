@@ -339,3 +339,21 @@ test('BreadcrumbSeparator / BreadcrumbEllipsis (shadcn): li aria-hidden mặc đ
   expect(container.querySelector('[data-slot="breadcrumb-ellipsis"]')?.getAttribute('aria-hidden')).toBe('true')
   expect(within(container).getAllByRole('listitem')).toHaveLength(2)
 })
+
+test('PropertyRow trong: rỗng hiện chữ thay (tên trường, mờ), trình đọc màn hình vẫn nghe "Chưa có"', () => {
+  render(
+    <PropertyList>
+      <PropertyRow nhan="Người tạo" trong="Người tạo">
+        {null}
+      </PropertyRow>
+      <PropertyRow nhan="Loại" trong="Loại">
+        Bảo hành
+      </PropertyRow>
+    </PropertyList>,
+  )
+  const rong = document.querySelectorAll('[data-slot="props-empty"]')
+  expect(rong.length).toBe(1)
+  expect(rong[0].querySelector('[aria-hidden="true"]')?.textContent).toBe('Người tạo')
+  expect(rong[0].querySelector('.sr-only')?.textContent).toBe('Chưa có')
+  expect(screen.getByText('Bảo hành')).toBeTruthy()
+})

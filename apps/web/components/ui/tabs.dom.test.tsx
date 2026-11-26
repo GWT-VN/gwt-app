@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, test, vi } from 'vitest'
 import { useState } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DsRoot } from './ds-root'
 import { tinhThuGon } from '@/lib/tabs-thu-gon'
@@ -202,4 +202,100 @@ test('thuGon: số đếm của tab đang ẩn đổi → mục trong menu "Thê
   await u.click(screen.getByRole('button', { name: 'Thêm' }))
   const muc = await screen.findByRole('menuitem', { name: /^Quá hạn/ })
   expect(muc.textContent).toBe('Quá hạn 5')
+})
+
+// ── line + icon + thuGon (Xem nhanh, học Twenty "Home · Timeline · +4 More ▾") ──────────────────────────────────────
+function doRong(khung: () => number) {
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    if (this.getAttribute('role') === 'tab') return 100
+    if (this.dataset.slot === 'tabs-them') return 80
+    return 0
+  })
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    return this.dataset.slot === 'tabs-khung' ? khung() : 0
+  })
+}
+
+function Line({ onDoi }: { onDoi?: (v: string) => void }) {
+  return (
+    <DsRoot>
+      <Tabs defaultValue="tong" onValueChange={onDoi}>
+        <TabsList variant="line" thuGon aria-label="Xem nhanh">
+          <TabsTrigger value="tong">
+            <svg data-testid="icon-tong" aria-hidden="true" />
+            Tổng quan
+          </TabsTrigger>
+          <TabsTrigger value="lan">Lần lỗi</TabsTrigger>
+          <TabsTrigger value="nk">Nhật ký</TabsTrigger>
+          <TabsTrigger value="vt">Vật tư</TabsTrigger>
+          <TabsTrigger value="khac">Ticket khác</TabsTrigger>
+        </TabsList>
+        <TabsContent value="tong">Panel tổng quan</TabsContent>
+        <TabsContent value="khac">Panel ticket khác</TabsContent>
+      </Tabs>
+    </DsRoot>
+  )
+}
+
+test('line: icon trước chữ không vào tên tab; tab mang vẻ line', () => {
+  render(<Line />)
+  const t = tab('Tổng quan')
+  expect(t.firstElementChild?.getAttribute('data-testid')).toBe('icon-tong')
+  expect(screen.getByRole('tablist').getAttribute('data-variant')).toBe('line')
+})
+
+test('line thuGon hẹp: gom đuôi vào "+N Thêm" (N = số tab ẩn), nút đứng ngoài tablist; rộng ra thì nhả hết', async () => {
+  let w = 300
+  doRong(() => w)
+  const cb: (() => void)[] = []
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(f: () => void) {
+        cb.push(f)
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  )
+  render(<Line />)
+  await waitFor(() => expect(screen.getAllByRole('tab').length).toBe(2))
+  const them = screen.getByRole('button', { name: '+3 Thêm' })
+  expect(screen.getByRole('tablist').contains(them)).toBe(false)
+  w = 600
+  act(() => cb.forEach((f) => f()))
+  await waitFor(() => expect(screen.getAllByRole('tab').length).toBe(5))
+  expect(them.hidden).toBe(true)
+  vi.unstubAllGlobals()
+})
+
+test('line thuGon: chọn tab ẩn từ menu → tab đó được chọn, hiện ra, nhận focus; panel đổi theo', async () => {
+  doRong(() => 300)
+  const doi = vi.fn()
+  const u = userEvent.setup()
+  render(<Line onDoi={doi} />)
+  await waitFor(() => expect(screen.getAllByRole('tab').length).toBe(2))
+  await u.click(screen.getByRole('button', { name: '+3 Thêm' }))
+  await u.click(await screen.findByRole('menuitem', { name: 'Ticket khác' }))
+  expect(doi).toHaveBeenCalledWith('khac')
+  await waitFor(() => expect(document.activeElement).toBe(tab('Ticket khác')))
+  expect(chon('Ticket khác')).toBe('true')
+  expect(screen.getByRole('tabpanel').textContent).toBe('Panel ticket khác')
+})
+
+test('line thuGon (đủ chỗ): ←/→/Home/End chuyển + kích hoạt như tab thường', async () => {
+  doRong(() => 900)
+  const u = userEvent.setup()
+  render(<Line />)
+  await u.tab()
+  expect(document.activeElement).toBe(tab('Tổng quan'))
+  await u.keyboard('{ArrowRight}')
+  expect(chon('Lần lỗi')).toBe('true')
+  await u.keyboard('{End}')
+  expect(chon('Ticket khác')).toBe('true')
+  await u.keyboard('{Home}')
+  expect(chon('Tổng quan')).toBe('true')
+  await u.keyboard('{ArrowLeft}')
+  expect(chon('Ticket khác')).toBe('true')
 })

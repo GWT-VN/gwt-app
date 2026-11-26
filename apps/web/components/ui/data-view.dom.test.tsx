@@ -411,3 +411,37 @@ test('dangXemCo (màn chỉ cho Bảng + Kanban — ticket F, CEO 26/11): cụm 
   expect(within(pop).queryByRole('button', { name: 'Danh sách' })).toBeNull()
   expect(within(pop).getByRole('button', { name: 'Kanban' })).toBeTruthy()
 })
+
+test('XemNhanh tab + chan: hàng tab line có tên, đổi tab gọi onDoi; thanh đáy nằm ngoài vùng cuộn', async () => {
+  const onDoi = vi.fn()
+  const u = userEvent.setup()
+  render(
+    <DsRoot>
+      <XemNhanh
+        the={{
+          ma: 'T-101',
+          tab: {
+            value: 'a',
+            onDoi,
+            ds: [
+              { gt: 'a', nhan: 'Tổng quan', noiDung: 'Nội dung A' },
+              { gt: 'b', nhan: 'Nhật ký', noiDung: 'Nội dung B' },
+            ],
+          },
+          chan: <Button>Hẹn KTV</Button>,
+        }}
+        onDong={() => {}}
+      >
+        <p>Bảng</p>
+      </XemNhanh>
+    </DsRoot>,
+  )
+  const ds = screen.getByRole('tablist', { name: 'Thông tin T-101' })
+  expect(ds.getAttribute('data-variant')).toBe('line')
+  expect(screen.getByRole('tabpanel').textContent).toBe('Nội dung A')
+  await u.click(screen.getByRole('tab', { name: 'Nhật ký' }))
+  expect(onDoi).toHaveBeenCalledWith('b')
+  const chan = document.querySelector('[data-slot="xem-nhanh-chan"]')!
+  expect(chan.contains(screen.getByRole('button', { name: 'Hẹn KTV' }))).toBe(true)
+  expect(screen.getByRole('tabpanel').contains(chan)).toBe(false)
+})

@@ -35,10 +35,11 @@ export function ThanhPhuongAn({ ds, hienTai }: { ds: PhuongAn[]; hienTai: string
   if (process.env.NODE_ENV === 'production') return null
   return (
     // Góc trái-dưới vùng nội dung (giữa đáy là chỗ của thanh hàng loạt), z dưới bulkbar 55 → thanh thật luôn đè thanh này.
+    // z 43 < thẻ Xem nhanh 44 (26/11): khổ 900 thanh này từng đè nút ⋮ ở thanh đáy thẻ.
     <nav
       aria-label="Đổi phương án"
       className={cn(
-        'fixed bottom-4 left-[calc(var(--khung-trai-rong,0px)+16px)] max-[767px]:left-4 z-50 flex items-center gap-1 rounded-(--radius-full) p-1',
+        'fixed bottom-4 left-[calc(var(--khung-trai-rong,0px)+16px)] max-[767px]:left-4 z-[43] flex items-center gap-1 rounded-(--radius-full) p-1',
         'max-w-[calc(100vw-32px)] border-none border-current bg-popover text-popover-foreground',
         '[box-shadow:var(--shadow),var(--shadow-hairline)]',
       )}

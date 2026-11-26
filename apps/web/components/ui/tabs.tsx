@@ -21,11 +21,13 @@ import {
   tabsContent,
   tabsCount,
   tabsKhung,
+  tabsKhungLine,
   tabsListVariants,
   tabsRoot,
   tabsTriggerLine,
   tabsTriggerPill,
   tabsTriggerSegmented,
+  tabsThemLine,
 } from './tabs-styles'
 
 /**
@@ -39,7 +41,10 @@ import {
  * - Pill tràn: cuộn ngang, mờ mép phải 40px khi còn phần khuất. `thuGon`: tab không vừa gom vào nút "Thêm ▾"
  *   (DropdownMenu DS, chuẩn GitHub/Linear) — tab đang chọn luôn hiện; chọn từ menu → tab đó thành đang chọn, focus về nó
  *   (giá trị về trễ — URL qua router — thì focus tạm ở "Thêm", chuyển sang tab khi nó hiện).
- *   Nút "Thêm" đứng NGOÀI `tablist` (tablist chỉ chứa tab).
+ *   Nút "Thêm" đứng NGOÀI `tablist` (tablist chỉ chứa tab). `line` + `thuGon` (Xem nhanh, học Twenty "+4 More ▾"): cùng
+ *   logic, nút ghi số tab đang ẩn "+N Thêm ▾", hàng không cuộn (thu gọn đã lo tràn).
+ * - Icon trước chữ: đặt `<Icon aria-hidden />` (Phosphor) làm con đầu của `TabsTrigger` — cỡ token icon md tự áp, tên tab
+ *   chỉ là chữ; menu "Thêm" hiện cả icon.
  * - Tab gắn URL (lọc trạng thái danh sách) → tham số chuẩn trong CHUAN-FILTER.md, điều khiển bằng `value`/`onValueChange`.
  */
 
@@ -113,11 +118,22 @@ export function TabsList({
       {children}
     </TabsPrimitive.List>
   )
-  if (variant !== 'pill') return <KieuTabs.Provider value={{ variant }}>{list()}</KieuTabs.Provider>
-  return <HangPill thuGon={thuGon} list={list} />
+  if (variant === 'pill') return <HangThuGon variant="pill" thuGon={thuGon} list={list} />
+  if (variant === 'line' && thuGon) return <HangThuGon variant="line" thuGon list={list} />
+  return <KieuTabs.Provider value={{ variant }}>{list()}</KieuTabs.Provider>
 }
 
-function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivElement>) => ReactNode }) {
+/** Hàng pill (cuộn ngang, tuỳ chọn thu gọn) hoặc hàng line thu gọn (không cuộn). */
+function HangThuGon({
+  variant,
+  thuGon,
+  list,
+}: {
+  variant: 'pill' | 'line'
+  thuGon: boolean
+  list: (ref: Ref<HTMLDivElement>) => ReactNode
+}) {
+  const line = variant === 'line'
   const { value, doi } = useContext(GiaTri)
   const khung = useRef<HTMLDivElement>(null)
   const ds = useRef<HTMLDivElement>(null)
@@ -182,14 +198,26 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
 
   const anSet = new Set(an)
   return (
-    <KieuTabs.Provider value={{ variant: 'pill', an: anSet, dangKy }}>
-      <div ref={khung} data-slot="tabs-khung" data-tran={tran || undefined} onScroll={do_} className={tabsKhung}>
+    <KieuTabs.Provider value={{ variant, an: anSet, dangKy }}>
+      <div
+        ref={khung}
+        data-slot="tabs-khung"
+        data-tran={(!line && tran) || undefined}
+        onScroll={line ? undefined : do_}
+        className={line ? tabsKhungLine : tabsKhung}
+      >
         {list(ds)}
         {thuGon && (
           <DropdownMenu onOpenChange={(mo) => mo && setNhanMenu(new Map(nhan.current))}>
             <DropdownMenuTrigger asChild>
-              <button ref={them} type="button" data-slot="tabs-them" hidden={an.length === 0} className={tabsTriggerPill}>
-                Thêm
+              <button
+                ref={them}
+                type="button"
+                data-slot="tabs-them"
+                hidden={an.length === 0}
+                className={line ? tabsThemLine : tabsTriggerPill}
+              >
+                {line && `+${an.length} `}Thêm
                 <CaretDown aria-hidden="true" className="size-4" />
               </button>
             </DropdownMenuTrigger>

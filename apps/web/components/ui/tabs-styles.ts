@@ -19,10 +19,11 @@ export const tabsListSegmented = [
 
 /**
  * `variant="line"` (shadcn, artifact chưa có): không rãnh, cách 4, cao như segmented; tab đang chọn kẻ 2px foreground
- * dưới chân (vạch `::after` của `tabsTriggerLine`).
+ * dưới chân (vạch `::after` của `tabsTriggerLine`). Đệm chỉ dọc (2): mép tab đầu = mép khung chứa (Xem nhanh 26/11 — mép
+ * tab đầu thẳng mép nội dung panel).
  */
 export const tabsListLine =
-  'inline-flex items-center gap-1 h-(--control-size-md) p-0.5 rounded-none bg-transparent border-none border-current'
+  'inline-flex items-center gap-1 h-(--control-size-md) py-0.5 px-0 rounded-none bg-transparent border-none border-current'
 
 /** `.ui-tabs-list[data-variant="pill"]`: không rãnh, cao theo tab, cách 4 (bo pill giữ từ `.ui-tabs-list`). */
 export const tabsListPill =
@@ -38,6 +39,13 @@ export const tabsKhung = [
   'overflow-x-auto [scrollbar-width:none]',
   'data-tran:[mask-image:linear-gradient(to_right,#000_calc(100%-40px),transparent)]',
 ].join(' ')
+
+/**
+ * Khung hàng `line` + `thuGon`: như `tabsKhung` (đệm 2 + lề âm 2 chừa vòng focus) nhưng KHÔNG cuộn — thu gọn đã lo phần
+ * tràn; `overflow-x: clip` không ép trục dọc thành cuộn nên vạch chọn (thò 5px dưới chân tab) không bị cắt.
+ */
+export const tabsKhungLine =
+  'flex items-center gap-1 min-w-0 w-[calc(100%+--spacing(1))] -m-0.5 p-0.5 border-none border-current overflow-x-clip'
 
 /**
  * `tabsListVariants` — tên + giá trị shadcn (`default` / `line`) cộng phần GWT (`segmented` = `default`, `pill`). Phần
@@ -62,6 +70,9 @@ export const tabsListVariants = cva(
 const triggerChung = [
   'inline-flex items-center gap-1.5 border-none border-current rounded-(--radius-full) bg-transparent cursor-pointer',
   'text-[14px] leading-none text-muted-foreground',
+  // Icon trước chữ (Phosphor, học Twenty 26/11): cỡ token icon md như Button/Toggle cùng cỡ control; icon tự đặt `size-*`
+  // (caret của "Thêm") giữ cỡ của nó.
+  '[&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-(--control-icon-size-md)',
   'transition-[background-color,color] duration-150 ease-[ease]',
   'hover:text-foreground data-[state=active]:text-foreground aria-expanded:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring',
@@ -80,16 +91,20 @@ export const tabsTriggerSegmented = [
 
 /**
  * Tab `line` (shadcn): như segmented nhưng không thumb/bóng; đang chọn = vạch 2px foreground dưới chân (cách 5 như
- * shadcn `bottom-[-5px]`), hiện mờ dần. Dọc: vạch bên phải.
+ * shadcn `bottom-[-5px]`), hiện mờ dần. Dọc: vạch bên phải. Đệm ngang 12 như pill (CEO 26/11 siết tab; trước 16 như
+ * segmented); không xuống dòng, không co (thu gọn đo bề rộng thật).
  */
 export const tabsTriggerLine = [
   triggerChung,
-  'relative h-full px-[calc(var(--control-gutter-md)*1.33)] font-semibold',
+  'relative h-full px-3 font-semibold whitespace-nowrap shrink-0',
   "after:content-[''] after:absolute after:border-none after:border-current after:bg-foreground after:opacity-0",
   'after:transition-opacity data-[state=active]:after:opacity-100',
   'group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:-bottom-[5px] group-data-[orientation=horizontal]/tabs:after:h-0.5',
   'group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5',
 ].join(' ')
+
+/** Nút "+N Thêm ▾" của hàng `line` thu gọn: như tab line (cao 28 = tab trong rãnh 32), không vạch (không phải tab). */
+export const tabsThemLine = [triggerChung, 'h-7 px-3 font-semibold whitespace-nowrap shrink-0'].join(' ')
 
 /**
  * Tab pill: cao control-size-md (32), đệm 0 12, 500, không xuống dòng, không co; đang chọn nền alpha-05, không bóng,

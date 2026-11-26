@@ -4,8 +4,25 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { CaretLeft, CaretRight, X } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { xnDau, xnKhung, xnMa, xnNoiDungNhuong, xnNoiDungNhuongCoDinh, xnThan, xnThe, xnTheCoDinh } from './data-view-styles'
+import {
+  xnChan,
+  xnCuon,
+  xnDau,
+  xnHangTab,
+  xnKhung,
+  xnMa,
+  xnNoiDungNhuong,
+  xnNoiDungNhuongCoDinh,
+  xnTabs,
+  xnThan,
+  xnThe,
+  xnTheCoDinh,
+} from './data-view-styles'
 import { useDsPortal } from './ds-root'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
+
+/** Một tab của thẻ (`the.tab.ds`): `icon` Phosphor `aria-hidden` đứng trước nhãn. */
+export type TabXemNhanh = { gt: string; nhan: string; icon?: ReactNode; noiDung: ReactNode }
 
 /**
  * Phím thuộc ô gõ / menu / hộp đang mở — không lật bản ghi (prototype: input, textarea, [role=menu]). Ô chọn dòng
@@ -34,6 +51,9 @@ const LOP_MO = '[data-state="open"], [data-state="delayed-open"], [data-state="i
  *   (`data-dang-keo` trên body — Esc huỷ kéo) hoặc có lớp Radix đang mở (tooltip đang hiện, menu…) — listener này gắn
  *   TRƯỚC listener Esc của lớp (cùng document capture) nên phải tự nhường, không thì lớp kẹt mở.
  * - Không tự giữ state: bên gọi giữ bản ghi đang xem (thường là tham số URL) và truyền `the`.
+ * - `the.tab` (học bố cục Twenty 26/11): hàng tab `line` có icon dưới đầu thẻ, đứng yên khi nội dung cuộn; tab không vừa
+ *   gom vào "+N Thêm ▾" (`thuGon`). Bên gọi giữ tab đang chọn (`value` / `onDoi`). Không có `tab` → thân như cũ.
+ * - `the.chan`: thanh thao tác dính đáy thẻ, dồn phải (⋮ menu + nút chính) — không cuộn theo nội dung.
  */
 export function XemNhanh({
   the,
@@ -44,7 +64,15 @@ export function XemNhanh({
   className,
   children,
 }: {
-  the: { ma: string; phu?: ReactNode; noiDung?: ReactNode } | null
+  the: {
+    ma: string
+    phu?: ReactNode
+    /** Cờ ngay sau mã (icon Khẩn… — icon có tên đọc được). */
+    co?: ReactNode
+    noiDung?: ReactNode
+    tab?: { value: string; onDoi: (v: string) => void; ds: TabXemNhanh[] }
+    chan?: ReactNode
+  } | null
   onDong: () => void
   /** Không truyền = đang ở bản ghi đầu (nút ‹ tắt). */
   onTruoc?: () => void
@@ -98,6 +126,7 @@ export function XemNhanh({
         <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
           <div className={xnDau}>
             <span className={xnMa}>{the.ma}</span>
+            {the.co}
             {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
             <span aria-hidden="true" className="flex-1 border-none border-current" />
             <Button variant="ghost" size="icon-sm" aria-label="Bản ghi trước (↑)" disabled={!onTruoc} onClick={onTruoc}>
@@ -110,13 +139,40 @@ export function XemNhanh({
               <X aria-hidden="true" />
             </Button>
           </div>
-          <div className={xnThan}>
-            {the.noiDung ?? (
-              <p className="m-0 border-none border-current text-[12px] leading-[18px] text-muted-foreground">
-                Nội dung thẻ xem nhanh chưa chốt — màn tự dựng từ DS (Alert · PropertyList · Timeline).
-              </p>
-            )}
-          </div>
+          {the.tab ? (
+            <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
+              <div className={xnHangTab}>
+                <TabsList variant="line" thuGon aria-label={`Thông tin ${the.ma}`}>
+                  {the.tab.ds.map((x) => (
+                    <TabsTrigger key={x.gt} value={x.gt}>
+                      {x.icon}
+                      {x.nhan}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+              <div className={xnCuon}>
+                {the.tab.ds.map((x) => (
+                  <TabsContent key={x.gt} value={x.gt}>
+                    {x.noiDung}
+                  </TabsContent>
+                ))}
+              </div>
+            </Tabs>
+          ) : (
+            <div className={xnThan}>
+              {the.noiDung ?? (
+                <p className="m-0 border-none border-current text-[12px] leading-[18px] text-muted-foreground">
+                  Nội dung thẻ xem nhanh chưa chốt — màn tự dựng từ DS (Alert · PropertyList · Timeline).
+                </p>
+              )}
+            </div>
+          )}
+          {the.chan && (
+            <div data-slot="xem-nhanh-chan" className={xnChan}>
+              {the.chan}
+            </div>
+          )}
         </aside>
       )}
     </div>

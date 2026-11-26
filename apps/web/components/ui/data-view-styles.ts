@@ -154,6 +154,20 @@ export const xnDau = cn(
   'flex h-[52px] min-w-0 shrink-0 items-center gap-1 pr-2.5 pl-6 whitespace-nowrap',
   'border-none border-current [border-bottom:1px_solid_var(--alpha-05)]',
 )
+/**
+ * Xem nhanh có tab (`the.tab`, học bố cục Twenty 26/11 — artifact chưa có): gốc Tabs giãn hết thân thẻ (cột). Hàng tab
+ * không cuộn theo nội dung: đệm 0 24 (mép tab đầu = mép nội dung), dưới 2 để vạch chọn 2px của tab `line` (thò 5px dưới
+ * chân) đè đúng gạch chân 1px alpha-05 của hàng — cùng gạch với `xnDau`.
+ */
+export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
+export const xnHangTab = cn(kv, 'shrink-0 px-6 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
+/** Vùng cuộn dưới hàng tab: đệm 8 24 24 (+ đệm trên 12 của TabsContent = 20 như `xnThan`), ẩn thanh cuộn. */
+export const xnCuon = cn(kv, 'min-h-0 flex-1 overflow-y-auto px-6 pt-2 pb-6 [scrollbar-width:none]')
+/** Thanh thao tác dính đáy thẻ: cao 52 như đầu thẻ, đệm 0 24, dồn phải, cách 8, gạch trên 1px alpha-05. */
+export const xnChan = cn(
+  'flex h-[52px] shrink-0 items-center justify-end gap-2 px-6',
+  'border-none border-current [border-top:1px_solid_var(--alpha-05)]',
+)
 /** `.b-ma`: 12/18 tertiary tabular-nums. */
 export const xnMa = cn(kv, 'text-[12px] leading-[18px] text-(--color-text-tertiary) tabular-nums whitespace-nowrap')
 /** `.b-ct-cuon`: giãn + cuộn dọc, đệm 20 24 120, ẩn thanh cuộn. */

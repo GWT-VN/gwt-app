@@ -8,6 +8,9 @@ import { propsEmpty, propsList, propsTerm, propsTitle, propsValue } from './deta
  * - `tieuDe` → `<h3>` tiêu đề nhóm đứng trước dl (nhiều nhóm = nhiều PropertyList liền nhau).
  * - `layout="stack"`: 1 cột, nhãn trên giá trị — cột hẹp / thẻ xem nhanh.
  * - Giá trị rỗng (null / undefined / false / chuỗi trống) → "Chưa có" màu nhạt, không để ô trắng. Số 0 là giá trị.
+ *   `trong` thay chữ hiện khi rỗng (Xem nhanh học Twenty 26/11: trường trống hiện chính tên trường, mờ) — trình đọc màn
+ *   hình vẫn nghe "Chưa có".
+ * - Icon trước nhãn: đặt `<Icon aria-hidden />` (Phosphor) trong `nhan` — cỡ token icon xs tự áp.
  * - Giá trị sửa tại chỗ: đặt `InlineEdit`/`Select`/`Combobox` của DS làm con của `PropertyRow` (ô sửa tự mang tên
  *   "Sửa <nhãn>").
  */
@@ -34,7 +37,7 @@ export function PropertyList({
   )
 }
 
-export function PropertyRow({ nhan, children }: { nhan: ReactNode; children?: ReactNode }) {
+export function PropertyRow({ nhan, trong, children }: { nhan: ReactNode; trong?: ReactNode; children?: ReactNode }) {
   const rong = children === null || children === undefined || children === false || children === ''
   return (
     <>
@@ -42,7 +45,14 @@ export function PropertyRow({ nhan, children }: { nhan: ReactNode; children?: Re
       <dd className={propsValue}>
         {rong ? (
           <span data-slot="props-empty" className={propsEmpty}>
-            Chưa có
+            {trong == null ? (
+              'Chưa có'
+            ) : (
+              <>
+                <span aria-hidden="true">{trong}</span>
+                <span className="sr-only">Chưa có</span>
+              </>
+            )}
           </span>
         ) : (
           children
