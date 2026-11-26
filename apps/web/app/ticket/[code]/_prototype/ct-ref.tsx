@@ -8,7 +8,7 @@
 // - ‹ › sang ticket kề (PageHeader của DS); demo vì trang chưa giữ danh sách.
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus } from '@phosphor-icons/react/ssr'
+import { PencilSimple, Plus } from '@phosphor-icons/react/ssr'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,8 +17,6 @@ import { DetailLayout } from '@/components/ui/detail-layout'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/item'
 import { PageHeader } from '@/components/ui/page-header'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
-import { propsTitle } from '@/components/ui/detail-styles'
-import { cn } from '@/lib/utils'
 import { CanhBao, ChiPhi, cheSdt, chuaLuu, dsLan, DuongDan, MUC_DO, ngayVN, OKhan, ONguoi, OTrangThai, type DuLieuCt } from './chung'
 import { BadgeBaoHanh, NhanKetQua, NhatKy, NoiDungLan, TRUOC } from './ct-gon'
 
@@ -26,12 +24,13 @@ import { BadgeBaoHanh, NhanKetQua, NhatKy, NoiDungLan, TRUOC } from './ct-gon'
 function Section({ id, ten, dem, hanhDong, children }: { id: string; ten: string; dem?: number; hanhDong?: React.ReactNode; children: React.ReactNode }) {
   return (
     <Card aria-labelledby={id} role="region">
-      <CardHeader>
+      {/* items-center: nút bút chì 28 và tiêu đề 24 cùng tâm (CardHeader mặc định items-start lệch 2px) */}
+      <CardHeader className="items-center">
         <CardTitle id={id} role="heading" aria-level={2}>
           {ten}
           {dem !== undefined && <span className="font-normal text-muted-foreground tabular-nums"> ({dem})</span>}
         </CardTitle>
-        {hanhDong && <CardAction>{hanhDong}</CardAction>}
+        {hanhDong && <CardAction className="row-span-1 self-center">{hanhDong}</CardAction>}
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
@@ -77,13 +76,22 @@ function CacLan({ d }: { d: DuLieuCt }) {
   )
 }
 
-/** Cột phụ: người · máy · khách · ticket khác · phân loại — mỗi nhóm một PropertyList xếp dọc (cột 280). */
+/** Nút bút chì của một thẻ (Shopify): chỉ icon + tên cho trình đọc màn hình; prototype chưa mở form sửa. */
+function NutSua({ ten }: { ten: string }) {
+  return (
+    <Button variant="ghost" size="icon-sm" aria-label={`Sửa ${ten}`} onClick={chuaLuu}>
+      <PencilSimple aria-hidden="true" />
+    </Button>
+  )
+}
+
+/** Cột phụ kiểu Shopify: mỗi nhóm một thẻ riêng — người · máy · khách · ticket khác · phân loại. */
 function CotPhu({ d }: { d: DuLieuCt }) {
   const { t } = d
   return (
-    <div className="flex flex-col gap-6 border-none border-current">
-      <div>
-        <PropertyList tieuDe="Phụ trách" layout="stack">
+    <div className="flex flex-col gap-4 border-none border-current">
+      <Section id="ref-nguoi" ten="Phụ trách">
+        <PropertyList layout="stack">
           <PropertyRow nhan="CS theo dõi">
             <ONguoi d={d} loai="cs" />
           </PropertyRow>
@@ -91,9 +99,9 @@ function CotPhu({ d }: { d: DuLieuCt }) {
             <ONguoi d={d} loai="kt" />
           </PropertyRow>
         </PropertyList>
-      </div>
-      <div>
-        <PropertyList tieuDe="Máy" layout="stack">
+      </Section>
+      <Section id="ref-may" ten="Máy" hanhDong={<NutSua ten="máy" />}>
+        <PropertyList layout="stack">
           <PropertyRow nhan="Model">
             {t.serial ? (
               <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false}>
@@ -108,9 +116,9 @@ function CotPhu({ d }: { d: DuLieuCt }) {
             <BadgeBaoHanh d={d} />
           </PropertyRow>
         </PropertyList>
-      </div>
-      <div>
-        <PropertyList tieuDe="Khách" layout="stack">
+      </Section>
+      <Section id="ref-khach" ten="Khách" hanhDong={<NutSua ten="khách" />}>
+        <PropertyList layout="stack">
           <PropertyRow nhan="Tên">
             {t.customer_id ? (
               <Link href={`/khach/${t.customer_id}`} prefetch={false}>
@@ -123,13 +131,9 @@ function CotPhu({ d }: { d: DuLieuCt }) {
           <PropertyRow nhan="Điện thoại">{cheSdt(t.primary_phone) && <span className="tabular-nums">{cheSdt(t.primary_phone)}</span>}</PropertyRow>
           <PropertyRow nhan="Tỉnh">{t.province}</PropertyRow>
         </PropertyList>
-      </div>
+      </Section>
       {/* còn mở: chưa truy vấn ticket cùng serial / cùng khách → Demo (như bản Gọn). */}
-      <section aria-labelledby="ref-truoc" className="flex flex-col gap-2 border-none border-current">
-        <h3 id="ref-truoc" className={cn(propsTitle, "m-0 flex items-center gap-2")}>
-          Ticket khác của máy & khách <span className="font-normal text-muted-foreground tabular-nums">({TRUOC.length})</span>
-          <Badge variant="soft">Demo</Badge>
-        </h3>
+      <Section id="ref-truoc" ten="Ticket khác" dem={TRUOC.length} hanhDong={<Badge variant="soft">Demo</Badge>}>
         <ItemGroup>
           {TRUOC.map((x) => (
             <Item key={x.ma} size="sm" variant="outline">
@@ -149,9 +153,9 @@ function CotPhu({ d }: { d: DuLieuCt }) {
             </Item>
           ))}
         </ItemGroup>
-      </section>
-      <div>
-        <PropertyList tieuDe="Phân loại" layout="stack">
+      </Section>
+      <Section id="ref-loai" ten="Phân loại" hanhDong={<NutSua ten="phân loại" />}>
+        <PropertyList layout="stack">
           <PropertyRow nhan="Nhóm lỗi">
             {d.nhom.length > 0 && (
               <span className="flex flex-wrap gap-1.5 border-none border-current">
@@ -170,7 +174,7 @@ function CotPhu({ d }: { d: DuLieuCt }) {
             <span className="tabular-nums">{ngayVN(t.created_at)}</span>
           </PropertyRow>
         </PropertyList>
-      </div>
+      </Section>
     </div>
   )
 }
