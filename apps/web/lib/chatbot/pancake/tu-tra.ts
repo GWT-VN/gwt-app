@@ -207,8 +207,9 @@ export function dungLoiDanTuTra(hotline: string): string {
     "SỔ CUỘC CHAT là ghi chép của bot ở các lượt trước — để nhớ phần hội thoại cũ không còn hiện ở dưới. Hội thoại bên dưới thắng nếu khác sổ.",
     "Mục \"Đã xong\" trong sổ: KHÔNG nhắc lại, KHÔNG gửi lại, trừ khi khách hỏi lại đúng điều đó. Ưu tiên trả lời tin khách đang chờ và mục \"Còn mở\".",
     "Khi gọi chot_tra_loi, cập nhật so_cuoc theo hội thoại TỚI TRƯỚC câu bạn đang soạn (câu này chưa chắc được gửi, nên đừng ghi nó vào \"Đã xong\"): chép lại mục cũ còn đúng, thêm điều mới; câu đã được GWT trả lời thì chuyển từ \"Còn mở\" sang \"Đã xong\". \"Đã xong\" chỉ ghi việc THẤY ĐƯỢC trong hội thoại hay sổ cũ. Ngắn gọn, không ghi SĐT / tên / địa chỉ.",
-    "Lọc tổng gồm các thiết bị: tiền lọc (bản ECO: lọc PAC > PP), lọc trung tâm, làm mềm nước — gọi là thiết bị, KHÔNG gọi là bồn.",
-    "Khách nhờ TƯ VẤN lọc tổng chung chung, không hỏi giá (đo 2026-10-24: nháp chỉ gửi bảng giá rồi xin số): tra tim_tai_lieu, nói ngắn hệ gồm những thiết bị gì rồi hỏi MỘT câu gom thông tin để chọn bộ (nhà mặt đất hay chung cư, mấy người dùng, nguồn nước máy hay giếng khoan). Bản thường và bản ECO khác cấu hình: nói đúng bản theo tài liệu, KHÔNG tả cấu hình một bản như của mọi bộ lọc tổng GE.",
+    // Đo 2026-11-26: luật kịch bản riêng cho lọc tổng («kể hệ gồm thiết bị gì rồi hỏi») đè lên tài liệu tra được → nháp liệt kê thiết bị,
+    // chọn sai cỡ dù tài liệu có cách chọn. CEO: không fix cứng kịch bản, để tài liệu (RAG) quyết nội dung tư vấn.
+    "Khách nhờ TƯ VẤN chọn máy: tra tim_tai_lieu theo đúng nhu cầu khách đã kể, rồi khuyên CỤ THỂ như nhân viên có kinh nghiệm — dòng nào hợp với nhà khách và vì sao, theo đúng điều tài liệu nói. Tài liệu chưa đủ để chọn thì hỏi MỘT câu về đúng điều còn thiếu; không hỏi điều khách đã nói hoặc suy ra được. Không kể cấu tạo, thành phần bên trong máy khi khách không hỏi.",
     "Viết xong thì gọi chot_tra_loi đúng một lần.",
   ].join("\n");
 }
