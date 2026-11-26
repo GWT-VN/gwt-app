@@ -3,7 +3,7 @@
 // Phần chung của danh sách ticket (/ticket, ds-f.tsx + xem-nhanh-f.tsx). Prototype ?variant= dùng lại qua _prototype/chung.tsx.
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import type { Ticket } from '@/app/actions'
+import type { Ticket, TicketTab } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { thongBao } from '@/components/ui/sonner'
 
@@ -20,6 +20,9 @@ export type DuLieuTicket = {
   tuyChonLoc?: Record<string, string[]>
   /** F: số ticket mỗi tab (đếm ở DB, cùng tìm kiếm + bộ lọc trường đang bật). */
   demTab?: Record<string, number>
+  /** F: tab tự tạo (sau 4 tab cố định) + quyền tạo tab dùng chung. */
+  tabRieng?: TicketTab[]
+  quyenTabChung?: boolean
 }
 
 /** Hành động chưa nối (bước 4 của docs/rework/2026-11-26-ticket-f-dung-that.md). */

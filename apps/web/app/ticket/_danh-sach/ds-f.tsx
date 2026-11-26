@@ -6,7 +6,7 @@
 // Dữ liệu: server (page.tsx → searchTickets) đã lọc theo tab + trường + tìm, sắp, cắt trang; số tab đếm ở DB.
 // Sửa tại chỗ (Xem nhanh, kéo thẻ, hàng loạt) CHƯA nối mutation — chỉ đổi state trên màn (bước 4 của kế hoạch).
 import { Suspense, useCallback, useRef, useState, type ReactNode } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
   AddressBook,
   ArrowsClockwise,
@@ -32,16 +32,16 @@ import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/l
 import { nutMoTen } from '@/components/ui/list-view-styles'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
-import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { cn } from '@/lib/utils'
-import { docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
+import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, mayLoi, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
-import { CHUA_GIAO, docViewF, KHAN_CO, KHAN_KHONG, maMayNgan, queryTab, TRUONG_F, VIEW_F } from './truong-f'
+import { CHUA_GIAO, docViewF, KHAN_CO, KHAN_KHONG, maMayNgan, TRUONG_F } from './truong-f'
+import { useTabTicket } from './tab-ticket'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
 // Khâu (Kanban) là giá trị SUY RA, chưa có trường DB. Chờ vật tư = đang mở, đã có KT, loại Thay lõi / Sửa chữa.
@@ -273,12 +273,22 @@ const truongThe = (d: Dong): TruongThe[] => [
   { id: 'cs', icon: <User />, ten: 'Phụ trách', giaTri: d.cs_ten },
 ]
 
-export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {}, demTab = {}, dau }: DuLieuTicket & { dau?: ReactNode }) {
+export function TicketF({
+  rows: goc,
+  tong,
+  trang,
+  soTrang,
+  dsLoi,
+  tuyChonLoc = {},
+  demTab = {},
+  tabRieng,
+  quyenTabChung,
+  dau,
+}: DuLieuTicket & { dau?: ReactNode }) {
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
   const pathname = usePathname()
   const dat = useDatUrl()
-  const router = useRouter()
   const [sua, setSua] = useState<Record<string, Sua>>({})
   const [kbTam, setKbTam] = useState<Record<string, string | null>>({})
   const c = useCotBang(COT, { url: true })
@@ -384,6 +394,20 @@ export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {
     }),
   ]
   const thamSoLoc = TRUONG_F.map((x) => x.id)
+  // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo; "Lưu thành tab mới" khi bộ lọc đang xem khác bộ của tab (tab-ticket.tsx).
+  const hangTab = useTabTicket({
+    tabRieng,
+    demTab,
+    quyenTabChung,
+    dieuKien: [
+      ...(sp.get('q') ? [{ nhan: 'Tìm', giaTri: sp.get('q')! }] : []),
+      ...dk.map((d) => {
+        const x = truongLoc.find((y) => y.id === d.truong)!
+        const n = nhanChip(d, x.ten, (g) => x.tuyChon?.find((o) => o.giaTri === g)?.nhan ?? g)
+        return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
+      }),
+    ],
+  })
 
   const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT
   const [khungRef, rongKhung] = useRongKhung()
@@ -468,29 +492,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {
               </Suspense>
             }
             nutChinh={<NutTaoTicket />}
-            tabs={
-              dangXem === 'kanban' ? undefined : (
-                // Tab = bộ lọc chọn sẵn: bấm → thay bộ lọc / tìm / sắp bằng `loc` của tab (giữ dạng xem, cột).
-                <Tabs
-                  value={view}
-                  onValueChange={(v) => {
-                    const x = VIEW_F.find((y) => y.v === v)!
-                    router.replace(`${pathname}?${queryTab(sp, x.loc, v === 'tat-ca' ? null : v)}`, { scroll: false })
-                  }}
-                >
-                  <TabsList variant="pill" thuGon aria-label="View ticket">
-                    {VIEW_F.map((x) => {
-                      const n = demTab[x.v] ?? 0
-                      return (
-                        <TabsTrigger key={x.v} value={x.v}>
-                          {x.ten} <TabsCount color={x.v === 'khan' && n ? 'danger' : undefined}>{n}</TabsCount>
-                        </TabsTrigger>
-                      )
-                    })}
-                  </TabsList>
-                </Tabs>
-              )
-            }
+            tabs={dangXem === 'kanban' ? undefined : hangTab.tabs}
             loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
             caiDat={
               <CaiDatHienThi
@@ -528,6 +530,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, dsLoi, tuyChonLoc = {
             tong={dangXem === 'kanban' ? theKanban.length : dong.length}
             nhan="ticket"
             anSoDong
+            phai={dangXem === 'kanban' ? undefined : (hangTab.phai ?? undefined)}
             sapXep={sap ? { ...sap, macDinh: false } : undefined}
             // "Xoá lọc" giữ `variant` (prototype), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
             hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}

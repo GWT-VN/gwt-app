@@ -30,6 +30,7 @@ import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
 import { chuanMaLoi, MA_LOI } from '@/lib/loi/kiemDauVao'
 import type { DieuKienLoc } from '@/bang/locTruong'
 import { dieuKienOrTicket } from '@/app/ticket/_danh-sach/loc-db'
+import { KHOA_COT, KHOA_LOC, locCua } from '@/app/ticket/_danh-sach/truong-f'
 import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
@@ -4661,7 +4662,7 @@ export type BangView = { id: string; ten: string; chu: string; cot: string[] }
 /** Khoá bảng -> đường dẫn trang để revalidate cache khi đổi view. */
 const DUONG_DAN_BANG: Record<string, string> = {
   cs_customers: '/khach-hang', installed_base: '/', tickets: '/ticket',
-  maintenance: '/bao-tri', core: '/loi',
+  maintenance: '/bao-tri', core: '/loi', ticket_tab: '/ticket',
 }
 
 /** View của bảng: view CÁ NHÂN của mình + view CHUNG (mọi người). */
@@ -4706,6 +4707,95 @@ export async function xoaBangView(id: string) {
   const { error } = await db.from('bang_view').delete().eq('id', id)
   if (error) return { ok: false as const, error: error.message }
   revalidatePath(DUONG_DAN_BANG[row?.bang ?? ''] ?? '/khach-hang')
+  return { ok: true as const }
+}
+
+// ── Tab tự tạo của danh sách ticket F (CEO 26/11 "Cho phép tạo thêm tab phân loại") ─────────────────────────────
+// Không migration: dùng lại bang_view với khoá bảng 'ticket_tab', `cot` = { loc: "<query>" } (object — reader cũ của
+// bảng 'tickets' đọc mảng cột, không đụng khoá này). Gác quyền như bang_view: của mình = email; 'chung' chỉ người có
+// he_thong.view_chung ghi / sửa / xoá.
+export type TicketTab = { id: string; ten: string; chung: boolean; loc: string; suaDuoc: boolean }
+const BANG_TAB = 'ticket_tab'
+const TEN_TAB_TOI_DA = 40
+/** Chỉ giữ tham số lọc / tìm / sắp / cột hợp lệ (bỏ thứ lạ), chuẩn hoá thứ tự. */
+const locTabHopLe = (loc: unknown) => (typeof loc === 'string' && loc.length <= 4000 ? locCua(new URLSearchParams(loc), [...KHOA_LOC, ...KHOA_COT]) : '')
+function tenTabHopLe(ten: unknown): string | { error: string } {
+  const t = typeof ten === 'string' ? ten.trim() : ''
+  if (!t) return { error: 'Nhập tên tab.' }
+  if (t.length > TEN_TAB_TOI_DA) return { error: `Tên tab tối đa ${TEN_TAB_TOI_DA} ký tự.` }
+  return t
+}
+
+export async function listTicketTab(): Promise<TicketTab[]> {
+  const u = await requireStaff()
+  await doQuyen('he_thong.view_xem')
+  const email = u.email ?? ''
+  const [{ data, error }, quyenChung] = await Promise.all([
+    dataClient().from('bang_view').select('id, ten, chu, cot').eq('bang', BANG_TAB)
+      .or(`chu.eq.chung,chu.eq.${email}`).order('created_at'),
+    coQuyen('he_thong.view_chung', 'QUANLY'),
+  ])
+  if (error) throw new Error(error.message)
+  return ((data ?? []) as { id: string; ten: string; chu: string; cot: { loc?: unknown } | null }[]).map((r) => ({
+    id: r.id,
+    ten: r.ten,
+    chung: r.chu === 'chung',
+    loc: locTabHopLe(r.cot?.loc),
+    suaDuoc: r.chu === 'chung' ? quyenChung : r.chu === email,
+  }))
+}
+
+export async function luuTicketTab(ten: string, loc: string, chung: boolean) {
+  const u = await requireStaff()
+  await doQuyen('he_thong.view_xem')
+  const t = tenTabHopLe(ten)
+  if (typeof t !== 'string') return { ok: false as const, error: t.error }
+  if (chung && !(await coQuyen('he_thong.view_chung', 'QUANLY'))) return { ok: false as const, error: 'Chỉ quản lý/admin tạo tab dùng chung.' }
+  const { data, error } = await dataClient().from('bang_view')
+    .insert({ bang: BANG_TAB, ten: t, chu: chung ? 'chung' : (u.email ?? ''), cot: { loc: locTabHopLe(loc) }, tao_boi: u.email ?? null })
+    .select('id').single()
+  if (error) return { ok: false as const, error: error.message }
+  await ghiAudit('luu_ticket_tab', BANG_TAB, { ten: t, chung })
+  revalidatePath('/ticket')
+  return { ok: true as const, id: (data as { id: string }).id }
+}
+
+/** Tab này người đăng nhập sửa / xoá được? (đúng khoá bảng; của mình, hoặc chung + có quyền view chung). */
+async function chanSuaTab(id: string): Promise<string | null> {
+  const u = await requireStaff()
+  const { data } = await dataClient().from('bang_view').select('chu, bang').eq('id', id).maybeSingle()
+  const r = data as { chu: string; bang: string } | null
+  if (!r || r.bang !== BANG_TAB) return 'Không thấy tab.'
+  if (r.chu === 'chung' ? !(await coQuyen('he_thong.view_chung', 'QUANLY')) : r.chu !== (u.email ?? '')) return KHONG_DU_QUYEN
+  return null
+}
+
+async function suaTicketTab(id: string, patch: { ten?: string; cot?: { loc: string } }) {
+  const chan = await chanSuaTab(id)
+  if (chan) return { ok: false as const, error: chan }
+  const { error } = await dataClient().from('bang_view').update(patch).eq('id', id).eq('bang', BANG_TAB)
+  if (error) return { ok: false as const, error: error.message }
+  revalidatePath('/ticket')
+  return { ok: true as const }
+}
+
+export async function doiTenTicketTab(id: string, ten: string) {
+  const t = tenTabHopLe(ten)
+  if (typeof t !== 'string') return { ok: false as const, error: t.error }
+  return suaTicketTab(id, { ten: t })
+}
+
+/** "Cập nhật theo bộ lọc hiện tại". */
+export async function capNhatTicketTab(id: string, loc: string) {
+  return suaTicketTab(id, { cot: { loc: locTabHopLe(loc) } })
+}
+
+export async function xoaTicketTab(id: string) {
+  const chan = await chanSuaTab(id)
+  if (chan) return { ok: false as const, error: chan }
+  const { error } = await dataClient().from('bang_view').delete().eq('id', id).eq('bang', BANG_TAB)
+  if (error) return { ok: false as const, error: error.message }
+  revalidatePath('/ticket')
   return { ok: true as const }
 }
 

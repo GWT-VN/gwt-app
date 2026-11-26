@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState, type KeyboardEvent, type RefObject } from 'react'
+import { useId, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
 import { BookmarkSimple } from '@phosphor-icons/react/ssr'
 import { Popover as PopoverPrimitive } from 'radix-ui'
 import { Button } from './button'
@@ -16,6 +16,19 @@ const LOI = 'Đặt tên để tìm lại trong sidebar.'
 
 type GiaTriLuu = { ten: string; chiaSe: boolean; query: string }
 
+/** Chữ của popover — mặc định là "Lưu bộ lọc". Danh sách ticket dùng lại cho "Thêm tab" / "Lưu thành tab mới". */
+type ChuSavedView = {
+  tieuDe: string
+  nhanTen: string
+  placeholder: string
+  loiTrong: string
+  /** Nhãn ô "chia sẻ"; `false` = không hiện ô (người không có quyền lưu chung). */
+  chiaSe: string | false
+  moTaChiaSe: string
+  /** Toast sau khi lưu; `false` = người gọi tự báo (lưu qua server action, có thể lỗi). */
+  xong: ((ten: string) => string) | false
+}
+
 /**
  * SavedView — nút "Lưu bộ lọc" (cắm vào khe `phai` của `ThanhDangLoc`) + popover lưu tổ hợp lọc / sắp / dạng xem thành
  * một mục "Bộ lọc đã lưu" (README SavedView, mới 18/11).
@@ -24,6 +37,8 @@ type GiaTriLuu = { ten: string; chiaSe: boolean; query: string }
  * - Enter trong ô = Lưu (submit), TRỪ khi bộ gõ tiếng Việt đang ghép chữ (`isComposing` / keyCode 229 — Enter thuộc bộ gõ).
  * - Lưu → `onLuu({ ten, chiaSe, query })` + toast "Đã lưu “…” vào Bộ lọc đã lưu", đóng. Chỉ lưu CHUỖI query URL, không
  *   lưu dữ liệu; không đụng DB (bảng `saved_views` để sau — migration theo luật DB khi làm thật).
+ * - `trigger` (nút mở khác) + `chu` (chữ tiêu đề / nhãn / lỗi / ô chia sẻ, `chiaSe: false` ẩn ô; `xong: false` người gọi tự
+ *   báo) — danh sách ticket dùng cho "Thêm tab" / "Lưu thành tab mới" (CEO 26/11).
  * - Neo mép phải nút; Esc / Huỷ / bấm ngoài đóng, focus về nút (Radix). Nội dung chỉ mount khi mở → mở lại là form mới.
  */
 export function SavedView({
@@ -31,6 +46,8 @@ export function SavedView({
   query,
   khu,
   onLuu,
+  trigger,
+  chu: chuRieng,
 }: {
   dieuKien: { nhan: string; giaTri: string }[]
   /** Chuỗi query URL của view đang xem (`q`, `cot`, `chieu`, lọc cột, `bo-cuc`…). */
@@ -38,17 +55,32 @@ export function SavedView({
   /** Tên khu cho dòng chia sẻ ("Chia sẻ cho cả khu CSKH"). */
   khu: string
   onLuu: (v: GiaTriLuu) => void
+  /** Nút mở (PopoverTrigger asChild); mặc định nút ghost "Lưu bộ lọc". */
+  trigger?: ReactNode
+  chu?: Partial<ChuSavedView>
 }) {
+  const chu: ChuSavedView = {
+    tieuDe: 'Lưu bộ lọc',
+    nhanTen: 'Tên bộ lọc',
+    placeholder: 'VD: P1 rò rỉ chưa xử lý',
+    loiTrong: LOI,
+    chiaSe: `Chia sẻ cho cả khu ${khu}`,
+    moTaChiaSe: 'Tắt thì chỉ mình bạn thấy.',
+    xong: (ten) => `Đã lưu “${ten}” vào Bộ lọc đã lưu`,
+    ...chuRieng,
+  }
   const [mo, setMo] = useState(false)
   const o = useRef<HTMLInputElement>(null)
   const idTieuDe = useId()
   return (
     <Popover open={mo} onOpenChange={setMo}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <BookmarkSimple aria-hidden="true" />
-          Lưu bộ lọc
-        </Button>
+        {trigger ?? (
+          <Button variant="ghost" size="sm">
+            <BookmarkSimple aria-hidden="true" />
+            Lưu bộ lọc
+          </Button>
+        )}
       </PopoverTrigger>
       <PopoverContent
         data-slot="saved-view"
@@ -64,10 +96,10 @@ export function SavedView({
           o={o}
           idTieuDe={idTieuDe}
           dieuKien={dieuKien}
-          khu={khu}
+          chu={chu}
           luu={(ten, chiaSe) => {
             onLuu({ ten, chiaSe, query })
-            thongBao.xong(`Đã lưu “${ten}” vào Bộ lọc đã lưu`)
+            if (chu.xong) thongBao.xong(chu.xong(ten))
             setMo(false)
           }}
         />
@@ -80,13 +112,13 @@ function NoiDung({
   o,
   idTieuDe,
   dieuKien,
-  khu,
+  chu,
   luu,
 }: {
   o: RefObject<HTMLInputElement | null>
   idTieuDe: string
   dieuKien: { nhan: string; giaTri: string }[]
-  khu: string
+  chu: ChuSavedView
   luu: (ten: string, chiaSe: boolean) => void
 }) {
   const [ten, setTen] = useState('')
@@ -112,7 +144,7 @@ function NoiDung({
       }}
     >
       <h2 id={idTieuDe} className={svTieuDe}>
-        Lưu bộ lọc
+        {chu.tieuDe}
       </h2>
       {dieuKien.length > 0 && (
         <div className={svTomTat}>
@@ -124,11 +156,11 @@ function NoiDung({
         </div>
       )}
       <Field>
-        <FieldLabel htmlFor={`${id}-ten`}>Tên bộ lọc</FieldLabel>
+        <FieldLabel htmlFor={`${id}-ten`}>{chu.nhanTen}</FieldLabel>
         <Input
           ref={o}
           id={`${id}-ten`}
-          placeholder="VD: P1 rò rỉ chưa xử lý"
+          placeholder={chu.placeholder}
           maxLength={TOI_DA}
           required
           value={ten}
@@ -140,11 +172,13 @@ function NoiDung({
           aria-invalid={loi || undefined}
           aria-describedby={loi ? `${id}-loi` : undefined}
         />
-        {loi && <FieldError id={`${id}-loi`}>{LOI}</FieldError>}
+        {loi && <FieldError id={`${id}-loi`}>{chu.loiTrong}</FieldError>}
       </Field>
-      <ChoiceLabel nhan={`Chia sẻ cho cả khu ${khu}`} moTa="Tắt thì chỉ mình bạn thấy.">
-        <Checkbox checked={chiaSe} onCheckedChange={(v) => setChiaSe(v === true)} />
-      </ChoiceLabel>
+      {chu.chiaSe && (
+        <ChoiceLabel nhan={chu.chiaSe} moTa={chu.moTaChiaSe}>
+          <Checkbox checked={chiaSe} onCheckedChange={(v) => setChiaSe(v === true)} />
+        </ChoiceLabel>
+      )}
       <div className={svChan}>
         <PopoverPrimitive.Close asChild>
           <Button variant="outline" size="sm">

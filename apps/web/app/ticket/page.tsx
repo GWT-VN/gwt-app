@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
-import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, type Ticket } from '@/app/actions'
+import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, listTicketTab, type Ticket } from '@/app/actions'
 import { currentStaff } from '@/lib/nen-tang/nhan-su'
 import type { KetQuaTrang } from '@/bang'
 import { ExportTicketButton } from '@/components/ExportTicketButton'
@@ -37,7 +37,12 @@ const mot = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
  */
 async function duLieuF(sp: SP): Promise<DuLieuTicket> {
   const trang = Math.max(1, Number(mot(sp.trang)) || 1)
-  const me = await currentStaff()
+  const [me, tabRieng, { viewChung }] = await Promise.all([
+    currentStaff(),
+    // Tab tự tạo (bang_view 'ticket_tab'). Đọc lỗi → chỉ 4 tab cố định, không vỡ trang.
+    docAnToan('listTicketTab', () => listTicketTab(), []).then((r) => r.data),
+    hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
+  ])
   const dev = process.env.NODE_ENV !== 'production'
   // Một bộ lọc (query) → điều kiện DB. Cột "Ngày tạo" (`cot=tao`) = created_at; chọn cột sắp → Khẩn không chen lên đầu.
   const dieuKien = (p: URLSearchParams) => {
@@ -53,7 +58,7 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     searchTickets(hien.q, undefined, false, undefined, {
       locTruong: hien.dk, toiId: me?.id, khanTruoc: !hien.cot, trang, cot: hien.cot, chieu: hien.chieu,
     }),
-    Promise.all(VIEW_F.map((x) => dem(x.loc))),
+    Promise.all([...VIEW_F, ...tabRieng].map((x) => dem(x.loc))),
     cotLocTicket(),
     docAnToan('danhMucLoi', () => danhMucLoi(), []),
     dev ? searchTickets('', undefined, false, undefined, { chiDem: true }).then((r) => r.tong) : Promise.resolve(Infinity),
@@ -76,7 +81,15 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten })),
     demo,
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
-    demTab: Object.fromEntries(VIEW_F.map((x, i) => [x.v, demDb[i] + locDemoTheo(dieuKien(new URLSearchParams(x.loc))).length])),
+    // Khoá số đếm: tab cố định = `v`, tab tự tạo = `t:<id>` (như giá trị TabsTrigger).
+    demTab: Object.fromEntries(
+      [...VIEW_F.map((x) => ({ k: x.v, loc: x.loc })), ...tabRieng.map((x) => ({ k: `t:${x.id}`, loc: x.loc }))].map((x, i) => [
+        x.k,
+        demDb[i] + locDemoTheo(dieuKien(new URLSearchParams(x.loc))).length,
+      ]),
+    ),
+    tabRieng,
+    quyenTabChung: viewChung,
   }
 }
 
