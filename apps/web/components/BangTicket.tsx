@@ -5,9 +5,13 @@ import Link from 'next/link'
 import type { Ticket, BangView } from '@/app/actions'
 import { StateBadge, KhanBadge, MayThieuBadge, MoiBadge, vnDateTime } from '@/components/TicketBadge'
 import { BangTuyChinh, type CotDef } from '@/components/BangTuyChinh'
+import { Avatar } from '@/components/work/ui'
 import { dongVuaDoi, type AnhBang } from '@/lib/ticketHoatDong'
 
-const COT: CotDef<Ticket>[] = [
+/** Dòng bảng = Ticket + ghi chú tự do (trang /ticket gắn từ tickets.note). */
+export type TicketDong = Ticket & { note?: string | null }
+
+const COT: CotDef<TicketDong>[] = [
   { key: 'ticket_code', nhan: 'Mã', batBuoc: true, sapXep: 'ticket_code',
     render: (t) => (
       <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
@@ -19,52 +23,67 @@ const COT: CotDef<Ticket>[] = [
     render: (t) => <span className="whitespace-nowrap text-slate-600">{vnDateTime(t.hoat_dong_cuoi ?? t.created_at)}</span> },
   { key: 'created_at', nhan: 'Ngày', sapXep: 'created_at', chieuDau: 'desc',
     render: (t) => <span className="whitespace-nowrap text-slate-600">{vnDateTime(t.created_at)}</span> },
-  { key: 'ticket_type', nhan: 'Loại', render: (t) => <span className="max-w-56 inline-block">{t.ticket_type ?? '—'}</span> },
+  { key: 'ticket_type', nhan: 'Loại', render: (t) => <span title={t.ticket_type ?? undefined} className="block max-w-56 truncate">{t.ticket_type ?? '—'}</span> },
   { key: 'customer', nhan: 'Khách', sapXep: 'customer_name', render: (t) => (
     <>
       {t.customer_id
         ? <Link href={`/khach/${t.customer_id}`} prefetch={false} className="text-slate-900 underline">{t.customer_name}</Link>
         : <span className="text-slate-500">{t.customer_name ?? '—'}</span>}
-      {t.primary_phone && <div className="font-mono text-xs text-slate-500">{t.primary_phone}</div>}
+      {t.primary_phone && <span className="ml-2 font-mono text-xs text-slate-500">{t.primary_phone}</span>}
     </>
   ) },
   { key: 'may', nhan: 'Máy', render: (t) => (
     t.dong_may?.length
-      ? <div className="space-y-0.5">{t.dong_may.map((d, i) => (
-          <div key={i} className="text-xs whitespace-nowrap">
+      ? <span className="inline-flex items-center gap-2">{t.dong_may.map((d, i) => (
+          <span key={i} className="text-xs">
             {d.serial
               ? <Link href={`/may/${encodeURIComponent(d.serial)}`} prefetch={false} className={d.chuaPhanLoai ? 'text-slate-500 underline' : 'text-slate-900 underline'}>{d.nhan}</Link>
               : <span className={d.chuaPhanLoai ? 'text-slate-400' : 'text-slate-700'}>{d.nhan}</span>}
-          </div>))}</div>
+          </span>))}</span>
       : t.serial
         ? <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="text-slate-900 underline">{t.product_name}</Link>
-        : t.source_serial ? <MayThieuBadge t={t} /> : <span className="text-slate-400">—</span>
+        // flex: badge inline lệch tâm dòng 1px theo baseline (đo 26/11).
+        : t.source_serial ? <span className="flex"><MayThieuBadge t={t} /></span> : <span className="text-slate-400">—</span>
   ) },
-  { key: 'phu_trach', nhan: 'Phụ trách', render: (t) => (
-    t.cs_ten || t.ky_thuat_ten
-      ? <div className="text-xs text-slate-600">{t.cs_ten && <div>CS: {t.cs_ten}</div>}{t.ky_thuat_ten && <div>KT: {t.ky_thuat_ten}</div>}</div>
+  { key: 'note', nhan: 'Ghi chú', render: (t) => (
+    t.note
+      ? <span title={t.note} className="block max-w-72 truncate text-xs text-slate-700">{t.note}</span>
       : <span className="text-slate-300">—</span>
   ) },
+  // Avatar tròn một dòng cho gọn (CEO 26/11); vai + tên đầy đủ ở tooltip / trình đọc màn hình.
+  { key: 'phu_trach', nhan: 'Phụ trách', render: (t) => {
+    const nguoi = [['CS', t.cs_ten], ['KT', t.ky_thuat_ten]].filter((x): x is [string, string] => Boolean(x[1]))
+    if (!nguoi.length) return <span className="text-slate-300">—</span>
+    return (
+      <span className="flex items-center gap-1 whitespace-nowrap">
+        {nguoi.map(([vai, ten]) => (
+          <span key={vai} role="img" aria-label={`${vai}: ${ten}`}>
+            <Avatar ten={ten} chuThich={`${vai}: ${ten}`} co={24} />
+          </span>
+        ))}
+      </span>
+    )
+  } },
   { key: 'state', nhan: 'Trạng thái', sapXep: 'state',
     render: (t) => <div className="flex items-center gap-1.5"><KhanBadge khan={t.khan} /><StateBadge state={t.state} /></div> },
 ]
-const MAC_DINH = ['ticket_code', 'hoat_dong', 'created_at', 'ticket_type', 'customer', 'may', 'phu_trach', 'state']
+const MAC_DINH = ['ticket_code', 'hoat_dong', 'created_at', 'ticket_type', 'customer', 'may', 'note', 'phu_trach', 'state']
 
 /** Tô sáng bao lâu sau khi một dòng vừa xuất hiện / vừa đổi. */
 const TO_SANG_MS = 6000
 
-function chup(rows: Ticket[], boLoc: string): AnhBang {
+function chup(rows: TicketDong[], boLoc: string): AnhBang {
   return { boLoc, ban: Object.fromEntries(rows.map((t) => [t.ticket_code, t.hoat_dong_cuoi ?? t.created_at])) }
 }
 
 export function BangTicket({ rows, choViewChung, views, congCu, boLoc = '' }: {
-  rows: Ticket[]; choViewChung: boolean; views: BangView[]; congCu?: React.ReactNode
+  rows: TicketDong[]; choViewChung: boolean; views: BangView[]; congCu?: React.ReactNode
   /** Chữ ký bộ lọc + trang + sắp xếp: chỉ tô dòng vừa đổi khi CÙNG chữ ký (tức là do tự làm mới). */
   boLoc?: string
 }) {
   // So với lần render trước NGAY TRONG render (mẫu "điều chỉnh state khi props đổi"
   // của React) — rows mới chỉ tới khi router.refresh() / điều hướng mang RSC mới về.
-  const [truoc, setTruoc] = useState<{ rows: Ticket[]; anh: AnhBang }>(() => ({ rows, anh: chup(rows, boLoc) }))
+  const [truoc, setTruoc] = useState<{ rows: TicketDong[]; anh: AnhBang }>(() => ({ rows, anh: chup(rows, boLoc) }))
   const [noiBat, setNoiBat] = useState<Set<string>>(() => new Set())
   if (truoc.rows !== rows) {
     const anh = chup(rows, boLoc)
@@ -80,7 +99,7 @@ export function BangTicket({ rows, choViewChung, views, congCu, boLoc = '' }: {
   return (
     <BangTuyChinh
       rows={rows} keyOf={(t) => t.ticket_code} moTaOf={(t) => `ticket ${t.ticket_code}`} nhan="ticket"
-      bang="tickets" cot={COT} macDinh={MAC_DINH} sapMacDinh="hoat_dong" views={views} choViewChung={choViewChung} congCu={congCu}
+      bang="tickets" motDong cot={COT} macDinh={MAC_DINH} sapMacDinh="hoat_dong" views={views} choViewChung={choViewChung} congCu={congCu}
       lopDong={(t) => (noiBat.has(t.ticket_code) ? 'bg-amber-50 transition-colors duration-700' : 'transition-colors duration-700')}
     />
   )

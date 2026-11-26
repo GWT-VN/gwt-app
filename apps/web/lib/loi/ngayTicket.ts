@@ -30,6 +30,18 @@ export function kiemCsTheoDoi(x: unknown): { ok: true; ten: CsTheoDoi | null } |
   return { ok: false, error: 'CS theo dõi chỉ chọn Hiệp, Kiều Trang, Hiền hoặc Tuyết Trang.' }
 }
 
+/** Khớp check tickets_note_do_dai trong migration 20261126035932_cs_ticket_note. */
+export const GHI_CHU_TOI_DA = 20000
+
+/** Ghi chú tự do: văn bản thuần, CRLF → LF, cắt khoảng trắng hai đầu; rỗng → null. */
+export function kiemGhiChu(x: unknown): { ok: true; note: string | null } | { ok: false; error: string } {
+  if (x === undefined || x === null) return { ok: true, note: null }
+  if (typeof x !== 'string') return { ok: false, error: 'Ghi chú phải là văn bản.' }
+  const s = x.replace(/\r\n?/g, '\n').trim()
+  if (s.length > GHI_CHU_TOI_DA) return { ok: false, error: `Ghi chú tối đa ${GHI_CHU_TOI_DA} ký tự.` }
+  return { ok: true, note: s || null }
+}
+
 /** Ngày hiển thị của một lần: ngày khách báo nếu có, không thì ngày tạo (giờ VN). */
 export function ngayCuaLan(ngay: string | null | undefined, createdAt: string | null | undefined): string | null {
   if (ngay) return ngay
