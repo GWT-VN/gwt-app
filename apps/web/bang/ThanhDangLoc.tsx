@@ -22,6 +22,10 @@ import { useCauHinh } from './CauHinh'
  *
  * `phai`: nút thêm ở cụm bên phải, cạnh "Xoá lọc" (vd "Lưu bộ lọc"). Link bỏ một
  * điều kiện: dựng bằng hrefBoLoc() (bang/url.ts).
+ *
+ * `hrefXoaLoc`: đích của "Xoá lọc" khi trang có tham số KHÔNG phải lọc phải giữ lại (vd
+ * `variant` của prototype, `view`, trạng thái cột `cot_*`) — dựng bằng hrefBoLoc(…, các tham
+ * số lọc). Không truyền = pathname trần như cũ.
  */
 export function ThanhDangLoc({
   dieuKien,
@@ -30,6 +34,7 @@ export function ThanhDangLoc({
   nhan = 'kết quả',
   sapXep,
   phai,
+  hrefXoaLoc,
 }: {
   // `href`: link BỎ RIÊNG điều kiện này (giữ mọi điều kiện khác) — cho phép
   // gỡ từng bộ lọc một khi trang có NHIỀU điều kiện cùng lúc (q + sp + bh…).
@@ -43,6 +48,7 @@ export function ThanhDangLoc({
   // xem chú thích trong ChipSapXep. Trang không sắp xếp được thì bỏ trống.
   sapXep?: { cot: string; tang: boolean; macDinh: boolean; ghiChu?: string }
   phai?: ReactNode
+  hrefXoaLoc?: string
 }) {
   const { giaoDien: gd, bieuTuong } = useCauHinh()
   const pathname = usePathname()
@@ -94,7 +100,7 @@ export function ThanhDangLoc({
         <span className={gd.dangLoc_cuoi}>
           {phai}
           {dangLoc && (
-            <Link href={pathname} className={gd.dangLoc_nutXoaLoc}>
+            <Link href={hrefXoaLoc ?? pathname} className={gd.dangLoc_nutXoaLoc}>
               Xoá lọc
             </Link>
           )}

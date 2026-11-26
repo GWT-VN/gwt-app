@@ -5,16 +5,16 @@
 // hạn/SLA bằng tag màu · L2 Kanban theo khâu là dạng xem phụ. Không gọi mutation thật — sửa chỉ đổi state trên màn.
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { ArrowsClockwise, CalendarPlus, UserPlus } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
-import { KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
+import { hrefBoLoc, KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, ThanhDangLoc, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
+import { CaiDatHienThi, DANG_XEM, DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type CotKanban } from '@/components/ui/kanban-board'
@@ -22,9 +22,11 @@ import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/compon
 import { nutMoTen } from '@/components/ui/list-view-styles'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { thongBao } from '@/components/ui/sonner'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tieu-de-cot'
+import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 
@@ -136,58 +138,75 @@ function TrangThaiO({ t }: { t: Ticket }) {
 }
 
 // ── Bảng (L1) ───────────────────────────────────────────────────────────────────────────────────────────────────────
-type Cot = { id: string; ten: string; rong: number | null; phai?: boolean; o: (t: Dong, mo: (ma: string) => void) => React.ReactNode }
+// Cột theo DS (`CotBang`, useCotBang): thứ tự / độ rộng / ẩn ghi lên URL (`cot_thu_tu`, `cot_rong`, `cot_an`). Cột đầu
+// "Ticket · khách" khoá (không kéo, không ẩn) và ăn phần dư; `rong` của nó = sàn để tính bề rộng tối thiểu bảng.
 // Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
-const COT: Cot[] = [
-  {
-    id: 'khach',
-    ten: 'Ticket · khách',
-    rong: null,
-    o: (t, mo) => (
-      <span className="flex min-w-0 items-center gap-2 border-none border-current">
-        <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
-        <button type="button" className={nutMoTen} onClick={() => mo(t.ticket_code)}>
-          {tenKhach(t)}
-        </button>
-      </span>
-    ),
-  },
-  {
-    id: 'may',
-    ten: 'Máy · bảo hành',
-    rong: 224,
-    o: (t) => (
-      <span className="flex min-w-0 items-center gap-2 border-none border-current">
-        <span className="shrink-0 border-none border-current">
-          <NhanBaoHanh t={t} ngan />
-        </span>
-        <span className="min-w-0 truncate">
-          {t.product_name ?? '—'}
-          {t.source_serial && <span className="tabular-nums text-muted-foreground"> · {t.source_serial}</span>}
-        </span>
-      </span>
-    ),
-  },
-  { id: 'loi', ten: 'Loại lỗi', rong: 152, o: (t) => <span className="block truncate text-muted-foreground">{t.dong_may?.[0] ? mayLoi(t) : '—'}</span> },
-  { id: 'tt', ten: 'Trạng thái', rong: 136, o: (t) => <TrangThaiO t={t} /> },
-  { id: 'cs', ten: 'Phụ trách', rong: 84, o: (t) => <NguoiPhuTrach ten={t.cs_ten} /> },
-  { id: 'han', ten: 'Hạn', rong: 104, o: (t) => <NhanHan t={t} /> },
+const COT: CotBang[] = [
+  { id: 'khach', ten: 'Ticket · khách', rong: 200, kieu: 'thuong', khoa: true },
+  { id: 'may', ten: 'Máy · bảo hành', rong: 224, kieu: 'thuong' },
+  { id: 'loi', ten: 'Loại lỗi', rong: 152, kieu: 'thuong' },
+  { id: 'tt', ten: 'Trạng thái', rong: 136, kieu: 'loc' },
+  { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },
+  { id: 'han', ten: 'Hạn', rong: 104, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
+  { id: 'loai', ten: 'Loại', rong: 120, kieu: 'thuong', anMacDinh: true },
+  { id: 'tinh', ten: 'Tỉnh/TP', rong: 120, kieu: 'thuong', anMacDinh: true },
+  { id: 'tao', ten: 'Ngày tạo', rong: 104, kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
 ]
-const RONG_TOI_THIEU = 36 + 200 + COT.reduce((s, c) => s + (c.rong ?? 0), 0)
+const COT_SAP = ['han', 'tao']
+const TEN_COT = { han: 'Hạn', tao: 'Ngày tạo' }
+const NGHIA = { han: { asc: 'gần hạn nhất trước', desc: 'xa hạn nhất trước' }, tao: { asc: 'cũ nhất trước', desc: 'mới tạo trước' } }
+type Sap = { cot: string; tang: boolean }
 
-function DongBang({ t, mo }: { t: Dong; mo: (ma: string) => void }) {
+const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
+  khach: (t, mo) => (
+    <span className="flex min-w-0 items-center gap-2 border-none border-current">
+      <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
+      <button type="button" className={nutMoTen} onClick={() => mo(t.ticket_code)}>
+        {tenKhach(t)}
+      </button>
+    </span>
+  ),
+  may: (t) => (
+    <span className="flex min-w-0 items-center gap-2 border-none border-current">
+      <span className="shrink-0 border-none border-current">
+        <NhanBaoHanh t={t} ngan />
+      </span>
+      <span className="min-w-0 truncate">
+        {t.product_name ?? '—'}
+        {t.source_serial && <span className="tabular-nums text-muted-foreground"> · {t.source_serial}</span>}
+      </span>
+    </span>
+  ),
+  loi: (t) => <span className="block truncate text-muted-foreground">{t.dong_may?.[0] ? mayLoi(t) : '—'}</span>,
+  tt: (t) => <TrangThaiO t={t} />,
+  cs: (t) => <NguoiPhuTrach ten={t.cs_ten} />,
+  han: (t) => <NhanHan t={t} />,
+  loai: (t) => <span className="block truncate">{t.ticket_type ?? '—'}</span>,
+  tinh: (t) => <span className="block truncate">{t.province ?? '—'}</span>,
+  tao: (t) => <span className="tabular-nums text-muted-foreground">{ngayNgan(t.created_at)}</span>,
+}
+
+function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) => void }) {
   const { daChon } = useDaChon()
   return (
     <TableRow chon={daChon.includes(t.ticket_code)}>
       <OChonDong khoa={t.ticket_code} moTa={`ticket ${t.ticket_code}`} />
-      {COT.map((c) => (
+      {hien.map((c) => (
         <TableCell key={c.id} cot={c.id} phai={c.phai}>
-          {c.o(t, mo)}
+          {O[c.id](t, mo)}
         </TableCell>
       ))}
     </TableRow>
   )
 }
+
+const dsUrl = (s: string | null) => (s ? s.split(',').filter(Boolean) : [])
+/** Giá trị lọc "Chưa giao" của cột Phụ trách (tên người không bao giờ là "-"). */
+const CHUA_GIAO = '-'
+/** Khoá phụ mã ticket (CHUAN-FILTER luật 2) — không đảo theo chiều. */
+const soSanh = ({ cot, tang }: Sap) => (a: Ticket, b: Ticket) =>
+  (cot === 'han' ? han(a) - han(b) : Date.parse(a.created_at) - Date.parse(b.created_at)) * (tang ? 1 : -1) ||
+  a.ticket_code.localeCompare(b.ticket_code)
 
 // ── Danh sách (điện thoại + dạng xem Danh sách) ────────────────────────────────────────────────────────────────────
 const COT_DS: CotDanhSach<Dong>[] = [
@@ -275,10 +294,15 @@ function NoiDungXem({ t, nguoi, sua }: { t: Dong; nguoi: { gt: string; nhan: str
 }
 
 export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket) {
-  const sp = useSearchParams()
+  const spRo = useSearchParams()
+  const sp = new URLSearchParams(spRo.toString())
+  const pathname = usePathname()
   const dat = useDatUrl()
   const [sua, setSua] = useState<Record<string, Sua>>({})
-  const [dangXem, setDangXem] = useState<DangXem>('bang')
+  const c = useCotBang(COT, { url: true })
+  // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem.
+  const dangXem: DangXem = DANG_XEM.find((x) => x.id === sp.get('bo_cuc'))?.id ?? 'bang'
+  const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
 
   const rows: Dong[] = goc.map((t) => {
     const s = sua[t.ticket_code]
@@ -287,39 +311,100 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
   const nguoi = [...new Set(goc.map((t) => t.cs_ten).filter((x): x is string => !!x))].map((n) => ({ gt: n, nhan: n }))
   const doi = (ma: string) => (s: Sua) => setSua((m) => ({ ...m, [ma]: { ...m[ma], ...s } }))
 
+  // ── URL → lọc theo cột (menu tiêu đề `kieu: 'loc'`) + sắp (`cot`/`chieu`, CHUAN-FILTER) ──
+  const ttLoc = dsUrl(sp.get('tt'))
+  const csLoc = dsUrl(sp.get('cs'))
+  const cotUrl = COT_SAP.includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
+  const sap: Sap | null = cotUrl ? { cot: cotUrl, tang: sp.get('chieu') !== 'desc' } : null
+  const datSap = (s: Sap | null) => dat({ cot: s?.cot ?? null, chieu: s ? (s.tang ? 'asc' : 'desc') : null })
+  const locCot = (t: Dong) => (!ttLoc.length || ttLoc.includes(t.state)) && (!csLoc.length || csLoc.includes(t.cs_ten ?? CHUA_GIAO))
+  const LOC: Record<string, LocCot> = {
+    tt: {
+      tuyChon: TT.filter((m) => rows.some((t) => t.state === m.gt)).map((m) => ({
+        giaTri: m.gt,
+        nhan: m.nhan,
+        color: m.color === 'secondary' ? undefined : (m.color as MucLoc['color']),
+      })),
+      daChon: ttLoc,
+      onDoi: (gt) => dat({ tt: gt.join(',') || null }),
+    },
+    cs: {
+      tuyChon: [
+        ...nguoi.map((n) => ({ giaTri: n.gt, nhan: n.nhan })),
+        ...(rows.some((t) => !t.cs_ten) ? [{ giaTri: CHUA_GIAO, nhan: 'Chưa giao' }] : []),
+      ],
+      daChon: csLoc,
+      onDoi: (gt) => dat({ cs: gt.join(',') || null }),
+    },
+  }
+
   const view = (VIEW.find((x) => x.v === sp.get('view'))?.v ?? 'cua-toi') as View
-  const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc)
+  const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc).filter(locCot)
+  if (sap) dong.sort(soSanh(sap))
+  const theKanban = rows.filter(locCot).filter((d) => d.state !== 'Cancel')
   const xem = sp.get('xem')
-  const nguon = dangXem === 'kanban' ? rows : dong
+  const nguon = dangXem === 'kanban' ? theKanban : dong
   const i = xem ? nguon.findIndex((t) => t.ticket_code === xem) : -1
   const t = i >= 0 ? nguon[i] : null
   const mo = (ma: string | null) => dat({ xem: ma }, true)
 
+  const dieuKien = [
+    sp.get('q') && { nhan: 'Tìm', giaTri: sp.get('q')!, href: hrefBoLoc(pathname, sp, 'q') },
+    ttLoc.length > 0 && {
+      nhan: 'Trạng thái',
+      giaTri: ttLoc.map((g) => TT.find((m) => m.gt === g)?.nhan ?? g).join(', '),
+      href: hrefBoLoc(pathname, sp, 'tt'),
+    },
+    csLoc.length > 0 && {
+      nhan: 'Phụ trách',
+      giaTri: csLoc.map((g) => (g === CHUA_GIAO ? 'Chưa giao' : g)).join(', '),
+      href: hrefBoLoc(pathname, sp, 'cs'),
+    },
+  ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
+
+  const tongRong = 36 + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
   const bang = (
     <TableWrap>
-      <Table layout="fixed" style={{ minWidth: RONG_TOI_THIEU }}>
-        <colgroup>
-          <col style={{ width: 36 }} />
-          {COT.map((c) => (
-            <col key={c.id} style={c.rong ? { width: c.rong } : undefined} />
-          ))}
-        </colgroup>
-        <TableHeader>
-          <TableRow>
-            <OChonTatCa nhan="ticket" />
-            {COT.map((c) => (
-              <TableHead key={c.id} phai={c.phai}>
-                {c.ten}
-              </TableHead>
+      <KeoCot cot={c.hien} doiCho={c.doiCho}>
+        <Table layout="fixed" style={{ minWidth: tongRong }}>
+          <colgroup>
+            <col style={{ width: 36 }} />
+            {c.hien.map((x) => (
+              // Cột khoá (Ticket · khách) ăn phần dư.
+              <col key={x.id} style={x.khoa ? undefined : { width: c.doRong[x.id] }} />
             ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {dong.map((d) => (
-            <DongBang key={d.ticket_code} t={d} mo={mo} />
-          ))}
-        </TableBody>
-      </Table>
+          </colgroup>
+          <TableHeader>
+            <TableRow>
+              <OChonTatCa nhan="ticket" />
+              {c.hien.map((x, j) => (
+                <TieuDeCot
+                  key={x.id}
+                  cot={x}
+                  viTri={j}
+                  menuPhai={j === c.hien.length - 1}
+                  // Cột cuối không có tay co dãn: tay thò 8px qua mép phải → khung bảng cuộn ngang 8px (như Bảng team).
+                  coDan={x.khoa || j === c.hien.length - 1 ? undefined : { rong: c.doRong[x.id], onDoi: (px) => c.coDan(x.id, px) }}
+                  sap={
+                    x.kieu === 'sap'
+                      ? {
+                          chieu: sap?.cot === x.id ? (sap.tang ? 'tang' : 'giam') : null,
+                          onDoi: (ch) => datSap(ch ? { cot: x.id, tang: ch === 'tang' } : null),
+                        }
+                      : undefined
+                  }
+                  loc={x.kieu === 'loc' ? LOC[x.id] : undefined}
+                />
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {dong.map((d) => (
+              <DongBang key={d.ticket_code} t={d} hien={c.hien} mo={mo} />
+            ))}
+          </TableBody>
+        </Table>
+      </KeoCot>
     </TableWrap>
   )
   const ds = (
@@ -340,10 +425,10 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
           demo={demo}
           cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
         />
-        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }} thanhHangLoat="surface">
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
-            dem={{ thay: dangXem === 'kanban' ? rows.length : dong.length, tong }}
+            dem={{ thay: dangXem === 'kanban' ? theKanban.length : dong.length, tong }}
             timKiem={
               <Suspense>
                 <OTimKiem placeholder="Mã ticket, serial, khách, SĐT…" aria-label="Tìm ticket" />
@@ -366,23 +451,41 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
                 </Tabs>
               )
             }
+            caiDat={
+              <CaiDatHienThi
+                dangXem={dangXem}
+                onDoiXem={doiXem}
+                cot={COT}
+                cotAn={c.an}
+                onCotAn={(an) => COT.forEach((x) => c.anHien(x.id, !an.includes(x.id)))}
+                sapXep={sap ?? undefined}
+                onSapXep={datSap}
+              />
+            }
             dangXem={dangXem}
-            onDoiXem={setDangXem}
+            onDoiXem={doiXem}
             xemNhanh={t != null}
             onXemNhanh={(bat) => mo(bat ? (nguon[0]?.ticket_code ?? null) : null)}
+          />
+          <ThanhDangLoc
+            dieuKien={dieuKien}
+            hienThi={dangXem === 'kanban' ? theKanban.length : dong.length}
+            tong={dangXem === 'kanban' ? rows.length : rows.filter(VIEW.find((x) => x.v === view)!.loc).length}
+            nhan="ticket"
+            sapXep={sap ? { ...sap, macDinh: false } : undefined}
+            // "Xoá lọc" giữ prototype (`variant`), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
+            hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', 'tt', 'cs', 'cot', 'chieu', 'xem')}
           />
           <KhungChon
             khoaTrang={dong.map((d) => d.ticket_code)}
             tong={dong.length}
             bat={dangXem !== 'kanban'}
-            thamSo={{ view, q: sp.get('q') ?? '' }}
+            thamSo={{ view, q: sp.get('q') ?? '', tt: ttLoc.join(','), cs: csLoc.join(','), cot: cotUrl ?? '', chieu: sp.get('chieu') ?? '' }}
           >
             {dangXem === 'kanban' ? (
               <KanbanBoard
                 cot={KHAU}
-                the={rows
-                  .filter((d) => d.state !== 'Cancel')
-                  .map((d) => ({
+                the={theKanban.map((d) => ({
                     id: d.ticket_code,
                     cot: khauCua(d),
                     ten: d.ticket_code,
@@ -401,7 +504,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
                 onMo={(ma) => mo(ma)}
               />
             ) : !dong.length ? (
-              <EmptyState size="sm" kieu="loc" tieuDe="Không có ticket nào trong view này" moTa="Thử view khác hoặc bỏ bớt từ khoá." />
+              <EmptyState size="sm" kieu="loc" tieuDe="Không có ticket nào trong view này" moTa="Thử view khác hoặc bỏ bớt từ khoá, điều kiện lọc." />
             ) : dangXem === 'danh-sach' ? (
               ds
             ) : (
