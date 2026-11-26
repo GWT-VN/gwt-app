@@ -78,18 +78,21 @@ type PropsCongCu = {
   onXemNhanh: (bat: boolean) => void
   /** Nút ⚙ — thường là `<CaiDatHienThi …/>`. Không truyền thì không có ⚙ (và không có vạch ngăn đầu). */
   caiDat?: ReactNode
+  /** Nút "Lọc" theo trường — thường là `<NutLoc …/>` (bo-loc-truong.tsx); đứng trước ⚙ như Filter · Options của Twenty. */
+  loc?: ReactNode
 }
 
 /**
- * Cụm công cụ phải hàng tab (`.b-cong-cu`): ⚙ │ Danh sách · Bảng · Kanban │ thẻ xem nhanh. Nút icon ghost 32, icon 18
+ * Cụm công cụ phải hàng tab (`.b-cong-cu`): Lọc · ⚙ │ Danh sách · Bảng · Kanban │ thẻ xem nhanh. Nút icon ghost 32, icon 18
  * (README), có `aria-label` + tooltip (mô tả thêm, hiện cả khi focus phím). Dạng xem = ToggleGroup single
  * (`radiogroup` / `radio` + `aria-checked`); bấm lại dạng đang chọn không bỏ chọn. Xem nhanh = Toggle `aria-pressed`.
  */
-export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat }: PropsCongCu) {
+export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat, loc }: PropsCongCu) {
   return (
     <div data-slot="data-view-tools" className={dvCongCu}>
-      {caiDat && (
+      {(loc || caiDat) && (
         <>
+          {loc}
           {caiDat}
           <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />
         </>

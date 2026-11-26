@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Suspense, type ReactNode } from 'react'
+import { Fragment, Suspense, type ReactNode } from 'react'
 import { ChipSapXep } from './ChipSapXep'
 import { useCauHinh } from './CauHinh'
 
@@ -40,7 +40,8 @@ export function ThanhDangLoc({
   // gỡ từng bộ lọc một khi trang có NHIỀU điều kiện cùng lúc (q + sp + bh…).
   // Không truyền thì chip chỉ hiển thị, không gỡ riêng được (trang cũ chỉ có
   // đúng 1 điều kiện q -> nút "Xoá lọc" chung đã đủ).
-  dieuKien: { nhan: string; giaTri: string; href?: string }[]
+  // `chip`: chip tự dựng thay chip mặc định (vd `ChipLoc` của DS — bấm để sửa điều kiện); `nhan` vẫn là khoá.
+  dieuKien: { nhan: string; giaTri: string; href?: string; chip?: ReactNode }[]
   hienThi: number
   tong: number
   nhan?: string
@@ -58,7 +59,10 @@ export function ThanhDangLoc({
   return (
     <div className={gd.dangLoc_khung} role="region" aria-label="Điều kiện đang áp dụng">
       <div className={gd.dangLoc_nhomChip}>
-        {dieuKien.map((d) => (
+        {dieuKien.map((d) =>
+          d.chip ? (
+            <Fragment key={d.nhan}>{d.chip}</Fragment>
+          ) : (
           // Đệm hai bên phải CÂN MẮT. Trước đây px-2 dùng chung cho cả chip, còn dấu ×
           // là chữ trơn nằm trong luồng văn bản -> bên phải chỉ còn đúng 8px tính từ
           // nét chữ tới viền, nhìn như dính vào viền trong khi bên trái thoáng hơn hẳn.
@@ -83,7 +87,8 @@ export function ThanhDangLoc({
               </Link>
             )}
           </span>
-        ))}
+          ),
+        )}
         <span className={gd.dangLoc_soDong} aria-live="polite">{dong}</span>
         {/* ChipSapXep dùng useSearchParams (dựng link bỏ sắp xếp) -> phải có
             Suspense, không thì next build vỡ. Bọc ở đây thay vì bắt 4 trang gọi

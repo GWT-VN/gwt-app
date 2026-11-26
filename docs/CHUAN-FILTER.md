@@ -71,6 +71,7 @@ không phải nghe nhắc lần nữa — sửa filter/ô chọn ở đâu cũng
 | `trang` | trang hiện tại (1-based) | `PhanTrang` |
 | `cot` / `chieu` | cột + chiều sắp xếp | `TieuDeCotSapXep` |
 | tên ngắn tuỳ trang | mỗi bộ lọc chọn một tham số riêng: `sp` (sản phẩm), `kenh`, `tinh`, `tt` (tình trạng hàng), `tp` (thanh toán), `bh` (bảo hành), `loai` | `BoLocChon` |
+| `id` trường, giá trị `[phép~]…` | lọc theo trường (nút "Lọc" kiểu Twenty) — xem mục dưới | `NutLoc` / `ChipLoc` + `bang/locTruong.ts` |
 
 **Đặt tên tham số mới:** ngắn, không dấu, không trùng bảng trên. Dùng lại tên đã có nếu cùng ý nghĩa
 — `kenh` ở `/sales` và ở `/sales/khach` phải là **cùng một tên**.
@@ -110,6 +111,37 @@ Phía server, áp vào truy vấn:
 if (ngtu) truyVan = truyVan.gte('order_date', ngtu)
 if (ngden) truyVan = truyVan.lte('order_date', ngden)
 ```
+
+---
+
+## Lọc theo trường (nút "Lọc" kiểu Twenty) — thêm 26/11/2026
+
+Dùng khi màn có **nhiều trường** muốn lọc mà không muốn một hàng ô lọc cố định (bản đầu: danh sách ticket
+prototype F, `/ticket?variant=F`). Người dùng bấm **Lọc** → tìm trường → chọn điều kiện theo kiểu → giá trị;
+mỗi điều kiện thành **một chip** (bấm chip sửa, × gỡ; đóng khi chưa có giá trị → không để lại chip).
+
+| Phần | Ở đâu |
+|---|---|
+| Logic thuần (đọc/ghi URL, áp lên dòng, nhãn chip) — server gọi được | `bang/locTruong.ts` (`docTatCa`, `apLoc`, `ghiDieuKien`, `nhanChip`) |
+| Giao diện DS (nút Lọc + pop, chip) | `components/ui/bo-loc-truong.tsx` (`NutLoc` vào khe `loc` của `DataViewToolbar`, `ChipLoc` vào `dieuKien[].chip` của `ThanhDangLoc`) |
+
+**URL: một tham số mỗi trường, tên = `id` trường** (dùng lại tên ở bảng trên khi cùng nghĩa: `tt`, `cs`,
+`loai`, `tinh`). Giá trị = `[phép~]giá trị`; nhiều trường = VÀ; **không** có nhóm AND/OR lồng.
+
+| Kiểu | Phép (thứ tự menu) | Ví dụ URL |
+|---|---|---|
+| Chọn | là · không là · trống · có giá trị | `tt=Open,Done` (là — **không tiền tố**, tương thích `tt`/`cs` cũ) · `tt=khong-la~Open` · `tinh=trong~` · `tinh=co~` |
+| Người | là · không là; mục ghim **"Tôi"** = `@toi` (server thay bằng người đang đăng nhập) | `cs=@toi` · `cs=khong-la~@toi,Mai` |
+| Ngày | hôm nay · trong khoảng · trước ngày (`<`) · từ ngày (`≥`) · trống | `han=hom-nay~` · `han=khoang~2026-11-01..2026-11-20` · `han=truoc~2026-11-20` · `han=sau~2026-11-20` |
+| Chữ | chứa · không chứa (khớp không dấu) | `khach=chua~an phat` (chữ luôn có tiền tố, giữ nguyên dấu phẩy) |
+
+- Vì sao không dùng `ngtu`/`ngden` cho ngày: một màn có **nhiều** trường ngày (Hạn, Ngày tạo) — `ngtu`/`ngden`
+  chỉ đỡ một. Màn chỉ có một ô ngày cố định vẫn dùng `LocNgay`.
+- Phép mặc định khi vừa chọn trường = phép đầu **cần giá trị** (ngày → "trong khoảng") → chọn trường rồi đóng
+  không đẻ chip.
+- Danh sách giá trị lấy từ dữ liệu **chưa lọc** (server gửi kèm) — không co lại theo chính bộ lọc đang bật.
+  Mọi danh sách giá trị có ô tìm (luật số 2).
+- "Từ ngày" tính cả ngày đó (`≥`, như "Is after or equal" của Twenty); "trước ngày" không tính (`<`).
 
 ---
 

@@ -22,14 +22,15 @@ import { anChoRe, anChoReDau, anChoReO, oTick as canOTick } from './table-styles
 const kv = 'border-none border-current'
 
 // `.ui-chip`: cao 28 pill, chữ 12/18, nhãn thường + giá trị strong 600. Đệm trái 10 ở khung; phải 10 (không ×) / 4 (có ×).
-const chip = cn(
+// Xuất (`chipKhung`/`chipX`) cho chip tự dựng ngoài bang/ — ChipLoc của bo-loc-truong.tsx.
+export const chipKhung = cn(
   kv,
   'inline-flex max-w-full items-center gap-1 h-(--control-size-sm) pl-2.5 rounded-(--radius-full) whitespace-nowrap',
   'bg-(--alpha-05) text-foreground text-[12px] leading-[18px] font-normal',
   '[&>span]:overflow-hidden [&>span]:text-ellipsis [&_strong]:font-semibold',
 )
 // `.ui-chip-x`: ô tròn 20, icon 12 muted; hover alpha-10 + foreground; focus-visible vòng ring sát mép.
-const chipX = cn(
+export const chipX = cn(
   kv,
   'grid size-5 shrink-0 place-content-center ml-0.5 p-0 rounded-(--radius-full) bg-transparent cursor-pointer',
   'text-muted-foreground hover:bg-(--alpha-10) hover:text-foreground [&>svg]:size-3',
@@ -85,7 +86,7 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   // FilterBar — `.ui-filterbar`: flex wrap, gap 6/8, cao tối thiểu 28; cách bảng bên dưới 12 (CEO 23/11 giãn)
   dangLoc_khung: cn(kv, 'mb-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 min-h-(--control-size-sm)'),
   dangLoc_nhomChip: 'contents',
-  dangLoc_chip: chip,
+  dangLoc_chip: chipKhung,
   dangLoc_chipCoNutGo: 'pr-1',
   dangLoc_chipTron: 'pr-2.5',
   dangLoc_nutGoChip: chipX,
@@ -95,7 +96,7 @@ export const GIAO_DIEN_DS: GiaoDienBang = {
   // `.ui-filterbar-end`: dồn phải, gap 4
   dangLoc_cuoi: cn(kv, 'order-2 ml-auto inline-flex items-center gap-1'),
 
-  sapXep_chip: chip,
+  sapXep_chip: chipKhung,
   sapXep_chipCoNutGo: 'pr-1',
   sapXep_chipTron: 'pr-2.5',
   // `.ui-chip > .ui-icon`: icon control-icon-size-xs, muted

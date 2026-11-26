@@ -65,6 +65,19 @@ khi bảng cuộn ngang — `thGhim`/`oGhim` + `CHON_BANG_GHIM` (`table-styles.t
 `left: 0`, tiêu đề cột chọn z 30), nền `linear-gradient(var(--nen-dong), var(--nen-dong)), var(--background)`, và
 `--nen-dong` theo hover/chọn/đang trỏ trên `tr`; README Table thêm mục "Cột ghim"; chưa có bóng mép phải khi đang cuộn.
 
+Bộ lọc theo trường học hành vi Twenty (26/11, cùng spec mục D, dùng ở prototype ticket F): `NutLoc` + `ChipLoc`
+(`bo-loc-truong.tsx`), logic thuần `bang/locTruong.ts` (URL `[phép~]giá trị` — CHUAN-FILTER mục "Lọc theo trường").
+`NutLoc` = nút icon ghost 32 (Funnel 18 + tooltip "Lọc theo trường") ở khe MỚI `loc` của `DataViewToolbar`/`CongCuXem`
+(đứng trước ⚙) → pop rộng 280 (tối đa 100vw − 32, `collisionPadding` 16): Command "Tìm trường" (icon theo kiểu + tên)
+→ trang sửa: hàng đầu `cdDau` (← + tên trường) · Select phép · giá trị (chọn/người: Command có ô tìm kẻ trên, tick ✓
+`menuCheck`, `aria-checked`, người ghim "Tôi" + vạch; ngày: DatePicker / DateRangePicker lồng; chữ: Input). `ChipLoc` =
+khung `.ui-chip` (`chipKhung`, xuất từ `bang-styles.ts`) chứa nút chữ (đệm trái 10, vòng focus ring sát mép) + `.ui-chip-x`;
+pop sửa neo vào chip. `ThanhDangLoc` thêm `dieuKien[].chip` (chip tự dựng thay chip mặc định). Đo 26/11: chip mới trùng số
+chip cũ (cao 28, đệm 10/4, tâm chữ −0,5, tâm × 0). Khi đẩy lên artifact: preview DataViewToolbar thêm nút Lọc trước ⚙
+(so khớp `congCu` báo thừa phần tử tới khi preview đổi) + README thêm mục "Lọc theo trường"; preview FilterBar thêm chip
+bấm được (nút chữ trong `.ui-chip`) + pop sửa điều kiện; `bundle.css` thêm `.ui-chip > button:first-child` (reset nút,
+`height: 100%`, `padding-left: 10px`, vòng focus) và khung pop `.ui-menu.b-loc-truong` (rộng 280).
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
