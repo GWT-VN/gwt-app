@@ -387,3 +387,27 @@ test('XemNhanh nhường Esc cho lớp trên: tooltip đang hiện → Esc đón
   await user.keyboard('{Escape}')
   expect(onDong).toHaveBeenCalledTimes(1)
 })
+
+test('dangXemCo (màn chỉ cho Bảng + Kanban — ticket F, CEO 26/11): cụm chỉ 2 radio, ⚙ Bố cục cũng chỉ 2', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <DataViewToolbar
+        tieuDe="Ticket"
+        dangXem="bang"
+        onDoiXem={() => {}}
+        dangXemCo={['bang', 'kanban']}
+        xemNhanh={false}
+        onXemNhanh={() => {}}
+        caiDat={<CaiDatHienThi dangXem="bang" onDoiXem={() => {}} dangXemCo={['bang', 'kanban']} />}
+      />
+    </DsRoot>,
+  )
+  const nhom = screen.getByRole('radiogroup', { name: 'Dạng xem' })
+  expect(within(nhom).getAllByRole('radio').map((r) => r.getAttribute('aria-label'))).toEqual(['Bảng', 'Kanban'])
+  await user.click(screen.getByRole('button', { name: 'Cài đặt hiển thị' }))
+  const pop = await screen.findByRole('dialog', { name: 'Cài đặt hiển thị' })
+  await user.click(within(pop).getByRole('button', { name: /Bố cục/ }))
+  expect(within(pop).queryByRole('button', { name: 'Danh sách' })).toBeNull()
+  expect(within(pop).getByRole('button', { name: 'Kanban' })).toBeTruthy()
+})

@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
-import { CaiDatHienThi, DANG_XEM, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
+import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type CaiDatRef, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
@@ -174,6 +174,9 @@ function useRongKhung() {
   return [ref, w] as const
 }
 
+/** Dạng xem cho người dùng chọn ở F (CEO 26/11 "giữ 2 dạng"). */
+const XEM_F = ['bang', 'kanban'] as const satisfies readonly DangXem[]
+
 /** Vùng chứa hẹp hơn mức này (điện thoại) → ListView thay Bảng. */
 const RONG_BANG_TOI_THIEU = 640
 
@@ -215,9 +218,12 @@ const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> 
   ),
   may: (t) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      <span className="shrink-0 border-none border-current">
-        <ChuBaoHanh t={t} ngan />
-      </span>
+      {/* Chỉ chừa khe khi có serial — khe rỗng + gap làm chữ máy thụt 8px so với tiêu đề cột (đo 26/11). */}
+      {t.serial && (
+        <span className="shrink-0 border-none border-current">
+          <ChuBaoHanh t={t} ngan />
+        </span>
+      )}
       <span className="min-w-0 truncate">
         {t.product_name ?? '—'}
         {t.source_serial && <span className="tabular-nums text-muted-foreground"> · {t.source_serial}</span>}
@@ -381,8 +387,10 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
   const [kbTam, setKbTam] = useState<Record<string, string | null>>({})
   const c = useCotBang(COT, { url: true })
   const caiDat = useRef<CaiDatRef>(null)
-  // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem.
-  const dangXem: DangXem = DANG_XEM.find((x) => x.id === sp.get('bo_cuc'))?.id ?? 'bang'
+  // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem. CEO 26/11
+  // "giữ 2 dạng": chỉ Bảng + Kanban cho chọn; `bo_cuc=danh-sach` cũ → Bảng. Danh sách (ListView) chỉ còn là cách hiện tự
+  // động khi khung < RONG_BANG_TOI_THIEU (điện thoại).
+  const dangXem: DangXem = XEM_F.find((x) => x === sp.get('bo_cuc')) ?? 'bang'
   const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
 
   // ── Lọc theo trường (bang/locTruong, URL = tham số mang tên trường): server đã lọc thật; lọc lại ở đây để sửa tại chỗ
@@ -562,6 +570,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                 ref={caiDat}
                 dangXem={dangXem}
                 onDoiXem={doiXem}
+                dangXemCo={XEM_F}
                 cot={c.thuTu.map((id) => COT.find((x) => x.id === id)!)}
                 onDoiChoCot={c.doiCho}
                 cotAn={c.an}
@@ -582,6 +591,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
             }
             dangXem={dangXem}
             onDoiXem={doiXem}
+            dangXemCo={XEM_F}
             xemNhanh={t != null}
             onXemNhanh={(bat) => mo(bat ? (nguon[0]?.ticket_code ?? null) : null)}
           />
@@ -635,8 +645,6 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
               />
             ) : !dong.length ? (
               <EmptyState size="sm" kieu="loc" tieuDe="Không có ticket nào trong view này" moTa="Thử view khác hoặc bỏ bớt từ khoá, điều kiện lọc." />
-            ) : dangXem === 'danh-sach' ? (
-              ds
             ) : (
               // Bảng là dạng xem chính; hết chỗ thì CUỘN NGANG (Twenty) — không đổi sang ListView khi vừa thêm/giãn cột
               // (cột vừa thêm biến mất, mất focus: đo 26/11). Chỉ vùng chứa < 640 (điện thoại) mới dùng ListView 1–2 dòng.

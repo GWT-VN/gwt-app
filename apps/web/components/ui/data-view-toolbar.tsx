@@ -71,10 +71,17 @@ import type { BenTha, CotBang } from './use-cot-bang'
 export { DANG_XEM, type DangXem }
 
 const ICON_XEM: Record<DangXem, Icon> = { 'danh-sach': ListBullets, bang: Table, kanban: Kanban }
+/** Dạng xem được chọn ở màn (giữ thứ tự `DANG_XEM`). */
+const xemCo = (co?: readonly DangXem[]) => (co ? DANG_XEM.filter((x) => co.includes(x.id)) : DANG_XEM)
 
 type PropsCongCu = {
   dangXem: DangXem
   onDoiXem: (v: DangXem) => void
+  /**
+   * Dạng xem màn này cho chọn (mặc định đủ ba, thứ tự theo `DANG_XEM`). Vd ticket F (CEO 26/11 "giữ 2 dạng"):
+   * `['bang', 'kanban']` — Danh sách chỉ còn là cách hiện tự động khi khung hẹp, không phải nút.
+   */
+  dangXemCo?: readonly DangXem[]
   /** Thẻ xem nhanh đang bật — README: mặc định TẮT (tắt → bấm bản ghi mở trang chi tiết). */
   xemNhanh: boolean
   onXemNhanh: (bat: boolean) => void
@@ -89,7 +96,7 @@ type PropsCongCu = {
  * (README), có `aria-label` + tooltip (mô tả thêm, hiện cả khi focus phím). Dạng xem = ToggleGroup single
  * (`radiogroup` / `radio` + `aria-checked`); bấm lại dạng đang chọn không bỏ chọn. Xem nhanh = Toggle `aria-pressed`.
  */
-export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat, loc }: PropsCongCu) {
+export function CongCuXem({ dangXem, onDoiXem, dangXemCo, xemNhanh, onXemNhanh, caiDat, loc }: PropsCongCu) {
   return (
     <div data-slot="data-view-tools" className={dvCongCu}>
       {(loc || caiDat) && (
@@ -108,7 +115,7 @@ export function CongCuXem({ dangXem, onDoiXem, xemNhanh, onXemNhanh, caiDat, loc
         size="icon"
         className={dvBoCuc}
       >
-        {DANG_XEM.map(({ id, ten, tip }) => {
+        {xemCo(dangXemCo).map(({ id, ten, tip }) => {
           const I = ICON_XEM[id]
           return (
             <TooltipNhanh key={id} content={tip}>
@@ -270,6 +277,7 @@ function MucChon({ chon, onClick, children, dau }: { chon: boolean; onClick: () 
 export function CaiDatHienThi({
   dangXem,
   onDoiXem,
+  dangXemCo,
   cot = [],
   cotAn = [],
   onCotAn,
@@ -287,6 +295,8 @@ export function CaiDatHienThi({
 }: {
   dangXem: DangXem
   onDoiXem: (v: DangXem) => void
+  /** Như `DataViewToolbar dangXemCo`: trang "Bố cục" chỉ liệt kê các dạng này. */
+  dangXemCo?: readonly DangXem[]
   /**
    * Cột của Table (`CotBang`, use-cot-bang.ts) THEO THỨ TỰ đang dùng (`useCotBang().thuTu`): `khoa` luôn hiện; `kieu:
    * 'sap'` vào trang Sắp xếp với `nghia`.
@@ -455,7 +465,7 @@ export function CaiDatHienThi({
         {trang === 'bocuc' && (
           <>
             {dau('Bố cục')}
-            {DANG_XEM.map(({ id, ten }) => {
+            {xemCo(dangXemCo).map(({ id, ten }) => {
               const I = ICON_XEM[id]
               return (
                 <MucChon

@@ -84,6 +84,8 @@ tab không vừa vào "Thêm ▾", tab đang chọn luôn hiện — kiểu GitH
 lên artifact:** `.b-thanh` thêm `flex-wrap`, `.b-tabs-cuon` `min-width: min(100%, 272px)` thay `0`, `.b-thanh-phai`
 `margin-left: auto` (`data-view-styles.ts` `dvThanh/dvTabs/dvThanhPhai`) — khung hẹp (375: hàng tab còn 79px, 900: 204px)
 thì cụm công cụ xuống dòng canh phải thay vì bóp hàng tab; 1440 không đổi. README DataViewToolbar thêm một dòng.
+**Chờ đồng bộ lên artifact** (CEO 26/11 "siết padding của các tab này", commit ec0a6b6): `.ui-tabs-pill .ui-tabs-trigger
+{ height: 32px; padding: 0 12px }` (`tabsTriggerPill` — cả nút "Thêm ▾" của `thuGon`).
 
 Lọc từ menu tiêu đề cột (26/11, học Twenty "menu cột → Filter", prototype ticket F): `TieuDeCot moLoc={{ dang, onMo }}` →
 mục "Lọc…" (Funnel) đầu menu, menu đóng xong mới gọi `onMo(nút tiêu đề)`; `dang` → phễu trên tiêu đề (không số). Nối bằng
@@ -112,6 +114,11 @@ icon-xs, `cotMenu`) đầu cột: "Thêm …" · "Ẩn nhóm" (ẩn xong focus s
 cai-dat-kanban.dom.test. Khi đẩy lên artifact: README KanbanBoard thêm "Menu đầu cột", "Thẻ dạng trường", ngưỡng kéo; preview
 KanbanBoard thêm nút ⋯ + một thẻ dạng trường; `bundle.css` thêm `.b-k-menu` (dồn phải, lề dọc −1) và `.b-the-truong*`
 (dòng flex cách 8, icon 14 tertiary, rỗng tertiary); README DataViewToolbar thêm trang "Nhóm đang ẩn".
+
+Tập dạng xem theo màn (26/11, CEO "Bỏ, giữ 2 dạng" ở ticket F): `DataViewToolbar`/`CongCuXem` + `CaiDatHienThi` thêm
+`dangXemCo?: DangXem[]` (mặc định đủ ba như cũ — Work v2 không đổi). F truyền `['bang', 'kanban']`: cụm chọn và ⚙ Bố cục
+chỉ 2 mục; ListView chỉ còn là cách hiện tự động khi khung < 640. Khi đẩy lên artifact: README DataViewToolbar thêm một dòng
+"màn có thể giới hạn dạng xem"; preview không đổi.
 
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
