@@ -188,10 +188,10 @@ const RONG_BANG_TOI_THIEU = 640
 const COT: CotBang[] = [
   // Đo 26/11 ở 1440 (bảng 963): cột khác vừa đủ nội dung + tiêu đề có mũi menu (Trạng thái: badge 66 / nhãn 57 + 20;
   // Hạn: "Quá 12 ngày" 76; Phụ trách: nhãn 54 + 20, ô chỉ avatar) → phần dư dồn cho cột khoá: tên khách có ~170px
-  // (trước 73). Cột khách 296: 36 + 296 + 588 + 40 ("+") = 960 ≤ 963 → 1440 hiện Bảng không cuộn, tên khách có ~167px;
-  // khung hẹp hơn thì cuộn ngang.
-  { id: 'khach', ten: 'Ticket · khách', rong: 296, kieu: 'thuong', khoa: true },
-  { id: 'may', ten: 'Máy · bảo hành', rong: 184, kieu: 'thuong' },
+  // (trước 73). Ô chọn nay nằm TRONG mép nội dung (1f5cf5e) → khung 1440 chỉ còn 927 (trước 963): khách 280 + máy 167
+  // → 36 + 280 + 167 + 404 + 40 ("+") = 927 — nút "+" không bị đẩy khuất ngoài mép. Khung hẹp hơn thì cuộn ngang.
+  { id: 'khach', ten: 'Ticket · khách', rong: 280, kieu: 'thuong', khoa: true },
+  { id: 'may', ten: 'Máy · bảo hành', rong: 167, kieu: 'thuong' },
   { id: 'loi', ten: 'Loại lỗi', rong: 128, kieu: 'thuong' },
   { id: 'tt', ten: 'Trạng thái', rong: 96, kieu: 'loc' },
   { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },

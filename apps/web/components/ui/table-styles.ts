@@ -62,6 +62,9 @@ export const th = cn(
   'sticky top-0 z-2 h-(--control-size-lg) px-2.5 bg-background',
   // Chỉ cạnh dưới: kiểu none·none·solid (cạnh khác không vẽ, giữ currentColor như nguồn) — không dùng border-solid chung.
   'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-08)',
+  // Bảng có cột GHIM (bản ticket F — CEO 26/11 "thử thêm một line ngăn cách ở trên hàng label, dưới phần tab"): kẻ
+  // TRÊN hàng tiêu đề cùng màu kẻ dưới. Thử nghiệm — chưa áp cho bảng khác.
+  '[table:has(>thead>tr>th[data-ghim])_&]:border-t [table:has(>thead>tr>th[data-ghim])_&]:[border-top-style:solid] [table:has(>thead>tr>th[data-ghim])_&]:border-t-(--alpha-08)',
   'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
   // `.b-bang-c th`: đệm ngang 6.
   'in-data-[layout=fixed]:px-1.5',
