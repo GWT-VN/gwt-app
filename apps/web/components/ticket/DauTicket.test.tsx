@@ -29,6 +29,12 @@ describe('DauTicket', () => {
     const h = renderToStaticMarkup(<DauTicket {...co} />)
     for (const t of ['Trạng thái', 'Khẩn', 'CS theo dõi', 'Kỹ thuật', '>Hiệp<', '>Kiều Trang<', '>Hiền<', '>Tuyết Trang<', '>nhu<']) expect(h).toContain(t)
   })
+  it('cho tìm kỹ thuật theo tên khi danh sách thay thế có hơn 10 mục', () => {
+    const staff = Array.from({ length: 12 }, (_, i) => ({ id: `kt-${i}`, ten: `Kỹ thuật mẫu ${i}`, email: null, vai_tro: [] }))
+    const h = renderToStaticMarkup(<DauTicket {...co} staff={staff} ktId="kt-3" />)
+    expect(h).toContain('data-slot="combobox-trigger"')
+    expect(h).toContain('Kỹ thuật mẫu 3')
+  })
   it('đã xong → không đếm ngày mở', () => {
     const h = renderToStaticMarkup(<DauTicket {...co} state="Done" />)
     expect(h).not.toContain('Mở 65 ngày')

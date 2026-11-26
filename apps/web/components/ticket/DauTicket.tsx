@@ -12,6 +12,7 @@ import { ChonNguoi } from '@/components/ticket/ChonNguoi'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/ui/combobox'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { PageHeader } from '@/components/ui/page-header'
 
@@ -115,6 +116,14 @@ export function DauTicket({
           {choSua && dsKt ? (
             <ChonNguoi loai="kt" ds={dsKt} dangGan={ktHoSo} disabled={busy} quanTri={quanTri}
               onChon={(id) => ganKyThuat(code, id)} />
+          ) : choSua && staff.length > 10 ? (
+            <div className="w-48 max-w-full">
+              <Combobox
+                aria-label="Chọn kỹ thuật" placeholder="Chưa gán" searchPlaceholder="Gõ tên kỹ thuật…"
+                value={ktId} disabled={busy} options={staff.map((s) => ({ gt: s.id, nhan: s.ten }))}
+                onValueChange={(id) => luu(() => updateTicket(code, { ky_thuat: id }))}
+              />
+            </div>
           ) : choSua ? (
             <NativeSelect size="sm" aria-label="Chọn kỹ thuật" value={ktId ?? ''} disabled={busy}
               onChange={(e) => luu(() => updateTicket(code, { ky_thuat: e.target.value || null }))}>

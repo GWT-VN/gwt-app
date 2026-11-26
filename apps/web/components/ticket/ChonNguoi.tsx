@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { LoaiNguoi } from '@/app/ticket/nguoi-actions'
 import { dsChoChon, type NguoiDs } from '@/lib/loi/nguoiTicket'
+import { Combobox } from '@/components/ui/combobox'
 
 type KQ = { ok: true } | { ok: false; error: string }
 
@@ -23,6 +24,8 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false
   const [err, setErr] = useState<string | null>(null)
   const tenDs = loai === 'cs' ? 'CS theo dõi' : 'kỹ thuật'
 
+  const muc = dsChoChon(ds, dangGan)
+
   async function chon(id: string | null) {
     setBusy(true); setErr(null)
     const r = await onChon(id)
@@ -32,17 +35,26 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false
   }
 
   return (
-    <span className={`inline-flex flex-col gap-1 ${className}`}>
-      <span className="inline-flex items-center gap-2">
-        <select className="rounded-lg border px-2 py-1 text-sm bg-white text-slate-900 disabled:opacity-50"
-          disabled={disabled || busy} aria-label={`Chọn ${tenDs}`} value={dangGan ?? ''}
-          onChange={(e) => chon(e.target.value || null)}>
-          <option value="">— Chưa gán —</option>
-          {dsChoChon(ds, dangGan).map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã xoá)' : ''}</option>)}
-        </select>
-        {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-slate-500 underline whitespace-nowrap">Sửa danh sách →</Link>}
-      </span>
+    <div className={`inline-flex flex-col gap-1 ${className}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        {muc.length > 10 ? (
+          <div className="w-48 max-w-full">
+            <Combobox value={dangGan} onValueChange={chon} disabled={disabled || busy} aria-label={`Chọn ${tenDs}`}
+              placeholder="Chưa gán" searchPlaceholder="Gõ tên…"
+              options={muc.map((x) => ({ gt: x.id, nhan: nhan(x) + (x.an ? ' (đã xoá)' : '') }))}
+            />
+          </div>
+        ) : (
+          <select className="rounded-lg border px-2 py-1 text-sm bg-card text-foreground disabled:opacity-50"
+            disabled={disabled || busy} aria-label={`Chọn ${tenDs}`} value={dangGan ?? ''}
+            onChange={(e) => chon(e.target.value || null)}>
+            <option value="">— Chưa gán —</option>
+            {muc.map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã xoá)' : ''}</option>)}
+          </select>
+        )}
+        {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-muted-foreground underline whitespace-nowrap">Sửa danh sách →</Link>}
+      </div>
       {err && <span className="text-xs text-red-600">{err}</span>}
-    </span>
+    </div>
   )
 }

@@ -1,15 +1,16 @@
 'use client'
 
-import { Fragment, useState, useTransition } from 'react'
+import { Fragment, useId, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/ui/combobox'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
-import { OChonGoiY, type MucChon } from '@/bang'
+import type { MucChon } from '@/bang'
 import { luuLoi, datTrangThaiLoi } from '@/app/ticket/loi-actions'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 import type { LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
@@ -23,6 +24,7 @@ const MAU: Record<TrangThaiLoi, 'warning' | 'success' | 'secondary'> = {
 
 export function DanhMucLoiBang({ rows, choSua, nhomTuyChon = [] }: { rows: LoiDanhMuc[]; choSua: boolean; nhomTuyChon?: MucChon[] }) {
   const router = useRouter()
+  const nhanNhom = useId()
   const [dangSua, setDangSua] = useState<string | null>(null)
   const [form, setForm] = useState<FormLoi | null>(null)
   const [loi, setLoi] = useState<Record<string, string>>({})
@@ -91,9 +93,11 @@ export function DanhMucLoiBang({ rows, choSua, nhomTuyChon = [] }: { rows: LoiDa
                   <TableRow className="bg-muted"><TableCell colSpan={8} className="p-3">
                     <div className="grid gap-2 sm:grid-cols-2">
                       <label className="text-xs">Tên chuẩn<Input value={form.ten} onChange={f('ten')} /></label>
-                      <div className="text-xs">Nhóm lỗi
-                        <OChonGoiY giaTri={form.nhom || null} tuyChon={nhomTuyChon} choTrong="Gõ để tìm nhóm lỗi…"
-                          onChon={(gt) => setForm((x) => x && { ...x, nhom: gt })} />
+                      <div className="space-y-1 text-xs">
+                        <span id={nhanNhom}>Nhóm lỗi</span>
+                        <Combobox aria-labelledby={nhanNhom} value={form.nhom || null} options={nhomTuyChon}
+                          placeholder="Chọn nhóm lỗi…" searchPlaceholder="Gõ để tìm nhóm lỗi…"
+                          onValueChange={(gt) => setForm((x) => x && { ...x, nhom: gt ?? '' })} />
                       </div>
                       <label className="text-xs">Các cách ghi (mỗi dòng một cách)<Textarea rows={3} value={form.aliases} onChange={f('aliases')} /></label>
                       <label className="text-xs">Mã máy áp dụng (mỗi dòng một mã)<Textarea rows={3} value={form.ma_may} onChange={f('ma_may')} /></label>

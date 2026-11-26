@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { nhapPhuongAnDuyet, xuatFileChuyenGia, type XemTruocDuyet } from '@/app/ticket/xuat-chuyen-gia-actions'
 
 /**
@@ -63,7 +64,7 @@ export function NutXuatChuyenGia() {
           title="File Excel: mỗi loại lỗi + phương án đề xuất + ticket thật (đã che SĐT) để chuyên gia duyệt / sửa.">
           {dangXuat ? 'Đang tạo file…' : 'Xuất cho chuyên gia'}
         </Button>
-        <label className={buttonVariants({ variant: "outline", size: "sm", className: "cursor-pointer focus-within:outline-2 focus-within:outline-ring has-disabled:cursor-default has-disabled:opacity-50" })}>
+        <label className={cn(buttonVariants({ variant: "outline", size: "sm", className: "cursor-pointer focus-within:outline-2 focus-within:outline-ring has-disabled:cursor-default has-disabled:opacity-50" }))}>
           Nhập phương án đã duyệt
           <input type="file" accept=".xlsx" className="sr-only" disabled={busy} onChange={(e) => chonFile(e.target)} />
         </label>

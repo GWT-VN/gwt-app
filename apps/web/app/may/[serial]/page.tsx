@@ -16,6 +16,7 @@ import { docThongTinLap } from '@/app/may/huy-lap-actions'
 import { QuanLyLap } from '@/components/bh/QuanLyLap'
 import { docAnToan } from '@/lib/loi/anToan'
 import { ManV2 } from '@/components/khung/ManV2'
+import { Button } from '@/components/ui/button'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
 
@@ -120,10 +121,9 @@ export default async function MachinePage({ params }: { params: Promise<{ serial
             <h2 className="font-medium text-foreground mb-3">Lõi lọc & lịch thay</h2>
             <LoiCuaMay serial={m.serial} />
             {quyen.lichKT && m.customer_id && (
-              <Link href={`/ky-thuat?kh=${m.customer_id}&loai=thay_loi&ref=${encodeURIComponent(m.serial)}`}
-                className="mt-3 inline-block rounded-lg bg-(--color-background-success-solid) text-primary-foreground px-3 py-1.5 text-sm font-medium">
-                + Tạo lịch kỹ thuật (thay lõi máy này)
-              </Link>
+              <Button asChild className="mt-3">
+                <Link href={`/ky-thuat?kh=${m.customer_id}&loai=thay_loi&ref=${encodeURIComponent(m.serial)}`}>+ Tạo lịch kỹ thuật (thay lõi máy này)</Link>
+              </Button>
             )}
           </section>
 

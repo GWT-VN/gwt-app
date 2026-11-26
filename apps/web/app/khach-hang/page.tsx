@@ -10,6 +10,7 @@ import { OTimKiem, ThanhDangLoc, PhanTrang } from '@/bang'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ManV2 } from '@/components/khung/ManV2'
+import { Button } from '@/components/ui/button'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
@@ -55,31 +56,21 @@ export default async function KhachHangPage({
                 chứ chip trống thì không ai bấm. */}
             <div className="flex flex-wrap gap-2">
               {(soThieuSdt > 0 || locThieuSdt) && (
-                <Link
-                  href={locThieuSdt ? '/khach-hang' : '/khach-hang?thieu_sdt=1'}
-                  prefetch={false}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                    locThieuSdt
-                      ? 'bg-(--color-background-warning-solid) text-primary-foreground'
-                      : 'border border-(--color-border-warning-surface) bg-(--color-background-warning-surface) text-(--color-text-warning) hover:bg-(--color-background-warning-surface)'}`}
-                >
+                <Button asChild size="sm" variant={locThieuSdt ? 'secondary' : 'outline'}>
+                <Link href={locThieuSdt ? '/khach-hang' : '/khach-hang?thieu_sdt=1'} prefetch={false}>
                   {locThieuSdt ? '✕ Bỏ lọc · ' : '☎ '}Cần xin lại SĐT ({soThieuSdt})
                 </Link>
+              </Button>
               )}
               {/* Chip "Kênh máy tự điền" — CEO 24/08: *"highlight đc kênh nào là anh tự điền cần
                   tôi check lại"*. Bấm vào ra đúng nhóm mig 54 đã đổ; sửa tay hồ sơ nào là hồ sơ
                   ấy rơi khỏi đây, nên con số tự giảm dần về 0 khi soát xong. */}
               {(soKenhTuDong > 0 || locKenhTuDong) && (
-                <Link
-                  href={locKenhTuDong ? '/khach-hang' : '/khach-hang?kenh_tu_dong=1'}
-                  prefetch={false}
-                  className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                    locKenhTuDong
-                      ? 'bg-(--color-background-info-solid) text-primary-foreground'
-                      : 'border border-(--color-border-info-surface) bg-(--color-background-info-surface) text-(--color-text-info) hover:bg-(--color-background-info-surface)'}`}
-                >
+                <Button asChild size="sm" variant={locKenhTuDong ? 'secondary' : 'outline'}>
+                <Link href={locKenhTuDong ? '/khach-hang' : '/khach-hang?kenh_tu_dong=1'} prefetch={false}>
                   {locKenhTuDong ? '✕ Bỏ lọc · ' : '🤖 '}Kênh máy tự điền, cần soát ({soKenhTuDong})
                 </Link>
+              </Button>
               )}
             </div>
 

@@ -3,13 +3,15 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Ticket } from '@/app/actions'
 import TicketPage from './page'
 
-const quyen = vi.hoisted(() => ({ sua: true, lichKT: true, chiPhi: true }))
+const quyen = vi.hoisted(() => ({ sua: true, lichKT: true, chiPhi: true, xemKhach: true }))
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({}), notFound: () => { throw new Error('Not found') } }))
 vi.mock('@/app/actions', () => ({
   getTicket: async () => ticket,
   groupsOfTicket: async () => [],
-  listTicketNotes: async () => [],
+  listTicketNotes: async () => [{ id: 'nk-1', noi_dung: 'Đã gọi khách lần đầu', created_at: '2026-11-24T08:00:00Z' }],
+  ticketsOfSerial: async () => [ticket, { ...ticket, ticket_code: 'TK-2611-008', created_at: '2026-11-18T02:00:00Z' }],
+  ticketsOfCustomer: async () => [{ ...ticket, ticket_code: 'TK-2611-006', created_at: '2026-11-17T02:00:00Z' }],
   listTicketItems: async () => [],
   listCatalogItems: async () => [],
   ticketTypes: async () => ['Rò nước'],
@@ -55,20 +57,24 @@ describe('Chi tiết ticket ở đường dẫn mặc định', () => {
     expect(html).toContain('TK-2611-042 · Rò nước')
     expect(html).toContain('Khách báo lại')
     expect(html).toContain('Đã thay gioăng')
+    expect(html).toContain('/ticket/TK-2611-008')
+    expect(html).toContain('/ticket/TK-2611-006')
+    expect(html).toContain('Đã gọi khách lần đầu')
     expect(html.indexOf('Lần 2')).toBeLessThan(html.indexOf('Lần 1'))
     expect(html).toContain('/ky-thuat?kh=khach-mau&amp;loai=ticket&amp;ref=TK-2611-042')
   })
 
   it('ẩn thao tác sửa và hẹn với người không có quyền', async () => {
-    Object.assign(quyen, { sua: false, lichKT: false, chiPhi: false })
+    Object.assign(quyen, { sua: false, lichKT: false, chiPhi: false, xemKhach: false })
     try {
       const html = await moTicket()
       expect(html).toContain('TK-2611-042 · Rò nước')
       expect(html).not.toContain('Sửa loại / lần 1')
       expect(html).not.toContain('Thêm lần lỗi mới')
       expect(html).not.toContain('/ky-thuat?')
+      expect(html).not.toContain('/ticket/TK-2611-006')
     } finally {
-      Object.assign(quyen, { sua: true, lichKT: true, chiPhi: true })
+      Object.assign(quyen, { sua: true, lichKT: true, chiPhi: true, xemKhach: true })
     }
   })
 })

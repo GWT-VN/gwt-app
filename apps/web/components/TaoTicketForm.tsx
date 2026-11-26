@@ -4,6 +4,7 @@ import { ChonLoaiTicket } from '@/components/ticket/ChonLoaiTicket'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
+import { Combobox } from '@/components/ui/combobox'
 import { Field, FieldDescription, FieldLabel, FieldSet, FieldLegend } from '@/components/ui/field'
 import { FormFooter, FormGrid, FormLayout, FormRequiredNote, FormSection } from '@/components/ui/form-layout'
 import { Input } from '@/components/ui/input'
@@ -25,6 +26,28 @@ import type { DongMayInput, KetQuaTraSerial, LoiDanhMuc } from '@/lib/loi/kieu'
 
 const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 const STATES = [{ k: 'Open', l: 'Đang mở' }, { k: 'Done', l: 'Đã xong' }, { k: 'Cancel', l: 'Đã huỷ' }]
+
+function ChonNguoiPhuTrach({ id, moTa, value, options, onChange }: {
+  id: string
+  moTa?: string
+  value: string
+  options: { gt: string; nhan: string; anMa: true }[]
+  onChange: (value: string) => void
+}) {
+  if (options.length > 10) {
+    return (
+      <Combobox id={id} aria-describedby={moTa} placeholder="Chưa gán"
+        value={value || null} options={options} onValueChange={(v) => onChange(v ?? '')} />
+    )
+  }
+
+  return (
+    <NativeSelect id={id} aria-describedby={moTa} value={value} onChange={(e) => onChange(e.target.value)}>
+      <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
+      {options.map(({ gt, nhan }) => <NativeSelectOption key={gt} value={gt}>{nhan}</NativeSelectOption>)}
+    </NativeSelect>
+  )
+}
 
 /** Form tạo ticket đầy đủ: khách -> máy của khách + ngày/trạng thái/khẩn/ghi chú/người xử lý. */
 export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
@@ -92,6 +115,9 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
     router.push(duongDanSauTao(r.code, 'canhBao' in r ? r.canhBao : undefined))
   }
 
+  const nhanVien = staff.map(({ id, ten }) => ({ gt: id, nhan: ten, anMa: true as const }))
+  const kyThuat = dsKt?.filter((nguoi) => nguoi.hoat_dong)
+    .map(({ id, ten, la_ctv }) => ({ gt: id, nhan: ten + (la_ctv ? ' (CTV)' : ''), anMa: true as const }))
   const chuaDuDieuKien = !khachId || !loai.trim() || !moTa.trim()
     || !dongDuDieuKien(dong, Object.fromEntries(Object.entries(ketQua).map(([k, v]) => [k, v.loai])))
 
@@ -173,20 +199,12 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
         <FormGrid>
           <Field>
             <FieldLabel htmlFor={`${id}-cs`}>CS phụ trách</FieldLabel>
-            <NativeSelect id={`${id}-cs`} value={cs} onChange={(e) => setCs(e.target.value)}>
-              <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
-              {staff.map((s) => <NativeSelectOption key={s.id} value={s.id}>{s.ten}</NativeSelectOption>)}
-            </NativeSelect>
+            <ChonNguoiPhuTrach id={id + '-cs'} value={cs} onChange={setCs} options={nhanVien} />
           </Field>
           <Field>
             <FieldLabel htmlFor={`${id}-kt`}>Kỹ thuật phụ trách</FieldLabel>
-            <NativeSelect id={`${id}-kt`} value={kt} onChange={(e) => setKt(e.target.value)}
-              aria-describedby={dsKt ? `${id}-kt-mo-ta` : undefined}>
-              <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
-              {dsKt
-                ? dsKt.filter((x) => x.hoat_dong).map((x) => <NativeSelectOption key={x.id} value={x.id}>{x.ten}{x.la_ctv ? ' (CTV)' : ''}</NativeSelectOption>)
-                : staff.map((s) => <NativeSelectOption key={s.id} value={s.id}>{s.ten}</NativeSelectOption>)}
-            </NativeSelect>
+            <ChonNguoiPhuTrach id={id + '-kt'} value={kt} onChange={setKt} options={kyThuat ?? nhanVien}
+              moTa={dsKt ? id + '-kt-mo-ta' : undefined} />
             {dsKt && <FieldDescription id={`${id}-kt-mo-ta`}>Thiếu thợ? Thêm ở ô Kỹ thuật trên trang ticket sau khi tạo.</FieldDescription>}
           </Field>
           <Field data-span="full">

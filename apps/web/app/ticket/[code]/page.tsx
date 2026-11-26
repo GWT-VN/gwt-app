@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { NutQuayLai } from '@/components/NutQuayLai'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { notFound } from 'next/navigation'
-import { getTicket, groupsOfTicket, listTicketNotes, listTicketItems, listCatalogItems, ticketTypes } from '@/app/actions'
+import { getTicket, groupsOfTicket, listTicketNotes, listTicketItems, listCatalogItems, ticketTypes, ticketsOfCustomer, ticketsOfSerial } from '@/app/actions'
 import { listStaff } from '@/lib/nen-tang/nhan-su'
 import { MucDoBadge } from '@/components/NhomLoiBadge'
 import { TicketEditor } from '@/components/TicketEditor'
@@ -20,6 +20,8 @@ import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
 import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
 import { coSuaDanhSach } from '@/lib/nen-tang/sua-danh-sach-server'
 import { DauTicket } from '@/components/ticket/DauTicket'
+import { TicketList } from '@/components/TicketList'
+import { tomTatNhatKy } from '@/components/ticket/KhoiThuGon'
 import { ChuaCoSerial } from '@/components/ticket/ChuaCoSerial'
 import { ngayCuaLan, ngayVNHomNay, soNgayMo } from '@/lib/loi/ngayTicket'
 import { ManV2 } from '@/components/khung/ManV2'
@@ -51,6 +53,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       lichKT: ['cs.ky_thuat.ho_so', 'QUANLY'],
       chiPhi: ['cs.ticket.chi_phi', 'QUANLY'],
       sua: ['cs.ticket.tao_sua', 'NHANVIEN'],
+      xemKhach: ['cs.khach.xem', 'NHANVIEN'],
     }),
     coSuaDanhSach(),
   ])
@@ -81,6 +84,16 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       </ManV2>
     )
   }
+
+  const [lichMay, lichKhach] = await Promise.all([
+    docAnToan('ticketsOfSerial', () => t.serial ? ticketsOfSerial(t.serial) : Promise.resolve([]), []),
+    docAnToan('ticketsOfCustomer', () => t.customer_id && quyen.xemKhach ? ticketsOfCustomer(t.customer_id) : Promise.resolve([]), []),
+  ])
+  const lichSu = [...new Map([...lichMay.data, ...lichKhach.data]
+    .filter((cu) => cu.ticket_code !== t.ticket_code && Date.parse(cu.created_at) <= Date.parse(t.created_at))
+    .map((cu) => [cu.ticket_code, cu])).values()]
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    .slice(0, 5)
 
   const may = t.serial ? (
     <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="underline underline-offset-2">
@@ -131,9 +144,25 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
             choSua={quyen.sua} coNgayBao={!thieuCotMoi} lanLoi={lanLoi} thieuLanLoi={thieuLanLoi}
           />
 
+          {(t.serial || (t.customer_id && quyen.xemKhach)) && (
+            <section aria-labelledby="ticket-lien-quan" className="space-y-2">
+              <DetailHeading id="ticket-lien-quan">Máy &amp; khách đã lỗi gì trước</DetailHeading>
+              {lichMay.loi || lichKhach.loi
+                ? <Alert color="warning"><AlertDescription>Chưa tải được đầy đủ lịch sử ticket.</AlertDescription></Alert>
+                : null}
+              {(lichSu.length > 0 || (!lichMay.loi && !lichKhach.loi)) &&
+                <TicketList tickets={lichSu} empty="Chưa có ticket trước đó." />}
+            </section>
+          )}
+
           <Accordion type="multiple">
             <AccordionItem value="nhat-ky">
-              <AccordionTrigger>Nhật ký trao đổi · {notes.length}</AccordionTrigger>
+              <AccordionTrigger>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span>Nhật ký trao đổi · {notes.length}</span>
+                  <span className="truncate font-normal text-muted-foreground">{tomTatNhatKy(notes)}</span>
+                </span>
+              </AccordionTrigger>
               <AccordionContent>
                 {thieuTep && (
                   <Alert color="warning" className="mb-3"><AlertDescription>Chưa tải được tệp đính kèm.</AlertDescription></Alert>
@@ -161,6 +190,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
                   </PropertyRow>
                   <PropertyRow nhan="Máy">{may}</PropertyRow>
                   <PropertyRow nhan="Serial">{t.source_serial}</PropertyRow>
+                  <PropertyRow nhan="Ngày tạo">{vnDate(t.created_at)}</PropertyRow>
                   {baoHanh && <PropertyRow nhan="Bảo hành">{baoHanh}</PropertyRow>}
                 </PropertyList>
 
