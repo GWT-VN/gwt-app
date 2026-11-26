@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTuyen, TUYEN } from "@/lib/marketing/data/a5-detail";
@@ -58,11 +59,11 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
           <span className={`cat cat-${t.cat}`} style={{ fontSize: ".8rem", padding: "3px 10px" }}>{t.cat}</span>
           <span className="tag">{t.en}</span>
         </div>
-        <h1>{t.name}</h1>
+        <PageHeader tieuDe={<>{t.name}</>} />
         <p><b style={{ color: "var(--ink)" }}>Nhiệm vụ:</b> {t.purpose}</p>
       </div>
 
-      <div className="card" style={{ borderLeft: "3px solid var(--accent)", background: "var(--surface-2)", marginBottom: 20 }}>
+      <div className="card" style={{ borderLeft: "3px solid var(--wiki-accent)", background: "var(--surface-2)", marginBottom: 20 }}>
         <div className="fl" style={{ marginBottom: 6 }}>Câu hỏi người xem đang tự trả lời</div>
         <p style={{ margin: 0, fontSize: "1.02rem", color: "var(--ink)", fontStyle: "italic" }}>{t.question}</p>
       </div>
@@ -119,7 +120,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
         <h1 style={{ fontSize: "1.2rem", margin: 0 }}>▸ Áp cho GWT</h1>
       </div>
-      <div className="card" style={{ borderLeft: "3px solid var(--accent)", background: "var(--surface-2)" }}>
+      <div className="card" style={{ borderLeft: "3px solid var(--wiki-accent)", background: "var(--surface-2)" }}>
         <div className="fl" style={{ marginBottom: 8 }}>Đề tài gợi ý</div>
         <List items={t.gwtIdeas} />
         <p style={{ marginTop: 14, marginBottom: 0, fontSize: ".9rem", color: "var(--ink-2)", lineHeight: 1.75 }}>

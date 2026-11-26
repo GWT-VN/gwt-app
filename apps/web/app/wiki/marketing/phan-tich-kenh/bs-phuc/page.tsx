@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import Link from "next/link";
 import { Icon } from "@/lib/marketing/icons";
 
@@ -77,7 +79,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Học hỏi · Phân tích kênh tham khảo</div>
-        <h1>Kênh TS. Hữu Phúc — Chống lão hóa</h1>
+        <PageHeader tieuDe={<>Kênh TS. Hữu Phúc — Chống lão hóa</>} />
         <p>
           Mổ xẻ hệ 3 kênh TikTok chống lão hóa của BS Phúc để hiểu <b>họ hút và giữ người xem bằng cách nào</b>, rồi
           rút công thức áp cho video nước GWT. Phân tích từng video (transcript đầy đủ + bóc tách) nằm ở{" "}
@@ -100,24 +102,24 @@ export default function Page() {
         <h1 style={{ fontSize: "1.25rem" }}>1. Hệ thống 3 kênh chạy song song</h1>
         <p>Cùng một nhân vật + cùng công thức kịch bản, chạy trên 3 kênh đóng 3 vai khác nhau.</p>
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Kênh</th><th>Handle</th><th>Số liệu</th><th>Đặc điểm view</th><th>Vai trò (suy luận)</th></tr>
-          </thead>
-          <tbody>
+      <TableWrap vien tabIndex={0} aria-label="Ba kênh">
+        <Table variant="thuong" className="min-w-[640px]" aria-label="Ba kênh">
+          <TableHeader>
+            <TableRow><TableHead>Kênh</TableHead><TableHead>Handle</TableHead><TableHead>Số liệu</TableHead><TableHead>Đặc điểm view</TableHead><TableHead>Vai trò (suy luận)</TableHead></TableRow>
+          </TableHeader>
+          <TableBody>
             {KENH.map((k) => (
-              <tr key={k.handle}>
-                <td className="td-title">{k.ten}</td>
-                <td><span className="tag">{k.handle}</span></td>
-                <td style={{ fontSize: ".8rem" }}>{k.so}</td>
-                <td style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{k.view}</td>
-                <td style={{ fontSize: ".82rem" }}>{k.vaitro}</td>
-              </tr>
+              <TableRow key={k.handle}>
+                <TableCell className="td-title">{k.ten}</TableCell>
+                <TableCell><span className="tag">{k.handle}</span></TableCell>
+                <TableCell style={{ fontSize: ".8rem" }}>{k.so}</TableCell>
+                <TableCell style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{k.view}</TableCell>
+                <TableCell style={{ fontSize: ".82rem" }}>{k.vaitro}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableWrap>
       <Note>
         ~130 video/11 tháng ≈ <b>3 video/tuần đều đặn</b> — không phải làm ngẫu hứng mà là <b>guồng sản xuất công
         nghiệp</b>: một công thức kịch bản + một bộ khung edit, lắp nội dung mới vào là ra video. Toàn bộ file này là đi
@@ -155,40 +157,40 @@ export default function Page() {
       <div className="page-head" style={{ marginTop: 22 }}>
         <h1 style={{ fontSize: "1.25rem" }}>3. Kỹ thuật giữ chân người xem</h1>
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Kỹ thuật</th><th>Ví dụ</th><th>Vì sao hiệu quả</th></tr></thead>
-          <tbody>
+      <TableWrap vien tabIndex={0} aria-label="Kỹ thuật giữ chân">
+        <Table variant="thuong" className="min-w-[640px]" aria-label="Kỹ thuật giữ chân">
+          <TableHeader><TableRow><TableHead>Kỹ thuật</TableHead><TableHead>Ví dụ</TableHead><TableHead>Vì sao hiệu quả</TableHead></TableRow></TableHeader>
+          <TableBody>
             {GIU_CHAN.map(([a, b, c]) => (
-              <tr key={a}>
-                <td className="td-title" style={{ fontSize: ".85rem" }}>{a}</td>
-                <td style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{b}</td>
-                <td style={{ fontSize: ".85rem" }}>{c}</td>
-              </tr>
+              <TableRow key={a}>
+                <TableCell className="td-title" style={{ fontSize: ".85rem" }}>{a}</TableCell>
+                <TableCell style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{b}</TableCell>
+                <TableCell style={{ fontSize: ".85rem" }}>{c}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableWrap>
 
       {/* 4. Mô hình 5A */}
       <div className="page-head" style={{ marginTop: 22 }}>
         <h1 style={{ fontSize: "1.25rem" }}>4. Kênh nhìn qua mô hình 5A (Kotler)</h1>
         <p>A1 Nhận biết → A2 Cuốn hút → A3 Tìm hiểu → A4 Hành động → A5 Ủng hộ. Kênh không chỉ làm video — kênh chạy cả một phễu.</p>
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Giai đoạn</th><th>Kênh làm gì</th><th>Quan sát</th></tr></thead>
-          <tbody>
+      <TableWrap vien tabIndex={0} aria-label="Mô hình 5A">
+        <Table variant="thuong" className="min-w-[640px]" aria-label="Mô hình 5A">
+          <TableHeader><TableRow><TableHead>Giai đoạn</TableHead><TableHead>Kênh làm gì</TableHead><TableHead>Quan sát</TableHead></TableRow></TableHeader>
+          <TableBody>
             {A5.map(([a, b, c]) => (
-              <tr key={a}>
-                <td className="td-title" style={{ fontSize: ".85rem", whiteSpace: "nowrap" }}>{a}</td>
-                <td style={{ fontSize: ".85rem" }}>{b}</td>
-                <td style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>{c}</td>
-              </tr>
+              <TableRow key={a}>
+                <TableCell className="td-title" style={{ fontSize: ".85rem", whiteSpace: "nowrap" }}>{a}</TableCell>
+                <TableCell style={{ fontSize: ".85rem" }}>{b}</TableCell>
+                <TableCell style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>{c}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableWrap>
       <Note>
         Kênh <b>rất mạnh ở A1–A2</b> (hook + cuốn hút) và có ý đồ rõ ở <b>A4</b> (lead magnet), nhưng <b>A3 phập phù</b>
         {" "}(tùy vid có &ldquo;việc để làm&rdquo;) và <b>A5 còn yếu</b> (dừng ở trả lời comment). Chân dung kênh{" "}

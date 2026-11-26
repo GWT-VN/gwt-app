@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { PROCESS_DOCS } from "@/lib/marketing/content";
 import { Icon } from "@/lib/marketing/icons";
@@ -9,7 +10,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Khung ④ — Sản xuất</div>
-        <h1>Quy trình sản xuất</h1>
+        <PageHeader tieuDe={<>Quy trình sản xuất</>} />
         <p>
           Quy trình chuẩn của team — render thẳng từ <code>Work GWT/Quy trình/</code>, không chép lại. Hai file đầu
           dạy chạy trọn một video; hai file sau dạy dựng cả một kênh chuyên gia từ số 0.

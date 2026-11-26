@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import DataError from "@/components/marketing/DataError";
 import IdeasView from "@/components/marketing/IdeasView";
 import { getIdeas } from "@/lib/marketing/supabase-mkt";
@@ -20,7 +21,7 @@ export default async function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Dữ liệu Supabase · video_ideas</div>
-        <h1>Video Ideas cho GWT</h1>
+        <PageHeader tieuDe={<>Video Ideas cho GWT</>} />
         <p>
           Ý tưởng video cho GWT sinh từ nguồn tham khảo, theo góc KOL kỹ sư nước
           {total != null ? ` — ${total} ý tưởng` : ""}. Bấm một dòng để xem chi tiết.

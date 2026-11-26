@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TraCuuFact from "@/components/wiki/TraCuuFact";
@@ -32,7 +33,7 @@ export default async function TrangTraCuu({
         <div className="eyebrow">
           <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · Phần 1 · Bảng sự thật
         </div>
-        <h1>Tra cứu dữ kiện</h1>
+        <PageHeader tieuDe={<>Tra cứu dữ kiện</>} />
         <p>
           Mọi câu nói về sản phẩm phải truy được về một mã <span className="chip mono">F-xxx</span>{" "}
           ở đây. <b>Không có mã → không được nói.</b>

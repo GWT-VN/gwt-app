@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatBadge, Chips, Field, MetricGrid } from "@/components/marketing/DetailBits";
@@ -45,7 +46,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           {row.is_new_channel && <span className="chip">kênh mới</span>}
           {extract.duration > 0 && <span className="chip mono">{ts(extract.duration)}</span>}
         </div>
-        <h1>{row.video_title || "(chưa đặt tiêu đề)"}</h1>
+        <PageHeader tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
         <p>
           {row.channel_name || "—"}
           {row.industry ? ` · ${row.industry}` : ""}
@@ -133,7 +134,7 @@ function ConfigLoi({ error }: { error: unknown }) {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Phân tích video</div>
-        <h1>Không mở được video này</h1>
+        <PageHeader tieuDe={<>Không mở được video này</>} />
       </div>
       <DataError error={error} />
     </section>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/lib/marketing/icons";
+import { Input } from "@/components/ui/input";
 
 export type SearchItem = { href: string; title: string; kind: string };
 
@@ -12,6 +13,7 @@ const norm = (s: string) =>
 
 export default function Search({ index }: { index: SearchItem[] }) {
   const router = useRouter();
+  const listId = useId();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -50,6 +52,8 @@ export default function Search({ index }: { index: SearchItem[] }) {
     };
   }, []);
 
+  const showResults = open && q.trim().length >= 2;
+
   function goTo(item: SearchItem) {
     setOpen(false);
     setQ("");
@@ -57,10 +61,16 @@ export default function Search({ index }: { index: SearchItem[] }) {
   }
 
   return (
-    <div ref={box} style={{ position: "relative" }}>
+    <div ref={box} className="wiki-search relative min-w-0">
       <div className="searchbox">
-        <Icon.search />
-        <input
+        <span aria-hidden="true"><Icon.search /></span>
+        <Input
+          className="wiki-search-input"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showResults}
+          aria-controls={showResults && hits.length ? listId : undefined}
+          aria-activedescendant={showResults && hits.length ? `${listId}-${active}` : undefined}
           ref={input}
           value={q}
           placeholder="Tìm khung, luật, trang…  ( / )"
@@ -68,8 +78,8 @@ export default function Search({ index }: { index: SearchItem[] }) {
           onChange={(e) => { setQ(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") { setOpen(false); input.current?.blur(); }
-            if (!hits.length) return;
+            if (e.key === "Escape") { setOpen(false); }
+            if (!showResults || !hits.length) return;
             if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => (a + 1) % hits.length); }
             if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => (a - 1 + hits.length) % hits.length); }
             if (e.key === "Enter") { e.preventDefault(); goTo(hits[active]); }
@@ -77,13 +87,15 @@ export default function Search({ index }: { index: SearchItem[] }) {
         />
       </div>
 
-      {open && q.trim().length >= 2 && (
+      {showResults && (
         <div
-          role="listbox"
+          id={listId}
+          role={hits.length ? "listbox" : "status"}
+          aria-label="Kết quả tìm kiếm Wiki"
           style={{
             position: "absolute", top: "calc(100% + 6px)", right: 0, width: "min(380px,80vw)",
             background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)",
-            boxShadow: "var(--shadow-lg)", overflow: "hidden", zIndex: 30,
+            boxShadow: "var(--wiki-shadow-lg)", overflow: "hidden", zIndex: 30,
           }}
         >
           {hits.length === 0 ? (
@@ -94,7 +106,9 @@ export default function Search({ index }: { index: SearchItem[] }) {
             hits.map((h, i) => (
               <button
                 key={h.href}
+                id={`${listId}-${i}`}
                 role="option"
+                tabIndex={-1}
                 aria-selected={i === active}
                 onMouseEnter={() => setActive(i)}
                 onClick={() => goTo(h)}

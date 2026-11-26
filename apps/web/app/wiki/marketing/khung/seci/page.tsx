@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import { Icon } from "@/lib/marketing/icons";
 
 export const metadata = { title: "SECI playbook" };
@@ -28,7 +29,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Khung ⑤ — Vòng học</div>
-        <h1>SECI playbook</h1>
+        <PageHeader tieuDe={<>SECI playbook</>} />
         <p>
           Buổi review <b>không phải “chấm bài”</b> — nó là SECI (mô hình quản trị tri thức của Nonaka), để tri thức
           chảy từ người này sang người khác và <b>cả tập thể giỏi lên</b>, không phụ thuộc một cá nhân giỏi.

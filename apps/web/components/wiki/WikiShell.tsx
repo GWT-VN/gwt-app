@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { List } from "@phosphor-icons/react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Icon } from "@/lib/marketing/icons";
 import { KHU, crumbFor, khuCua, navCuaKhu } from "@/lib/wiki/nav";
 import Search, { type SearchItem } from "@/components/marketing/Search";
@@ -39,77 +43,93 @@ export default function WikiShell({
     setMenuOpen(false);
   }
 
+  const navigation = (
+    <>
+      <Link href="/wiki" onClick={() => setMenuOpen(false)} className="sidebar-brand" style={{ textDecoration: "none" }}>
+        <div className="brand-mark" aria-hidden="true">📚</div>
+        <div>
+          <div className="brand-name">Wiki GWT</div>
+          <div className="brand-sub">Tri thức nội bộ</div>
+        </div>
+      </Link>
+
+      {/* Danh sách khu — luôn hiện, kể cả ở trang chủ wiki. Khu chưa có nội dung
+          vẫn hiện (mờ, không bấm được) để mọi người biết chỗ đó đang trống. */}
+      <div className="wiki-khu-ds">
+        <h4>Khu wiki</h4>
+        {KHU.map((k) =>
+          k.href ? (
+            <Link
+              key={k.ma}
+              href={k.href}
+              onClick={() => setMenuOpen(false)}
+              className={`wiki-khu-nut${khu?.ma === k.ma ? " active" : ""}`}
+              aria-current={khu?.ma === k.ma ? "page" : undefined}
+            >
+              <span aria-hidden="true">{k.icon}</span>
+              {k.ten}
+            </Link>
+          ) : (
+            <span key={k.ma} className="wiki-khu-nut trong" title={`${k.moTa} — chưa có nội dung`}>
+              <span aria-hidden="true">{k.icon}</span>
+              {k.ten}
+              <em>chưa có</em>
+            </span>
+          ),
+        )}
+      </div>
+
+      <nav aria-label="Nội dung khu Wiki">
+        {nav.map((group) => (
+          <div className="nav-group" key={group.items[0]?.href ?? group.heading}>
+            <h4>{group.heading}</h4>
+            {group.items.map((item) => {
+              // Mục "gốc" của khu chỉ active khi khớp ĐÚNG, để nó không sáng trên
+              // mọi trang con bên dưới.
+              const active = item.href === khu?.href ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const Ic = Icon[item.icon];
+              const badge = item.badgeKey ? counts[item.badgeKey] : null;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`nav-item${active ? " active" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <span className="ni-ic"><Ic /></span>
+                  {item.label}
+                  {badge != null && <Badge className="ml-auto" color="secondary">{badge}</Badge>}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+    </>
+  );
+
   return (
     <div className="app-shell">
-      <aside className={`sidebar${menuOpen ? " open" : ""}`} id="sidebar">
-        <Link href="/wiki" className="sidebar-brand" style={{ textDecoration: "none" }}>
-          <div className="brand-mark">📚</div>
-          <div>
-            <div className="brand-name">Wiki GWT</div>
-            <div className="brand-sub">Tri thức nội bộ</div>
-          </div>
-        </Link>
-
-        {/* Danh sách khu — luôn hiện, kể cả ở trang chủ wiki. Khu chưa có nội dung
-            vẫn hiện (mờ, không bấm được) để mọi người biết chỗ đó đang trống. */}
-        <div className="wiki-khu-ds">
-          <h4>Khu wiki</h4>
-          {KHU.map((k) =>
-            k.href ? (
-              <Link
-                key={k.ma}
-                href={k.href}
-                className={`wiki-khu-nut${khu?.ma === k.ma ? " active" : ""}`}
-                aria-current={khu?.ma === k.ma ? "page" : undefined}
-              >
-                <span aria-hidden="true">{k.icon}</span>
-                {k.ten}
-              </Link>
-            ) : (
-              <span key={k.ma} className="wiki-khu-nut trong" title={`${k.moTa} — chưa có nội dung`}>
-                <span aria-hidden="true">{k.icon}</span>
-                {k.ten}
-                <em>chưa có</em>
-              </span>
-            ),
-          )}
-        </div>
-
-        <nav>
-          {nav.map((group) => (
-            <div className="nav-group" key={group.heading}>
-              <h4>{group.heading}</h4>
-              {group.items.map((item) => {
-                // Mục "gốc" của khu chỉ active khi khớp ĐÚNG, để nó không sáng trên
-                // mọi trang con bên dưới.
-                const active = item.href === khu?.href ? pathname === item.href : pathname.startsWith(item.href);
-                const Ic = Icon[item.icon];
-                const badge = item.badgeKey ? counts[item.badgeKey] : null;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`nav-item${active ? " active" : ""}`}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    <span className="ni-ic"><Ic /></span>
-                    {item.label}
-                    {badge != null && <span className="nav-badge">{badge}</span>}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
+      <aside className="sidebar" aria-label="Điều hướng Wiki">
+        {navigation}
       </aside>
-
-      {menuOpen && <div className="scrim on" onClick={() => setMenuOpen(false)} aria-hidden="true" style={{ zIndex: 55 }} />}
 
       <div className="main">
         <header className="topbar">
-          <button className="hamburger" onClick={() => setMenuOpen((v) => !v)} aria-label="Mở menu khu Wiki">
-            ☰
-          </button>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="wiki-menu-trigger" aria-label="Mở menu khu Wiki">
+                <List aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" aria-describedby={undefined}>
+              <SheetHeader><SheetTitle>Điều hướng Wiki</SheetTitle></SheetHeader>
+              <SheetBody data-khu="wiki" className="gap-2 px-2">
+                {navigation}
+              </SheetBody>
+            </SheetContent>
+          </Sheet>
           <div className="crumb">
             Wiki
             {khu && <> · {khu.ten}</>}
@@ -118,7 +138,7 @@ export default function WikiShell({
           <div className="topbar-spacer" />
           <Search index={searchIndex} />
         </header>
-        <div className="content">{children}</div>
+        <main className="content">{children}</main>
       </div>
     </div>
   );

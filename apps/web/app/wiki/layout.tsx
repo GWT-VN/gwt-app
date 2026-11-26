@@ -1,3 +1,4 @@
+import { ManV2 } from "@/components/khung/ManV2";
 import WikiShell from "@/components/wiki/WikiShell";
 import { requireNhanSu } from "@/lib/nen-tang/phien";
 import { buildSearchIndex } from "@/lib/wiki/search-index";
@@ -21,10 +22,12 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
   const searchIndex = buildSearchIndex();
 
   return (
-    <div data-khu="wiki" className="mkt-root">
-      <WikiShell counts={counts} searchIndex={searchIndex}>
-        {children}
-      </WikiShell>
-    </div>
+    <ManV2>
+      <div data-khu="wiki" className="mkt-root">
+        <WikiShell counts={counts} searchIndex={searchIndex}>
+          {children}
+        </WikiShell>
+      </div>
+    </ManV2>
   );
 }

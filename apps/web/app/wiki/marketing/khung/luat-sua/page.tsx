@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { LUAT_COUNT, LUAT_GROUPS } from "@/lib/marketing/data/luat-sua";
 import { Icon } from "@/lib/marketing/icons";
@@ -16,7 +17,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Khung ③ — Luật sửa</div>
-        <h1>Luật sửa content</h1>
+        <PageHeader tieuDe={<>Luật sửa content</>} />
         <p>
           {LUAT_COUNT} nguyên tắc lặp đi lặp lại qua các buổi review — “tri thức ẩn” của CEO Thiện biến thành luật tra
           cứu được. Đọc mục này <b>trước khi viết kịch bản mới</b>.

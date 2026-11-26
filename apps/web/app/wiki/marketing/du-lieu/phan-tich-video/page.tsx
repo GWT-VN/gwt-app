@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import AnalysesView from "@/components/marketing/AnalysesView";
 import DataError from "@/components/marketing/DataError";
 import { getAnalyses } from "@/lib/marketing/supabase-mkt";
@@ -20,7 +21,7 @@ export default async function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Dữ liệu Supabase · video_analyses</div>
-        <h1>Phân tích video</h1>
+        <PageHeader tieuDe={<>Phân tích video</>} />
         <p>
           Kho video viral đã mổ theo khung 5A/PAAST{total != null ? ` — ${total} video` : ""}. Bấm một dòng để mở
           chi tiết bên phải.

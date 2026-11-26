@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import CaseGrid from "@/components/marketing/CaseGrid";
 import { ALL_CASES, countByVerdict } from "@/lib/marketing/data/cases";
 import { Icon } from "@/lib/marketing/icons";
@@ -11,7 +12,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Học hỏi</div>
-        <h1>Kho case WIN / FAIL</h1>
+        <PageHeader tieuDe={<>Kho case WIN / FAIL</>} />
         <p>
           {ALL_CASES.length} ca đã mổ trong các buổi SECI — mỗi ca ghi đủ: nội dung video, chấm theo từng chữ PAAST,
           điểm đúng, điểm sai, lời CEO Thiện, hướng sửa, và <b>áp cho GWT thế nào</b>. Bấm vào một ca để xem đầy đủ.

@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import Link from "next/link";
 import { CatBadge } from "@/components/marketing/DetailBits";
 import DataError from "@/components/marketing/DataError";
@@ -22,7 +24,7 @@ export default async function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Dữ liệu Supabase · video_deep_analysis</div>
-        <h1>Phân tích chuyên sâu</h1>
+        <PageHeader tieuDe={<>Phân tích chuyên sâu</>} />
         <p>
           Bản mổ SÂU của video mẫu{total != null ? ` — ${total} video` : ""}: cấu trúc theo mốc thời gian, lời khuyên
           dùng ngay, cơ chế phễu và cách áp cho GWT. Bấm một dòng để mở đầy đủ kèm full transcript.
@@ -34,47 +36,47 @@ export default async function Page() {
       ) : !rows || rows.length === 0 ? (
         <div className="empty">Chưa có bản phân tích chuyên sâu nào.</div>
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Video</th>
-                <th>Nền tảng</th>
-                <th>Tuyến</th>
-                <th>Lời khuyên</th>
-                <th>Yếu tố viral</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
+        <TableWrap vien tabIndex={0} aria-label="Danh sách phân tích sâu">
+          <Table variant="thuong" className="min-w-[640px]" aria-label="Danh sách phân tích sâu">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Video</TableHead>
+                <TableHead>Nền tảng</TableHead>
+                <TableHead>Tuyến</TableHead>
+                <TableHead>Lời khuyên</TableHead>
+                <TableHead>Yếu tố viral</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.map((r) => (
-                <tr key={r.id} className="row-link">
-                  <td className="td-title">
+                <TableRow key={r.id} className="row-link">
+                  <TableCell className="td-title">
                     <Link href={`/wiki/marketing/du-lieu/phan-tich-sau/${r.id}`} prefetch={false}>
                       {r.video_title || "(chưa đặt tiêu đề)"}
                     </Link>
                     <small>{r.channel_name || "—"}</small>
-                  </td>
-                  <td><span className="tag">{platformLabel(r.platform)}</span></td>
-                  <td><CatBadge cat={cat5a(r.content_category)} /></td>
-                  <td>
+                  </TableCell>
+                  <TableCell><span className="tag">{platformLabel(r.platform)}</span></TableCell>
+                  <TableCell><CatBadge cat={cat5a(r.content_category)} /></TableCell>
+                  <TableCell>
                     {r.useful_advice?.length ? (
                       <span className="chip mono" style={{ fontSize: ".68rem" }}>{r.useful_advice.length} mẹo</span>
                     ) : (
                       <span style={{ color: "var(--ink-3)", fontSize: ".78rem" }}>—</span>
                     )}
-                  </td>
-                  <td style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>
+                  </TableCell>
+                  <TableCell style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>
                     {r.viral_elements?.length ? `${r.viral_elements.length} yếu tố` : "—"}
-                  </td>
-                  <td className="row-arrow">
+                  </TableCell>
+                  <TableCell className="row-arrow">
                     <Link href={`/wiki/marketing/du-lieu/phan-tich-sau/${r.id}`} prefetch={false} aria-label="Mở">›</Link>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableWrap>
       )}
     </section>
   );

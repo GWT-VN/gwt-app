@@ -1,3 +1,4 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import {
   costPerResult,
   type Camp,
@@ -31,9 +32,9 @@ export default function TrendTable({
 
   const cells = (periods: (PeriodStat | null)[], benchmark: number) =>
     periods.map((p, i) => (
-      <td key={weeks[i].id} className="num-cell cpr-cell">
+      <TableCell key={weeks[i].id} className="num-cell cpr-cell">
         <CprPill cpr={costPerResult(p)} benchmark={benchmark} />
-      </td>
+      </TableCell>
     ));
 
   const rowsOf = (g: CreativeGroup) => {
@@ -41,34 +42,34 @@ export default function TrendTable({
     if (g.camps.length === 1) {
       const c = g.camps[0];
       return (
-        <tr key={c.key} className="ads-row" onClick={() => onOpen(c.key)}>
-          <td className="td-title ad-name-col">
+        <TableRow key={c.key} className="ads-row" onClick={() => onOpen(c.key)}>
+          <TableCell className="td-title ad-name-col">
             {g.name}
             {badge(c)} <span className="ads-muted">lên {c.startDate}</span>
-          </td>
+          </TableCell>
           {cells(c.periods, b)}
-          <td className="num-cell">{sdtTotal(c.periods)}</td>
-        </tr>
+          <TableCell className="num-cell">{sdtTotal(c.periods)}</TableCell>
+        </TableRow>
       );
     }
     return [
-      <tr key={g.key} className="ads-row" onClick={() => onOpen(g.key)}>
-        <td className="td-title ad-name-col">
+      <TableRow key={g.key} className="ads-row" onClick={() => onOpen(g.key)}>
+        <TableCell className="td-title ad-name-col">
           {g.name} <span className="ads-muted">{g.camps.length} camp</span>
-        </td>
+        </TableCell>
         {cells(g.periods, b)}
-        <td className="num-cell">{sdtTotal(g.periods)}</td>
-      </tr>,
+        <TableCell className="num-cell">{sdtTotal(g.periods)}</TableCell>
+      </TableRow>,
       ...g.camps.map((c) => (
-        <tr key={c.key} className="ads-row ads-sub" onClick={() => onOpen(c.key)}>
-          <td className="ad-name-col">
+        <TableRow key={c.key} className="ads-row ads-sub" onClick={() => onOpen(c.key)}>
+          <TableCell className="ad-name-col">
             ↳ lên {c.startDate}
             {c.name !== g.name && ` · ${c.name}`}
             {badge(c)}
-          </td>
+          </TableCell>
           {cells(c.periods, b)}
-          <td className="num-cell">{sdtTotal(c.periods)}</td>
-        </tr>
+          <TableCell className="num-cell">{sdtTotal(c.periods)}</TableCell>
+        </TableRow>
       )),
     ];
   };
@@ -79,20 +80,20 @@ export default function TrendTable({
         <div className={`section-head ${muted ? "off" : "active"}`}>
           {title} ({list.length})
         </div>
-        <div className={`table-wrap${muted ? " inactive-table" : ""}`}>
-          <table>
-            <thead>
-              <tr>
-                <th>Creative / camp</th>
+        <TableWrap vien tabIndex={0} aria-label="Xu hướng quảng cáo" className={muted ? "inactive-table" : undefined}>
+          <Table variant="thuong" className="min-w-[640px]" aria-label="Xu hướng quảng cáo">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Creative / camp</TableHead>
                 {weeks.map((w) => (
-                  <th key={w.id} className="week-label">{w.label}</th>
+                  <TableHead key={w.id} className="week-label">{w.label}</TableHead>
                 ))}
-                <th>SĐT</th>
-              </tr>
-            </thead>
-            <tbody>{list.map(rowsOf)}</tbody>
-          </table>
-        </div>
+                <TableHead>SĐT</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>{list.map(rowsOf)}</TableBody>
+          </Table>
+        </TableWrap>
       </>
     );
 

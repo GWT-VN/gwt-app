@@ -1,5 +1,11 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
+
 import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -69,8 +75,8 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
   return (
     <>
       <div className="wiki-loc">
-        <input
-          className="wiki-loc-tim"
+        <Input
+          className="min-w-0 flex-[1_1_260px]"
           type="search"
           value={tim}
           onChange={(e) => setTim(e.target.value)}
@@ -78,37 +84,43 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
           aria-label="Tìm dữ kiện"
         />
 
-        <select value={nhom} onChange={(e) => setNhom(e.target.value)} aria-label="Lọc theo nhóm dữ kiện">
-          <option value="">Mọi nhóm ({facts.length})</option>
-          {nhomCo.map(([chu, ten]) => (
-            <option key={chu} value={chu}>
-              {chu}. {ten}
-            </option>
-          ))}
-        </select>
+        <div className="w-full sm:w-44">
+          <NativeSelect value={nhom} onChange={(e) => setNhom(e.target.value)} aria-label="Lọc theo nhóm dữ kiện">
+            <NativeSelectOption value="">Mọi nhóm ({facts.length})</NativeSelectOption>
+            {nhomCo.map(([chu, ten]) => (
+              <NativeSelectOption key={chu} value={chu}>
+                {chu}. {ten}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
 
-        <select value={congBo} onChange={(e) => setCongBo(e.target.value)} aria-label="Lọc theo quyền công bố">
-          <option value="">Mọi quyền công bố</option>
-          {(["🟢", "🟡", "🔵", "🔴"] as const).map((n) => (
-            <option key={n} value={n}>
-              {n} {CONG_BO[n].ten}
-            </option>
-          ))}
-        </select>
+        <div className="w-full sm:w-44">
+          <NativeSelect value={congBo} onChange={(e) => setCongBo(e.target.value)} aria-label="Lọc theo quyền công bố">
+            <NativeSelectOption value="">Mọi quyền công bố</NativeSelectOption>
+            {(["🟢", "🟡", "🔵", "🔴"] as const).map((n) => (
+              <NativeSelectOption key={n} value={n}>
+                {n} {CONG_BO[n].ten}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
 
-        <select value={hang} onChange={(e) => setHang(e.target.value)} aria-label="Lọc theo hạng tin cậy">
-          <option value="">Mọi hạng</option>
-          {hangCo.map((h) => (
-            <option key={h} value={h}>
-              Hạng {h}
-            </option>
-          ))}
-        </select>
+        <div className="w-full sm:w-44">
+          <NativeSelect value={hang} onChange={(e) => setHang(e.target.value)} aria-label="Lọc theo hạng tin cậy">
+            <NativeSelectOption value="">Mọi hạng</NativeSelectOption>
+            {hangCo.map((h) => (
+              <NativeSelectOption key={h} value={h}>
+                Hạng {h}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
 
         {daLoc && (
-          <button
+          <Button
             type="button"
-            className="wiki-loc-xoa"
+            variant="outline"
             onClick={() => {
               setTim("");
               setNhom("");
@@ -117,11 +129,11 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
             }}
           >
             Bỏ lọc
-          </button>
+          </Button>
         )}
       </div>
 
-      <p className="wiki-dem">
+      <p className="wiki-dem" role="status">
         <b>{ketQua.length}</b> / {facts.length} dữ kiện
         {congBo && (
           <>
@@ -132,44 +144,43 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
       </p>
 
       {ketQua.length === 0 ? (
-        <div className="notice">
-          <span aria-hidden="true">🔍</span>
-          <div>
-            Không có dữ kiện nào khớp. <b>Không có mã thì không được nói</b> — dùng câu thoát:{" "}
-            <i>“Thông tin này em chưa có xác nhận chính thức từ hãng nên em không dám nói bừa. Em
-            kiểm tra rồi báo lại anh/chị.”</i>
-          </div>
-        </div>
+        <Alert color="info">
+          <AlertTitle>Không có dữ kiện nào khớp</AlertTitle>
+          <AlertDescription>
+            <b>Không có mã thì không được nói.</b> Có thể trả lời khách như sau.
+            <i> “Thông tin này em chưa có xác nhận chính thức từ hãng nên em không dám nói bừa. Em kiểm tra rồi báo lại anh/chị.”</i>
+          </AlertDescription>
+        </Alert>
       ) : (
-        <div className="wiki-bang-bo">
-          <table className="wiki-bang">
-            <thead>
-              <tr>
-                <th scope="col">Mã</th>
-                <th scope="col">Dữ kiện</th>
-                <th scope="col">Giá trị</th>
-                <th scope="col">Nguồn</th>
-                <th scope="col">Hạng</th>
-                <th scope="col">Công bố</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableWrap vien tabIndex={0} aria-label="Bảng tra dữ kiện">
+          <Table variant="thuong" className="wiki-bang min-w-[760px]" aria-label="Dữ kiện sản phẩm">
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">Mã</TableHead>
+                <TableHead scope="col">Dữ kiện</TableHead>
+                <TableHead scope="col">Giá trị</TableHead>
+                <TableHead scope="col">Nguồn</TableHead>
+                <TableHead scope="col">Hạng</TableHead>
+                <TableHead scope="col">Công bố</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {ketQua.map((f) => (
-                <tr key={f.ma} id={f.ma} className={CONG_BO[f.congBo]?.lop}>
+                <TableRow key={f.ma} id={f.ma} className={CONG_BO[f.congBo]?.lop}>
                   <th scope="row" className="mono">{f.ma}</th>
-                  <td><O>{f.duKien}</O></td>
-                  <td><O>{f.giaTri}</O></td>
-                  <td><O>{f.nguon}</O></td>
-                  <td title={HANG[f.hang] ?? ""}>{f.hang || <span className="wiki-o-trong">{f.hangGoc || "—"}</span>}</td>
-                  <td title={CONG_BO[f.congBo]?.giaiThich ?? ""}>
+                  <TableCell><O>{f.duKien}</O></TableCell>
+                  <TableCell><O>{f.giaTri}</O></TableCell>
+                  <TableCell><O>{f.nguon}</O></TableCell>
+                  <TableCell title={HANG[f.hang] ?? ""}>{f.hang || <span className="wiki-o-trong">{f.hangGoc || "—"}</span>}</TableCell>
+                  <TableCell title={CONG_BO[f.congBo]?.giaiThich ?? ""}>
                     <span aria-hidden="true">{f.congBo}</span>{" "}
                     <span className="wiki-cb-ten">{CONG_BO[f.congBo]?.ten ?? ""}</span>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableWrap>
       )}
     </>
   );

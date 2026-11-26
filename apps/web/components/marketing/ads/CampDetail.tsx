@@ -1,3 +1,4 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import { useMemo } from "react";
 import { OChonGoiY, type MucChon } from "@/bang";
 import {
@@ -139,45 +140,45 @@ export default function CampDetail({
         </div>
       )}
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Kỳ</th>
-              <th>Chi</th>
-              <th>Result</th>
-              <th>New mess</th>
-              <th>SĐT</th>
-              <th>Cost/result</th>
-              <th>Cost/SĐT</th>
-              <th>Khách mua</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableWrap vien tabIndex={0} aria-label="Kết quả từng kỳ của camp">
+        <Table variant="thuong" className="min-w-[640px]" aria-label="Kết quả từng kỳ của camp">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Kỳ</TableHead>
+              <TableHead>Chi</TableHead>
+              <TableHead>Result</TableHead>
+              <TableHead>New mess</TableHead>
+              <TableHead>SĐT</TableHead>
+              <TableHead>Cost/result</TableHead>
+              <TableHead>Cost/SĐT</TableHead>
+              <TableHead>Khách mua</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {rows.map(({ wi, p, days }, i) => {
               const prev = i > 0 ? rows[i - 1] : null;
               const cpr = costPerResult(p);
               const perSdt = costPerSdt(p);
               return (
-                <tr key={weeks[wi].id}>
-                  <td className="ad-name-col">
+                <TableRow key={weeks[wi].id}>
+                  <TableCell className="ad-name-col">
                     {weeks[wi].label} <span className="ads-muted">{days} ngày</span>
-                  </td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">
                     {money(p.cost * 1000)}
                     <small className="ads-sub-num">
                       {money((p.cost * 1000) / days)}/ngày
                       <Delta cur={p.cost / days} prev={prev && prev.p.cost / prev.days} goodWhenUp neutral />
                     </small>
-                  </td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">
                     {p.results}
                     <small className="ads-sub-num">
                       {dec1(p.results / days)}/ngày
                       <Delta cur={p.results / days} prev={prev && prev.p.results / prev.days} goodWhenUp />
                     </small>
-                  </td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">
                     {p.newMessages ? (
                       <>
                         {p.newMessages}
@@ -186,8 +187,8 @@ export default function CampDetail({
                     ) : (
                       <span className="ads-muted">—</span>
                     )}
-                  </td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">
                     {p.sdt ?? <span className="ads-muted">—</span>}
                     {p.sdt != null && (
                       <small className="ads-sub-num">
@@ -199,13 +200,13 @@ export default function CampDetail({
                         />
                       </small>
                     )}
-                  </td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">
                     <CprPill cpr={cpr} benchmark={benchmark} />
                     <Delta cur={cpr} prev={prev && costPerResult(prev.p)} goodWhenUp={false} />
-                  </td>
-                  <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
-                  <td className="num-cell">
+                  </TableCell>
+                  <TableCell className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</TableCell>
+                  <TableCell className="num-cell">
                     {p.orders ? (
                       <>
                         <span className="sdt-val">{p.orders}</span>
@@ -214,13 +215,13 @@ export default function CampDetail({
                     ) : (
                       <span className="ads-muted">—</span>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableWrap>
       <p className="ads-muted ads-caption">
         Mũi tên so với kỳ trước, đã quy về mỗi ngày nên kỳ 2 tuần vẫn so được với kỳ 1 tuần. Xanh = tốt lên, đỏ = xấu
         đi; mũi tên chi tiêu chỉ báo hướng.

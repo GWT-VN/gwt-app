@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { VERDICT_LABEL, type CaseStudy, type Verdict } from "@/lib/marketing/data/cases-types";
@@ -32,24 +35,24 @@ export default function CaseGrid({ cases }: { cases: CaseStudy[] }) {
     <>
       <div className="toolbar">
         {BRANDS.map((b) => (
-          <button key={b} className={`filter-chip${brand === b ? " on" : ""}`} onClick={() => setBrand(b)}>
+          <Button key={b} size="sm" variant={brand === b ? "default" : "outline"} aria-pressed={brand === b} onClick={() => setBrand(b)}>
             {b} <span style={{ opacity: 0.65 }}>{b === "Tất cả" ? cases.length : cases.filter((c) => c.brand === b).length}</span>
-          </button>
+          </Button>
         ))}
       </div>
       <div className="toolbar">
         {verdicts.map((v) => (
-          <button key={v} className={`filter-chip${verdict === v ? " on" : ""}`} onClick={() => setVerdict(v)}>
+          <Button key={v} size="sm" variant={verdict === v ? "default" : "outline"} aria-pressed={verdict === v} onClick={() => setVerdict(v)}>
             {v === "all" ? "Mọi kết quả" : VERDICT_LABEL[v]}{" "}
             <span style={{ opacity: 0.65 }}>
               {v === "all" ? cases.length : cases.filter((c) => c.verdict === v).length}
             </span>
-          </button>
+          </Button>
         ))}
       </div>
 
       {shown.length === 0 ? (
-        <div className="empty">Không có ca nào khớp bộ lọc này.</div>
+        <EmptyState kieu="loc" tieuDe="Không có ca nào khớp bộ lọc này." />
       ) : (
         <div className="case-grid">
           {shown.map((c) => (

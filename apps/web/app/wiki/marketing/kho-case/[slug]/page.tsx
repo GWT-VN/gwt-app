@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ALL_CASES, getCase, PAAST_NAME, VERDICT_LABEL } from "@/lib/marketing/data/cases";
@@ -70,7 +71,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           <span className="tag">{c.brandFull}</span>
           {c.paastScore && <span className="chip mono">{c.paastScore}</span>}
         </div>
-        <h1>{c.title}</h1>
+        <PageHeader tieuDe={<>{c.title}</>} />
         <p style={{ color: "var(--accent-strong)", fontWeight: 600 }}>{c.verdictNote}</p>
       </div>
 
@@ -114,11 +115,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <Bullets title="Điểm đúng" items={c.worked} accent="var(--good)" icon="✓" />
         <Bullets title="Điểm sai" items={c.failed} accent="var(--a4)" icon="✕" />
-        <Bullets title="Lời CEO Thiện trong buổi" items={c.thien} accent="var(--accent)" icon="❝" />
+        <Bullets title="Lời CEO Thiện trong buổi" items={c.thien} accent="var(--wiki-accent)" icon="❝" />
         <Bullets title="Hướng sửa" items={c.fix} accent="var(--warn)" icon="→" />
       </div>
 
-      <div className="card" style={{ marginTop: 18, borderLeft: "3px solid var(--accent)", background: "var(--surface-2)" }}>
+      <div className="card" style={{ marginTop: 18, borderLeft: "3px solid var(--wiki-accent)", background: "var(--surface-2)" }}>
         <div className="fl" style={{ marginBottom: 8 }}>▸ Áp cho GWT thế nào</div>
         <p style={{ margin: 0, color: "var(--ink-2)", fontSize: ".92rem", lineHeight: 1.75 }}>{c.gwt}</p>
       </div>

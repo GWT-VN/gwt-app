@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import { AXES, PAAST } from "@/lib/marketing/data/frameworks";
 import { Icon } from "@/lib/marketing/icons";
 
@@ -8,7 +9,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Khung ② — Chất lượng</div>
-        <h1>Khung chấm PAAST</h1>
+        <PageHeader tieuDe={<>Khung chấm PAAST</>} />
         <p>Thẻ chấm 5 chữ để đánh giá và viết từng video. Mỗi chữ gắn một bộ khung con. Đủ 5 chữ = video khoẻ.</p>
       </div>
 

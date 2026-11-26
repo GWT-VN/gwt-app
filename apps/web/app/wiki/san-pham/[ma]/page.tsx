@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SAN_PHAM } from "@/lib/wiki/data/san-pham";
@@ -31,7 +32,7 @@ export default async function TrangSanPham({ params }: { params: Promise<{ ma: s
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Product Knowledge Base · {sp.phienBanPKB} · cập nhật {sp.capNhat}</div>
-        <h1>{sp.ten}</h1>
+        <PageHeader tieuDe={<>{sp.ten}</>} />
         <p>{sp.tenDayDu} · {sp.kieuLap}</p>
         <div className="wiki-the-meta">
           <span className="chip mono">{sp.maNoiBo}</span>

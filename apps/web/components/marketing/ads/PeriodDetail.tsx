@@ -1,3 +1,5 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
 import {
   campKey,
@@ -71,12 +73,12 @@ export default function PeriodDetail({
   ) => {
     const perSdt = costPerSdt(p);
     return (
-      <tr key={key} className={`ads-row${sub ? " ads-sub" : ""}`} onClick={() => onOpen(key)}>
-        <td className={`ad-name-col${sub ? "" : " td-title"}`}>
+      <TableRow key={key} className={`ads-row${sub ? " ads-sub" : ""}`} onClick={() => onOpen(key)}>
+        <TableCell className={`ad-name-col${sub ? "" : " td-title"}`}>
           {name}
           {note && <small className="ads-note">{note}</small>}
-        </td>
-        <td className="num-cell">
+        </TableCell>
+        <TableCell className="num-cell">
           {p ? (
             <>
               {money(p.cost * 1000)}
@@ -85,8 +87,8 @@ export default function PeriodDetail({
           ) : (
             <span className="ads-muted">—</span>
           )}
-        </td>
-        <td className="num-cell">
+        </TableCell>
+        <TableCell className="num-cell">
           {p ? (
             <>
               {p.results}
@@ -95,8 +97,8 @@ export default function PeriodDetail({
           ) : (
             <span className="ads-muted">—</span>
           )}
-        </td>
-        <td className="num-cell">
+        </TableCell>
+        <TableCell className="num-cell">
           {p?.newMessages ? (
             <>
               {p.newMessages}
@@ -105,13 +107,13 @@ export default function PeriodDetail({
           ) : (
             <span className="ads-muted">—</span>
           )}
-        </td>
-        <td className="num-cell">{p?.sdt ?? <span className="ads-muted">—</span>}</td>
-        <td className="num-cell"><CprPill cpr={costPerResult(p)} benchmark={benchmark} /></td>
-        <td className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</td>
-        <td className="num-cell">{p?.orders ? <span className="sdt-val">{p.orders}</span> : <span className="ads-muted">—</span>}</td>
-        <td className="num-cell"><VsBenchmark p={p} benchmark={benchmark} small={sub} /></td>
-      </tr>
+        </TableCell>
+        <TableCell className="num-cell">{p?.sdt ?? <span className="ads-muted">—</span>}</TableCell>
+        <TableCell className="num-cell"><CprPill cpr={costPerResult(p)} benchmark={benchmark} /></TableCell>
+        <TableCell className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</TableCell>
+        <TableCell className="num-cell">{p?.orders ? <span className="sdt-val">{p.orders}</span> : <span className="ads-muted">—</span>}</TableCell>
+        <TableCell className="num-cell"><VsBenchmark p={p} benchmark={benchmark} small={sub} /></TableCell>
+      </TableRow>
     );
   };
 
@@ -168,24 +170,24 @@ export default function PeriodDetail({
         <div className={`section-head ${muted ? "off" : "active"}`}>
           {title} ({list.length})
         </div>
-        <div className={`table-wrap${muted ? " inactive-table" : ""}`}>
-          <table>
-            <thead>
-              <tr>
-                <th>Creative / camp</th>
-                <th>Chi</th>
-                <th>Result</th>
-                <th>New mess</th>
-                <th>SĐT</th>
-                <th>Cost/result</th>
-                <th>Cost/SĐT</th>
-                <th>Khách mua</th>
-                <th>So chuẩn</th>
-              </tr>
-            </thead>
-            <tbody>{[...list].sort((a, b) => a.sortKey - b.sortKey).map(rowsOf)}</tbody>
-          </table>
-        </div>
+        <TableWrap vien tabIndex={0} aria-label="Kết quả quảng cáo theo kỳ" className={muted ? "inactive-table" : undefined}>
+          <Table variant="thuong" className="min-w-[640px]" aria-label="Kết quả quảng cáo theo kỳ">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Creative / camp</TableHead>
+                <TableHead>Chi</TableHead>
+                <TableHead>Result</TableHead>
+                <TableHead>New mess</TableHead>
+                <TableHead>SĐT</TableHead>
+                <TableHead>Cost/result</TableHead>
+                <TableHead>Cost/SĐT</TableHead>
+                <TableHead>Khách mua</TableHead>
+                <TableHead>So chuẩn</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>{[...list].sort((a, b) => a.sortKey - b.sortKey).map(rowsOf)}</TableBody>
+          </Table>
+        </TableWrap>
       </>
     );
 
@@ -193,15 +195,15 @@ export default function PeriodDetail({
     <>
       <div className="toolbar">
         {weeks.map((w, i) => (
-          <button
+          <Button
             key={w.id}
             type="button"
-            className={`filter-chip${periodIdx === i ? " on" : ""}`}
+            size="sm" variant={periodIdx === i ? "default" : "outline"}
             onClick={() => onPeriod(i)}
             aria-pressed={periodIdx === i}
           >
             {w.label}
-          </button>
+          </Button>
         ))}
       </div>
       {section("Đang chạy", blocks.filter((b) => b.running), false)}

@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import DataError from "@/components/marketing/DataError";
 import HookLibraryView from "@/components/marketing/HookLibraryView";
 import { getHooks } from "@/lib/marketing/supabase-mkt";
@@ -20,7 +21,7 @@ export default async function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Dữ liệu Supabase · hook_library</div>
-        <h1>Kho hook / CTA</h1>
+        <PageHeader tieuDe={<>Kho hook / CTA</>} />
         <p>
           Ngân hàng câu hook, kêu gọi, câu hỏi và câu kết ấn tượng{total != null ? ` — ${total} câu` : ""} chắt từ
           video mẫu, để dùng lại. Lọc theo loại và phong cách; bấm một dòng để xem mẫu dùng lại + bản viết cho GWT.

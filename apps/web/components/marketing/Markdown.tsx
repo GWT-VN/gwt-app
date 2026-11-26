@@ -1,3 +1,4 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -81,6 +82,16 @@ export default function Markdown({ children }: { children: string }) {
           h2: heading("h2"),
           h3: heading("h3"),
           h4: heading("h4"),
+          table: ({ children }) => (
+            <TableWrap vien className="my-4" tabIndex={0} aria-label="Bảng trong tài liệu">
+              <Table variant="thuong">{children}</Table>
+            </TableWrap>
+          ),
+          thead: ({ children }) => <TableHeader>{children}</TableHeader>,
+          tbody: ({ children }) => <TableBody>{children}</TableBody>,
+          tr: ({ children }) => <TableRow>{children}</TableRow>,
+          th: ({ children, style }) => <TableHead scope="col" style={style}>{children}</TableHead>,
+          td: ({ children, style }) => <TableCell className="align-top" style={style}>{children}</TableCell>,
           a: ({ href, children }) => {
             const to = rewriteHref(href);
             const external = to?.startsWith("http");

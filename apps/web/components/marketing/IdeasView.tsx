@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
+
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import Drawer from "./Drawer";
@@ -31,43 +35,48 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
       {statuses.length > 2 && (
         <div className="toolbar">
           {statuses.map((s) => (
-            <button key={s} className={`filter-chip${status === s ? " on" : ""}`}
+            <Button key={s} size="sm" variant={status === s ? "default" : "outline"}
                     onClick={() => setStatus(s)} aria-pressed={status === s}>
               {s === "all" ? "Tất cả" : s}{" "}
               <span style={{ opacity: 0.65 }}>
                 {s === "all" ? rows.length : rows.filter((r) => (r.status || "idea") === s).length}
               </span>
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
       {shown.length === 0 ? (
-        <div className="empty">Chưa có ý tưởng nào ở trạng thái này.</div>
+        <EmptyState kieu="loc" tieuDe={<>Chưa có ý tưởng nào ở trạng thái này.</>} />
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th><th>Ý tưởng GWT</th><th>Nguồn</th><th>SP phù hợp</th>
-                <th>Transcript</th><th>Trạng thái</th><th style={{ textAlign: "right" }}>View gốc</th><th />
-              </tr>
-            </thead>
-            <tbody>
+        <TableWrap vien tabIndex={0} aria-label="Danh sách ý tưởng video">
+          <Table aria-label="Danh sách ý tưởng video" variant="thuong" className="min-w-[640px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead><TableHead>Ý tưởng GWT</TableHead><TableHead>Nguồn</TableHead><TableHead>SP phù hợp</TableHead>
+                <TableHead>Transcript</TableHead><TableHead>Trạng thái</TableHead><TableHead style={{ textAlign: "right" }}>View gốc</TableHead><TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {shown.map((r) => {
                 const idea = r.gwt_idea || r.original_summary || "(chưa có ý tưởng)";
                 return (
-                  <tr key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === "Enter") setOpenId(r.id); }}>
-                    <td className="num-cell">#{r.idea_no ?? "—"}</td>
-                    <td className="td-title">
+                  <TableRow key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
+                      onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setOpenId(r.id);
+                    }
+                  }}>
+                    <TableCell className="num-cell">#{r.idea_no ?? "—"}</TableCell>
+                    <TableCell className="td-title">
                       {idea.length > 90 ? `${idea.slice(0, 90)}…` : idea}
-                    </td>
-                    <td><span className="tag">{platformLabel(r.source_platform)}</span></td>
-                    <td style={{ fontSize: ".78rem", color: "var(--ink-2)" }}>
+                    </TableCell>
+                    <TableCell><span className="tag">{platformLabel(r.source_platform)}</span></TableCell>
+                    <TableCell style={{ fontSize: ".78rem", color: "var(--ink-2)" }}>
                       {r.gwt_product_fit?.replace(/,/g, ", ") || "—"}
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       {r.hasTranscript ? (
                         <span className="chip mono" style={{ fontSize: ".66rem" }}>
                           {r.extract.counts.v ? `${r.extract.counts.v + r.extract.counts.t} dòng` : "văn bản"}
@@ -75,19 +84,19 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
                       ) : (
                         <span style={{ color: "var(--ink-3)", fontSize: ".78rem" }}>—</span>
                       )}
-                    </td>
-                    <td><span className="pill-status">{r.status || "idea"}</span></td>
-                    <td className="num-cell" style={{ textAlign: "right" }}>{fmt(r.view_count)}</td>
-                    <td className="row-arrow">›</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell><span className="pill-status">{r.status || "idea"}</span></TableCell>
+                    <TableCell className="num-cell" style={{ textAlign: "right" }}>{fmt(r.view_count)}</TableCell>
+                    <TableCell className="row-arrow">›</TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableWrap>
       )}
 
-      <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
+      <Drawer title="Chi tiết ý tưởng" open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (
           <>
             <div className="drawer-head">
@@ -105,7 +114,6 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
                   {current.view_count ? ` · nguồn ${fmt(current.view_count)} view` : ""}
                 </div>
               </div>
-              <button className="icon-btn drawer-close" onClick={() => setOpenId(null)} aria-label="Đóng">✕</button>
             </div>
 
             <div className="drawer-body">
@@ -128,15 +136,14 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
               )}
 
               {current.hasTranscript && (
-                <Link
-                  className="btn btn-primary"
-                  href={`/wiki/marketing/du-lieu/video-ideas/${current.id}`}
-                  style={{ display: "block", textAlign: "center", textDecoration: "none", marginTop: 14 }}
+                <Button asChild className="mt-3 w-full whitespace-normal text-center">
+                  <Link href={`/wiki/marketing/du-lieu/video-ideas/${current.id}`}
                 >
                   {current.extract.counts.v
                     ? `Mở transcript đầy đủ (${current.extract.counts.v + current.extract.counts.t} dòng) →`
                     : "Mở transcript đầy đủ →"}
                 </Link>
+                  </Button>
               )}
               {current.gwt_platform && (
                 <div className="field-block">

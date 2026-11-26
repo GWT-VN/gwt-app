@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { ALL_CASES } from "@/lib/marketing/data/cases";
 import { LUAT_COUNT } from "@/lib/marketing/data/luat-sua";
@@ -38,7 +39,7 @@ export default async function WikiHome() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Wiki nội bộ GWT</div>
-        <h1>Tri thức của công ty, gom về một chỗ</h1>
+        <PageHeader tieuDe={<>Tri thức của công ty, gom về một chỗ</>} />
         <p>
           Mỗi mảng nghiệp vụ một khu. Khu nào đã có nội dung thì mở được ngay; khu chưa có
           vẫn hiện bên dưới để biết chỗ đó đang trống — thay vì mỗi người lại đẻ thêm một

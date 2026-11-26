@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
+
 import { useMemo, useState } from "react";
 import Drawer from "./Drawer";
 import { Chips, Field } from "./DetailBits";
@@ -43,14 +47,14 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
         {kinds.map((k) => {
           const n = k === "all" ? rows.length : rows.filter((r) => r.kind === k).length;
           return (
-            <button
+            <Button
               key={k}
-              className={`filter-chip${kind === k ? " on" : ""}`}
+              size="sm" variant={kind === k ? "default" : "outline"}
               onClick={() => { setKind(k); setStyle("all"); }}
               aria-pressed={kind === k}
             >
               {k === "all" ? "Tất cả" : kindLabel(k)} <span style={{ opacity: 0.65 }}>{n}</span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -58,51 +62,56 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
       {styles.length > 2 && (
         <div className="toolbar" style={{ marginTop: 6 }}>
           {styles.map((s) => (
-            <button
+            <Button
               key={s}
-              className={`filter-chip${style === s ? " on" : ""}`}
+              size="sm" variant={style === s ? "default" : "outline"}
               onClick={() => setStyle(s)}
               aria-pressed={style === s}
             >
               {s === "all" ? "Mọi phong cách" : s}
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
       {shown.length === 0 ? (
-        <div className="empty">Không có câu nào khớp bộ lọc.</div>
+        <EmptyState kieu="loc" tieuDe={<>Không có câu nào khớp bộ lọc.</>} />
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Câu</th>
-                <th>Loại</th>
-                <th>Phong cách</th>
-                <th>Nguồn</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
+        <TableWrap vien tabIndex={0} aria-label="Danh sách câu mẫu">
+          <Table aria-label="Danh sách câu mẫu" variant="thuong" className="min-w-[640px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Câu</TableHead>
+                <TableHead>Loại</TableHead>
+                <TableHead>Phong cách</TableHead>
+                <TableHead>Nguồn</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {shown.map((r) => (
-                <tr key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter") setOpenId(r.id); }}>
-                  <td className="td-title" style={{ maxWidth: 440 }}>
+                <TableRow key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
+                    onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setOpenId(r.id);
+                    }
+                  }}>
+                  <TableCell className="td-title" style={{ maxWidth: 440 }}>
                     {r.text}
-                  </td>
-                  <td><span className="chip">{kindLabel(r.kind)}</span></td>
-                  <td style={{ fontSize: ".76rem", color: "var(--ink-3)" }}>{r.hook_style || "—"}</td>
-                  <td style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>{r.source_channel || "—"}</td>
-                  <td className="row-arrow">›</td>
-                </tr>
+                  </TableCell>
+                  <TableCell><span className="chip">{kindLabel(r.kind)}</span></TableCell>
+                  <TableCell style={{ fontSize: ".76rem", color: "var(--ink-3)" }}>{r.hook_style || "—"}</TableCell>
+                  <TableCell style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>{r.source_channel || "—"}</TableCell>
+                  <TableCell className="row-arrow">›</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableWrap>
       )}
 
-      <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
+      <Drawer title="Chi tiết câu mẫu" open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (
           <>
             <div className="drawer-head">
@@ -113,7 +122,6 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
                 </div>
                 <h2 style={{ fontSize: "1.05rem", lineHeight: 1.45 }}>{current.text}</h2>
               </div>
-              <button className="icon-btn drawer-close" onClick={() => setOpenId(null)} aria-label="Đóng">✕</button>
             </div>
 
             <div className="drawer-body">

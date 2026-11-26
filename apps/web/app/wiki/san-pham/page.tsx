@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { SAN_PHAM } from "@/lib/wiki/data/san-pham";
 import { NHOM, phanCuaNhom } from "@/lib/wiki/kieu";
@@ -17,7 +18,7 @@ export default function DanhSachSanPham() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Nhánh Sản phẩm</div>
-        <h1>Product Knowledge Base</h1>
+        <PageHeader tieuDe={<>Product Knowledge Base</>} />
         <p>
           Mỗi máy một bộ hồ sơ 10 phần theo cùng một khuôn. Mọi câu nói về sản phẩm phải truy được
           về một mã <span className="chip mono">F-xxx</span> trong phần Bảng sự thật — không có mã

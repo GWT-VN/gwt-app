@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import AdsResultsView from "@/components/marketing/AdsResultsView";
 import { ADS_WEEKS, getLatestWeek } from "@/lib/marketing/data/ads-results";
 
@@ -11,7 +12,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Dữ liệu ads · Facebook</div>
-        <h1>Kết quả chạy Ads</h1>
+        <PageHeader tieuDe={<>Kết quả chạy Ads</>} />
         <p>
           Theo dõi chi phí và hiệu quả từng campaign Facebook Ads
           {` — ${activeCount} camp đang chạy kỳ ${latest.label}, ${ADS_WEEKS.length} kỳ đã ghi nhận`}.

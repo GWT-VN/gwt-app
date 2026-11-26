@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SAN_PHAM } from "@/lib/wiki/data/san-pham";
@@ -31,9 +32,9 @@ export default async function TrangNhom({ params }: { params: Promise<{ ma: stri
         <div className="eyebrow">
           <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · nhóm thông tin
         </div>
-        <h1>
+        <PageHeader tieuDe={<>
           <span aria-hidden="true">{n.icon}</span> {n.ten}
-        </h1>
+        </>} />
         <p>{n.moTa}</p>
         <div className="wiki-the-meta">
           <span className="wiki-vai-nhan">Dành cho:</span>

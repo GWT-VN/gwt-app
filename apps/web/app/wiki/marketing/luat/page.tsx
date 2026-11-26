@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { listRules } from "@/lib/marketing/content";
 
@@ -10,7 +11,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Luật &amp; tuân thủ</div>
-        <h1>Luật QC &amp; nguồn dẫn chứng</h1>
+        <PageHeader tieuDe={<>Luật QC &amp; nguồn dẫn chứng</>} />
         <p>
           Toàn bộ rule đang có trong Marketing Kit — render thẳng từ <code>rules/*.md</code> ở gốc repo, không chép
           lại. <b>Luật QC thắng mọi rule khác.</b>

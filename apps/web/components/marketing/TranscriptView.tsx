@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+
 import { useMemo, useState } from "react";
 import { parseTranscript, ts } from "@/lib/marketing/transcript";
 
@@ -14,7 +18,7 @@ export default function TranscriptView({ raw }: { raw: string | null }) {
 
   if (!cues.length) {
     // Nhiều bản ghi cũ chỉ có văn bản liền mạch, không mốc thời gian — vẫn hiện đầy đủ, đọc được.
-    if (!plain) return <div className="empty">Bản ghi này chưa có transcript trong Supabase.</div>;
+    if (!plain) return <EmptyState kieu="that" tieuDe="Bản ghi này chưa có transcript trong Supabase." />;
     return (
       <>
         <div className="notice" style={{ marginTop: 0 }}>
@@ -42,23 +46,23 @@ export default function TranscriptView({ raw }: { raw: string | null }) {
   return (
     <>
       <div className="toolbar">
-        <button className={`filter-chip${show === "all" ? " on" : ""}`} onClick={() => setShow("all")}>
+        <Button size="sm" variant={show === "all" ? "default" : "outline"} aria-pressed={show === "all"} onClick={() => setShow("all")}>
           Tất cả <span style={{ opacity: 0.65 }}>{cues.length}</span>
-        </button>
-        <button className={`filter-chip${show === "V" ? " on" : ""}`} onClick={() => setShow("V")}>
+        </Button>
+        <Button size="sm" variant={show === "V" ? "default" : "outline"} aria-pressed={show === "V"} onClick={() => setShow("V")}>
           Lời thoại <span style={{ opacity: 0.65 }}>{nV}</span>
-        </button>
-        <button className={`filter-chip${show === "T" ? " on" : ""}`} onClick={() => setShow("T")} disabled={!nT}>
+        </Button>
+        <Button size="sm" variant={show === "T" ? "default" : "outline"} aria-pressed={show === "T"} onClick={() => setShow("T")} disabled={!nT}>
           Chữ trên hình <span style={{ opacity: 0.65 }}>{nT}</span>
-        </button>
+        </Button>
         {bilingual && (
-          <button className={`filter-chip${showOrig ? " on" : ""}`} onClick={() => setShowOrig((v) => !v)}>
+          <Button size="sm" variant={showOrig ? "default" : "outline"} aria-pressed={showOrig} onClick={() => setShowOrig((v) => !v)}>
             {showOrig ? "Đang hiện nguyên văn" : "Chỉ bản dịch"}
-          </button>
+          </Button>
         )}
       </div>
 
-      <div className="table-wrap" style={{ padding: "6px 0" }}>
+      <Card className="overflow-hidden px-0 py-1.5">
         {shown.map((c, i) => (
           <div
             key={i}
@@ -85,7 +89,7 @@ export default function TranscriptView({ raw }: { raw: string | null }) {
             </span>
           </div>
         ))}
-      </div>
+      </Card>
     </>
   );
 }

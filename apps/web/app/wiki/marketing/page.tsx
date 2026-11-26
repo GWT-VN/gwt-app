@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { ALL_CASES } from "@/lib/marketing/data/cases";
 import { ADS_WEEKS } from "@/lib/marketing/data/ads-results";
@@ -41,7 +42,7 @@ export default async function Home() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Bản đồ hệ thống</div>
-        <h1>Một nơi cho toàn bộ cách team làm video</h1>
+        <PageHeader tieuDe={<>Một nơi cho toàn bộ cách team làm video</>} />
         <p>
           Chiến lược, khung chấm, luật sửa, quy trình sản xuất và dữ liệu — gom về một chỗ. Bấm vào ô để mở, hoặc
           dùng thanh bên trái.

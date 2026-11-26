@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TAI_LIEU } from "@/lib/wiki/data/san-pham";
@@ -41,9 +42,9 @@ export default async function TrangKhu({ params }: { params: Promise<{ khu: stri
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Wiki nội bộ</div>
-        <h1>
+        <PageHeader tieuDe={<>
           <span aria-hidden="true">{meta.icon}</span> {meta.ten}
-        </h1>
+        </>} />
         <p>{meta.moTa}</p>
       </div>
 

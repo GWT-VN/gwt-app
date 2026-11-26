@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import Link from "next/link";
 import { THEO_KENH, TUYEN, TY_TRONG } from "@/lib/marketing/data/a5-detail";
 import { A5 } from "@/lib/marketing/data/frameworks";
@@ -10,7 +12,7 @@ export default function Page() {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Khung ① — Chiến lược</div>
-        <h1>Chiến lược nội dung 5A (A1–A5)</h1>
+        <PageHeader tieuDe={<>Chiến lược nội dung 5A (A1–A5)</>} />
         <p>
           Năm <b>chức năng chiến lược</b>, không phải năm định dạng cố định. Trước khi làm mỗi video, hỏi: video này
           đang làm nhiệm vụ gì trong hành trình khách hàng? <b>Bấm vào một tuyến để xem đầy đủ</b> — bản chất, lý
@@ -51,7 +53,7 @@ export default function Page() {
       </div>
       <div className="grid grid-3">
         {TY_TRONG.map((g) => (
-          <div className="card" key={g.stage} style={g.now ? { borderColor: "var(--accent)" } : undefined}>
+          <div className="card" key={g.stage} style={g.now ? { borderColor: "var(--wiki-accent)" } : undefined}>
             <h3 style={{ fontSize: ".93rem" }}>
               {g.stage}
               {g.now && <span className="chip" style={{ marginLeft: 7 }}>GWT đang ở đây</span>}
@@ -69,24 +71,24 @@ export default function Page() {
       </div>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         {THEO_KENH.map((k) => (
-          <div className="card" key={k.kenh} style={k.now ? { borderColor: "var(--accent)" } : undefined}>
+          <div className="card" key={k.kenh} style={k.now ? { borderColor: "var(--wiki-accent)" } : undefined}>
             <h3>
               {k.kenh}
               {k.now && <span className="chip" style={{ marginLeft: 7 }}>mô hình GWT</span>}
             </h3>
             <p style={{ marginBottom: 12 }}>{k.note}</p>
-            <table style={{ minWidth: 0 }}>
-              <tbody>
+            <Table variant="thuong" aria-label="Tỷ trọng theo loại kênh">
+              <TableBody>
                 {k.rows.map((r) => (
-                  <tr key={r.cat} style={{ cursor: "auto" }}>
-                    <td style={{ width: 44 }}><span className={`cat cat-${r.cat}`}>{r.cat}</span></td>
-                    <td className="num-cell" style={{ width: 52, fontWeight: 700 }}>{r.pct}</td>
-                    <td style={{ width: 54, fontSize: ".8rem", color: "var(--ink-3)" }}>{r.label}</td>
-                    <td style={{ fontSize: ".82rem" }}>{r.detail}</td>
-                  </tr>
+                  <TableRow key={r.cat} style={{ cursor: "auto" }}>
+                    <TableCell style={{ width: 44 }}><span className={`cat cat-${r.cat}`}>{r.cat}</span></TableCell>
+                    <TableCell className="num-cell" style={{ width: 52, fontWeight: 700 }}>{r.pct}</TableCell>
+                    <TableCell style={{ width: 54, fontSize: ".8rem", color: "var(--ink-3)" }}>{r.label}</TableCell>
+                    <TableCell style={{ fontSize: ".82rem" }}>{r.detail}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         ))}
       </div>

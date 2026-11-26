@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Chips, Field } from "@/components/marketing/DetailBits";
@@ -54,7 +55,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           {row.content_type && <span className="chip">{row.content_type}</span>}
           {extract.duration > 0 && <span className="chip mono">{ts(extract.duration)}</span>}
         </div>
-        <h1>{heading}</h1>
+        <PageHeader tieuDe={<>{heading}</>} />
         <p>
           SP phù hợp: {row.gwt_product_fit?.replace(/,/g, ", ") || "—"}
           {row.source_url && (
@@ -167,7 +168,7 @@ function ConfigLoi({ error }: { error: unknown }) {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Video Ideas</div>
-        <h1>Không mở được ý tưởng này</h1>
+        <PageHeader tieuDe={<>Không mở được ý tưởng này</>} />
       </div>
       <DataError error={error} />
     </section>

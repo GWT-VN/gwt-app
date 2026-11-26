@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatBadge, Chips, Field } from "@/components/marketing/DetailBits";
@@ -37,7 +38,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <span className="tag">{platformLabel(row.platform)}</span>
           {row.channel_type && <span className="chip">{row.channel_type}</span>}
         </div>
-        <h1>{row.video_title || "(chưa đặt tiêu đề)"}</h1>
+        <PageHeader tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
         <p>
           {row.channel_name || "—"}
           {row.url && (
@@ -139,7 +140,7 @@ function ConfigLoi({ error }: { error: unknown }) {
     <section className="view">
       <div className="page-head">
         <div className="eyebrow">Phân tích chuyên sâu</div>
-        <h1>Không mở được bản phân tích này</h1>
+        <PageHeader tieuDe={<>Không mở được bản phân tích này</>} />
       </div>
       <DataError error={error} />
     </section>
