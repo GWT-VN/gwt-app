@@ -217,9 +217,11 @@ export const CHON_BANG: Partial<GiaoDienBang> = {
  */
 export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
   ...CHON_BANG,
-  // Ô chọn trong mép nội dung (xem `tableWrap`): đệm trái 0 → mép ô tick = mép tiêu đề trang.
-  chon_oTh: cn(th, cotChon, 'md:pl-0! md:border-b-(--alpha-08) left-0 z-30'),
-  chon_oTd: cn(td, cotChon, 'md:pl-0! md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
+  // Ô chọn trong mép nội dung (xem `tableWrap`): kẻ ngang bắt đầu ở mép tiêu đề trang, ô tick THỤT vào 8 như Twenty —
+  // CEO 26/11 "checkbox phải thụt vào, không align bằng line" + "cho bằng với chữ trong chip": mép ô tick = mép chữ tab
+  // pill đầu (hàng tab lùi ra 4 `dvTabs`, đệm tab 12 → chữ ở +8 so mép nội dung).
+  chon_oTh: cn(th, cotChon, 'md:pl-2! md:border-b-(--alpha-08) left-0 z-30'),
+  chon_oTd: cn(td, cotChon, 'md:pl-2! md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
 }
 
 /*
