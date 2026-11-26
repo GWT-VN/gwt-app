@@ -406,410 +406,429 @@ export function OrderForm({
         ctkm_id: l.ctkm_id ?? null,
       })),
     }
-    const res = isEdit && orderCode ? await suaDon(orderCode, input) : await taoDon(input)
-    if (res.ok) {
-      router.push(`/sales/don/${encodeURIComponent(res.order_code)}`)
-      router.refresh()
-    } else {
+    try {
+      const res = isEdit && orderCode ? await suaDon(orderCode, input) : await taoDon(input)
+      if (res.ok) {
+        router.push(`/sales/don/${encodeURIComponent(res.order_code)}`)
+        router.refresh()
+        return
+      }
       setError(res.error)
-      setSubmitting(false)
+    } catch {
+      setError('Chưa rõ kết quả lưu. Kiểm tra danh sách đơn trước khi thử lại.')
     }
+    setSubmitting(false)
   }
 
   return (
-    <FormLayout onSubmit={submit} noValidate={false}>
-      {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
-      {/* Khách hàng */}
-      <Card>
-        <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span className="text-sm font-semibold text-foreground">Khách hàng</span>
-          <div className="flex gap-1 text-sm">
-            {(['existing', 'new'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setCustomerMode(m)}
-                aria-pressed={customerMode === m}
-                className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent')}
-              >
-                {m === 'existing' ? 'Khách cũ' : 'Khách mới'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {customerMode === 'existing' ? (
-          selectedCust ? (
-            <div className="flex items-center justify-between gap-2 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) px-3 py-2 text-sm text-foreground">
-              <span>
-                <b>{selectedCust.name || '(chưa tên)'}</b> · {selectedCust.phone_chuan || selectedCust.phone} ·{' '}
-                <span className="font-mono text-xs text-muted-foreground">{selectedCust.customer_code}</span>
-              </span>
-              <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedCust(null)}>Đổi</button>
+    <FormLayout onSubmit={submit} noValidate={false} className="@container/order">
+      <div className="grid min-w-0 items-start gap-6 @min-[60rem]:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="min-w-0 space-y-6">
+          {/* Khách hàng */}
+          <Card>
+            <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="text-sm font-semibold text-foreground">Khách hàng</span>
+              <div className="flex gap-1 text-sm">
+                {(['existing', 'new'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setCustomerMode(m)}
+                    aria-pressed={customerMode === m}
+                    className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent')}
+                  >
+                    {m === 'existing' ? 'Khách cũ' : 'Khách mới'}
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="relative" onBlur={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget)) setCustSearchOpen(false)
-            }} onKeyDown={(e) => {
-              if (e.key === 'Escape') setCustSearchOpen(false)
-            }}>
-              <Input aria-label="Tìm khách hàng" placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery}
-                onFocus={() => setCustSearchOpen(true)}
-                onChange={(e) => { setCustQuery(e.target.value); setCustSearchOpen(true) }} />
-              {custSearchOpen && !thieuKyTu && (
-                <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
-                  {searching && <div className="px-3 py-2 text-sm text-muted-foreground">Đang tìm…</div>}
-                  {!searching && !loiTimKhach && custHits.map((h) => (
-                    <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustSearchOpen(false); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
-                      <b>{h.name || '(chưa tên)'}</b>{' '}
-                      <span className="text-muted-foreground">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
-                      <span className="ml-1 font-mono text-xs text-muted-foreground">{h.customer_code}</span>
-                    </button>
-                  ))}
-                  {!searching && (loiTimKhach || custHits.length === 0) && (
-                    <div role="status" className="px-3 py-2 text-sm text-muted-foreground">
-                      {loiTimKhach ? 'Chưa tìm được khách. Hãy thử lại.' : 'Không tìm thấy khách phù hợp.'}
+
+            {customerMode === 'existing' ? (
+              selectedCust ? (
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) px-3 py-2 text-sm text-foreground">
+                  <span>
+                    <b>{selectedCust.name || '(chưa tên)'}</b> · {selectedCust.phone_chuan || selectedCust.phone} ·{' '}
+                    <span className="font-mono text-xs text-muted-foreground">{selectedCust.customer_code}</span>
+                  </span>
+                  <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedCust(null)}>Đổi</button>
+                </div>
+              ) : (
+                <div className="relative" onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget)) setCustSearchOpen(false)
+                }} onKeyDown={(e) => {
+                  if (e.key === 'Escape') setCustSearchOpen(false)
+                }}>
+                  <Input aria-label="Tìm khách hàng" placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery}
+                    onFocus={() => setCustSearchOpen(true)}
+                    onChange={(e) => { setCustQuery(e.target.value); setCustSearchOpen(true) }} />
+                  {custSearchOpen && !thieuKyTu && (
+                    <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                      {searching && <div className="px-3 py-2 text-sm text-muted-foreground">Đang tìm…</div>}
+                      {!searching && !loiTimKhach && custHits.map((h) => (
+                        <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustSearchOpen(false); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
+                          <b>{h.name || '(chưa tên)'}</b>{' '}
+                          <span className="text-muted-foreground">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
+                          <span className="ml-1 font-mono text-xs text-muted-foreground">{h.customer_code}</span>
+                        </button>
+                      ))}
+                      {!searching && (loiTimKhach || custHits.length === 0) && (
+                        <div role="status" className="px-3 py-2 text-sm text-muted-foreground">
+                          {loiTimKhach ? 'Chưa tìm được khách. Hãy thử lại.' : 'Không tìm thấy khách phù hợp.'}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          )
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div><FieldLabel htmlFor={fieldId + '-newName'} className="mb-1">Tên khách</FieldLabel><Input id={fieldId + '-newName'} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nguyễn Văn A" /></div>
-            <div><FieldLabel htmlFor={fieldId + '-newPhone'} className="mb-1">SĐT</FieldLabel><Input id={fieldId + '-newPhone'} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="09xxxxxxxx" inputMode="tel" /></div>
-            <p className="text-xs text-muted-foreground sm:col-span-2">Khách mới nhập tại đây sẽ nối theo SĐT; muốn cấp mã KA thì tạo ở trang Khách hàng.</p>
-          </div>
-        )}
-      </Card>
-
-      {/* Sản phẩm */}
-      <Card>
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-semibold text-foreground">Sản phẩm</span>
-          <Button variant="outline" size="sm" onClick={addLine}>＋ Thêm dòng</Button>
-        </div>
-        {/* Hàng tiêu đề: các ô số bên phải rất hẹp, không có nhãn thì không đoán được ô nào là gì. */}
-        <div aria-hidden="true" className="mb-1 hidden grid-cols-12 gap-2 px-2 text-xs text-muted-foreground lg:grid">
-          <span className="col-span-5">Sản phẩm</span>
-          <span className="col-span-2 text-right">Số lượng</span>
-          <span className="col-span-2 text-right">Đơn giá (gồm VAT)</span>
-          <span className="col-span-1 text-right">VAT</span>
-          <span className="col-span-1 text-center">Quà</span>
-          <span className="col-span-1" />
-        </div>
-
-        {/* Nói RÕ khách này đang ăn chính sách nào — không để app lặng lẽ điền số.
-            Danh sách chip do `tomTatChinhSach()` dựng; ở đây KHÔNG có điều kiện nào ngoài
-            "rỗng thì thôi". Bản cũ gài điều kiện vào JSX (`bcGia.bac || bcGia.ctkm`) và
-            ẩn sạch cả dải khi mọi chương trình đều cộng dồn — CEO gặp 24/08. */}
-        {chip.length > 0 && (
-          <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-(--color-background-info-surface) px-3 py-2 text-sm text-(--color-text-info)">
-            <span className="font-semibold">Đang áp:</span>
-            {chip.map((c, i) => (
-              <span
-                key={`${c.kieu}-${c.nhan}-${i}`}
-                className={
-                  'rounded-full px-2 py-0.5 text-xs font-semibold text-white ' +
-                  (c.kieu === 'cong' ? 'bg-emerald-600' : 'bg-teal-600')
-                }
-                title={c.kieu === 'cong' ? 'Chương trình cộng dồn — áp chồng lên chương trình chính' : undefined}
-              >
-                {c.kieu === 'cong' ? '+ ' : ''}{c.nhan}
-              </span>
-            ))}
-            {bcGia?.bac && bcGia.ctkm && (
-              <span className="text-xs text-(--color-text-info)">
-                (đại lý ăn giá bậc, <b>không</b> cộng thêm khuyến mãi bán lẻ)
-              </span>
-            )}
-            {(bcGia?.soCtkmKhac ?? 0) > 0 && (
-              <span className="text-xs text-(--color-text-info)">
-                · còn {bcGia!.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
-              </span>
-            )}
-          </div>
-        )}
-        <div className="space-y-2">
-          {lines.map((l, index) => (
-            <div key={l.key} className="rounded-lg border border-border bg-muted p-2">
-              <div className="grid grid-cols-12 items-center gap-2">
-                <div className="col-span-12 lg:col-span-5">
-                  <span className="mb-1 block text-xs text-muted-foreground lg:hidden">Sản phẩm {index + 1}</span>
-                  <ProductPicker
-                    nhan={`Sản phẩm dòng ${index + 1}`}
-                    catalog={catalog}
-                    code={l.internal_code}
-                    name={l.product_name}
-                    onPick={(c) =>
-                      setLine(l.key, {
-                        internal_code: c?.internal_code ?? '',
-                        product_name: c?.name ?? '',
-                        category_l1: c?.category_l1 ?? null,
-                        category_l2: c?.category_l2 ?? null,
-                        // VAT tự điền theo mã nội bộ (CEO chốt 21/08); mã chưa xếp loại VAT → 8% (đổi
-                        // 05/11/2026), người nhập vẫn chọn lại được ở ô VAT.
-                        ...vatMacDinh(c?.vat_pct, c?.vat_loai),
-                        // Đổi MÃ là đổi cả bảng giá -> trả ô đơn giá về cho app điền lại.
-                        // Số cũ là giá của mã CŨ, giữ lại chỉ để lẫn sang mã mới.
-                        giaTuGo: false,
-                        unit_price_vat: 0,
-                      })
-                    }
-                  />
-                </div>
-                <label className="col-span-6 lg:col-span-2">
-                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">Số lượng</span>
-                  <Input type="number" min={0} className="text-right tabular-nums" value={l.quantity}
-                    onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} />
-                </label>
-                <label className="col-span-6 lg:col-span-2">
-                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">Đơn giá (gồm VAT)</span>
-                  <Input type="number" min={0} step="any" className="text-right tabular-nums" value={l.unit_price_vat}
-                    onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} disabled={l.is_gift} />
-                </label>
-                <label className="col-span-6 lg:col-span-1">
-                  <span className="mb-1 block text-xs text-muted-foreground lg:sr-only">VAT</span>
-                  <NativeSelect
-                    value={maVat(l.vat_pct, l.vat_loai)}
-                    onChange={(e) => {
-                      const v = VAT_OPTS.find((x) => x.ma === e.target.value)
-                      setLine(l.key, { vat_pct: v?.pct ?? null, vat_loai: v?.loai ?? null })
-                    }}
-                    title="Thuế suất VAT — KCT: không chịu thuế (muối) · KAD: không áp dụng (bình gas)"
-                  >
-                    {VAT_OPTS.map((v) => (
-                      <NativeSelectOption key={v.ma} value={v.ma}>{v.nhan}</NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                </label>
-                <ChoiceLabel className="col-span-4 flex items-center justify-center gap-1 self-end pb-2 text-xs text-muted-foreground lg:col-span-1 lg:self-center lg:pb-0" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
-                <Button type="button" variant="ghost" size="icon-sm" onClick={() => removeLine(l.key)}
-                  className="col-span-2 justify-self-end self-end lg:col-span-1 lg:self-center" aria-label={`Xoá dòng ${index + 1}`}>✕</Button>
-                <LineGiaNhan
-                  g={goiY[l.key]}
-                  daGo={Number(l.unit_price_vat) || 0}
-                  laQua={l.is_gift}
-                  onApLai={(v) => setLine(l.key, { unit_price_vat: v, giaTuGo: false })}
-                  tuDien={!l.giaTuGo}
-                />
+              )
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div><FieldLabel htmlFor={fieldId + '-newName'} className="mb-1">Tên khách</FieldLabel><Input id={fieldId + '-newName'} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nguyễn Văn A" /></div>
+                <div><FieldLabel htmlFor={fieldId + '-newPhone'} className="mb-1">SĐT</FieldLabel><Input id={fieldId + '-newPhone'} value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="09xxxxxxxx" inputMode="tel" /></div>
+                <p className="text-xs text-muted-foreground sm:col-span-2">Khách mới nhập tại đây sẽ nối theo SĐT; muốn cấp mã KA thì tạo ở trang Khách hàng.</p>
               </div>
-              <Input aria-label={`Ghi chú dòng ${index + 1}`} className="mt-1.5 text-xs" value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
+            )}
+          </Card>
+
+          {/* Sản phẩm */}
+          <Card className="@container">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">Sản phẩm</span>
+              <Button variant="outline" size="sm" onClick={addLine}>＋ Thêm dòng</Button>
             </div>
-          ))}
-        </div>
-        {/* Quà theo chương trình — KHÔNG tự thêm vào đơn.
-            Quà là hàng phải xuất kho thật; app tự đẻ dòng hàng mà nhân viên không để ý
-            là kho giao thừa. Hiện ra và để họ bấm, kèm điều kiện nhận để họ đọc trước. */}
-        {quaCtkm.length > 0 && (
-          <div className="mt-3 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-(--color-text-success)">
-              🎁 Quà theo chương trình đang áp
+            {/* Hàng tiêu đề: các ô số bên phải rất hẹp, không có nhãn thì không đoán được ô nào là gì. */}
+            <div aria-hidden="true" className="mb-1 hidden grid-cols-12 gap-2 px-2 text-xs text-muted-foreground @min-[42rem]:grid">
+              <span className="col-span-4">Sản phẩm</span>
+              <span className="col-span-2 text-right">Số lượng</span>
+              <span className="col-span-2 text-right">Đơn giá (gồm VAT)</span>
+              <span className="col-span-2 text-right">VAT</span>
+              <span className="col-span-1 text-center">Quà</span>
+              <span className="col-span-1" />
             </div>
-            <div className="space-y-1.5">
-              {quaCtkm.map((q) => (
-                <div key={`${q.ctkmId}|${q.ma}`} className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium text-foreground">{q.ten}</span>
-                  <span className="font-mono text-[11px] text-muted-foreground">{q.ma}</span>
-                  <span className="text-muted-foreground">× {q.soLuong}</span>
-                  {q.dieuKien && <span className="text-xs text-(--color-text-warning)">· điều kiện: {q.dieuKien}</span>}
-                  <span className="flex-1" />
-                  {quaDaThem.has(q.ma) ? (
-                    <span className="text-xs text-(--color-text-success)">✓ đã có trong đơn</span>
-                  ) : (
-                    <button type="button" onClick={() => themQua(q)}
-                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700">
-                      ＋ Thêm vào đơn
-                    </button>
-                  )}
+
+            {/* Nói RÕ khách này đang ăn chính sách nào — không để app lặng lẽ điền số.
+                Danh sách chip do `tomTatChinhSach()` dựng; ở đây KHÔNG có điều kiện nào ngoài
+                "rỗng thì thôi". Bản cũ gài điều kiện vào JSX (`bcGia.bac || bcGia.ctkm`) và
+                ẩn sạch cả dải khi mọi chương trình đều cộng dồn — CEO gặp 24/08. */}
+            {chip.length > 0 && (
+              <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-(--color-background-info-surface) px-3 py-2 text-sm text-(--color-text-info)">
+                <span className="font-semibold">Đang áp:</span>
+                {chip.map((c, i) => (
+                  <span
+                    key={`${c.kieu}-${c.nhan}-${i}`}
+                    className={
+                      'rounded-full px-2 py-0.5 text-xs font-semibold text-white ' +
+                      (c.kieu === 'cong' ? 'bg-emerald-600' : 'bg-teal-600')
+                    }
+                    title={c.kieu === 'cong' ? 'Chương trình cộng dồn — áp chồng lên chương trình chính' : undefined}
+                  >
+                    {c.kieu === 'cong' ? '+ ' : ''}{c.nhan}
+                  </span>
+                ))}
+                {bcGia?.bac && bcGia.ctkm && (
+                  <span className="text-xs text-(--color-text-info)">
+                    (đại lý ăn giá bậc, <b>không</b> cộng thêm khuyến mãi bán lẻ)
+                  </span>
+                )}
+                {(bcGia?.soCtkmKhac ?? 0) > 0 && (
+                  <span className="text-xs text-(--color-text-info)">
+                    · còn {bcGia!.soCtkmKhac} chương trình khác cũng khớp, app lấy cái giảm sâu nhất
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="space-y-2">
+              {lines.map((l, index) => (
+                <div key={l.key} className="rounded-lg border border-border bg-muted p-2">
+                  <div className="grid grid-cols-12 items-center gap-2">
+                    <div className="col-span-12 @min-[42rem]:col-span-4">
+                      <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:hidden">Sản phẩm {index + 1}</span>
+                      <ProductPicker
+                        nhan={`Sản phẩm dòng ${index + 1}`}
+                        catalog={catalog}
+                        code={l.internal_code}
+                        name={l.product_name}
+                        onPick={(c) =>
+                          setLine(l.key, {
+                            internal_code: c?.internal_code ?? '',
+                            product_name: c?.name ?? '',
+                            category_l1: c?.category_l1 ?? null,
+                            category_l2: c?.category_l2 ?? null,
+                            // VAT tự điền theo mã nội bộ (CEO chốt 21/08); mã chưa xếp loại VAT → 8% (đổi
+                            // 05/11/2026), người nhập vẫn chọn lại được ở ô VAT.
+                            ...vatMacDinh(c?.vat_pct, c?.vat_loai),
+                            // Đổi MÃ là đổi cả bảng giá -> trả ô đơn giá về cho app điền lại.
+                            // Số cũ là giá của mã CŨ, giữ lại chỉ để lẫn sang mã mới.
+                            giaTuGo: false,
+                            unit_price_vat: 0,
+                          })
+                        }
+                      />
+                    </div>
+                    <label className="col-span-6 @min-[42rem]:col-span-2">
+                      <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:sr-only">Số lượng</span>
+                      <Input type="number" min={0} className="text-right tabular-nums" value={l.quantity}
+                        onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} />
+                    </label>
+                    <label className="col-span-6 @min-[42rem]:col-span-2">
+                      <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:sr-only">Đơn giá (gồm VAT)</span>
+                      <Input type="number" min={0} step="any" className="text-right tabular-nums" value={l.unit_price_vat}
+                        onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} disabled={l.is_gift} />
+                    </label>
+                    <label className="col-span-6 @min-[42rem]:col-span-2">
+                      <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:sr-only">VAT</span>
+                      <NativeSelect
+                        value={maVat(l.vat_pct, l.vat_loai)}
+                        onChange={(e) => {
+                          const v = VAT_OPTS.find((x) => x.ma === e.target.value)
+                          setLine(l.key, { vat_pct: v?.pct ?? null, vat_loai: v?.loai ?? null })
+                        }}
+                        title="Thuế suất VAT — KCT: không chịu thuế (muối) · KAD: không áp dụng (bình gas)"
+                      >
+                        {VAT_OPTS.map((v) => (
+                          <NativeSelectOption key={v.ma} value={v.ma}>{v.nhan}</NativeSelectOption>
+                        ))}
+                      </NativeSelect>
+                    </label>
+                    <ChoiceLabel className="col-span-4 flex items-center justify-center gap-1 self-end pb-2 text-xs text-muted-foreground @min-[42rem]:col-span-1 @min-[42rem]:self-center @min-[42rem]:pb-0" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
+                    <Button type="button" variant="ghost" size="icon-sm" onClick={() => removeLine(l.key)}
+                      className="col-span-2 justify-self-end self-end @min-[42rem]:col-span-1 @min-[42rem]:self-center" aria-label={`Xoá dòng ${index + 1}`}>✕</Button>
+                    <LineGiaNhan
+                      g={goiY[l.key]}
+                      daGo={Number(l.unit_price_vat) || 0}
+                      laQua={l.is_gift}
+                      onApLai={(v) => setLine(l.key, { unit_price_vat: v, giaTuGo: false })}
+                      tuDien={!l.giaTuGo}
+                    />
+                  </div>
+                  <Input aria-label={`Ghi chú dòng ${index + 1}`} className="mt-1.5 text-xs" value={l.note ?? ''} onChange={(e) => setLine(l.key, { note: e.target.value })} placeholder="Ghi chú dòng (tuỳ chọn)…" />
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-(--color-text-success)">
-              Thêm vào đơn = một dòng hàng tick <b>Quà</b>, tính <b>0 đ</b>. App không tự thêm —
-              quà phải xuất kho thật nên để anh chị bấm.
-            </p>
-          </div>
-        )}
-
-        <p className="mt-2 text-xs text-muted-foreground"><b>DVBT</b> = mã bảo trì, SL = số lần. Nguồn đơn tự suy từ danh mục. Tick “Quà” → dòng tính 0 đ.</p>
-        <div className="mt-3 flex items-center justify-end gap-3 border-t border-border pt-3 text-sm">
-          <span className="text-muted-foreground">Tổng (VAT)</span>
-          <span className="text-lg font-semibold text-foreground">{fmtVnd(total)}</span>
-        </div>
-      </Card>
-
-      {/* Giao & thanh toán */}
-      <Card>
-        <div className="mb-3 text-sm font-semibold text-foreground">Giao hàng & thanh toán</div>
-        <div className="grid gap-3 sm:grid-cols-4">
-          <div><FieldLabel htmlFor={fieldId + '-orderDate'} className="mb-1">Ngày đơn</FieldLabel><Input id={fieldId + '-orderDate'} type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} required /></div>
-          <div><FieldLabel htmlFor={fieldId + '-channelId'} className="mb-1">Kênh</FieldLabel>
-            <ChannelSelect id={fieldId + '-channelId'} value={channelId} onChange={setChannelId} emptyLabel="Chọn kênh…"
-              options={channels.map((channel) => ({
-                gt: String(channel.id), nhan: [channel.channel_l1, channel.channel_l2].filter(Boolean).join(' · '), anMa: true,
-              }))}
-            />
-          </div>
-          <div><FieldLabel htmlFor={fieldId + '-chiTietKenh'} className="mb-1">Chi tiết kênh</FieldLabel><Input id={fieldId + '-chiTietKenh'} value={chiTietKenh} onChange={(e) => setChiTietKenh(e.target.value)} placeholder="Tên shop / người giới thiệu…" /></div>
-          <div><FieldLabel htmlFor={fieldId + '-partnerCode'} className="mb-1">Mã đơn đối tác</FieldLabel><Input id={fieldId + '-partnerCode'} value={partnerCode} onChange={(e) => setPartnerCode(e.target.value)} placeholder="Shopee / HĐ…" /></div>
-          <div><FieldLabel htmlFor={fieldId + '-installDate'} className="mb-1">Ngày lắp đặt</FieldLabel><Input id={fieldId + '-installDate'} type="date" value={installDate} onChange={(e) => setInstallDate(e.target.value)} /></div>
-          <div><FieldLabel htmlFor={fieldId + '-status'} className="mb-1">Tình trạng hàng</FieldLabel><NativeSelect id={fieldId + '-status'} value={status} onChange={(e) => setStatus(e.target.value)}>{FULFILL_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
-          <div><FieldLabel htmlFor={fieldId + '-payment'} className="mb-1">Thanh toán</FieldLabel><NativeSelect id={fieldId + '-payment'} value={payment} onChange={(e) => setPayment(e.target.value)}>{PAYMENT_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
-          <div><FieldLabel htmlFor={fieldId + '-payMethod'} className="mb-1">Hình thức TT</FieldLabel><NativeSelect id={fieldId + '-payMethod'} value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>{PAYMETHOD_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o || '— chọn —'}</NativeSelectOption>)}</NativeSelect></div>
-          <div><FieldLabel htmlFor={fieldId + '-shippingCode'} className="mb-1">Mã vận đơn</FieldLabel><Input id={fieldId + '-shippingCode'} value={shippingCode} onChange={(e) => setShippingCode(e.target.value)} /></div>
-          <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-linkTracking'} className="mb-1">Link tracking</FieldLabel><Input id={fieldId + '-linkTracking'} value={linkTracking} onChange={(e) => setLinkTracking(e.target.value)} placeholder="https://…" /></div>
-          <div><FieldLabel htmlFor={fieldId + '-tienCoc'} className="mb-1">Số tiền đã cọc</FieldLabel>
-            <Input id={fieldId + '-tienCoc'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
-          </div>
-          <div><FieldLabel className="mb-1">Còn cần thu</FieldLabel>
-            <div className="rounded-lg border border-border bg-muted px-3 py-2 text-right text-sm font-semibold tabular-nums text-foreground">
-              {fmtVnd(conCanThu)}
-            </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">Tổng đơn − đã cọc, app tự tính</p>
-          </div>
-          <div className="sm:col-span-1"><FieldLabel className="mb-1">Tỉnh / TP</FieldLabel>
-            <ChonTinh value={province} onChange={setProvince} />
-          </div>
-          <div className="sm:col-span-3"><FieldLabel htmlFor={fieldId + '-address'} className="mb-1">Địa chỉ giao</FieldLabel><Input id={fieldId + '-address'} value={address} onChange={(e) => setAddress(e.target.value)} /></div>
-        </div>
-        <div className="mt-3"><FieldLabel htmlFor={fieldId + '-note'} className="mb-1">Ghi chú đơn</FieldLabel><Textarea id={fieldId + '-note'} rows={2} value={note} onChange={(e) => setNote(e.target.value)} /></div>
-      </Card>
-
-
-      {/* QUÀ TẶNG — Sheet để 2 ô CHỮ TỰ DO cho cả POE lẫn POU (chốt 27/07/2025, bỏ cách
-          tách từng cột "Lõi PCF / Lõi NF / Bình gas" đánh 0/2). Giữ đúng như vậy: nhân viên
-          ghi kiểu liệt kê, ép thành ô chọn là mất những ca ngoài danh sách. */}
-      {(laPOE || laPOU) && (
-        <Card>
-          <div className="mb-3 text-sm font-semibold text-foreground">Quà tặng</div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <FieldLabel htmlFor={fieldId + '-quaTang'} className="mb-1">Quà tặng đi kèm</FieldLabel>
-              <Textarea id={fieldId + '-quaTang'} rows={2} value={quaTang} onChange={(e) => setQuaTang(e.target.value)}
-                placeholder="02 lõi PCF / 01 lõi NF / 01 bình gas" />
-            </div>
-            <div>
-              <FieldLabel htmlFor={fieldId + '-dungQuaTang'} className="mb-1">Sử dụng quà tặng</FieldLabel>
-              <Textarea id={fieldId + '-dungQuaTang'} rows={2} value={dungQuaTang} onChange={(e) => setDungQuaTang(e.target.value)}
-                placeholder="01 lõi PCF (27/6/2025)" />
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Ghi kiểu liệt kê như trong Sheet. Hàng tặng có mã và có tính vào đơn thì tick
-            <b> Quà</b> ở dòng hàng bên trên, đừng ghi vào đây.
-          </p>
-        </Card>
-      )}
-
-      {/* POU — theo dõi sau bán: bảo hành, hướng dẫn sử dụng, hoá đơn, đối soát. */}
-      {coDoiSoat && (
-        <Card>
-          <div className="mb-3 text-sm font-semibold text-foreground">
-            {laPOU ? 'Theo dõi sau bán (POU)' : 'Đối soát'}
-          </div>
-          <div className="grid gap-3 sm:grid-cols-4">
-            {laPOU && (
-              <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-emailDon'} className="mb-1">Email khách</FieldLabel>
-                <Input id={fieldId + '-emailDon'} type="email" value={emailDon} onChange={(e) => setEmailDon(e.target.value)} /></div>
+            {/* Quà theo chương trình — KHÔNG tự thêm vào đơn.
+                Quà là hàng phải xuất kho thật; app tự đẻ dòng hàng mà nhân viên không để ý
+                là kho giao thừa. Hiện ra và để họ bấm, kèm điều kiện nhận để họ đọc trước. */}
+            {quaCtkm.length > 0 && (
+              <div className="mt-3 rounded-lg border border-(--color-border-success-surface) bg-(--color-background-success-surface) p-3">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-(--color-text-success)">
+                  🎁 Quà theo chương trình đang áp
+                </div>
+                <div className="space-y-1.5">
+                  {quaCtkm.map((q) => (
+                    <div key={`${q.ctkmId}|${q.ma}`} className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="font-medium text-foreground">{q.ten}</span>
+                      <span className="font-mono text-[11px] text-muted-foreground">{q.ma}</span>
+                      <span className="text-muted-foreground">× {q.soLuong}</span>
+                      {q.dieuKien && <span className="text-xs text-(--color-text-warning)">· điều kiện: {q.dieuKien}</span>}
+                      <span className="flex-1" />
+                      {quaDaThem.has(q.ma) ? (
+                        <span className="text-xs text-(--color-text-success)">✓ đã có trong đơn</span>
+                      ) : (
+                        <button type="button" onClick={() => themQua(q)}
+                          className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700">
+                          ＋ Thêm vào đơn
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-(--color-text-success)">
+                  Thêm vào đơn = một dòng hàng tick <b>Quà</b>, tính <b>0 đ</b>. App không tự thêm —
+                  quà phải xuất kho thật nên để anh chị bấm.
+                </p>
+              </div>
             )}
-            <div><FieldLabel htmlFor={fieldId + '-ngayDoiSoat'} className="mb-1">Ngày nhận đối soát</FieldLabel>
-              <Input id={fieldId + '-ngayDoiSoat'} type="date" value={ngayDoiSoat} onChange={(e) => setNgayDoiSoat(e.target.value)} /></div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-            <OTick nhan="Đã đối soát" giaTri={doiSoat} doi={setDoiSoat} />
-            {laPOU && <>
-              <OTick nhan="Kích hoạt bảo hành" giaTri={kichHoatBH} doi={setKichHoatBH}
-                chuThich="Hồ sơ bảo hành nằm bên CSKH — đây chỉ là cờ đánh dấu trên đơn" />
-              <OTick nhan="Gửi HDSD (CTD50/CTS10)" giaTri={guiHdsd} doi={setGuiHdsd} />
-              <OTick nhan="Xuất hoá đơn" giaTri={xuatHD} doi={setXuatHD} />
-            </>}
-          </div>
-        </Card>
-      )}
 
-      {/* POE — đơn lọc tổng: hồ sơ, tiến độ lắp, khảo sát nhà, thông tin xuất hoá đơn.
-          Gập lại vì 20 ô, mở ra chỉ khi cần. */}
-      {laPOE && (
-        <Card>
-          <button type="button" onClick={() => setMoPOE((v) => !v)}
-            className="flex w-full items-center justify-between text-left text-sm font-semibold text-foreground">
-            <span>Hồ sơ &amp; lắp đặt (POE)</span>
-            <span className="text-muted-foreground">{moPOE ? '▲' : '▼ mở ra'}</span>
-          </button>
-
-          {moPOE && (
-            <div className="mt-3 space-y-4">
-              <div className="grid gap-3 sm:grid-cols-4">
-                <div><FieldLabel htmlFor={fieldId + '-soHD'} className="mb-1">Số HĐ</FieldLabel><Input id={fieldId + '-soHD'} value={soHD} onChange={(e) => setSoHD(e.target.value)} /></div>
-                <div><FieldLabel htmlFor={fieldId + '-tenGoi'} className="mb-1">Tên gọi khách</FieldLabel><Input id={fieldId + '-tenGoi'} value={tenGoi} onChange={(e) => setTenGoi(e.target.value)} placeholder="gọi thân mật" /></div>
-                <div><FieldLabel htmlFor={fieldId + '-tenFolder'} className="mb-1">Tên folder</FieldLabel><Input id={fieldId + '-tenFolder'} value={tenFolder} onChange={(e) => setTenFolder(e.target.value)} /></div>
-                <div><FieldLabel htmlFor={fieldId + '-tenTheoDoi'} className="mb-1">Tên khách theo dõi</FieldLabel><Input id={fieldId + '-tenTheoDoi'} value={tenTheoDoi} onChange={(e) => setTenTheoDoi(e.target.value)} /></div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-4">
-                <div><FieldLabel htmlFor={fieldId + '-tienSeThu'} className="mb-1">Tiền sẽ thu</FieldLabel>
-                  <Input id={fieldId + '-tienSeThu'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
-                <div><FieldLabel htmlFor={fieldId + '-tienDoLap'} className="mb-1">Tiến độ lắp đặt</FieldLabel><Input id={fieldId + '-tienDoLap'} value={tienDoLap} onChange={(e) => setTienDoLap(e.target.value)} /></div>
-                <div><FieldLabel htmlFor={fieldId + '-ngayXongLap'} className="mb-1">Ngày hoàn thành lắp</FieldLabel><Input id={fieldId + '-ngayXongLap'} type="date" value={ngayXongLap} onChange={(e) => setNgayXongLap(e.target.value)} /></div>
-                <div><FieldLabel htmlFor={fieldId + '-tuDien'} className="mb-1">Tủ điện</FieldLabel><Input id={fieldId + '-tuDien'} value={tuDien} onChange={(e) => setTuDien(e.target.value)} /></div>
-              </div>
-
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <OTick nhan="Biên bản xác nhận" giaTri={bienBan} doi={setBienBan} />
-                <OTick nhan="Báo cáo lắp đặt" giaTri={baoCaoLap} doi={setBaoCaoLap} />
-                <OTick nhan="Kích hoạt bảo hành" giaTri={kichHoatBH} doi={setKichHoatBH}
-                  chuThich="Hồ sơ bảo hành nằm bên CSKH — đây chỉ là cờ đánh dấu trên đơn" />
-              </div>
-
-              <div className="border-t border-border pt-3">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Khảo sát tại thời điểm lắp
-                </div>
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <div><FieldLabel htmlFor={fieldId + '-phienBan'} className="mb-1">Version</FieldLabel><Input id={fieldId + '-phienBan'} value={phienBan} onChange={(e) => setPhienBan(e.target.value)} /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-ngheNghiep'} className="mb-1">Nghề nghiệp</FieldLabel><Input id={fieldId + '-ngheNghiep'} value={ngheNghiep} onChange={(e) => setNgheNghiep(e.target.value)} /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-ngaySinhKH'} className="mb-1">Ngày sinh</FieldLabel><Input id={fieldId + '-ngaySinhKH'} type="date" value={ngaySinhKH} onChange={(e) => setNgaySinhKH(e.target.value)} /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-gioiTinh'} className="mb-1">Giới tính</FieldLabel>
-                    <NativeSelect id={fieldId + '-gioiTinh'} value={gioiTinh} onChange={(e) => setGioiTinh(e.target.value)}>
-                      <NativeSelectOption value="">—</NativeSelectOption><NativeSelectOption value="Nam">Nam</NativeSelectOption><NativeSelectOption value="Nữ">Nữ</NativeSelectOption><NativeSelectOption value="Khác">Khác</NativeSelectOption>
-                    </NativeSelect></div>
-                  <div><FieldLabel htmlFor={fieldId + '-doTuoi'} className="mb-1">Độ tuổi</FieldLabel><Input id={fieldId + '-doTuoi'} value={doTuoi} onChange={(e) => setDoTuoi(e.target.value)} placeholder="30-40" /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-loaiNha'} className="mb-1">Loại nhà</FieldLabel><Input id={fieldId + '-loaiNha'} value={loaiNha} onChange={(e) => setLoaiNha(e.target.value)} placeholder="Chung cư, nhà phố…" /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-tinhTrangNha'} className="mb-1">Tình trạng nhà</FieldLabel><Input id={fieldId + '-tinhTrangNha'} value={tinhTrangNha} onChange={(e) => setTinhTrangNha(e.target.value)} placeholder="Đang ở, đang xây…" /></div>
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Đây là khảo sát <b>của lần lắp này</b>, không phải hồ sơ khách — một khách lắp
-                  hai lần có thể khai khác nhau, nên lưu ở đơn.
-                </p>
-              </div>
-
-              <div className="border-t border-border pt-3">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Xuất hoá đơn cho công ty
-                </div>
-                <div className="grid gap-3 sm:grid-cols-4">
-                  <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-ctyXuatHD'} className="mb-1">Công ty xuất HĐ</FieldLabel><Input id={fieldId + '-ctyXuatHD'} value={ctyXuatHD} onChange={(e) => setCtyXuatHD(e.target.value)} /></div>
-                  <div><FieldLabel htmlFor={fieldId + '-mstXuatHD'} className="mb-1">MST</FieldLabel><Input id={fieldId + '-mstXuatHD'} className="font-mono" value={mstXuatHD} onChange={(e) => setMstXuatHD(e.target.value)} /></div>
-                  <div className="sm:col-span-4"><FieldLabel htmlFor={fieldId + '-dcXuatHD'} className="mb-1">Địa chỉ xuất HĐ</FieldLabel><Input id={fieldId + '-dcXuatHD'} value={dcXuatHD} onChange={(e) => setDcXuatHD(e.target.value)} /></div>
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Chỉ điền khi hợp đồng ký với <b>công ty</b>. Tên / SĐT / địa chỉ khách ở trên
-                  vẫn giữ của <b>người</b>, không thay bằng thông tin công ty.
-                </p>
-              </div>
+            <p className="mt-2 text-xs text-muted-foreground"><b>DVBT</b> = mã bảo trì, SL = số lần. Nguồn đơn tự suy từ danh mục. Tick “Quà” → dòng tính 0 đ.</p>
+            <div className="mt-3 flex justify-between gap-2 border-t border-border pt-3 text-sm @min-[60rem]/order:hidden">
+              <span className="text-muted-foreground">Tổng (gồm VAT)</span>
+              <span className="font-semibold tabular-nums">{fmtVnd(total)}</span>
             </div>
-          )}
-        </Card>
-      )}
+          </Card>
 
-      <FormFooter>
-        <Button type="submit" loading={submitting} disabled={submitting}>
-          {submitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo đơn'}
-        </Button>
-        {!isEdit && <span className="text-xs text-muted-foreground">Mã đơn tự sinh (YYMMDD-{'{E|U|O}'}nnn) theo loại sản phẩm.</span>}
-      </FormFooter>
+          {/* Giao & thanh toán */}
+          <Card>
+            <div className="mb-3 text-sm font-semibold text-foreground">Giao hàng & thanh toán</div>
+            <div className="grid gap-3 sm:grid-cols-4">
+              <div><FieldLabel htmlFor={fieldId + '-orderDate'} className="mb-1">Ngày đơn</FieldLabel><Input id={fieldId + '-orderDate'} type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} required /></div>
+              <div><FieldLabel htmlFor={fieldId + '-channelId'} className="mb-1">Kênh</FieldLabel>
+                <ChannelSelect id={fieldId + '-channelId'} value={channelId} onChange={setChannelId} emptyLabel="Chọn kênh…"
+                  options={channels.map((channel) => ({
+                    gt: String(channel.id), nhan: [channel.channel_l1, channel.channel_l2].filter(Boolean).join(' · '), anMa: true,
+                  }))}
+                />
+              </div>
+              <div><FieldLabel htmlFor={fieldId + '-chiTietKenh'} className="mb-1">Chi tiết kênh</FieldLabel><Input id={fieldId + '-chiTietKenh'} value={chiTietKenh} onChange={(e) => setChiTietKenh(e.target.value)} placeholder="Tên shop / người giới thiệu…" /></div>
+              <div><FieldLabel htmlFor={fieldId + '-partnerCode'} className="mb-1">Mã đơn đối tác</FieldLabel><Input id={fieldId + '-partnerCode'} value={partnerCode} onChange={(e) => setPartnerCode(e.target.value)} placeholder="Shopee / HĐ…" /></div>
+              <div><FieldLabel htmlFor={fieldId + '-installDate'} className="mb-1">Ngày lắp đặt</FieldLabel><Input id={fieldId + '-installDate'} type="date" value={installDate} onChange={(e) => setInstallDate(e.target.value)} /></div>
+              <div><FieldLabel htmlFor={fieldId + '-status'} className="mb-1">Tình trạng hàng</FieldLabel><NativeSelect id={fieldId + '-status'} value={status} onChange={(e) => setStatus(e.target.value)}>{FULFILL_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
+              <div><FieldLabel htmlFor={fieldId + '-payment'} className="mb-1">Thanh toán</FieldLabel><NativeSelect id={fieldId + '-payment'} value={payment} onChange={(e) => setPayment(e.target.value)}>{PAYMENT_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o}</NativeSelectOption>)}</NativeSelect></div>
+              <div><FieldLabel htmlFor={fieldId + '-payMethod'} className="mb-1">Hình thức TT</FieldLabel><NativeSelect id={fieldId + '-payMethod'} value={payMethod} onChange={(e) => setPayMethod(e.target.value)}>{PAYMETHOD_OPTS.map((o) => <NativeSelectOption key={o} value={o}>{o || '— chọn —'}</NativeSelectOption>)}</NativeSelect></div>
+              <div><FieldLabel htmlFor={fieldId + '-shippingCode'} className="mb-1">Mã vận đơn</FieldLabel><Input id={fieldId + '-shippingCode'} value={shippingCode} onChange={(e) => setShippingCode(e.target.value)} /></div>
+              <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-linkTracking'} className="mb-1">Link tracking</FieldLabel><Input id={fieldId + '-linkTracking'} value={linkTracking} onChange={(e) => setLinkTracking(e.target.value)} placeholder="https://…" /></div>
+              <div><FieldLabel htmlFor={fieldId + '-tienCoc'} className="mb-1">Số tiền đã cọc</FieldLabel>
+                <Input id={fieldId + '-tienCoc'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienCoc} onChange={(e) => setTienCoc(e.target.value)} />
+              </div>
+              <div className="sm:col-span-1"><FieldLabel className="mb-1">Tỉnh / TP</FieldLabel>
+                <ChonTinh value={province} onChange={setProvince} />
+              </div>
+              <div className="sm:col-span-3"><FieldLabel htmlFor={fieldId + '-address'} className="mb-1">Địa chỉ giao</FieldLabel><Input id={fieldId + '-address'} value={address} onChange={(e) => setAddress(e.target.value)} /></div>
+            </div>
+            <div className="mt-3"><FieldLabel htmlFor={fieldId + '-note'} className="mb-1">Ghi chú đơn</FieldLabel><Textarea id={fieldId + '-note'} rows={2} value={note} onChange={(e) => setNote(e.target.value)} /></div>
+          </Card>
+
+
+          {/* QUÀ TẶNG — Sheet để 2 ô CHỮ TỰ DO cho cả POE lẫn POU (chốt 27/07/2025, bỏ cách
+              tách từng cột "Lõi PCF / Lõi NF / Bình gas" đánh 0/2). Giữ đúng như vậy: nhân viên
+              ghi kiểu liệt kê, ép thành ô chọn là mất những ca ngoài danh sách. */}
+          {(laPOE || laPOU) && (
+            <Card>
+              <div className="mb-3 text-sm font-semibold text-foreground">Quà tặng</div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <FieldLabel htmlFor={fieldId + '-quaTang'} className="mb-1">Quà tặng đi kèm</FieldLabel>
+                  <Textarea id={fieldId + '-quaTang'} rows={2} value={quaTang} onChange={(e) => setQuaTang(e.target.value)}
+                    placeholder="02 lõi PCF / 01 lõi NF / 01 bình gas" />
+                </div>
+                <div>
+                  <FieldLabel htmlFor={fieldId + '-dungQuaTang'} className="mb-1">Sử dụng quà tặng</FieldLabel>
+                  <Textarea id={fieldId + '-dungQuaTang'} rows={2} value={dungQuaTang} onChange={(e) => setDungQuaTang(e.target.value)}
+                    placeholder="01 lõi PCF (27/6/2025)" />
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Ghi kiểu liệt kê như trong Sheet. Hàng tặng có mã và có tính vào đơn thì tick
+                <b> Quà</b> ở dòng hàng bên trên, đừng ghi vào đây.
+              </p>
+            </Card>
+          )}
+
+          {/* POU — theo dõi sau bán: bảo hành, hướng dẫn sử dụng, hoá đơn, đối soát. */}
+          {coDoiSoat && (
+            <Card>
+              <div className="mb-3 text-sm font-semibold text-foreground">
+                {laPOU ? 'Theo dõi sau bán (POU)' : 'Đối soát'}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-4">
+                {laPOU && (
+                  <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-emailDon'} className="mb-1">Email khách</FieldLabel>
+                    <Input id={fieldId + '-emailDon'} type="email" value={emailDon} onChange={(e) => setEmailDon(e.target.value)} /></div>
+                )}
+                <div><FieldLabel htmlFor={fieldId + '-ngayDoiSoat'} className="mb-1">Ngày nhận đối soát</FieldLabel>
+                  <Input id={fieldId + '-ngayDoiSoat'} type="date" value={ngayDoiSoat} onChange={(e) => setNgayDoiSoat(e.target.value)} /></div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                <OTick nhan="Đã đối soát" giaTri={doiSoat} doi={setDoiSoat} />
+                {laPOU && <>
+                  <OTick nhan="Kích hoạt bảo hành" giaTri={kichHoatBH} doi={setKichHoatBH}
+                    chuThich="Hồ sơ bảo hành nằm bên CSKH — đây chỉ là cờ đánh dấu trên đơn" />
+                  <OTick nhan="Gửi HDSD (CTD50/CTS10)" giaTri={guiHdsd} doi={setGuiHdsd} />
+                  <OTick nhan="Xuất hoá đơn" giaTri={xuatHD} doi={setXuatHD} />
+                </>}
+              </div>
+            </Card>
+          )}
+
+          {/* POE — đơn lọc tổng: hồ sơ, tiến độ lắp, khảo sát nhà, thông tin xuất hoá đơn.
+              Gập lại vì 20 ô, mở ra chỉ khi cần. */}
+          {laPOE && (
+            <Card>
+              <button type="button" onClick={() => setMoPOE((v) => !v)}
+                className="flex w-full items-center justify-between text-left text-sm font-semibold text-foreground">
+                <span>Hồ sơ &amp; lắp đặt (POE)</span>
+                <span className="text-muted-foreground">{moPOE ? '▲' : '▼ mở ra'}</span>
+              </button>
+
+              {moPOE && (
+                <div className="mt-3 space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <div><FieldLabel htmlFor={fieldId + '-soHD'} className="mb-1">Số HĐ</FieldLabel><Input id={fieldId + '-soHD'} value={soHD} onChange={(e) => setSoHD(e.target.value)} /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-tenGoi'} className="mb-1">Tên gọi khách</FieldLabel><Input id={fieldId + '-tenGoi'} value={tenGoi} onChange={(e) => setTenGoi(e.target.value)} placeholder="gọi thân mật" /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-tenFolder'} className="mb-1">Tên folder</FieldLabel><Input id={fieldId + '-tenFolder'} value={tenFolder} onChange={(e) => setTenFolder(e.target.value)} /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-tenTheoDoi'} className="mb-1">Tên khách theo dõi</FieldLabel><Input id={fieldId + '-tenTheoDoi'} value={tenTheoDoi} onChange={(e) => setTenTheoDoi(e.target.value)} /></div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <div><FieldLabel htmlFor={fieldId + '-tienSeThu'} className="mb-1">Tiền sẽ thu</FieldLabel>
+                      <Input id={fieldId + '-tienSeThu'} type="number" min={0} step="any" className="text-right tabular-nums" value={tienSeThu} onChange={(e) => setTienSeThu(e.target.value)} /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-tienDoLap'} className="mb-1">Tiến độ lắp đặt</FieldLabel><Input id={fieldId + '-tienDoLap'} value={tienDoLap} onChange={(e) => setTienDoLap(e.target.value)} /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-ngayXongLap'} className="mb-1">Ngày hoàn thành lắp</FieldLabel><Input id={fieldId + '-ngayXongLap'} type="date" value={ngayXongLap} onChange={(e) => setNgayXongLap(e.target.value)} /></div>
+                    <div><FieldLabel htmlFor={fieldId + '-tuDien'} className="mb-1">Tủ điện</FieldLabel><Input id={fieldId + '-tuDien'} value={tuDien} onChange={(e) => setTuDien(e.target.value)} /></div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-2">
+                    <OTick nhan="Biên bản xác nhận" giaTri={bienBan} doi={setBienBan} />
+                    <OTick nhan="Báo cáo lắp đặt" giaTri={baoCaoLap} doi={setBaoCaoLap} />
+                    <OTick nhan="Kích hoạt bảo hành" giaTri={kichHoatBH} doi={setKichHoatBH}
+                      chuThich="Hồ sơ bảo hành nằm bên CSKH — đây chỉ là cờ đánh dấu trên đơn" />
+                  </div>
+
+                  <div className="border-t border-border pt-3">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Khảo sát tại thời điểm lắp
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-4">
+                      <div><FieldLabel htmlFor={fieldId + '-phienBan'} className="mb-1">Version</FieldLabel><Input id={fieldId + '-phienBan'} value={phienBan} onChange={(e) => setPhienBan(e.target.value)} /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-ngheNghiep'} className="mb-1">Nghề nghiệp</FieldLabel><Input id={fieldId + '-ngheNghiep'} value={ngheNghiep} onChange={(e) => setNgheNghiep(e.target.value)} /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-ngaySinhKH'} className="mb-1">Ngày sinh</FieldLabel><Input id={fieldId + '-ngaySinhKH'} type="date" value={ngaySinhKH} onChange={(e) => setNgaySinhKH(e.target.value)} /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-gioiTinh'} className="mb-1">Giới tính</FieldLabel>
+                        <NativeSelect id={fieldId + '-gioiTinh'} value={gioiTinh} onChange={(e) => setGioiTinh(e.target.value)}>
+                          <NativeSelectOption value="">—</NativeSelectOption><NativeSelectOption value="Nam">Nam</NativeSelectOption><NativeSelectOption value="Nữ">Nữ</NativeSelectOption><NativeSelectOption value="Khác">Khác</NativeSelectOption>
+                        </NativeSelect></div>
+                      <div><FieldLabel htmlFor={fieldId + '-doTuoi'} className="mb-1">Độ tuổi</FieldLabel><Input id={fieldId + '-doTuoi'} value={doTuoi} onChange={(e) => setDoTuoi(e.target.value)} placeholder="30-40" /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-loaiNha'} className="mb-1">Loại nhà</FieldLabel><Input id={fieldId + '-loaiNha'} value={loaiNha} onChange={(e) => setLoaiNha(e.target.value)} placeholder="Chung cư, nhà phố…" /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-tinhTrangNha'} className="mb-1">Tình trạng nhà</FieldLabel><Input id={fieldId + '-tinhTrangNha'} value={tinhTrangNha} onChange={(e) => setTinhTrangNha(e.target.value)} placeholder="Đang ở, đang xây…" /></div>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Đây là khảo sát <b>của lần lắp này</b>, không phải hồ sơ khách — một khách lắp
+                      hai lần có thể khai khác nhau, nên lưu ở đơn.
+                    </p>
+                  </div>
+
+                  <div className="border-t border-border pt-3">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Xuất hoá đơn cho công ty
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-4">
+                      <div className="sm:col-span-2"><FieldLabel htmlFor={fieldId + '-ctyXuatHD'} className="mb-1">Công ty xuất HĐ</FieldLabel><Input id={fieldId + '-ctyXuatHD'} value={ctyXuatHD} onChange={(e) => setCtyXuatHD(e.target.value)} /></div>
+                      <div><FieldLabel htmlFor={fieldId + '-mstXuatHD'} className="mb-1">MST</FieldLabel><Input id={fieldId + '-mstXuatHD'} className="font-mono" value={mstXuatHD} onChange={(e) => setMstXuatHD(e.target.value)} /></div>
+                      <div className="sm:col-span-4"><FieldLabel htmlFor={fieldId + '-dcXuatHD'} className="mb-1">Địa chỉ xuất HĐ</FieldLabel><Input id={fieldId + '-dcXuatHD'} value={dcXuatHD} onChange={(e) => setDcXuatHD(e.target.value)} /></div>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Chỉ điền khi hợp đồng ký với <b>công ty</b>. Tên / SĐT / địa chỉ khách ở trên
+                      vẫn giữ của <b>người</b>, không thay bằng thông tin công ty.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
+        </div>
+        <aside aria-labelledby={fieldId + '-tom-tat'} className="@min-[60rem]:sticky @min-[60rem]:top-4">
+          <Card className="space-y-3">
+            <h2 id={fieldId + '-tom-tat'} className="text-base font-semibold">Tóm tắt đơn</h2>
+            <dl className="space-y-2 text-sm">
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-muted-foreground">Tổng (gồm VAT)</dt>
+                <dd className="font-medium tabular-nums">{fmtVnd(total)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2">
+                <dt className="text-muted-foreground">Đã cọc</dt>
+                <dd className="tabular-nums">{fmtVnd(Number(tienCoc) || 0)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-2 border-t border-border pt-2">
+                <dt className="font-medium">Còn cần thu</dt>
+                <dd className="text-lg font-semibold tabular-nums" aria-live="polite">{fmtVnd(conCanThu)}</dd>
+              </div>
+            </dl>
+            {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
+            <FormFooter className="flex-col items-stretch">
+              <Button type="submit" loading={submitting} disabled={submitting}>
+                {submitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo đơn'}
+              </Button>
+            </FormFooter>
+          </Card>
+        </aside>
+      </div>
     </FormLayout>
   )
 }

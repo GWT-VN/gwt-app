@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import type { ReactNode } from "react";
+import type { Root, RootContent } from "mdast";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { PROCESS_DOCS } from "../../lib/marketing/content";
@@ -65,6 +66,21 @@ function chuCua(node: ReactNode): string {
   return "";
 }
 
+// Một tiêu đề trang, giữ nguyên chữ và id neo của các tiêu đề trong tài liệu.
+function motTieuDeChinh() {
+  return (tree: Root) => {
+    let chinh = tree.children.find((el) => el.type === "heading" && el.depth === 1);
+    function doc(el: Root | RootContent) {
+      if (el.type === "heading" && el.depth === 1) {
+        chinh ??= el;
+        if (el !== chinh) el.depth = 2;
+      }
+      if ("children" in el) el.children.forEach(doc);
+    }
+    doc(tree);
+  };
+}
+
 /** Render markdown của `rules/*.md` và các trang wiki. Không cho HTML thô đi qua. */
 export default function Markdown({ children }: { children: string }) {
   // Heading tự mang `id` = slug của chính nó, để link `](#...)` trong tài liệu nhảy đúng chỗ.
@@ -76,12 +92,13 @@ export default function Markdown({ children }: { children: string }) {
   return (
     <div className="prose">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, motTieuDeChinh]}
         components={{
           h1: heading("h1"),
           h2: heading("h2"),
           h3: heading("h3"),
           h4: heading("h4"),
+          input: ({ checked }) => <input type="checkbox" checked={checked === true} disabled aria-label={checked ? 'Đã đánh dấu' : 'Chưa đánh dấu'} />,
           table: ({ children }) => (
             <TableWrap vien className="my-4" tabIndex={0} aria-label="Bảng trong tài liệu">
               <Table variant="thuong">{children}</Table>

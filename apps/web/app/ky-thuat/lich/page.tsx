@@ -1,6 +1,8 @@
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { buttonVariants } from '@/components/ui/button-variants'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CaretDown } from '@phosphor-icons/react/ssr'
 import { Input } from '@/components/ui/input'
 import { ManV2 } from '@/components/khung/ManV2'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
@@ -96,6 +98,8 @@ export default async function XemLichKyThuatPage({
   const giuKt = (extra: Record<string, string>) => new URLSearchParams({ ...giuLoc, ...extra }).toString()
   // Tham số cửa sổ thời gian theo view — để nút lọc KT giữ nguyên khoảng đang xem.
   const cuaSo: Record<string, string> = laBoard ? { tuan: days[0] } : laCalendar ? { thang } : { tu, den }
+  const locDangDung = [tinhOk, dsKt.find((x) => x.id === kt)?.ten, LOAI_VIEC_KT.find((x) => x.v === loai)?.nhan]
+    .filter(Boolean).join(' · ')
   const chiLoai: Record<string, string> = { ...(loai ? { loai } : {}), ...(tinhOk ? { tinh: tinhOk } : {}) }
 
   return (
@@ -112,41 +116,57 @@ export default async function XemLichKyThuatPage({
           <Link href={`/ky-thuat/lich?${giuKt({ view: 'calendar', thang })}`} aria-current={laCalendar ? "true" : undefined} className={cn(buttonVariants({ variant: laCalendar ? "secondary" : "outline", size: "sm" }))}>Lịch tháng</Link>
         </nav>
 
-        {/* Lọc theo TỈNH của kỹ thuật — chỉ hiện tỉnh có người, ẩn hẳn khi chưa ai điền tỉnh */}
-        {dsTinh.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap items-center">
-            <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Tỉnh</span>
-            <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(loai ? { loai } : {}), ...cuaSo })}`}
-              aria-current={!tinhOk ? "true" : undefined} className={cn(buttonVariants({ variant: !tinhOk ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
-            {dsTinh.map((t) => (
-              <Link key={t} href={`/ky-thuat/lich?${new URLSearchParams({ view, tinh: t, ...(loai ? { loai } : {}), ...cuaSo })}`}
-                aria-current={tinhOk === t ? "true" : undefined} className={cn(buttonVariants({ variant: tinhOk === t ? "secondary" : "outline", size: "sm" }))}>{t}</Link>
-            ))}
-          </div>
-        )}
+        <Collapsible className="rounded-xl border border-border bg-card">
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="h-auto w-full justify-start gap-2 rounded-xl px-3 py-2.5 text-left">
+              <CaretDown aria-hidden className="shrink-0" />
+              <span>Bộ lọc chuyến</span>
+              {locDangDung && <span className="min-w-0 truncate font-normal text-muted-foreground">{locDangDung}</span>}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 border-t border-border p-3">
+            {/* Lọc theo TỈNH của kỹ thuật — chỉ hiện tỉnh có người, ẩn hẳn khi chưa ai điền tỉnh */}
+            {dsTinh.length > 0 && (
+              <div className="flex gap-1.5 flex-wrap items-center">
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Tỉnh</span>
+                <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(loai ? { loai } : {}), ...cuaSo })}`}
+                  aria-current={!tinhOk ? "true" : undefined} className={cn(buttonVariants({ variant: !tinhOk ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
+                {dsTinh.map((t) => (
+                  <Link key={t} href={`/ky-thuat/lich?${new URLSearchParams({ view, tinh: t, ...(loai ? { loai } : {}), ...cuaSo })}`}
+                    aria-current={tinhOk === t ? "true" : undefined} className={cn(buttonVariants({ variant: tinhOk === t ? "secondary" : "outline", size: "sm" }))}>{t}</Link>
+                ))}
+              </div>
+            )}
 
-        {/* Lọc theo kỹ thuật */}
-        <div className="flex gap-1.5 flex-wrap">
-          <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...chiLoai, ...cuaSo })}`}
-            aria-current={!kt ? "true" : undefined} className={cn(buttonVariants({ variant: !kt ? "secondary" : "outline", size: "sm" }))}>Tất cả KT</Link>
-          {ktTrongTinh.map((k) => (
-            <Link key={k.id} href={`/ky-thuat/lich?${new URLSearchParams({ view, kt: k.id, ...chiLoai, ...cuaSo })}`}
-              aria-current={kt === k.id ? "true" : undefined} className={cn(buttonVariants({ variant: kt === k.id ? "secondary" : "outline", size: "sm" }))}>
-              {k.ten}{k.tinh && !tinhOk && <span className="text-[10px] opacity-60"> · {k.tinh}</span>}
-            </Link>
-          ))}
-        </div>
+            {/* Lọc theo kỹ thuật */}
+            <div className="flex gap-1.5 flex-wrap">
+              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...chiLoai, ...cuaSo })}`}
+                aria-current={!kt ? "true" : undefined} className={cn(buttonVariants({ variant: !kt ? "secondary" : "outline", size: "sm" }))}>Tất cả KT</Link>
+              {ktTrongTinh.map((k) => (
+                <Link key={k.id} href={`/ky-thuat/lich?${new URLSearchParams({ view, kt: k.id, ...chiLoai, ...cuaSo })}`}
+                  aria-current={kt === k.id ? "true" : undefined} className={cn(buttonVariants({ variant: kt === k.id ? "secondary" : "outline", size: "sm" }))}>
+                  {k.ten}{k.tinh && !tinhOk && <span className="text-[10px] opacity-60"> · {k.tinh}</span>}
+                </Link>
+              ))}
+            </div>
 
-        {/* Lọc theo loại việc */}
-        <div className="flex gap-1.5 flex-wrap items-center">
-          <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Loại việc</span>
-          <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), ...cuaSo })}`}
-            aria-current={!loai ? "true" : undefined} className={cn(buttonVariants({ variant: !loai ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
-          {LOAI_VIEC_KT.map((lv) => (
-            <Link key={lv.v} href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), loai: lv.v, ...cuaSo })}`}
-              aria-current={loai === lv.v ? "true" : undefined} className={cn(buttonVariants({ variant: loai === lv.v ? "secondary" : "outline", size: "sm" }))}>{lv.nhan}</Link>
-          ))}
-        </div>
+            {/* Lọc theo loại việc */}
+            <div className="flex gap-1.5 flex-wrap items-center">
+              <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Loại việc</span>
+              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), ...cuaSo })}`}
+                aria-current={!loai ? "true" : undefined} className={cn(buttonVariants({ variant: !loai ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
+              {LOAI_VIEC_KT.map((lv) => (
+                <Link key={lv.v} href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), loai: lv.v, ...cuaSo })}`}
+                  aria-current={loai === lv.v ? "true" : undefined} className={cn(buttonVariants({ variant: loai === lv.v ? "secondary" : "outline", size: "sm" }))}>{lv.nhan}</Link>
+              ))}
+            </div>
+            {locDangDung && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...cuaSo })}`}>Xoá bộ lọc</Link>
+              </Button>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
 
         {laBoard ? (
           <>

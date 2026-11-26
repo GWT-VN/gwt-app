@@ -116,7 +116,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       {row.transcript ? (
         <>
           <div className="page-head" style={{ marginTop: 30 }}>
-            <h1 style={{ fontSize: "1.2rem" }}>Transcript đầy đủ</h1>
+            <h2 style={{ fontSize: "1.2rem" }}>Transcript đầy đủ</h2>
           </div>
           <div className="notice" style={{ marginTop: 0 }}>
             <Icon.warn />

@@ -31,7 +31,9 @@ test('focus rồi rời ô không ghi giá, vẫn thử lại được lỗi lư
   await user.tab()
   await screen.findByText(/Chưa kết nối được.*thử lại/)
   expect(oGiam.value).toBe('15')
+  await waitFor(() => expect(oGiam.disabled).toBe(false))
   await user.click(oGiam)
+  expect(document.activeElement).toBe(oGiam)
   await user.tab()
 
   await waitFor(() => expect(refresh).toHaveBeenCalledOnce())

@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CaretDown } from '@phosphor-icons/react/ssr'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -34,7 +36,9 @@ const vn = (d: string | null) => hienNgay(d)
 export function DangKyBHForm() {
   const [dsMay, setDsMay] = useState<MayKho[]>([])
   const [mayCode, setMayCode] = useState('')            // '' = chưa chọn máy -> gõ serial tự do
-  const [serialList, setSerialList] = useState<SerialKho[]>([])
+  const [serialList, setSerialList] = useState<SerialKho[] | null>(null)
+  const [loiSerial, setLoiSerial] = useState(false)
+  const [lanTaiSerial, setLanTaiSerial] = useState(0)
   const [serial, setSerial] = useState('')
   const [serialQ, setSerialQ] = useState('')        // ô gõ tìm serial (khi đã chọn máy)
   const [serialOpen, setSerialOpen] = useState(false)
@@ -66,11 +70,13 @@ export function DangKyBHForm() {
 
   // Chọn máy -> tải serial của máy đó (chỉ chạy khi có mayCode; clear làm ở handler)
   useEffect(() => {
-    if (!mayCode) return
+    if (!mayCode || chuaSerial) return
     let song = true
-    serialsTheoMay(mayCode).then((r) => { if (song) setSerialList(r) })
+    serialsTheoMay(mayCode)
+      .then((r) => { if (song) setSerialList(r) })
+      .catch(() => { if (song) setLoiSerial(true) })
     return () => { song = false }
-  }, [mayCode])
+  }, [mayCode, chuaSerial, lanTaiSerial])
 
   // Serial thay đổi -> soi trạng thái (debounce; setState chỉ trong callback async)
   useEffect(() => {
@@ -83,7 +89,8 @@ export function DangKyBHForm() {
 
   function chonMay(code: string) {
     setMayCode(code); setSerial(''); setSerialQ(''); setSerialOpen(false)
-    setInfo(null); setSerialList([]); setErr(null)
+    setInfo(null); setSerialList(null); setLoiSerial(false); setErr(null)
+    setLanTaiSerial((luot) => luot + 1)
   }
   function datSerial(v: string) {
     setSerial(v); setErr(null)
@@ -92,18 +99,19 @@ export function DangKyBHForm() {
   // Gõ tìm serial theo ĐUÔI (gõ 123 -> ưu tiên serial kết thúc bằng 123).
   function goSerial(v: string) {
     setSerialQ(v); setSerialOpen(true)
-    const hit = serialList.find((s) => s.serial === v.trim())
+    const hit = serialList?.find((s) => s.serial === v.trim())
     datSerial(hit ? hit.serial : '')
   }
   function chonSerialTrongList(s: SerialKho) {
     setSerialQ(s.serial); setSerialOpen(false); datSerial(s.serial)
   }
   const q = serialQ.trim().toLowerCase()
+  const dsSerial = serialList ?? []
   const serialLoc = (q
-    ? serialList.filter((s) => s.serial.toLowerCase().includes(q))
+    ? dsSerial.filter((s) => s.serial.toLowerCase().includes(q))
         .sort((a, b) =>
           (a.serial.toLowerCase().endsWith(q) ? 0 : 1) - (b.serial.toLowerCase().endsWith(q) ? 0 : 1))
-    : serialList
+    : dsSerial
   ).slice(0, 12)
   function chonKhach(id: string, _nhan: string, k?: KhachTom) {
     setKhachId(id); setKhachAddr(k?.address ?? null)
@@ -127,6 +135,7 @@ export function DangKyBHForm() {
   function datChuaSerial(v: boolean) {
     setChuaSerial(v); setErr(null); setMsg(null); setMaTam(null)
     setSerial(''); setSerialQ(''); setSerialOpen(false); setInfo(null)
+    setSerialList(null); setLoiSerial(false)
     if (v && !dsMayDu) dsMayCatalog().then(setDsMayDu).catch(() => setDsMayDu([]))
   }
 
@@ -154,37 +163,44 @@ export function DangKyBHForm() {
     setBusy(false)
     if (!r.ok) { setErr(r.error); return }
     setMsg(`Đã đăng ký + kích hoạt BH cho serial ${serial}.`)
-    setMayCode(''); setSerial(''); setSerialQ(''); setSerialOpen(false); setInfo(null); setSerialList([])
+    setMayCode(''); setSerial(''); setSerialQ(''); setSerialOpen(false); setInfo(null); setSerialList(null)
     setKhachId(''); setKhachAddr(null); setDcLap(''); setTinhLap(''); setDungDcKhach(true); setNgay(HOM_NAY())
     setDoChac('chinh_xac'); setGhiChu('')
     router.refresh()
   }
 
+  const chonThietBi = (
+    <ChonCatalog catalog={catalogMay} value={mayCode} onChange={chonMay}
+      placeholder="Gõ tên hoặc mã máy…" />
+  )
+
   return (
     <div className="bg-card rounded-(--radius-xl) border p-5 space-y-4 max-w-2xl">
-      {/* 1. Máy — gõ để lọc theo tên/mã (chỉ MÁY, không lõi/vật tư); bỏ trống = gõ serial tự do */}
-      <div>
-        <label className="text-sm font-medium text-foreground">1. Máy (gõ tên/mã để lọc serial)</label>
-        <div className="mt-1">
-          <ChonCatalog catalog={catalogMay} value={mayCode} onChange={chonMay}
-            placeholder="Gõ tên/mã máy… (bỏ trống để gõ serial tự do)" />
-        </div>
-      </div>
-
-      {/* 2. Serial */}
-      <div>
-        <label className="text-sm font-medium text-foreground">2. Serial máy</label>
+      <section className="space-y-2">
+        <h2 className="text-base font-semibold text-foreground">Thiết bị</h2>
         <label className="mt-1 flex items-center gap-2 text-sm text-foreground">
           <input type="checkbox" checked={chuaSerial} onChange={(e) => datChuaSerial(e.target.checked)} />
           Chưa có serial — kích hoạt bảo hành trước, bổ sung serial sau
         </label>
         {chuaSerial ? (
-          <p className="mt-1 text-xs rounded-lg bg-(--color-background-warning-surface) text-(--color-text-warning) px-3 py-2">
-            Chọn <strong>máy</strong> ở bước 1 (để tính hạn bảo hành). App cấp mã tạm <span className="tabular-nums">TAM…</span> và đánh dấu
-            máy <strong>chờ bổ sung serial</strong>; có serial thì vào trang máy bấm &quot;Bổ sung serial&quot; — bảo hành, ticket giữ nguyên.
-          </p>
+          <>
+            {chonThietBi}
+            <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning)">
+              Chọn máy để tính hạn bảo hành. App cấp mã tạm <span className="tabular-nums">TAM…</span>.
+              Khi có serial, mở hồ sơ máy và chọn <strong>Bổ sung serial</strong>.
+            </p>
+          </>
         ) : mayCode ? (
-          serialList.length ? (
+          loiSerial ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <p role="alert" className="text-sm text-(--color-text-danger)">Chưa tải được danh sách serial.</p>
+              <Button variant="outline" size="sm" onClick={() => {
+                setLoiSerial(false); setSerialList(null); setLanTaiSerial((luot) => luot + 1)
+              }}>Tải lại</Button>
+            </div>
+          ) : serialList === null ? (
+            <p role="status" className="text-sm text-muted-foreground">Đang tải serial của máy…</p>
+          ) : serialList.length ? (
             <div className="relative mt-1">
               <Input aria-label="Chọn hoặc tìm serial máy" value={serialQ} onChange={(e) => goSerial(e.target.value)}
                 onFocus={() => setSerialOpen(true)}
@@ -218,6 +234,17 @@ export function DangKyBHForm() {
           </>
         )}
 
+        {!chuaSerial && (
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button size="sm" variant="outline">
+                {mayCode ? `Máy đang lọc: ${mayCode}` : 'Lọc serial theo máy'} <CaretDown aria-hidden />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">{chonThietBi}</CollapsibleContent>
+          </Collapsible>
+        )}
+
         {/* Soi trạng thái serial */}
         {serial.trim() && info && (
           <div className={
@@ -242,18 +269,18 @@ export function DangKyBHForm() {
         {serial.trim() && !info && (
           <p className="mt-2 text-xs text-muted-foreground">Serial chưa có trong kho — sẽ tạo tự do khi đăng ký.</p>
         )}
-      </div>
+      </section>
 
-      {/* 3. Khách */}
+      {/* Khách */}
       <div>
-        <label className="text-sm font-medium text-foreground">3. Khách hàng</label>
+        <label className="text-sm font-medium text-foreground">Khách hàng</label>
         <p className="text-xs text-muted-foreground mb-1">Tìm khách đã có; không có thì tạo mới (admin duyệt sau).</p>
-        <KhachPicker onPick={chonKhach} />
+        <KhachPicker onPick={chonKhach} onClear={() => { setKhachId(''); setKhachAddr(null) }} />
       </div>
 
       {/* 4. Địa chỉ */}
       <div>
-        <label className="text-sm font-medium text-foreground">4. Địa chỉ lắp đặt</label>
+        <label className="text-sm font-medium text-foreground">Địa chỉ lắp đặt</label>
         <p className="text-xs text-muted-foreground">Địa chỉ khách: {khachAddr || '—'}</p>
         {/* Hỏi theo chiều KHẲNG ĐỊNH: mặc định lắp tại nhà khách, tick khi khác.
             Bản trước hỏi ngược ("dùng địa chỉ khách", mặc định đã tick) nên tick
@@ -280,7 +307,7 @@ export function DangKyBHForm() {
       {/* 5. Ngày bắt đầu BH */}
       <div>
         <label className="block">
-          <span className="text-sm font-medium text-foreground">5. Ngày bắt đầu bảo hành</span>
+          <span className="text-sm font-medium text-foreground">Ngày bắt đầu bảo hành</span>
           <Input type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)}
             className="mt-1 block rounded-lg border px-3 py-2 text-sm text-foreground" />
         </label>

@@ -26,7 +26,11 @@ const sdtHopLe = (raw: string): boolean => chuanHoaSdt(raw).hopLe
  * hai luật. Nay khớp lại đúng luật của trang tạo khách.
  */
 export function KhachPicker(
-  { onPick }: { onPick: (id: string, nhan: string, khach?: KhachTom) => void }
+  { onPick, onClear, nhanDaChon }: {
+    onPick: (id: string, nhan: string, khach?: KhachTom) => void
+    onClear?: () => void
+    nhanDaChon?: string | null
+  }
 ) {
   const [q, setQ] = useState('')
   const [chon, setChon] = useState<string | null>(null)   // nhãn khách đã chọn
@@ -118,12 +122,13 @@ export function KhachPicker(
     setTaoMo(false)
   }
 
-  if (chon) {
+  const nhanHienTai = nhanDaChon === undefined ? chon : nhanDaChon
+  if (nhanHienTai) {
     return (
       <div className="flex items-center gap-2 rounded-lg border px-3 py-2 border-border bg-(--color-background-success-surface)">
-        <span className="min-w-0 break-words text-sm text-foreground">{chon}</span>
-        <button type="button" onClick={() => { setChon(null); setQ(''); setKetQua(null) }}
-          className="ml-auto shrink-0 text-sm text-muted-foreground underline">đổi</button>
+        <span className="min-w-0 break-words text-sm text-foreground">{nhanHienTai}</span>
+        <Button variant="ghost" size="sm" className="ml-auto shrink-0"
+          onClick={() => { setChon(null); setOpen(false); setQ(''); setKetQua(null); onClear?.() }}>Đổi khách</Button>
       </div>
     )
   }

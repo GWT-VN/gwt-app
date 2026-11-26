@@ -21,7 +21,7 @@ vi.mock('@/app/actions', () => ({
   taoKhachChoDuyet: vi.fn(),
   timKhachTheoSdt: vi.fn(),
 }))
-vi.mock('@/app/ticket/loi-actions', () => ({ danhMucLoi: async () => [], traKhachVaMay: vi.fn(), traSerial: vi.fn() }))
+vi.mock('@/app/ticket/loi-actions', () => ({ danhMucLoi: async () => [], traKhachVaMay: async () => [{ id: 'kh-2', full_name: 'Khách B', primary_phone: null, may: [] }], traSerial: vi.fn() }))
 vi.mock('@/app/ticket/nguoi-actions', () => ({ docNguoiTicket, ganKyThuat: vi.fn() }))
 vi.mock('@/lib/nen-tang/nhan-su', () => ({
   listStaff,
@@ -38,6 +38,13 @@ test('the v2 ticket form keeps required fields and navigates to the ticket after
 
   const save = screen.getByRole<HTMLButtonElement>('button', { name: 'Tạo ticket' })
   expect(save.disabled).toBe(true)
+  const moTa = screen.getByRole('textbox', { name: 'Mô tả sự cố' })
+  const serial = screen.getByRole('textbox', { name: 'Serial máy 1' })
+  expect(moTa.compareDocumentPosition(serial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(screen.queryByRole('button', { name: 'Tra máy theo khách hàng' })).toBeNull()
+  await u.click(screen.getByRole('button', { name: 'Tra khách kèm máy' }))
+  expect(screen.getByRole('button', { name: 'Tra máy theo khách hàng' })).toBeTruthy()
+  await u.click(screen.getByRole('button', { name: 'Tra khách kèm máy' }))
   await u.type(screen.getByRole('textbox', { name: 'Tìm khách hàng' }), 'Khách A')
   const ketQua = await screen.findByRole('button', { name: 'Khách A' })
   await u.tab()
@@ -78,4 +85,27 @@ test('long assignment lists can be searched, and technicians exclude inactive pr
   const list = await screen.findByRole('listbox')
   await u.click(within(list).getByRole('option', { name: 'Thợ 12 (CTV)' }))
   expect(screen.getByRole('button', { name: 'Kỹ thuật phụ trách Thợ 12 (CTV)' })).toBeTruthy()
+})
+
+test('tra khách kèm máy thay đúng khách đang hiện và đổi khách chặn lưu với ID cũ', async () => {
+  vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
+  const u = userEvent.setup()
+  render(await TaoTicketPage())
+  await u.type(screen.getByRole('textbox', { name: 'Tìm khách hàng' }), 'Khách A')
+  await u.click(await screen.findByRole('button', { name: 'Khách A' }))
+
+  await u.click(screen.getByRole('button', { name: 'Tra khách kèm máy' }))
+  await u.click(screen.getByRole('button', { name: 'Tra máy theo khách hàng' }))
+  await u.keyboard('Khach B')
+  await u.click(await screen.findByRole('option', { name: /Khách B/ }))
+  expect(screen.getByText('Khách B — chưa có máy')).toBeTruthy()
+  expect(screen.queryByText('Khách A')).toBeNull()
+  expect(machinesOfCustomer).toHaveBeenLastCalledWith('kh-2')
+
+  fireEvent.change(screen.getByRole('combobox', { name: 'Loại ticket' }), { target: { value: 'Rò nước' } })
+  await u.type(screen.getByRole('textbox', { name: 'Mô tả sự cố' }), 'Rò tại van')
+  const save = screen.getByRole<HTMLButtonElement>('button', { name: 'Tạo ticket' })
+  expect(save.disabled).toBe(false)
+  await u.click(screen.getByRole('button', { name: 'Đổi khách' }))
+  expect(save.disabled).toBe(true)
 })

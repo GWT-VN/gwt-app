@@ -85,7 +85,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       </Card>
 
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
-        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Lý thuyết nền</h1>
+        <h2 style={{ fontSize: "1.2rem", margin: 0 }}>Lý thuyết nền</h2>
         <p style={{ fontSize: ".86rem" }}>Vì sao tuyến này hoạt động — không phải mẹo, là cơ chế tâm lý đã được nghiên cứu.</p>
       </div>
       <div className="card" style={{ borderLeft: "3px solid var(--a5)" }}>
@@ -103,7 +103,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       </div>
 
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
-        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>AI ở tuyến {t.cat}</h1>
+        <h2 style={{ fontSize: "1.2rem", margin: 0 }}>AI ở tuyến {t.cat}</h2>
       </div>
       <div className="grid grid-2" style={{ alignItems: "start" }}>
         <Card label="Dùng AI thế nào" accent="var(--good)"><List items={t.aiUse} /></Card>
@@ -118,7 +118,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       </div>
 
       <div className="page-head" style={{ margin: "30px 0 12px" }}>
-        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>▸ Áp cho GWT</h1>
+        <h2 style={{ fontSize: "1.2rem", margin: 0 }}>▸ Áp cho GWT</h2>
       </div>
       <div className="card" style={{ borderLeft: "3px solid var(--wiki-accent)", background: "var(--surface-2)" }}>
         <div className="fl" style={{ marginBottom: 8 }}>Đề tài gợi ý</div>
@@ -131,7 +131,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       {cases.length > 0 && (
         <>
           <div className="page-head" style={{ margin: "30px 0 10px" }}>
-            <h1 style={{ fontSize: "1.15rem", margin: 0 }}>Ca minh hoạ trong kho case</h1>
+            <h2 style={{ fontSize: "1.15rem", margin: 0 }}>Ca minh hoạ trong kho case</h2>
           </div>
           <div className="grid grid-2">
             {cases.map((c) => (
@@ -154,7 +154,7 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
       {laws.length > 0 && (
         <>
           <div className="page-head" style={{ margin: "30px 0 10px" }}>
-            <h1 style={{ fontSize: "1.15rem", margin: 0 }}>Luật sửa content hay dùng ở tuyến này</h1>
+            <h2 style={{ fontSize: "1.15rem", margin: 0 }}>Luật sửa content hay dùng ở tuyến này</h2>
           </div>
           <div className="principles">
             {laws.map((l) => (

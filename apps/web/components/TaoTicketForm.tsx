@@ -5,12 +5,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { Combobox } from '@/components/ui/combobox'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { CaretDown } from '@phosphor-icons/react/ssr'
 import { Field, FieldDescription, FieldLabel, FieldSet, FieldLegend } from '@/components/ui/field'
 import { FormFooter, FormGrid, FormLayout, FormRequiredNote, FormSection } from '@/components/ui/form-layout'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createTicket, machinesOfCustomer, type Machine } from '@/app/actions'
@@ -60,7 +62,8 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
   const [dangTaiMay, setDangTaiMay] = useState(false)
   const [dong, setDong] = useState<DongMayInput[]>([{}])
   const [ketQua, setKetQua] = useState<Record<string, KetQuaTraSerial>>({})   // theo serial đã chuẩn hoá
-  const [khachNhan, setKhachNhan] = useState<string | null>(null)   // tên khách chọn từ tra nhanh
+  const [khachNhan, setKhachNhan] = useState<string | null>(null)
+  const luotChonKhach = useRef(0)
   const [loai, setLoai] = useState('')
   const [moTa, setMoTa] = useState('')
   const [ngay, setNgay] = useState(HOM_NAY())
@@ -74,20 +77,31 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
   const router = useRouter()
   const id = useId()
 
-  async function chonKhach(id: string) {
-    setKhachId(id); setMay(null); setDangTaiMay(true)
-    const ds = await machinesOfCustomer(id)
-    setMay(ds); setDangTaiMay(false)
+  async function chonKhach(id: string, nhan: string) {
+    const luot = ++luotChonKhach.current
+    setKhachId(id); setKhachNhan(nhan); setMay(null); setDangTaiMay(true); setErr(null)
+    try {
+      const ds = await machinesOfCustomer(id)
+      if (luot === luotChonKhach.current) setMay(ds)
+    } catch {
+      if (luot === luotChonKhach.current) setErr('Chưa tải được máy của khách. Bạn vẫn có thể nhập serial nếu đã có.')
+    } finally {
+      if (luot === luotChonKhach.current) setDangTaiMay(false)
+    }
+  }
+
+  function boChonKhach() {
+    luotChonKhach.current++
+    setKhachId(''); setKhachNhan(null); setMay(null); setDangTaiMay(false); setErr(null)
   }
 
   function datSerialDong1(serial: string) {
     setDong((d) => d.map((x, i) => (i === 0 ? { ...x, serial } : x)))
   }
 
-  async function chonTuTraNhanh(m: { customer_id: string; serial: string }, nhan?: string) {
-    setKhachNhan(nhan ?? null)
+  function chonTuTraNhanh(m: { customer_id: string; serial: string; nhan: string }) {
     if (m.serial) datSerialDong1(m.serial)
-    await chonKhach(m.customer_id)
+    void chonKhach(m.customer_id, m.nhan)
   }
 
   const lechKhach = dongLechKhach(dong, ketQua, khachId)
@@ -124,64 +138,67 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
   return (
     <FormLayout onSubmit={(e) => e.preventDefault()}>
       {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
-      <FormSection tieuDe="Khách hàng và máy">
+      <FormSection tieuDe="Thông tin sự cố">
         <FormRequiredNote />
         <FieldSet>
-          <FieldLegend>Tra nhanh theo tên/SĐT khách</FieldLegend>
-          <KhachMayTraCuu onChonMay={(m) => chonTuTraNhanh(m)} />
-        </FieldSet>
-        <FieldSet>
           <FieldLegend required>Khách hàng</FieldLegend>
-          <KhachPicker onPick={(id) => { setKhachNhan(null); chonKhach(id) }} />
-          {khachNhan && <FieldDescription>Đã chọn từ tra nhanh: {khachNhan}</FieldDescription>}
+          <KhachPicker nhanDaChon={khachNhan} onPick={chonKhach} onClear={boChonKhach} />
         </FieldSet>
-        <FieldSet>
-          <FieldLegend>Máy báo lỗi (serial)</FieldLegend>
-          <FieldDescription>Chưa có serial thì bỏ trống — thợ kiểm tra xong, vào ticket bấm <strong>Sửa dòng</strong> ở Máy &amp; lỗi để bổ sung.</FieldDescription>
-          {may !== null && may.length === 0 && (
-            <Alert color="warning">
-              <AlertDescription>
-                Khách này <strong>chưa có máy nào được kích hoạt</strong>. Vẫn lưu được với serial chưa đăng ký; hoặc{' '}
-                <Link href="/dang-ky-bh" className="font-medium underline">Đăng ký bảo hành</Link>{' '}cho máy.
-              </AlertDescription>
-            </Alert>
-          )}
-          {may !== null && may.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {may.map((m) => (
-                <Button key={m.serial} size="sm" variant="outline" onClick={() => datSerialDong1(m.serial)}>
-                  {m.product_name ?? m.internal_code} · {m.serial}{m.warranty_activated ? '' : ' (chưa kích hoạt)'}
-                </Button>
-              ))}
-            </div>
-          )}
-          {lechKhach.map((l) => (
-            <Alert key={l.serial} color="warning">
-              <AlertDescription>
-                Serial <span className="font-mono">{l.serial}</span> đang gắn với khách <strong>{l.khach}</strong>, không phải khách đã chọn. Kiểm tra lại trước khi tạo.
-              </AlertDescription>
-            </Alert>
-          ))}
-          {dangTaiMay && <FieldDescription role="status">Đang tải máy của khách…</FieldDescription>}
-          <DongMayNhap dong={dong} onChange={setDong} dsLoi={dsLoi}
-            onKetQua={(_, k) => { if (k) setKetQua((o) => ({ ...o, [k.serial]: k })) }} />
-        </FieldSet>
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm">Tra khách kèm máy <CaretDown aria-hidden /></Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <KhachMayTraCuu onChonMay={chonTuTraNhanh} />
+          </CollapsibleContent>
+        </Collapsible>
+        <Field>
+          <FieldLabel htmlFor={`${id}-loai`} required>Loại ticket</FieldLabel>
+          <ChonLoaiTicket id={`${id}-loai`} required value={loai} onChange={setLoai} loaiList={loaiList} />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`${id}-mo-ta`} required>Mô tả sự cố</FieldLabel>
+          <Textarea id={`${id}-mo-ta`} required value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={3}
+            placeholder="Khách báo lỗi gì…" />
+        </Field>
       </FormSection>
 
-      <FormSection tieuDe="Thông tin ticket">
+      <FormSection tieuDe="Máy báo lỗi">
+        <FieldDescription>Chưa có serial thì bỏ trống — thợ kiểm tra xong, vào ticket bấm <strong>Sửa dòng</strong> ở Máy &amp; lỗi để bổ sung.</FieldDescription>
+        {may !== null && may.length === 0 && (
+          <Alert color="warning">
+            <AlertDescription>
+              Khách này <strong>chưa có máy nào được kích hoạt</strong>. Vẫn lưu được với serial chưa đăng ký; hoặc{' '}
+              <Link href="/dang-ky-bh" className="font-medium underline">Đăng ký bảo hành</Link>{' '}cho máy.
+            </AlertDescription>
+          </Alert>
+        )}
+        {may !== null && may.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {may.map((m) => (
+              <Button key={m.serial} size="sm" variant="outline" onClick={() => datSerialDong1(m.serial)}>
+                {m.product_name ?? m.internal_code} · {m.serial}{m.warranty_activated ? '' : ' (chưa kích hoạt)'}
+              </Button>
+            ))}
+          </div>
+        )}
+        {lechKhach.map((l) => (
+          <Alert key={l.serial} color="warning">
+            <AlertDescription>
+              Serial <span className="font-mono">{l.serial}</span> đang gắn với khách <strong>{l.khach}</strong>, không phải khách đã chọn. Kiểm tra lại trước khi tạo.
+            </AlertDescription>
+          </Alert>
+        ))}
+        {dangTaiMay && <FieldDescription role="status">Đang tải máy của khách…</FieldDescription>}
+        <DongMayNhap dong={dong} onChange={setDong} dsLoi={dsLoi}
+          onKetQua={(_, k) => { if (k) setKetQua((o) => ({ ...o, [k.serial]: k })) }} />
+      </FormSection>
+
+      <FormSection tieuDe="Phân công và xử lý">
         <FormGrid>
-          <Field>
-            <FieldLabel htmlFor={`${id}-loai`} required>Loại ticket</FieldLabel>
-            <ChonLoaiTicket id={`${id}-loai`} required value={loai} onChange={setLoai} loaiList={loaiList} />
-          </Field>
           <Field>
             <FieldLabel htmlFor={`${id}-ngay`}>Ngày tạo</FieldLabel>
             <Input id={`${id}-ngay`} type="date" value={ngay} max={HOM_NAY()} onChange={(e) => setNgay(e.target.value)} />
-          </Field>
-          <Field data-span="full">
-            <FieldLabel htmlFor={`${id}-mo-ta`} required>Mô tả sự cố</FieldLabel>
-            <Textarea id={`${id}-mo-ta`} required value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={3}
-              placeholder="Khách báo lỗi gì…" />
           </Field>
           <Field>
             <FieldLabel htmlFor={`${id}-trang-thai`}>Trạng thái</FieldLabel>
@@ -192,11 +209,6 @@ export function TaoTicketForm({ loaiList, staff, meId, dsLoi, dsKt = null }: {
           <ChoiceLabel nhan="Khẩn" className="self-end pb-1.5">
             <Checkbox checked={khan} onCheckedChange={(value) => setKhan(value === true)} />
           </ChoiceLabel>
-        </FormGrid>
-      </FormSection>
-
-      <FormSection tieuDe="Phân công và xử lý">
-        <FormGrid>
           <Field>
             <FieldLabel htmlFor={`${id}-cs`}>CS phụ trách</FieldLabel>
             <ChonNguoiPhuTrach id={id + '-cs'} value={cs} onChange={setCs} options={nhanVien} />

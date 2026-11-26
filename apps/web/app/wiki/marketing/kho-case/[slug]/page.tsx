@@ -96,7 +96,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       {c.paast?.length ? (
         <>
           <div className="page-head" style={{ margin: "24px 0 12px" }}>
-            <h1 style={{ fontSize: "1.15rem", margin: 0 }}>Chấm theo PAAST</h1>
+            <h2 style={{ fontSize: "1.15rem", margin: 0 }}>Chấm theo PAAST</h2>
           </div>
           <div className="grid grid-2" style={{ marginBottom: 20 }}>
             {c.paast.map((p, i) => (
@@ -127,7 +127,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       {laws.length > 0 && (
         <>
           <div className="page-head" style={{ margin: "28px 0 10px" }}>
-            <h1 style={{ fontSize: "1.1rem", margin: 0 }}>Luật sửa content liên quan</h1>
+            <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Luật sửa content liên quan</h2>
             <p style={{ fontSize: ".84rem" }}>
               Ca này là bằng chứng thực tế cho những luật dưới đây —{" "}
               <Link href="/wiki/marketing/khung/luat-sua">xem đủ 46 luật</Link>.

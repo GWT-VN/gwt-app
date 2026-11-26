@@ -134,14 +134,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       </div>
 
       <div className="page-head" style={{ marginTop: 30 }}>
-        <h1 style={{ fontSize: "1.2rem" }}>
+        <h2 style={{ fontSize: "1.2rem" }}>
           Transcript video nguồn
           {hasCues && (
             <span className="chip mono" style={{ marginLeft: 10, verticalAlign: "middle" }}>
               {extract.counts.v} lời thoại · {extract.counts.t} chữ trên hình
             </span>
           )}
-        </h1>
+        </h2>
         {hasCues && (
           <p style={{ fontSize: ".86rem" }}>
             <span className="chip mono">V</span> lời thoại (STT) · <span className="chip mono">T</span> chữ on-screen.

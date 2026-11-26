@@ -15,7 +15,7 @@ import { ChonTinh } from '@/components/ChonTinh'
 import { ChonKenh } from '@/components/ChonKenh'
 import { nhanKetQuaTra, type KetQuaTraKhach } from '@/lib/tra-khach-chung'
 import type { Kenh } from '@/app/actions'
-import { OChonGoiY } from '@/bang'
+import { Combobox } from '@/components/ui/combobox'
 import { taoKhach, suaKhach, traSdtSales, type NhanVienChon } from './actions'
 import type { CustomerInput } from './_types'
 
@@ -241,13 +241,14 @@ export function CustomerForm({
           </FormGrid>
 
           <div>
-            <FieldLabel className="mb-1">Sales phụ trách</FieldLabel>
-            <OChonGoiY
-              giaTri={salesOwner || null}
-              onChon={(v) => setSalesOwner(v ?? '')}
-              tuyChon={nhanVien.map((n) => ({ gt: n.email, nhan: n.ten, phu: n.vai_tro.join(', ') }))}
-              choTrong="— chưa giao —"
-              choPhepXoa
+            <FieldLabel htmlFor={fieldId + '-sales-owner'} className="mb-1">Sales phụ trách</FieldLabel>
+            <Combobox
+              id={fieldId + '-sales-owner'}
+              value={salesOwner || null}
+              onValueChange={(v) => setSalesOwner(v ?? '')}
+              options={nhanVien.map((n) => ({ gt: n.email, nhan: n.ten, phu: n.vai_tro.join(', ') }))}
+              placeholder="Chưa giao"
+              searchPlaceholder="Tìm nhân viên phụ trách…"
             />
           </div>
 

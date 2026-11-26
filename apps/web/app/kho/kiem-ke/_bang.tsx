@@ -33,6 +33,7 @@ export function BangKiemKe({ kho, dong, danhMuc }: { kho: string; dong: DongKiem
   const s = boDau(q.trim())
   const hien = s ? tatCa.filter((d) => boDau(d.ma).includes(s) || boDau(d.ten ?? '').includes(s) || (dem[d.ma] ?? '') !== '') : tatCa
   const soDaDien = Object.values(dem).filter((v) => v.trim() !== '').length
+  const soLech = ketQua?.filter((x) => x.chenh !== 0).length ?? 0
 
   function themMa(ma: string) {
     if (!ma || coSan.has(ma)) return
@@ -69,25 +70,37 @@ export function BangKiemKe({ kho, dong, danhMuc }: { kho: string; dong: DongKiem
     <div className="space-y-3">
       {ketQua && (
         <Card className="space-y-2">
-          <div className="flex items-center justify-between">
-            <b className="text-sm text-(--color-text-success)">Đã ghi kiểm kê {ketQua.length} mã · {ketQua.filter((x) => x.chenh !== 0).length} mã lệch → có dòng Điều chỉnh</b>
+          <div className="flex items-start justify-between gap-2">
+            <div role="status" className="space-y-1">
+              <p className="text-sm font-semibold text-(--color-text-success)">Đã ghi kiểm kê {ketQua.length} mã</p>
+              <p className="text-sm text-muted-foreground">
+                {soLech ? `${soLech} mã có dòng điều chỉnh.` : 'Số đếm khớp với sổ kho.'}
+              </p>
+            </div>
             <Button type="button" size="sm" variant="ghost" onClick={() => setKetQua(null)}>Đóng</Button>
           </div>
-          <TableWrap vien>
-            <Table variant="thuong">
+          <TableWrap vien tabIndex={0} aria-label="Kết quả kiểm kê">
+            <Table variant="thuong" className="min-w-[26rem]">
               <TableHeader>
-                <TableRow><TableHead scope="col">Mã</TableHead><TableHead scope="col">Tên</TableHead><TableHead phai scope="col">Tồn trước</TableHead><TableHead phai scope="col">Đếm</TableHead><TableHead phai scope="col">Chênh</TableHead></TableRow>
+                <TableRow>
+                  <TableHead scope="col">Hàng kiểm kê</TableHead>
+                  <TableHead phai scope="col">Chênh</TableHead>
+                  <TableHead phai scope="col">Tồn trước</TableHead>
+                  <TableHead phai scope="col">Đếm</TableHead>
+                </TableRow>
               </TableHeader>
               <TableBody>
                 {ketQua.map((x) => (
                   <TableRow key={x.internal_code}>
-                    <TableCell className="font-mono text-[13px]">{x.internal_code}</TableCell>
-                    <TableCell className="whitespace-normal">{tenCua(x.internal_code)}</TableCell>
+                    <TableCell className="min-w-36 whitespace-normal">
+                      <div className="font-mono text-[13px]">{x.internal_code}</div>
+                      <div className="text-muted-foreground">{tenCua(x.internal_code)}</div>
+                    </TableCell>
+                    <TableCell className={`text-right font-semibold ${x.chenh > 0 ? 'text-(--color-text-success)' : x.chenh < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {x.chenh === 0 ? 'Khớp' : (x.chenh > 0 ? '+' : '') + so(x.chenh)}
+                    </TableCell>
                     <TableCell phai>{so(x.ton_truoc)}</TableCell>
                     <TableCell phai>{so(x.so_dem)}</TableCell>
-                    <TableCell className={`text-right font-semibold ${x.chenh > 0 ? 'text-(--color-text-success)' : x.chenh < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      {x.chenh === 0 ? 'khớp' : (x.chenh > 0 ? '+' : '') + so(x.chenh)}
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

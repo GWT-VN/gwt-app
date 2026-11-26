@@ -26,8 +26,12 @@ export default async function NhomLoiDetail({
   const [all, tickets, chiTiet, quyen] = await Promise.all([
     issueReport(false), ticketsInGroup(code), nhomLoiChiTiet(code), hoiQuyen({ cauHinh: ['cs.nhom_loi.cau_hinh', 'QUANLY'] }),
   ])
-  const nhom = all.find((r) => r.code === code)
-  if (!nhom) notFound()
+  const soLieu = all.find((r) => r.code === code)
+  if (!soLieu && !chiTiet) notFound()
+  const nhom = soLieu ?? {
+    ...chiTiet!,
+    so_ticket: 0, dang_mo: 0, trong_90_ngay: 0, so_khach: 0, so_may: 0,
+  }
 
   // model nào dính nhiều nhất -> bằng chứng cho công ty mẹ
   const theoModel = new Map<string, number>()
