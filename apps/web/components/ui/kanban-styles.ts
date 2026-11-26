@@ -88,7 +88,7 @@ export const theHan = {
 export const cotMenu = 'ml-auto -my-px text-muted-foreground'
 
 // ── Thẻ dạng trường (NoiDungTheTruong, học Twenty 26/11) — token DS; bundle.css chưa có (chờ đồng bộ artifact) ──────────
-/** Dòng đầu: mã/tên bản ghi 14/20 500, số thẳng cột; icon Khẩn (nếu có) đứng trước. */
+/** Dòng đầu: mã/tên bản ghi 14/20 500, số thẳng cột; icon Khẩn (nếu có) đứng SAU mã — mã thẳng mép các trường. */
 export const theTruongDau = `${khongVien} flex min-w-0 items-center gap-1.5 ds-text-sm font-medium tabular-nums`
 /** Danh sách trường: cách 4. */
 export const theTruongDs = `${khongVien} flex flex-col gap-1`

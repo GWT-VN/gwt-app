@@ -205,11 +205,9 @@ type Sap = { cot: string; tang: boolean }
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
   khach: (t, mo) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      {/* Khe icon cố định (như ô ưu tiên Linear) — hàng không khẩn vẫn chừa chỗ để cột mã thẳng hàng. */}
-      <span className="flex size-(--control-icon-size-xs) shrink-0 border-none border-current">
-        {t.khan && t.state === 'Open' && <IconKhan />}
-      </span>
+      {/* Mã đứng đầu ô — thẳng mép chữ tiêu đề cột (CEO 26/11). Khẩn = icon SAU mã, không chừa khe đầu ô. */}
       <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
+      {t.khan && t.state === 'Open' && <IconKhan />}
       <button type="button" className={nutMoTen} onClick={() => mo(t.ticket_code)}>
         {tenKhach(t)}
       </button>
@@ -619,8 +617,9 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
                     <NoiDungTheTruong
                       dau={
                         <>
-                          {d.khan && d.state === 'Open' && <IconKhan />}
+                          {/* Mã đứng đầu (thẳng mép trường dưới), Khẩn = icon SAU mã — như ô bảng. */}
                           {d.ticket_code}
+                          {d.khan && d.state === 'Open' && <IconKhan />}
                         </>
                       }
                       truong={truongThe(d)}

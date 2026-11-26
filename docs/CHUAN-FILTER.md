@@ -72,6 +72,7 @@ không phải nghe nhắc lần nữa — sửa filter/ô chọn ở đâu cũng
 | `cot` / `chieu` | cột + chiều sắp xếp | `TieuDeCotSapXep` |
 | tên ngắn tuỳ trang | mỗi bộ lọc chọn một tham số riêng: `sp` (sản phẩm), `kenh`, `tinh`, `tt` (tình trạng hàng), `tp` (thanh toán), `bh` (bảo hành), `loai` | `BoLocChon` |
 | `id` trường, giá trị `[phép~]…` | lọc theo trường (nút "Lọc" kiểu Twenty) — xem mục dưới | `NutLoc` / `ChipLoc` + `bang/locTruong.ts` |
+| `nhom` / `nhom_an` | Kanban: nhóm cột theo trường (mặc định không ghi) / id nhóm đang ẩn, phẩy | ⚙ `CaiDatHienThi` (`nhom.kanban`, `nhomAn`) + menu ⋯ đầu cột |
 
 **Đặt tên tham số mới:** ngắn, không dấu, không trùng bảng trên. Dùng lại tên đã có nếu cùng ý nghĩa
 — `kenh` ở `/sales` và ở `/sales/khach` phải là **cùng một tên**.

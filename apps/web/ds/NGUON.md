@@ -101,6 +101,18 @@ RONG_O_CHON + useCotBang().tongRong (+ cột cuối)` → vượt khung thì cu�
 cột sau dời +60, tâm tay co lệch chuột 0,2px. Ngưỡng kéo đổi chỗ cột (KeoCot) 4 → 8px như Twenty. Giữ tối thiểu 56 (Twenty
 104) — cột chỉ avatar/ưu tiên của DS hẹp hơn 104 có chủ đích. Không đổi `bundle.css` (artifact không có co dãn).
 
+Kanban học hành vi Twenty (26/11, spec mục F + G, prototype ticket F; giao diện giữ DS — không vạch dọc/lưới): (G) ngưỡng
+kéo chuột 4 → 8px, thêm `TouchSensor` giữ 250ms lệch ≤ 5px (giữ rồi thả tại chỗ → menu "Chuyển sang…"; ContextMenu tắt
+trong lúc kéo), phím dùng `CamBienPhimKeo`; không xếp thứ tự thẻ trong cột. (F) `KanbanBoard menuCot` → nút ⋯ (Button ghost
+icon-xs, `cotMenu`) đầu cột: "Thêm …" · "Ẩn nhóm" (ẩn xong focus sang ⋯ cột kế bên, kể cả khi bên gọi ẩn trễ);
+`NoiDungTheTruong` + `TruongThe` — thẻ dạng trường: dòng đầu mã (14/20 500), mỗi trường icon 14 tertiary + giá trị 12/18
+(`ds-text-xs`), trường rỗng hiện TÊN trường mờ (`data-rong`, sr "tên: trống"); tối đa một nhãn màu/thẻ (CEO 26/11).
+⚙ `CaiDatHienThi`: `nhom.kanban` (Nhóm theo chỉ ở Kanban, không "Không nhóm"), `nhomAn` → trang "Nhóm đang ẩn" (dòng
+`cdDongCot` + mắt "Hiện …"). Test: kanban-board.dom.test (ngưỡng, cảm ứng, phím + visibilitychange, menu cột, thẻ trường),
+cai-dat-kanban.dom.test. Khi đẩy lên artifact: README KanbanBoard thêm "Menu đầu cột", "Thẻ dạng trường", ngưỡng kéo; preview
+KanbanBoard thêm nút ⋯ + một thẻ dạng trường; `bundle.css` thêm `.b-k-menu` (dồn phải, lề dọc −1) và `.b-the-truong*`
+(dòng flex cách 8, icon 14 tertiary, rỗng tertiary); README DataViewToolbar thêm trang "Nhóm đang ẩn".
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ
