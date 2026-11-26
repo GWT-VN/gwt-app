@@ -62,14 +62,14 @@ const VIEW = [
 type View = (typeof VIEW)[number]['v']
 
 // ── Nhãn ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-const TT: MucTrangThai[] = [
+export const TT: MucTrangThai[] = [
   { gt: 'Open', nhan: 'Đang mở', color: 'info' },
   { gt: 'Done', nhan: 'Đã xong', color: 'success' },
   { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary' },
 ]
 
 /** `ngan` (ô bảng hẹp): "Còn BH" / "Hết BH". */
-function NhanBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
+export function NhanBaoHanh({ t, ngan }: { t: Ticket; ngan?: boolean }) {
   if (!t.serial) return ngan ? null : <span className="text-muted-foreground">—</span>
   if (!t.warranty_activated)
     return (

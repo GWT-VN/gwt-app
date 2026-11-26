@@ -58,8 +58,8 @@ export default async function TicketsPage({
   const views = await listBangView('tickets')
   const { rows: tickets, tong, soTrang, sapXep } = ketQua
 
-  // PROTOTYPE vứt đi (25/11): ?variant=A–F → 6 phương án DS v2 (app/ticket/_prototype), chỉ chạy dev. Không variant = màn cũ.
-  if (variant && ['A', 'B', 'C', 'D', 'E', 'F'].includes(variant) && process.env.NODE_ENV !== 'production') {
+  // PROTOTYPE vứt đi (25/11): ?variant=A–F, T → 7 phương án DS v2 (app/ticket/_prototype), chỉ chạy dev. Không variant = màn cũ.
+  if (variant && ['A', 'B', 'C', 'D', 'E', 'F', 'T'].includes(variant) && process.env.NODE_ENV !== 'production') {
     // DB local gần như trống (< 5 ticket) → thêm ticket Demo trong bộ nhớ (lọc theo tab/từ khoá) sau ticket thật.
     const dbIt = tong < 5 && (await searchTickets('', undefined, false, undefined, { trang: 1, kemDongMay: false })).tong < 5
     const demo = dbIt ? [...tickets, ...locDemo({ state, khan, mine, q })] : null

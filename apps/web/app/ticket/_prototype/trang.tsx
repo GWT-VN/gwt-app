@@ -10,8 +10,9 @@ import { TicketC } from './ds-c'
 import { TicketD } from './ds-d'
 import { TicketE } from './ds-e'
 import { TicketF } from './ds-f'
+import { TicketT } from './ds-t'
 
-const PA = { A: TicketA, B: TicketB, C: TicketC, D: TicketD, E: TicketE, F: TicketF }
+const PA = { A: TicketA, B: TicketB, C: TicketC, D: TicketD, E: TicketE, F: TicketF, T: TicketT }
 
 export function TrangTicketPrototype({ variant, ...du }: DuLieuTicket & { variant: string }) {
   const C = PA[variant as keyof typeof PA] ?? TicketA

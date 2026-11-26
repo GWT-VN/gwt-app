@@ -1,0 +1,329 @@
+/*
+ * PROTOTYPE vứt đi — bảng + panel CHÉP Y SỐ ĐO Twenty (CEO 26/11: "phần bảng làm y hệt họ"), KHÔNG phải DS.
+ * Giá trị đo từ mã nguồn Twenty @63ba48a (twenty-ui theme Light/Dark, twenty-front record-table) — AGPL, chỉ lấy số,
+ * không chép code. docs/rework/2026-11-26-bang-theo-twenty.md. Chốt thì đưa vào DS (Table) rồi xoá file này.
+ */
+.tw {
+  --tw-bg: #fff;
+  --tw-bg2: #fcfcfc;
+  --tw-bg3: #f1f1f1;
+  --tw-bg4: #ebebeb;
+  --tw-c1: #333;
+  --tw-c2: #666;
+  --tw-c3: #999;
+  --tw-c4: #b3b3b3;
+  --tw-c5: #ccc;
+  --tw-line: #f1f1f1;
+  --tw-line2: #ebebeb;
+  --tw-line3: #d6d6d6;
+  --tw-sel: #f8f9ff;
+  --tw-accent: #d4deff;
+  --tw-blue: #1961ed;
+  --tw-tag-gray-t: #666; --tw-tag-gray-b: #f9f9f9;
+  --tw-tag-red-t: #be3c38; --tw-tag-red-b: #fbecec;
+  --tw-tag-blue-t: #415ac1; --tw-tag-blue-b: #eef2fd;
+  --tw-tag-green-t: #308052; --tw-tag-green-b: #e9f6ec;
+  --tw-tag-orange-t: #c25700; --tw-tag-orange-b: #fcefd9;
+  --tw-tag-purple-t: #7948af; --tw-tag-purple-b: #f6eefc;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tw-c1);
+  background: var(--tw-bg);
+}
+:global([data-theme='dark']) .tw {
+  --tw-bg: #171717;
+  --tw-bg2: #1b1b1b;
+  --tw-bg3: #1d1d1d;
+  --tw-bg4: #222;
+  --tw-c1: #ebebeb;
+  --tw-c2: #b3b3b3;
+  --tw-c3: #818181;
+  --tw-c4: #666;
+  --tw-c5: #4c4c4c;
+  --tw-line: #1d1d1d;
+  --tw-line2: #222;
+  --tw-line3: #484848;
+  --tw-sel: #151725;
+  --tw-accent: #2a3870;
+  --tw-tag-gray-t: #b3b3b3; --tw-tag-gray-b: #191919;
+  --tw-tag-red-t: #ff918c; --tw-tag-red-b: #361519;
+  --tw-tag-blue-t: #a1b0ff; --tw-tag-blue-b: #1b2446;
+  --tw-tag-green-t: #6fd392; --tw-tag-green-b: #1a2c22;
+  --tw-tag-orange-t: #ffa161; --tw-tag-orange-b: #301f0e;
+  --tw-tag-purple-t: #cc9eff; --tw-tag-purple-b: #2d1d39;
+}
+
+/* ── Đầu trang + thanh view ─────────────────────────────────────────────────────────────────────────── */
+.dau {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 8px 0 12px;
+}
+.dauTen {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: var(--tw-c1);
+}
+.dauTen svg, .nutChu svg, .th svg, .them svg, .truong svg, .tab svg { width: 16px; height: 16px; flex-shrink: 0; }
+.dauTen svg, .th svg, .truong svg { color: var(--tw-c3); }
+.thanh {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 40px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--tw-line2);
+}
+.nutChu {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--tw-c2);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nutChu:hover { background: var(--tw-bg3); }
+.nutChu:focus-visible, .nutTen:focus-visible, .tab:focus-visible, .nutIcon:focus-visible { outline: 1px solid var(--tw-blue); outline-offset: -1px; }
+.dem { color: var(--tw-c3); font-weight: 400; }
+.dan { flex: 1; }
+.nutTao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--tw-blue);
+  color: #fff;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nutTao svg { width: 14px; height: 14px; }
+
+/* ── Bảng: dòng 32, lưới 1px border.light, đệm trái 8, cột tick 28, "+" 32, tối thiểu 104 ───────────── */
+.cuon { overflow: auto; scrollbar-width: thin; scrollbar-color: var(--tw-line3) transparent; }
+.bang {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+.th, .td {
+  height: 32px;
+  max-height: 32px;
+  padding: 0;
+  border-right: 1px solid var(--tw-line);
+  border-bottom: 1px solid var(--tw-line);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--tw-bg);
+}
+.th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: var(--tw-c3);
+  font-weight: 500;
+}
+.th:hover { background: var(--tw-bg2); }
+.thNoi { display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 8px; }
+.td { color: var(--tw-c1); }
+.tdNoi { display: flex; align-items: center; height: 32px; padding-left: 8px; padding-right: 4px; gap: 4px; overflow: hidden; }
+.td:hover { box-shadow: inset 0 0 0 1px var(--tw-c5); }
+.dong[data-chon] .td { background: var(--tw-sel); }
+.dong[data-mo] .td { background: var(--tw-sel); }
+.oTick { width: 28px; text-align: center; border-right-color: transparent; }
+.oTick > span { display: flex; align-items: center; justify-content: center; height: 32px; }
+.oTick input { width: 14px; height: 14px; margin: 0; accent-color: var(--tw-blue); cursor: pointer; }
+.cotDau { position: sticky; left: 28px; z-index: 1; }
+.th.cotDau { z-index: 3; }
+.thTick { position: sticky; left: 0; z-index: 3; }
+.tdTick { position: sticky; left: 0; z-index: 1; }
+.cotThem { width: 32px; color: var(--tw-c3); }
+.cotThem .thNoi { justify-content: center; padding: 0; }
+.cotRong { border-right: 0; }
+
+/* Chip tên bản ghi (cột đầu) + chip quan hệ: chữ thường, rê nền bg3, avatar vuông 14 chữ cái. */
+.nutTen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  height: 20px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--tw-c1);
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+.nutTen:hover { background: var(--tw-bg3); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--tw-bg3);
+  color: var(--tw-c1);
+  overflow: hidden;
+}
+.chu { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.av {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--tw-bg4);
+  color: var(--tw-c2);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+.mo { color: var(--tw-c3); }
+
+/* Tag (select): cao 20, đệm 0 8, bo 4, chữ 13 thường, màu theo tag.text/tag.background. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.tag[data-c='gray'] { color: var(--tw-tag-gray-t); background: var(--tw-tag-gray-b); }
+.tag[data-c='red'] { color: var(--tw-tag-red-t); background: var(--tw-tag-red-b); }
+.tag[data-c='blue'] { color: var(--tw-tag-blue-t); background: var(--tw-tag-blue-b); }
+.tag[data-c='green'] { color: var(--tw-tag-green-t); background: var(--tw-tag-green-b); }
+.tag[data-c='orange'] { color: var(--tw-tag-orange-t); background: var(--tw-tag-orange-b); }
+.tag[data-c='purple'] { color: var(--tw-tag-purple-t); background: var(--tw-tag-purple-b); }
+
+/* "+ Add New" (secondary) + dòng tổng (nhãn tertiary, số primary, dính đáy). */
+.them {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding-left: 12px;
+  color: var(--tw-c2);
+  border-bottom: 1px solid var(--tw-line);
+  cursor: pointer;
+}
+.them:hover { background: var(--tw-bg2); }
+.tong .td { position: sticky; bottom: 0; color: var(--tw-c3); border-bottom: 0; border-top: 1px solid var(--tw-line); }
+.tong .td:hover { box-shadow: none; background: var(--tw-bg2); }
+.so { color: var(--tw-c1); margin-left: 4px; }
+
+/* ── Panel bản ghi bên phải: cố định cao hết màn, viền trái, đầu 40, tab, trường. ─────────────────── */
+.coPanel { padding-right: 400px; }
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  border-left: 1px solid var(--tw-line2);
+  background: var(--tw-bg);
+}
+@media (max-width: 767px) {
+  .coPanel { padding-right: 0; }
+  .panel { width: 100%; border-left: 0; }
+}
+.pDau { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 8px 0 12px; font-weight: 500; }
+.nutIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--tw-c3);
+  cursor: pointer;
+}
+.nutIcon:hover { background: var(--tw-bg3); color: var(--tw-c2); }
+.nutIcon svg { width: 16px; height: 16px; }
+.tabs { display: flex; gap: 4px; height: 40px; padding: 0 8px; border-bottom: 1px solid var(--tw-line2); }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  color: var(--tw-c3);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tab:hover { color: var(--tw-c2); }
+.tab[aria-selected='true'] { color: var(--tw-c1); border-bottom-color: var(--tw-c1); }
+.pThan { flex: 1; overflow: auto; }
+.khoi { padding: 12px 12px 8px; border-bottom: 1px solid var(--tw-line2); }
+.khoiTen { display: flex; align-items: center; justify-content: space-between; height: 24px; margin-bottom: 4px; font-weight: 500; color: var(--tw-c1); }
+.nhom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 24px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tw-c3);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nhom svg { width: 14px; height: 14px; }
+.truong { display: flex; align-items: center; gap: 4px; min-height: 26px; }
+.truongNhan { display: flex; align-items: center; gap: 4px; width: 96px; flex-shrink: 0; color: var(--tw-c3); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.truongGt { min-width: 0; flex: 1; padding: 0 4px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.truongGt:hover { background: var(--tw-bg3); }
+.trong { color: var(--tw-c4); }
+.doan { margin: 4px 0 0; color: var(--tw-c1); white-space: pre-line; }
+.pChan { display: flex; align-items: center; justify-content: flex-end; gap: 4px; height: 40px; padding: 0 8px; border-top: 1px solid var(--tw-line2); }
+.nutPhu {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--tw-line2);
+  border-radius: 4px;
+  background: var(--tw-bg);
+  color: var(--tw-c2);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+.nutPhu:hover { background: var(--tw-bg3); }
+.nutPhu svg { width: 14px; height: 14px; }
+.hd { display: flex; gap: 8px; padding: 8px 0; color: var(--tw-c2); }
+.hdNgay { color: var(--tw-c3); margin-left: auto; white-space: nowrap; }
