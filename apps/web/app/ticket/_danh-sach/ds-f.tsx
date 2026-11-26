@@ -8,7 +8,6 @@
 import { Suspense, useCallback, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
-  AddressBook,
   ArrowsClockwise,
   CalendarPlus,
   Cube,
@@ -140,7 +139,7 @@ const RONG_BANG_TOI_THIEU = 640
 // vừa tiêu đề + ô dài nhất của trang đang xem (`useCotBang` đo, `refBang`); cột chữ tự do có trần `rongToiDa` để một giá
 // trị cực dài không kéo cột rộng vô lý — quá trần mới cắt (ô có title). Tổng vượt khung → bảng cuộn ngang.
 const COT: CotBang[] = [
-  { id: 'khach', ten: 'Ticket · khách', kieu: 'thuong', khoa: true, rongToiDa: 400 },
+  { id: 'khach', ten: 'Khách · ticket', kieu: 'thuong', khoa: true, rongToiDa: 400 },
   { id: 'may', ten: 'Máy · bảo hành', kieu: 'thuong', rongToiDa: 480 },
   { id: 'loi', ten: 'Loại lỗi', kieu: 'thuong', rongToiDa: 240 },
   { id: 'tt', ten: 'Trạng thái', kieu: 'loc' },
@@ -157,12 +156,13 @@ type Sap = { cot: string; tang: boolean }
 const O: Record<string, (t: Dong, mo: (ma: string) => void) => React.ReactNode> = {
   khach: (t, mo) => (
     <span className="flex min-w-0 items-center gap-2 border-none border-current">
-      {/* Mã đứng đầu ô — thẳng mép chữ tiêu đề cột (CEO 26/11). Khẩn = tên đỏ (kể cả lúc rê/focus). */}
-      <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
+      {/* CEO 26/11 "Cho tên KH trước rồi -> Mã ticket": tên đầu ô (thẳng mép chữ tiêu đề cột), tên dài thì cắt; mã sau,
+          không cắt. Khẩn = tên đỏ (kể cả lúc rê/focus). */}
       <button type="button" className={cn(nutMoTen, laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
         {laKhan(t) && <SrKhan />}
         {tenKhach(t)}
       </button>
+      <span className="shrink-0 tabular-nums text-muted-foreground">{t.ticket_code}</span>
     </span>
   ),
   may: (t) => (
@@ -208,12 +208,11 @@ function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) 
 const COT_DS: CotDanhSach<Dong>[] = [
   {
     id: 'ticket',
-    ten: 'Ticket · khách',
+    ten: 'Khách · ticket',
     rong: 'minmax(0,2fr)',
     dienThoai: 'tren',
     o: (t) => (
       <>
-        <NutMoMa ma={t.ticket_code} />
         {laKhan(t) ? (
           // NutMoTen chữ `text-inherit` → bọc span đỏ (flex min-w-0 giữ cắt …).
           <span className={cn('flex min-w-0', CHU_DO)}>
@@ -223,6 +222,7 @@ const COT_DS: CotDanhSach<Dong>[] = [
         ) : (
           <NutMoTen ten={tenKhach(t)} />
         )}
+        <NutMoMa ma={t.ticket_code} luonHien />
       </>
     ),
   },
@@ -256,7 +256,6 @@ const KHONG_GT = '__trong'
 
 /** Thẻ Kanban dạng trường (Twenty): rỗng hiện tên trường mờ; một nhãn màu tối đa — ở đây 0 badge, ngoại lệ tô màu chữ. */
 const truongThe = (d: Dong): TruongThe[] => [
-  { id: 'khach', icon: <AddressBook />, ten: 'Khách', giaTri: d.customer_name },
   {
     id: 'may',
     icon: <Cube />,
@@ -553,19 +552,18 @@ export function TicketF({
                 the={theKanban.map((d) => ({
                   id: d.ticket_code,
                   cot: cotCuaThe(d),
-                  ten: d.ticket_code,
+                  ten: `${tenKhach(d)} · ${d.ticket_code}`,
                   noiDung: (
                     <NoiDungTheTruong
                       dau={
-                        // Mã = tiêu đề thẻ; khẩn → chữ đỏ như ô bảng.
-                        laKhan(d) ? (
-                          <span className={CHU_DO}>
-                            <SrKhan />
-                            {d.ticket_code}
+                        // Tên khách rồi mã (CEO 26/11); khẩn → tên đỏ như ô bảng.
+                        <>
+                          <span title={tenKhach(d)} className={cn('min-w-0 truncate', laKhan(d) && CHU_DO)}>
+                            {laKhan(d) && <SrKhan />}
+                            {tenKhach(d)}
                           </span>
-                        ) : (
-                          d.ticket_code
-                        )
+                          <span className="shrink-0 font-normal text-muted-foreground">{d.ticket_code}</span>
+                        </>
                       }
                       truong={truongThe(d)}
                     />

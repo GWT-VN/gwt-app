@@ -371,6 +371,7 @@ export function theXemNhanhF({
 }): The {
   return {
     ma: t.ticket_code,
+    phuTruoc: true,
     // Khẩn = tên khách ở tiêu đề màu đỏ (CEO 26/11), không icon.
     phu: laKhan(t) ? (
       <span className={CHU_DO}>

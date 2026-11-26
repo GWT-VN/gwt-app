@@ -67,6 +67,8 @@ export function XemNhanh({
   the: {
     ma: string
     phu?: ReactNode
+    /** `phu` (tên) đứng TRƯỚC mã: "Công ty An Phát · DEMO-1001" (danh sách ticket, CEO 26/11). */
+    phuTruoc?: boolean
     /** Cờ ngay sau mã (icon Khẩn… — icon có tên đọc được). */
     co?: ReactNode
     noiDung?: ReactNode
@@ -125,9 +127,19 @@ export function XemNhanh({
       {the && (
         <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
           <div className={xnDau}>
-            <span className={xnMa}>{the.ma}</span>
-            {the.co}
-            {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
+            {the.phuTruoc && the.phu ? (
+              <>
+                <span className={cn(xnMa, 'min-w-0 truncate')}>{the.phu}</span>
+                <span className={xnMa}>· {the.ma}</span>
+                {the.co}
+              </>
+            ) : (
+              <>
+                <span className={xnMa}>{the.ma}</span>
+                {the.co}
+                {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
+              </>
+            )}
             <span aria-hidden="true" className="flex-1 border-none border-current" />
             <Button variant="ghost" size="icon-sm" aria-label="Bản ghi trước (↑)" disabled={!onTruoc} onClick={onTruoc}>
               <CaretLeft aria-hidden="true" />
