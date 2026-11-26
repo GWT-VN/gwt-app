@@ -57,14 +57,13 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const cuoi = lanLoi.at(-1)
   const ngayCuoi = cuoi ? ngayCuaLan(cuoi.ngay, cuoi.created_at) : ngayDau
 
-  // PROTOTYPE vứt đi (25/11): ?variant=A–G → 7 phương án trang chi tiết dựng bằng DS v2; không có variant → màn cũ.
-  const variant = process.env.NODE_ENV === 'production' ? undefined : ['A', 'B', 'C', 'D', 'E', 'F', 'G'].find((v) => v === sp.variant)
-  if (variant) {
+  // PROTOTYPE vứt đi: ?variant=<gì cũng được> → trang chi tiết bản gọn dựng bằng DS v2 (CEO duyệt khung 26/11, thay 7 PA
+  // A–G); chỉ dev; không có variant → màn cũ.
+  if (process.env.NODE_ENV !== 'production' && sp.variant) {
     const ma = new Set(items.map((i) => i.catalog_code).filter(Boolean))
     return (
       <ManV2>
         <CtPrototype
-          variant={variant}
           d={{
             t, ngayBao: them.ngay_bao, csTheoDoi: them.cs_theo_doi, nhom, notes, items,
             tenCatalog: Object.fromEntries(catalog.filter((c) => ma.has(c.code)).map((c) => [c.code, c.ten ?? c.code])),
