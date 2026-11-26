@@ -26,16 +26,16 @@ const CA: { ten: string; hien: string; form: string; ve(co: boolean, p: TriggerC
   },
   {
     ten: 'DatePicker',
-    hien: '21/11/2026',
-    form: '2026-11-21',
-    ve: (co, p) => <DatePicker value={co ? '2026-11-21' : null} onValueChange={() => {}} {...p} />,
+    hien: '21/11/24', // năm đã qua → dd/MM/yy (không phụ thuộc năm chạy test)
+    form: '2024-11-21',
+    ve: (co, p) => <DatePicker value={co ? '2024-11-21' : null} onValueChange={() => {}} {...p} />,
   },
   {
     ten: 'DateRangePicker',
-    hien: '01/11/2026 – 18/11/2026',
-    form: '2026-11-01/2026-11-18',
+    hien: '01/11/24 – 18/11/24',
+    form: '2024-11-01/2024-11-18',
     ve: (co, p) => (
-      <DateRangePicker value={co ? { tu: '2026-11-01', den: '2026-11-18' } : null} onValueChange={() => {}} {...p} />
+      <DateRangePicker value={co ? { tu: '2024-11-01', den: '2024-11-18' } : null} onValueChange={() => {}} {...p} />
     ),
   },
 ]

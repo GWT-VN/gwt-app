@@ -16,7 +16,7 @@ export { calendarFoot, calendarFootClear, calendarPop, kepNgay }
 
 /**
  * DatePicker — chọn MỘT ngày, kiểu Airbnb (README DatePicker). Lưu `YYYY-MM-DD` (`isoNgay`, giờ máy — không
- * `toISOString()`), hiện `dd/MM/yyyy`.
+ * `toISOString()`), hiện theo mặc định toàn app (`hienNgay`: dd/MM, khác năm dd/MM/yy — CEO 26/11).
  *
  * - Trigger = `selectTrigger` (y Select) + icon CalendarBlank 16 đầu ô; `aria-haspopup="dialog"` + `aria-expanded` (Radix
  *   Popover). Đặt tên bằng `FieldLabel htmlFor={id}` / `aria-labelledby` / `aria-label`; tên đọc = nhãn + ngày đang chọn

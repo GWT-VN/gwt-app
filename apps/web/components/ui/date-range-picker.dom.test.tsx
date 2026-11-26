@@ -79,13 +79,13 @@ test('bấm 01 rồi 18 → "18 ngày"; Áp dụng → {2026-11-01, 2026-11-18},
   expect(nut('Áp dụng').disabled).toBe(true)
   await user.click(o(/^18\/11\/2026/))
   expect(tieuDe()).toBe('18 ngày')
-  expect(pop.textContent).toContain('01/11/2026 – 18/11/2026')
+  expect(pop.textContent).toContain('01/11 – 18/11')
   expect(onDoi).not.toHaveBeenCalled()
   await user.click(nut('Áp dụng'))
   expect(onDoi).toHaveBeenLastCalledWith({ tu: '2026-11-01', den: '2026-11-18' })
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(document.activeElement).toBe(trigger())
-  expect(trigger().textContent).toContain('01/11/2026 – 18/11/2026')
+  expect(trigger().textContent).toContain('01/11 – 18/11')
 })
 
 test('dải: đầu/cuối data-range-start/end + chọn; giữa data-range-middle, không tô đặc', async () => {
@@ -119,7 +119,7 @@ test('bấm 18 rồi 05 → ngày đầu thành 05 (chưa có ngày cuối)', as
   await user.click(o(/^18\/11\/2026/))
   await user.click(o(/^05\/11\/2026/))
   expect(tieuDe()).toBe('Chọn ngày kết thúc')
-  expect(screen.getByRole('button', { name: /^Từ ngày/ }).textContent).toContain('05/11/2026')
+  expect(screen.getByRole('button', { name: /^Từ ngày/ }).textContent).toContain('05/11')
   expect(screen.getByRole('button', { name: /^Từ ngày/ }).getAttribute('aria-pressed')).toBe('false')
   expect(screen.getByRole('button', { name: /^Đến ngày/ }).getAttribute('aria-pressed')).toBe('true')
   expect(o(/^05\/11\/2026/).hasAttribute('data-selected')).toBe(true)
@@ -172,7 +172,7 @@ test('Huỷ / Esc → không gọi onValueChange, mở lại thấy giá trị c
   await screen.findByRole('dialog')
   expect(tieuDe()).toBe('18 ngày')
   expect(onDoi).not.toHaveBeenCalled()
-  expect(trigger().textContent).toContain('01/11/2026 – 18/11/2026')
+  expect(trigger().textContent).toContain('01/11 – 18/11')
 })
 
 test('mốc "Tuần này" (hôm nay T6 20/11) → {2026-11-16, 2026-11-20}, mốc được đánh dấu', async () => {

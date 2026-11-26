@@ -1,3 +1,5 @@
+import { hienNgay } from '@/lib/dinh-dang-ngay'
+
 /**
  * Hằng số phân trang + whitelist cột sắp xếp — dùng chung cho các hàm liệt kê
  * trong app/actions.ts.
@@ -277,7 +279,7 @@ export function phanTichBangSerial(text: string): DongNhapSerial[] {
 
 /** Mô tả điều kiện lọc ngày để hiện chip (vd "Ngày = 01/08/2026", "Từ …", "Đến …"). */
 export function moTaLocNgay(tu: string | null, den: string | null, nhan = 'Ngày'): string | null {
-  const vn = (d: string) => d.split('-').reverse().join('/')
+  const vn = (d: string) => hienNgay(d)
   if (tu && den) return tu === den ? `${nhan} = ${vn(tu)}` : `${nhan}: ${vn(tu)} → ${vn(den)}`
   if (tu) return `${nhan}: từ ${vn(tu)}`
   if (den) return `${nhan}: đến ${vn(den)}`

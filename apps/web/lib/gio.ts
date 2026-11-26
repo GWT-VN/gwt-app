@@ -70,14 +70,14 @@ export function tachIso(v: string, mui = MUI_VN): { ngay: string; gio: string | 
 /** "YYYY-MM-DD" + "HH:mm" → "YYYY-MM-DDTHH:mm:00+07:00" (ghép chuỗi); không giờ → giữ nguyên "YYYY-MM-DD". */
 export const ghepIso = (ngay: string, gio: string | null, mui = MUI_VN) => (gio ? `${ngay}T${gio}:00${mui}` : ngay)
 
-/** "21/11/2026 · 17:30" — ô form; chỉ ngày → "21/11/2026". */
+/** "21/11 · 17:30" — ô form; chỉ ngày → "21/11"; khác năm → "21/11/25 · 17:30" (mặc định `hienNgay`, CEO 26/11). */
 export const hienNgayGio = (v: string, mui = MUI_VN) => {
   const t = tachIso(v, mui)
   return t.gio ? `${hienNgay(t.ngay)} · ${t.gio}` : hienNgay(t.ngay)
 }
-/** "21/11 17:30" — ô bảng hẹp; chỉ ngày → "21/11". */
+/** "21/11 17:30" — ô bảng hẹp; chỉ ngày → "21/11"; khác năm → "21/11/25 17:30". */
 export const hienNgayGioGon = (v: string, mui = MUI_VN) => {
   const t = tachIso(v, mui)
-  const n = hienNgay(t.ngay).slice(0, 5)
+  const n = hienNgay(t.ngay)
   return t.gio ? `${n} ${t.gio}` : n
 }

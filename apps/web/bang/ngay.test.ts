@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { hienNgay, isoNgay, khoangPreset, ngayTuIso } from './ngay'
 
 // Thứ Tư 2026-08-19, 00:30 giờ máy — giờ sớm chính là chỗ toISOString() hay sai.
@@ -50,17 +50,23 @@ describe('ngayTuIso', () => {
   })
 })
 
+// Mặc định toàn app (CEO 26/11): cùng năm dd/MM, khác năm dd/MM/yy — khoá "bây giờ" để test không đổi theo năm thật.
+beforeEach(() => vi.useFakeTimers({ now: new Date('2026-11-26T03:00:00Z'), toFake: ['Date'] }))
+afterEach(() => vi.useRealTimers())
+
 describe('hienNgay', () => {
-  it('hiển thị dd/MM/yyyy', () => {
-    expect(hienNgay('2026-11-20')).toBe('20/11/2026')
-    expect(hienNgay('2026-01-05')).toBe('05/01/2026')
+  it('cùng năm dd/MM, khác năm dd/MM/yy', () => {
+    expect(hienNgay('2026-11-20')).toBe('20/11')
+    expect(hienNgay('2026-01-05')).toBe('05/01')
+    expect(hienNgay('2025-12-31')).toBe('31/12/25')
   })
 })
 
 describe('đầu vào dài hơn YYYY-MM-DD (timestamp cột DB)', () => {
-  it('chỉ lấy 10 ký tự đầu — không ra "20T00:00/11/2026"', () => {
-    expect(hienNgay('2026-11-20T00:00')).toBe('20/11/2026')
-    expect(hienNgay('2026-11-20 08:15:00+07')).toBe('20/11/2026')
+  it('chỉ lấy 10 ký tự đầu, không đổi múi giờ — không ra "20T00:00/11"', () => {
+    expect(hienNgay('2026-11-20T00:00')).toBe('20/11')
+    expect(hienNgay('2026-11-20T23:30:00Z')).toBe('20/11')
+    expect(hienNgay('2026-11-20 08:15:00+07')).toBe('20/11')
     const d = ngayTuIso('2026-11-20T00:00')
     expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours()]).toEqual([2026, 10, 20, 0])
   })

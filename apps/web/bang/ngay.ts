@@ -5,6 +5,8 @@
  * NGÀY HÔM TRƯỚC. Preset "Hôm nay" khi đó sai âm thầm, không ai phát hiện.
  * `ngay.test.ts` có một test chứng minh đúng cái bẫy này.
  */
+import { hienNgay as hienNgayLib } from '../lib/dinh-dang-ngay'
+
 export type MaPreset = 'homnay' | 'tuannay' | 'thangnay' | 'ngay30'
 
 export const PRESETS: { ma: MaPreset; nhan: string }[] = [
@@ -32,11 +34,12 @@ export function ngayTuIso(iso: string): Date {
   return new Date(y, m - 1, d)
 }
 
-/** 'YYYY-MM-DD' -> 'dd/MM/yyyy' để hiển thị (chỉ đảo chuỗi, không qua Date). Chuỗi dài hơn: lấy 10 ký tự đầu như `ngayTuIso`. */
-export function hienNgay(iso: string): string {
-  const [y, m, d] = iso.slice(0, 10).split('-')
-  return `${d}/${m}/${y}`
-}
+/**
+ * 'YYYY-MM-DD' -> chữ hiện theo mặc định toàn app (`lib/dinh-dang-ngay`: dd/MM cùng năm, dd/MM/yy khác năm — CEO 26/11).
+ * Chuỗi dài hơn: lấy 10 ký tự đầu như `ngayTuIso` (CẮT, không đổi múi giờ). Ô GÕ ngày không dùng hàm này — chữ gõ phải
+ * đọc lại được bằng `docNgay`, dùng `hienNgayLib(iso, 'day-du')`.
+ */
+export const hienNgay = (iso: string): string => hienNgayLib(iso.slice(0, 10))
 
 /**
  * Khoảng [tu, den] của một preset. Tuần bắt đầu THỨ 2.

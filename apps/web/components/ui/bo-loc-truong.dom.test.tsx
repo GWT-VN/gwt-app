@@ -155,7 +155,7 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
     expect(chip()).toEqual(['Hạn: Hôm nay'])
   })
 
-  test('ngày: "trước ngày" + chọn ngày bằng DatePicker → "Hạn < dd/mm/yyyy"', async () => {
+  test('ngày: "trước ngày" + chọn ngày bằng DatePicker → "Hạn < dd/MM" (hôm nay luôn cùng năm)', async () => {
     const user = userEvent.setup()
     render(<Man />)
     const pop = await moLoc(user)
@@ -166,7 +166,7 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
     const lich = await screen.findByRole('dialog', { name: 'Chọn ngày' })
     await user.click(within(lich).getByRole('button', { name: 'Hôm nay' }))
     const d = new Date()
-    const hn = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+    const hn = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
     expect(chip()).toEqual([`Hạn < ${hn}`])
     // Pop Lọc vẫn mở sau khi pop lịch đóng.
     expect(screen.getByRole('dialog', { name: 'Lọc' })).toBeTruthy()

@@ -52,6 +52,7 @@ import { RecordPicker, type BanGhi } from './record-picker'
 import { thongBao } from './sonner'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 import type { VariantProps } from 'class-variance-authority'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 
 /**
@@ -460,11 +461,10 @@ export function OSuaChu({
 
 // ======================= Hạn (ngày giờ) =======================
 
-/** "YYYY-MM-DD…" → "dd/MM HH:mm" (giờ lấy nguyên văn phần sau ngày — không đổi múi giờ). */
+/** "YYYY-MM-DD…" → "dd/MM HH:mm" (ngày = mặc định `hienNgay`, khác năm dd/MM/yy; giờ lấy nguyên văn — không đổi múi). */
 function hienHan(v: string) {
-  const [, m, d] = v.slice(0, 10).split('-')
   const gio = v.slice(10).match(/(\d{2}):(\d{2})/)
-  return `${d}/${m}${gio ? ` ${gio[1]}:${gio[2]}` : ''}`
+  return `${hienNgay(v.slice(0, 10))}${gio ? ` ${gio[1]}:${gio[2]}` : ''}`
 }
 
 /**

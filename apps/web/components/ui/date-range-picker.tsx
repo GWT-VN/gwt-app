@@ -206,7 +206,7 @@ export function DateRangePanel({
 
 /**
  * DateRangePicker — chọn KHOẢNG ngày, kiểu Airbnb (README DateRangePicker). Lưu `{ tu, den }` dạng `YYYY-MM-DD`
- * (`isoNgay`, giờ máy — không `toISOString()`), trigger hiện "dd/MM/yyyy – dd/MM/yyyy".
+ * (`isoNgay`, giờ máy — không `toISOString()`), trigger hiện "dd/MM – dd/MM" (khác năm dd/MM/yy, mặc định `hienNgay`).
  *
  * - Trigger = `selectTrigger` + CalendarBlank 16 (y DatePicker); `aria-haspopup="dialog"`. Đặt tên bằng
  *   `FieldLabel htmlFor={id}` / `aria-labelledby` / `aria-label`; tên đọc = nhãn + khoảng đang chọn (`useTriggerChon`).

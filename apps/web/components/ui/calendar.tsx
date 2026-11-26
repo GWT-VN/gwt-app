@@ -12,7 +12,8 @@ import {
   type WeekNumberProps,
 } from 'react-day-picker'
 import { vi } from 'react-day-picker/locale'
-import { hienNgay, isoNgay } from '@/bang/ngay'
+import { isoNgay } from '@/bang/ngay'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 import { cn } from '@/lib/utils'
 import type { Button } from './button'
 import { buttonVariants } from './button-variants'
@@ -33,7 +34,8 @@ import { buttonVariants } from './button-variants'
  * (DateRangePicker tự truyền `classNames` range_*).
  *
  * - Mặc định: tuần bắt đầu Thứ 2, `locale` vi, KHÔNG hiện ngày tháng khác. Tiêu đề "Tháng 11, 2026", thứ T2…CN, nhãn ô
- *   "18/11/2026, hôm nay" (README; dùng `hienNgay`/`isoNgay` của bang/ngay.ts, không `toISOString()`).
+ *   "18/11/2026, hôm nay" (README; `hienNgay(…, 'day-du')` — nhãn đọc màn hình giữ đủ năm, ô lưới không có ngữ cảnh
+ *   năm như chữ hiện; `isoNgay` của bang/ngay.ts, không `toISOString()`).
  * - Bàn phím của react-day-picker (APG Date Picker Dialog): ←→ ±1 ngày, ↑↓ ±1 tuần, PageUp/PageDown ±1 tháng, Home/End
  *   đầu/cuối tuần, Enter/Space chọn; một ô duy nhất tabIndex 0. Ngày bị chặn: nút `disabled` (đang focus thì
  *   `aria-disabled`) — y preview, phím đi qua thì bỏ qua.
@@ -180,7 +182,7 @@ function Calendar({
         ...formatters,
       }}
       labels={{
-        labelDayButton: (d, m) => [hienNgay(isoNgay(d)), ...nhanTrangThai(m)].join(', '),
+        labelDayButton: (d, m) => [hienNgay(isoNgay(d), 'day-du'), ...nhanTrangThai(m)].join(', '),
         labelGrid: thangNam,
         labelPrevious: () => 'Tháng trước',
         labelNext: () => 'Tháng sau',

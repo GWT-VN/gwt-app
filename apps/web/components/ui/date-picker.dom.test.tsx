@@ -78,7 +78,7 @@ test('"Hôm nay" lúc 00:30 giờ VN → 2026-11-20 (không lệch về 19 như 
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-20')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(document.activeElement).toBe(trigger())
-  expect(trigger().textContent).toContain('20/11/2026')
+  expect(trigger().textContent).toContain('20/11') // cùng năm → dd/MM (mặc định hienNgay)
 })
 
 test('bấm ô 18 → "2026-11-18"; pop là dialog có nhãn trong vùng DS, lịch tháng 11 tuần bắt đầu T2', async () => {
@@ -161,7 +161,7 @@ test('chưa có giá trị: mở bằng phím → focus hôm nay; Esc đóng, fo
   expect(onDoi).not.toHaveBeenCalled()
 })
 
-test('trigger: aria-haspopup dialog, chưa chọn → data-placeholder + "Chọn ngày"; có giá trị → dd/MM/yyyy; aria-invalid giữ', () => {
+test('trigger: aria-haspopup dialog, chưa chọn → data-placeholder + "Chọn ngày"; có giá trị → dd/MM (cùng năm); aria-invalid giữ', () => {
   render(
     <DsRoot>
       <NgayGiao invalid />
@@ -174,9 +174,9 @@ test('trigger: aria-haspopup dialog, chưa chọn → data-placeholder + "Chọn
   expect(t.hasAttribute('data-placeholder')).toBe(true)
   expect(t.textContent).toContain('Chọn ngày')
   expect(t.getAttribute('aria-invalid')).toBe('true')
-  const t2 = screen.getByRole('button', { name: 'Ngày 2 05/01/2026' })
+  const t2 = screen.getByRole('button', { name: 'Ngày 2 05/01' })
   expect(t2.hasAttribute('data-placeholder')).toBe(false)
-  expect(t2.textContent).toContain('05/01/2026')
+  expect(t2.textContent).toContain('05/01')
 })
 
 test('"Xoá ngày" chỉ hiện khi có giá trị → onValueChange(null)', async () => {

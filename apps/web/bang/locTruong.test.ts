@@ -100,9 +100,10 @@ describe('nhãn chip (gọn kiểu Twenty)', () => {
     expect(nhanChip({ phep: 'la', giaTri: [TOI] }, 'Phụ trách', ten).giaTri).toBe('Tôi')
   })
   test('ngày + chữ', () => {
-    expect(nhanChip({ phep: 'truoc', giaTri: ['2026-11-20'] }, 'Hạn', ten)).toEqual({ truoc: 'Hạn <', giaTri: '20/11/2026' })
-    expect(nhanChip({ phep: 'sau', giaTri: ['2026-11-20'] }, 'Hạn', ten)).toEqual({ truoc: 'Hạn ≥', giaTri: '20/11/2026' })
-    expect(nhanChip({ phep: 'khoang', giaTri: ['2026-11-01', '2026-11-20'] }, 'Hạn', ten).giaTri).toBe('01/11/2026 – 20/11/2026')
+    // Năm đã qua → luôn dd/MM/yy (mặc định hienNgay khác năm), test không phụ thuộc năm chạy.
+    expect(nhanChip({ phep: 'truoc', giaTri: ['2024-11-20'] }, 'Hạn', ten)).toEqual({ truoc: 'Hạn <', giaTri: '20/11/24' })
+    expect(nhanChip({ phep: 'sau', giaTri: ['2024-11-20'] }, 'Hạn', ten)).toEqual({ truoc: 'Hạn ≥', giaTri: '20/11/24' })
+    expect(nhanChip({ phep: 'khoang', giaTri: ['2024-11-01', '2024-11-20'] }, 'Hạn', ten).giaTri).toBe('01/11/24 – 20/11/24')
     expect(nhanChip({ phep: 'hom-nay', giaTri: [] }, 'Hạn', ten).giaTri).toBe('Hôm nay')
     expect(nhanChip({ phep: 'khong-chua', giaTri: ['E3'] }, 'Máy', ten)).toEqual({ truoc: 'Máy: Không chứa', giaTri: 'E3' })
   })

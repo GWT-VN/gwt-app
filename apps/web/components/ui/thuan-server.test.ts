@@ -36,7 +36,7 @@ test('gọi được trong môi trường node (không DOM, không React)', () =
   expect(calendarFoot).toContain('justify-between')
   expect(calendarFootClear).toContain('underline')
   expect(kepNgay('2026-01-01', '2026-02-01')).toBe('2026-02-01')
-  expect(hienKhoang({ tu: '2026-11-01', den: '2026-11-18' })).toBe('01/11/2026 – 18/11/2026')
+  expect(hienKhoang({ tu: '2024-11-01', den: '2024-11-18' })).toBe('01/11/24 – 18/11/24') // năm đã qua → dd/MM/yy
   expect(kichThuocDoc(2_411_725)).toBe('2,3 MB')
   expect(kiemTep(new File(['x'], 'a.exe'), { accept: '.pdf', toiDaMB: 1 })).toBe('Chỉ nhận PDF')
 })

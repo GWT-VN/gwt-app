@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react'
 import { CalendarBlank, CaretDown } from '@phosphor-icons/react/ssr'
-import { hienNgay, isoNgay, ngayTuIso } from '@/bang/ngay'
+import { isoNgay, ngayTuIso } from '@/bang/ngay'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 import { docNgay, ghepIso, hienNgayGio, hienNgayGioGon, laChiNgay, MUI_VN, tachIso } from '@/lib/gio'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
@@ -20,8 +21,8 @@ export { ghepIso, hienNgayGio, hienNgayGioGon, laChiNgay, tachIso }
 
 /**
  * DateTimePicker — chọn ngày, giờ tuỳ chọn (biến thể A4 của prototype chon-gio, CEO duyệt 20/11; sửa 22/11). Giá trị hai
- * dạng: có giờ = ISO có múi (`2026-11-25T14:30:00+07:00`) hiện "25/11/2026 · 14:30" / gọn "25/11 14:30"; **chỉ ngày**
- * = `2026-11-25` hiện "25/11/2026" / gọn "25/11" (CEO 22/11: chọn ngày không thì chỉ lưu ngày, KHÔNG tự gán giờ).
+ * dạng: có giờ = ISO có múi (`2026-11-25T14:30:00+07:00`) hiện "25/11 · 14:30" / gọn "25/11 14:30" (khác năm "25/11/25 …"); **chỉ ngày**
+ * = `2026-11-25` hiện "25/11"; ô GÕ ngày vẫn dd/MM/yyyy (`docNgay` đọc lại) (CEO 22/11: chọn ngày không thì chỉ lưu ngày, KHÔNG tự gán giờ).
  *
  * - Pop: lịch trên, hai ô gõ [ngày][giờ] (`Input` + `TimeInput`) ngay dưới lịch (CEO 22/11), đồng bộ hai chiều; chân pop
  *   **Xoá** (trái, khi có giá trị) · **Huỷ** + **Xong** (phải). Mở pop là focus ô ngày (chọn hết chữ để gõ đè).
@@ -87,7 +88,7 @@ export function DateTimePicker({
   if (mo !== moTruoc) {
     setMoTruoc(mo)
     if (mo) {
-      setChu(cu ? hienNgay(cu.ngay) : '')
+      setChu(cu ? hienNgay(cu.ngay, 'day-du') : '') // ô GÕ: đủ năm để docNgay đọc lại được
       setGio(cu?.gio ?? null)
       setGioDaXoa(false)
       setThang(ngayTuIso(cu?.ngay ?? nay))
@@ -168,7 +169,7 @@ export function DateTimePicker({
               const s = isoNgay(d)
               return s < tu && s !== cu?.ngay
             }}
-            onSelect={(d) => setChu(hienNgay(isoNgay(d)))}
+            onSelect={(d) => setChu(hienNgay(isoNgay(d), 'day-du'))}
           />
         </div>
         {/* Hai ô gõ DƯỚI lịch (CEO 22/11), cách nhau 8, cách lịch 12 (= nhịp chân lịch `calendarFoot`). */}

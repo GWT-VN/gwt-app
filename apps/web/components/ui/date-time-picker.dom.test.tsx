@@ -57,7 +57,7 @@ function dung(dau?: string | null) {
   return onDoi
 }
 
-test('chọn ngày ở lịch CHƯA lưu; Xong → CHỈ lưu ngày (không tự gán giờ), hiện "25/11/2026"', async () => {
+test('chọn ngày ở lịch CHƯA lưu; Xong → CHỈ lưu ngày (không tự gán giờ), hiện "25/11"', async () => {
   const user = userEvent.setup()
   const onDoi = dung()
   await user.click(trigger())
@@ -68,7 +68,7 @@ test('chọn ngày ở lịch CHƯA lưu; Xong → CHỈ lưu ngày (không tự
   await user.click(nut('Xong'))
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-25')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  expect(trigger().textContent).toBe('25/11/2026')
+  expect(trigger().textContent).toBe('25/11')
 })
 
 test('hai ô gõ nằm DƯỚI lịch; mở pop (bằng chuột) vẫn focus ô ngày', async () => {
@@ -81,10 +81,10 @@ test('hai ô gõ nằm DƯỚI lịch; mở pop (bằng chuột) vẫn focus ô 
   await waitFor(() => expect(document.activeElement).toBe(oNgay()))
 })
 
-test('giá trị chỉ ngày: trigger "22/11/2026"; mở thấy ô ngày, ô giờ trống placeholder "Giờ"; thêm giờ → ISO có giờ', async () => {
+test('giá trị chỉ ngày: trigger "22/11"; mở thấy ô ngày, ô giờ trống placeholder "Giờ"; thêm giờ → ISO có giờ', async () => {
   const user = userEvent.setup()
   const onDoi = dung('2026-11-22')
-  expect(trigger().textContent).toBe('22/11/2026')
+  expect(trigger().textContent).toBe('22/11')
   await user.click(trigger())
   await pop()
   expect(oNgay().value).toBe('22/11/2026')
@@ -93,7 +93,7 @@ test('giá trị chỉ ngày: trigger "22/11/2026"; mở thấy ô ngày, ô gi�
   await user.click(oGio())
   await user.keyboard('0930{Enter}')
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-22T09:30:00+07:00')
-  expect(trigger().textContent).toBe('22/11/2026 · 09:30')
+  expect(trigger().textContent).toBe('22/11 · 09:30')
 })
 
 test('nút "Xoá giờ" → về chỉ ngày; Xong lưu "YYYY-MM-DD"', async () => {
@@ -106,7 +106,7 @@ test('nút "Xoá giờ" → về chỉ ngày; Xong lưu "YYYY-MM-DD"', async () 
   expect(screen.queryByRole('button', { name: 'Xoá giờ' })).toBeNull()
   await user.click(nut('Xong'))
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-22')
-  expect(trigger().textContent).toBe('22/11/2026')
+  expect(trigger().textContent).toBe('22/11')
 })
 
 test('Enter ở ô giờ trống = Xong chỉ ngày (không lấy gợi ý đang sáng)', async () => {
@@ -317,7 +317,7 @@ test('giá trị UTC từ DB (…Z) hiện theo giờ VN', () => {
       <DateTimePicker aria-label="Hạn" value="2026-11-25T07:30:00Z" onValueChange={() => {}} />
     </DsRoot>,
   )
-  expect(screen.getByRole('button', { name: /^Hạn/ }).textContent).toContain('25/11/2026 · 14:30')
+  expect(screen.getByRole('button', { name: /^Hạn/ }).textContent).toContain('25/11 · 14:30')
 })
 
 test('gon: ô trong bảng hiện "dd/mm HH:mm", trống hiện placeholder', () => {

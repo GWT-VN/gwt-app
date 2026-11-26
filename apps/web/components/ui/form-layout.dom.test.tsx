@@ -103,7 +103,7 @@ test('Ngày hẹn (DatePicker): xoá ngày (đã sửa) rồi rời ô → lỗi
       <FormMau p="t" dau={{ loai: 'bao-duong', ngay: '2099-01-15' }} />
     </DsRoot>,
   )
-  const ngay = screen.getByRole('button', { name: 'Ngày hẹn 15/01/2099' })
+  const ngay = screen.getByRole('button', { name: 'Ngày hẹn 15/01/99' })
   await u.click(ngay)
   await u.click(await screen.findByRole('button', { name: 'Xoá ngày' }))
   await waitFor(() => expect(document.activeElement).toBe(ngay))
