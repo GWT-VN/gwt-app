@@ -1,3 +1,9 @@
+import { cn } from '@/lib/utils'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { dsKyThuat, dsLichKyThuat } from '@/app/actions'
@@ -89,29 +95,28 @@ export default async function XemLichKyThuatPage({
   const chiLoai: Record<string, string> = { ...(loai ? { loai } : {}), ...(tinhOk ? { tinh: tinhOk } : {}) }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
-        <header className="flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">Lịch kỹ thuật đã lên</h1>
-            <p className="text-sm text-slate-500">Xem các chuyến đã gán cho kỹ thuật. Gán chuyến mới ở <Link href="/ky-thuat" className="underline">Gán lịch kỹ thuật</Link>.</p>
-          </div>
-          <div className="flex gap-1.5">
-            <Link href={`/ky-thuat/lich?${giuKt({ view: 'list' })}`} className={`px-3 py-1.5 rounded-lg text-sm border ${!laCalendar && !laBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>Danh sách</Link>
-            <Link href={`/ky-thuat/lich?${giuKt({ view: 'board' })}`} className={`px-3 py-1.5 rounded-lg text-sm border ${laBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>▦ Điều phối</Link>
-            <Link href={`/ky-thuat/lich?${giuKt({ view: 'calendar', thang })}`} className={`px-3 py-1.5 rounded-lg text-sm border ${laCalendar ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>📅 Calendar</Link>
-          </div>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="max-w-5xl space-y-4">
+        <PageHeader
+          tieuDe="Lịch kỹ thuật đã lên"
+          hanhDong={<Button asChild variant="outline"><Link href="/ky-thuat">Gán lịch kỹ thuật</Link></Button>}
+        />
+
+        <nav aria-label="Cách xem lịch kỹ thuật" className="flex flex-wrap gap-1.5">
+          <Link href={`/ky-thuat/lich?${giuKt({ view: 'list' })}`} aria-current={!laCalendar && !laBoard ? "true" : undefined} className={cn(buttonVariants({ variant: !laCalendar && !laBoard ? "secondary" : "outline", size: "sm" }))}>Danh sách</Link>
+          <Link href={`/ky-thuat/lich?${giuKt({ view: 'board' })}`} aria-current={laBoard ? "true" : undefined} className={cn(buttonVariants({ variant: laBoard ? "secondary" : "outline", size: "sm" }))}>Điều phối</Link>
+          <Link href={`/ky-thuat/lich?${giuKt({ view: 'calendar', thang })}`} aria-current={laCalendar ? "true" : undefined} className={cn(buttonVariants({ variant: laCalendar ? "secondary" : "outline", size: "sm" }))}>Lịch tháng</Link>
+        </nav>
 
         {/* Lọc theo TỈNH của kỹ thuật — chỉ hiện tỉnh có người, ẩn hẳn khi chưa ai điền tỉnh */}
         {dsTinh.length > 0 && (
           <div className="flex gap-1.5 flex-wrap items-center">
-            <span className="text-[11px] text-slate-400 uppercase tracking-wide mr-0.5">Tỉnh</span>
+            <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Tỉnh</span>
             <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(loai ? { loai } : {}), ...cuaSo })}`}
-              className={`px-2.5 py-1 rounded-lg text-xs border ${!tinhOk ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600'}`}>Tất cả</Link>
+              aria-current={!tinhOk ? "true" : undefined} className={cn(buttonVariants({ variant: !tinhOk ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
             {dsTinh.map((t) => (
               <Link key={t} href={`/ky-thuat/lich?${new URLSearchParams({ view, tinh: t, ...(loai ? { loai } : {}), ...cuaSo })}`}
-                className={`px-2.5 py-1 rounded-lg text-xs border ${tinhOk === t ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600'}`}>{t}</Link>
+                aria-current={tinhOk === t ? "true" : undefined} className={cn(buttonVariants({ variant: tinhOk === t ? "secondary" : "outline", size: "sm" }))}>{t}</Link>
             ))}
           </div>
         )}
@@ -119,10 +124,10 @@ export default async function XemLichKyThuatPage({
         {/* Lọc theo kỹ thuật */}
         <div className="flex gap-1.5 flex-wrap">
           <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...chiLoai, ...cuaSo })}`}
-            className={`px-2.5 py-1 rounded-lg text-xs border ${!kt ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>Tất cả KT</Link>
+            aria-current={!kt ? "true" : undefined} className={cn(buttonVariants({ variant: !kt ? "secondary" : "outline", size: "sm" }))}>Tất cả KT</Link>
           {ktTrongTinh.map((k) => (
             <Link key={k.id} href={`/ky-thuat/lich?${new URLSearchParams({ view, kt: k.id, ...chiLoai, ...cuaSo })}`}
-              className={`px-2.5 py-1 rounded-lg text-xs border ${kt === k.id ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600'}`}>
+              aria-current={kt === k.id ? "true" : undefined} className={cn(buttonVariants({ variant: kt === k.id ? "secondary" : "outline", size: "sm" }))}>
               {k.ten}{k.tinh && !tinhOk && <span className="text-[10px] opacity-60"> · {k.tinh}</span>}
             </Link>
           ))}
@@ -130,21 +135,21 @@ export default async function XemLichKyThuatPage({
 
         {/* Lọc theo loại việc */}
         <div className="flex gap-1.5 flex-wrap items-center">
-          <span className="text-[11px] text-slate-400 uppercase tracking-wide mr-0.5">Loại việc</span>
+          <span className="text-[11px] text-muted-foreground uppercase tracking-wide mr-0.5">Loại việc</span>
           <Link href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), ...cuaSo })}`}
-            className={`px-2.5 py-1 rounded-lg text-xs border ${!loai ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600'}`}>Tất cả</Link>
+            aria-current={!loai ? "true" : undefined} className={cn(buttonVariants({ variant: !loai ? "secondary" : "outline", size: "sm" }))}>Tất cả</Link>
           {LOAI_VIEC_KT.map((lv) => (
             <Link key={lv.v} href={`/ky-thuat/lich?${new URLSearchParams({ view, ...(kt ? { kt } : {}), ...(tinhOk ? { tinh: tinhOk } : {}), loai: lv.v, ...cuaSo })}`}
-              className={`px-2.5 py-1 rounded-lg text-xs border ${loai === lv.v ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600'}`}>{lv.nhan}</Link>
+              aria-current={loai === lv.v ? "true" : undefined} className={cn(buttonVariants({ variant: loai === lv.v ? "secondary" : "outline", size: "sm" }))}>{lv.nhan}</Link>
           ))}
         </div>
 
         {laBoard ? (
           <>
-            <div className="flex items-center justify-between gap-2">
-              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanTruoc, ...giuLoc })}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">← Tuần trước</Link>
-              <span className="text-sm text-slate-600">Tuần {hienNgay(days[0])} – {hienNgay(days[6])}</span>
-              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanSau, ...giuLoc })}`} className="rounded-lg border px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">Tuần sau →</Link>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanTruoc, ...giuLoc })}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>← Tuần trước</Link>
+              <span className="text-sm text-muted-foreground">Tuần {hienNgay(days[0])} – {hienNgay(days[6])}</span>
+              <Link href={`/ky-thuat/lich?${new URLSearchParams({ view: 'board', tuan: tuanSau, ...giuLoc })}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Tuần sau →</Link>
             </div>
             <BangDieuPhoiKT kts={kt ? ktTrongTinh.filter((k) => k.id === kt) : ktTrongTinh} rows={rows} days={days} />
           </>
@@ -152,18 +157,18 @@ export default async function XemLichKyThuatPage({
           <LichKyThuatCalendar thang={thang} rows={rows} kt={kt || undefined} loai={loai || undefined} />
         ) : (
           <>
-            <form className="flex items-end gap-2 text-xs text-slate-600">
-              <label>Từ<br /><input type="date" name="tu" defaultValue={tu} className="mt-0.5 rounded border px-2 py-1 text-sm" /></label>
-              <label>Đến<br /><input type="date" name="den" defaultValue={den} className="mt-0.5 rounded border px-2 py-1 text-sm" /></label>
+            <form className="flex flex-wrap items-end gap-2 text-xs text-muted-foreground">
+              <label>Từ<br /><Input type="date" name="tu" defaultValue={tu} className="mt-1" /></label>
+              <label>Đến<br /><Input type="date" name="den" defaultValue={den} className="mt-1" /></label>
               <input type="hidden" name="view" value="list" />
               {kt && <input type="hidden" name="kt" value={kt} />}
               {loai && <input type="hidden" name="loai" value={loai} />}
-              <button className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm">Lọc</button>
+              <Button type="submit">Lọc</Button>
             </form>
             <LichKyThuatList rows={rows} />
           </>
         )}
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

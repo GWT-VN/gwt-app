@@ -1,3 +1,8 @@
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { chanNeuThieuQuyen } from '@/lib/nen-tang/kiem-quyen'
 import Link from 'next/link'
 import { dsKyThuat, boiCanhKhach, type ViecInput } from '@/app/actions'
@@ -22,20 +27,18 @@ export default async function KyThuatPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
-        <header className="flex items-center justify-between gap-3 flex-wrap">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">Gán lịch kỹ thuật</h1>
-            <p className="text-sm text-slate-500">Gán việc cho kỹ thuật (nhân viên + cộng tác viên). 1 chuyến đi có thể gồm nhiều việc: lắp máy · bảo trì · ticket · thay lõi · khảo sát · thu tiền · khác.</p>
-          </div>
-          <Link href="/ky-thuat/lich" className="rounded-lg border px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">Xem lịch đã lên →</Link>
-        </header>
+    <ManV2>
+      <TrangDuLieu className="max-w-5xl space-y-4">
+        <PageHeader
+          tieuDe="Gán lịch kỹ thuật"
+          meta={['Gán chuyến cho nhân viên hoặc cộng tác viên. Mỗi chuyến có thể gồm nhiều việc.']}
+          hanhDong={<Button asChild variant="outline"><Link href="/ky-thuat/lich">Xem lịch đã lên</Link></Button>}
+        />
 
-        {prefill && <p className="text-sm bg-sky-50 text-sky-900 rounded-lg px-3 py-2">Đã tạo sẵn 1 việc từ liên kết nhanh — chọn kỹ thuật + ngày rồi tạo chuyến (thêm việc khác nếu cần).</p>}
+        {prefill && <Alert color="info"><AlertDescription>Đã tạo sẵn 1 việc từ liên kết nhanh — chọn kỹ thuật + ngày rồi tạo chuyến (thêm việc khác nếu cần).</AlertDescription></Alert>}
 
         <KyThuatBang suaDs={suaDs} dsKt={dsKt} prefill={prefill} />
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

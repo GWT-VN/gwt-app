@@ -1,5 +1,11 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Combobox } from '@/components/ui/combobox'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -79,140 +85,143 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
     router.refresh()
   }
 
-  const oInput = 'rounded border px-2 py-1 text-sm text-slate-900 bg-white'
 
   return (
     <div className="space-y-4">
-      {(msg || err) && <p className={`text-sm ${err ? 'text-red-600' : 'text-emerald-700'}`}>{err ?? msg}</p>}
+      {(msg || err) && <p className={`text-sm ${err ? 'text-destructive' : 'text-(--color-text-success)'}`}>{err ?? msg}</p>}
 
       {/* Tạo chuyến */}
-      <section className="bg-white rounded-xl border p-4 space-y-3">
-        <h2 className="font-medium text-slate-900">Gán chuyến đi cho kỹ thuật</h2>
+      <Card className="space-y-3">
+        <h2 className="font-medium text-foreground">Gán chuyến đi cho kỹ thuật</h2>
         <div className="flex flex-wrap items-end gap-2">
-          <label className="text-xs text-slate-600">Kỹ thuật<br />
-            <select value={ktId} onChange={(e) => { setKtId(e.target.value); loadTuan(e.target.value, ngay) }} className={`${oInput} mt-0.5`}>
-              <option value="">— Chọn —</option>
-              {dsKt.filter((k) => k.hoat_dong).map((k) => <option key={k.id} value={k.id}>{k.ten}{k.la_ctv ? ' (CTV)' : ''}</option>)}
-            </select>
+          <div className="w-48 max-w-full space-y-1 text-xs text-muted-foreground">
+            <span>Kỹ thuật</span>
+            <Combobox aria-label="Kỹ thuật" value={ktId || null}
+              options={dsKt.filter((k) => k.hoat_dong).map((k) => ({ gt: k.id, nhan: k.ten + (k.la_ctv ? ' (CTV)' : ''), anMa: true }))}
+              onValueChange={(id) => { setKtId(id ?? ''); loadTuan(id ?? '', ngay) }} />
+          </div>
+          <label className="text-xs text-muted-foreground">Ngày<br />
+            <Input type="date" value={ngay} onChange={(e) => { setNgay(e.target.value); loadTuan(ktId, e.target.value) }} className="mt-0.5" />
           </label>
-          <label className="text-xs text-slate-600">Ngày<br />
-            <input type="date" value={ngay} onChange={(e) => { setNgay(e.target.value); loadTuan(ktId, e.target.value) }} className={`${oInput} mt-0.5`} />
-          </label>
-          <label className="text-xs text-slate-600">Tỉnh/TP<br />
+          <label className="text-xs text-muted-foreground">Tỉnh/TP<br />
             {/* Dùng CHUNG `ChonTinh` như mọi màn khác, thay vì tự dựng `<select>` 64 mục ở đây.
                 Tự dựng là (a) vi phạm luật ">10 mục phải gõ để tìm" và (b) khi `ChonTinh` được
                 nâng cấp thì chỗ này không hưởng — đúng thứ đã xảy ra hôm 22/08. */}
             <ChonTinh value={tinh} onChange={setTinh} />
           </label>
-          <label className="text-xs text-slate-600 flex-1 min-w-40">Địa chỉ (tự theo máy → khách; sửa được)<br />
-            <input value={diaChi} onChange={(e) => setDiaChi(e.target.value)} className={`${oInput} mt-0.5 w-full`} />
+          <label className="text-xs text-muted-foreground flex-1 min-w-40">Địa chỉ (tự theo máy → khách; sửa được)<br />
+            <Input value={diaChi} onChange={(e) => setDiaChi(e.target.value)} className="mt-0.5 w-full" />
           </label>
         </div>
         {tuan && ktId && (
-          <div className="rounded-lg border bg-slate-50 p-2 text-xs">
-            <p className="text-slate-600 mb-1">
+          <div className="rounded-lg border bg-muted p-2 text-xs">
+            <p className="text-muted-foreground mb-1">
               Lịch tuần của kỹ thuật ({vnDate(tuan.tu)} – {vnDate(tuan.den)}): {tuan.chuyen.length} chuyến · {tuan.nghi.length} ngày nghỉ
-              <button onClick={baoNghi} className="text-amber-700 underline ml-2">Báo nghỉ ngày {vnDate(ngay)}</button>
+              <Button onClick={baoNghi} className="text-(--color-text-warning) underline ml-2">Báo nghỉ ngày {vnDate(ngay)}</Button>
             </p>
             {tuan.chuyen.length === 0 && tuan.nghi.length === 0 ? (
-              <p className="text-slate-400">Trống — rảnh cả tuần.</p>
+              <p className="text-muted-foreground">Trống — rảnh cả tuần.</p>
             ) : (
               <ul className="space-y-0.5">
                 {tuan.nghi.map((n) => (
-                  <li key={n.id} className="text-amber-700">🌙 {vnDate(n.ngay)}: nghỉ phép{n.ly_do ? ` (${n.ly_do})` : ''} <button onClick={() => boNghi(n.id)} className="text-slate-400 underline">bỏ</button></li>
+                  <li key={n.id} className="text-(--color-text-warning)">🌙 {vnDate(n.ngay)}: nghỉ phép{n.ly_do ? ` (${n.ly_do})` : ''} <Button onClick={() => boNghi(n.id)} className="text-muted-foreground underline">bỏ</Button></li>
                 ))}
                 {tuan.chuyen.map((c) => (
-                  <li key={c.id} className="text-slate-600">📅 {vnDate(c.ngay)}: {c.ten_khach ?? c.dia_chi ?? 'chuyến'} · {c.viec.map((v) => NHAN_LOAI_VIEC[v.loai_viec] ?? v.loai_viec).join(', ')}</li>
+                  <li key={c.id} className="text-muted-foreground">📅 {vnDate(c.ngay)}: {c.ten_khach ?? c.dia_chi ?? 'chuyến'} · {c.viec.map((v) => NHAN_LOAI_VIEC[v.loai_viec] ?? v.loai_viec).join(', ')}</li>
                 ))}
               </ul>
             )}
           </div>
         )}
         {khachId && diaChi.trim() && ctx?.dia_chi !== diaChi.trim() && (
-          <label className="flex items-center gap-1.5 text-xs text-amber-700">
+          <label className="flex items-center gap-1.5 text-xs text-(--color-text-warning)">
             <input type="checkbox" checked={capMay} onChange={(e) => setCapMay(e.target.checked)} />
             Khách chuyển địa chỉ mới — cập nhật địa chỉ này cho máy của khách (sẽ hỏi xác nhận)
           </label>
         )}
         <div>
-          <p className="text-xs text-slate-600 mb-1">Khách (chọn để tự lấy địa chỉ + bộ/máy/ticket):</p>
-          {khachId ? <p className="text-xs text-emerald-700">✓ đã chọn <button onClick={() => { setKhachId(''); setCtx(null) }} className="underline text-slate-500 ml-1">bỏ</button></p> : <KhachPicker onPick={(id) => chonKhach(id)} />}
+          <p className="text-xs text-muted-foreground mb-1">Khách (chọn để tự lấy địa chỉ + bộ/máy/ticket):</p>
+          {khachId ? <p className="text-xs text-(--color-text-success)">✓ đã chọn <Button onClick={() => { setKhachId(''); setCtx(null) }} className="underline text-muted-foreground ml-1">bỏ</Button></p> : <KhachPicker onPick={(id) => chonKhach(id)} />}
         </div>
 
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-slate-600">Việc trong chuyến (1 chuyến nhiều việc):</p>
+          <p className="text-xs font-medium text-muted-foreground">Việc trong chuyến (1 chuyến nhiều việc):</p>
           {viec.map((v, i) => (
             <div key={i} className="flex flex-wrap items-center gap-2">
-              <select value={v.loai_viec} onChange={(e) => setViecAt(i, { loai_viec: e.target.value, ref: '', mo_ta: '', so_tien: undefined })} className={oInput}>
-                {LOAI_VIEC_KT.map((l) => <option key={l.v} value={l.v}>{l.nhan}</option>)}
-              </select>
+              <NativeSelect aria-label="Loại việc" value={v.loai_viec} onChange={(e) => setViecAt(i, { loai_viec: e.target.value, ref: '', mo_ta: '', so_tien: undefined })}>
+                {LOAI_VIEC_KT.map((l) => <NativeSelectOption key={l.v} value={l.v}>{l.nhan}</NativeSelectOption>)}
+              </NativeSelect>
               {v.loai_viec === 'bao_tri' && ctx && ctx.visits.length > 0 ? (
-                <select value={v.ref ?? ''} onChange={(e) => { const vs = ctx.visits.find((x) => x.id === e.target.value); setViecAt(i, { ref: e.target.value, mo_ta: vs?.nhan ?? '' }) }} className={`${oInput} flex-1 min-w-48`}>
-                  <option value="">— Chọn lượt bảo trì (máy · lần · hạn) —</option>
-                  {ctx.visits.map((vs) => <option key={vs.id} value={vs.id}>{vs.nhan}</option>)}
-                </select>
+                <div className="min-w-0 flex-[1_1_192px]">
+                  <Combobox aria-label="Lượt bảo trì" value={v.ref || null} placeholder="Chọn lượt bảo trì"
+                    options={ctx.visits.map((vs) => ({ gt: vs.id, nhan: vs.nhan, anMa: true }))}
+                    onValueChange={(id) => setViecAt(i, { ref: id ?? '', mo_ta: ctx.visits.find((x) => x.id === id)?.nhan ?? '' })} />
+                </div>
               ) : v.loai_viec === 'thay_loi' && ctx && ctx.machines.length > 0 ? (
                 <>
-                  <select value={v.ref ?? ''} onChange={(e) => setViecAt(i, { ref: e.target.value, mo_ta: '' })} className={oInput}>
-                    <option value="">— Chọn máy —</option>
-                    {ctx.machines.map((m) => <option key={m.serial} value={m.serial}>{m.nhan}{m.dia_chi ? ` — ${m.dia_chi}` : ''}</option>)}
-                  </select>
+                  <div className="min-w-0 flex-[1_1_192px]">
+                    <Combobox aria-label="Máy" value={v.ref || null} placeholder="Chọn máy"
+                      options={ctx.machines.map((m) => ({ gt: m.serial, nhan: m.nhan, phu: m.dia_chi ?? undefined }))}
+                      onValueChange={(id) => setViecAt(i, { ref: id ?? '', mo_ta: '' })} />
+                  </div>
                   {v.ref && (() => {
                     const loi = ctx.machines.find((m) => m.serial === v.ref)?.loi ?? []
                     return loi.length > 0 ? (
-                      <select value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} className={`${oInput} flex-1 min-w-40`}>
-                        <option value="">— Chọn lõi cần thay —</option>
-                        {loi.map((l) => <option key={l.code} value={`${l.ten ?? l.code} (${l.code})`}>{l.ten ?? l.code} ({l.code})</option>)}
-                      </select>
+                      <div className="min-w-0 flex-[1_1_160px]">
+                        <Combobox aria-label="Lõi cần thay" value={v.mo_ta || null} placeholder="Chọn lõi cần thay"
+                          options={loi.map((l) => ({ gt: `${l.ten ?? l.code} (${l.code})`, nhan: l.ten ?? l.code, phu: l.code, anMa: true }))}
+                          onValueChange={(id) => setViecAt(i, { mo_ta: id ?? '' })} />
+                      </div>
                     ) : (
-                      <input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Lõi cần thay (máy chưa có danh mục lõi)" className={`${oInput} flex-1 min-w-40`} />
+                      <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Lõi cần thay (máy chưa có danh mục lõi)" className="flex-1 min-w-40" />
                     )
                   })()}
                 </>
               ) : v.loai_viec === 'ticket' && ctx && ctx.tickets.length > 0 ? (
-                <select value={v.ref ?? ''} onChange={(e) => { const t = ctx.tickets.find((x) => x.code === e.target.value); setViecAt(i, { ref: e.target.value, mo_ta: t?.nhan ?? '' }) }} className={`${oInput} flex-1 min-w-48`}>
-                  <option value="">— Chọn ticket —</option>
-                  {ctx.tickets.map((t) => <option key={t.code} value={t.code}>{t.nhan}</option>)}
-                </select>
+                <div className="min-w-0 flex-[1_1_192px]">
+                  <Combobox aria-label="Ticket" value={v.ref || null} placeholder="Chọn ticket"
+                    options={ctx.tickets.map((t) => ({ gt: t.code, nhan: t.nhan }))}
+                    onValueChange={(id) => setViecAt(i, { ref: id ?? '', mo_ta: ctx.tickets.find((t) => t.code === id)?.nhan ?? '' })} />
+                </div>
               ) : v.loai_viec === 'thu_tien' ? (
                 <>
-                  <input type="number" value={v.so_tien ?? ''} onChange={(e) => setViecAt(i, { so_tien: Number(e.target.value) || undefined })} placeholder="Số tiền (VND)" className={`${oInput} w-36`} />
-                  <input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Nội dung thu (tuỳ chọn)" className={`${oInput} flex-1 min-w-40`} />
+                  <Input type="number" value={v.so_tien ?? ''} onChange={(e) => setViecAt(i, { so_tien: Number(e.target.value) || undefined })} placeholder="Số tiền (VND)" className="w-36" />
+                  <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })} placeholder="Nội dung thu (tuỳ chọn)" className="flex-1 min-w-40" />
                 </>
               ) : (
-                <input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })}
-                  placeholder={v.loai_viec === 'khac' ? 'Ghi cụ thể việc gì (bắt buộc)' : 'Mô tả (tuỳ chọn)'} className={`${oInput} flex-1 min-w-48`} />
+                <Input value={v.mo_ta ?? ''} onChange={(e) => setViecAt(i, { mo_ta: e.target.value })}
+                  placeholder={v.loai_viec === 'khac' ? 'Ghi cụ thể việc gì (bắt buộc)' : 'Mô tả (tuỳ chọn)'} className="flex-1 min-w-48" />
               )}
-              {viec.length > 1 && <button onClick={() => setViec((vs) => vs.filter((_, j) => j !== i))} className="text-red-500 text-sm">✕</button>}
+              {viec.length > 1 && <Button onClick={() => setViec((vs) => vs.filter((_, j) => j !== i))} variant="ghost" size="icon-sm" aria-label={`Bỏ việc ${i + 1}`} className="text-destructive">✕</Button>}
             </div>
           ))}
-          <button onClick={() => setViec((vs) => [...vs, { loai_viec: 'khac', mo_ta: '', ref: '' }])} className="text-xs text-sky-600 underline">+ thêm việc</button>
+          <Button onClick={() => setViec((vs) => [...vs, { loai_viec: 'khac', mo_ta: '', ref: '' }])} variant="ghost" size="sm">+ thêm việc</Button>
           {!khachId && <p className="text-[11px] text-amber-500">Chọn khách ở trên để hiện danh sách bộ/máy/ticket cho từng việc (không chọn vẫn nhập tay được).</p>}
         </div>
 
-        <div className="flex items-center gap-2">
-          <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú chuyến (tuỳ chọn)" className={`${oInput} flex-1`} />
-          <button disabled={busy || !ktId} onClick={taoChuyen} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">Tạo chuyến</button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú chuyến (tuỳ chọn)" className="flex-1" />
+          <Button disabled={busy || !ktId} onClick={taoChuyen} size="sm">Tạo chuyến</Button>
         </div>
-      </section>
+      </Card>
 
       {/* Danh sách thợ: chỉ xem. Sửa ở trang Danh sách người. */}
-      <section className="bg-white rounded-xl border p-4 space-y-3">
+      <Card className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-medium text-slate-900">Kỹ thuật ({dsKt.filter((k) => k.hoat_dong).length})</h2>
-          {suaDs && <Link href="/danh-sach-nguoi?tab=kt" className="text-xs text-slate-500 underline">Sửa danh sách →</Link>}
+          <h2 className="font-medium text-foreground">Kỹ thuật ({dsKt.filter((k) => k.hoat_dong).length})</h2>
+          {suaDs && <Link href="/danh-sach-nguoi?tab=kt" className="text-(--color-text-info) underline underline-offset-2">Sửa danh sách →</Link>}
         </div>
         <ul className="divide-y border rounded-lg">
           {dsKt.filter((k) => k.hoat_dong).map((k) => (
             <li key={k.id} className="px-3 py-2 text-sm">
-              <span className="text-slate-900">{k.ten}</span>
+              <span className="text-foreground">{k.ten}</span>
               {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
-              {k.sdt && <span className="text-xs text-slate-400 font-mono ml-1">· {k.sdt}</span>}
+              {k.sdt && <span className="text-xs text-muted-foreground font-mono ml-1">· {k.sdt}</span>}
             </li>
           ))}
-          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-slate-400">Chưa có kỹ thuật.</li>}
+          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-muted-foreground">Chưa có kỹ thuật.</li>}
         </ul>
-      </section>
+      </Card>
     </div>
   )
 }

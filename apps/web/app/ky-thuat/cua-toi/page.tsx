@@ -1,3 +1,7 @@
+import { EmptyState } from '@/components/ui/empty-state'
+import { ManV2 } from '@/components/khung/ManV2'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { PageHeader } from '@/components/ui/page-header'
 import { requireStaff } from '@/lib/nen-tang/phien'
 import { lichCuaToi } from '@/app/actions'
 import { LichCuaToiKT } from '@/components/LichCuaToiKT'
@@ -14,30 +18,27 @@ export default async function LichCuaToiPage() {
   const { kt, rows } = await lichCuaToi(iso(tu), iso(den))
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4">
+    <ManV2>
+      <TrangDuLieu className="max-w-2xl space-y-4">
         <NutQuayLai macDinh="/" />
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900">Lịch của tôi</h1>
-          <p className="text-sm text-slate-500">
-            {kt ? `Kỹ thuật: ${kt.ten}` : 'Tài khoản chưa gắn hồ sơ kỹ thuật.'} · Chuyến 7 ngày qua đến 30 ngày tới.
-          </p>
-        </div>
+        <PageHeader
+          tieuDe="Lịch của tôi"
+          meta={[...(kt ? [`Kỹ thuật: ${kt.ten}`] : []), 'Chuyến 7 ngày qua đến 30 ngày tới.']}
+        />
 
         {!kt ? (
-          <div className="bg-white rounded-xl border p-5 text-sm text-slate-600">
-            Tài khoản của bạn chưa được gắn với hồ sơ kỹ thuật (khớp theo email). Liên hệ quản trị để được cấp.
-          </div>
+          <EmptyState kieu="quyen" capTieuDe={2} tieuDe="Chưa có hồ sơ kỹ thuật" moTa="Tài khoản của bạn chưa được gắn với hồ sơ kỹ thuật (khớp theo email). Liên hệ quản trị để được cấp.
+          " />
         ) : (
           <LichCuaToiKT rows={rows} />
         )}
 
-        <details className="bg-white rounded-xl border p-4">
-          <summary className="text-sm font-medium text-slate-700 cursor-pointer">Đổi mật khẩu</summary>
-          <p className="text-xs text-slate-500 mt-1 mb-2">Nên đổi mật khẩu tạm được cấp sang mật khẩu của riêng bạn.</p>
+        <details className="bg-card rounded-xl border p-4">
+          <summary className="text-sm font-medium text-foreground cursor-pointer">Đổi mật khẩu</summary>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">Nên đổi mật khẩu tạm được cấp sang mật khẩu của riêng bạn.</p>
           <DoiMatKhau />
         </details>
-      </div>
-    </main>
+      </TrangDuLieu>
+    </ManV2>
   )
 }

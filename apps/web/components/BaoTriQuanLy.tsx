@@ -1,5 +1,8 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -151,45 +154,45 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
 
   return (
     <div className="space-y-5">
-      {(msg || err) && <p className={`text-sm ${err ? 'text-red-600' : 'text-emerald-700'}`}>{err ?? msg}</p>}
+      {(msg || err) && <p className={`text-sm ${err ? 'text-destructive' : 'text-(--color-text-success)'}`}>{err ?? msg}</p>}
 
       {/* ── Sắp hết gói → nhắc chào gói mới ── */}
       {hienLen && sapHet.length > 0 && (
-        <section className="bg-rose-50 border border-rose-200 rounded-xl p-4 space-y-2">
+        <Card className="space-y-2 border-destructive/30">
           <h2 className="font-medium text-rose-900">🔔 Sắp hết gói — chào gói mới ({sapHet.length})</h2>
           <p className="text-xs text-rose-800">Khách còn ≤1 lượt bảo trì chưa làm. Chào gói mới; tạo gói bằng nút &ldquo;Tạo lịch mới&rdquo; bên dưới (hoặc sửa số lần nếu khách mua/tặng thêm).</p>
-          <ul className="divide-y border rounded-lg bg-white text-sm">
+          <ul className="divide-y border rounded-lg bg-card text-sm">
             {sapHet.map((s) => (
               <li key={s.plan_id} className="px-3 py-2 flex items-center justify-between gap-3">
                 <span>
-                  <Link href={`/khach/${s.customer_id}`} prefetch={false} className="text-slate-900 underline">{s.ten_khach ?? '(khách)'}</Link>
-                  <span className="text-xs text-slate-400 font-mono"> · {s.primary_phone ?? '—'}</span>
-                  <span className="text-xs text-slate-500"> · {s.bo_may ?? '—'} · còn {s.con_lai} lượt{s.luot_cuoi ? ` · lượt cuối ${vnDate(s.luot_cuoi)}` : ''}</span>
+                  <Link href={`/khach/${s.customer_id}`} prefetch={false} className="text-foreground underline">{s.ten_khach ?? '(khách)'}</Link>
+                  <span className="text-xs text-muted-foreground font-mono"> · {s.primary_phone ?? '—'}</span>
+                  <span className="text-xs text-muted-foreground"> · {s.bo_may ?? '—'} · còn {s.con_lai} lượt{s.luot_cuoi ? ` · lượt cuối ${vnDate(s.luot_cuoi)}` : ''}</span>
                 </span>
               </li>
             ))}
           </ul>
-        </section>
+        </Card>
       )}
 
       {/* ── Cần map khách ── */}
       {hienMap && (
-      <section className="bg-white rounded-xl border p-4 space-y-3">
+      <Card className="space-y-3">
         <div>
-          <h2 className="font-medium text-slate-900">🔗 Cần map khách ({chuaMap.length})</h2>
-          <p className="text-xs text-slate-500">Lịch bảo trì (từ Asana) chưa gắn được vào hồ sơ khách. Map để bảo trì đi cùng khách kích hoạt máy.</p>
+          <h2 className="font-medium text-foreground">🔗 Cần map khách ({chuaMap.length})</h2>
+          <p className="text-xs text-muted-foreground">Lịch bảo trì (từ Asana) chưa gắn được vào hồ sơ khách. Map để bảo trì đi cùng khách kích hoạt máy.</p>
         </div>
         {chuaMap.length === 0 ? (
-          <p className="text-sm text-emerald-700">Tất cả plan đã map khách ✓</p>
+          <p className="text-sm text-(--color-text-success)">Tất cả plan đã map khách ✓</p>
         ) : (
           <ul className="divide-y border rounded-lg">
             {chuaMap.map((p) => (
               <li key={p.id} className="px-3 py-2.5 space-y-1.5">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
-                    <span className="text-sm text-slate-900">{p.source_customer_name ?? '(không tên)'}</span>
-                    <span className="text-xs text-slate-400 font-mono"> · {p.source_phone ?? '—'}</span>
-                    <div className="text-xs text-slate-500">{p.bo_may ?? '—'} · {p.tong_lan ?? '?'} lần · {p.loai_goi}</div>
+                    <span className="text-sm text-foreground">{p.source_customer_name ?? '(không tên)'}</span>
+                    <span className="text-xs text-muted-foreground font-mono"> · {p.source_phone ?? '—'}</span>
+                    <div className="text-xs text-muted-foreground">{p.bo_may ?? '—'} · {p.tong_lan ?? '?'} lần · {p.loai_goi}</div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     {p.goi_y.length > 0 ? (
@@ -201,25 +204,25 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                           // rõ, thay vì ẩn hẳn (vẫn còn giá trị hơn phải mò tay trong 400 khách).
                           const yeu = tinCayThap(g.diem)
                           return (
-                            <button key={g.id} disabled={busy === p.id}
+                            <Button key={g.id} disabled={busy === p.id}
                               onClick={() => moSoSanh(p.id, g.id)}
                               className={
                                 'rounded-lg px-3 py-1.5 text-sm disabled:opacity-50 text-left ' +
-                                (yeu ? 'bg-amber-50 border border-amber-300 text-amber-900' : 'bg-emerald-600 text-white')
+                                (yeu ? 'bg-(--color-background-warning-surface) border border-border text-(--color-text-warning-surface)' : 'bg-emerald-600 text-white')
                               }>
                               {yeu ? 'Có thể là: ' : 'Xem & gán: '}{g.ten}{g.sdt ? ` (${g.sdt})` : ''}
-                              <span className={'block text-[10px] font-normal ' + (yeu ? 'text-amber-800' : 'opacity-80')}>
+                              <span className={'block text-[10px] font-normal ' + (yeu ? 'text-(--color-text-warning)' : 'opacity-80')}>
                                 {yeu ? 'gợi ý yếu, kiểm tra kỹ trước khi gán — ' : ''}{g.lyDo.join(' · ')}
                               </span>
-                            </button>
+                            </Button>
                           )
                         })}
                       </div>
                     ) : (
-                      <span className="text-xs text-amber-700">chưa đoán được khách — bấm &quot;Chọn khách khác&quot;</span>
+                      <span className="text-xs text-(--color-text-warning)">chưa đoán được khách — bấm &quot;Chọn khách khác&quot;</span>
                     )}
-                    <button onClick={() => setChonTay(chonTay === p.id ? null : p.id)}
-                      className="rounded-lg border px-3 py-1.5 text-sm text-slate-700">Chọn khách khác</button>
+                    <Button onClick={() => setChonTay(chonTay === p.id ? null : p.id)}
+                      className="rounded-lg border px-3 py-1.5 text-sm text-foreground">Chọn khách khác</Button>
                   </div>
                 </div>
                 {chonTay === p.id && (
@@ -235,7 +238,7 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                 {xem?.planId === p.id && (
                   <div className="pt-2">
                     {xem.dangTai || !xem.khach ? (
-                      <p className="text-xs text-slate-400">Đang tải hồ sơ khách…</p>
+                      <p className="text-xs text-muted-foreground">Đang tải hồ sơ khách…</p>
                     ) : (
                       <SoSanhHoSo
                         trai={{
@@ -273,21 +276,21 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                               if (!soPlan || soPlan.slice(-9) === soKhach.slice(-9)) return null
                               const o = 'flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm cursor-pointer '
                               return (
-                                <div className="w-full rounded-lg bg-sky-50 px-3 py-2">
-                                  <p className="text-sm text-sky-900">
+                                <div className="w-full rounded-lg bg-(--color-background-info-surface) px-3 py-2">
+                                  <p className="text-sm text-(--color-text-info)">
                                     Hai số khác nhau — <b>số nào là số chính của khách?</b>{' '}
                                     Số còn lại tự xuống <b>SĐT phụ</b>, không mất.
                                   </p>
                                   <div className="mt-1.5 flex flex-wrap gap-2">
-                                    <label className={o + (sdtChinh === 'khach' ? 'border-emerald-500 bg-white font-medium' : 'border-slate-200 bg-white/60')}>
+                                    <label className={o + (sdtChinh === 'khach' ? 'border-emerald-500 bg-card font-medium' : 'border-border bg-card')}>
                                       <input type="radio" checked={sdtChinh === 'khach'} onChange={() => setSdtChinh('khach')} />
                                       Giữ số hồ sơ <span className="font-mono">{xem.khach?.primary_phone || '—'}</span>
                                     </label>
-                                    <label className={o + (sdtChinh === 'plan' ? 'border-emerald-500 bg-white font-medium' : 'border-slate-200 bg-white/60')}>
+                                    <label className={o + (sdtChinh === 'plan' ? 'border-emerald-500 bg-card font-medium' : 'border-border bg-card')}>
                                       <input type="radio" checked={sdtChinh === 'plan'} onChange={() => setSdtChinh('plan')} />
                                       Dùng số trên lịch <span className="font-mono">{p.source_phone}</span>
                                     </label>
-                                    <label className={o + (sdtChinh === 'bo' ? 'border-slate-400 bg-white font-medium' : 'border-slate-200 bg-white/60')}>
+                                    <label className={o + (sdtChinh === 'bo' ? 'border-slate-400 bg-card font-medium' : 'border-border bg-card')}>
                                       <input type="radio" checked={sdtChinh === 'bo'} onChange={() => setSdtChinh('bo')} />
                                       Bỏ số trên lịch
                                     </label>
@@ -295,15 +298,15 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                                 </div>
                               )
                             })()}
-                            <button disabled={busy === p.id}
+                            <Button disabled={busy === p.id}
                               onClick={() => gan(p.id, xem.khach!.id, xem.khach!.full_name, sdtChinh)}
                               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
                               {busy === p.id ? 'Đang gán…' : 'Đúng người, gán'}
-                            </button>
-                            <button onClick={() => setXem(null)} className="text-sm text-slate-500 underline">
+                            </Button>
+                            <Button onClick={() => setXem(null)} className="text-sm text-muted-foreground underline">
                               Không phải, đóng
-                            </button>
-                            <span className="text-xs text-slate-400">
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
                               Gán nhầm vẫn gỡ được ở danh sách &ldquo;đã map&rdquo; bên dưới.
                             </span>
                           </>
@@ -316,21 +319,21 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
             ))}
           </ul>
         )}
-      </section>
+      </Card>
 
       )}
 
       {/* ── Lên lịch ── */}
       {hienLen && (
-      <section className="bg-white rounded-xl border p-4 space-y-3">
+      <Card className="space-y-3">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <h2 className="font-medium text-slate-900">📅 Lên lịch bảo trì ({daMap.length} plan đã map)</h2>
-            <p className="text-xs text-slate-500">Bộ CŨ: lên lịch tự do. Chọn ngày bắt đầu + chu kỳ + số lần → hệ sinh mốc, né T7/CN theo miền.</p>
+            <h2 className="font-medium text-foreground">📅 Lên lịch bảo trì ({daMap.length} plan đã map)</h2>
+            <p className="text-xs text-muted-foreground">Bộ CŨ: lên lịch tự do. Chọn ngày bắt đầu + chu kỳ + số lần → hệ sinh mốc, né T7/CN theo miền.</p>
           </div>
-          <button onClick={() => { setMoTao(!moTao); setErr(null); setMsg(null); setErrTao(null) }} className="rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium">
+          <Button onClick={() => { setMoTao(!moTao); setErr(null); setMsg(null); setErrTao(null) }} size="sm">
             + Tạo lịch mới cho khách
-          </button>
+          </Button>
         </div>
 
         {moTao && (() => {
@@ -340,13 +343,13 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
           const preview = tDates.length ? tDates : auto
           const suaMoc = (i: number, val: string) => { const next = [...preview]; next[i] = val; setTDates(next) }
           return (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3 space-y-2">
-            <p className="text-xs text-slate-600">Tạo lịch bảo trì MỚI cho khách (tặng thêm / mua trực tiếp — không qua Sales). <strong>Khách mới bắt buộc đã kích hoạt BH.</strong></p>
-            {tKhach ? <p className="text-xs text-emerald-700">✓ đã chọn khách <button onClick={() => { setTKhach(''); setTCtx(null) }} className="underline text-slate-500 ml-1">đổi</button></p> : <KhachPicker onPick={(id) => tChonKhach(id)} />}
+          <div className="rounded-lg border border-border bg-(--color-background-success-surface) p-3 space-y-2">
+            <p className="text-xs text-muted-foreground">Tạo lịch bảo trì MỚI cho khách (tặng thêm / mua trực tiếp — không qua Sales). <strong>Khách mới bắt buộc đã kích hoạt BH.</strong></p>
+            {tKhach ? <p className="text-xs text-(--color-text-success)">✓ đã chọn khách <Button onClick={() => { setTKhach(''); setTCtx(null) }} className="underline text-muted-foreground ml-1">đổi</Button></p> : <KhachPicker onPick={(id) => tChonKhach(id)} />}
             <div className="flex flex-wrap items-end gap-2">
-              <label className="text-xs text-slate-600">Bộ máy (của khách)<br />
+              <label className="text-xs text-muted-foreground">Bộ máy (của khách)<br />
                 {tCtx && tCtx.machines.length > 0 ? (
-                  <select value={tBoMay} onChange={(e) => setTBoMay(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-white max-w-56">
+                  <select value={tBoMay} onChange={(e) => setTBoMay(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-card max-w-56">
                     <option value="">— Chọn bộ máy —</option>
                     {tCtx.machines.map((m) => <option key={m.serial} value={m.nhan.split(' · ')[0]}>{m.nhan}</option>)}
                   </select>
@@ -354,73 +357,73 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                   <input value={tBoMay} onChange={(e) => setTBoMay(e.target.value)} placeholder="VD: WH30A" className="mt-0.5 w-28 rounded border px-2 py-1 text-sm" />
                 )}
               </label>
-              <label className="text-xs text-slate-600">Ngày bắt đầu<br />
+              <label className="text-xs text-muted-foreground">Ngày bắt đầu<br />
                 <input type="date" value={tNgay} onChange={(e) => { setTNgay(e.target.value); setTDates([]) }} className="mt-0.5 rounded border px-2 py-1 text-sm" />
               </label>
-              <label className="text-xs text-slate-600">Chu kỳ<br />
-                <select value={tChuKy} onChange={(e) => { setTChuKy(e.target.value); setTDates([]) }} className="mt-0.5 rounded border px-2 py-1 text-sm bg-white">
+              <label className="text-xs text-muted-foreground">Chu kỳ<br />
+                <select value={tChuKy} onChange={(e) => { setTChuKy(e.target.value); setTDates([]) }} className="mt-0.5 rounded border px-2 py-1 text-sm bg-card">
                   {CHU_KY.map((c) => <option key={c.v} value={c.v}>{c.nhan}</option>)}
                 </select>
               </label>
-              <label className="text-xs text-slate-600">Số lần<br />
+              <label className="text-xs text-muted-foreground">Số lần<br />
                 <input value={tLan} onChange={(e) => { setTLan(e.target.value); setTDates([]) }} inputMode="numeric" className="mt-0.5 w-16 rounded border px-2 py-1 text-sm" />
               </label>
-              <label className="text-xs text-slate-600">Vùng<br />
-                <select value={tVung} onChange={(e) => { setTVung(e.target.value); setTDates([]) }} className="mt-0.5 rounded border px-2 py-1 text-sm bg-white">
+              <label className="text-xs text-muted-foreground">Vùng<br />
+                <select value={tVung} onChange={(e) => { setTVung(e.target.value); setTDates([]) }} className="mt-0.5 rounded border px-2 py-1 text-sm bg-card">
                   <option value="">Tự theo tỉnh khách</option>
                   <option value="bac">Bắc + Đà Nẵng (T7+CN)</option>
                   <option value="nam">HCM + Nam Bộ (CN)</option>
                 </select>
               </label>
             </div>
-            {md && <p className="text-[11px] text-slate-500">Mặc định {tBoMay}: <strong>{md.soLan} lần × {md.chuKy} tháng</strong>. <button onClick={() => { setTChuKy(String(md.chuKy)); setTLan(String(md.soLan)); setTDates([]) }} className="text-sky-600 underline">Dùng</button></p>}
+            {md && <p className="text-[11px] text-muted-foreground">Mặc định {tBoMay}: <strong>{md.soLan} lần × {md.chuKy} tháng</strong>. <Button onClick={() => { setTChuKy(String(md.chuKy)); setTLan(String(md.soLan)); setTDates([]) }} variant="ghost" size="sm">Dùng</Button></p>}
             {preview.length > 0 ? (
               <div className="text-xs space-y-1">
-                <p className="text-slate-500">Xem trước {preview.length} mốc (né cuối tuần vùng {vungHl}) — <strong>sửa từng mốc được</strong>{tDates.length > 0 && <> · <button onClick={() => setTDates([])} className="text-sky-600 underline">tạo lại theo tham số</button></>}:</p>
-                <p className="text-[10px] text-slate-400">Mốc luôn nằm đúng tháng của chu kỳ; ngày có thể lệch vài hôm vì tháng ngắn/dài khác nhau và phải né T7/CN.</p>
+                <p className="text-muted-foreground">Xem trước {preview.length} mốc (né cuối tuần vùng {vungHl}) — <strong>sửa từng mốc được</strong>{tDates.length > 0 && <> · <Button onClick={() => setTDates([])} variant="ghost" size="sm">tạo lại theo tham số</Button></>}:</p>
+                <p className="text-[10px] text-muted-foreground">Mốc luôn nằm đúng tháng của chu kỳ; ngày có thể lệch vài hôm vì tháng ngắn/dài khác nhau và phải né T7/CN.</p>
                 <div className="flex flex-wrap gap-1.5">
                   {preview.map((d, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 bg-white border rounded px-1 py-0.5">
-                      <span className="text-slate-400">L{i + 1}</span>
-                      <input type="date" value={d} onChange={(e) => suaMoc(i, e.target.value)} className="text-slate-700 text-xs" />
+                    <span key={i} className="inline-flex items-center gap-1 bg-card border rounded px-1 py-0.5">
+                      <span className="text-muted-foreground">L{i + 1}</span>
+                      <input type="date" value={d} onChange={(e) => suaMoc(i, e.target.value)} className="text-foreground text-xs" />
                     </span>
                   ))}
                 </div>
               </div>
-            ) : <p className="text-[11px] text-amber-600">Chọn ngày bắt đầu để xem trước.</p>}
+            ) : <p className="text-[11px] text-(--color-text-warning)">Chọn ngày bắt đầu để xem trước.</p>}
             <div className="flex items-center gap-2 flex-wrap">
-              <button disabled={busy === 'tao' || !tKhach || preview.length === 0} onClick={() => taoMoi(preview)} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">
+              <Button disabled={busy === 'tao' || !tKhach || preview.length === 0} onClick={() => taoMoi(preview)} className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">
                 {busy === 'tao' ? 'Đang tạo…' : `Tạo lịch (${preview.length} lượt)`}
-              </button>
-              <button onClick={() => setMoTao(false)} className="text-xs text-slate-500 underline">Đóng</button>
+              </Button>
+              <Button onClick={() => setMoTao(false)} variant="ghost" size="sm">Đóng</Button>
             </div>
             {/* Lỗi phải nằm NGAY CẠNH NÚT. Trước đây chỉ hiện ở đầu trang (cách đây cả
                 màn hình) nên tạo lịch hỏng mà CS vẫn tưởng đã xong. */}
-            {errTao && <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1.5">Chưa tạo được lịch: {errTao}</p>}
+            {errTao && <p className="text-xs text-destructive bg-(--color-background-danger-surface) rounded px-2 py-1.5">Chưa tạo được lịch: {errTao}</p>}
           </div>
           )
         })()}
         {daMap.length === 0 ? (
-          <p className="text-sm text-slate-400">Chưa có plan nào đã map.</p>
+          <p className="text-sm text-muted-foreground">Chưa có plan nào đã map.</p>
         ) : (
           <ul className="divide-y border rounded-lg">
             {daMap.map((p) => (
               <li key={p.id} className="px-3 py-2.5 space-y-2">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
-                    <Link href={`/khach/${p.customer_id}`} prefetch={false} className="text-sm text-slate-900 underline">{p.ten_khach ?? '(khách)'}</Link>
-                    <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-1.5">
+                    <Link href={`/khach/${p.customer_id}`} prefetch={false} className="text-sm text-foreground underline">{p.ten_khach ?? '(khách)'}</Link>
+                    <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-1.5">
                       <span>{p.bo_may ?? '—'} · đã xong {p.so_xong}/</span>
                       {suaLan === p.id ? (
                         <span className="inline-flex items-center gap-1">
                           <input value={lanVal} onChange={(e) => setLanVal(e.target.value)} inputMode="numeric" className="w-14 rounded border px-1.5 py-0.5 text-xs" />
-                          <button disabled={busy === p.id} onClick={() => luuSoLan(p.id)} className="rounded bg-slate-900 text-white px-1.5 py-0.5 text-[11px] disabled:opacity-50">Lưu</button>
-                          <button onClick={() => setSuaLan(null)} className="text-[11px] text-slate-500 underline">Huỷ</button>
+                          <Button disabled={busy === p.id} onClick={() => luuSoLan(p.id)} className="rounded bg-slate-900 text-white px-1.5 py-0.5 text-[11px] disabled:opacity-50">Lưu</Button>
+                          <Button onClick={() => setSuaLan(null)} className="text-[11px] text-muted-foreground underline">Huỷ</Button>
                         </span>
                       ) : (
                         <span>
                           <strong>{p.tong_lan ?? '?'}</strong> lần (tặng+mua)
-                          <button onClick={() => { setSuaLan(p.id); setLanVal(String(p.tong_lan ?? '')); setErr(null) }} className="ml-1 text-sky-600 underline">sửa</button>
+                          <Button onClick={() => { setSuaLan(p.id); setLanVal(String(p.tong_lan ?? '')); setErr(null) }} className="ml-1 text-(--color-text-info) underline">sửa</Button>
                         </span>
                       )}
                       <span>· đã lên {p.so_visit} lượt</span>
@@ -432,14 +435,14 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                     <div className="flex items-center gap-2">
                       {/* Đường HOÀN TÁC cho lỡ gán nhầm khách — trước đây gán là một
                           chiều, sai thì phải nhờ kỹ thuật chạy SQL mới gỡ được. */}
-                      <button disabled={busy === p.id} onClick={() => goGan(p.id, p.ten_khach)}
-                        className="text-xs text-slate-500 underline hover:text-red-600 disabled:opacity-50">
+                      <Button disabled={busy === p.id} onClick={() => goGan(p.id, p.ten_khach)}
+                        className="text-xs text-muted-foreground underline hover:text-destructive disabled:opacity-50">
                         gỡ gán
-                      </button>
-                      <button onClick={() => moFormLich(p)}
-                        className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-800">
+                      </Button>
+                      <Button onClick={() => moFormLich(p)}
+                        className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-foreground">
                         {p.so_visit > 0 ? 'Sinh lại lịch' : 'Lên lịch'}
-                      </button>
+                      </Button>
                     </div>
                     {p.so_may === 0 && <span className="text-[10px] text-amber-500">khách chưa có máy kích hoạt BH</span>}
                   </div>
@@ -449,27 +452,27 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
                   const vungHl: Vung = vung === 'bac' || vung === 'nam' ? vung : vungTheoTinh(p.province)
                   const preview = ngay ? sinhLichBaoTri(ngay, chuKy === '0' ? null : Number(chuKy), Number(tongLan) || 0, vungHl) : []
                   return (
-                  <div className="rounded-lg bg-slate-50 border p-2.5 space-y-2">
+                  <div className="rounded-lg bg-muted border p-2.5 space-y-2">
                     {md && (
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-muted-foreground">
                         Mặc định {p.bo_may}: <strong>{md.soLan} lần × {md.chuKy} tháng</strong> từ ngày kích hoạt.
-                        <button onClick={() => { setChuKy(String(md.chuKy)); setTongLan(String(md.soLan)); setNgay(p.ngay_kich_hoat ?? ngay) }} className="ml-1 text-sky-600 underline">Dùng mặc định</button>
+                        <Button onClick={() => { setChuKy(String(md.chuKy)); setTongLan(String(md.soLan)); setNgay(p.ngay_kich_hoat ?? ngay) }} className="ml-1 text-(--color-text-info) underline">Dùng mặc định</Button>
                       </p>
                     )}
                     <div className="flex flex-wrap items-end gap-2">
-                      <label className="text-xs text-slate-600">Ngày bắt đầu<br />
+                      <label className="text-xs text-muted-foreground">Ngày bắt đầu<br />
                         <input type="date" value={ngay} onChange={(e) => setNgay(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm" />
                       </label>
-                      <label className="text-xs text-slate-600">Chu kỳ<br />
-                        <select value={chuKy} onChange={(e) => setChuKy(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-white">
+                      <label className="text-xs text-muted-foreground">Chu kỳ<br />
+                        <select value={chuKy} onChange={(e) => setChuKy(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-card">
                           {CHU_KY.map((c) => <option key={c.v} value={c.v}>{c.nhan}</option>)}
                         </select>
                       </label>
-                      <label className="text-xs text-slate-600">Số lần<br />
+                      <label className="text-xs text-muted-foreground">Số lần<br />
                         <input value={tongLan} onChange={(e) => setTongLan(e.target.value)} inputMode="numeric" placeholder={String(p.tong_lan ?? '')} className="mt-0.5 w-20 rounded border px-2 py-1 text-sm" />
                       </label>
-                      <label className="text-xs text-slate-600">Vùng (né cuối tuần)<br />
-                        <select value={vung} onChange={(e) => setVung(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-white">
+                      <label className="text-xs text-muted-foreground">Vùng (né cuối tuần)<br />
+                        <select value={vung} onChange={(e) => setVung(e.target.value)} className="mt-0.5 rounded border px-2 py-1 text-sm bg-card">
                           <option value="">Tự theo tỉnh{p.province ? ` (${p.province})` : ''}</option>
                           <option value="bac">Bắc + Đà Nẵng (nghỉ T7+CN)</option>
                           <option value="nam">HCM + Nam Bộ (nghỉ CN)</option>
@@ -479,25 +482,25 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
 
                     {preview.length > 0 ? (
                       <div className="text-xs">
-                        <p className="text-slate-500 mb-1">Xem trước {preview.length} mốc (đã né cuối tuần) — sửa xong bấm Sinh lịch để lưu:</p>
-                        <p className="text-[10px] text-slate-400 mb-1">Mốc luôn nằm đúng tháng của chu kỳ; ngày có thể lệch vài hôm vì tháng ngắn/dài khác nhau và phải né T7/CN.</p>
+                        <p className="text-muted-foreground mb-1">Xem trước {preview.length} mốc (đã né cuối tuần) — sửa xong bấm Sinh lịch để lưu:</p>
+                        <p className="text-[10px] text-muted-foreground mb-1">Mốc luôn nằm đúng tháng của chu kỳ; ngày có thể lệch vài hôm vì tháng ngắn/dài khác nhau và phải né T7/CN.</p>
                         <div className="flex flex-wrap gap-1">
                           {preview.map((d, i) => (
-                            <span key={d + i} className="px-1.5 py-0.5 rounded bg-white border text-slate-700">L{i + 1}: {vnDate(d)}</span>
+                            <span key={d + i} className="px-1.5 py-0.5 rounded bg-card border text-foreground">L{i + 1}: {vnDate(d)}</span>
                           ))}
                         </div>
                       </div>
                     ) : (
-                      <p className="text-[11px] text-amber-600">Chọn ngày bắt đầu + số lần để xem trước.</p>
+                      <p className="text-[11px] text-(--color-text-warning)">Chọn ngày bắt đầu + số lần để xem trước.</p>
                     )}
 
                     <div className="flex items-center gap-2">
-                      <button disabled={busy === p.id || preview.length === 0} onClick={() => lenLich(p.id, p.tong_lan)}
+                      <Button disabled={busy === p.id || preview.length === 0} onClick={() => lenLich(p.id, p.tong_lan)}
                         className="rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm disabled:opacity-50">
                         {busy === p.id ? 'Đang lưu…' : `Sinh lịch (${preview.length} lượt)`}
-                      </button>
-                      <button onClick={() => setMoLich(null)} className="text-xs text-slate-500 underline">Đóng</button>
-                      {p.so_xong > 0 && <span className="text-[11px] text-amber-600">Giữ {p.so_xong} lượt đã làm, chỉ thay lượt chưa làm.</span>}
+                      </Button>
+                      <Button onClick={() => setMoLich(null)} variant="ghost" size="sm">Đóng</Button>
+                      {p.so_xong > 0 && <span className="text-[11px] text-(--color-text-warning)">Giữ {p.so_xong} lượt đã làm, chỉ thay lượt chưa làm.</span>}
                     </div>
                   </div>
                   )
@@ -506,7 +509,7 @@ export function BaoTriQuanLy({ chuaMap, daMap, sapHet, phan = 'all', moTaoKhach 
             ))}
           </ul>
         )}
-      </section>
+      </Card>
       )}
     </div>
   )

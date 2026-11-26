@@ -1,6 +1,7 @@
 'use client'
 
 import type { MaintenanceDue, BangView } from '@/app/actions'
+import { Badge } from '@/components/ui/badge'
 import { vnDate } from '@/components/Badge'
 import { BaoTriDoneButton } from '@/components/BaoTriDoneButton'
 import { ChiSoNuoc } from '@/components/ChiSoNuoc'
@@ -9,35 +10,31 @@ import { BangTuyChinh, type CotDef } from '@/components/BangTuyChinh'
 
 const SAP = 'sắp đến hạn (≤30 ngày)'
 function TinhTrangBadge({ tt }: { tt: string }) {
-  if (tt === 'QUÁ HẠN')
-    return <span className="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 whitespace-nowrap">Quá hạn</span>
-  if (tt === SAP)
-    return <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800 whitespace-nowrap">Sắp đến hạn</span>
-  if (tt === 'đã xong')
-    return <span className="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-800 whitespace-nowrap">Đã xong</span>
-  if (tt.startsWith('không rõ'))
-    return <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-500">Không rõ</span>
-  return <span className="px-2 py-0.5 rounded-full text-xs bg-sky-100 text-sky-800 whitespace-nowrap">Còn hạn</span>
+  if (tt === 'QUÁ HẠN') return <Badge variant="soft" color="danger">Quá hạn</Badge>
+  if (tt === SAP) return <Badge variant="soft" color="warning">Sắp đến hạn</Badge>
+  if (tt === 'đã xong') return <Badge variant="soft" color="success">Đã xong</Badge>
+  if (tt.startsWith('không rõ')) return <Badge variant="soft" color="secondary">Không rõ</Badge>
+  return <Badge variant="soft" color="info">Còn hạn</Badge>
 }
 
 const COT: CotDef<MaintenanceDue>[] = [
   { key: 'khach', nhan: 'Khách / công trình', batBuoc: true, sapXep: 'customer_name', render: (r) => (
     <div>
-      <div className="text-slate-900">{r.customer_name ?? r.section ?? '—'}</div>
-      {r.primary_phone && <div className="font-mono text-xs text-slate-500">{r.primary_phone}</div>}
-      {r.customer_name && r.section && <div className="text-[10px] text-slate-400 line-clamp-1">{r.section}</div>}
-      {r.chua_khop_khach && <span className="text-[10px] text-amber-600">chưa khớp khách</span>}
+      <div className="text-foreground">{r.customer_name ?? r.section ?? '—'}</div>
+      {r.primary_phone && <div className="font-mono text-xs text-muted-foreground">{r.primary_phone}</div>}
+      {r.customer_name && r.section && <div className="text-[10px] text-muted-foreground line-clamp-1">{r.section}</div>}
+      {r.chua_khop_khach && <span className="text-[10px] text-(--color-text-warning)">chưa khớp khách</span>}
     </div>
   ) },
   { key: 'bo_may', nhan: 'Bộ máy · gói', render: (r) => (
-    <div className="text-slate-700">{r.bo_may ?? '—'}{r.loai_goi && <div className="text-[10px] text-slate-400">{r.loai_goi}</div>}</div>
+    <div className="text-foreground">{r.bo_may ?? '—'}{r.loai_goi && <div className="text-[10px] text-muted-foreground">{r.loai_goi}</div>}</div>
   ) },
-  { key: 'lan', nhan: 'Lần', render: (r) => <span className="whitespace-nowrap text-slate-600">{r.lan_thu ?? '—'}{r.tong_lan ? `/${r.tong_lan}` : ''}</span> },
+  { key: 'lan', nhan: 'Lần', render: (r) => <span className="whitespace-nowrap text-muted-foreground">{r.lan_thu ?? '—'}{r.tong_lan ? `/${r.tong_lan}` : ''}</span> },
   { key: 'due_date', nhan: 'Đến hạn', sapXep: 'due_date', render: (r) => (
-    <div className="whitespace-nowrap"><TinhTrangBadge tt={r.tinh_trang} /><div className="text-[10px] text-slate-400 mt-0.5">{vnDate(r.due_date)}</div></div>
+    <div className="whitespace-nowrap"><TinhTrangBadge tt={r.tinh_trang} /><div className="text-[10px] text-muted-foreground mt-0.5">{vnDate(r.due_date)}</div></div>
   ) },
   { key: 'nuoc', nhan: 'Chỉ số nước', render: (r) => (
-    coDoNuoc(r.do_nuoc) ? <ChiSoNuoc d={r.do_nuoc!} /> : <span className="text-[11px] text-slate-300">chưa đo</span>
+    coDoNuoc(r.do_nuoc) ? <ChiSoNuoc d={r.do_nuoc!} /> : <span className="text-[11px] text-muted-foreground">chưa đo</span>
   ) },
   { key: 'ghi', nhan: 'Ghi', render: (r) => <BaoTriDoneButton visitId={r.visit_id} completedAt={r.completed_at} doNuoc={r.do_nuoc} /> },
 ]
