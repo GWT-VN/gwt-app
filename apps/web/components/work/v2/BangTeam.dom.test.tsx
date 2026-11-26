@@ -29,6 +29,7 @@ vi.mock('@/app/work/actions', () => ({
 import type { NenTang, ViecTeamRow } from '@/app/work/actions'
 import { DsRoot } from '@/components/ui/ds-root'
 import { thongBao } from '@/components/ui/sonner'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 import { BangTeam } from './BangTeam'
 
 const NEN: NenTang = {
@@ -197,7 +198,7 @@ test('gán người hàng loạt theo vai: Gán người → Duyệt → ngườ
   await vi.waitFor(() => expect(m.hangLoat).toHaveBeenCalledWith([3], { gan_ai: 'u1', gan_vai: 'reviewer' }))
 })
 
-test('tab Lâu không đụng: chưa xong và ≥ 14 ngày không cập nhật, cũ nhất trước; cột Cập nhật ghi "N ngày trước"', () => {
+test('tab Lâu không đụng: chưa xong và ≥ 14 ngày không cập nhật, cũ nhất trước; cột Cập nhật mặc định dd/MM, "Tương đối" → "N ngày trước"', () => {
   m.sp = new URLSearchParams('tab=lau')
   render(
     <DsRoot>
@@ -216,5 +217,16 @@ test('tab Lâu không đụng: chưa xong và ≥ 14 ngày không cập nhật, 
   expect(ma()).toEqual(['VIEC-5', 'VIEC-1'])
   expect(within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' })).getByText(/14 ngày không cập nhật/))
     .toBeTruthy()
-  expect(screen.getByText('40 ngày trước')).toBeTruthy()
+  // Mặc định toàn app (CEO 26/11) = ngày `hienNgay` (dd/MM, khác năm dd/MM/yy).
+  expect(screen.getByText(hienNgay(ngay(-40)))).toBeTruthy()
+})
+
+test('cột Cập nhật theo định dạng ngày ở menu tiêu đề (URL cot_ngay=cn:tuong-doi) → "N ngày trước"', () => {
+  m.sp = new URLSearchParams('tab=lau&cot_ngay=cn:tuong-doi')
+  render(
+    <DsRoot>
+      <BangTeam rows={[viec(5, { touched_at: ngay(-20) })]} nenTang={NEN} />
+    </DsRoot>,
+  )
+  expect(screen.getByText('20 ngày trước')).toBeTruthy()
 })

@@ -10,7 +10,8 @@ import type { MucNhan, MucTrangThai } from '@/components/ui/inline-edit'
 import { thongBao } from '@/components/ui/sonner'
 import { boNguoi, doiTrangThai, ganNguoi, taoViec, type KQ, type NguoiLam } from '@/app/work/actions'
 import { cn } from '@/lib/utils'
-import { inputTuIso, ngayThang, soNgayToiHan } from '@/lib/work'
+import { hienNgay, KIEU_NGAY_MAC_DINH, type KieuNgay } from '@/lib/dinh-dang-ngay'
+import { inputTuIso, soNgayToiHan } from '@/lib/work'
 
 export type Uu = '1' | '2' | '3' | '4'
 /** Ưu tiên DB 1–4 → nhãn chữ của DS (canvas): Gấp solid danger · Cao soft warning · Thường soft · Thấp outline. */
@@ -105,13 +106,16 @@ const gioCua = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d
 /**
  * Chữ hạn như `.b-han` của canvas: hôm nay → giờ (đậm, foreground) · hôm qua → "Hôm qua HH:mm" · trễ hơn → "dd/MM" (trễ:
  * danger 500) · mai → "Mai HH:mm" · trong tuần → "T6 27/11" · xa hơn "dd/MM"; không hạn "—". Số thẳng cột 12/18 muted.
+ * `kieu` = định dạng ngày chọn ở menu tiêu đề cột (`useCotBang().kieuNgay`): chỉ đổi PHẦN NGÀY, giữ nhãn Hôm qua/Mai/thứ
+ * và màu trễ; "Tương đối" bỏ tiền tố thứ (tránh "T6 3 ngày nữa").
  */
-export function HanChu({ due }: { due: string | null }) {
+export function HanChu({ due, kieu = KIEU_NGAY_MAC_DINH }: { due: string | null; kieu?: KieuNgay }) {
   if (!due) return <span className="text-[12px] leading-[18px] text-muted-foreground">—</span>
   const d = new Date(due)
   const n = soNgayToiHan(d)
   const chu =
-    n === 0 ? gioCua(d) : n === -1 ? `Hôm qua ${gioCua(d)}` : n === 1 ? `Mai ${gioCua(d)}` : n > 1 && n < 7 ? `${THU[d.getDay()]} ${ngayThang(d)}` : ngayThang(d)
+    n === 0 ? gioCua(d) : n === -1 ? `Hôm qua ${gioCua(d)}` : n === 1 ? `Mai ${gioCua(d)}`
+      : n > 1 && n < 7 && kieu !== 'tuong-doi' ? `${THU[d.getDay()]} ${hienNgay(d, kieu)}` : hienNgay(d, kieu)
   return (
     <span
       className={cn(

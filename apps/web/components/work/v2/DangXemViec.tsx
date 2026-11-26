@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWra
 import { cotDem, hangNhap as hangNhapBang } from '@/components/ui/table-styles'
 import { ColCotBang, TieuDeCot, type MucLoc } from '@/components/ui/tieu-de-cot'
 import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
+import { hienNgay, KIEU_NGAY_MAC_DINH, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
 import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type GiaTriNhap, type Uu } from './chung'
 
@@ -39,6 +40,7 @@ export const COT_VIEC: CotBang[] = [
     rong: 116,
     kieu: 'sap',
     phai: true,
+    ngay: true,
     nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' },
   },
 ]
@@ -54,6 +56,7 @@ export const COT_TEAM: CotBang[] = [
     rong: 112,
     kieu: 'sap',
     phai: true,
+    ngay: true,
     nghia: { tang: 'Lâu nhất trước', giam: 'Mới nhất trước' },
   },
 ]
@@ -69,13 +72,16 @@ export const NGHIA = {
 export const soNgayKhongDung = (v: ViecXem, bayGio = new Date()) =>
   v.touched_at ? -soNgayToiHan(v.touched_at, bayGio) : null
 
-/** "14:32 hôm nay" · "09:10 hôm qua" · "16 ngày trước" (title giữ mốc đầy đủ). */
-function ChuCapNhat({ v }: { v: ViecXem }) {
+/**
+ * "14:32 hôm nay" · "09:10 hôm qua" · cũ hơn → ngày theo `kieu` của menu tiêu đề cột (mặc định dd/MM; "Tương đối" →
+ * "16 ngày trước"). Title giữ mốc đầy đủ.
+ */
+function ChuCapNhat({ v, kieu = KIEU_NGAY_MAC_DINH }: { v: ViecXem; kieu?: KieuNgay }) {
   const n = soNgayKhongDung(v)
   if (n === null) return <span className="text-muted-foreground">—</span>
   return (
     <span className="truncate tabular-nums text-muted-foreground" title={mocThoiGian(v.touched_at)}>
-      {n <= 1 ? mocThoiGian(v.touched_at) : `${n} ngày trước`}
+      {n <= 1 ? mocThoiGian(v.touched_at) : hienNgay(v.touched_at, kieu)}
     </span>
   )
 }
@@ -142,7 +148,8 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
       lamMoi()
     }
   }
-  const o = (v: ViecXem, id: string): ReactNode => {
+  /** `kieu` = định dạng ngày cột đang chọn (bảng truyền `c.kieuNgay(id)`; ListView/Kanban không truyền → mặc định). */
+  const o = (v: ViecXem, id: string, kieu?: KieuNgay): ReactNode => {
     switch (id) {
       case 'uu':
         return (
@@ -189,14 +196,14 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
         )
       }
       case 'cn':
-        return <ChuCapNhat v={v} />
+        return <ChuCapNhat v={v} kieu={kieu} />
       case 'han':
         return (
           <OSuaHan
             ma={v.ref}
             value={hanO(v.due_at)}
             onLuu={(h) => luu(suaViec(v.id, { due: hanLuu(h) }))}
-            hien={() => <HanChu due={v.due_at} />}
+            hien={() => <HanChu due={v.due_at} kieu={kieu} />}
           />
         )
     }
@@ -302,7 +309,7 @@ export function BangViec({
   onSap: (s: Sap | null) => void
   /** Lọc cột kiểu `loc` (Trạng thái). */
   loc?: { tuyChon: MucLoc[]; daChon: string[]; onDoi: (gt: string[]) => void }
-  o: (v: ViecXem, id: string) => ReactNode
+  o: (v: ViecXem, id: string, kieu?: KieuNgay) => ReactNode
   /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
   dongNhap?: (cotId: string) => ReactNode
 }) {
@@ -343,7 +350,7 @@ export function BangViec({
             <DongBang key={v.id} v={v}>
               {c.hien.map((x) => (
                 <TableCell key={x.id} cot={x.id} phai={x.phai}>
-                  {o(v, x.id)}
+                  {o(v, x.id, x.ngay ? c.kieuNgay(x.id) : undefined)}
                 </TableCell>
               ))}
               <TableCell aria-hidden="true" className={cotDem} />

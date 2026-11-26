@@ -6,6 +6,8 @@
  * còn 00:30 ngày mai thì không. Vì vậy mọi so sánh đều quy về mốc 00:00 địa phương.
  */
 
+import { hienNgay } from './dinh-dang-ngay'
+
 export type NhomHan = 'qua_han' | 'hom_nay' | 'tuan_nay' | 'sap_toi' | 'khong_han'
 
 export const NHAN_NHOM: Record<NhomHan, string> = {
@@ -44,21 +46,16 @@ export function nhomTheoHan(due: string | null | undefined, bayGio: Date = new D
 }
 
 /**
- * "dd/mm" tự ghép, KHÔNG dùng toLocaleDateString: bản ICU của Node và của trình
- * duyệt cho ra dấu ngăn khác nhau ("05-10" vs "05/10") ⇒ server render một đằng,
- * client một nẻo, sinh lỗi hydration rất khó truy.
+ * "dd/MM" (khác năm `bayGio` → "dd/MM/yy") = mặc định `hienNgay` toàn app (CEO 26/11). Tự ghép trong `hienNgay`, KHÔNG
+ * toLocaleDateString: bản ICU của Node và của trình duyệt cho ra dấu ngăn khác nhau ("05-10" vs "05/10") ⇒ lỗi hydration.
  */
-export function ngayThang(iso: string | Date): string {
-  const d = typeof iso === 'string' ? new Date(iso) : iso
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${p(d.getDate())}/${p(d.getMonth() + 1)}`
-}
+export const ngayThang = (iso: string | Date, bayGio: Date = new Date()): string => hienNgay(iso, undefined, { bayGio })
 
 /** Nhãn ngắn cạnh tên việc: "Quá hạn 3 ngày", "Hôm nay", "12/09"… */
 export function nhanHan(due: string | null | undefined, bayGio: Date = new Date()): string {
   if (!due) return ''
   const n = soNgayToiHan(due, bayGio)
-  const ngay = ngayThang(due)
+  const ngay = ngayThang(due, bayGio)
   if (n < -1) return `Quá hạn ${Math.abs(n)} ngày`
   if (n === -1) return 'Quá hạn hôm qua'
   if (n === 0) return 'Hôm nay'
@@ -153,7 +150,7 @@ export function mocThoiGian(iso: string | null | undefined, bayGio: Date = new D
   if (n === 0) return `${gio} hôm nay`
   if (n === -1) return `${gio} hôm qua`
   if (n === 1) return `${gio} ngày mai`
-  return `${ngayThang(d)} ${gio}`
+  return `${ngayThang(d, bayGio)} ${gio}`
 }
 
 const LA_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
