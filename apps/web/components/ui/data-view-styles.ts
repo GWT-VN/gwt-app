@@ -52,12 +52,16 @@ export const dvTimIcon = cn(
   'pointer-events-none absolute left-(--control-gutter-md) z-1 size-4 shrink-0 text-muted-foreground',
 )
 
-/** `.b-thanh`: hàng tab + công cụ, cách 12, lề trên 22 dưới 16 (nguồn 12 — CEO 23/11 giãn). `.b-tabs-cuon`: giãn, co được. */
-export const dvThanh = cn(kv, 'mt-[22px] mb-4 flex items-center gap-3')
-export const dvTabs = cn(kv, 'min-w-0 flex-1')
+/**
+ * `.b-thanh`: hàng tab + công cụ, cách 12, lề trên 22 dưới 16 (nguồn 12 — CEO 23/11 giãn). `.b-tabs-cuon`: giãn, co được
+ * nhưng giữ tối thiểu 272 (= tab dài nhất ~150 + nút "Thêm ▾" của `thuGon` ~92 + đệm) — hẹp hơn thì cụm công cụ (240)
+ * xuống dòng riêng, canh phải (`flex-wrap` + `ml-auto`), thay vì bóp hàng tab còn 79px ở 375 (đo 26/11).
+ */
+export const dvThanh = cn(kv, 'mt-[22px] mb-4 flex flex-wrap items-center gap-3')
+export const dvTabs = cn(kv, 'min-w-[min(100%,272px)] flex-1')
 
-/** `.b-thanh-phai` (cách 8, không co) > `.b-cong-cu` (cách 2). `.b-bocuc`: cách 2. */
-export const dvThanhPhai = cn(kv, 'flex shrink-0 items-center gap-2')
+/** `.b-thanh-phai` (cách 8, không co; xuống dòng thì canh phải) > `.b-cong-cu` (cách 2). `.b-bocuc`: cách 2. */
+export const dvThanhPhai = cn(kv, 'ml-auto flex shrink-0 items-center gap-2')
 export const dvCongCu = cn(kv, 'flex items-center gap-0.5')
 export const dvBoCuc = 'gap-0.5'
 

@@ -37,7 +37,8 @@ import {
  *   chuyển khung trong thẻ/bảng nhỏ) · `line` (vạch dưới, artifact chưa có). Phần GWT thêm: `segmented` (= `default`),
  *   `pill` (hàng tab màn dữ liệu), `thuGon`, `TabsCount`.
  * - Pill tràn: cuộn ngang, mờ mép phải 40px khi còn phần khuất. `thuGon`: tab không vừa gom vào nút "Thêm ▾"
- *   (DropdownMenu DS, chuẩn GitHub/Linear) — tab đang chọn luôn hiện; chọn từ menu → tab đó thành đang chọn, focus về nó.
+ *   (DropdownMenu DS, chuẩn GitHub/Linear) — tab đang chọn luôn hiện; chọn từ menu → tab đó thành đang chọn, focus về nó
+ *   (giá trị về trễ — URL qua router — thì focus tạm ở "Thêm", chuyển sang tab khi nó hiện).
  *   Nút "Thêm" đứng NGOÀI `tablist` (tablist chỉ chứa tab).
  * - Tab gắn URL (lọc trạng thái danh sách) → tham số chuẩn trong CHUAN-FILTER.md, điều khiển bằng `value`/`onValueChange`.
  */
@@ -131,6 +132,7 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
   }, [])
   const [nhanMenu, setNhanMenu] = useState<ReadonlyMap<string, NhanTab>>(() => new Map())
   const canFocus = useRef<string | null>(null)
+  const choFocus = useRef<string | null>(null)
   const [an, setAn] = useState<string[]>([])
   const [tran, setTran] = useState(false)
 
@@ -161,6 +163,16 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
 
   // Chạy lại sau mỗi lần render (đổi tab chọn, đổi tab ẩn, nút Thêm vừa hiện) — kết quả ổn định thì setState bỏ qua.
   useLayoutEffect(do_)
+  // Tab vừa chọn từ menu "Thêm" nhận focus khi nó ĐÃ là tab đang chọn và đã hiện. Giá trị có thể về trễ (URL qua
+  // router.replace) — lúc menu đóng tab đó còn ẩn → thử lại sau mỗi lần render tới khi được.
+  const thuFocus = () => {
+    const x = choFocus.current
+    const el = x != null && x === value ? ds.current?.querySelector<HTMLElement>(`[role="tab"][data-value="${CSS.escape(x)}"]`) : null
+    if (!el || el.hidden) return
+    choFocus.current = null
+    el.focus()
+  }
+  useLayoutEffect(thuFocus)
   useLayoutEffect(() => {
     const ro = new ResizeObserver(() => do_())
     if (khung.current) ro.observe(khung.current)
@@ -185,9 +197,12 @@ function HangPill({ thuGon, list }: { thuGon: boolean; list: (ref: Ref<HTMLDivEl
               align="end"
               onCloseAutoFocus={(e) => {
                 if (!canFocus.current) return
+                choFocus.current = canFocus.current
                 canFocus.current = null
                 e.preventDefault()
-                ds.current?.querySelector<HTMLElement>('[role="tab"][data-state="active"]')?.focus()
+                thuFocus()
+                // Chưa được (giá trị chưa về): tạm đứng ở nút Thêm thay vì rơi về body.
+                if (choFocus.current) them.current?.focus()
               }}
             >
               {an.map((x) => {

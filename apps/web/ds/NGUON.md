@@ -78,6 +78,13 @@ chip cũ (cao 28, đệm 10/4, tâm chữ −0,5, tâm × 0). Khi đẩy lên ar
 bấm được (nút chữ trong `.ui-chip`) + pop sửa điều kiện; `bundle.css` thêm `.ui-chip > button:first-child` (reset nút,
 `height: 100%`, `padding-left: 10px`, vòng focus) và khung pop `.ui-menu.b-loc-truong` (rộng 280).
 
+Hàng tab tràn (26/11, prototype ticket F, CEO duyệt "gộp tab ít dùng vào Thêm"): dùng `TabsList thuGon` có sẵn (tự đo,
+tab không vừa vào "Thêm ▾", tab đang chọn luôn hiện — kiểu GitHub). Sửa: chọn từ "Thêm" khi giá trị về TRỄ (URL qua
+`router.replace`) → focus tạm ở "Thêm" rồi sang tab khi nó hiện (trước rơi về body; test `tabs.dom.test`). **Chờ đồng bộ
+lên artifact:** `.b-thanh` thêm `flex-wrap`, `.b-tabs-cuon` `min-width: min(100%, 272px)` thay `0`, `.b-thanh-phai`
+`margin-left: auto` (`data-view-styles.ts` `dvThanh/dvTabs/dvThanhPhai`) — khung hẹp (375: hàng tab còn 79px, 900: 204px)
+thì cụm công cụ xuống dòng canh phải thay vì bóp hàng tab; 1440 không đổi. README DataViewToolbar thêm một dòng.
+
 Bản 37 (CEO chốt 20/11, "làm luôn"): tiêu đề chừa lề phải cho ✕ (✕ chiếm 19–47px từ mép phải) —
 `.ui-dialog:has(> .ui-dialog-close) .ui-dialog-title { padding-right: 36px }` (cần ≥ 47 − 20 + 8 = 35 → 36 = 9 × `--spacing`,
 chữ cách ✕ 9px; chỉ hộp có ✕, ConfirmDialog/AlertDialog trọn bề ngang) và `.ui-sheet-header` phải 52 → 56 (52 chỉ còn 5px từ

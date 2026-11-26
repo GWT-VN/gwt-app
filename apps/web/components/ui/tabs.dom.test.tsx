@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, expect, test, vi } from 'vitest'
+import { useState } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DsRoot } from './ds-root'
@@ -134,6 +135,40 @@ test('thuGon khi hẹp: tab thừa vào menu "Thêm"; chọn từ menu → tab �
   await waitFor(() => expect(chon('Tất cả')).toBe('true'))
   // tab đang chọn luôn hiện: Tất cả hiện, Của tôi nhường chỗ
   expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['Đang mở', 'Tất cả'])
+  await waitFor(() => expect(document.activeElement).toBe(tab('Tất cả')))
+})
+
+test('thuGon + giá trị đổi TRỄ (URL qua router): chọn từ "Thêm" → focus vẫn về đúng tab khi nó hiện ra, không rơi về body', async () => {
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    if (this.getAttribute('role') === 'tab') return 100
+    if (this.dataset.slot === 'tabs-them') return 80
+    return 0
+  })
+  vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
+    return this.dataset.slot === 'tabs-khung' ? 300 : 0
+  })
+  function Tre() {
+    const [v, setV] = useState('mo')
+    return (
+      <DsRoot>
+        {/* Như router.replace: giá trị mới về sau khi menu đã đóng. */}
+        <Tabs value={v} onValueChange={(x) => setTimeout(() => setV(x), 50)}>
+          <TabsList variant="pill" thuGon aria-label="Nhóm ticket">
+            <TabsTrigger value="mo">Đang mở</TabsTrigger>
+            <TabsTrigger value="toi">Của tôi</TabsTrigger>
+            <TabsTrigger value="qua-han">Quá hạn</TabsTrigger>
+            <TabsTrigger value="tat-ca">Tất cả</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </DsRoot>
+    )
+  }
+  const u = userEvent.setup()
+  render(<Tre />)
+  await waitFor(() => expect(screen.getAllByRole('tab').length).toBe(2))
+  await u.click(screen.getByRole('button', { name: 'Thêm' }))
+  await u.click(await screen.findByRole('menuitem', { name: 'Tất cả' }))
+  await waitFor(() => expect(chon('Tất cả')).toBe('true'))
   await waitFor(() => expect(document.activeElement).toBe(tab('Tất cả')))
 })
 

@@ -59,9 +59,10 @@ const VIEW = [
   { v: 'cua-toi', ten: 'Của tôi', loc: (t: Dong) => t.state === 'Open' && t.cs_ten === TOI },
   { v: 'chua-giao', ten: 'Chưa giao', loc: (t: Dong) => t.state === 'Open' && !t.cs_ten },
   { v: 'qua-han', ten: 'Quá hạn', loc: (t: Dong) => sla(t) === 'qua' },
+  { v: 'mo', ten: 'Tất cả đang mở', loc: (t: Dong) => t.state === 'Open' },
+  // Hai view ít dùng đứng cuối → hàng tab thu gọn (TabsList `thuGon`) đẩy chúng vào "Thêm ▾" trước (đo 1440: 729/679px).
   { v: 'vat-tu', ten: 'Chờ vật tư', loc: (t: Dong) => choVatTu(t) },
   { v: 'hen-nay', ten: 'Hẹn hôm nay', loc: henNay },
-  { v: 'mo', ten: 'Tất cả đang mở', loc: (t: Dong) => t.state === 'Open' },
 ] as const
 type View = (typeof VIEW)[number]['v']
 
@@ -169,13 +170,15 @@ const RONG_BANG_TOI_THIEU = 640
 // "Ticket · khách" khoá (không kéo, không ẩn) và ăn phần dư; `rong` của nó = sàn để tính bề rộng tối thiểu bảng.
 // Vừa 963px (vùng nội dung 1440 có sidebar): mã gộp vào ô khách (như ListView), badge bảo hành gộp đầu ô máy ("dải máy").
 const COT: CotBang[] = [
-  // Mặc định 36 + 40 ("+") + 844 = 920 ≤ 927 = vùng nội dung ở 1440 có sidebar → khổ 1440 hiện Bảng (đo 26/11).
-  { id: 'khach', ten: 'Ticket · khách', rong: 160, kieu: 'thuong', khoa: true },
-  { id: 'may', ten: 'Máy · bảo hành', rong: 208, kieu: 'thuong' },
-  { id: 'loi', ten: 'Loại lỗi', rong: 152, kieu: 'thuong' },
-  { id: 'tt', ten: 'Trạng thái', rong: 136, kieu: 'loc' },
+  // Đo 26/11 ở 1440 (bảng 963): cột khác vừa đủ nội dung + tiêu đề có mũi menu (Trạng thái: badge 66 / nhãn 57 + 20;
+  // Hạn: "Quá 12 ngày" 76; Phụ trách: nhãn 54 + 20, ô chỉ avatar) → phần dư dồn cho cột khoá: tên khách có ~170px
+  // (trước 73). Mặc định 36 + 40 ("+") + 828 = 904 ≤ 963 → 1440 vẫn hiện Bảng; khung hẹp hơn thì cuộn ngang.
+  { id: 'khach', ten: 'Ticket · khách', rong: 240, kieu: 'thuong', khoa: true },
+  { id: 'may', ten: 'Máy · bảo hành', rong: 184, kieu: 'thuong' },
+  { id: 'loi', ten: 'Loại lỗi', rong: 128, kieu: 'thuong' },
+  { id: 'tt', ten: 'Trạng thái', rong: 96, kieu: 'loc' },
   { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },
-  { id: 'han', ten: 'Hạn', rong: 104, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
+  { id: 'han', ten: 'Hạn', rong: 96, kieu: 'sap', nghia: { tang: 'Gần hạn nhất trước', giam: 'Xa hạn nhất trước' } },
   { id: 'loai', ten: 'Loại', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tinh', ten: 'Tỉnh/TP', rong: 120, kieu: 'thuong', anMacDinh: true },
   { id: 'tao', ten: 'Ngày tạo', rong: 104, kieu: 'sap', anMacDinh: true, nghia: { tang: 'Cũ nhất trước', giam: 'Mới tạo trước' } },
@@ -489,7 +492,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
             tabs={
               dangXem === 'kanban' ? undefined : (
                 <Tabs value={view} onValueChange={(v) => dat({ view: v, xem: null })}>
-                  <TabsList variant="pill" aria-label="View ticket">
+                  <TabsList variant="pill" thuGon aria-label="View ticket">
                     {VIEW.map((x) => {
                       const n = rows.filter(x.loc).length
                       return (
