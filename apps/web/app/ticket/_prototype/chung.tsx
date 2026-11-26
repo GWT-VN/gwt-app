@@ -20,6 +20,8 @@ export type DuLieuTicket = {
   dsLoi: { code: string; ten: string }[]
   /** DB local gần như trống → có thêm ticket Demo trong bộ nhớ. */
   demo?: boolean
+  /** PA F: giá trị có trong dữ liệu CHƯA lọc của từng trường chọn/người (truong-f.ts `tuyChonF`). */
+  tuyChonLoc?: Record<string, string[]>
 }
 
 export const PHUONG_AN = [
@@ -43,8 +45,7 @@ export const ngayNgan = (iso: string | null | undefined) =>
 
 export const tenKhach = (t: Ticket) => t.customer_name ?? 'Chưa gắn khách'
 
-/** "Máy · lỗi": dòng máy đầu tiên (ticket_may), không có thì tên máy. */
-export const mayLoi = (t: Ticket) => t.dong_may?.[0]?.nhan ?? t.product_name ?? '—'
+export { mayLoi } from './truong-f'
 
 const TT: Record<Ticket['state'], { nhan: string; color: 'info' | 'success' | 'secondary' }> = {
   Open: { nhan: 'Đang mở', color: 'info' },

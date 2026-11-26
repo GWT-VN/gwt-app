@@ -29,14 +29,14 @@ import { KeoCot, TieuDeCot, type LocCot, type MucLoc } from '@/components/ui/tie
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { XemNhanh } from '@/components/ui/xem-nhanh'
+import { apLoc, docTatCa, ghiDieuKien, type DieuKienLoc } from '@/bang/locTruong'
+import { ChipLoc, NutLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { chuaLuu, cheSdt, DauPrototype, mayLoi, NhanKhan, ngayNgan, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { CHUA_GIAO, han, TOI_F as TOI, TRUONG_F } from './truong-f'
 
 // ── Giả định (DB chưa có trường) — ghi trên màn ─────────────────────────────────────────────────────────────────────
-/** "Của tôi" = CS này (prototype không biết ai đang đăng nhập phía client). */
-const TOI = 'CS Demo Lan'
+// "Của tôi" = TOI · hạn = ngày tạo + 3 ngày (khẩn + 1): truong-f.ts (server lọc dùng chung).
 const NGAY = 86_400_000
-/** Hạn xử lý = ngày tạo + 3 ngày (khẩn: + 1 ngày). */
-const han = (t: Ticket) => new Date(t.created_at).getTime() + (t.khan ? 1 : 3) * NGAY
 /** Chờ vật tư = đang mở, đã có KT, loại Thay lõi / Sửa chữa. */
 const choVatTu = (t: Ticket) => t.state === 'Open' && !!t.ky_thuat && (t.ticket_type === 'Thay lõi' || t.ticket_type === 'Sửa chữa')
 /** Hẹn hôm nay = đang mở, đã có KT (không chờ vật tư), hoạt động cuối là hôm nay — hoặc vừa bấm "Hẹn KTV". */
@@ -223,9 +223,6 @@ function DongBang({ t, hien, mo }: { t: Dong; hien: CotBang[]; mo: (ma: string) 
   )
 }
 
-const dsUrl = (s: string | null) => (s ? s.split(',').filter(Boolean) : [])
-/** Giá trị lọc "Chưa giao" của cột Phụ trách (tên người không bao giờ là "-"). */
-const CHUA_GIAO = '-'
 /** Khoá phụ mã ticket (CHUAN-FILTER luật 2) — không đảo theo chiều. */
 const soSanh = ({ cot, tang }: Sap) => (a: Ticket, b: Ticket) =>
   (cot === 'han' ? han(a) - han(b) : Date.parse(a.created_at) - Date.parse(b.created_at)) * (tang ? 1 : -1) ||
@@ -316,7 +313,7 @@ function NoiDungXem({ t, nguoi, sua }: { t: Dong; nguoi: { gt: string; nhan: str
   )
 }
 
-export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket) {
+export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {} }: DuLieuTicket) {
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
   const pathname = usePathname()
@@ -328,44 +325,63 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
   const dangXem: DangXem = DANG_XEM.find((x) => x.id === sp.get('bo_cuc'))?.id ?? 'bang'
   const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
 
-  const rows: Dong[] = goc.map((t) => {
-    const s = sua[t.ticket_code]
-    return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen }
-  })
-  const nguoi = [...new Set(goc.map((t) => t.cs_ten).filter((x): x is string => !!x))].map((n) => ({ gt: n, nhan: n }))
+  // ── Lọc theo trường (bang/locTruong, URL = tham số mang tên trường): server đã lọc thật; lọc lại ở đây để sửa tại chỗ
+  // (prototype, chưa lưu) cũng ra/vào bộ lọc ngay.
+  const dk = docTatCa(sp, TRUONG_F)
+  const rows: Dong[] = apLoc(
+    goc.map((t) => {
+      const s = sua[t.ticket_code]
+      return { ...t, state: s?.state ?? t.state, cs_ten: s && 'cs' in s ? (s.cs ?? null) : t.cs_ten, hen: !!s?.hen }
+    }),
+    dk,
+    TRUONG_F,
+    { toi: TOI },
+  )
+  // Danh sách giá trị lấy từ dữ liệu CHƯA lọc (server gửi) — không co lại theo chính bộ lọc đang bật.
+  const nguoi = (tuyChonLoc.cs ?? []).filter((n) => n !== CHUA_GIAO).map((n) => ({ gt: n, nhan: n }))
+  const ttCo = TT.filter((m) => tuyChonLoc.tt?.includes(m.gt))
+  const truongLoc: TruongLoc[] = TRUONG_F.map((x) => ({
+    id: x.id,
+    ten: x.ten,
+    kieu: x.kieu,
+    tuyChon:
+      x.id === 'tt'
+        ? ttCo.map((m) => ({ giaTri: m.gt, nhan: m.nhan }))
+        : tuyChonLoc[x.id]?.map((g) => ({ giaTri: g, nhan: x.id === 'cs' && g === CHUA_GIAO ? 'Chưa giao' : g })),
+  }))
+  const datLoc = (id: string, d: DieuKienLoc | null) => dat({ [id]: ghiDieuKien(d, TRUONG_F.find((x) => x.id === id)!.kieu) })
+  /** Giá trị "là" của trường (menu lọc ở tiêu đề cột chỉ có "là"; phép khác → menu cột trống, chip vẫn đúng). */
+  const la = (id: string) => dk.find((d) => d.truong === id && d.phep === 'la')?.giaTri ?? []
   const doi = (ma: string) => (s: Sua) => setSua((m) => ({ ...m, [ma]: { ...m[ma], ...s } }))
 
   // ── URL → lọc theo cột (menu tiêu đề `kieu: 'loc'`) + sắp (`cot`/`chieu`, CHUAN-FILTER) ──
-  const ttLoc = dsUrl(sp.get('tt'))
-  const csLoc = dsUrl(sp.get('cs'))
   const cotUrl = COT_SAP.includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
   const sap: Sap | null = cotUrl ? { cot: cotUrl, tang: sp.get('chieu') !== 'desc' } : null
   const datSap = (s: Sap | null) => dat({ cot: s?.cot ?? null, chieu: s ? (s.tang ? 'asc' : 'desc') : null })
-  const locCot = (t: Dong) => (!ttLoc.length || ttLoc.includes(t.state)) && (!csLoc.length || csLoc.includes(t.cs_ten ?? CHUA_GIAO))
   const LOC: Record<string, LocCot> = {
     tt: {
-      tuyChon: TT.filter((m) => rows.some((t) => t.state === m.gt)).map((m) => ({
+      tuyChon: ttCo.map((m) => ({
         giaTri: m.gt,
         nhan: m.nhan,
         color: m.color === 'secondary' ? undefined : (m.color as MucLoc['color']),
       })),
-      daChon: ttLoc,
-      onDoi: (gt) => dat({ tt: gt.join(',') || null }),
+      daChon: la('tt'),
+      onDoi: (gt) => datLoc('tt', { truong: 'tt', phep: 'la', giaTri: gt }),
     },
     cs: {
       tuyChon: [
         ...nguoi.map((n) => ({ giaTri: n.gt, nhan: n.nhan })),
-        ...(rows.some((t) => !t.cs_ten) ? [{ giaTri: CHUA_GIAO, nhan: 'Chưa giao' }] : []),
+        ...(tuyChonLoc.cs?.includes(CHUA_GIAO) ? [{ giaTri: CHUA_GIAO, nhan: 'Chưa giao' }] : []),
       ],
-      daChon: csLoc,
-      onDoi: (gt) => dat({ cs: gt.join(',') || null }),
+      daChon: la('cs'),
+      onDoi: (gt) => datLoc('cs', { truong: 'cs', phep: 'la', giaTri: gt }),
     },
   }
 
   const view = (VIEW.find((x) => x.v === sp.get('view'))?.v ?? 'cua-toi') as View
-  const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc).filter(locCot)
+  const dong = rows.filter(VIEW.find((x) => x.v === view)!.loc)
   if (sap) dong.sort(soSanh(sap))
-  const theKanban = rows.filter(locCot).filter((d) => d.state !== 'Cancel')
+  const theKanban = rows.filter((d) => d.state !== 'Cancel')
   const xem = sp.get('xem')
   const nguon = dangXem === 'kanban' ? theKanban : dong
   const i = xem ? nguon.findIndex((t) => t.ticket_code === xem) : -1
@@ -373,18 +389,14 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
   const mo = (ma: string | null) => dat({ xem: ma }, true)
 
   const dieuKien = [
-    sp.get('q') && { nhan: 'Tìm', giaTri: sp.get('q')!, href: hrefBoLoc(pathname, sp, 'q') },
-    ttLoc.length > 0 && {
-      nhan: 'Trạng thái',
-      giaTri: ttLoc.map((g) => TT.find((m) => m.gt === g)?.nhan ?? g).join(', '),
-      href: hrefBoLoc(pathname, sp, 'tt'),
-    },
-    csLoc.length > 0 && {
-      nhan: 'Phụ trách',
-      giaTri: csLoc.map((g) => (g === CHUA_GIAO ? 'Chưa giao' : g)).join(', '),
-      href: hrefBoLoc(pathname, sp, 'cs'),
-    },
-  ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
+    ...(sp.get('q') ? [{ nhan: 'Tìm', giaTri: sp.get('q')!, href: hrefBoLoc(pathname, sp, 'q') }] : []),
+    // Mỗi điều kiện = một ChipLoc (bấm sửa, × gỡ).
+    ...dk.map((d) => {
+      const x = truongLoc.find((y) => y.id === d.truong)!
+      return { nhan: x.ten, giaTri: '', chip: <ChipLoc truong={x} dieuKien={d} onDoi={datLoc} /> }
+    }),
+  ]
+  const thamSoLoc = TRUONG_F.map((x) => x.id)
 
   const tongRong = 36 + RONG_THEM_COT + c.hien.reduce((s, x) => s + c.doRong[x.id], 0)
   const [khungRef, rongKhung] = useRongKhung()
@@ -451,7 +463,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
         <DauPrototype
           ma="F"
           demo={demo}
-          cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
+          cach={`Đề xuất theo nghiên cứu (L1 + L3, Kanban theo khâu là dạng xem phụ ở nút dạng xem). Bấm tab view; nút "Lọc" (cạnh ⚙): chọn trường → điều kiện → giá trị = một chip (bấm chip sửa, × gỡ; server lọc thật theo URL); bấm TÊN khách mở Xem nhanh (đổi trạng thái / phụ trách, Hẹn KTV); tick ô đầu dòng → thanh hàng loạt. Giả định: "Của tôi" = ${TOI}; hạn = ngày tạo + 3 ngày (khẩn + 1); Chờ vật tư = đã có KT + loại Thay lõi/Sửa chữa; Hẹn hôm nay = có KT, hoạt động hôm nay. Không lưu gì.`}
         />
         <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
@@ -479,6 +491,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
                 </Tabs>
               )
             }
+            loc={<NutLoc truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
             caiDat={
               <CaiDatHienThi
                 ref={caiDat}
@@ -500,17 +513,23 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo }: DuLieuTicket)
           <ThanhDangLoc
             dieuKien={dieuKien}
             hienThi={dangXem === 'kanban' ? theKanban.length : dong.length}
-            tong={dangXem === 'kanban' ? rows.length : rows.filter(VIEW.find((x) => x.v === view)!.loc).length}
+            tong={dangXem === 'kanban' ? theKanban.length : dong.length}
             nhan="ticket"
             sapXep={sap ? { ...sap, macDinh: false } : undefined}
             // "Xoá lọc" giữ prototype (`variant`), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
-            hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', 'tt', 'cs', 'cot', 'chieu', 'xem')}
+            hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}
           />
           <KhungChon
             khoaTrang={dong.map((d) => d.ticket_code)}
             tong={dong.length}
             bat={dangXem !== 'kanban'}
-            thamSo={{ view, q: sp.get('q') ?? '', tt: ttLoc.join(','), cs: csLoc.join(','), cot: cotUrl ?? '', chieu: sp.get('chieu') ?? '' }}
+            thamSo={{
+              view,
+              q: sp.get('q') ?? '',
+              ...Object.fromEntries(thamSoLoc.map((k) => [k, sp.get(k) ?? ''])),
+              cot: cotUrl ?? '',
+              chieu: sp.get('chieu') ?? '',
+            }}
           >
             {dangXem === 'kanban' ? (
               <KanbanBoard

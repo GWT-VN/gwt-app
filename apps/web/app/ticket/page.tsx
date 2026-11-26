@@ -19,6 +19,8 @@ import { TuLamMoi } from '@/components/TuLamMoi'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { TrangTicketPrototype } from './_prototype/trang'
 import { locDemo, TICKET_DEMO } from './_prototype/demo'
+import { TOI_F, TRUONG_F, tuyChonF } from './_prototype/truong-f'
+import { apLoc, docTatCa } from '@/bang/locTruong'
 
 export default async function TicketsPage({
   searchParams,
@@ -27,9 +29,10 @@ export default async function TicketsPage({
     q?: string; state?: string; khan?: string; mine?: string; trang?: string
     cot?: string; chieu?: string; loai?: string; loi?: string; ngtu?: string; ngden?: string
     variant?: string
-  }>
+  } & Record<string, string | string[] | undefined>>
 }) {
-  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden, variant } = await searchParams
+  const sp = await searchParams
+  const { q = '', state = '', khan = '', mine = '', trang: trangRaw, cot, chieu, loai = '', loi = '', ngtu, ngden, variant } = sp
   const onlyKhan = khan === '1'
   const isMine = mine === '1'
   const trang = Math.max(1, Number(trangRaw) || 1)
@@ -45,7 +48,9 @@ export default async function TicketsPage({
           sapXep: { ...SAP_TICKET_MAC_DINH, macDinh: true },
         })
       : searchTickets(q, onlyKhan ? undefined : state || undefined, onlyKhan, me?.id, {
-          trang, cot, chieu, loaiTicket: loai || undefined, loiCode: loi || undefined, ngtu, ngden,
+          // PA F: `loai`/`loi` mang ngữ pháp lọc theo trường (bang/locTruong) → lọc ở nhánh prototype dưới, không đưa vào SQL.
+          trang, cot, chieu, ngtu, ngden,
+          ...(variant !== 'F' && { loaiTicket: loai || undefined, loiCode: loi || undefined }),
         })),
     ticketTypes(),
     docAnToan('danhMucLoi', () => danhMucLoi(), []),
@@ -63,11 +68,21 @@ export default async function TicketsPage({
     // DB local gần như trống (< 5 ticket) → thêm ticket Demo trong bộ nhớ (lọc theo tab/từ khoá) sau ticket thật.
     const dbIt = tong < 5 && (await searchTickets('', undefined, false, undefined, { trang: 1, kemDongMay: false })).tong < 5
     const demo = dbIt ? [...tickets, ...locDemo({ state, khan, mine, q })] : null
+    let rows = demo ?? tickets
+    let tuyChonLoc: Record<string, string[]> | undefined
+    // F: lọc theo trường (bang/locTruong) chạy THẬT ở server trên đúng tham số URL client ghi. "Tôi" = TOI_F (prototype).
+    // ponytail: DB thật (không demo) chỉ lọc được dòng của trang hiện tại — lọc đúng phải đẩy điều kiện xuống truy vấn
+    // searchTickets khi F thành màn thật.
+    if (variant === 'F') {
+      tuyChonLoc = tuyChonF(rows)
+      rows = apLoc(rows, docTatCa(sp, TRUONG_F), TRUONG_F, { toi: TOI_F })
+    }
     return (
       <TrangTicketPrototype
-        variant={variant} rows={demo ?? tickets} tong={demo?.length ?? tong} trang={trang} soTrang={demo ? 1 : soTrang}
+        variant={variant} rows={rows} tong={demo || variant === 'F' ? rows.length : tong} trang={trang}
+        soTrang={demo ? 1 : soTrang}
         loaiList={demo ? [...new Set(TICKET_DEMO.map((t) => t.ticket_type!))] : loaiList} demo={!!demo}
-        dsLoi={dsLoi.map((d) => ({ code: d.code, ten: d.ten }))}
+        dsLoi={dsLoi.map((d) => ({ code: d.code, ten: d.ten }))} tuyChonLoc={tuyChonLoc}
       />
     )
   }
