@@ -600,6 +600,7 @@ export function TicketF({ rows: goc, tong, trang, soTrang, demo, tuyChonLoc = {}
             hienThi={dangXem === 'kanban' ? theKanban.length : dong.length}
             tong={dangXem === 'kanban' ? theKanban.length : dong.length}
             nhan="ticket"
+            anSoDong
             sapXep={sap ? { ...sap, macDinh: false } : undefined}
             // "Xoá lọc" giữ prototype (`variant`), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
             hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}

@@ -56,9 +56,11 @@ export const dvTimIcon = cn(
  * `.b-thanh`: hàng tab + công cụ, cách 12, lề trên 22 dưới 16 (nguồn 12 — CEO 23/11 giãn). `.b-tabs-cuon`: giãn, co được
  * nhưng giữ tối thiểu 272 (= tab dài nhất ~150 + nút "Thêm ▾" của `thuGon` ~92 + đệm) — hẹp hơn thì cụm công cụ (240)
  * xuống dòng riêng, canh phải (`flex-wrap` + `ml-auto`), thay vì bóp hàng tab còn 79px ở 375 (đo 26/11).
+ * Cân mắt (CEO 26/11): hàng tab lùi ra ngoài 4px (`-ml-1`; thử 2px rồi CEO bảo "đẩy thêm 2px") — mép trái viên pill bo
+ * tròn nên đứng đúng mép nhìn như thụt vào so với chữ tiêu đề / bảng.
  */
 export const dvThanh = cn(kv, 'mt-[22px] mb-4 flex flex-wrap items-center gap-3')
-export const dvTabs = cn(kv, 'min-w-[min(100%,272px)] flex-1')
+export const dvTabs = cn(kv, '-ml-1 min-w-[min(100%,272px)] flex-1')
 
 /** `.b-thanh-phai` (cách 8, không co; xuống dòng thì canh phải) > `.b-cong-cu` (cách 2). `.b-bocuc`: cách 2. */
 export const dvThanhPhai = cn(kv, 'ml-auto flex shrink-0 items-center gap-2')

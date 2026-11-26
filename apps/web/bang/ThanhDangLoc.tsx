@@ -26,6 +26,9 @@ import { useCauHinh } from './CauHinh'
  * `hrefXoaLoc`: đích của "Xoá lọc" khi trang có tham số KHÔNG phải lọc phải giữ lại (vd
  * `variant` của prototype, `view`, trạng thái cột `cot_*`) — dựng bằng hrefBoLoc(…, các tham
  * số lọc). Không truyền = pathname trần như cũ.
+ *
+ * `anSoDong`: bỏ dòng "N <nhan>" khi trang đã có số đếm ở chỗ khác (vd "đang thấy X / Y" cạnh tiêu đề của
+ * DataViewToolbar — CEO 26/11 "bỏ vì thừa"). Khi đó không có chip / sắp xếp / nút phải thì không vẽ thanh.
  */
 export function ThanhDangLoc({
   dieuKien,
@@ -35,6 +38,7 @@ export function ThanhDangLoc({
   sapXep,
   phai,
   hrefXoaLoc,
+  anSoDong = false,
 }: {
   // `href`: link BỎ RIÊNG điều kiện này (giữ mọi điều kiện khác) — cho phép
   // gỡ từng bộ lọc một khi trang có NHIỀU điều kiện cùng lúc (q + sp + bh…).
@@ -50,11 +54,13 @@ export function ThanhDangLoc({
   sapXep?: { cot: string; tang: boolean; macDinh: boolean; ghiChu?: string }
   phai?: ReactNode
   hrefXoaLoc?: string
+  anSoDong?: boolean
 }) {
   const { giaoDien: gd, bieuTuong } = useCauHinh()
   const pathname = usePathname()
   const dangLoc = dieuKien.length > 0
   const dong = hienThi < tong ? `Hiện ${hienThi} trên ${tong} ${nhan}` : `${tong} ${nhan}`
+  if (anSoDong && !dangLoc && !sapXep && !phai) return null
 
   return (
     <div className={gd.dangLoc_khung} role="region" aria-label="Điều kiện đang áp dụng">
@@ -89,7 +95,7 @@ export function ThanhDangLoc({
           </span>
           ),
         )}
-        <span className={gd.dangLoc_soDong} aria-live="polite">{dong}</span>
+        {!anSoDong && <span className={gd.dangLoc_soDong} aria-live="polite">{dong}</span>}
         {/* ChipSapXep dùng useSearchParams (dựng link bỏ sắp xếp) -> phải có
             Suspense, không thì next build vỡ. Bọc ở đây thay vì bắt 4 trang gọi
             ThanhDangLoc phải nhớ bọc. */}
