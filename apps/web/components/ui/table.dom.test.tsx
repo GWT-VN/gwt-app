@@ -392,6 +392,8 @@ describe('useCotBang — URL', () => {
     // Cột URL không biết (uu, nhom, nguon) = cột ra đời sau khi link được lưu → đứng đúng chỗ mặc định (CEO 26/11).
     expect(la.thuTu).toEqual(['uu', 'nhom', 'ma', 'nguon'])
     expect(la.keoTay.ma).toBe(56)
+    // Link cũ ẩn một cột đã bỏ khỏi bảng → bỏ qua id lạ, không sập trang.
+    expect(docUrlCot(new URLSearchParams('cot_an=xx,nguon'), COT).an).toEqual(['nguon'])
   })
 
   test('url: true → mở trang đọc trạng thái cột từ URL', () => {

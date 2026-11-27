@@ -126,8 +126,8 @@ export function BangTuyChinh<T>({
                 <li key={k} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked disabled={c.batBuoc} onChange={() => toggle(k)} />
                   <span className="flex-1">{c.nhan}{c.batBuoc && <span className="text-[10px] text-muted-foreground"> (bắt buộc)</span>}</span>
-                  <Button onClick={() => doiCho(i, -1)} className="text-muted-foreground hover:text-foreground">▲</Button>
-                  <Button onClick={() => doiCho(i, 1)} className="text-muted-foreground hover:text-foreground">▼</Button>
+                  <Button variant="ghost" size="icon-xs" aria-label={`Đưa cột ${c.nhan} lên`} onClick={() => doiCho(i, -1)}>▲</Button>
+                  <Button variant="ghost" size="icon-xs" aria-label={`Đưa cột ${c.nhan} xuống`} onClick={() => doiCho(i, 1)}>▼</Button>
                 </li>
               )
             })}
@@ -137,8 +137,7 @@ export function BangTuyChinh<T>({
               <p className="text-xs text-muted-foreground mb-1">Cột ẩn — bấm để thêm:</p>
               <div className="flex flex-wrap gap-1.5">
                 {cot.filter((c) => !hien.includes(c.key)).map((c) => (
-                  <Button key={c.key} onClick={() => toggle(c.key)}
-                    className="rounded border px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted">+ {c.nhan}</Button>
+                  <Button key={c.key} variant="outline" size="xs" onClick={() => toggle(c.key)}>+ {c.nhan}</Button>
                 ))}
               </div>
             </div>
@@ -147,8 +146,7 @@ export function BangTuyChinh<T>({
             <Input value={tenView} onChange={(e) => setTenView(e.target.value)} placeholder="Tên view…"
               className="rounded border px-2 py-1 text-sm w-32 text-foreground" />
             {choViewChung && <label className="flex items-center gap-1 text-xs text-muted-foreground"><input type="checkbox" checked={chung} onChange={(e) => setChung(e.target.checked)} /> Chung (mọi người)</label>}
-            <Button onClick={luu} disabled={busy || !tenView.trim()}
-              className="rounded-lg bg-primary text-primary-foreground px-3 py-1 text-sm disabled:opacity-50">Lưu view</Button>
+            <Button size="sm" onClick={luu} loading={busy} disabled={!tenView.trim()}>Lưu view</Button>
             {err && <span className="text-xs text-(--color-text-danger)">{err}</span>}
           </div>
           {views.length > 0 && (
@@ -156,7 +154,7 @@ export function BangTuyChinh<T>({
               View đã lưu:{' '}
               {views.map((v) => (
                 <span key={v.id} className="mr-2 whitespace-nowrap">{v.ten}{v.chu === 'chung' && ' (chung)'}
-                  <Button onClick={() => xoa(v.id)} className="text-(--color-text-danger) ml-0.5" title="Xoá view">✕</Button>
+                  <Button variant="ghost" size="icon-xs" className="text-(--color-text-danger-ghost)" aria-label={`Xoá view ${v.ten}`} onClick={() => xoa(v.id)}>✕</Button>
                 </span>
               ))}
             </div>

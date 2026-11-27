@@ -161,6 +161,16 @@ hover ở chip", commit 9d88415): `MucRadio chip` — dòng rê/được phím �
 thường (người, loại lỗi) giữ nền dòng. Badge "Đang mở" dùng `warning` — token ra CAM, tối 4,37:1 (dưới AA): chờ CEO quyết
 màu vàng riêng.
 
+**Chờ đồng bộ lên artifact** — đổi DS đi kèm màn Khách hàng (27/11, commit 37e331c, soát lại 27/11):
+`CotBang.batBuoc` (luôn hiện, vẫn đổi chỗ — vd SĐT) + `anDuoc(c)`; menu cột / ⚙ Cột hiển thị / ThemCot không cho ẩn cột
+`batBuoc` (`MenuCot.onAn` tuỳ chọn → không có mục "Ẩn cột"); `useCotBang().datCotHien(ids)` áp cột của chế độ xem đã lưu
+(không còn id hợp lệ → về mặc định); `SapCot.macDinh` ẩn "Bỏ sắp xếp" khi đang là sắp mặc định; `CongCuXem` /
+`CaiDatHienThi` cho bỏ `onDoiXem` / `onXemNhanh` (màn chỉ có Bảng: không nút dạng xem, không trang "Bố cục"); `SavedView.onLuu`
+async, trả `{ loi }` → hiện FieldError, nút Lưu `loading`, khoá bấm đúp; bộ đếm "đang thấy X / Y" của DataViewToolbar
+`aria-live="polite"`. `docUrlCot` bỏ qua id cột lạ trong `cot_an` (link cũ không làm sập trang). Prop `PopoverContent
+noiTuyen` (bỏ portal) đã GỠ: ngoài DsRoot không có token, lách vô ích. Khi đẩy lên artifact: README Table (batBuoc), README
+DataViewToolbar (toolbar không dạng xem), README SavedView (lỗi lưu); không đổi `bundle.css`.
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

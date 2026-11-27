@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { CaretDown, DownloadSimple } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
-import { useDsPortal } from '@/components/ui/ds-root'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export type CotXuat = { key: string; nhan: string; pii?: boolean }
@@ -44,7 +43,6 @@ export function NutXuat({
   onTai?: (id: string) => Promise<KetQuaTai>
 }) {
   const router = useRouter()
-  const dsPortal = useDsPortal()
   const [mo, setMo] = useState(false)
   const [chon, setChon] = useState<string[]>([...macDinh])
   const [busy, setBusy] = useState(false)
@@ -89,14 +87,13 @@ export function NutXuat({
         </PopoverTrigger>
         <PopoverContent
           aria-label="Chọn trường xuất"
-          noiTuyen={!dsPortal}
           className="w-64 max-w-(--radix-popover-content-available-width) space-y-2"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Chọn trường xuất</span>
-            <div className="flex gap-2 text-[11px]">
-              <button onClick={() => setChon(cot.map((c) => c.key))} className="text-muted-foreground hover:underline">Tất cả</button>
-              <button onClick={() => setChon([])} className="text-muted-foreground hover:underline">Bỏ hết</button>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="xs" onClick={() => setChon(cot.map((c) => c.key))}>Tất cả</Button>
+              <Button variant="ghost" size="xs" onClick={() => setChon([])}>Bỏ hết</Button>
             </div>
           </div>
           <ul className="max-h-56 overflow-auto space-y-1 pr-1">

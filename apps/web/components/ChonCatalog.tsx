@@ -8,12 +8,14 @@ import type { CatalogChon } from '@/app/actions'
  * <select> 326 dòng. Trả về internal_code. Dùng cho nhập kho / lắp bộ.
  */
 export function ChonCatalog({
-  catalog, value, onChange, placeholder = 'Gõ tên hoặc mã nội bộ…',
+  catalog, value, onChange, placeholder = 'Gõ tên hoặc mã nội bộ…', 'aria-label': nhan = 'Máy hoặc sản phẩm',
 }: {
   catalog: CatalogChon[]
   value: string
   onChange: (internalCode: string) => void
   placeholder?: string
+  /** Tên đọc của ô theo ngữ cảnh (vd "Máy đăng ký bảo hành", "Sản phẩm nhập kho"). */
+  'aria-label'?: string
 }) {
   const options = catalog.map((c) => ({
     gt: c.internal_code,
@@ -25,7 +27,7 @@ export function ChonCatalog({
       value={value || null}
       onValueChange={(code) => onChange(code ?? '')}
       options={options}
-      aria-label="Máy hoặc sản phẩm"
+      aria-label={nhan}
       placeholder="Chọn máy hoặc sản phẩm"
       searchPlaceholder={placeholder}
     />

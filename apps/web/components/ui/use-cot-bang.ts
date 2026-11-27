@@ -134,7 +134,11 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
     const px = Number(so)
     if (c && so && Number.isFinite(px)) keoTay[id] = Math.max(toiThieu(c), Math.round(px))
   }
-  const an = sp.has(P_AN) ? ds(P_AN).filter((x) => anDuoc(theoId.get(x)!)) : md.an
+  const an = sp.has(P_AN) ? ds(P_AN).filter((x) => {
+        // Link cũ có thể mang id cột đã bỏ / đổi tên → bỏ qua, không làm sập trang.
+        const c = theoId.get(x)
+        return !!c && anDuoc(c)
+      }) : md.an
   const ngay: Record<string, KieuNgay> = {}
   for (const cap of (sp.get(P_NGAY) ?? '').split(',')) {
     const [id, k] = cap.split(':')
@@ -352,6 +356,8 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     datCotHien: (ids: string[]) => {
       const md = macDinh(cot)
       const hien = new Set(ids.filter((id) => md.thuTu.includes(id)))
+      // View cũ chỉ còn id đã bỏ → về mặc định thay vì ẩn hết cột ẩn được.
+      if (![...hien].some((id) => anDuoc(cot.find((c) => c.id === id)!))) return setS(md)
       const conLai = md.thuTu.filter((id) => !hien.has(id))
       setS((t) => ({
         ...t,
