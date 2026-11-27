@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
+import { HoSoKhach } from '@/components/khach/HoSoKhach'
+import { MAY_KHACH_DEMO, TICKET_DEMO } from '@/app/ticket/_prototype/demo'
 import { notFound } from 'next/navigation'
 import { getCustomer, ticketsOfCustomer, machinesOfCustomer, kenhChon, baoTriCuaKhach, diaChiCuaKhach } from '@/app/actions'
 import { DiaChiKhachList } from '@/components/DiaChiKhachList'
@@ -15,8 +18,67 @@ import { ManV2 } from '@/components/khung/ManV2'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
 
-export default async function CustomerPage({ params }: { params: Promise<{ id: string }> }) {
+/**
+ * /khach/[id] = HỒ SƠ KHÁCH v2 (2 cột, module + chọn thứ tự xem — CEO 27/11). Màn cũ (tab Máy/Ticket/Bảo trì/Sửa thông tin)
+ * giữ ở `?cu=1` tới khi v2 có đủ phần sửa thông tin / kênh / địa chỉ / nước. Dev: `DEMO-KH-*` = khách của ticket Demo.
+ */
+export default async function CustomerPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<Record<string, string | undefined>>
+}) {
   const { id } = await params
+  const sp = await searchParams
+  if (sp.cu === '1') return <TrangKhachCu id={id} />
+  if (process.env.NODE_ENV !== 'production' && id.startsWith('DEMO-KH-')) {
+    const tickets = TICKET_DEMO.filter((t) => t.customer_id === id)
+    if (!tickets.length) notFound()
+    const t = tickets[0]
+    return (
+      <ManV2>
+        <Suspense>
+          <HoSoKhach
+            demo
+            khach={{ id, ten: t.customer_name ?? id, sdt: t.primary_phone, tinh: t.province, diaChi: null, nguon: 'Demo', maKh: id, maSales: null }}
+            may={MAY_KHACH_DEMO[id] ?? []}
+            tickets={tickets}
+            baoTri={[]}
+          />
+        </Suspense>
+      </ManV2>
+    )
+  }
+  const { customer } = await getCustomer(id)
+  if (!customer) notFound()
+  const [tickets, machines, baoTri] = await Promise.all([ticketsOfCustomer(id), machinesOfCustomer(id), baoTriCuaKhach(id)])
+  return (
+    <ManV2>
+      <Suspense>
+        <HoSoKhach
+          demo={false}
+          khach={{
+            id: customer.id,
+            ten: customer.full_name,
+            sdt: customer.primary_phone,
+            tinh: customer.province,
+            diaChi: customer.address,
+            nguon: customer.source,
+            maKh: customer.ma_kh ?? null,
+            maSales: customer.customer_code ?? null,
+          }}
+          may={machines}
+          tickets={tickets}
+          baoTri={baoTri.map((v) => ({ id: v.visit_id, lan: v.lan_thu, ngay: v.due_date, xong: v.completed_at, boMay: v.bo_may }))}
+        />
+      </Suspense>
+    </ManV2>
+  )
+}
+
+/** Màn khách cũ (trước v2) — `?cu=1`. */
+async function TrangKhachCu({ id }: { id: string }) {
   const { customer, contacts } = await getCustomer(id)
   if (!customer) notFound()
   const [tickets, machines, kenh, baoTri, quyen, diaChi] = await Promise.all([

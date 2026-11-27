@@ -154,7 +154,9 @@ function TrangThaiO({ t }: { t: Ticket }) {
 }
 
 /** Dạng xem cho người dùng chọn ở F (CEO 26/11 "giữ 2 dạng"). */
-const XEM_F = ['bang', 'kanban'] as const satisfies readonly DangXem[]
+// 4 dạng xem như Work (CEO 27/11 "chưa cho hiển thị 4 icon để chỉnh loại view"): Danh sách = bảng khuôn F · Gọn = ListView ·
+// Bảng = kẻ viền đủ · Kanban.
+const XEM_F = ['danh-sach', 'gon', 'bang', 'kanban'] as const satisfies readonly DangXem[]
 
 
 // ── Bảng (L1) ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -391,10 +393,13 @@ const khauCua = (t: Dong) => (t.state === 'Done' ? 'xong' : !t.cs_phu_trach ? 'm
 const NHOM_KB = [
   { giaTri: 'tt', nhan: 'Trạng thái' },
   { giaTri: 'cs', nhan: 'Phụ trách' },
+  // CEO 27/11 "Kanban có setup được phân loại theo nhóm cột nào ko" — thêm Kỹ thuật + Loại; mỗi nhóm có cột "Chưa có".
+  { giaTri: 'kt', nhan: 'Kỹ thuật' },
+  { giaTri: 'loai', nhan: 'Loại' },
   { giaTri: 'khau', nhan: 'Khâu (chỉ xem)' },
 ] as const
 type NhomKb = (typeof NHOM_KB)[number]['giaTri']
-/** Cột "Không có giá trị" (Twenty "No Value") khi nhóm theo trường để trống được (Phụ trách). */
+/** Cột "Chưa có" (Twenty "No Value") khi nhóm theo trường để trống được (Phụ trách, Kỹ thuật, Loại). */
 const KHONG_GT = '__trong'
 
 /** Thẻ Kanban dạng trường (Twenty): rỗng hiện tên trường mờ; một nhãn màu tối đa — ở đây 0 badge, ngoại lệ tô màu chữ. */
@@ -441,8 +446,10 @@ export function TicketF({
   // Dạng xem ở URL (`bo_cuc` = mục "Bố cục" của ⚙; mặc định Bảng không ghi) — chép link mở lại đúng dạng xem. CEO 26/11
   // "giữ 2 dạng": chỉ Bảng + Kanban cho chọn; `bo_cuc=danh-sach` cũ → Bảng. Danh sách (ListView) chỉ còn là cách hiện tự
   // động khi khung < RONG_BANG_TOI_THIEU (điện thoại).
-  const dangXem: DangXem = XEM_F.find((x) => x === sp.get('bo_cuc')) ?? 'bang'
-  const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'bang' ? null : v }, true)
+  const dangXem: DangXem = XEM_F.find((x) => x === sp.get('bo_cuc')) ?? 'danh-sach'
+  // `?bang=luoi` cũ = dạng Bảng.
+  const luoi = dangXem === 'bang' || sp.get('bang') === 'luoi'
+  const doiXem = (v: DangXem) => dat({ bo_cuc: v === 'danh-sach' ? null : v, bang: null }, true)
 
   // ── Lọc theo trường (bang/locTruong, URL = tham số mang tên trường): server lọc ở DB (searchTickets) — ở đây chỉ đọc
   // điều kiện để dựng chip. Sửa tại chỗ (chưa lưu) đè lên dòng server gửi.
@@ -487,19 +494,42 @@ export function TicketF({
   const docKb = (k: string) => (k in kbTam ? kbTam[k] : sp.get(k))
   const nhomTheo: NhomKb = NHOM_KB.find((x) => x.giaTri === docKb('nhom'))?.giaTri ?? 'tt'
   const nhomAn = (docKb('nhom_an') ?? '').split(',').filter(Boolean)
+  // Trường người của nhóm: id + tên của ticket.
+  const nguoiCua = (d: Dong) => (nhomTheo === 'kt' ? { id: d.ky_thuat, ten: d.ky_thuat_ten } : { id: d.cs_phu_trach, ten: d.cs_ten })
+  const loaiCo = tuyChonLoc.loai ?? []
   const cotNhom: CotKanban[] =
     nhomTheo === 'khau'
       ? KHAU
       : nhomTheo === 'tt'
         ? TT.map((m) => ({ id: m.gt, nhan: m.nhan, color: m.color }))
-        : // Nhân viên đang hoạt động + người đang mang ticket mà đã nghỉ (vẫn thấy thẻ của họ) + "Không có giá trị".
-          [
-            ...nhanVien.map((n) => ({ id: n.gt, nhan: n.nhan })),
-            ...[...new Map(rows.filter((d) => d.cs_phu_trach && !nhanVien.some((n) => n.gt === d.cs_phu_trach)).map((d) => [d.cs_phu_trach!, d.cs_ten ?? '—'])).entries()].map(([id, nhan]) => ({ id, nhan })),
-            { id: KHONG_GT, nhan: 'Không có giá trị' },
-          ]
+        : nhomTheo === 'loai'
+          ? [
+              ...loaiCo.map((g) => ({ id: g, nhan: g })),
+              ...[...new Set(rows.map((d) => d.ticket_type).filter((g): g is string => !!g && !loaiCo.includes(g)))].map((g) => ({ id: g, nhan: g })),
+              { id: KHONG_GT, nhan: 'Chưa có' },
+            ]
+          : // Nhân viên đang hoạt động + người đang mang ticket mà đã nghỉ (vẫn thấy thẻ của họ) + "Chưa có".
+            [
+              ...nhanVien.map((n) => ({ id: n.gt, nhan: n.nhan })),
+              ...[
+                ...new Map(
+                  rows
+                    .map(nguoiCua)
+                    .filter((x) => x.id && !nhanVien.some((n) => n.gt === x.id))
+                    .map((x) => [x.id!, x.ten ?? '—']),
+                ).entries(),
+              ].map(([id, nhan]) => ({ id, nhan })),
+              { id: KHONG_GT, nhan: 'Chưa có' },
+            ]
   const cotKb = cotNhom.filter((x) => !nhomAn.includes(x.id))
-  const cotCuaThe = (d: Dong) => (nhomTheo === 'khau' ? khauCua(d) : nhomTheo === 'tt' ? d.state : (d.cs_phu_trach ?? KHONG_GT))
+  const cotCuaThe = (d: Dong) =>
+    nhomTheo === 'khau'
+      ? khauCua(d)
+      : nhomTheo === 'tt'
+        ? d.state
+        : nhomTheo === 'loai'
+          ? (d.ticket_type ?? KHONG_GT)
+          : (nguoiCua(d).id ?? KHONG_GT)
   // Nhóm theo Trạng thái có cột "Đã huỷ"; Khâu / Phụ trách bỏ ticket huỷ (như trước). Thẻ ở nhóm ẩn không tính.
   const theKanban = rows.filter((d) => (nhomTheo === 'tt' || d.state !== 'Cancel') && cotKb.some((x) => x.id === cotCuaThe(d)))
   // `nhom` / `nhom_an` chỉ màn dùng: router.replace (gọi lại server) mất 3–5s ở dev (đo 26/11); history.replaceState đổi URL
@@ -514,9 +544,18 @@ export function TicketF({
    * thẻ sang cột mới ngay; lỗi → về cột cũ + KanbanBoard báo (Thử lại). Khâu suy ra → không kéo được.
    */
   const chuyenThe = async (id: string, cot: string) => {
-    if (nhomTheo === 'khau') throw new Error('Khâu chỉ xem — kéo thẻ ở nhóm Trạng thái hoặc Phụ trách')
-    const cs = cot === KHONG_GT ? null : cot
-    const moi: Sua = nhomTheo === 'tt' ? { state: cot as Ticket['state'] } : { cs_phu_trach: cs, cs_ten: cotNhom.find((x) => x.id === cot && cs)?.nhan ?? null }
+    if (nhomTheo === 'khau') throw new Error('Khâu chỉ xem — kéo thẻ ở nhóm Trạng thái, Phụ trách, Kỹ thuật hoặc Loại')
+    const gt = cot === KHONG_GT ? null : cot
+    if (nhomTheo === 'loai' && !gt) throw new Error('Loại không được để trống')
+    const ten = cotNhom.find((x) => x.id === cot && gt)?.nhan ?? null
+    const moi: Sua =
+      nhomTheo === 'tt'
+        ? { state: cot as Ticket['state'] }
+        : nhomTheo === 'loai'
+          ? { ticket_type: gt! }
+          : nhomTheo === 'kt'
+            ? { ky_thuat: gt, ky_thuat_ten: ten }
+            : { cs_phu_trach: gt, cs_ten: ten }
     const bo = () =>
       setSua((m) => {
         const n = { ...m }
@@ -525,7 +564,16 @@ export function TicketF({
       })
     setSua((m) => ({ ...m, [id]: moi }))
     try {
-      await luuTicket(id, nhomTheo === 'tt' ? { state: moi.state } : { cs_phu_trach: cs })
+      await luuTicket(
+        id,
+        nhomTheo === 'tt'
+          ? { state: moi.state }
+          : nhomTheo === 'loai'
+            ? { ticket_type: gt! }
+            : nhomTheo === 'kt'
+              ? { ky_thuat: gt }
+              : { cs_phu_trach: gt },
+      )
     } finally {
       bo()
     }
@@ -660,7 +708,7 @@ export function TicketF({
   const [khungRef, rongKhung] = useRongKhung()
   const bang = (
     // `?bang=luoi`: bản thử bảng có viền cột, bo 24 (CEO 27/11) — mặc định giữ bảng dạng dòng.
-    <TableWrap luoi={sp.get('bang') === 'luoi'}>
+    <TableWrap luoi={luoi}>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
         <Table ref={refBang} layout="fixed" style={{ minWidth: tongRong }}>
           {/* Cột cuối (dưới ô "+") ăn phần dư của khung. */}
@@ -739,7 +787,7 @@ export function TicketF({
     >
       <TrangDuLieu>
         {dau}
-        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM, ...(sp.get('bang') === 'luoi' ? { phanTrang_khung: phanTrangLuoi } : {}) }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM, ...(luoi ? { phanTrang_khung: phanTrangLuoi } : {}) }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
             timKiem={
@@ -748,7 +796,8 @@ export function TicketF({
               </Suspense>
             }
             nutChinh={<NutTaoTicket />}
-            tabs={dangXem === 'kanban' ? undefined : hangTab.tabs}
+            // Hàng tab (Tất cả · Khẩn · Đã xong…) giữ ở MỌI dạng xem, kể cả Kanban (CEO 27/11).
+            tabs={hangTab.tabs}
             loc={
               // "Xoá bộ lọc" xoá mọi điều kiện lọc trường (giữ tìm, sắp, cột).
               <NutLoc
@@ -758,7 +807,7 @@ export function TicketF({
                 onDoi={datLoc}
                 onXoaHet={() => dat(Object.fromEntries(thamSoLoc.map((k) => [k, null])))}
                 coCot={(id) =>
-                  dangXem !== 'kanban' && dong.length > 0 &&
+                  dangXem !== 'kanban' && dangXem !== 'gon' && dong.length > 0 &&
                   (rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU) &&
                   c.hien.some((x) => x.id === id)
                 }
@@ -845,7 +894,7 @@ export function TicketF({
               // (cột vừa thêm biến mất, mất focus: đo 26/11). Chỉ vùng chứa < 640 (điện thoại) mới dùng ListView 1–2 dòng.
               // Đo bằng ResizeObserver; mốc container cố định 952 cũ giấu Bảng ở 1440 (vùng 927).
               <div ref={khungRef} className="border-none border-current">
-                {rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU ? bang : ds}
+                {dangXem !== 'gon' && (rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU) ? bang : ds}
               </div>
             )}
             <ThanhDaChon nhan="ticket">

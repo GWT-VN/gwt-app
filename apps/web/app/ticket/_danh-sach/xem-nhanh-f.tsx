@@ -39,6 +39,7 @@ import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
 import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
 import { DsTheLan } from './the-lan'
+import { duongHoSoKhach } from '@/components/khach/HoSoKhach'
 import { ChuBaoHanh, laKhan, TT, type DongF } from './ds-f'
 import type { SuaTruong } from './sua-ticket'
 
@@ -397,8 +398,9 @@ export function theXemNhanhF({
         },
       ],
     },
-    // ⤢ Mở toàn trang ở đầu thẻ (kiểu Notion, CEO 27/11) — thay mục "Mở trang chi tiết" trong ⋮ ở chân.
-    moTrang: chiTiet,
+    // ⤢ Mở toàn trang = HỒ SƠ KHÁCH, ticket này mở sẵn tới lần lỗi (CEO 27/11 "view full ở đây là coi như view full một KH
+    // luôn"). Ticket chưa gắn khách → trang chi tiết ticket như cũ.
+    moTrang: t.customer_id ? duongHoSoKhach(t.customer_id, t.ticket_code) : chiTiet,
     chan: luu && !demo ? <ThanhThaoTac moGanViec={moGanViec} /> : undefined,
   }
 }

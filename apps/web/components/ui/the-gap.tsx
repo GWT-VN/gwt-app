@@ -32,7 +32,8 @@ export function TheGap({
             <button
               type="button"
               className={cn(
-                'm-0 flex min-w-0 cursor-pointer items-center gap-2 border-none bg-transparent p-0 text-left [font:inherit] font-semibold text-inherit',
+                // Một dòng: không bẻ chữ; khổ hẹp thì phần phụ (con cuối) tự cắt "…".
+                'm-0 flex min-w-0 cursor-pointer items-center gap-2 overflow-hidden whitespace-nowrap border-none bg-transparent p-0 text-left [font:inherit] font-semibold text-inherit [&>:last-child]:truncate',
                 // Vùng bấm phủ cả đầu thẻ (dưới `thaoTac`); vòng focus vẽ quanh cả đầu thẻ.
                 "after:absolute after:inset-0 after:content-['']",
                 '[outline:none] focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-solid focus-visible:after:outline-(--ring)',
