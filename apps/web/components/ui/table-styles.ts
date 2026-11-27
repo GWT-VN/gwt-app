@@ -75,6 +75,9 @@ export const th = cn(
   'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
   // `.b-bang-c th`: đệm ngang 6.
   'in-data-[layout=fixed]:px-1.5',
+  // Khuôn F (bảng ghim — CEO 27/11 ảnh Figma đo 12 + 8 = 20): ô tiêu đề đệm 12, nút tiêu đề (`thSort`) đệm thêm 8 → chữ tiêu
+  // đề ở 20 = chữ ô thân (`td` đệm 20). Chip lọc lấp đúng phần đệm 8 của nút. Trừ cột ô chọn.
+  '[table:has(>thead>tr>th[data-ghim])_&:not(:has(input[type=checkbox],[role=checkbox]))]:px-3',
   oTick,
 )
 /** `.b-bang td`: cao 44, đệm ngang 10, kẻ dưới alpha-05, không xuống dòng, tối đa 280 (`.b-bang-c`: đệm 6, không trần, cắt). */
@@ -88,6 +91,8 @@ export const td = cn(
   'in-data-[layout=fixed]:px-1.5 in-data-[layout=fixed]:max-w-none in-data-[layout=fixed]:overflow-hidden',
   // `.b-bang-c tbody .ui-badge`: badge trong ô cao 22 (= avatar) → mọi phần tử trong dòng thẳng hàng.
   'in-data-[layout=fixed]:[&_[data-slot=badge]]:h-(--control-size-3xs)',
+  // Khuôn F: đệm ngang 20 (thẳng chữ tiêu đề 12 + 8, xem `th`). Trừ cột ô chọn.
+  '[table:has(>thead>tr>th[data-ghim])_&:not(:has(input[type=checkbox],[role=checkbox]))]:px-5',
   oTick,
 )
 /**
@@ -148,9 +153,9 @@ export const oKeo = cn(
 export const thSort = cn(
   kv,
   // w-full: <button> không tự giãn như div — `.b-loc-o` (flex, rộng 100%) + `flex: 1` của nguồn = phủ kín ô.
-  // Vùng rê/kéo nới 6px mỗi bên vào đệm ô (-mx/px bù nhau → chữ tiêu đề không dời) — chừa chỗ cho nhãn thành chip lọc và
-  // viền focus (CEO 27/11 "padding của phần hover drag rộng hơn chút để chừa chỗ khi label biến thành chip filter").
-  'flex w-[calc(100%+--spacing(3))] min-w-0 items-center gap-1 h-(--control-size-lg) -mx-1.5 my-0 px-1.5 py-0 rounded-none bg-transparent',
+  'flex w-full min-w-0 items-center gap-1 h-(--control-size-lg) m-0 p-0 rounded-none bg-transparent',
+  // Khuôn F: nút (vùng rê/kéo) đệm ngang 8 trong ô đệm 12 → chữ ở 20, chừa chỗ cho chip lọc (CEO 27/11 ảnh Figma 12 + 8).
+  '[table:has(>thead>tr>th[data-ghim])_&]:px-2',
   'font-[inherit] text-inherit whitespace-nowrap cursor-[inherit] [outline:none]',
   'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground data-on:font-medium',
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
@@ -162,12 +167,12 @@ export const thSort = cn(
 export const thSortPhai = 'justify-end'
 /**
  * Nhãn cột ĐANG LỌC = chip (CEO 27/11): nền info-surface, chữ text-info, icon lọc DS (Phosphor regular, cỡ 12 của tiêu đề);
- * nằm trong vùng rê đã nới của `thSort`. Đệm chip TOẢ RA NGOÀI (-ml bằng pl) → chữ nhãn vẫn thẳng mép chữ trong ô (CEO 27/11
- * "tạo thêm padding chứ ko phải đẩy lùi vào trong"); đệm 4 (CEO 27/11 "padding trái phải cho thành 4"), nằm trong phần `thSort` đã nới.
+ * đệm 8 TOẢ RA NGOÀI (-ml-2) lấp đúng phần đệm 8 của nút tiêu đề `thSort` → chữ nhãn vẫn thẳng chữ ô (CEO 27/11 ảnh Figma
+ * 12 + 8: "tạo thêm padding chứ ko phải đẩy lùi vào trong").
  */
 export const thChipLoc = cn(
   kv,
-  'inline-flex min-w-0 items-center gap-1 h-6 -ml-1 px-1 rounded-(--radius-full)',
+  'inline-flex min-w-0 items-center gap-1.5 h-6 -ml-2 px-2 rounded-(--radius-full) font-semibold',
   'bg-(--color-background-info-surface) text-(--color-text-info) tabular-nums',
   // Bấm được (mở pop lọc) → con trỏ tay + nền đậm hơn khi rê.
   'cursor-pointer hover:bg-(--color-background-info-soft-alpha)',
@@ -246,6 +251,9 @@ export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
   // pill đầu (hàng tab lùi ra 4 `dvTabs`, đệm tab 12 → chữ ở +8 so mép nội dung).
   chon_oTh: cn(th, cotChon, 'md:pl-2! md:border-b-(--alpha-08) left-0 z-30'),
   chon_oTd: cn(td, cotChon, 'md:pl-2! md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
+  // Phân trang thẳng ô tick (cột chọn đệm trái 8 từ md — xem `chon_oTd`) — CEO 27/11 "1–4 trên 4 ticket cho align dọc với
+  // checkbox". Khung hẹp (< md) cột chọn đệm khác → chỉ ép từ md.
+  phanTrang_khung: cn(kv, 'mt-3 flex items-center justify-between gap-2 md:pl-2 text-[12px] leading-[18px] text-muted-foreground'),
 }
 
 /*

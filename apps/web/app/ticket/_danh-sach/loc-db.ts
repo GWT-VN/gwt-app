@@ -2,7 +2,7 @@
 // mỗi phần tử trả về là MỘT nhóm `.or(...)`; nhiều nhóm = VÀ. Cùng nghĩa với `apLoc` trong bộ nhớ (giá trị rỗng/null:
 // "không là"/"không chứa" vẫn giữ dòng trống). `loi` không ở đây — mảng loi_codes lọc bằng phép mảng (searchTickets).
 import { TOI, type DieuKienLoc } from '@/bang/locTruong'
-import { chon, chu, ds, homNayVN, ngay } from '@/bang/locDb'
+import { chon, chu, ds, homNayVN, nhay, ngay } from '@/bang/locDb'
 import { BH_F, CHUA_GIAO, KHAN_CO, KHAN_KHONG } from './truong-f'
 
 export { homNayVN }
@@ -25,6 +25,23 @@ function nguoi(d: DieuKienLoc, toiId: string | undefined): string[] {
       ...(chuaGiao ? ['cs_phu_trach.not.is.null'] : []),
       ...(toi ? [`cs_phu_trach.is.null,cs_phu_trach.neq.${toi}`] : []),
     ]
+  return []
+}
+
+/** Máy = mã ngắn suy từ tên (`maMayNgan`: chữ sau "GE " trong product_name, không có thì internal_code). Mã `m` khớp khi
+ *  tên kết thúc bằng "GE m" hoặc chứa "GE m " (không ăn nhầm CTS200 khi chọn CTS20), hoặc internal_code = m. */
+function khopMay(m: string): string {
+  return [`product_name.ilike.${nhay(`*GE ${m}`)}`, `product_name.ilike.${nhay(`*GE ${m} *`)}`, `internal_code.eq.${nhay(m)}`].join(',')
+}
+function khongKhopMay(m: string): string {
+  const ten = `or(product_name.is.null,and(product_name.not.ilike.${nhay(`*GE ${m}`)},product_name.not.ilike.${nhay(`*GE ${m} *`)}))`
+  return `and(${ten},or(internal_code.is.null,internal_code.neq.${nhay(m)}))`
+}
+function may(d: DieuKienLoc): string[] {
+  if (d.phep === 'la') return d.giaTri.length ? [d.giaTri.map(khopMay).join(',')] : []
+  if (d.phep === 'khong-la') return d.giaTri.map(khongKhopMay)
+  if (d.phep === 'trong') return ['and(product_name.is.null,internal_code.is.null)']
+  if (d.phep === 'co') return ['product_name.not.is.null,internal_code.not.is.null']
   return []
 }
 
@@ -64,7 +81,7 @@ export function dieuKienOrTicket(dk: DieuKienLoc[], opts: { toiId?: string; homN
     if (d.truong === 'tao') return ngay('created_at', d, homNay)
     if (d.truong === 'khach') return chu(['ten_kd'], d, true)
     if (d.truong === 'ma') return chu(['ticket_code'], d, false)
-    if (d.truong === 'may') return chu(['product_name', 'source_serial'], d, false)
+    if (d.truong === 'may') return may(d)
     return []
   })
 }

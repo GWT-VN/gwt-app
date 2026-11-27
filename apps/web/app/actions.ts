@@ -4439,7 +4439,7 @@ export async function ticketTypes(): Promise<string[]> {
   return [...new Set((data ?? []).map((r) => (r as { ticket_type: string }).ticket_type))].sort()
 }
 
-type CotLocTicket = Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' | 'province'>
+type CotLocTicket = Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' | 'province' | 'product_name' | 'internal_code'>
 /**
  * Cột của trường chọn/người (F /ticket) trên MỌI ticket người này xem được — page.tsx rút giá trị distinct
  * (`tuyChonF`) cho ô lọc, không lấy từ trang đang hiện. PostgREST không có DISTINCT → đọc theo lô (bảng vài trăm dòng).
@@ -4452,7 +4452,7 @@ export async function cotLocTicket(): Promise<CotLocTicket[]> {
   const ra: CotLocTicket[] = []
   const lo = 1000
   for (let i = 0; ; i += lo) {
-    let tv = dataClient().from('v_tickets').select('state, cs_ten, ticket_type, province')
+    let tv = dataClient().from('v_tickets').select('state, cs_ten, ticket_type, province, product_name, internal_code')
     // Cùng miền phụ trách với searchTickets: NV thường không thấy tên/tỉnh của ticket người khác.
     if (meId) tv = tv.or(`cs_phu_trach.is.null,cs_phu_trach.eq.${meId},ky_thuat.eq.${meId}`)
     const { data, error } = await tv.order('ticket_code', { ascending: true }).range(i, i + lo - 1)

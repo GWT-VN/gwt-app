@@ -117,6 +117,8 @@ export const tabsTriggerPill = [
   triggerChung,
   'h-(--control-size-md) px-3 font-medium whitespace-nowrap shrink-0 rounded-(--radius-full)',
   'data-[state=active]:bg-(--alpha-05) aria-expanded:bg-(--alpha-05)',
+  // Rê tab chưa chọn: nền nhạt hơn tab đang chọn (CEO 27/11 "không hiện background hover").
+  'not-data-[state=active]:hover:bg-(--alpha-04)',
 ].join(' ')
 
 /**

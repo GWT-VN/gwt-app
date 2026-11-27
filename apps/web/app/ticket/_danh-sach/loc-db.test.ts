@@ -31,11 +31,16 @@ describe('dieuKienOrTicket — TRUONG_F → .or() của v_tickets', () => {
     expect(or({ tao: 'truoc~2026-11-20' })).toEqual(['created_at.lt.2026-11-20T00:00:00+07:00'])
   })
 
-  it('Chữ: khách bỏ dấu (ten_kd); máy = tên HOẶC serial; ký tự phá .or() bị bỏ', () => {
+  it('Chữ: khách bỏ dấu (ten_kd); Máy = chọn nhiều mã ngắn (tên "GE <mã>" hoặc internal_code)', () => {
     expect(or({ khach: 'chua~An Phát' })).toEqual(['ten_kd.ilike.%an phat%'])
     expect(or({ ma: 'chua~TK-1' })).toEqual(['ticket_code.ilike.%TK-1%'])
-    expect(or({ may: 'chua~CTS(20)' })).toEqual(['product_name.ilike.%CTS 20%,source_serial.ilike.%CTS 20%'])
-    expect(or({ may: 'khong-chua~E3' })).toEqual(['product_name.is.null,product_name.not.ilike.%E3%', 'source_serial.is.null,source_serial.not.ilike.%E3%'])
+    expect(or({ may: 'CTS20,GN610' })).toEqual([
+      'product_name.ilike."*GE CTS20",product_name.ilike."*GE CTS20 *",internal_code.eq."CTS20",' +
+        'product_name.ilike."*GE GN610",product_name.ilike."*GE GN610 *",internal_code.eq."GN610"',
+    ])
+    expect(or({ may: 'khong-la~CTS20' })).toEqual([
+      'and(or(product_name.is.null,and(product_name.not.ilike."*GE CTS20",product_name.not.ilike."*GE CTS20 *")),or(internal_code.is.null,internal_code.neq."CTS20"))',
+    ])
   })
 
   it('Khẩn: Có / Không / cả hai = không lọc', () => {
