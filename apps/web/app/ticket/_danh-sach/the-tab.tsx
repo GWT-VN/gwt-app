@@ -10,8 +10,6 @@ import { ArrowSquareOut, ChatText, LinkSimple, Plus } from '@phosphor-icons/reac
 import { addTicketNote, listTicketItems, listTicketNotes, ticketsOfCustomer, ticketsOfSerial, type Ticket } from '@/app/actions'
 import { listLanLoi } from '@/app/ticket/lan-loi-actions'
 import { ganErp, taoViec, timViec, viecGanErp, type ViecTeamRow } from '@/app/work/actions'
-import { NhanKetQua, NoiDungLan } from '@/app/ticket/[code]/_prototype/ct-gon'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
@@ -28,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import { mayLoi, ngayNgan, tenKhach } from './chung'
 import { TT } from './ds-f'
+import { DsTheLan } from './the-lan'
 
 /** Đọc một lần theo `khoa` (đổi ticket / bấm tải lại → đọc lại). Lỗi → `loi` (chữ), không vỡ thẻ. */
 function useDoc<T>(khoa: string, doc: () => Promise<T>) {
@@ -69,22 +68,7 @@ export function LanLoiThat({ t }: { t: Ticket }) {
     <div className="flex flex-col gap-3 border-none border-current">
       {/* Đọc lần 2+ lỗi → vẫn hiện lần 1 (của ticket), báo phần thiếu — như trang chi tiết. */}
       {kq.loi && <p className="m-0 ds-text-xs text-muted-foreground">Chưa tải được các lần lỗi sau — {kq.loi}</p>}
-      <Accordion type="multiple" defaultValue={[String(ds[0].so)]}>
-        {ds.map((lan) => (
-          <AccordionItem key={lan.so} value={String(lan.so)}>
-            <AccordionTrigger>
-              <span className="flex flex-wrap items-center gap-2 border-none border-current">
-                Lần {lan.so}
-                <span className="font-normal tabular-nums text-muted-foreground">· khách báo {ngayNgan(lan.ngay)}</span>
-                <NhanKetQua lan={lan} />
-              </span>
-            </AccordionTrigger>
-            <AccordionContent>
-              <NoiDungLan lan={lan} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} />
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <DsTheLan ds={ds} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} />
     </div>
   )
 }

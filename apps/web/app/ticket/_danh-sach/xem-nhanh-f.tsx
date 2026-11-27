@@ -27,7 +27,7 @@ import {
 } from '@phosphor-icons/react/ssr'
 import type { ReactNode } from 'react'
 import type { Ticket } from '@/app/actions'
-import { NhanKetQua, NoiDungLan, TRUOC } from '@/app/ticket/[code]/_prototype/ct-gon'
+import { TRUOC } from '@/app/ticket/[code]/_prototype/ct-gon'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,6 +39,7 @@ import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
 import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
+import { DsTheLan } from './the-lan'
 import { ChuBaoHanh, laKhan, TT, type DongF } from './ds-f'
 import type { SuaTruong } from './sua-ticket'
 
@@ -167,24 +168,10 @@ function TongQuan({ t, lanViec }: { t: DongF; lanViec: number }) {
   )
 }
 
-/** Lần lỗi: danh sách chỉ có lần 1 (mô tả + ghi chú cuối) — các lần sau nằm ở trang chi tiết. */
+/** Lần lỗi (Demo): chỉ lần 1 (mô tả + ghi chú cuối) — thẻ gập như bản thật. */
 function LanLoi({ t }: { t: DongF }) {
   const lan = { so: 1, ngay: t.created_at.slice(0, 10), khach: t.description, xuLy: t.last_note, vatTu: [] }
-  return (
-    <Accordion type="multiple" defaultValue={['1']}>
-      <AccordionItem value="1">
-        <AccordionTrigger>
-          <span className="flex flex-wrap items-center gap-2 border-none border-current">
-            Lần 1<span className="font-normal tabular-nums text-muted-foreground">· khách báo {ngayNgan(t.created_at)}</span>
-            <NhanKetQua lan={lan} />
-          </span>
-        </AccordionTrigger>
-        <AccordionContent>
-          <NoiDungLan lan={lan} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} />
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  )
+  return <DsTheLan ds={[lan]} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} />
 }
 
 /** Nhật ký (Demo): tạo ticket + ghi chú cuối, cũ → mới. */
