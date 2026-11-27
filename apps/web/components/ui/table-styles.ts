@@ -45,12 +45,11 @@ export const tableWrapVien = cn(
 
 /**
  * Bảng LƯỚI (CEO 27/11 "làm thêm một version ở dạng table… thêm border cho trái phải và các cột. Bo góc 24px"): khung viền
- * như `vien` nhưng bo 24 + vạch dọc giữa các cột; nhãn/đệm/chip giữ nguyên khuôn F. Bỏ kẻ trên hàng tiêu đề và kẻ dưới
+ * như `vien` (bo 12 — CEO 27/11 "cho radius về 12", trước 24) + vạch dọc giữa các cột; nhãn/đệm/chip giữ nguyên khuôn F. Bỏ kẻ trên hàng tiêu đề và kẻ dưới
  * dòng cuối (khung đã có viền). Thử trên /ticket?bang=luoi — chờ CEO chốt.
  */
 export const tableWrapLuoi = cn(
   tableWrapVien,
-  'rounded-(--radius-4xl)',
   '[&_th:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]! [&_td:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]!',
   '[&_th]:[border-top-style:none]! [&_tbody>tr:last-child>td]:[border-bottom-style:none]!',
 )
