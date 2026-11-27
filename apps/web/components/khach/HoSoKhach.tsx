@@ -204,8 +204,8 @@ export function HoSoKhach({
 }
 
 /**
- * Một máy của khách: đầu thẻ tên · serial · BH · chip `Mã ×n` · số ticket (khổ hẹp phần sau tên tự cắt); thân = bảo hành
- * của máy (máy của khách) + ticket của máy, mới → cũ.
+ * Một máy của khách: đầu thẻ tên + serial mờ (khổ hẹp cắt "…") · `thaoTac` chip BH + số ticket (không cắt); thân = Bảo hành
+ * đến · Ngày lắp (máy của khách) · Lỗi đã báo (chip `Mã ×n`) + ticket của máy, mới → cũ (dòng ticket không lặp tên máy).
  */
 function TheMay({
   n,
@@ -227,49 +227,67 @@ function TheMay({
       moSan={moSan}
       khit
       tieuDe={
-        <>
-          <span>{n.serial === null ? 'Chưa rõ máy' : (n.ten ?? 'Chưa rõ tên máy')}</span>
-          <span className="flex min-w-0 items-center gap-2 border-none border-current font-normal">
-            {n.serial && <span className="shrink-0 tabular-nums text-muted-foreground">{n.serial}</span>}
-            {may && (
-              <Badge variant="soft" color={BH[loaiBh(may)].color} className="shrink-0">
-                {BH[loaiBh(may)].nhan}
-              </Badge>
-            )}
-            {n.loi.map((l) => (
-              <Badge key={l.code} variant="soft" color="secondary" title={l.ten} className="shrink-0 tabular-nums">
-                {`${l.ten === 'Chưa phân loại' ? l.ten : l.code} ×${l.so_lan}`}
-              </Badge>
-            ))}
-            <span className="shrink-0 tabular-nums text-muted-foreground">· {n.tickets.length} ticket</span>
-          </span>
-        </>
+        <span>
+          {n.serial === null ? 'Chưa rõ máy' : (n.ten ?? 'Chưa rõ tên máy')}
+          {n.serial && <span className="font-normal tabular-nums text-muted-foreground"> {n.serial}</span>}
+        </span>
+      }
+      thaoTac={
+        <span className="flex items-center gap-2 border-none border-current">
+          {may && (
+            <Badge variant="soft" color={BH[loaiBh(may)].color}>
+              {BH[loaiBh(may)].nhan}
+            </Badge>
+          )}
+          <span className="whitespace-nowrap tabular-nums text-muted-foreground">{n.tickets.length} ticket</span>
+        </span>
       }
     >
-      {may && (
-        <div className="mx-4 border-0 border-b border-solid border-(--border) py-3">
-          <PropertyList>
-            <PropertyRow nhan="Bảo hành đến">
-              {may.warranty_full_end && <span className="tabular-nums">{hienNgay(may.warranty_full_end)}</span>}
-            </PropertyRow>
-            <PropertyRow nhan="Ngày lắp">{may.install_date && <span className="tabular-nums">{hienNgay(may.install_date)}</span>}</PropertyRow>
-          </PropertyList>
-        </div>
-      )}
+      <div className="mx-4 border-0 border-b border-solid border-(--border) py-3">
+        <PropertyList>
+          {may && (
+            <>
+              <PropertyRow nhan="Bảo hành đến">
+                {may.warranty_full_end && <span className="tabular-nums">{hienNgay(may.warranty_full_end)}</span>}
+              </PropertyRow>
+              <PropertyRow nhan="Ngày lắp">{may.install_date && <span className="tabular-nums">{hienNgay(may.install_date)}</span>}</PropertyRow>
+            </>
+          )}
+          <PropertyRow nhan="Lỗi đã báo">
+            {n.loi.length > 0 && (
+              <span className="flex min-w-0 flex-wrap gap-1 border-none border-current">
+                {n.loi.map((l) => (
+                  <Badge key={l.code} variant="soft" color="secondary" title={l.ten} className="tabular-nums">
+                    {`${l.ten === 'Chưa phân loại' ? l.ten : l.code} ×${l.so_lan}`}
+                  </Badge>
+                ))}
+              </span>
+            )}
+          </PropertyRow>
+        </PropertyList>
+      </div>
       {n.tickets.length === 0 ? (
         <div className="border-none border-current px-4 pt-3 pb-4">
           <EmptyState size="sm" tieuDe="Chưa có ticket" />
         </div>
       ) : (
         n.tickets.map((t, i) => (
-          <DongTicket key={t.ticket_code} t={t} moSan={t.ticket_code === ticketMo} cuoi={i === n.tickets.length - 1} demo={demo} />
+          <DongTicket
+            key={t.ticket_code}
+            t={t}
+            moSan={t.ticket_code === ticketMo}
+            cuoi={i === n.tickets.length - 1}
+            anMay={n.serial !== null}
+            demo={demo}
+          />
         ))
       )}
     </TheGap>
   )
 }
 
-function DongTicket({ t, moSan, cuoi, demo }: { t: Ticket; moSan: boolean; cuoi: boolean; demo: boolean }) {
+/** Một ticket gập/mở tới các lần lỗi. `anMay` = đang nằm trong thẻ máy → không lặp tên máy. */
+function DongTicket({ t, moSan, cuoi, anMay, demo }: { t: Ticket; moSan: boolean; cuoi: boolean; anMay: boolean; demo: boolean }) {
   const [mo, setMo] = useState(moSan)
   const tt = TT.find((m) => m.gt === t.state)
   return (
@@ -285,7 +303,8 @@ function DongTicket({ t, moSan, cuoi, demo }: { t: Ticket; moSan: boolean; cuoi:
           >
             <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums">{t.ticket_code}</span>
             <span className="min-w-0 truncate text-muted-foreground">
-              · {t.ticket_type ?? 'Ticket'} · {t.product_name ?? 'chưa có máy'}
+              · {t.ticket_type ?? 'Ticket'}
+              {!anMay && ` · ${t.product_name ?? 'chưa có máy'}`}
             </span>
             {tt && (
               <Badge variant="soft" color={tt.color} className="shrink-0">

@@ -48,7 +48,15 @@ test('ba tab cố định; tab Ticket = một thẻ cho mỗi máy, không còn 
   const the = container.querySelectorAll('[data-module="may-ticket"]')
   expect(the).toHaveLength(2)
   expect(theMay(container, 'S1').textContent).toContain('CTS20')
-  expect(theMay(container, 'S1').textContent).toContain('E3 ×2')
+  // Đầu thẻ: tên + serial (nút gập), BH + số ticket ở thaoTac; chip lỗi nằm ở THÂN (Lỗi đã báo).
+  const dau = theMay(container, 'S1').querySelector('button')!
+  expect(dau.textContent).toBe('CTS20 S1')
+  expect(theMay(container, 'S1').firstElementChild!.textContent).toContain('2 ticket')
+  expect(theMay(container, 'S1').firstElementChild!.textContent).not.toContain('E3')
+  expect(theMay(container, 'S1').querySelector('dl')!.textContent).toContain('Lỗi đã báo')
+  expect(theMay(container, 'S1').querySelector('dl')!.textContent).toContain('E3 ×2')
+  // Dòng ticket trong thẻ máy không lặp tên máy.
+  expect(theMay(container, 'S1').querySelector('[data-ticket="T1"] button')!.textContent).not.toContain('CTS20')
   expect(theMay(container, 'S2').textContent).toContain('GN610')
   expect(theMay(container, 'S2').textContent).toContain('Chưa kích hoạt')
   expect(container.querySelector('[data-module="may-loi"]')).toBeNull()
