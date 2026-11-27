@@ -40,7 +40,7 @@ import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/l
 import { nutMoTen } from '@/components/ui/list-view-styles'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
-import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { CHON_BANG_GHIM, phanTrangLuoi } from '@/components/ui/table-styles'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { ThemCot } from '@/components/ui/them-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
@@ -741,7 +741,7 @@ export function TicketF({
     >
       <TrangDuLieu>
         {dau}
-        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM, ...(sp.get('bang') === 'luoi' ? { phanTrang_khung: phanTrangLuoi } : {}) }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
             timKiem={
