@@ -58,7 +58,8 @@ export function taoCongCuTra(sb: SupabaseClient): CongCuTra {
     },
     bangGia: async (nhom) => {
       const ds = await Promise.all(nhomBaoGia(CAU_NHOM[nhom] ?? "").map(async (n) => ({
-        ten: n.ten, ds: await Promise.all(n.dsMay.map((m) => docMay(m).catch(() => null))),
+        // anh Dũng chốt 2026-11-27: bảng giá lọc tổng chỉ WH30A, WH15A; bản ECO chỉ giới thiệu khi khách hỏi phương án rẻ hơn (tra_may).
+        ten: n.ten, ds: await Promise.all(n.dsMay.filter((m) => !/^WH\d+AECO$/.test(m)).map((m) => docMay(m).catch(() => null))),
       })));
       return traLoiGiaDanhMuc(ds, { xinSo: false, daCoSo: false })?.soLieu ?? "";
     },

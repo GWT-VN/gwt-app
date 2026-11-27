@@ -56,7 +56,7 @@ function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?
   let n = 0;
   const tinNhan = vi.fn(async () => { n += 1; return (o.tinLanGet ? o.tinLanGet(n) : [tinKhach(luc)]); });
   const gui = vi.fn(o.gui ?? (async () => "id"));
-  const bao = { daGui: vi.fn(async () => {}), chuyenNguoi: vi.fn(async () => {}), loi: vi.fn(async () => {}) };
+  const bao = { daGui: vi.fn(async () => {}), chuyenNguoi: vi.fn(async () => {}), loi: vi.fn(async () => {}), sdt: vi.fn(async () => {}) };
   const soan = vi.fn(async (_l: LuongTra) => TRA);
   const kho = o.kho ?? khoGia();
   const khieu = o.nhom === "khieu_nai";
@@ -70,6 +70,22 @@ function dung(o: { luc?: string; tinLanGet?: (n: number) => TinPancake[]; cheDo?
 }
 
 describe("chayMotLuot", () => {
+  it("khách để lại SĐT → báo Discord 1 lần (không kèm số); lượt sau cùng khối không báo lại", async () => {
+    const coSo = (luc: string): TinPancake => ({ ...tinKhach(luc), id: "m9", message: "tư vấn giúp em 0912 345 678", original_message: "tư vấn giúp em 0912 345 678" });
+    const t = dung({ tinLanGet: () => [coSo(lui(180))] });
+    await t.chay();
+    expect(t.bao.sdt).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(t.bao.sdt.mock.calls[0])).not.toContain("345");
+    t.kho.hang.get("c1")!.tinKhachLuc = lui(200); // lượt sau: khối có thêm tin, mảnh đã lưu vẫn trong khối
+    t.kho.hang.get("c1")!.trangThai = "cho";
+    await t.chay(new Date(NOW.getTime() + 1000));
+    expect(t.bao.sdt).toHaveBeenCalledTimes(1);
+  });
+  it("tin không có SĐT → không báo SĐT", async () => {
+    const t = dung();
+    await t.chay();
+    expect(t.bao.sdt).not.toHaveBeenCalled();
+  });
   it("(a) hỏi giá, khách yên 3 phút, bat → gửi đủ tin, báo 1 lần, ghiBaoLuc 1 lần", async () => {
     const t = dung();
     const ghi = vi.spyOn(t.kho, "ghiBaoLuc");

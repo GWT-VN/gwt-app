@@ -36,6 +36,9 @@ export function taoBao(webhook: string, fetchImpl: typeof fetch = fetch, threadI
       gui([`✉️ ${o.thu ? "THỬ — chưa gửi · " : ""}${o.kenh} · ${o.nhom} · ${sach(o.tomTat)}`, ...(o.tin.length ? [trich(o.tin)] : [])].join("\n")),
     chuyenNguoi: (o: { kenh: string; nhom: string; lyDo: string; tomTat: string; khieuNai: boolean; ping?: string }) =>
       gui(`🙋 ${o.khieuNai ? `🔴 ${o.ping ? `<@&${o.ping}> ` : ""}` : ""}${o.kenh} · ${o.nhom} · ${sach(o.lyDo)} · ${sach(o.tomTat)}`, o.khieuNai ? o.ping : undefined),
+    // anh Dũng chốt 2026-11-27: khách để lại SĐT chờ tư vấn → báo NV ngay. Không đăng số (PII): NV mở hội thoại trên Pancake.
+    sdt: (o: { kenh: string; nhom: string; tomTat: string }) =>
+      gui(`📞 ${o.kenh} · khách để lại SĐT chờ tư vấn · ${o.nhom} · ${sach(o.tomTat)} — NV gọi lại giúp`),
     loi: (o: { kenh: string; ma: string }) => gui(`⚠️ ${o.kenh} · gửi hỏng ${sach(o.ma)} — NV trả lời giúp`),
   };
 }

@@ -112,6 +112,9 @@ export async function chayMotLuot(p: PhuThuocLuot): Promise<KetQua> {
           pageId: p.pageId, conversationId: h.id, tenKhach: h.from?.name ?? null, tinKhach: text, tinKhachLuc: iso(Date.parse(kh.luc)),
           coSdt: co, nhom: pl.nhom, gap: pl.gap, tomTat: pl.tomTat, maMay: pl.maMay, phanLoaiLuc: iso(nowMs), trangThai: "cho",
         });
+        // SĐT trong khối tin này → báo NV một lần mỗi khối (khối lớn dần thì lượt trước đã ghi mảnh có số → không báo lại).
+        const daBaoSdt = dong && Date.parse(dong.tinKhachLuc) >= Date.parse(kh.dau) && coSdt(dong.tinKhach ?? "");
+        if (coSdt(text) && !daBaoSdt) await p.bao.sdt({ kenh: p.tenKenh, nhom: pl.nhom ?? "chua_phan_loai", tomTat: pl.tomTat ?? "" }).catch(ghiLoi);
       } catch (e) { ghiLoi(e); }
     }
     if (xong.length) await p.kho.danhDauXuLy(p.pageId, xong);

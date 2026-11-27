@@ -26,6 +26,14 @@ function tienViet(so: number): string {
  * (ngừng bán, biến thể lệch) bị bỏ; không máy nào có giá → null, nơi gọi lùi về khuôn xin số. `soLieu` = cùng các dòng giá,
  * để Bắp thấy số là dữ liệu thật. Biến thể khác giá → "từ <giá thấp nhất>".
  */
+/** Tổng giá trị quà: cột qua_gia_tri; trống thì số "trị giá N" / "Combo … N" trong mô tả (WH15A/WH30A chỉ ghi trong mô tả). */
+export function giaTriQua(k: SoLieuMay["khuyenMai"] | null | undefined): number | null {
+  if (!k) return null;
+  if (k.quaGiaTri) return k.quaGiaTri;
+  const m = /(?:trị giá|combo[^\d;]*)\s*(\d{1,3}(?:\.\d{3})+)\s*(?:đ|vnđ)/i.exec(k.quaMoTa ?? "");
+  return m ? Number(m[1].replaceAll(".", "")) : null;
+}
+
 export function traLoiGiaDanhMuc(
   nhom: ReadonlyArray<{ ten: string; ds: ReadonlyArray<SoLieuMay | null> }>,
   o: { xinSo: boolean; daCoSo: boolean },
@@ -39,7 +47,10 @@ export function traLoiGiaDanhMuc(
       const km = sl.khuyenMai?.giaSauKm;
       if (km) coKm = true;
       // Đã chốt 2026-10-21: máy đang khuyến mãi báo GIÁ SAU KM làm giá chính (giá khách trả), niêm yết chỉ để so.
-      return [km ? `${sl.ten} khuyến mãi còn ${tienViet(km)} (giá gốc ${goc})` : `${sl.ten} ${goc}`];
+      // anh Dũng chốt 2026-11-27: bảng giá nhiều máy ghi kèm TỔNG giá trị quà (không kể từng món).
+      const qua = giaTriQua(sl.khuyenMai);
+      const kemQua = qua ? `, quà tặng trị giá ${tienViet(qua)}` : "";
+      return [km ? `${sl.ten} khuyến mãi còn ${tienViet(km)} (giá gốc ${goc})${kemQua}` : `${sl.ten} ${goc}${kemQua}`];
     });
     return may.length ? [`- ${n.ten}: ${may.join(", ")}`] : [];
   });
@@ -106,10 +117,13 @@ export function khoiSoLieu(sl: SoLieuMay | null): string {
     const ve: string[] = [];
     if (k.giamPct != null) ve.push(`giảm ${k.giamPct}%`);
     if (k.giaSauKm != null) ve.push(`còn ${tienViet(k.giaSauKm)}`);
-    d.push(`- Khuyến mãi tháng này${k.kenh ? ` (kênh ${k.kenh})` : ""}: ${ve.join(", ") || "đang có ưu đãi"}`);
+    // anh Dũng chốt 2026-11-27: giá kênh Facebook = giá bán trực tiếp (kèm quà) — bot chỉ báo giá này. Khách hỏi Shopee →
+    // chuyển nhân viên ở cổng (cong.ts), bot không nói giá Shopee.
+    const fb = /facebook/i.test(k.kenh ?? "");
+    const nhan = fb ? " (giá bán trực tiếp)" : k.kenh ? ` (kênh ${k.kenh})` : "";
+    d.push(`- Khuyến mãi tháng này${nhan}: ${ve.join(", ") || "đang có ưu đãi"}`);
     if (k.quaMoTa) d.push(`  Quà tặng: ${k.quaMoTa}`);
-    if (k.dieuKien) d.push(`  Điều kiện: ${k.dieuKien}`);
-  }
+    if (k.dieuKien) d.push(`  Điều kiện: ${k.dieuKien}`);  }
   return d.join("\n");
 }
 

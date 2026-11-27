@@ -56,6 +56,18 @@ describe("taoCongCuTra", () => {
     expect(r).toContain("20.000.000 đ");
   });
 
+  it("bangGia lọc tổng: chỉ WH30A, WH15A — bỏ bản ECO", async () => {
+    const may = ["WH15A", "WH15AECO", "WH30A", "WH30AECO"];
+    const { sb } = sbGia({
+      alias: may.map((m) => ({ alias_norm: m, internal_code: m })),
+      bang: { chatbot_price: may.map((m, i) => ({ internal_code: m, product_name: `GE ${m}`, gia_ban: (i + 1) * 100000000 })), chatbot_machine_filter: [], chatbot_warranty: [], chatbot_promotion: [] },
+    });
+    const r = await taoCongCuTra(sb).bangGia("loc_tong");
+    expect(r).toContain("WH15A");
+    expect(r).toContain("WH30A");
+    expect(r).not.toContain("ECO");
+  });
+
   it("timTaiLieu: cắt câu 300 ký tự, gọi match_chunks_hybrid, trả tối đa 6 đoạn", async () => {
     vi.stubEnv("OPENAI_API_KEY", "k");
     globalThis.fetch = vi.fn(async () => new Response(JSON.stringify({ data: [{ embedding: VEC, index: 0 }] }), { status: 200 })) as never;

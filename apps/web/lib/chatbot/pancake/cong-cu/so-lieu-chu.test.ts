@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { khoiSoLieu, khoiThongSo } from "./so-lieu-chu.ts";
+import { giaTriQua, khoiSoLieu, khoiThongSo, traLoiGiaDanhMuc } from "./so-lieu-chu.ts";
 import type { SoLieuMay } from "./masterdata.ts";
 
 /**
@@ -99,6 +99,17 @@ describe("khoiSoLieu", () => {
     expect(k).toContain("31.960.000 đ");
     expect(k).toContain("Quà tặng: Combo lõi CFNC + vận chuyển");
     expect(k).toContain("Điều kiện: Áp dụng đến hết tháng");
+    expect(k).not.toContain("Shopee");
+  });
+
+  it("KM kênh Facebook ghi là giá bán trực tiếp, không nhắc Shopee", () => {
+    const k = khoiSoLieu({
+      ...MAY,
+      khuyenMai: { kenh: "Facebook", giamPct: 15, giaSauKm: 38207500, quaGiaTri: null, quaMoTa: "", tongGiaTri: null, pctSaving: null, dieuKien: "" },
+    });
+    expect(k).toContain("Khuyến mãi tháng này (giá bán trực tiếp): giảm 15%");
+    expect(k).not.toContain("kênh Facebook");
+    expect(k).not.toContain("Shopee");
   });
 
   it("không có khuyến mãi thì KHÔNG sinh dòng CTKM", () => {
@@ -149,5 +160,25 @@ describe("khoiThongSo", () => {
     ]);
     expect(khac).toContain("- A1 · Kích thước & khối lượng: 1×1×1 mm.");
     expect(khac).toContain("- A2 · Kích thước & khối lượng: 2×2×2 mm.");
+  });
+});
+
+describe("bảng giá nhiều máy kèm tổng giá trị quà", () => {
+  const km = (o: Partial<NonNullable<SoLieuMay["khuyenMai"]>>) => ({ kenh: "Facebook", giamPct: null, giaSauKm: null, quaGiaTri: null, quaMoTa: "", tongGiaTri: null, pctSaving: null, dieuKien: "", ...o });
+  it("giaTriQua: cột giá trị trước, trống thì số trong mô tả combo", () => {
+    expect(giaTriQua(km({ quaGiaTri: 14900000 }))).toBe(14900000);
+    expect(giaTriQua(km({ quaMoTa: "combo trị giá 27.850.000đ, gồm: 1. 01 máy GN610" }))).toBe(27850000);
+    expect(giaTriQua(km({ quaMoTa: "Combo quà tặng 56.400.000đ; 1. 02 máy GN610" }))).toBe(56400000);
+    expect(giaTriQua(km({}))).toBeNull();
+    expect(giaTriQua(null)).toBeNull();
+  });
+  it("mỗi máy có quà ghi ', quà tặng trị giá N'; máy không quà thì không", () => {
+    const r = traLoiGiaDanhMuc([{ ten: "Lọc tổng", ds: [
+      { ...MAY, ten: "WH30A", gia: [{ dong: 249950000 } as never], khuyenMai: km({ giaSauKm: 249950000, quaMoTa: "combo trị giá 56.400.000đ, gồm: …" }) },
+      { ...MAY, ten: "GN610", gia: [{ dong: 16950000 } as never], khuyenMai: km({ giaSauKm: 11865000 }) },
+    ] }], { xinSo: false, daCoSo: false })!;
+    expect(r.soLieu).toContain("WH30A khuyến mãi còn 249.950.000 đ (giá gốc 249.950.000 đ), quà tặng trị giá 56.400.000 đ");
+    expect(r.soLieu).toContain("GN610 khuyến mãi còn 11.865.000 đ (giá gốc 16.950.000 đ)");
+    expect(r.soLieu).not.toMatch(/GN610[^,\n]*quà/);
   });
 });

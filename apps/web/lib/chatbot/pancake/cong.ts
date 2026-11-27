@@ -5,11 +5,14 @@ import type { KetQuaTra } from "./tu-tra.ts";
 /** R3: chỉ ba nhóm này được tự gửi. */
 export const NHOM_DUOC_GUI: ReadonlySet<string> = new Set(["tu_van", "loi_loc", "hoi_gia"]);
 
-// Spec cho phép báo giá + khuyến mãi đúng như Masterdata → "khuyến mãi"/"giảm" đứng một mình KHÔNG chặn.
-const KHACH_HOI_QUA = /quà|tặng|trả góp|giảm thêm|bớt|rẻ hơn|giá tốt|voucher/i;
-const TRA_LOI_NHAC_QUA = /quà|tặng|trả góp|voucher/i;
-// Khách hay gõ không dấu → so thêm trên bản bỏ dấu. Chỉ cụm cụ thể: "qua" trần là từ thường ("hôm qua", "qua nhà").
-const KHACH_HOI_QUA_KHONG_DAU = /\b(?:qua tang|tang qua|co qua|tra gop|giam them|bot (?:cho|gia|duoc)|re hon|gia tot|voucher)\b/;
+// Bot được báo giá bán trực tiếp + khuyến mãi + quà đúng như Masterdata (anh Dũng chốt 2026-11-27: "báo giá bán trực tiếp và
+// kèm quà"). Còn chuyển người: khách mặc cả / trả góp / voucher, và mọi tin khách nhắc Shopee (giá Shopee dao động theo voucher).
+// "rẻ hơn" chỉ chặn khi là MẶC CẢ ("rẻ hơn chút được không"); "có loại nào rẻ hơn không" là hỏi phương án → bot trả lời (lọc tổng: giới thiệu ECO).
+const KHACH_HOI_GIAM = /trả góp|giảm thêm|bớt|rẻ hơn (?:chút|tí|xíu|nữa|được|đc|dc)|giá tốt|voucher/i;
+const TRA_LOI_TRA_GOP = /trả góp/i;
+// Khách hay gõ không dấu → so thêm trên bản bỏ dấu, chỉ cụm cụ thể.
+const KHACH_HOI_GIAM_KHONG_DAU = /\b(?:tra gop|giam them|bot (?:cho|gia|duoc)|re hon (?:chut|ti|xiu|nua|duoc|dc)|gia tot|voucher)\b/;
+const KHACH_NHAC_SHOPEE = /\b(?:s+h?o+p+e+|sp shopee)\b/; // shopee, sopee, shoppe, shope — so trên bản bỏ dấu
 const boDau = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
 
 /** Lý do phải chuyển người TRƯỚC khi soạn; null = được soạn. */
@@ -23,7 +26,8 @@ export function chanTruocSoan(o: {
   if (o.nvTrong24h) return "nv_dang_xu_ly";
   if (o.botLuotHomNay >= 3) return "qua_3_luot";
   if (o.daGuiHomNay >= o.tranNgay) return "qua_tran_ngay";
-  if (o.nhom === "hoi_gia" && (KHACH_HOI_QUA.test(o.tinKhach.normalize("NFC")) || KHACH_HOI_QUA_KHONG_DAU.test(boDau(o.tinKhach)))) return "hoi_qua_tra_gop";
+  if (KHACH_NHAC_SHOPEE.test(boDau(o.tinKhach))) return "hoi_shopee";
+  if (o.nhom === "hoi_gia" && (KHACH_HOI_GIAM.test(o.tinKhach.normalize("NFC")) || KHACH_HOI_GIAM_KHONG_DAU.test(boDau(o.tinKhach)))) return "hoi_tra_gop_giam_gia";
   return null;
 }
 
@@ -34,6 +38,6 @@ export function chanSauSoan(k: KetQuaTra): string | null {
   if (k.chanTuGui[0]) return k.chanTuGui[0];
   if (!k.traLoi.trim()) return "rong";
   if (tachDoan(k.traLoi).length > 6) return "qua_6_doan";
-  if (TRA_LOI_NHAC_QUA.test(k.traLoi.normalize("NFC"))) return "tra_loi_nhac_qua";
+  if (TRA_LOI_TRA_GOP.test(k.traLoi.normalize("NFC"))) return "tra_loi_nhac_tra_gop";
   return null;
 }

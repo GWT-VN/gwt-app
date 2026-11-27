@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { taoBao } from "./bao.ts";
 import { DAU_BOT } from "./loc.ts";
 
@@ -25,6 +25,12 @@ describe("taoBao", () => {
     const { goi, f } = gia();
     await taoBao("w", f).daGui({ kenh: "K", nhom: "n", tomTat: "t", tin: [], thu: true });
     expect(goi[0].body.content).toBe("✉️ THỬ — chưa gửi · K · n · t");
+  });
+  it("sdt: báo khách để lại SĐT, không có số trong tin", async () => {
+    const f = vi.fn(async () => new Response(null, { status: 204 }));
+    await taoBao("w", f as never).sdt({ kenh: "Lọc tổng", nhom: "tu_van", tomTat: "muốn tư vấn lọc tổng" });
+    const body = JSON.parse((f.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+    expect(body.content).toBe("📞 Lọc tổng · khách để lại SĐT chờ tư vấn · tu_van · muốn tư vấn lọc tổng — NV gọi lại giúp");
   });
   it("chuyenNguoi: khiếu nại thêm 🔴 + ping role", async () => {
     const { goi, f } = gia();
