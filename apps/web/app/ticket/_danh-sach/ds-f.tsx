@@ -549,7 +549,7 @@ export function TicketF({
     }),
   ]
   const thamSoLoc = TRUONG_F.map((x) => x.id)
-  // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo; "Lưu thành tab mới" khi bộ lọc đang xem khác bộ của tab (tab-ticket.tsx).
+  // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo — tab tự tạo tự lưu bộ lọc đang xem (tab-ticket.tsx).
   const hangTab = useTabTicket({
     tabRieng,
     demTab,
@@ -737,7 +737,6 @@ export function TicketF({
             tong={dangXem === 'kanban' ? theKanban.length : dong.length}
             nhan="ticket"
             anSoDong
-            phai={dangXem === 'kanban' ? undefined : (hangTab.phai ?? undefined)}
             sapXep={sap ? { ...sap, macDinh: false } : undefined}
             // "Xoá lọc" giữ `variant` (prototype), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
             hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}

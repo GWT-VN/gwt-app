@@ -4,11 +4,12 @@
 // phân loại" · "view thứ 5 thì tùy customize"). Học HÀNH VI Twenty ("+ Add view", "Save as new view", menu view), giao diện
 // DS: Tabs pill `thuGon` (+N Thêm), SavedView (popover tên + chia sẻ), ContextMenu / DropdownMenu, ConfirmDialog.
 // - Tab tự tạo = bang_view 'ticket_tab' (actions.ts listTicketTab…), URL `?tab=<id>` + query đã lưu (lọc, tìm, sắp, cột).
-// - Bộ lọc / sắp / cột đang xem khác bộ của tab → thanh lọc hiện "Lưu thành tab mới" (+ "Cập nhật tab" với tab của mình).
+// - Tab tự tạo sửa được: đổi bộ lọc / sắp / cột là TỰ LƯU vào tab, không nút "Lưu" (CEO 27/11: "mặc định nó hiện luôn ko
+//   cần phải bấm lưu. chỉ có xóa đi thôi"). Tab cố định / tab chung không có quyền: đổi lọc chỉ là xem tạm.
 // - 4 tab cố định không sửa / xoá / đổi tên; tab chung chỉ người có quyền view chung mới thấy mục sửa.
-import { useState, type ComponentType, type ReactNode } from 'react'
+import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ArrowsClockwise, DotsThree, FloppyDisk, PencilSimple, Plus, Trash } from '@phosphor-icons/react/ssr'
+import { DotsThree, PencilSimple, Plus, Trash } from '@phosphor-icons/react/ssr'
 import { capNhatTicketTab, doiTenTicketTab, luuTicketTab, xoaTicketTab, type TicketTab } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -78,12 +79,17 @@ export function useTabTicket({
     q.set('tab', r.id)
     di(q.toString())
   }
-  const capNhat = async (t: TicketTab) => {
-    const r = await capNhatTicketTab(t.id, hienTai)
-    if (!r.ok) return thongBao.loi(r.error)
-    thongBao.xong(`Đã cập nhật tab “${t.ten}” theo bộ lọc hiện tại`)
-    router.refresh()
-  }
+  // Tự lưu: trễ 600ms để gõ tìm / bấm nhiều chip liên tiếp chỉ ghi một lần.
+  const idTuLuu = rieng?.suaDuoc && daDoi ? rieng.id : null
+  useEffect(() => {
+    if (!idTuLuu) return
+    const h = setTimeout(async () => {
+      const r = await capNhatTicketTab(idTuLuu, hienTai)
+      if (!r.ok) return thongBao.loi(`Không lưu được tab: ${r.error}`)
+      router.refresh()
+    }, 600)
+    return () => clearTimeout(h)
+  }, [idTuLuu, hienTai, router])
 
   const [doiTen, setDoiTen] = useState<{ t: TicketTab; ten: string } | null>(null)
   const [xoa, setXoa] = useState<TicketTab | null>(null)
@@ -113,10 +119,6 @@ export function useTabTicket({
       <M onSelect={() => setDoiTen({ t, ten: t.ten })}>
         <PencilSimple aria-hidden="true" />
         Đổi tên
-      </M>
-      <M onSelect={() => void capNhat(t)}>
-        <ArrowsClockwise aria-hidden="true" />
-        Cập nhật theo bộ lọc hiện tại
       </M>
       <Sep />
       <M variant="destructive" onSelect={() => setXoa(t)}>
@@ -215,24 +217,5 @@ export function useTabTicket({
     </div>
   )
 
-  // Thanh lọc: bộ lọc / sắp / cột khác bộ của tab đang chọn → "Lưu thành tab mới" (+ "Cập nhật tab" với tab sửa được).
-  const phai = daDoi ? (
-    <span className="flex items-center gap-1 border-none border-current">
-      {nutLuu(
-        <Button variant="ghost" size="sm">
-          <FloppyDisk aria-hidden="true" />
-          Lưu thành tab mới
-        </Button>,
-        'Lưu thành tab mới',
-      )}
-      {rieng?.suaDuoc && (
-        <Button variant="ghost" size="sm" onClick={() => void capNhat(rieng)}>
-          <ArrowsClockwise aria-hidden="true" />
-          Cập nhật tab
-        </Button>
-      )}
-    </span>
-  ) : null
-
-  return { tabs, phai, value }
+  return { tabs, value }
 }
