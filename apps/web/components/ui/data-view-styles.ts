@@ -31,9 +31,6 @@ export const dvDau = cn(kv, 'flex flex-wrap items-center gap-3')
 /** `.b-h1`: 24/28 600, margin 0 (nguồn gõ 24px — tiêu đề màn dữ liệu). */
 export const dvTieuDe = cn(kv, 'm-0 text-[24px] leading-[28px] font-semibold tracking-normal')
 
-/** `.ui-caption`: 12/18 muted-foreground; số tabular-nums (luật DS). */
-export const dvDem = cn(kv, 'text-[12px] leading-[18px] text-muted-foreground tabular-nums')
-
 /**
  * `.b-tim` (240) + `.ui-input-wrap > .ui-icon`: icon 16 cách mép trái gutter 12, muted, không bắt chuột; ô đệm trái
  * gutter + 16 + 8. ≤ 640 container (`@container (max-width: 640px)`) và ≤ 767 khung nhìn (`@media (max-width: 767px)`):

@@ -13,6 +13,9 @@ import { BocGoiY, useCauHinh } from './CauHinh'
  * `tong` (tuỳ chọn): hiện thêm "1–50 trên 472 <nhan>" ở đầu (`moiTrang` mặc định 50,
  * khớp hàm liệt kê; truyền đúng số mỗi trang nếu trang dùng số khác).
  *
+ * `luonHien`: vẫn hiện khi chỉ 1 trang (nút tắt) — màn bỏ số đếm ở tiêu đề/tab, lấy "1–7 trên 7" ở đây làm bộ đếm
+ * duy nhất (CEO 27/11 Ticket "Nên cho hiển thị bằng pagination ở dưới ấy").
+ *
  * Dùng useSearchParams -> component gọi PhanTrang phải nằm trong <Suspense>.
  */
 export function PhanTrang({
@@ -21,18 +24,20 @@ export function PhanTrang({
   tong,
   moiTrang = 50,
   nhan = 'dòng',
+  luonHien = false,
 }: {
   trang: number
   soTrang: number
   tong?: number
   moiTrang?: number
   nhan?: string
+  luonHien?: boolean
 }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { giaoDien: gd, bieuTuong } = useCauHinh()
 
-  if (soTrang <= 1) return null
+  if (soTrang <= 1 && !(luonHien && tong)) return null
 
   function hrefTrang(t: number) {
     const sp = new URLSearchParams(searchParams.toString())

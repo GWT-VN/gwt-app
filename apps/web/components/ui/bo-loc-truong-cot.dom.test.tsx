@@ -97,6 +97,15 @@ describe('menu tiêu đề cột → Lọc', () => {
     expect(chip()).toEqual(['Trạng thái: Không Đã xong'])
   })
 
+  test('bấm chip lọc ở nhãn cột → mở THẲNG pop lọc của cột (không qua menu cột)', async () => {
+    const user = userEvent.setup()
+    render(<Man dau={[{ truong: 'tt', phep: 'la', giaTri: ['Open'] }]} />)
+    await user.click(nutCot('Trạng thái').querySelector('[data-slot="th-chip-loc"]')!)
+    const pop = await screen.findByRole('dialog', { name: 'Lọc Trạng thái' })
+    expect(within(pop).getByRole('option', { name: 'Đang mở' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.queryByRole('menu')).toBeNull()
+  })
+
   test('mở chip từ tiêu đề, bỏ hết giá trị rồi đóng → chip gỡ, focus vẫn về tiêu đề cột (không nhảy sang nút Lọc)', async () => {
     const user = userEvent.setup()
     render(<Man dau={[{ truong: 'tt', phep: 'la', giaTri: ['Open'] }]} />)

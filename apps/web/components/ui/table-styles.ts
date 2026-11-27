@@ -148,7 +148,9 @@ export const oKeo = cn(
 export const thSort = cn(
   kv,
   // w-full: <button> không tự giãn như div — `.b-loc-o` (flex, rộng 100%) + `flex: 1` của nguồn = phủ kín ô.
-  'flex w-full min-w-0 items-center gap-1 h-(--control-size-lg) m-0 p-0 rounded-none bg-transparent',
+  // Vùng rê/kéo nới 6px mỗi bên vào đệm ô (-mx/px bù nhau → chữ tiêu đề không dời) — chừa chỗ cho nhãn thành chip lọc và
+  // viền focus (CEO 27/11 "padding của phần hover drag rộng hơn chút để chừa chỗ khi label biến thành chip filter").
+  'flex w-[calc(100%+--spacing(3))] min-w-0 items-center gap-1 h-(--control-size-lg) -mx-1.5 my-0 px-1.5 py-0 rounded-none bg-transparent',
   'font-[inherit] text-inherit whitespace-nowrap cursor-[inherit] [outline:none]',
   'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground data-on:font-medium',
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
@@ -158,10 +160,22 @@ export const thSort = cn(
 )
 /** Cột căn phải: chữ dồn phải trong nút phủ kín ô. */
 export const thSortPhai = 'justify-end'
-/** `.b-th-loc`: phễu + số giá trị đang lọc, 12/18 color-text-info tabular, icon 11. */
+/**
+ * Nhãn cột ĐANG LỌC = chip (CEO 27/11): nền info-surface, chữ text-info, icon lọc DS (Phosphor regular, cỡ 12 của tiêu đề);
+ * nằm trong vùng rê đã nới của `thSort`. Đệm chip TOẢ RA NGOÀI (-ml bằng pl) → chữ nhãn vẫn thẳng mép chữ trong ô (CEO 27/11
+ * "tạo thêm padding chứ ko phải đẩy lùi vào trong"); đệm 4 (CEO 27/11 "padding trái phải cho thành 4"), nằm trong phần `thSort` đã nới.
+ */
+export const thChipLoc = cn(
+  kv,
+  'inline-flex min-w-0 items-center gap-1 h-6 -ml-1 px-1 rounded-(--radius-full)',
+  'bg-(--color-background-info-surface) text-(--color-text-info) tabular-nums',
+  // Bấm được (mở pop lọc) → con trỏ tay + nền đậm hơn khi rê.
+  'cursor-pointer hover:bg-(--color-background-info-soft-alpha)',
+)
+/** `.b-th-loc`: icon lọc DS + số giá trị đang lọc, 12/18 color-text-info tabular, icon 12 (Phosphor regular). */
 export const thLoc = cn(
   kv,
-  'inline-flex items-center gap-px text-[12px] leading-[18px] text-(--color-text-info) tabular-nums [&_svg]:size-[11px]!',
+  'inline-flex items-center gap-px text-[12px] leading-[18px] text-(--color-text-info) tabular-nums [&_svg]:size-3!',
 )
 
 /**

@@ -51,16 +51,12 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     const cot = p.get('cot') === 'tao' ? 'created_at' : undefined
     return { q: p.get('q') ?? '', dk: docTatCa(p, TRUONG_F), cot, chieu: p.get('chieu') ?? undefined }
   }
-  const dem = async (loc: string) => {
-    const d = dieuKien(new URLSearchParams(loc))
-    return (await searchTickets(d.q, undefined, false, undefined, { locTruong: d.dk, toiId: me?.id, chiDem: true })).tong
-  }
   const hien = dieuKien(new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === 'string' ? [[k, v]] : []))))
-  const [ketQua, demDb, cotDb, { data: dsLoi }, tongDb] = await Promise.all([
+  // Không đếm từng tab nữa: bộ đếm duy nhất là phân trang dưới bảng (CEO 27/11 "bỏ hết bộ đếm… cho hiển thị bằng pagination").
+  const [ketQua, cotDb, { data: dsLoi }, tongDb] = await Promise.all([
     searchTickets(hien.q, undefined, false, undefined, {
       locTruong: hien.dk, toiId: me?.id, khanTruoc: !hien.cot, trang, cot: hien.cot, chieu: hien.chieu,
     }),
-    Promise.all([...VIEW_F, ...tabRieng].map((x) => dem(x.loc))),
     cotLocTicket(),
     docAnToan('danhMucLoi', () => danhMucLoi(), []),
     dev ? searchTickets('', undefined, false, undefined, { chiDem: true }).then((r) => r.tong) : Promise.resolve(Infinity),
@@ -92,13 +88,6 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     mayKhach,
     nhanVien: nhanVien.map((n) => ({ gt: n.id, nhan: n.ten, anMa: true })),
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
-    // Khoá số đếm: tab cố định = `v`, tab tự tạo = `t:<id>` (như giá trị TabsTrigger).
-    demTab: Object.fromEntries(
-      [...VIEW_F.map((x) => ({ k: x.v, loc: x.loc })), ...tabRieng.map((x) => ({ k: `t:${x.id}`, loc: x.loc }))].map((x, i) => [
-        x.k,
-        demDb[i] + locDemoTheo(dieuKien(new URLSearchParams(x.loc))).length,
-      ]),
-    ),
     tabRieng,
     quyenTabChung: viewChung,
   }

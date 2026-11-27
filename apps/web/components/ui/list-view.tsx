@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
-import { ArrowDown, ArrowUp, Funnel } from '@phosphor-icons/react/ssr'
+import { ArrowDown, ArrowUp, SlidersHorizontal } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Badge, BadgeDot } from './badge'
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from './context-menu'
@@ -251,7 +251,7 @@ export function TieuDeGop({ ten, sap, loc = [] }: PropsTieuDeGop) {
             )}
             {soLoc > 0 && (
               <span className={s.thLoc}>
-                <Funnel weight="fill" aria-hidden="true" />
+                <SlidersHorizontal aria-hidden="true" />
                 <span aria-hidden="true">{soLoc}</span>
                 <span className="sr-only">, đang lọc {soLoc}</span>
               </span>

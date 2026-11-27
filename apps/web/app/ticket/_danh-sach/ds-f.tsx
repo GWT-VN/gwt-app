@@ -6,7 +6,7 @@
 // Dữ liệu: server (page.tsx → searchTickets) đã lọc theo tab + trường + tìm, sắp, cắt trang; số tab đếm ở DB.
 // Sửa tại chỗ (Xem nhanh, kéo thẻ, hàng loạt) CHƯA nối mutation — chỉ đổi state trên màn (bước 4 của kế hoạch).
 import { Suspense, useRef, useState, type ReactNode } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowsClockwise,
   CalendarPlus,
@@ -18,7 +18,7 @@ import {
   Wrench,
 } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
-import { hrefBoLoc, KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, ThanhDangLoc, useDaChon } from '@/bang'
+import { KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
@@ -42,7 +42,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { chuaLuu, laDemo, mayLoi, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { HopGanViec } from './the-tab'
@@ -393,7 +393,6 @@ export function TicketF({
   soTrang,
   dsLoi,
   tuyChonLoc = {},
-  demTab = {},
   tabRieng,
   quyenTabChung,
   quyenSua = false,
@@ -403,7 +402,6 @@ export function TicketF({
 }: DuLieuTicket & { dau?: ReactNode }) {
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
-  const pathname = usePathname()
   const dat = useDatUrl()
   const [sua, setSua] = useState<Record<string, Sua>>({})
   const [kbTam, setKbTam] = useState<Record<string, string | null>>({})
@@ -446,7 +444,7 @@ export function TicketF({
   }))
   const datLoc = (id: string, d: DieuKienLoc | null) => dat({ [id]: ghiDieuKien(d, TRUONG_F.find((x) => x.id === id)!.kieu) })
   // Menu tiêu đề cột → "Lọc…" mở pop lọc của đúng trường (đủ phép + "Tôi"); đã có chip → mở chip đó (học Twenty).
-  const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
 
   // ── URL → sắp (`cot`/`chieu`, CHUAN-FILTER) ──
   const cotUrl = COT_SAP.includes(sp.get('cot') ?? '') ? sp.get('cot')! : null
@@ -528,19 +526,12 @@ export function TicketF({
     dat({ xem_tab: v === 'tong' ? null : v }, true)
   }
 
-  const dieuKien = [
-    ...(sp.get('q') ? [{ nhan: 'Tìm', giaTri: sp.get('q')!, href: hrefBoLoc(pathname, sp, 'q') }] : []),
-    // Mỗi điều kiện = một ChipLoc (bấm sửa, × gỡ).
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  // Lọc hiện ngay ở nhãn cột thành chip (tieu-de-cot) — KHÔNG còn hàng chip lọc phía trên (CEO 27/11 "Bỏ hết chip filter
+  // cũ nhé. chốt bản filter hiện ở label"). Sửa/gỡ điều kiện qua menu tiêu đề cột hoặc nút Lọc.
   const thamSoLoc = TRUONG_F.map((x) => x.id)
   // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo — tab tự tạo tự lưu bộ lọc đang xem (tab-ticket.tsx).
   const hangTab = useTabTicket({
     tabRieng,
-    demTab,
     quyenTabChung,
     dieuKien: [
       ...(sp.get('q') ? [{ nhan: 'Tìm', giaTri: sp.get('q')! }] : []),
@@ -680,7 +671,6 @@ export function TicketF({
         <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface" tenCot={TEN_COT} nghiaSapXep={NGHIA}>
           <DataViewToolbar
             tieuDe="Ticket CSKH"
-            dem={{ thay: dangXem === 'kanban' ? theKanban.length : dong.length, tong }}
             timKiem={
               <Suspense>
                 <OTimKiem placeholder="Mã ticket, serial, khách, SĐT…" aria-label="Tìm ticket" />
@@ -718,16 +708,6 @@ export function TicketF({
             dangXemCo={XEM_F}
             xemNhanh={t != null}
             onXemNhanh={(bat) => mo(bat ? (nguon[0]?.ticket_code ?? null) : null)}
-          />
-          <ThanhDangLoc
-            dieuKien={dieuKien}
-            hienThi={dangXem === 'kanban' ? theKanban.length : dong.length}
-            tong={dangXem === 'kanban' ? theKanban.length : dong.length}
-            nhan="ticket"
-            anSoDong
-            sapXep={sap ? { ...sap, macDinh: false } : undefined}
-            // "Xoá lọc" giữ `variant` (prototype), view, dạng xem, trạng thái cột — chỉ bỏ điều kiện lọc/sắp.
-            hrefXoaLoc={hrefBoLoc(pathname, sp, 'q', ...thamSoLoc, 'cot', 'chieu', 'xem')}
           />
           <KhungChon
             khoaTrang={dong.map((d) => d.ticket_code)}
@@ -800,7 +780,7 @@ export function TicketF({
             </ThanhDaChon>
           </KhungChon>
           <Suspense>
-            <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="ticket" />
+            <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="ticket" luonHien />
           </Suspense>
         </CauHinhBangDs>
       </TrangDuLieu>

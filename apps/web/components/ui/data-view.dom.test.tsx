@@ -77,10 +77,12 @@ function Man({ onCotAn = () => {}, onSapXep = () => {} }: { onCotAn?: (a: string
   )
 }
 
-test('đầu trang: tiêu đề + "đang thấy X / Y"; dạng xem là radiogroup 3 radio, Bảng đang chọn', () => {
+test('đầu trang: tiêu đề + badge số lượng (X / Y khi khác nhau); dạng xem là radiogroup 3 radio, Bảng đang chọn', () => {
   render(<Man />)
   expect(screen.getByRole('heading', { name: 'Ticket' })).toBeTruthy()
-  expect(screen.getByText('đang thấy 19 / 22')).toBeTruthy()
+  const dem = document.querySelector('[data-slot="badge"][aria-live="polite"]')!
+  expect(dem.textContent).toBe('19 / 22 kết quả')
+  expect(dem.getAttribute('data-color')).toBe('secondary')
   const nhom = screen.getByRole('radiogroup', { name: 'Dạng xem' })
   const radio = within(nhom).getAllByRole('radio')
   expect(radio.map((r) => r.getAttribute('aria-label'))).toEqual(['Danh sách', 'Bảng', 'Kanban'])

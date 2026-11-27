@@ -126,8 +126,10 @@ export const tabsTriggerPill = [
 export const tabsCount = {
   segmented: 'border-none border-current font-medium',
   line: 'border-none border-current font-medium',
-  pill: 'border-none border-current text-[12px] tabular-nums',
-  thuong: { segmented: 'text-muted-foreground', line: 'text-muted-foreground', pill: 'font-normal text-(--color-text-tertiary)' },
+  // Pill: số trong badge trung tính mờ (CEO 27/11 "cho nền để thành badge (Màu trung tính mờ thôi)") — nền + chữ y Badge
+  // soft secondary, cao 18, bo tròn, tối thiểu vuông.
+  pill: 'border-none border-current inline-flex h-[18px] min-w-[18px] items-center justify-center px-1.5 rounded-(--radius-full) text-[12px] leading-none tabular-nums bg-(--color-background-secondary-soft-alpha)',
+  thuong: { segmented: 'text-muted-foreground', line: 'text-muted-foreground', pill: 'font-normal text-(--color-text-secondary-soft)' },
   danger: 'font-medium text-(--color-text-danger)',
 } as const
 

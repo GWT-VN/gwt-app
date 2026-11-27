@@ -28,7 +28,7 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, EyeSlash, Funnel } from '@phosphor-icons/react/ssr'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, EyeSlash, SlidersHorizontal } from '@phosphor-icons/react/ssr'
 import { KIEU_NGAY, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
@@ -224,21 +224,42 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
     requestAnimationFrame(() => ke?.querySelector<HTMLElement>('button, input, [tabindex="0"]')?.focus())
   }
 
+  // Cột đang lọc: NHÃN thành chip xanh nhạt (chữ cột + phễu) thay hàng chip lọc trên bảng (CEO 27/11 "Tô label thôi là
+  // được. cho label hiện thành chip"). Chip nằm trong vùng rê đã nới của nút tiêu đề (thSort).
   const nhan = (
     <>
-      <span className="min-w-0 truncate">{cot.ten}</span>
+      {dangLoc ? (
+        // Bấm chip = mở THẲNG pop lọc của cột (CEO 27/11 "rê chuột vào phần chip này là cho chọn vào filter luôn"); phần còn
+        // lại của tiêu đề vẫn mở menu cột. Kéo cột vẫn chạy khi thật sự kéo (cảm biến dnd-kit cần dời 8px) — nên KHÔNG chặn
+        // pointerdown khi có kéo; không có kéo thì chặn để Radix không mở menu lúc nhấn. Bàn phím: menu cột → "Lọc…".
+        <span
+          data-slot="th-chip-loc"
+          className={s.thChipLoc}
+          onPointerDown={moLoc && !coKeo ? (e) => e.preventDefault() : undefined}
+          onClick={
+            moLoc
+              ? (e) => {
+                  e.stopPropagation()
+                  if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
+                  const nut = e.currentTarget.closest('button')
+                  if (nut) moLoc.onMo(nut)
+                }
+              : undefined
+          }
+        >
+          <span className="min-w-0 truncate">{cot.ten}</span>
+          <SlidersHorizontal aria-hidden="true" />
+          {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
+          <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
+        </span>
+      ) : (
+        <span className="min-w-0 truncate">{cot.ten}</span>
+      )}
       {nghia && (
         <>
           {sap?.chieu === 'tang' ? <ArrowUp aria-hidden="true" /> : <ArrowDown aria-hidden="true" />}
           <span className="sr-only">, đang sắp {nghia.toLowerCase()}</span>
         </>
-      )}
-      {dangLoc && (
-        <span className={s.thLoc}>
-          <Funnel weight="fill" aria-hidden="true" />
-          {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
-          <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
-        </span>
       )}
       {/* Mũi menu (hiện 50% khi rê) chỉ khi chưa có dấu sắp/lọc — dấu đó đã báo cột có menu; cột hẹp (Ưu tiên 76) không
           phải cắt chữ để chừa chỗ cho cả hai. */}
@@ -308,7 +329,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           {moLoc && (
             <>
               <DropdownMenuItem onSelect={() => (choMoLoc.current = true)}>
-                <Funnel aria-hidden="true" />
+                <SlidersHorizontal aria-hidden="true" />
                 Lọc…
               </DropdownMenuItem>
               {(coSapLoc || menuCot || ngay) && <DropdownMenuSeparator />}

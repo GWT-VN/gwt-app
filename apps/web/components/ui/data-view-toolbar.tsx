@@ -18,7 +18,7 @@ import {
   Eye,
   EyeSlash,
   FloppyDisk,
-  Funnel,
+  SlidersHorizontal,
   GearSix,
   Kanban,
   LinkSimple,
@@ -33,6 +33,7 @@ import {
 import type { Icon } from '@phosphor-icons/react'
 import { Popover as PopoverPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
+import { Badge } from './badge'
 import { Button } from './button'
 import { CotHienThi } from './cot-hien-thi'
 import {
@@ -49,7 +50,6 @@ import {
   dvBoCuc,
   dvCongCu,
   dvDau,
-  dvDem,
   dvGoc,
   dvNgan,
   dvTabs,
@@ -146,7 +146,7 @@ export function CongCuXem({ dangXem, onDoiXem, dangXemCo, xemNhanh, onXemNhanh, 
 
 /**
  * DataViewToolbar — đầu trang + thanh công cụ dùng chung cho mọi màn dữ liệu (README DataViewToolbar, chốt 18/11):
- * 1. Đầu trang: tiêu đề 24/28 600 · "đang thấy X / Y" · ô tìm (slot, rộng 240 + icon kính lúp) · nút chính.
+ * 1. Đầu trang: tiêu đề 24/28 600 · badge số lượng (soft secondary) · ô tìm (slot, rộng 240 + icon kính lúp) · nút chính.
  * 2. Hàng tab (slot `tabs` — DS `Tabs` biến thể `pill`) + `CongCuXem` bên phải.
  * - Đổi dạng xem không đụng tab / lọc / sắp: thanh chỉ báo `onDoiXem`, tab + lọc sống ở URL / màn (CHUAN-FILTER).
  * - Ô tìm là của màn (vd `OTimKiem` của bang/ trong `CauHinhBangDs`): thanh chỉ đặt chỗ + icon + bề rộng.
@@ -164,7 +164,7 @@ export function DataViewToolbar({
   tieuDe: ReactNode
   /** Cấp thẻ tiêu đề — trang tài liệu (/ds) dùng h2. */
   capTieuDe?: 'h1' | 'h2'
-  /** "đang thấy `thay` / `tong`". */
+  /** Badge số lượng: `thay` (bằng `tong`) hoặc "`thay` / `tong`". */
   dem?: { thay: number; tong: number }
   timKiem?: ReactNode
   nutChinh?: ReactNode
@@ -175,9 +175,11 @@ export function DataViewToolbar({
       <header className={dvDau}>
         <H className={dvTieuDe}>{tieuDe}</H>
         {dem && (
-          <span className={dvDem} aria-live="polite" aria-atomic="true">
-            đang thấy {dem.thay} / {dem.tong}
-          </span>
+          // Badge số lượng trung tính (CEO 27/11 "cho một cái badge số lượng luôn ko cần phải đang thấy").
+          <Badge variant="soft" color="secondary" className="tabular-nums" aria-live="polite" aria-atomic="true">
+            {dem.thay === dem.tong ? dem.thay : `${dem.thay} / ${dem.tong}`}
+            <span className="sr-only"> kết quả</span>
+          </Badge>
         )}
         <span aria-hidden="true" className="flex-1 border-none border-current" />
         {timKiem && (
@@ -430,7 +432,7 @@ export function CaiDatHienThi({
             {dangXem === 'bang' && cot.length > 0 && (
               <MucCd I={Eye} ten="Cột hiển thị" gt={hien.length} mui trang="cot" onClick={() => vao('cot')} />
             )}
-            {loc && <MucCd I={Funnel} ten="Lọc" gt={loc.so || undefined} mui trang="loc" onClick={() => vao('loc')} />}
+            {loc && <MucCd I={SlidersHorizontal} ten="Lọc" gt={loc.so || undefined} mui trang="loc" onClick={() => vao('loc')} />}
             {onSapXep && cotSap.length > 0 && (
               <MucCd
                 I={SortAscending}

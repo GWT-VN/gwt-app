@@ -19,8 +19,6 @@ export type DuLieuTicket = {
   demo?: boolean
   /** F: giá trị có trong dữ liệu CHƯA lọc của từng trường chọn/người (đọc DB, truong-f.ts `tuyChonF`). */
   tuyChonLoc?: Record<string, string[]>
-  /** F: số ticket mỗi tab (đếm ở DB, cùng tìm kiếm + bộ lọc trường đang bật). */
-  demTab?: Record<string, number>
   /** F: tab tự tạo (sau 4 tab cố định) + quyền tạo tab dùng chung. */
   tabRieng?: TicketTab[]
   quyenTabChung?: boolean

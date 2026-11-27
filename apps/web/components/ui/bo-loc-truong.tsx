@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefCallback } from 'react'
-import { ArrowLeft, CalendarBlank, Check, Funnel, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
+import { ArrowLeft, CalendarBlank, Check, SlidersHorizontal, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
 import {
   canGiaTri,
   laRong,
@@ -361,7 +361,7 @@ export function NutLoc({
       <TooltipNhanh content="Lọc theo trường">
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Lọc" data-slot="nut-loc" className="[&_svg]:size-[18px]">
-            <Funnel aria-hidden="true" />
+            <SlidersHorizontal aria-hidden="true" />
           </Button>
         </PopoverTrigger>
       </TooltipNhanh>
