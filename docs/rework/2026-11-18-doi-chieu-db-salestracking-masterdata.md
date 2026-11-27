@@ -1,5 +1,7 @@
 # Đối chiếu DB: GWT-SalesTracking → GWT-Masterdata (trước khi gom DB cho v2)
 
+> Plan sống của việc gom DB (27/11): lộ trình `docs/2026-11-27-lo-trinh-gwt-app-ve-masterdata.md` ở repo GWT-Masterdata (nhánh `feat/customer-care-issue-reports`, chưa push). File này là ảnh chụp 18/11.
+
 Ngày 18/11/2026 · chỉ đọc (SELECT) trên **GWT-SalesTracking `bwzmqfbcgouhvhoslmmm`** (gọi tắt **ST** — DB app GWT hiện tại) và **GWT-Masterdata `qynpywysgltspmgnhhga`** (gọi tắt **MD**). Repo GWT-Masterdata đã `pull` ngang remote (`961eeef`). Số dòng là ước lượng thống kê của Postgres (`n_live_tup`), đủ để so lệch; chuyển thật sẽ đếm chính xác.
 
 ## 1. Lần chuyển trước — đã tìm ra
@@ -10,7 +12,7 @@ Ngày 18/11/2026 · chỉ đọc (SELECT) trên **GWT-SalesTracking `bwzmqfbcgou
 | Lô | `migration_data.cskh_batches` id `gwt_app_cskh_20261030`: ST → MD, trạng thái `applied` lúc 09:01 UTC; lưu cả ảnh chụp dữ liệu MD trước khi thay (`expected_before`) để lùi |
 | Chép gì | **chỉ 5 bảng CSKH**: customers 456 · installed_base 531 · warranty 517 · tickets 101 · customer_contacts 3 (thay bản MD cũ từ 07/2026) |
 | Dựng thêm | schema `customer_care` (audits, change_requests, staff_links 3, ticket_counters, ticket_notes) + RPC ghi có gác quyền + hợp đồng đọc `api.cskh_read` cho **GWT-ERP** |
-| Migration trên MD | 4 migration **đã áp live và có trong ledger**: `20261030081330_cskh_prepare_gwt_app_replacement`, `20261030081333_cskh_replace_from_gwt_app_batch`, `20261030100158_cskh_core_rpc`, `20261030115514_cskh_read_v2` — nhưng **file chỉ nằm trên 2 nhánh chưa merge** `codex/cskh-core-rpc`, `codex/cskh-read-v2` → repo MD `main` lệch ledger |
+| Migration trên MD | 4 migration **đã áp live và có trong ledger**: `20261030081330_cskh_prepare_gwt_app_replacement`, `20261030081333_cskh_replace_from_gwt_app_batch`, `20261030100158_cskh_core_rpc`, `20261030115514_cskh_read_v2` — lúc 18/11 file chỉ nằm trên 2 nhánh chưa merge `codex/cskh-core-rpc`, `codex/cskh-read-v2`; **nay cả 4 file đã ở MD `main`** (kiểm 27/11) |
 | Sau đó | App GWT vẫn ghi vào ST → bản MD **đứng yên từ 30/10**, đã cũ 19 ngày |
 
 ## 2. So từng bảng

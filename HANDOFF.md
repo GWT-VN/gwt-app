@@ -185,8 +185,9 @@ Spec chung: `../GWT-SHARED/2026-08-19-gwt-nav-shell-spec.md`.
 ## 7. Database
 
 - **Prod = Supabase `bwzmqfbcgouhvhoslmmm`** (GWT-SalesTracking, Singapore) — **dùng chung CS + Sales
-  + Work**. Project cũ `qynpywysgltspmgnhhga` (Masterdata) chỉ còn là nguồn catalog gốc (giá niêm yết,
-  bí danh, mã quốc tế — bảng gương `catalog_item` hiện còn thiếu).
+  + Work**. v1 (`main`) chạy trên ST. `qynpywysgltspmgnhhga` (Masterdata) là nguồn catalog gốc (giá niêm yết,
+  bí danh, mã quốc tế — bảng gương `catalog_item` hiện còn thiếu); v2 (`rework/v2.0.0`) chuyển dần
+  về Masterdata theo đợt (CEO chốt 27/11) — xem lộ trình `docs/2026-11-27-lo-trinh-gwt-app-ve-masterdata.md` ở repo GWT-Masterdata (nhánh `feat/customer-care-issue-reports`, chưa push).
 - **Schema/cột: QUERY DB (Supabase MCP), đừng tin mô tả trong doc cũ.**
 - **Sở hữu bảng** (chi tiết `SYSTEM.md` §2):
 

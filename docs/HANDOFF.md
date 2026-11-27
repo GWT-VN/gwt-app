@@ -22,7 +22,7 @@ bảo hành, lịch thay lõi, ticket lỗi, gói bảo trì. Dùng cho nhân vi
 | Project | Ref | Vai trò |
 |---|---|---|
 | **GWT-SalesTracking** | `bwzmqfbcgouhvhoslmmm` | **LIVE hiện tại** — CSKH đã cutover về đây (2026-07-27). Dùng chung Postgres với module Sales (team khác). |
-| GWT-Masterdata | `qynpywysgltspmgnhhga` | Nguồn catalog gốc. CSKH **đã rời khỏi đây** (bảng cũ còn để đối chiếu, chưa xoá — Phase 4). |
+| GWT-Masterdata | `qynpywysgltspmgnhhga` | Nguồn catalog gốc. v1 không ghi CSKH vào đây; v2 (`rework/v2.0.0`) chuyển dần về đây theo đợt (27/11) — xem lộ trình `docs/2026-11-27-lo-trinh-gwt-app-ve-masterdata.md` ở repo GWT-Masterdata (nhánh `feat/customer-care-issue-reports`, chưa push). |
 
 - Vì sao tách: dữ liệu khách nhạy cảm, không để chung project catalog mà nhiều tool khác đọc.
 - 6 bảng catalog ở project mới là **bảng gương** (mirror) copy từ Masterdata. Hiện mirror **thủ công**
