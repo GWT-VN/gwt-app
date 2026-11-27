@@ -60,3 +60,12 @@ describe('app/ticket/loi-actions.ts — mọi hàm chạm DB đều gác require
     expect(doan.filter((p) => p.includes('dataClient(') && /\brequireStaff\b/.test(p)).length).toBeGreaterThan(10)
   })
 })
+
+const srcMd = readFileSync(fileURLToPath(new URL('../app/ticket/lan-loi-md-actions.ts', import.meta.url)), 'utf8')
+describe('app/ticket/lan-loi-md-actions.ts — mọi action gác requireStaff() + doQuyen() (service_role MD)', () => {
+  const doan = srcMd.split(/(?=export async function )/).filter((p) => p.startsWith('export async function '))
+  it('không action nào thiếu gác', () => {
+    expect(doan.filter((p) => !/\brequireStaff\(\)/.test(p) || !/\bdoQuyen\(/.test(p)).map((p) => p.match(/function (\w+)/)?.[1])).toEqual([])
+  })
+  it('quét được thân file', () => expect(doan.length).toBeGreaterThanOrEqual(4))
+})

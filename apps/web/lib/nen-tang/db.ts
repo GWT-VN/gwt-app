@@ -42,3 +42,19 @@ export function dataClient() {
   }
   return createClient(URL, key, { auth: { persistSession: false } })
 }
+
+/**
+ * service_role của GWT-Masterdata (DB THỨ HAI, khác `dataClient`) — CSKH v2 đọc/ghi bảng `customer_care.*` khi
+ * `CSKH_NGUON=md`. Như `dataClient`: chỉ server, sau requireStaff(); env không có tiền tố NEXT_PUBLIC → không xuống trình duyệt.
+ */
+export function mdClient() {
+  const url = process.env.MD_SUPABASE_URL
+  const key = process.env.MD_SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    throw new Error(
+      'Thiếu MD_SUPABASE_URL / MD_SUPABASE_SERVICE_ROLE_KEY (Supabase GWT-Masterdata, khác DB của app). ' +
+        'Điền vào .env.local (xem .env.example) hoặc bỏ CSKH_NGUON=md. KHÔNG commit file .env.local.'
+    )
+  }
+  return createClient(url, key, { auth: { persistSession: false } })
+}

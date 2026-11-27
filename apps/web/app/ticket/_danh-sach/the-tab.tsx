@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowSquareOut, ChatText, LinkSimple, Plus } from '@phosphor-icons/react/ssr'
 import { addTicketNote, listTicketItems, listTicketNotes, ticketsOfCustomer, ticketsOfSerial, type Ticket } from '@/app/actions'
-import { listLanLoi } from '@/app/ticket/lan-loi-actions'
+import { docLanLoi, suaLanLoiMd, themLanLoiMd } from '@/app/ticket/lan-loi-md-actions'
 import { ganErp, taoViec, timViec, viecGanErp, type ViecTeamRow } from '@/app/work/actions'
 import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import { mayLoi, ngayNgan, tenKhach } from './chung'
 import { TT } from './ds-f'
-import { DsTheLan } from './the-lan'
+import { DsTheLan, type LanThe, type LuuLan } from './the-lan'
 
 /** Đọc một lần theo `khoa` (đổi ticket / bấm tải lại → đọc lại). Lỗi → `loi` (chữ), không vỡ thẻ. */
 function useDoc<T>(khoa: string, doc: () => Promise<T>) {
@@ -56,19 +56,29 @@ function DangTai() {
 }
 const Loi = ({ chu }: { chu: string }) => <EmptyState size="sm" tieuDe="Chưa đọc được" moTa={chu} />
 
-/** Lần lỗi: lần 1 (mô tả + ghi chú xử lý của ticket) + các lần 2+ (ticket_lan_loi), cũ → mới, mở sẵn lần mới nhất. */
+/**
+ * Lần lỗi, cũ → mới, mở sẵn lần mới nhất. Nguồn do server chọn (`docLanLoi`, CSKH_NGUON):
+ * - ST: lần 1 (mô tả + ghi chú xử lý của ticket) + lần 2+ (ticket_lan_loi), sửa chỉ trên màn như cũ.
+ * - MD: mọi lần ở `customer_care.issue_reports`, sửa là lưu; ticket chưa có dòng nào → hiện lần 1 của ticket, ghi lần đầu tạo dòng.
+ */
 export function LanLoiThat({ t }: { t: Ticket }) {
-  const kq = useDoc(t.ticket_code, () => listLanLoi(t.ticket_code))
+  const kq = useDoc(t.ticket_code, () => docLanLoi(t.ticket_code))
   if (!kq) return <DangTai />
-  const ds = [
-    { so: 1, ngay: t.created_at.slice(0, 10), khach: t.description, xuLy: t.last_note, vatTu: [] as string[] },
-    ...(kq.data ?? []).map((l) => ({ so: l.lan, ngay: l.ngay ?? l.created_at.slice(0, 10), khach: l.mo_ta, xuLy: l.xu_ly, vatTu: [] as string[] })),
-  ]
+  const lan1: LanThe = { so: 1, ngay: t.created_at.slice(0, 10), khach: t.description, xuLy: t.last_note, vatTu: [] }
+  const r = kq.data
+  const ds: LanThe[] = r?.md
+    ? r.ds.length
+      ? r.ds.map((l) => ({ so: l.report_no, id: l.id, tt: l.status, ngay: l.reported_on, khach: l.customer_said, xuLy: l.handling, vatTu: [] }))
+      : [lan1]
+    : [lan1, ...(r?.ds ?? []).map((l) => ({ so: l.lan, ngay: l.ngay ?? l.created_at.slice(0, 10), khach: l.mo_ta, xuLy: l.xu_ly, vatTu: [] }))]
+  const luu: LuuLan | undefined = r?.md
+    ? { them: (i) => themLanLoiMd(t.ticket_code, i), sua: (id, p) => suaLanLoiMd(id, t.ticket_code, p) }
+    : undefined
   return (
     <div className="flex flex-col gap-3 border-none border-current">
       {/* Đọc lần 2+ lỗi → vẫn hiện lần 1 (của ticket), báo phần thiếu — như trang chi tiết. */}
       {kq.loi && <p className="m-0 ds-text-xs text-muted-foreground">Chưa tải được các lần lỗi sau — {kq.loi}</p>}
-      <DsTheLan ds={ds} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} />
+      <DsTheLan ds={ds} nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'} luu={luu} />
     </div>
   )
 }
