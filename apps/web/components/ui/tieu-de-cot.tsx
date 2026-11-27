@@ -204,7 +204,9 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const coMenu = coSapLoc || !!menuCot || !!ngay
   const dangLoc = soLoc > 0 || !!moLoc?.dang
   const min = toiThieu(cot)
-  const nghia = cot.kieu === 'sap' && sap?.chieu ? cot.nghia[sap.chieu] : null
+  // Sắp MẶC ĐỊNH (người dùng chưa chọn) không hiện mũi tên / không sáng nhãn — chỉ sắp do người dùng chọn mới báo (CEO 27/11:
+  // "sao lại có icon arrow này ở đây"). `aria-sort` vẫn nói thật thứ tự.
+  const nghia = cot.kieu === 'sap' && sap?.chieu && !sap.macDinh ? cot.nghia[sap.chieu] : null
   const tenNho = cot.ten.toLowerCase()
 
   const doiCot = (ben: BenTha) => {

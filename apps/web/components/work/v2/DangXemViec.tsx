@@ -333,6 +333,7 @@ export function BangViec({
   o,
   dongNhap,
   menu,
+  sapMacDinh,
 }: {
   dong: ViecXem[]
   c: ReturnType<typeof useCotBang>
@@ -345,6 +346,8 @@ export function BangViec({
   dongNhap?: (cotId: string) => ReactNode
   /** Mục menu chuột phải của dòng (`MenuViec`). */
   menu?: (v: ViecXem) => ReactNode
+  /** Sắp đang là mặc định của màn (URL chưa có `cot`) → tiêu đề không hiện mũi tên. */
+  sapMacDinh?: boolean
 }) {
   // Tách sẵn: luật react-hooks/refs coi cả `c` là ref nếu `c.refBang` gắn thẳng vào `ref=`.
   const { refBang } = c
@@ -369,6 +372,7 @@ export function BangViec({
                   x.kieu === 'sap'
                     ? {
                         chieu: sap.cot === x.id ? (sap.tang ? 'tang' : 'giam') : null,
+                        macDinh: sapMacDinh,
                         onDoi: (ch) => onSap(ch ? { cot: x.id, tang: ch === 'tang' } : null),
                       }
                     : undefined

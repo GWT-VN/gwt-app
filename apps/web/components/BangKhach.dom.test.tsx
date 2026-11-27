@@ -80,8 +80,11 @@ test('tiêu đề cột sắp xếp theo URL, sắp mặc định không có "B�
   const user = userEvent.setup()
   mo()
   const table = screen.getByRole('table', { name: 'Khách hàng' })
-  const khachHead = within(table).getByRole('columnheader', { name: /^Khách,/ })
+  const khachHead = within(table).getByRole('columnheader', { name: /^Khách/ })
   expect(khachHead.getAttribute('aria-sort')).toBe('ascending')
+  // Sắp MẶC ĐỊNH: không mũi tên / không "đang sắp" ở nhãn (CEO 27/11) — aria-sort vẫn nói thật.
+  expect(khachHead.textContent).not.toMatch(/đang sắp/)
+  expect(khachHead.querySelector('svg[class*="arrow" i], [data-on]')).toBeNull()
   await user.click(within(khachHead).getByRole('button'))
   expect(screen.queryByRole('menuitem', { name: 'Bỏ sắp xếp' })).toBeNull()
   await user.keyboard('{Escape}')

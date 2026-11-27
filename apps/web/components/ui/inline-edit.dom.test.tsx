@@ -328,7 +328,7 @@ test('OSuaChu: lỗi khi lưu → ô hiện lại chữ cũ + báo lỗi', async
 
 // ---------- OSuaHan ----------
 
-test('OSuaHan: chọn ngày giữ GIỜ cũ; pop đóng, focus về ô, không mở dòng', async () => {
+test('OSuaHan (DateTimePicker gọn): chọn ngày giữ GIỜ cũ, đổi giờ được; chỉ lưu khi Xong; pop đóng, focus về ô, không mở dòng', async () => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date('2026-11-20T09:00:00+07:00'))
   const user = userEvent.setup()
@@ -338,11 +338,15 @@ test('OSuaHan: chọn ngày giữ GIỜ cũ; pop đóng, focus về ô, không m
       <OSuaHan ma="TK-1" value="2026-11-21 17:30" onLuu={onLuu} />
     </Dong>,
   )
-  const o = nut('Sửa hạn TK-1')
+  const o = screen.getByRole('button', { name: /^Sửa hạn TK-1/ })
   expect(o.textContent).toBe('21/11 17:30')
   await user.click(o)
-  await screen.findByRole('dialog', { name: 'Chọn ngày' })
+  await screen.findByRole('dialog', { name: 'Chọn ngày giờ' })
+  // Có ô GIỜ (CEO 27/11 "sao bảng chọn date ko có chỗ chọn giờ").
+  expect(screen.getByLabelText('Giờ')).toBeTruthy()
   await user.click(screen.getByRole('button', { name: /^25\/11\/2026/ }))
+  expect(onLuu).not.toHaveBeenCalled()
+  await user.click(screen.getByRole('button', { name: 'Xong' }))
   expect(onLuu).toHaveBeenCalledWith('2026-11-25 17:30')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(o.textContent).toBe('25/11 17:30')
@@ -359,9 +363,9 @@ test('OSuaHan: Esc huỷ, focus về ô, không lưu', async () => {
       <OSuaHan ma="TK-1" value="2026-11-21T08:00:00+07:00" onLuu={onLuu} />
     </Dong>,
   )
-  const o = nut('Sửa hạn TK-1')
+  const o = screen.getByRole('button', { name: /^Sửa hạn TK-1/ })
   await user.click(o)
-  await screen.findByRole('dialog', { name: 'Chọn ngày' })
+  await screen.findByRole('dialog', { name: 'Chọn ngày giờ' })
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(document.activeElement).toBe(o)

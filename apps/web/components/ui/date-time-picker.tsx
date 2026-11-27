@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { CalendarBlank, CaretDown } from '@phosphor-icons/react/ssr'
 import { isoNgay, ngayTuIso } from '@/bang/ngay'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
@@ -49,6 +49,8 @@ export function DateTimePicker({
   onOpenChange,
   placeholder = 'Chọn ngày giờ',
   name,
+  hienGon,
+  choXoa = true,
   ...trig
 }: TriggerChonProps & {
   /** ISO có múi (`2026-11-25T14:30:00+07:00`) hoặc chỉ ngày (`2026-11-25`); null = chưa có. */
@@ -65,6 +67,10 @@ export function DateTimePicker({
   open?: boolean
   onOpenChange?(o: boolean): void
   placeholder?: string
+  /** `gon`: cách hiện giá trị trong ô, kể cả khi trống ("") — vd chữ hạn có màu / "—" của `OSuaHan`; mặc định `hienNgayGioGon`. */
+  hienGon?: (v: string) => ReactNode
+  /** false → không có nút "Xoá" ở chân pop (bên gọi có chỗ xoá riêng hoặc không cho xoá). */
+  choXoa?: boolean
 }) {
   const [moTrong, setMoTrong] = useState(false)
   const mo = open ?? moTrong
@@ -125,7 +131,7 @@ export function DateTimePicker({
             onKeyDown={chuot.onKeyDown}
           >
             <span id={idGiaTri} className={cn('tabular-nums whitespace-nowrap', !value && 'text-(--color-text-tertiary)')}>
-              {value ? hienNgayGioGon(value, mui) : placeholder}
+              {hienGon ? hienGon(value ?? '') : value ? hienNgayGioGon(value, mui) : placeholder}
             </span>
             <CaretDown aria-hidden="true" className={oSuaMui} />
           </button>
@@ -213,7 +219,7 @@ export function DateTimePicker({
           </div>
         </div>
         <div className={cn(calendarFoot, 'shrink-0')}>
-          {value ? (
+          {value && choXoa ? (
             <Button
               variant="ghost"
               size="sm"

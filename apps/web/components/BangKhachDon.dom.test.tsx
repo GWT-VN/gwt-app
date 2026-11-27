@@ -35,7 +35,7 @@ test('Khách cần dọn theo khuôn F: tìm ở đầu, hàng tab, ô thiếu S
   expect(within(table).getByRole('link', { name: 'Khách mẫu' }).getAttribute('href')).toBe('/khach/k1')
   expect(within(table).getAllByText('thiếu')).toHaveLength(2)
   expect(screen.getByText(/Trên trang này: 1 thiếu\/lỗi SĐT · 1 thiếu địa chỉ/)).toBeTruthy()
-  await user.click(within(within(table).getByRole('columnheader', { name: /^Khách,/ })).getByRole('button'))
+  await user.click(within(within(table).getByRole('columnheader', { name: /^Khách/ })).getByRole('button'))
   await user.click(screen.getByRole('menuitemradio', { name: 'Tên từ Z đến A' }))
   expect(push).toHaveBeenLastCalledWith('/khach?q=an&cot=full_name&chieu=desc', { scroll: false })
 })

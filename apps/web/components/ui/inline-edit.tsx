@@ -13,13 +13,11 @@ import {
   type ReactNode,
 } from 'react'
 import { ArrowLeft, CaretDown, CaretRight, PencilSimple, WarningCircle } from '@phosphor-icons/react/ssr'
-import { isoNgay, ngayTuIso } from '@/bang/ngay'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from './avatar'
 import { Badge, BadgeCaret, BadgeDot, type badgeVariants } from './badge'
-import { Calendar } from './calendar'
-import { calendarPop } from './calendar-styles'
+import { DateTimePicker } from './date-time-picker'
 import { ComboboxPanel } from './combobox'
 import {
   DropdownMenu,
@@ -50,9 +48,9 @@ import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { RecordPicker, type BanGhi } from './record-picker'
 import { thongBao } from './sonner'
-import { useMoBangChuot } from './use-mo-bang-chuot'
 import type { VariantProps } from 'class-variance-authority'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
+import { laChiNgay, MUI_VN, tachIso } from '@/lib/gio'
 
 
 /**
@@ -471,71 +469,51 @@ function hienHan(v: string) {
   return `${hienNgay(v.slice(0, 10))}${gio ? ` ${gio[1]}:${gio[2]}` : ''}`
 }
 
+/** Giá trị ô hạn KHÔNG múi ("YYYY-MM-DD HH:mm" / "…THH:mm", giờ VN) → ISO có múi cho `DateTimePicker`; có múi / chỉ ngày giữ nguyên. */
+const hanVeIso = (v: string) => (v.length > 10 && !/[zZ]|[+-]\d{2}:?\d{2}$/.test(v) ? `${v.slice(0, 10)}T${v.slice(11, 16)}:00${MUI_VN}` : v)
+
 /**
- * Ô hạn: bấm → lịch (Popover + Calendar, như DatePicker). Chọn ngày → lưu `YYYY-MM-DD` + NGUYÊN phần giờ cũ của
- * `value` (vd "2026-11-21 17:30" → "2026-11-25 17:30"; "…T08:00:00+07:00" giữ cả múi). `hien` = cách hiện trong ô
- * (mặc định "dd/MM HH:mm"; ô có màu trễ/hôm nay do bên gọi vẽ).
+ * Ô hạn = `DateTimePicker gon` của DS (CEO 27/11 "sao bảng chọn date ko có chỗ chọn giờ"): lịch + ô ngày + ô GIỜ, chỉ lưu
+ * khi Xong / Enter, Huỷ / Esc bỏ. Trả về đúng KIỂU của `value`: không múi → "YYYY-MM-DD<sep>HH:mm" (sep như value, mặc
+ * định "T"), có múi → ISO múi VN; chỉ chọn ngày (chưa có giờ) → "YYYY-MM-DD" (bên gọi tự gán giờ mặc định, vd 17:00).
+ * `hien` = cách hiện trong ô (mặc định "dd/MM HH:mm"; ô có màu trễ/hôm nay do bên gọi vẽ). `onXoa` → chân pop có "Xoá".
  */
 export function OSuaHan({
   ma,
   value,
   onLuu,
+  onXoa,
   truong = 'hạn',
   hien = hienHan,
 }: {
   ma: string
-  /** ISO: "YYYY-MM-DD" + phần giờ tuỳ ý. */
+  /** "YYYY-MM-DD" + phần giờ tuỳ ý ("" = chưa có). */
   value: string
   onLuu: Luu<string>
+  onXoa?: () => unknown
   truong?: string
   hien?: (v: string) => ReactNode
 }) {
   const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => `${ma}: ${truong} → ${hienHan(v)}`)
-  const id = useId()
-  const [mo, setMo] = useState(false)
-  const chuot = useMoBangChuot()
-  const ngay = gt.slice(0, 10)
+  const coMui = value.length > 10 && hanVeIso(value) === value
+  const sep = value[10] === ' ' ? ' ' : 'T'
   return (
     <NeoO>
-      <Popover open={mo} onOpenChange={setMo}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className={oSua}
-            aria-label={`Sửa ${truong} ${ma}`}
-            aria-describedby={id}
-            onPointerDown={chuot.onPointerDown}
-            onKeyDown={chuot.onKeyDown}
-          >
-            <span id={id} className="tabular-nums whitespace-nowrap">
-              {hien(gt)}
-            </span>
-            <CaretDown aria-hidden="true" className={oSuaMui} />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          aria-label="Chọn ngày"
-         
-          data-mo-chuot={chuot.chuot || undefined}
-          className={cn(
-            calendarPop,
-            'data-mo-chuot:[&_:focus-visible]:[outline:none]! data-mo-chuot:[&_:focus-visible]:outline-offset-0!',
-          )}
-          onKeyDownCapture={chuot.onKeyDown}
-        >
-          <Calendar
-            mode="single"
-            required
-            autoFocus
-            selected={ngayTuIso(ngay)}
-            defaultMonth={ngayTuIso(ngay)}
-            onSelect={(d) => {
-              luu(isoNgay(d) + gt.slice(10))
-              setMo(false)
-            }}
-          />
-        </PopoverContent>
-      </Popover>
+      <DateTimePicker
+        gon
+        aria-label={`Sửa ${truong} ${ma}`}
+        value={gt ? hanVeIso(gt) : null}
+        hienGon={() => hien(gt)}
+        // Hạn đã qua vẫn đặt được (việc trễ, ghi lại hạn cũ) — không chặn ngày trước hôm nay.
+        tuNgay="0001-01-01"
+        choXoa={!!onXoa}
+        onValueChange={(v) => {
+          if (v === null) return void onXoa?.()
+          if (laChiNgay(v) || coMui) return luu(v)
+          const { ngay, gio } = tachIso(v)
+          luu(gio ? `${ngay}${sep}${gio}` : ngay)
+        }}
+      />
     </NeoO>
   )
 }

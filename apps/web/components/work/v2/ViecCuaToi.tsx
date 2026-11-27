@@ -297,6 +297,7 @@ export function ViecCuaToi({
                     dong={dong}
                     c={c}
                     sap={sap}
+                    sapMacDinh={!cotUrl}
                     onSap={datSap}
                     o={o}
                     dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}

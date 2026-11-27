@@ -147,7 +147,8 @@ export const thSort = cn(
   // ảnh Figma 12 + 8). w-[100%+16]: <button> không tự giãn như div.
   'flex w-[calc(100%+--spacing(4))] min-w-0 items-center gap-1 h-(--control-size-lg) -mx-2 my-0 px-2 py-0 rounded-none bg-transparent',
   'font-[inherit] text-inherit whitespace-nowrap cursor-[inherit] [outline:none]',
-  'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground data-on:font-medium',
+  // Đang sắp/lọc: chữ foreground, GIỮ 600 của khuôn F (không hạ 500 — lệch kiểu với cột khác).
+  'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground',
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
   '[&_svg]:size-3 [&_svg]:shrink-0',
   // `.b-th-an`: mũi tên mở menu ẩn, hiện 50% khi rê ô.

@@ -331,6 +331,7 @@ export function BangTeam({
         dong={dong}
         c={c}
         sap={sap}
+        sapMacDinh={!cotUrl}
         onSap={datSap}
         moLoc={(cot) => (LOC_COT[cot] ? moLocCot(LOC_COT[cot], dk, truongLoc, moLocTruong) : undefined)}
         o={o}
