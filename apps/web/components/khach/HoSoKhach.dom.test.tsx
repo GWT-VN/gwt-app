@@ -206,3 +206,13 @@ test('máy chờ serial: đầu thẻ tên + nhãn "Chờ serial" (không hiện
   expect(bang.textContent!.match(/Chờ serial/g)).toHaveLength(1)
   sp.v = 'tab=ticket&ticket=T1'
 })
+
+test('Sản phẩm đã mua: ô serial cắt "…" (truncate) + title = serial đầy đủ, cả mã tạm của máy chờ serial', () => {
+  sp.v = 'tab=thong-tin'
+  const dai = 'F00000214AW1N00040039'
+  const { container } = mo({ may: [{ ...MAY[0], serial: dai }, { ...MAY[1], serial: 'TAM202611001', cho_serial: true }] })
+  const o = [...container.querySelectorAll('[data-module="may"] [data-cot="serial"] [title]')]
+  expect(o.map((x) => x.getAttribute('title'))).toEqual([dai, 'TAM202611001'])
+  for (const x of o) expect(x.className).toContain('truncate')
+  sp.v = 'tab=ticket&ticket=T1'
+})

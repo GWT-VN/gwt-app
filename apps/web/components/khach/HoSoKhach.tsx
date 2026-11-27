@@ -437,7 +437,7 @@ function KhoiMay({ may, demo }: { may: MayHoSo[]; demo: boolean }) {
                   )}
                   <span className="flex min-w-0 flex-col border-none border-current">
                     <span className="truncate">{m.product_name ?? 'Chưa rõ tên máy'}</span>
-                    {m.internal_code && <span className="text-[12px] leading-[18px] tabular-nums text-muted-foreground">{m.internal_code}</span>}
+                    {m.internal_code && <span className="truncate text-[12px] leading-[18px] tabular-nums text-muted-foreground">{m.internal_code}</span>}
                   </span>
                 </span>
               ),
@@ -452,10 +452,15 @@ function KhoiMay({ may, demo }: { may: MayHoSo[]; demo: boolean }) {
                   // Chờ serial: nhãn + mã tạm mờ dòng dưới (như mã nội bộ ở cột Sản phẩm).
                   <span className="flex min-w-0 flex-col items-start border-none border-current">
                     <ChoSerial />
-                    <span className="text-[12px] leading-[18px] tabular-nums text-muted-foreground">{m.serial}</span>
+                    <span title={m.serial} className="max-w-full truncate text-[12px] leading-[18px] tabular-nums text-muted-foreground">
+                      {m.serial}
+                    </span>
                   </span>
                 ) : (
-                  <span className="tabular-nums">{m.serial}</span>
+                  // Serial dài (vd F00000214AW1N00040039) cắt "…" trong ô 150px, rê chuột xem đủ.
+                  <span title={m.serial} className="min-w-0 truncate tabular-nums">
+                    {m.serial}
+                  </span>
                 ),
             },
             {
