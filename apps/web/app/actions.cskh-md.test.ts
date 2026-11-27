@@ -29,7 +29,7 @@ vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
 }))
 
 import { getTicket, machinesOfCustomer, searchTickets, ticketsOfSerial } from './actions'
-import { danhMucLoi, dongMayCuaTicket, suaDongMay, themDongMay, xacNhanHuongXuLy, xoaDongMay } from './ticket/loi-actions'
+import { danhMucLoi, doiMayTicket, dongMayCuaTicket, suaDongMay, themDongMay, xacNhanHuongXuLy, xoaDongMay } from './ticket/loi-actions'
 import { DONG_MAY_CHI_XEM_MD } from '@/lib/loi/dongMayTicket'
 import { suaLanLoi, themLanLoi, xoaLanLoi } from './ticket/lan-loi-actions'
 import { LAN_LOI_O_MD } from '@/lib/loi/lanLoi'
@@ -188,13 +188,15 @@ describe('dongMayCuaTicket (trang chi tiết) theo CSKH_NGUON', () => {
 
 describe('ghi dòng máy ST bị chặn khi CSKH_NGUON=md (id dòng là của MD)', () => {
   const ID = '11111111-1111-4111-8111-111111111111'
-  it('md: suaDongMay / themDongMay / xoaDongMay / xacNhanHuongXuLy → ok:false, không gọi DB', async () => {
+  it('md: suaDongMay / themDongMay / xoaDongMay / xacNhanHuongXuLy / doiMayTicket → ok:false, không gọi DB', async () => {
     vi.stubEnv('CSKH_NGUON', 'md')
     for (const r of [
       await suaDongMay(ID, { loi_code: 'E3' }),
       await themDongMay('TK-1', { loi_code: 'E3' }),
       await xoaDongMay(ID),
       await xacNhanHuongXuLy(ID, 'thay van', false),
+      // Ô Máy danh sách F — ghi tickets.serial + ticket_may ở ST trong khi danh sách đọc MD (review cuối đợt 1).
+      await doiMayTicket('TK-2611-001', 'S2'),
     ]) expect(r).toEqual({ ok: false, error: DONG_MAY_CHI_XEM_MD })
     expect(goi).toEqual([])
   })

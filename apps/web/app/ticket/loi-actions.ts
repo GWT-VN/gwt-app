@@ -402,6 +402,8 @@ export async function mayCuaCacKhach(ids: string[]): Promise<Record<string, MayK
 export async function doiMayTicket(code: string, serial: string): Promise<KQ<{ loiVeChuaPhanLoai: boolean }>> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  // md: danh sách đọc máy từ MD, hàm này ghi ST → chặn tới đợt 2 (ghi máy/ticket sang MD).
+  if (cskhNguon() === 'md') return { ok: false, error: DONG_MAY_CHI_XEM_MD }
   if (!maTicketHopLe(code)) return { ok: false, error: 'Mã ticket không hợp lệ.' }
   const sr = typeof serial === 'string' ? serial.trim() : ''
   if (!sr || sr.length > GIOI_HAN.serialRaw) return { ok: false, error: 'Serial không hợp lệ.' }
