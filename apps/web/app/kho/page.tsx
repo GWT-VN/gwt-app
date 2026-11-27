@@ -78,11 +78,11 @@ export default async function KhoTonPage({ searchParams }: { searchParams: Promi
           tabCoDinh={TAB_TON}
           tabRieng={tabRieng}
           quyenTabChung={quyen.viewChung}
-          demTab={{ 'tat-ca': tom.soMa, 'sap-het': tom.sapHet, am: tom.am }}
           viDuTen="VD: Lõi lọc sắp hết"
           khu="Kho"
           timKiem="Tìm mã / tên hàng…"
           truong={TRUONG_TON.map((x) => ({ ...x, tuyChon: x.id === 'dm' ? danhMuc : CANH_BAO }))}
+          locCot={{ danh_muc: 'dm', canh_bao: 'cb' }}
           cot={COT}
           dienThoai={{ tren: 'ten', duoi: 'ma', duoiPhai: 'ton' }}
           tong={loc.length}

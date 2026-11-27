@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { expect, test, vi } from 'vitest'
 import type { DongNuoc } from '@/app/actions'
 import { KhungChon } from '@/bang'
@@ -29,15 +29,31 @@ test('Hồ sơ nước theo khuôn F: tìm + tab + Lọc; chip Tỉnh/Ngày đo 
   const toolbar = screen.getByRole('heading', { name: 'Hồ sơ chất lượng nước' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm lượt đo nước' })).toBeTruthy()
   expect(within(toolbar).getByRole('tablist', { name: 'Tab lượt đo' })).toBeTruthy()
-  const dangLoc = screen.getByRole('region', { name: 'Điều kiện đang áp dụng' })
-  expect(within(dangLoc).getByText(/Tỉnh\/TP/)).toBeTruthy()
-  expect(within(dangLoc).getByText(/Ngày đo/)).toBeTruthy()
-  expect(within(dangLoc).getByText('Lọc tên/tỉnh chỉ áp dụng trong trang đang xem')).toBeTruthy()
+  // Khuôn F 27/11: không còn hàng chip — điều kiện hiện ở NHÃN CỘT (chip "TÊN: GIÁ TRỊ"), nút "Xoá bộ lọc" ở thanh công cụ.
+  expect(screen.queryByRole('region', { name: 'Điều kiện đang áp dụng' })).toBeNull()
   const table = screen.getByRole('table', { name: 'Hồ sơ chất lượng nước' })
+  expect(within(table).getByRole('columnheader', { name: /Tỉnh\/TP: Hà Nội/ })).toBeTruthy()
+  expect(within(table).getByRole('columnheader', { name: /Ngày đo: .*đang lọc/ })).toBeTruthy()
+  expect(within(toolbar).getByRole('button', { name: 'Xoá bộ lọc' })).toBeTruthy()
+  expect(screen.getByText('Lọc tên/tỉnh chỉ áp dụng trong trang đang xem')).toBeTruthy()
+  expect(screen.getByText('1–5 trên 5 lượt đo')).toBeTruthy()
   expect(within(table).getByRole('link', { name: 'Khách mẫu' }).getAttribute('href')).toBe('/khach/k1')
   expect(within(table).getByText(/TDS 300→10/)).toBeTruthy()
   // Tab cố định duy nhất "Tất cả" đang chọn; bộ lọc đang áp khác tab → bấm "+" lưu thành tab mới.
   expect(screen.getByRole('tab', { name: /Tất cả/ }).getAttribute('aria-selected')).toBe('true')
   expect(within(toolbar).getByRole('button', { name: 'Thêm tab' })).toBeTruthy()
   expect(within(toolbar).getByRole('button', { name: /Lọc/ })).toBeTruthy()
+})
+
+test('"Xoá bộ lọc" gỡ mọi điều kiện trường khỏi URL; trường có cột ẩn / bảng rỗng → chip cạnh nút Xoá', () => {
+  render(
+    <DsRoot><CauHinhBangDs><KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{}}>
+      <BangNuoc rows={[]} tong={0} trang={1} soTrang={1} dsTinh={['Hà Nội']} tabRieng={[]} quyenTabChung={false} locTrongTrang={false} />
+    </KhungChon></CauHinhBangDs></DsRoot>,
+  )
+  const toolbar = screen.getByRole('heading', { name: 'Hồ sơ chất lượng nước' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
+  // Bảng rỗng → không có nhãn cột để mang chip: điều kiện hiện thành chip trong thanh công cụ.
+  expect(within(toolbar).getAllByText(/Hà Nội/).length).toBeGreaterThan(0)
+  fireEvent.click(within(toolbar).getByRole('button', { name: 'Xoá bộ lọc' }))
+  expect(push).toHaveBeenLastCalledWith('/nuoc', { scroll: false })
 })

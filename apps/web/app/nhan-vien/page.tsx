@@ -61,12 +61,6 @@ export default async function NhanVienPage({ searchParams }: { searchParams: Pro
               choMatKhau={choMatKhau}
               tabRieng={tabRieng}
               quyenTabChung={quyen.viewChung}
-              demTab={{
-                'tat-ca': tatCa.length,
-                'hoat-dong': tatCa.filter((n) => n.hoat_dong).length,
-                khoa: tatCa.filter((n) => !n.hoat_dong).length,
-                'chua-vai-tro': tatCa.filter((n) => !n.vai_tro.length).length,
-              }}
               nutChinh={<Button asChild variant="outline"><Link href="/nhan-vien/phan-quyen">Phân quyền theo vai trò</Link></Button>}
               ghiChu={
                 <>

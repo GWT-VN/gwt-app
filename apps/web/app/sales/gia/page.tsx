@@ -47,7 +47,6 @@ export default async function BangGiaPage({ searchParams }: { searchParams: Prom
                 sapXep={sapXep}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{ 'tat-ca': tatCa.length }}
                 lienKet={
                   <>
                     <Button variant="outline" asChild>

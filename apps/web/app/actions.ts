@@ -163,14 +163,6 @@ export async function machineModels(): Promise<{ internal_code: string; product_
     .sort((a, b) => (a.product_name ?? a.internal_code).localeCompare(b.product_name ?? b.internal_code, 'vi'))
 }
 
-/** Tổng máy đã lắp (không lọc) — số đếm tab "Tất cả" ở `/`. */
-export async function demMayTatCa(): Promise<number> {
-  await requireStaff()
-  await doQuyen('cs.may.xem')
-  const { count } = await dataClient().from('v_installed_base').select('serial', { count: 'exact', head: true })
-  return count ?? 0
-}
-
 export async function getMachine(serial: string): Promise<Machine | null> {
   await requireStaff()
   await doQuyen('cs.may.xem')
@@ -1060,23 +1052,6 @@ export async function coreForecast(
     soTrang: Math.max(1, Math.ceil(tong / moi)),
     sapXep: sx,
   }
-}
-
-export async function coreCounts() {
-  await requireStaff()
-  await doQuyen('cs.may.thay_loi')
-  const db = dataClient()
-  // 'tat-ca' = không lọc (số đếm tab "Tất cả" ở /loi).
-  const keys = ['QUÁ HẠN', 'sắp đến hạn (≤30 ngày)', 'còn hạn', 'tat-ca']
-  const out: Record<string, number> = {}
-  await Promise.all(
-    keys.map(async (k) => {
-      const q = db.from('v_core_forecast').select('*', { count: 'exact', head: true })
-      const { count } = await (k === 'tat-ca' ? q : q.eq('tinh_trang', k))
-      out[k] = count ?? 0
-    })
-  )
-  return out
 }
 
 // ── Lịch bảo trì đến hạn (v_maintenance_due) ────────────────────────────────
@@ -4079,23 +4054,6 @@ export async function bhChoKichHoat(q = '', nguon?: string, limit = 500): Promis
   return (data ?? []) as BHChoKichHoat[]
 }
 
-/** Đếm theo nguồn — cho nhãn tab, khỏi tải cả danh sách. */
-export async function bhChoKichHoatDem(): Promise<{ da_lap: number; don_sales: number }> {
-  await requireStaff()
-  await doQuyen('cs.may.kich_hoat_bh')
-  const db = dataClient()
-  const dem = async (nguon: string) => {
-    const { count, error } = await db.from('v_bh_cho_kich_hoat')
-      .select('nguon', { count: 'exact', head: true }).eq('nguon', nguon)
-    if (error) throw new Error(error.message)
-    return count ?? 0
-  }
-  const [da_lap, don_sales] = await Promise.all([
-    dem('da_lap_chua_kich_hoat'), dem('don_sales_chua_gan_may'),
-  ])
-  return { da_lap, don_sales }
-}
-
 /**
  * Kích hoạt ngay từ hàng chờ: khách đã biết sẵn từ đơn/máy đã lắp, CSKH chỉ
  * điền thêm serial (dòng đơn sales) hoặc không phải điền gì (dòng đã lắp).
@@ -5322,16 +5280,6 @@ export async function listNhatKyThaoTac(
   return { rows: (data ?? []) as AuditRow[], tong, soTrang: Math.max(1, Math.ceil(tong / AUDIT_MOI_TRANG)) }
 }
 
-/** Số đếm hàng tab /audit (count head): tất cả · lỗi. */
-export async function demNhatKyThaoTac(): Promise<{ tatCa: number; loi: number }> {
-  await requireStaff()
-  if (!(await coQuyen('he_thong.nhat_ky', 'ADMIN'))) throw new Error(KHONG_DU_QUYEN)
-  const dem = () => dataClient().from('audit_log').select('id', { count: 'exact', head: true })
-  const [a, b] = await Promise.all([dem(), dem().eq('ket_qua', 'loi')])
-  if (a.error || b.error) throw new Error((a.error ?? b.error)!.message)
-  return { tatCa: a.count ?? 0, loi: b.count ?? 0 }
-}
-
 // ── Nối máy đã lắp với ĐƠN CỦA ĐẠI LÝ (CEO dump 22/08/2026) ────────────────
 /**
  * Một đối tác bán hàng: đại lý, KTS, hoặc KOL.
@@ -5465,15 +5413,6 @@ export async function daiLyCuaMay(serial: string): Promise<{
 }
 
 /** Đếm khách CẦN XIN LẠI SĐT — để chip lọc hiện số ngay, CS thấy mà làm. */
-/** Đếm khách có kênh do MÁY điền (mig 54) — chip soát lại ở `/khach-hang`. */
-export async function demKhachKenhTuDong(): Promise<number> {
-  await requireStaff()
-  await doQuyen('cs.khach.xem')
-  const { count } = await dataClient()
-    .from('cs_customers').select('id', { count: 'exact', head: true })
-    .neq('trang_thai', 'da_xoa').eq('channel_tu_dong', true)
-  return count ?? 0
-}
 
 /** Giá trị đang có trong dữ liệu cho Lọc ▸ Tỉnh/TP, Nguồn (danh sách không co theo chính bộ lọc đang bật). */
 export async function tuyChonKhach(): Promise<Record<string, string[]>> {
@@ -5487,25 +5426,6 @@ export async function tuyChonKhach(): Promise<Record<string, string[]>> {
   const khac = (vs: (string | null)[]) => [...new Set(vs.filter((v): v is string => !!v?.trim()))].sort((a, b) => a.localeCompare(b, 'vi'))
   return { tinh: khac(rows.map((r) => r.province)), nguon: khac(rows.map((r) => r.source)) }
 }
-
-/** Tổng khách (không lọc) — số đếm tab "Tất cả". */
-export async function demKhachTatCa(): Promise<number> {
-  await requireStaff()
-  await doQuyen('cs.khach.xem')
-  const { count } = await dataClient().from('cs_customers').select('id', { count: 'exact', head: true }).neq('trang_thai', 'da_xoa')
-  return count ?? 0
-}
-
-export async function demKhachThieuSdt(): Promise<number> {
-  await requireStaff()
-  await doQuyen('cs.khach.xem')
-  const { count } = await dataClient()
-    .from('cs_customers').select('id', { count: 'exact', head: true })
-    .neq('trang_thai', 'da_xoa')
-    .or('primary_phone.is.null,needs_phone.is.true')
-  return count ?? 0
-}
-
 
 // ── Hồ sơ chất lượng nước ───────────────────────────────────────────────────
 /**
@@ -5668,21 +5588,11 @@ export type DongSoatKenh = {
 
 export async function soatKenhKhach(
   nhom: NhomKenh, q = '', trang = 1
-): Promise<KetQuaTrang<DongSoatKenh> & { dem: Record<NhomKenh, number> }> {
+): Promise<KetQuaTrang<DongSoatKenh>> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
   const db = dataClient()
   const moi = MOI_TRANG
-
-  const dem = async (n: NhomKenh) => {
-    let t = db.from('cs_customers').select('id', { count: 'exact', head: true }).neq('trang_thai', 'da_xoa')
-    t = n === 'trong' ? t.is('channel_id', null)
-      : n === 'may'   ? t.not('channel_id', 'is', null).is('channel_tu_dong', true)
-                      : t.not('channel_id', 'is', null).not('channel_tu_dong', 'is', true)
-    const { count } = await t
-    return count ?? 0
-  }
-  const [dMay, dNguoi, dTrong] = await Promise.all([dem('may'), dem('nguoi'), dem('trong')])
 
   let truyVan = db.from('cs_customers')
     .select('id, full_name, primary_phone, ma_kh, province, channel_id, channel_tu_dong', { count: 'exact' })
@@ -5729,6 +5639,5 @@ export async function soatKenhKhach(
     })),
     tong, trang, soTrang: Math.max(1, Math.ceil(tong / moi)),
     sapXep: { cot: 'full_name', tang: true, macDinh: true },
-    dem: { may: dMay, nguoi: dNguoi, trong: dTrong },
-  }
+      }
 }

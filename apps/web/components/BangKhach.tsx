@@ -3,12 +3,14 @@
 import { useRef, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ArrowSquareOut, Copy, LinkSimple } from '@phosphor-icons/react/ssr'
 import type { TabView } from '@/app/actions'
 import { TAB_KHACH, TRUONG_KHACH } from '@/app/khach-hang/truong-khach'
-import { hrefBoLoc, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDangLoc, useDaChon, type SapXep } from '@/bang'
+import { OChonDong, OChonTatCa, OTimKiem, PhanTrang, useDaChon, type SapXep } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { useHangTab } from '@/components/HangTab'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -36,6 +38,32 @@ const COT: (CotBang & { id: Exclude<keyof Khach, 'id'> })[] = [
   { id: 'notes', ten: 'Ghi chú', kieu: 'thuong', anMacDinh: true, rongToiDa: 320 },
 ]
 const THEO_ID = new Map(COT.map((cot) => [String(cot.id), cot]))
+/** Cột bảng → trường lọc (TRUONG_KHACH): bấm tiêu đề cột mở thẳng pop lọc của trường đó (khuôn F). */
+const LOC_COT: Record<string, string> = { province: 'tinh', source: 'nguon' }
+
+/** Menu chuột phải một khách (bảng + ListView): mở chi tiết, sao chép mã, sao chép đường dẫn. */
+function MenuKhach({ k, mo }: { k: Khach; mo: (k: Khach) => void }) {
+  const ma = k.ma_kh ?? k.customer_code
+  return (
+    <>
+      <ContextMenuItem onSelect={() => mo(k)}>
+        <ArrowSquareOut aria-hidden="true" />
+        Mở chi tiết
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      {ma && (
+        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(ma)}>
+          <Copy aria-hidden="true" />
+          Sao chép mã khách
+        </ContextMenuItem>
+      )}
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(`${location.origin}/khach/${k.id}`)}>
+        <LinkSimple aria-hidden="true" />
+        Sao chép đường dẫn
+      </ContextMenuItem>
+    </>
+  )
+}
 
 /** Màn hẹp (< 640): ListView 1–2 dòng như Ticket F. */
 const COT_DS: CotDanhSach<Khach>[] = [
@@ -56,7 +84,7 @@ const COT_DS: CotDanhSach<Khach>[] = [
 
 /** Danh sách khách CSKH — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). */
 export function BangKhach({
-  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, demTab, tuyChonLoc,
+  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, tuyChonLoc,
   taoKhach, xuatExcel, thanhDaChon,
 }: {
   rows: Khach[]
@@ -67,7 +95,6 @@ export function BangKhach({
   choChon: boolean
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   /** Giá trị có trong dữ liệu cho Lọc ▸ trường (`tinh`, `nguon`). */
   tuyChonLoc: Record<string, string[]>
   taoKhach: ReactNode
@@ -85,7 +112,7 @@ export function BangKhach({
   const [khungRef, rongKhung] = useRongKhung()
 
   const q = params.get('q')
-  // Hai cờ soát dữ liệu (tab "Cần xin SĐT" / "Kênh cần soát" đặt) hiện thành chip gỡ được như điều kiện lọc.
+  // Hai cờ soát dữ liệu = điều kiện của tab cố định "Cần xin SĐT" / "Kênh cần soát" — tab đang chọn đã nói, không chip (khuôn F).
   const co = [
     { id: 'thieu_sdt', nhan: 'SĐT', giaTri: 'Cần xin lại' },
     { id: 'kenh_tu_dong', nhan: 'Kênh', giaTri: 'Máy tự điền' },
@@ -98,7 +125,7 @@ export function BangKhach({
     kieu: x.kieu,
     tuyChon: (tuyChonLoc[x.id] ?? []).map((g) => ({ giaTri: g, nhan: g })),
   }))
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
   const dieuKienTat = [
     ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
     ...co.map(({ nhan, giaTri }) => ({ nhan, giaTri })),
@@ -108,12 +135,11 @@ export function BangKhach({
       return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
     }),
   ]
-  const hrefXoaLoc = hrefBoLoc(pathname, params, 'q', 'thieu_sdt', 'kenh_tu_dong', ...TRUONG_KHACH.map((x) => x.id), 'cot', 'chieu')
+  const dangLoc = dieuKienTat.length > 0
   const hangTab = useHangTab({
     bang: 'khach_tab',
     coDinh: TAB_KHACH,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan: 'khách',
     khu: 'CSKH',
@@ -137,14 +163,8 @@ export function BangKhach({
   }
 
   const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, TRUONG_KHACH.find((x) => x.id === id)!.kieu) })
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...co.map(({ id, nhan, giaTri }) => ({ nhan, giaTri, href: hrefBoLoc(pathname, params, id) })),
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  const moKhach = (k: Khach) => router.push(`/khach/${k.id}`)
+  const laBang = rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU
 
   return (
     <>
@@ -160,7 +180,15 @@ export function BangKhach({
         loc={
           <>
             {xuatExcel}
-            <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
+            {/* "Xoá bộ lọc" xoá điều kiện lọc trường (giữ tìm, tab, sắp, cột). */}
+            <NutLoc
+              ref={refNutLoc}
+              truong={truongLoc}
+              dieuKien={dk}
+              onDoi={datLoc}
+              onXoaHet={() => doiUrl(Object.fromEntries(TRUONG_KHACH.map((x) => [x.id, null])))}
+              coCot={(id) => laBang && rows.length > 0 && cotBang.hien.some((c) => LOC_COT[c.id] === id)}
+            />
           </>
         }
         caiDat={
@@ -176,20 +204,19 @@ export function BangKhach({
           />
         }
       />
-      <ThanhDangLoc
-        dieuKien={dieuKien}
-        hienThi={rows.length}
-        tong={tong}
-        nhan="khách"
-        anSoDong
-        sapXep={sapXep.macDinh ? undefined : sapXep}
-        hrefXoaLoc={hrefXoaLoc}
-      />
       {/* Khung < 640 (điện thoại) → ListView; còn lại Bảng, hết chỗ thì cuộn ngang (khuôn Ticket F). */}
       <div ref={khungRef} className="border-none border-current">
-      {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
+      {!laBang ? (
         rows.length > 0 && (
-          <ListView aria-label="Khách hàng" cot={COT_DS} dong={rows} khoa={(k) => k.id} onMo={(k) => router.push(`/khach/${k.id}`)} moKhi="ten" />
+          <ListView
+            aria-label="Khách hàng"
+            cot={COT_DS}
+            dong={rows}
+            khoa={(k) => k.id}
+            onMo={moKhach}
+            moKhi="ten"
+            menuDong={(k) => <MenuKhach k={k} mo={moKhach} />}
+          />
         )
       ) : (
       <TableWrap tabIndex={0} role="region" aria-label="Vùng cuộn bảng khách hàng">
@@ -217,6 +244,7 @@ export function BangKhach({
                       macDinh: sapXep.macDinh,
                       onDoi: (chieu) => doiSapXep(chieu ? { cot: cot.id, tang: chieu === 'tang' } : null),
                     } : undefined}
+                    moLoc={LOC_COT[cot.id] ? moLocCot(LOC_COT[cot.id], dk, truongLoc, moLocTruong) : undefined}
                   />
                 ))}
                 <ThemCot cot={COT} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -224,7 +252,12 @@ export function BangKhach({
             </TableHeader>
             <TableBody>
               {rows.map((khach) => (
-                <TableRow key={khach.id} chon={khoaDaChon.has(khach.id)}>
+                <TableRow
+                  key={khach.id}
+                  chon={khoaDaChon.has(khach.id)}
+                  menu={<MenuKhach k={khach} mo={moKhach} />}
+                  tenMenu={`Thao tác ${khach.full_name}`}
+                >
                   <OChonDong khoa={khach.id} moTa={`khách ${khach.full_name}`} />
                   {cotBang.hien.map((cot, i) => {
                     const giaTri = khach[THEO_ID.get(cot.id)!.id]
@@ -253,12 +286,13 @@ export function BangKhach({
       {!rows.length && (
         <EmptyState
           size="sm"
-          kieu={dieuKien.length ? 'loc' : 'that'}
-          tieuDe={dieuKien.length ? 'Không tìm thấy khách nào' : 'Chưa có khách hàng'}
-          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Tạo khách hàng để bắt đầu theo dõi liên hệ và máy đã lắp.'}
+          kieu={dangLoc ? 'loc' : 'that'}
+          tieuDe={dangLoc ? 'Không tìm thấy khách nào' : 'Chưa có khách hàng'}
+          moTa={dangLoc ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Tạo khách hàng để bắt đầu theo dõi liên hệ và máy đã lắp.'}
         />
       )}
-      <PhanTrang trang={trang} soTrang={soTrang} />
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F): tổng khách khớp lọc. */}
+      <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="khách" />
       {thanhDaChon}
     </>
   )

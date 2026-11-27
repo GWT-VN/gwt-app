@@ -2,15 +2,17 @@
 
 import { useRef, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Copy, Phone, User } from '@phosphor-icons/react/ssr'
 import type { MaintenanceDue, TabView } from '@/app/actions'
-import { KHOA_LOC_BAO_TRI, SAP, TAB_BAO_TRI, TRUONG_BAO_TRI, TT_BAO_TRI } from '@/app/bao-tri/truong-bao-tri'
-import { hrefBoLoc, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDangLoc, useDaChon, type SapXep } from '@/bang'
+import { SAP, TAB_BAO_TRI, TRUONG_BAO_TRI, TT_BAO_TRI } from '@/app/bao-tri/truong-bao-tri'
+import { OChonDong, OChonTatCa, OTimKiem, PhanTrang, useDaChon, type SapXep } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { BaoTriDoneButton } from '@/components/BaoTriDoneButton'
 import { ChiSoNuoc } from '@/components/ChiSoNuoc'
 import { useHangTab } from '@/components/HangTab'
 import { Badge } from '@/components/ui/badge'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -44,6 +46,36 @@ const COT: CotBang[] = [
   { id: 'ghi', ten: 'Ghi', kieu: 'thuong' },
 ]
 const THEO_ID = new Map(COT.map((cot) => [cot.id, cot]))
+/** Cột bảng → trường lọc (TRUONG_BAO_TRI): bấm tiêu đề mở thẳng pop lọc (khuôn F; pop có chân "Định dạng ngày" cho cột
+ *  ngày). */
+const LOC_COT: Record<string, string> = { tinh_trang: 'tt', due_date: 'han' }
+
+const chep = (s: string) => void navigator.clipboard?.writeText(s)
+/** Menu chuột phải một lượt bảo trì. Lượt KHÔNG có trang chi tiết (và chưa có mã khách để mở hồ sơ) → không "Mở chi
+ *  tiết" / "Sao chép đường dẫn"; chỉ sao chép mã lượt + tên + SĐT để gọi khách. */
+function MenuBaoTri({ r }: { r: MaintenanceDue }) {
+  const ten = r.customer_name ?? r.section
+  return (
+    <>
+      <ContextMenuItem onSelect={() => chep(r.visit_id)}>
+        <Copy aria-hidden="true" />
+        Sao chép mã lượt
+      </ContextMenuItem>
+      {ten && (
+        <ContextMenuItem onSelect={() => chep(ten)}>
+          <User aria-hidden="true" />
+          Sao chép tên khách
+        </ContextMenuItem>
+      )}
+      {r.primary_phone && (
+        <ContextMenuItem onSelect={() => chep(r.primary_phone!)}>
+          <Phone aria-hidden="true" />
+          Sao chép SĐT
+        </ContextMenuItem>
+      )}
+    </>
+  )
+}
 
 const O: Record<string, (r: MaintenanceDue, kieuNgay: KieuNgay) => { o: ReactNode; title?: string }> = {
   // Dòng "chưa khớp khách" = lịch từ Asana chưa gắn được vào hồ sơ khách (tên công trình ở cột Công trình).
@@ -79,7 +111,7 @@ const COT_DS: CotDanhSach<MaintenanceDue>[] = [
 
 /** Lịch bảo trì `/bao-tri` — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). */
 export function BangBaoTri({
-  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, demTab, lich, canhBao, xuatExcel, thanhDaChon,
+  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, lich, canhBao, xuatExcel, thanhDaChon,
 }: {
   rows: MaintenanceDue[]
   tong: number
@@ -89,7 +121,6 @@ export function BangBaoTri({
   choChon: boolean
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   /** Tab "Lịch tháng": vẽ lịch thay bảng (không lọc / cột / chọn dòng — lịch chỉ theo tháng). */
   lich?: ReactNode
   /** Lời nhắc đứng ngay trên bảng. */
@@ -112,7 +143,7 @@ export function BangBaoTri({
   const dk = docTatCa(params, TRUONG_BAO_TRI)
   const truongLoc: TruongLoc[] = TRUONG_BAO_TRI.map((x) => ({ id: x.id, ten: x.ten, kieu: x.kieu, tuyChon: x.id === 'tt' ? TT_BAO_TRI : undefined }))
   const tenGiaTri = (g: string) => TT_BAO_TRI.find((y) => y.giaTri === g)?.nhan ?? g
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
   const dieuKienTat = [
     ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
     ...dk.map((d) => {
@@ -120,12 +151,11 @@ export function BangBaoTri({
       return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
     }),
   ]
-  const hrefXoaLoc = hrefBoLoc(pathname, params, ...KHOA_LOC_BAO_TRI)
+  const dangLoc = dieuKienTat.length > 0
   const hangTab = useHangTab({
     bang: 'bao_tri_tab',
     coDinh: TAB_BAO_TRI,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan: 'lượt bảo trì',
     khu: 'CSKH',
@@ -149,13 +179,7 @@ export function BangBaoTri({
   }
 
   const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, TRUONG_BAO_TRI.find((x) => x.id === id)!.kieu) })
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  const laBang = rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU
 
   const toolbar = (
     <DataViewToolbar
@@ -167,7 +191,15 @@ export function BangBaoTri({
         lich ? undefined : (
           <>
             {xuatExcel}
-            <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
+            {/* "Xoá bộ lọc" xoá điều kiện lọc trường (giữ tìm, sắp, cột). */}
+            <NutLoc
+              ref={refNutLoc}
+              truong={truongLoc}
+              dieuKien={dk}
+              onDoi={datLoc}
+              onXoaHet={() => doiUrl(Object.fromEntries(TRUONG_BAO_TRI.map((x) => [x.id, null])))}
+              coCot={(id) => laBang && rows.length > 0 && cotBang.hien.some((c) => LOC_COT[c.id] === id)}
+            />
           </>
         )
       }
@@ -201,21 +233,22 @@ export function BangBaoTri({
       {/* Đầu + thanh lọc + bảng là MỘT khối (Ticket F: bảng sát thanh công cụ). */}
       <div className="border-none border-current">
       {toolbar}
-      <ThanhDangLoc
-        dieuKien={dieuKien}
-        hienThi={rows.length}
-        tong={tong}
-        nhan="lượt"
-        anSoDong
-        sapXep={sapXep.macDinh ? undefined : sapXep}
-        hrefXoaLoc={hrefXoaLoc}
-      />
       {canhBao}
       {/* Khung < 640 (điện thoại) → ListView; còn lại Bảng, hết chỗ thì cuộn ngang (khuôn Ticket F). */}
       <div ref={khungRef} className="border-none border-current">
-      {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
+      {!laBang ? (
         // Lượt bảo trì không có trang chi tiết → không mở dòng (moKhi "ten", tên không phải nút).
-        rows.length > 0 && <ListView aria-label="Lịch bảo trì" cot={COT_DS} dong={rows} khoa={(r) => r.visit_id} onMo={() => {}} moKhi="ten" />
+        rows.length > 0 && (
+          <ListView
+            aria-label="Lịch bảo trì"
+            cot={COT_DS}
+            dong={rows}
+            khoa={(r) => r.visit_id}
+            onMo={() => {}}
+            moKhi="ten"
+            menuDong={(r) => <MenuBaoTri r={r} />}
+          />
+        )
       ) : (
       <TableWrap tabIndex={0} role="region" aria-label="Vùng cuộn bảng lịch bảo trì">
         <KeoCot cot={cotBang.hien} doiCho={cotBang.doiCho}>
@@ -243,6 +276,7 @@ export function BangBaoTri({
                       macDinh: sapXep.macDinh,
                       onDoi: (chieu) => doiSapXep(chieu ? { cot: cot.id, tang: chieu === 'tang' } : null),
                     } : undefined}
+                    moLoc={LOC_COT[cot.id] ? moLocCot(LOC_COT[cot.id], dk, truongLoc, moLocTruong) : undefined}
                   />
                 ))}
                 <ThemCot cot={COT} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -250,7 +284,12 @@ export function BangBaoTri({
             </TableHeader>
             <TableBody>
               {rows.map((r) => (
-                <TableRow key={r.visit_id} chon={khoaDaChon.has(r.visit_id)}>
+                <TableRow
+                  key={r.visit_id}
+                  chon={khoaDaChon.has(r.visit_id)}
+                  menu={<MenuBaoTri r={r} />}
+                  tenMenu={`Thao tác lượt bảo trì ${r.customer_name ?? r.section ?? ''}`.trim()}
+                >
                   <OChonDong khoa={r.visit_id} moTa={`lượt bảo trì của ${r.customer_name ?? r.section ?? 'khách chưa khớp'}`} />
                   {cotBang.hien.map((cot, i) => {
                     const { o, title } = O[cot.id](r, cotBang.kieuNgay(cot.id))
@@ -273,12 +312,13 @@ export function BangBaoTri({
       {!rows.length && (
         <EmptyState
           size="sm"
-          kieu={dieuKien.length ? 'loc' : 'that'}
-          tieuDe={dieuKien.length ? 'Không có lượt bảo trì nào khớp' : 'Chưa có lịch bảo trì'}
-          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Gói bảo trì theo hợp đồng sẽ sinh lịch ở đây.'}
+          kieu={dangLoc ? 'loc' : 'that'}
+          tieuDe={dangLoc ? 'Không có lượt bảo trì nào khớp' : 'Chưa có lịch bảo trì'}
+          moTa={dangLoc ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Gói bảo trì theo hợp đồng sẽ sinh lịch ở đây.'}
         />
       )}
-      <PhanTrang trang={trang} soTrang={soTrang} />
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F): tổng lượt khớp lọc. Tab Lịch tháng không có bảng → không đếm. */}
+      <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="lượt" />
       {thanhDaChon}
     </>
   )

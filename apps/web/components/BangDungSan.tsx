@@ -2,11 +2,13 @@
 
 import { useRef, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ArrowSquareOut, Copy, LinkSimple } from '@phosphor-icons/react/ssr'
 import type { TabView } from '@/app/actions'
-import { hrefBoLoc, KhungChon, OTimKiem, PhanTrang, ThanhDangLoc } from '@/bang'
+import { KhungChon, OTimKiem, PhanTrang } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { useHangTab, type TabCoDinh } from '@/components/HangTab'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -17,18 +19,22 @@ import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import type { BangTab } from '@/lib/tab-view'
 
-/** Một dòng: ô ĐÃ DỰNG ở server theo id cột (Server Component không truyền được hàm vẽ ô sang client). */
-export type DongDungSan = { khoa: string; o: Record<string, ReactNode>; href?: string }
+/**
+ * Một dòng: ô ĐÃ DỰNG ở server theo id cột (Server Component không truyền được hàm vẽ ô sang client). `href` = trang chi
+ * tiết (menu chuột phải: Mở chi tiết + Sao chép đường dẫn); `ma` = giá trị "Sao chép mã" (bỏ trống = `khoa`).
+ */
+export type DongDungSan = { khoa: string; o: Record<string, ReactNode>; href?: string; ma?: string }
 
 /**
- * Bảng danh sách CHỈ ĐỌC theo khuôn Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md) cho màn mà server đã có sẵn
- * dữ liệu + lọc (Kho đọc DB riêng qua RPC, Nhật ký thao tác): DataViewToolbar (tìm, tab, Lọc, ⚙) → ThanhDangLoc → Table ghim
- * + cột co dãn / ẩn / đổi chỗ (URL) → ListView khi khung < 640 → EmptyState → PhanTrang. Không sắp theo cột, không chọn
- * dòng (màn dùng nó chưa có hai thứ đó). Lọc chạy ở SERVER theo tham số URL; ở đây chỉ dựng nút Lọc + chip.
+ * Bảng danh sách CHỈ ĐỌC theo khuôn Ticket F bản chốt 27/11 (docs/rework/2026-11-27-khuon-f-huong-dan-agent.md) cho màn mà
+ * server đã có sẵn dữ liệu + lọc (Kho đọc DB riêng qua RPC, Nhật ký thao tác): DataViewToolbar (tìm, tab không số, Lọc +
+ * Xoá bộ lọc, ⚙) → Table ghim + cột co dãn / ẩn / đổi chỗ (URL), bộ lọc ở NHÃN CỘT, chuột phải dòng → menu → ListView khi
+ * khung < 640 → EmptyState → PhanTrang (bộ đếm duy nhất). Không sắp theo cột, không chọn dòng (màn dùng nó chưa có hai
+ * thứ đó). Lọc chạy ở SERVER theo tham số URL; ở đây chỉ dựng nút Lọc + chip.
  */
 export function BangDungSan({
-  tieuDe, nhan, bang, tabCoDinh, tabRieng, quyenTabChung, demTab, viDuTen, khu,
-  timKiem, truong, cot, dienThoai, dong, tong, trang, soTrang, nutChinh, rong, ghiChu,
+  tieuDe, nhan, bang, tabCoDinh, tabRieng, quyenTabChung, viDuTen, khu,
+  timKiem, truong, locCot, cot, dienThoai, dong, tong, trang = 1, soTrang = 1, moiTrang, nutChinh, rong, ghiChu,
 }: {
   tieuDe: string
   /** Danh từ bản ghi: "mã hàng", "dòng sổ"… */
@@ -37,19 +43,24 @@ export function BangDungSan({
   tabCoDinh: TabCoDinh[]
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab?: Record<string, number>
   viDuTen: string
   khu: string
   /** Placeholder ô tìm (`q`); bỏ trống = màn không có tìm. */
   timKiem?: string
   truong: TruongLoc[]
+  /** Cột bảng → trường lọc khi khác id (vd `ket_qua` → `kq`); cột trùng id với một trường tự nối. */
+  locCot?: Record<string, string>
   cot: CotBang[]
   /** Cột hiện trên điện thoại (ListView 2 dòng). */
   dienThoai: { tren: string; duoi?: string; duoiPhai?: string }
   dong: DongDungSan[]
+  /** Tổng bản ghi khớp lọc — bộ đếm của PhanTrang. */
   tong: number
+  /** Màn không phân trang: bỏ trống (= trang 1 / 1). */
   trang?: number
   soTrang?: number
+  /** Số dòng mỗi trang của nguồn (cho "1–100 trên N"); mặc định của PhanTrang (50). */
+  moiTrang?: number
   nutChinh?: ReactNode
   /** Câu rỗng riêng (vd lọc mà nguồn dữ liệu chưa làm được). */
   rong?: { tieuDe: string; moTa?: string }
@@ -63,17 +74,19 @@ export function BangDungSan({
   const { refBang } = cotBang
   const caiDat = useRef<CaiDatRef>(null)
   const [khungRef, rongKhung] = useRongKhung()
+  const laBang = rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU
   const theoId = new Map(cot.map((c) => [c.id, c]))
 
   const q = timKiem ? params.get('q') : null
   const dk = docTatCa(params, truong)
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const dangLoc = !!q || dk.length > 0
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
+  const truongCua = (cotId: string) => locCot?.[cotId] ?? (truong.some((x) => x.id === cotId) ? cotId : undefined)
   const tenGt = (t: TruongLoc) => (g: string) => t.tuyChon?.find((x) => x.giaTri === g)?.nhan ?? g
   const hangTab = useHangTab({
     bang,
     coDinh: tabCoDinh,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan,
     khu,
@@ -88,24 +101,48 @@ export function BangDungSan({
     ],
   })
 
+  function diTiep(tiep: URLSearchParams) {
+    tiep.delete('trang')
+    const s = tiep.toString()
+    router.push(s ? `${pathname}?${s}` : pathname, { scroll: false })
+  }
   function datLoc(id: string, d: DieuKienLoc | null) {
     const tiep = new URLSearchParams(params.toString())
     const gt = ghiDieuKien(d, truong.find((x) => x.id === id)!.kieu)
     if (gt == null) tiep.delete(id)
     else tiep.set(id, gt)
-    tiep.delete('trang')
-    const s = tiep.toString()
-    router.push(s ? `${pathname}?${s}` : pathname, { scroll: false })
+    diTiep(tiep)
+  }
+  // "Xoá bộ lọc": bỏ mọi điều kiện trường; giữ từ khoá (ô tìm có nút xoá riêng), cột, kho — như ticket F.
+  function xoaLoc() {
+    const tiep = new URLSearchParams(params.toString())
+    for (const x of truong) tiep.delete(x.id)
+    diTiep(tiep)
   }
 
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const t = truong.find((x) => x.id === d.truong)!
-      return { nhan: t.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={t} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
-  const hrefXoaLoc = hrefBoLoc(pathname, params, 'q', ...truong.map((x) => x.id))
+  const menuDong = (d: DongDungSan) => (
+    <>
+      {d.href && (
+        <>
+          <ContextMenuItem onSelect={() => router.push(d.href!)}>
+            <ArrowSquareOut aria-hidden="true" />
+            Mở chi tiết
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+        </>
+      )}
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(d.ma ?? d.khoa)}>
+        <Copy aria-hidden="true" />
+        Sao chép mã
+      </ContextMenuItem>
+      {d.href && (
+        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + d.href)}>
+          <LinkSimple aria-hidden="true" />
+          Sao chép đường dẫn
+        </ContextMenuItem>
+      )}
+    </>
+  )
 
   const cotDs: CotDanhSach<DongDungSan>[] = (['tren', 'duoi', 'duoiPhai'] as const).flatMap((vung) => {
     const c = dienThoai[vung] ? theoId.get(dienThoai[vung]!) : undefined
@@ -114,7 +151,7 @@ export function BangDungSan({
 
   return (
     <KhungChon khoaTrang={[]} tong={tong} bat={false} thamSo={{}}>
-      {/* Đầu + thanh lọc + bảng là MỘT khối (Ticket F: bảng sát thanh công cụ). */}
+      {/* Đầu + bảng là MỘT khối (Ticket F: bảng sát thanh công cụ). */}
       <div className="border-none border-current">
         <DataViewToolbar
           tieuDe={tieuDe}
@@ -122,7 +159,18 @@ export function BangDungSan({
           nutChinh={nutChinh}
           tabs={hangTab.tabs}
           dangXem="bang"
-          loc={truong.length ? <NutLoc ref={refNutLoc} truong={truong} dieuKien={dk} onDoi={datLoc} /> : undefined}
+          loc={
+            truong.length ? (
+              <NutLoc
+                ref={refNutLoc}
+                truong={truong}
+                dieuKien={dk}
+                onDoi={datLoc}
+                onXoaHet={xoaLoc}
+                coCot={(id) => laBang && dong.length > 0 && cotBang.hien.some((c) => truongCua(c.id) === id)}
+              />
+            ) : undefined
+          }
           caiDat={
             <CaiDatHienThi
               ref={caiDat}
@@ -134,9 +182,8 @@ export function BangDungSan({
             />
           }
         />
-        <ThanhDangLoc dieuKien={dieuKien} hienThi={dong.length} tong={tong} nhan={nhan} anSoDong hrefXoaLoc={hrefXoaLoc} />
         <div ref={khungRef} className="border-none border-current">
-          {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
+          {!laBang ? (
             dong.length > 0 && (
               <ListView
                 aria-label={tieuDe}
@@ -144,6 +191,7 @@ export function BangDungSan({
                 dong={dong}
                 khoa={(d) => d.khoa}
                 onMo={(d) => d.href && router.push(d.href)}
+                menuDong={menuDong}
               />
             )
           ) : (
@@ -153,22 +201,26 @@ export function BangDungSan({
                   <ColCotBang hien={cotBang.hien} doRong={cotBang.doRong} choDo={cotBang.choDo} chon={false} />
                   <TableHeader>
                     <TableRow>
-                      {cotBang.hien.map((c, i) => (
-                        <TieuDeCot
-                          key={c.id}
-                          cot={c}
-                          viTri={i}
-                          menuPhai={i === cotBang.hien.length - 1}
-                          menuCot={cotBang.menuCot(c.id)}
-                          coDan={{ rong: cotBang.doRong[c.id], onDoi: (px) => cotBang.coDan(c.id, px) }}
-                        />
-                      ))}
+                      {cotBang.hien.map((c, i) => {
+                        const t = truongCua(c.id)
+                        return (
+                          <TieuDeCot
+                            key={c.id}
+                            cot={c}
+                            viTri={i}
+                            menuPhai={i === cotBang.hien.length - 1}
+                            menuCot={cotBang.menuCot(c.id)}
+                            moLoc={t ? moLocCot(t, dk, truong, moLocTruong) : undefined}
+                            coDan={{ rong: cotBang.doRong[c.id], onDoi: (px) => cotBang.coDan(c.id, px) }}
+                          />
+                        )
+                      })}
                       <ThemCot cot={cot} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {dong.map((d) => (
-                      <TableRow key={d.khoa}>
+                      <TableRow key={d.khoa} menu={menuDong(d)} tenMenu={`Thao tác ${d.ma ?? d.khoa}`}>
                         {cotBang.hien.map((c, i) => (
                           <TableCell key={c.id} cot={c.id} phai={c.phai} ghim={laGhim(c, i)}>
                             {d.o[c.id]}
@@ -187,12 +239,13 @@ export function BangDungSan({
       {!dong.length && (
         <EmptyState
           size="sm"
-          kieu={rong || dieuKien.length ? 'loc' : 'that'}
-          tieuDe={rong?.tieuDe ?? (dieuKien.length ? `Không có ${nhan} nào khớp bộ lọc` : `Chưa có ${nhan} nào`)}
-          moTa={rong?.moTa ?? (dieuKien.length ? 'Đổi hoặc bỏ bớt điều kiện lọc để xem thêm.' : undefined)}
+          kieu={rong || dangLoc ? 'loc' : 'that'}
+          tieuDe={rong?.tieuDe ?? (dangLoc ? `Không có ${nhan} nào khớp bộ lọc` : `Chưa có ${nhan} nào`)}
+          moTa={rong?.moTa ?? (dangLoc ? 'Đổi hoặc bỏ bớt điều kiện lọc để xem thêm.' : undefined)}
         />
       )}
-      {soTrang != null && trang != null && <PhanTrang trang={trang} soTrang={soTrang} />}
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F 27/11 — không số trên tab / tiêu đề). */}
+      <PhanTrang trang={trang} soTrang={soTrang} tong={tong} moiTrang={moiTrang} nhan={nhan} />
       {ghiChu}
     </KhungChon>
   )

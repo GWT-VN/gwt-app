@@ -74,7 +74,7 @@ function cotLoi(choSua: boolean, x: ThaoTac): CotF<LoiDanhMuc>[] {
  * phụ ngay dưới dòng đang sửa (nên không đổi sang ListView trên điện thoại — bảng cuộn ngang).
  */
 export function DanhMucLoiBang({
-  rows, tong = rows.length, choSua, nhomTuyChon = [], tabRieng = [], quyenTabChung = false, demTab, nutChinh,
+  rows, tong = rows.length, choSua, nhomTuyChon = [], tabRieng = [], quyenTabChung = false, nutChinh,
 }: {
   rows: LoiDanhMuc[]
   tong?: number
@@ -82,7 +82,6 @@ export function DanhMucLoiBang({
   nhomTuyChon?: MucChon[]
   tabRieng?: TabView[]
   quyenTabChung?: boolean
-  demTab?: Record<string, number>
   nutChinh?: ReactNode
 }) {
   const router = useRouter()
@@ -121,12 +120,16 @@ export function DanhMucLoiBang({
       khoa={(d) => d.code}
       moTa={(d) => `mã lỗi ${d.code}`}
       cot={cot}
+      // Danh mục không có trang chi tiết từng mã — menu dòng chỉ có sao chép mã.
+      maDong={(d) => d.code}
+      tenMa="mã lỗi"
       tong={tong}
       tab={{
-        bang: 'danh_muc_loi_tab', coDinh: TAB_DANH_MUC_LOI, rieng: tabRieng, quyenChung: quyenTabChung, dem: demTab,
+        bang: 'danh_muc_loi_tab', coDinh: TAB_DANH_MUC_LOI, rieng: tabRieng, quyenChung: quyenTabChung,
         khu: 'CSKH', viDuTen: 'VD: Lỗi chờ duyệt máy RO',
       }}
       truong={TRUONG_DANH_MUC_LOI}
+      locCot={{ trang_thai: 'tt' }}
       tuyChonLoc={{ tt: TT_LOI }}
       nutChinh={nutChinh}
       lopDong={(d) => (d.code === CHUA_PHAN_LOAI ? 'bg-muted' : undefined)}

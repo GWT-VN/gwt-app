@@ -44,7 +44,6 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
     docTatCa(sp, TRUONG_DANH_MUC_LOI),
     TRUONG_DANH_MUC_LOI.map((x) => ({ id: x.id, kieu: x.kieu, lay: LAY[x.id] })),
   )
-  const dem = (tt: string) => tatCa.filter((d) => d.trang_thai === tt).length
   const nutChinh = <Button asChild variant="outline"><Link href="/bao-cao-loi">Báo cáo lỗi</Link></Button>
 
   return (
@@ -78,7 +77,6 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
                     nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))}
                     tabRieng={tabRieng}
                     quyenTabChung={quyen.viewChung}
-                    demTab={{ 'tat-ca': tatCa.length, cho_duyet: dem('cho_duyet'), da_duyet: dem('da_duyet'), ngung: dem('ngung') }}
                     nutChinh={nutChinh}
                   />
                 </Suspense>

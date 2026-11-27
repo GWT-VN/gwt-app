@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { bhChoKichHoat, bhChoKichHoatDem, listTabView } from '@/app/actions'
+import { bhChoKichHoat, listTabView } from '@/app/actions'
 import { BHChoKichHoatList, BangBHChoSerial } from '@/components/BHChoKichHoatList'
 import { dsMayChoSerial } from '@/app/may/chua-serial-actions'
 import { docAnToan } from '@/lib/loi/anToan'
@@ -23,10 +23,11 @@ export default async function BHChoKichHoatPage({
 }) {
   const { q = '', nguon = '' } = await searchParams
   const choSerialTab = nguon === 'cho_serial'
-  const [rows, dem, { data: choSerial }, tabRieng, quyen] = await Promise.all([
+  // Khuôn F 27/11: tab không số đếm → bỏ lượt đếm bhChoKichHoatDem và chỉ tải máy chờ serial ở đúng tab của nó (trước
+  // tải ở mọi tab để đếm) — tiết kiệm egress; bộ đếm là PhanTrang dưới bảng.
+  const [rows, { data: choSerial }, tabRieng, quyen] = await Promise.all([
     choSerialTab ? Promise.resolve([]) : bhChoKichHoat(q, nguon || undefined, GIOI_HAN),
-    bhChoKichHoatDem(),
-    docAnToan('dsMayChoSerial', () => dsMayChoSerial(), []),
+    choSerialTab ? docAnToan('dsMayChoSerial', () => dsMayChoSerial(), []) : { data: [] },
     listTabView('bh_cho_tab'),
     hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
   ])
@@ -34,16 +35,7 @@ export default async function BHChoKichHoatPage({
   const choSerialLoc = k
     ? choSerial.filter((m) => boDau([m.serial, m.internal_code, m.parent_serial, m.ten_khach].join(' ')).toLowerCase().includes(k))
     : choSerial
-  const chung = {
-    tabRieng,
-    quyenTabChung: quyen.viewChung,
-    demTab: {
-      'tat-ca': dem.da_lap + dem.don_sales,
-      'da-lap': dem.da_lap,
-      'don-ban': dem.don_sales,
-      'cho-serial': choSerial.length,
-    },
-  }
+  const chung = { tabRieng, quyenTabChung: quyen.viewChung }
 
   return (
     <ManV2>

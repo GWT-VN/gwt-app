@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import type { SerialRow, TrangThai } from '@/app/actions'
@@ -52,6 +52,18 @@ test('Kho serial dùng khuôn Ticket F: tìm ở đầu, hàng tab trạng thái
   expect(within(table).getByRole('link', { name: 'SN1' }).getAttribute('href')).toBe('/may/SN1')
   // Ghi chú lần đổi trạng thái gần nhất — trước nằm dòng phụ dưới ô Trạng thái, nay là cột.
   expect(within(table).getByText('Kho Vạn Bảo')).toBeTruthy()
+})
+
+test('khuôn F 27/11: tab không số, bộ đếm duy nhất ở phân trang, chuột phải dòng mở menu', async () => {
+  mo()
+  expect(screen.getByRole('tab', { name: /Lỗi/ }).textContent).not.toMatch(/\d/)
+  expect(screen.getByText('1–1 trên 1 serial')).toBeTruthy()
+  fireEvent.contextMenu(screen.getByRole('link', { name: 'SN1' }).closest('tr')!)
+  expect(await screen.findByRole('menu', { name: 'Thao tác serial SN1' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép serial' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép đường dẫn' })).toBeTruthy()
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Mở chi tiết' }))
+  expect(push).toHaveBeenLastCalledWith('/may/SN1')
 })
 
 test('tab trạng thái = bộ lọc tt chọn sẵn (cùng tham số chip cũ)', async () => {

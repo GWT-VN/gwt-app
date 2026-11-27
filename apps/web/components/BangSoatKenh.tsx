@@ -34,7 +34,7 @@ function cotKenh(kenh: Kenh[]): CotF<DongSoatKenh>[] {
  * đúng ba mức tin cậy khác nhau (máy điền cần duyệt · người điền · còn trống), sửa kênh ngay tại dòng.
  */
 export function BangSoatKenh({
-  rows, tong, trang, soTrang, kenh, tabRieng, quyenTabChung, demTab, moTaNhom,
+  rows, tong, trang, soTrang, kenh, tabRieng, quyenTabChung, moTaNhom,
 }: {
   rows: DongSoatKenh[]
   tong: number
@@ -43,7 +43,6 @@ export function BangSoatKenh({
   kenh: Kenh[]
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   /** Một dòng nói nhóm đang xem là gì ("Hệ tự suy từ đơn/khách — cần anh duyệt"). */
   moTaNhom: string
 }) {
@@ -64,11 +63,13 @@ export function BangSoatKenh({
       cot={cot}
       cotDs={cotDs}
       hrefDong={href}
+      maDong={(r) => r.ma_kh}
+      tenMa="mã KH"
       tong={tong}
       trang={trang}
       soTrang={soTrang}
       tab={{
-        bang: 'kenh_tab', coDinh: TAB_KENH, rieng: tabRieng, quyenChung: quyenTabChung, dem: demTab,
+        bang: 'kenh_tab', coDinh: TAB_KENH, rieng: tabRieng, quyenChung: quyenTabChung,
         khu: 'CSKH', viDuTen: 'VD: Máy điền Hà Nội',
       }}
       ghiChuLoc={moTaNhom}

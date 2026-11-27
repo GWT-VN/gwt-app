@@ -81,15 +81,18 @@ export default async function KhoNhatKyPage({ searchParams }: { searchParams: Pr
               ...x,
               tuyChon: x.id === 'loai' ? LOAI.map((g) => ({ giaTri: g, nhan: g })) : x.id === 'tt' ? TRANG_THAI_SO : undefined,
             }))}
+            locCot={{ trang_thai: 'tt' }}
             cot={sua ? [...COT, COT_SUA] : COT}
             dienThoai={{ tren: 'ma', duoi: 'ngay', duoiPhai: 'qty' }}
             tong={tong}
             trang={trang}
             soTrang={Math.max(1, Math.ceil(tong / MOI_TRANG))}
+            moiTrang={MOI_TRANG}
             nutChinh={<NutDauKho kho={k} />}
             rong={khongLoc ? KHONG_HO_TRO : undefined}
             dong={dong.map((d) => ({
               khoa: String(d.id),
+              ma: d.internal_code ?? undefined,
               o: {
                 ngay: ngayVN(d.ngay),
                 loai: <span className={`font-medium ${mauLoai(d.loai)}`}>{d.loai}</span>,

@@ -3,13 +3,15 @@
 import { useRef, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ArrowSquareOut, Copy, LinkSimple } from '@phosphor-icons/react/ssr'
 import type { Machine, TabView } from '@/app/actions'
-import { BH_MAY, KHOA_LOC_MAY, TAB_MAY, TRUONG_MAY } from '@/app/may/truong-may'
-import { hrefBoLoc, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDangLoc, useDaChon, type SapXep } from '@/bang'
+import { BH_MAY, TAB_MAY, TRUONG_MAY } from '@/app/may/truong-may'
+import { OChonDong, OChonTatCa, OTimKiem, PhanTrang, useDaChon, type SapXep } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { useHangTab } from '@/components/HangTab'
 import { Badge } from '@/components/ui/badge'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -43,11 +45,36 @@ const COT: CotBang[] = [
   { id: 'warranty_full_end', ten: 'Bảo hành', kieu: 'sap', nghia: { tang: 'Hết hạn BH sớm nhất trước', giam: 'Hết hạn BH muộn nhất trước' } },
 ]
 const THEO_ID = new Map(COT.map((cot) => [cot.id, cot]))
+/** Cột bảng → trường lọc (TRUONG_MAY): bấm tiêu đề mở thẳng pop lọc (khuôn F; pop có chân "Định dạng ngày" cho cột ngày). */
+const LOC_COT: Record<string, string> = { product_name: 'sp', install_date: 'lap', warranty_full_end: 'bh' }
+
+const duongDanMay = (m: Machine) => `/may/${encodeURIComponent(m.serial)}`
+
+/** Menu chuột phải một máy (bảng + ListView). */
+function MenuMay({ m, mo }: { m: Machine; mo: (m: Machine) => void }) {
+  return (
+    <>
+      <ContextMenuItem onSelect={() => mo(m)}>
+        <ArrowSquareOut aria-hidden="true" />
+        Mở chi tiết
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m.serial)}>
+        <Copy aria-hidden="true" />
+        Sao chép serial
+      </ContextMenuItem>
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDanMay(m))}>
+        <LinkSimple aria-hidden="true" />
+        Sao chép đường dẫn
+      </ContextMenuItem>
+    </>
+  )
+}
 
 const O: Record<string, (m: Machine, kieuNgay: KieuNgay) => { o: ReactNode; title?: string }> = {
   serial: (m) => ({
     o: (
-      <Link href={`/may/${encodeURIComponent(m.serial)}`} prefetch={false} className="font-medium tabular-nums hover:underline">
+      <Link href={duongDanMay(m)} prefetch={false} className="font-medium tabular-nums hover:underline">
         {m.serial}
       </Link>
     ),
@@ -83,7 +110,7 @@ const COT_DS: CotDanhSach<Machine>[] = [
     rong: 'minmax(0,2fr)',
     dienThoai: 'tren',
     o: (m) => (
-      <Link href={`/may/${encodeURIComponent(m.serial)}`} prefetch={false} className="min-w-0 truncate font-medium hover:underline">
+      <Link href={duongDanMay(m)} prefetch={false} className="min-w-0 truncate font-medium hover:underline">
         {m.serial}
       </Link>
     ),
@@ -94,7 +121,7 @@ const COT_DS: CotDanhSach<Machine>[] = [
 
 /** Máy đã lắp `/` — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). */
 export function BangMay({
-  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, demTab, tuyChonSp, xuatExcel, thanhDaChon,
+  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, tuyChonSp, xuatExcel, thanhDaChon,
 }: {
   rows: Machine[]
   tong: number
@@ -104,7 +131,6 @@ export function BangMay({
   choChon: boolean
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   /** Lọc ▸ Sản phẩm: mã nội bộ + nhãn (machineModels). */
   tuyChonSp: { giaTri: string; nhan: string }[]
   xuatExcel?: ReactNode
@@ -126,7 +152,7 @@ export function BangMay({
   const tuyChon: Record<string, { giaTri: string; nhan: string }[]> = { sp: tuyChonSp, bh: BH_MAY }
   const truongLoc: TruongLoc[] = TRUONG_MAY.map((x) => ({ ...x, tuyChon: tuyChon[x.id] }))
   const tenGiaTri = (id: string) => (g: string) => tuyChon[id]?.find((y) => y.giaTri === g)?.nhan ?? g
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
   const dieuKienTat = [
     ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
     ...dk.map((d) => {
@@ -134,12 +160,11 @@ export function BangMay({
       return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
     }),
   ]
-  const hrefXoaLoc = hrefBoLoc(pathname, params, ...KHOA_LOC_MAY)
+  const dangLoc = dieuKienTat.length > 0
   const hangTab = useHangTab({
     bang: 'may_tab',
     coDinh: TAB_MAY,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan: 'máy',
     khu: 'CSKH',
@@ -163,13 +188,8 @@ export function BangMay({
   }
 
   const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, TRUONG_MAY.find((x) => x.id === id)!.kieu) })
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  const moMay = (m: Machine) => router.push(duongDanMay(m))
+  const laBang = rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU
 
   return (
     <>
@@ -183,7 +203,15 @@ export function BangMay({
         loc={
           <>
             {xuatExcel}
-            <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
+            {/* "Xoá bộ lọc" xoá điều kiện lọc trường (giữ tìm, tab, sắp, cột). */}
+            <NutLoc
+              ref={refNutLoc}
+              truong={truongLoc}
+              dieuKien={dk}
+              onDoi={datLoc}
+              onXoaHet={() => doiUrl(Object.fromEntries(TRUONG_MAY.map((x) => [x.id, null])))}
+              coCot={(id) => laBang && rows.length > 0 && cotBang.hien.some((c) => LOC_COT[c.id] === id)}
+            />
           </>
         }
         caiDat={
@@ -199,26 +227,18 @@ export function BangMay({
           />
         }
       />
-      <ThanhDangLoc
-        dieuKien={dieuKien}
-        hienThi={rows.length}
-        tong={tong}
-        nhan="máy"
-        anSoDong
-        sapXep={sapXep.macDinh ? undefined : sapXep}
-        hrefXoaLoc={hrefXoaLoc}
-      />
       {/* Khung < 640 (điện thoại) → ListView; còn lại Bảng, hết chỗ thì cuộn ngang (khuôn Ticket F). */}
       <div ref={khungRef} className="border-none border-current">
-      {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
+      {!laBang ? (
         rows.length > 0 && (
           <ListView
             aria-label="Máy đã lắp"
             cot={COT_DS}
             dong={rows}
             khoa={(m) => m.serial}
-            onMo={(m) => router.push(`/may/${encodeURIComponent(m.serial)}`)}
+            onMo={moMay}
             moKhi="ten"
+            menuDong={(m) => <MenuMay m={m} mo={moMay} />}
           />
         )
       ) : (
@@ -248,6 +268,7 @@ export function BangMay({
                       macDinh: sapXep.macDinh,
                       onDoi: (chieu) => doiSapXep(chieu ? { cot: cot.id, tang: chieu === 'tang' } : null),
                     } : undefined}
+                    moLoc={LOC_COT[cot.id] ? moLocCot(LOC_COT[cot.id], dk, truongLoc, moLocTruong) : undefined}
                   />
                 ))}
                 <ThemCot cot={COT} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -255,7 +276,7 @@ export function BangMay({
             </TableHeader>
             <TableBody>
               {rows.map((m) => (
-                <TableRow key={m.serial} chon={khoaDaChon.has(m.serial)}>
+                <TableRow key={m.serial} chon={khoaDaChon.has(m.serial)} menu={<MenuMay m={m} mo={moMay} />} tenMenu={`Thao tác ${m.serial}`}>
                   <OChonDong khoa={m.serial} moTa={`máy ${m.serial}`} />
                   {cotBang.hien.map((cot, i) => {
                     const { o, title } = O[cot.id](m, cotBang.kieuNgay(cot.id))
@@ -278,12 +299,13 @@ export function BangMay({
       {!rows.length && (
         <EmptyState
           size="sm"
-          kieu={dieuKien.length ? 'loc' : 'that'}
-          tieuDe={dieuKien.length ? 'Không tìm thấy máy nào' : 'Chưa có máy đã lắp'}
-          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Máy lắp cho khách sẽ hiện ở đây.'}
+          kieu={dangLoc ? 'loc' : 'that'}
+          tieuDe={dangLoc ? 'Không tìm thấy máy nào' : 'Chưa có máy đã lắp'}
+          moTa={dangLoc ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Máy lắp cho khách sẽ hiện ở đây.'}
         />
       )}
-      <PhanTrang trang={trang} soTrang={soTrang} />
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F): tổng máy khớp lọc. */}
+      <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="máy" />
       {thanhDaChon}
     </>
   )

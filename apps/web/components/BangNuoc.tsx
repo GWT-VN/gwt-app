@@ -67,6 +67,8 @@ export function BangNuoc({
       cot={COT}
       cotDs={COT_DS}
       hrefDong={(r) => (r.customer_id ? `/khach/${r.customer_id}` : null)}
+      // Lượt đo không có trang riêng, không có mã — chi tiết là hồ sơ khách.
+      tenMo="Mở hồ sơ khách"
       tong={tong}
       trang={trang}
       soTrang={soTrang}

@@ -65,7 +65,6 @@ export function BangCtkm(p: {
   sapXep: SapXep
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   truong: TruongLoc[]
   quyen: { soan: boolean; duyet: boolean }
   ghiChu?: ReactNode
@@ -115,6 +114,7 @@ export function BangCtkm(p: {
       tieuDeO={(c, id) => (id === 'ten' ? c.ten : id === 'kenh' ? c.kenh_nhan.join(', ') || undefined : undefined)}
       cotDs={cotDs}
       khoa={(c) => c.id}
+      ma={(c) => c.ma}
       hrefMo={quyen.soan ? (c) => `/sales/ctkm/${c.id}` : undefined}
       rong={{ loc: 'Không có chương trình nào khớp', that: { tieuDe: 'Chưa có chương trình nào', moTa: 'Chương trình khuyến mãi theo kênh sẽ hiện ở đây.' } }}
     />

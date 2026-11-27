@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import type { CoreDue } from '@/app/actions'
@@ -8,11 +8,13 @@ import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { DsRoot } from '@/components/ui/ds-root'
 import { BangLoi } from './BangLoi'
 
-const { push, replace } = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }))
+const { push, replace, sp } = vi.hoisted(() => ({
+  push: vi.fn(), replace: vi.fn(), sp: { v: new URLSearchParams({ q: 'an', tt: 'QUÁ HẠN', trang: '2' }).toString() },
+}))
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, replace, refresh: vi.fn() }),
   usePathname: () => '/loi',
-  useSearchParams: () => new URLSearchParams({ q: 'an', tt: 'QUÁ HẠN', trang: '2' }),
+  useSearchParams: () => new URLSearchParams(sp.v),
 }))
 vi.mock('@/app/actions', () => ({
   luuTabView: vi.fn(), capNhatTabView: vi.fn(), doiTenTabView: vi.fn(), xoaTabView: vi.fn(),
@@ -31,7 +33,6 @@ function mo(rows = [loi], choChon = true) {
         <KhungChon khoaTrang={rows.map((r) => `${r.serial}-${r.filter_code}`)} tong={rows.length} bat={choChon} thamSo={{}}>
           <BangLoi
             rows={rows} choChon={choChon} tabRieng={[]} quyenTabChung={false}
-            demTab={{ 'tat-ca': 9, sap: 3, 'qua-han': 5, 'con-han': 1 }}
             tong={rows.length} trang={1} soTrang={1}
             sapXep={{ cot: 'han_som', tang: true, macDinh: true }}
             canhBao={<p>Đây KHÔNG phải danh sách gọi bán.</p>}
@@ -42,19 +43,22 @@ function mo(rows = [loi], choChon = true) {
   )
 }
 
-test('Lịch thay lõi dùng khuôn Ticket F: tìm ở đầu, tab tình trạng có số, cột Khách ghim, Badge hạn DS, nút Ghi log', () => {
+test('Lịch thay lõi dùng khuôn Ticket F: tìm ở đầu, tab tình trạng không số, cột Khách ghim, Badge hạn DS, nút Ghi log', () => {
   mo()
   const toolbar = screen.getByRole('heading', { name: 'Lịch thay lõi' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm lịch thay lõi' })).toBeTruthy()
   const tabs = within(toolbar).getByRole('tablist', { name: 'Tab dòng lõi' })
-  expect(within(tabs).getAllByRole('tab').map((t) => t.textContent)).toEqual(['Tất cả 9', 'Sắp đến hạn 3', 'Quá hạn 5', 'Còn hạn 1'])
+  // Khuôn F: không số đếm trên tab — bộ đếm duy nhất ở phân trang.
+  expect(within(tabs).getAllByRole('tab').map((t) => t.textContent)).toEqual(['Tất cả', 'Sắp đến hạn', 'Quá hạn', 'Còn hạn'])
+  expect(screen.getByText(/trên 1 dòng lõi/)).toBeTruthy()
   expect(screen.getByText('Đây KHÔNG phải danh sách gọi bán.')).toBeTruthy()
   const table = screen.getByRole('table', { name: 'Lịch thay lõi' })
   expect(within(table).getByRole('columnheader', { name: /Khách/ }).hasAttribute('data-ghim')).toBe(true)
   expect(within(table).getByRole('link', { name: 'SN-1' }).getAttribute('href')).toBe('/may/SN-1')
   expect(within(table).getByText('Quá 26 ngày').closest('[data-color]')?.getAttribute('data-color')).toBe('danger')
-  // Lọc Tình trạng (tt trên URL) hiện thành chip với nhãn dễ đọc.
-  expect(screen.getAllByRole('button', { name: /Tình trạng.*Quá hạn/ }).length).toBeGreaterThan(0)
+  // Lọc Tình trạng (tt trên URL) hiện thành chip ở NHÃN CỘT với nhãn dễ đọc; không còn hàng chip dưới thanh công cụ.
+  expect(within(table).getByRole('columnheader', { name: /Tình trạng: Quá hạn/ })).toBeTruthy()
+  expect(screen.queryByRole('region', { name: 'Điều kiện đang áp dụng' })).toBeNull()
 })
 
 test('bấm tab cố định → thay bộ lọc cũ (q, tt) bằng bộ lọc của tab, bỏ trang', async () => {
@@ -67,4 +71,33 @@ test('bấm tab cố định → thay bộ lọc cũ (q, tt) bằng bộ lọc c
 test('rỗng khi lọc → EmptyState kiểu lọc', () => {
   mo([], false)
   expect(screen.getByRole('heading', { name: 'Không có lõi nào khớp' })).toBeTruthy()
+})
+
+test('"Xoá bộ lọc" bỏ điều kiện trường, giữ tìm', async () => {
+  const user = userEvent.setup()
+  mo()
+  await user.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
+  expect(push).toHaveBeenLastCalledWith('/loi?q=an', { scroll: false })
+})
+
+test('chuột phải dòng lõi → Mở chi tiết máy / Sao chép serial / Sao chép đường dẫn', async () => {
+  mo()
+  fireEvent.contextMenu(screen.getByRole('link', { name: 'SN-1' }).closest('tr')!)
+  expect(await screen.findByRole('menuitem', { name: 'Sao chép serial' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép đường dẫn' })).toBeTruthy()
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Mở chi tiết máy' }))
+  expect(push).toHaveBeenLastCalledWith('/may/SN-1')
+})
+test('cột ngày "Đến hạn" lọc ở nhãn cột: đang lọc → chip; bấm tiêu đề mở pop lọc có chân "Định dạng ngày"', async () => {
+  const user = userEvent.setup()
+  sp.v = 'q=an&han=hom-nay~'
+  try {
+    mo()
+    const table = screen.getByRole('table', { name: 'Lịch thay lõi' })
+    const th = within(table).getByRole('columnheader', { name: /Đến hạn: hôm nay/i })
+    await user.click(within(th).getAllByRole('button')[0])
+    expect(await screen.findByRole('group', { name: 'Định dạng ngày' })).toBeTruthy()
+  } finally {
+    sp.v = new URLSearchParams({ q: 'an', tt: 'QUÁ HẠN', trang: '2' }).toString()
+  }
 })

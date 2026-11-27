@@ -74,6 +74,8 @@ export function BangSerial({
       cot={cot}
       cotDs={cotDs}
       hrefDong={href}
+      maDong={(s) => s.serial}
+      tenMa="serial"
       tong={tong}
       trang={trang}
       soTrang={soTrang}
@@ -83,6 +85,7 @@ export function BangSerial({
         khu: 'CSKH', viDuTen: 'VD: Hàng lỗi chờ trả hãng',
       }}
       truong={TRUONG_SERIAL}
+      locCot={{ trang_thai: 'tt' }}
       tuyChonLoc={{ tt: dsTrangThai.map((t) => ({ giaTri: t.code, nhan: t.nhan })) }}
       nutChinh={nutChinh}
       thanhDaChon={thanhDaChon}

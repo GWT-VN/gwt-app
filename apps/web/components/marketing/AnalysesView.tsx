@@ -66,6 +66,8 @@ export default function AnalysesView({ rows, tabRieng = [], coTab = false, quyen
         viDuTen="VD: A2 TikTok viral"
         rows={rows}
         khoa={(r) => String(r.id)}
+        ma={(r) => String(r.id)}
+        hrefMo={(r) => `/wiki/marketing/du-lieu/phan-tich-video/${r.id}`}
         cot={cot}
         cotDs={cotDs}
         truong={TRUONG_VIDEO}

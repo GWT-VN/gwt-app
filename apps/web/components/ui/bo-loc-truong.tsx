@@ -24,7 +24,9 @@ import { cdDau } from './data-view-styles'
 import { DatePicker } from './date-picker'
 import { DateRangePicker } from './date-range-picker'
 import { Input } from './input'
-import { menuCheck, menuContent, menuItem, menuSeparator } from './menu-styles'
+import { menuCheck, menuContent, menuItem, menuLabel, menuSeparator } from './menu-styles'
+import type { NgayCot } from './use-cot-bang'
+import { KIEU_NGAY } from '@/lib/dinh-dang-ngay'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { TooltipNhanh } from './tooltip'
@@ -59,7 +61,8 @@ export type TruongLoc = {
 type OnDoi = (truong: string, d: DieuKienLoc | null) => void
 /** Mở pop lọc của một trường từ ngoài; `neo` = nơi neo pop + nhận lại focus khi đóng (vd nút tiêu đề cột). */
 /** Mở từ tiêu đề cột: thêm "Ẩn cột" ở cuối pop (CEO 27/11 "chỉ giữ lại action ẩn cột ở cuối cùng"). */
-export type PhuMoLoc = { anCot?: () => void }
+/** Phần thêm ở CHÂN pop lọc mở từ tiêu đề cột (menu cột cũ đã bỏ — CEO 27/11): Định dạng ngày (cột ngày) + Ẩn cột. */
+export type PhuMoLoc = { anCot?: () => void; ngay?: NgayCot }
 export type MoLocRef = { mo: (truong: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => void }
 
 /**
@@ -128,15 +131,60 @@ const kv = 'border-none border-current'
 const khungPop = cn(menuContent, 'w-[280px] max-w-[calc(100vw-32px)] max-h-(--radix-popover-content-available-height)')
 const TU_FOCUS = '[data-tu-focus]'
 
-/** Cuối pop lọc mở từ tiêu đề cột: vạch + "Ẩn cột" (kiểu mục menu DS). */
-function NutAnCot({ onAn }: { onAn: () => void }) {
+/**
+ * Chân pop lọc mở từ tiêu đề cột (kiểu mục menu DS): cột ngày → nhóm "Định dạng ngày" (chọn một, có dấu ✓ — trước ở menu
+ * cột, CEO 26/11) · vạch · "Ẩn cột". Bấm "Ẩn cột" đóng pop (`dong`); đổi định dạng giữ pop mở.
+ */
+function ChanCot({ phu, dong }: { phu?: PhuMoLoc; dong: () => void }) {
+  // `phu` chụp lúc mở pop → giữ kiểu đang chọn tại chỗ để dấu ✓ theo kịp khi đổi.
+  const [kieu, setKieu] = useState(phu?.ngay?.kieu)
+  if (!phu?.anCot && !phu?.ngay) return null
+  const { anCot, ngay } = phu
+  const mucLop = cn(menuItem, 'hover:bg-(--menu-item-bg)')
   return (
     <>
-      <div role="separator" className={menuSeparator} />
-      <button type="button" className={cn(menuItem, 'hover:bg-(--menu-item-bg)')} onClick={onAn}>
-        <EyeSlash aria-hidden="true" />
-        Ẩn cột
-      </button>
+      {ngay && (
+        <>
+          <div role="separator" className={menuSeparator} />
+          <div role="group" aria-labelledby="chan-cot-ngay">
+            <div id="chan-cot-ngay" className={menuLabel}>
+              Định dạng ngày
+            </div>
+            {KIEU_NGAY.map((k) => (
+              <button
+                key={k.kieu}
+                type="button"
+                aria-pressed={kieu === k.kieu}
+                className={mucLop}
+                onClick={() => {
+                  setKieu(k.kieu)
+                  ngay.onDoi(k.kieu)
+                }}
+              >
+                <CalendarBlank aria-hidden="true" />
+                {k.nhan}
+                {kieu === k.kieu && <Check aria-hidden="true" className={menuCheck} />}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {anCot && (
+        <>
+          <div role="separator" className={menuSeparator} />
+          <button
+            type="button"
+            className={mucLop}
+            onClick={() => {
+              dong()
+              anCot()
+            }}
+          >
+            <EyeSlash aria-hidden="true" />
+            Ẩn cột
+          </button>
+        </>
+      )}
     </>
   )
 }
@@ -459,14 +507,7 @@ export function NutLoc({
                 setNhap(null)
               }}
             />
-            {phu?.anCot && (
-              <NutAnCot
-                onAn={() => {
-                  doiMo(false)
-                  phu.anCot?.()
-                }}
-              />
-            )}
+            <ChanCot phu={phu} dong={() => doiMo(false)} />
           </>
         ) : (
           <DsTim
@@ -579,14 +620,7 @@ export function ChipLoc({
         }}
       >
         {nhap && <SuaDieuKien truong={t} nhap={nhap} onNhap={doi} onXong={(c) => doiMo(false, c)} />}
-        {nhap && phu?.anCot && (
-          <NutAnCot
-            onAn={() => {
-              doiMo(false)
-              phu.anCot?.()
-            }}
-          />
-        )}
+        {nhap && <ChanCot phu={phu} dong={() => doiMo(false)} />}
       </PopoverContent>
     </Popover>
   )

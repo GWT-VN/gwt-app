@@ -8,7 +8,7 @@ import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import type { CotBang } from '@/components/ui/use-cot-bang'
 import { BangDungSan } from '@/components/BangDungSan'
 import { chanNeuThieuQuyen, hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
-import { demNhatKyThaoTac, listNhatKyThaoTac, listTabView } from '@/app/actions'
+import { listNhatKyThaoTac, listTabView } from '@/app/actions'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
 import { KET_QUA_AUDIT, TAB_AUDIT, TRUONG_AUDIT } from './truong-audit'
 
@@ -53,9 +53,8 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
   const sp = await searchParams
   const trang = Math.max(1, Number(sp.trang) || 1)
   const loc = Object.fromEntries(TRUONG_AUDIT.map((x) => [x.id, sp[x.id]]))
-  const [{ rows, tong, soTrang }, dem, tabRieng, quyen] = await Promise.all([
+  const [{ rows, tong, soTrang }, tabRieng, quyen] = await Promise.all([
     listNhatKyThaoTac(sp.q ?? '', { trang, loc }),
-    demNhatKyThaoTac(),
     listTabView('audit_tab'),
     hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
   ])
@@ -72,11 +71,11 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
               tabCoDinh={TAB_AUDIT}
               tabRieng={tabRieng}
               quyenTabChung={quyen.viewChung}
-              demTab={{ 'tat-ca': dem.tatCa, loi: dem.loi }}
               viDuTen="VD: Xoá khách tuần này"
               khu="Hệ thống"
               timKiem="Người, hành động, đối tượng…"
               truong={TRUONG_AUDIT.map((x) => ({ id: x.id, ten: x.ten, kieu: x.kieu, tuyChon: x.kieu === 'chon' ? KET_QUA_AUDIT : undefined }))}
+              locCot={{ ket_qua: 'kq' }}
               cot={COT}
               dienThoai={{ tren: 'hanh_dong', duoi: 'actor', duoiPhai: 'luc' }}
               tong={tong}

@@ -179,6 +179,18 @@ chỉ chữ + số đếm. Bẫy: bọc `TabsTrigger` bằng `ContextMenuTrigger
 `data-state="active"` → tab đang chọn mất kiểu; bọc qua `<span className="contents">`. Khi đẩy lên artifact: README +
 preview Tabs (khe cuối "+").
 
+**Chờ đồng bộ lên artifact** — KHUÔN F là mặc định MỌI bảng dữ liệu (27/11, CEO "áp dụng hết… lưu vào DS trước", commit
+85357de): `th` cao 44, 12/18 600 VIẾT HOA tertiary, kẻ trên + dưới, đệm 20 = `td`; nút tiêu đề (`thSort`) lùi −8 hai bên
+(vùng rê/chip lọc rộng hơn, chữ vẫn ở 20). Cột ô chọn TRONG bảng, luôn hiện, dính trái (`CHON_BANG` = `CHON_BANG_GHIM`
+cũ; bỏ lề âm −36 của `tableWrap` và ẩn-chờ-rê của bảng). Lọc ở NHÃN CỘT: `moLocCot` → nhãn thành chip "TÊN: GIÁ TRỊ";
+`NutLoc onXoaHet` (nút "✕ Xoá bộ lọc", điện thoại chỉ icon) + `coCot` (trường không có cột đang hiện → `ChipLoc` cạnh nút
+Xoá); hàng chip `ThanhDangLoc` bỏ khỏi màn danh sách. KHÔNG số đếm trên tab / cạnh tiêu đề (`useHangTab` bỏ `demTab`,
+`DataViewToolbar` bỏ `dem`) — bộ đếm duy nhất là `PhanTrang` (mặc định luôn hiện khi có `tong`, thẳng ô tick). `TableRow
+menu/tenMenu` = ContextMenu chuột phải của dòng. `ListView` đầu cột cũng 600 viết hoa tertiary. Bảng LƯỚI (`TableWrap
+luoi`) là biến thể phụ: viền khung bo 12, vạch cột alpha-05, chữ 14/10. Khi đẩy lên artifact: preview Table/DataViewToolbar/
+FilterBar/BulkActionBar theo khuôn này, README Table ("ô chọn trong bảng", "menu dòng"), DataViewToolbar (bỏ đếm), FilterBar
+(chip ở nhãn cột thay hàng chip).
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

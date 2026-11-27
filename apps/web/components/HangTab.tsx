@@ -21,10 +21,10 @@ import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { SavedView } from '@/components/ui/saved-view'
 import { thongBao } from '@/components/ui/sonner'
-import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TAB_VIEW, type BangTab } from '@/lib/tab-view'
 
-/** Tab cố định: `v` vào URL `?view=` (tab đầu không ghi), `loc` = query bộ lọc chọn sẵn; `nguy` → số đếm đỏ khi > 0. */
+/** Tab cố định: `v` vào URL `?view=` (tab đầu không ghi), `loc` = query bộ lọc chọn sẵn; `nguy`: bỏ dùng (27/11 không còn số đếm trên tab). */
 export type TabCoDinh = { v: string; ten: string; loc: string; nguy?: boolean }
 
 const CHU_TAB = {
@@ -40,7 +40,6 @@ export function useHangTab({
   bang,
   coDinh,
   tabRieng = [],
-  demTab = {},
   quyenTabChung = false,
   dieuKien,
   nhan,
@@ -50,8 +49,6 @@ export function useHangTab({
   bang: BangTab
   coDinh: readonly TabCoDinh[]
   tabRieng?: TabView[]
-  /** Số đếm theo tab (`v` của tab cố định, `t:<id>` của tab tự tạo); thiếu → không hiện số. */
-  demTab?: Record<string, number>
   quyenTabChung?: boolean
   /** Tóm tắt điều kiện đang áp (chip trong popover lưu). */
   dieuKien: { nhan: string; giaTri: string }[]
@@ -136,10 +133,7 @@ export function useHangTab({
       </M>
     </>
   )
-  const dem = (k: string, nguy?: boolean) => {
-    const n = demTab[k]
-    return n == null ? null : <TabsCount color={nguy && n ? 'danger' : undefined}>{n}</TabsCount>
-  }
+  // Không số đếm trên tab (khuôn F — CEO 27/11 "bỏ hết bộ đếm label"): bộ đếm duy nhất là phân trang dưới bảng.
 
   // Nút sau tab cuối (Twenty "+ Add view"): "…" thao tác tab tự tạo đang chọn, "+" thêm tab.
   const cuoi = (
@@ -176,13 +170,13 @@ export function useHangTab({
         <TabsList variant="pill" thuGon aria-label={`Tab ${nhan}`} cuoi={cuoi}>
           {coDinh.map((x) => (
             <TabsTrigger key={x.v} value={x.v}>
-              {x.ten} {dem(x.v, x.nguy)}
+              {x.ten}
             </TabsTrigger>
           ))}
           {tabRieng.map((t) => {
             const nut = (
               <TabsTrigger key={t.id} value={`t:${t.id}`} title={t.chung ? `${t.ten} · dùng chung` : t.ten}>
-                {t.ten} {dem(`t:${t.id}`)}
+                {t.ten}
               </TabsTrigger>
             )
             // ContextMenuTrigger asChild ghi `data-state="closed"` đè `data-state="active"` của tab → tab đang chọn mất

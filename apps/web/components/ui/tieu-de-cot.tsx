@@ -270,7 +270,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
         onPointerDown={nhanKeo}
         onClick={(e) => {
           if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
-          moLoc.onMo(e.currentTarget, { anCot: menuCot?.onAn ? anCot : undefined })
+          moLoc.onMo(e.currentTarget, { anCot: menuCot?.onAn ? anCot : undefined, ngay })
         }}
       >
         {nhan}

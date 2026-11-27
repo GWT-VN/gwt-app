@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, test, vi } from 'vitest'
 import HookLibraryView from './HookLibraryView'
@@ -26,13 +26,15 @@ const rows: HookItem[] = [
   { ...common, id: 'h2', text: 'Xem thêm tại GWT.', kind: 'cta' },
 ]
 
-test('khuôn F: ô tìm + hàng tab trong thanh công cụ; tab loại = bộ lọc chọn sẵn có số đếm', async () => {
+test('khuôn F: ô tìm + hàng tab trong thanh công cụ; tab loại = bộ lọc chọn sẵn, không số đếm', async () => {
   const user = userEvent.setup()
   render(<DsRoot><HookLibraryView rows={rows} coTab /></DsRoot>)
   const toolbar = screen.getByRole('heading', { name: 'Câu mẫu' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm câu' })).toBeTruthy()
   expect(within(toolbar).getByRole('tablist', { name: 'Tab câu' })).toBeTruthy()
-  expect(screen.getByRole('tab', { name: /Câu hỏi/ }).textContent).toContain('1')
+  expect(screen.getByRole('tab', { name: 'Tất cả', selected: true })).toBeTruthy()
+  expect(screen.getByRole('tab', { name: /Câu hỏi/ }).textContent).toBe('Câu hỏi')
+  expect(screen.getByText(/trên 2 câu/)).toBeTruthy()
   await user.click(screen.getByRole('tab', { name: /Kêu gọi/ }))
   expect(replace).toHaveBeenLastCalledWith('/wiki/marketing/du-lieu/kho-hook?loai=cta&view=cta', { scroll: false })
 })
@@ -58,6 +60,14 @@ test('lọc câu hỏi (URL) và mở chi tiết bằng bàn phím', async () =>
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(document.activeElement).toBe(nut)
+})
+
+test('chuột phải dòng → Xem nhanh mở ngăn chi tiết (kho hook không có trang riêng)', async () => {
+  render(<DsRoot><HookLibraryView rows={rows} /></DsRoot>)
+  fireEvent.contextMenu(screen.getByRole('button', { name: 'Bạn dùng máy nào?' }).closest('tr')!)
+  fireEvent.click(await screen.findByRole('menuitem', { name: 'Xem nhanh' }))
+  expect(screen.queryByRole('menuitem', { name: 'Mở chi tiết' })).toBeNull()
+  expect(await screen.findByRole('dialog', { name: 'Bạn dùng máy nào?' })).toBeTruthy()
 })
 
 test('tìm không dấu theo URL `q`', () => {

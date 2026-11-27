@@ -6,11 +6,10 @@ import type { TicketTab } from '@/app/actions'
 import { useHangTab } from '@/components/HangTab'
 import { VIEW_F } from './truong-f'
 
-const CO_DINH = VIEW_F.map((x) => ({ ...x, nguy: x.v === 'khan' }))
+const CO_DINH = VIEW_F
 
 export function useTabTicket(p: {
   tabRieng?: TicketTab[]
-  demTab?: Record<string, number>
   quyenTabChung?: boolean
   dieuKien: { nhan: string; giaTri: string }[]
 }) {

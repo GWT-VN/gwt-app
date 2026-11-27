@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import {
-  listKhachHang, khoaTatCaKhachHang, exportCuaToi, listTabView, kenhChon, demKhachThieuSdt, demKhachKenhTuDong,
-  demKhachTatCa, tuyChonKhach,
+  listKhachHang, khoaTatCaKhachHang, exportCuaToi, listTabView, kenhChon, tuyChonKhach,
 } from '@/app/actions'
 import { ExportKhachButton } from '@/components/ExportKhachButton'
 import { ThaoTacHangLoat } from '@/components/ThaoTacHangLoat'
@@ -27,7 +26,8 @@ export default async function KhachHangPage({
   const { q = '', trang: trangRaw, cot, chieu, thieu_sdt, kenh_tu_dong } = sp
   const loc = Object.fromEntries(TRUONG_KHACH.map((x) => [x.id, sp[x.id]]))
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const [{ rows, tong, soTrang, sapXep }, quyen, exportDuyet, tabRieng, kenh, soThieuSdt, soKenhTuDong, soTatCa, tuyChon] =
+  // Không đếm cho tab (khuôn F — bộ đếm duy nhất là phân trang dưới bảng, `tong` của listKhachHang).
+  const [{ rows, tong, soTrang, sapXep }, quyen, exportDuyet, tabRieng, kenh, tuyChon] =
     await Promise.all([
       listKhachHang(q, { trang, cot, chieu, thieuSdt: thieu_sdt === '1', kenhTuDong: kenh_tu_dong === '1', loc }),
       hoiQuyen({
@@ -38,9 +38,6 @@ export default async function KhachHangPage({
       exportCuaToi(),
       listTabView('khach_tab'),
       kenhChon(),
-      demKhachThieuSdt(),
-      demKhachKenhTuDong(),
-      demKhachTatCa(),
       tuyChonKhach(),
     ])
 
@@ -65,7 +62,6 @@ export default async function KhachHangPage({
                 choChon={quyen.hangLoat}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{ 'tat-ca': soTatCa, 'thieu-sdt': soThieuSdt, kenh: soKenhTuDong }}
                 tuyChonLoc={tuyChon}
                 taoKhach={<TaoKhachButton kenh={kenh} />}
                 xuatExcel={<ExportKhachButton q={q} daDuyet={exportDuyet} />}

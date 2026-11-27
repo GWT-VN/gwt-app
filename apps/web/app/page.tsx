@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import { searchMachines, machineModels, khoaTatCaMay, listTabView, demMayTatCa } from './actions'
+import { searchMachines, machineModels, khoaTatCaMay, listTabView } from './actions'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { tenModel } from '@/lib/danhSach'
 import { coTheVaoCS, coTheVaoSales, laChiKyThuatVien } from '@/lib/nen-tang/gac-cong'
@@ -37,7 +37,8 @@ export default async function Home({
   const trang = Math.max(1, Number(trangRaw) || 1)
   // Mỗi nút hỏi ĐÚNG quyền gác Server Action của nó, không dùng chung một cờ
   // laQuanLy như trước — cờ chung là lý do giao diện lệch khỏi rào thật.
-  const [{ rows, tong, soTrang, sapXep }, models, quyen, tabRieng, soTatCa] = await Promise.all([
+  // Không đếm cho tab (khuôn F — bộ đếm duy nhất là phân trang dưới bảng, `tong` của searchMachines).
+  const [{ rows, tong, soTrang, sapXep }, models, quyen, tabRieng] = await Promise.all([
     searchMachines(q, { trang, cot, chieu, maSanPham: sp, tinhTrangBH: bh, lap }),
     machineModels(),
     hoiQuyen({
@@ -46,7 +47,6 @@ export default async function Home({
       xuat: ['cs.bao_cao.xuat', 'QUANLY'],
     }),
     listTabView('may_tab'),
-    demMayTatCa(),
   ])
 
   return (
@@ -71,7 +71,6 @@ export default async function Home({
                 choChon={quyen.hangLoat}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{ 'tat-ca': soTatCa }}
                 // Ô chọn hiện MÃ MÁY cho gọn ("GN610"), chip lọc cũng vậy.
                 tuyChonSp={models.map((m) => ({ giaTri: m.internal_code, nhan: tenModel(m.product_name, m.internal_code) }))}
                 xuatExcel={quyen.xuat && <ExportMayButton q={q} sp={sp} bh={bh} {...khoangXuat(lap)} />}

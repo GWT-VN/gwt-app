@@ -77,6 +77,8 @@ export function BangKhachDon({
       cot={COT}
       cotDs={COT_DS}
       hrefDong={href}
+      maDong={(c) => c.ma_kh}
+      tenMa="mã KH"
       tong={tong}
       trang={trang}
       soTrang={soTrang}

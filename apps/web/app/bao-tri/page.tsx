@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
-import { maintenanceDue, maintenanceCounts, khoaTatCaBaoTri, listTabView, baoTriTheoThang } from '@/app/actions'
+import { maintenanceDue, khoaTatCaBaoTri, listTabView, baoTriTheoThang } from '@/app/actions'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ExportBaoTriButton } from '@/components/ExportBaoTriButton'
@@ -13,7 +13,7 @@ import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { khoangXuat } from '@/app/may/truong-may'
-import { SAP, VIEW_LICH } from './truong-bao-tri'
+import { VIEW_LICH } from './truong-bao-tri'
 
 // Lịch bảo trì — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). Tab "Lịch tháng" (`?view=lich`)
 // vẽ lịch tháng thay bảng.
@@ -33,11 +33,11 @@ export default async function BaoTriPage({
   const trang = Math.max(1, Number(trangRaw) || 1)
   const laLich = view === VIEW_LICH
   const thang = /^\d{4}-\d{2}$/.test(thangRaw ?? '') ? thangRaw! : new Date().toISOString().slice(0, 7)
-  const [{ rows, tong, soTrang, sapXep }, counts, tabRieng, quyen, lichRows] = await Promise.all([
+  // Không đếm cho tab (khuôn F — bộ đếm duy nhất là phân trang dưới bảng, `tong` của maintenanceDue).
+  const [{ rows, tong, soTrang, sapXep }, tabRieng, quyen, lichRows] = await Promise.all([
     laLich
       ? Promise.resolve({ rows: [], tong: 0, trang: 1, soTrang: 1, sapXep: { cot: 'due_date', tang: true, macDinh: true } } as Awaited<ReturnType<typeof maintenanceDue>>)
       : maintenanceDue(tt, q, { trang, cot, chieu, han }),
-    maintenanceCounts(),
     listTabView('bao_tri_tab'),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
@@ -68,13 +68,6 @@ export default async function BaoTriPage({
                 choChon={!laLich && quyen.hangLoat}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{
-                  'tat-ca': counts['tat-ca'] ?? 0,
-                  sap: counts[SAP] ?? 0,
-                  'qua-han': counts['QUÁ HẠN'] ?? 0,
-                  'con-han': counts['còn hạn'] ?? 0,
-                  xong: counts['đã xong'] ?? 0,
-                }}
                 lich={laLich ? <LichBaoTriThang thang={thang} rows={lichRows} ngay={ngayOk} /> : undefined}
                 canhBao={
                   <Alert color="info" className="mb-3">

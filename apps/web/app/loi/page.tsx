@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { coreForecast, coreCounts, khoaTatCaLoi, listTabView } from '@/app/actions'
+import { coreForecast, khoaTatCaLoi, listTabView } from '@/app/actions'
 import { KhungChon, ThanhDaChon } from '@/bang'
 import { docTatCa } from '@/bang/locTruong'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
@@ -12,7 +12,7 @@ import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { khoangXuat } from '@/app/may/truong-may'
-import { SAP, TRUONG_LOI } from './truong-loi'
+import { TRUONG_LOI } from './truong-loi'
 
 // Lịch thay lõi — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md).
 export default async function LoiPage({
@@ -22,9 +22,9 @@ export default async function LoiPage({
 }) {
   const { q = '', tt = '', han, trang: trangRaw, cot, chieu } = await searchParams
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const [{ rows, tong, soTrang, sapXep }, counts, quyen, tabRieng] = await Promise.all([
+  // Không đếm cho tab (khuôn F — bộ đếm duy nhất là phân trang dưới bảng, `tong` của coreForecast).
+  const [{ rows, tong, soTrang, sapXep }, quyen, tabRieng] = await Promise.all([
     coreForecast(tt, q, { trang, cot, chieu, han }),
-    coreCounts(),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       viewChung: ['he_thong.view_chung', 'QUANLY'],
@@ -57,12 +57,6 @@ export default async function LoiPage({
                 choChon={quyen.hangLoat}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{
-                  'tat-ca': counts['tat-ca'] ?? 0,
-                  sap: counts[SAP] ?? 0,
-                  'qua-han': counts['QUÁ HẠN'] ?? 0,
-                  'con-han': counts['còn hạn'] ?? 0,
-                }}
                 canhBao={
                   xemQuaHan && (
                     <Alert color="warning" className="mb-3">

@@ -22,19 +22,21 @@ const dong: DongSoatKenh = {
   id: 'k1', ten: 'Khách mẫu', sdt: '0901', ma_kh: 'KH1', tinh: 'HN', channel_id: 1, kenh: 'Facebook', tu_dong: true, so_may: 1,
 }
 
-test('Soát kênh theo khuôn F: ba tab có số, tab đầu là "Máy điền", sửa kênh tại dòng', async () => {
+test('Soát kênh theo khuôn F: ba tab (không số — bộ đếm ở phân trang), tab đầu là "Máy điền", sửa kênh tại dòng', async () => {
   const user = userEvent.setup()
   render(
     <DsRoot><CauHinhBangDs><KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{}}>
-      <BangSoatKenh rows={[dong]} tong={1} trang={1} soTrang={1} kenh={[]} tabRieng={[]} quyenTabChung={false}
-        demTab={{ may: 113, nguoi: 74, trong: 240 }} moTaNhom="Hệ tự suy từ đơn/khách — cần anh duyệt" />
+      <BangSoatKenh rows={[dong]} tong={113} trang={1} soTrang={3} kenh={[]} tabRieng={[]} quyenTabChung={false}
+        moTaNhom="Hệ tự suy từ đơn/khách — cần anh duyệt" />
     </KhungChon></CauHinhBangDs></DsRoot>,
   )
   const toolbar = screen.getByRole('heading', { name: 'Soát kênh khách' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm khách để soát kênh' })).toBeTruthy()
   const tabs = within(within(toolbar).getByRole('tablist', { name: 'Tab khách' })).getAllByRole('tab')
+  expect(tabs).toHaveLength(3)
   expect(tabs[0].textContent).toContain('Máy điền')
-  expect(tabs[0].textContent).toContain('113')
+  expect(tabs[0].textContent).not.toMatch(/\d/)
+  expect(screen.getByText('1–50 trên 113 khách')).toBeTruthy()
   const table = screen.getByRole('table', { name: 'Soát kênh khách' })
   expect(within(table).getByText('máy điền')).toBeTruthy()
   expect(within(table).getByRole('button', { name: 'đúng rồi' })).toBeTruthy()

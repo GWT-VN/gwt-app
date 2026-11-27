@@ -40,7 +40,6 @@ export function BangGia(p: {
   sapXep: SapXep
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   lienKet: ReactNode
 }) {
   return (

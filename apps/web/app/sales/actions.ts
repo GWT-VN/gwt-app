@@ -457,13 +457,6 @@ export async function danhSachKhach(
   return { rows, tong, soTrang: Math.max(1, Math.ceil(tong / MOI_TRANG)), sapXep }
 }
 
-/** Tổng số khách Sales (số của tab "Tất cả"). */
-export async function demKhachSales(): Promise<number> {
-  await chanSales()
-  const { count } = await dataClient().from('customers').select('customer_code', { count: 'exact', head: true })
-  return count ?? 0
-}
-
 // ---------- Chi tiết đơn ----------
 export type DonLine = {
   key: string

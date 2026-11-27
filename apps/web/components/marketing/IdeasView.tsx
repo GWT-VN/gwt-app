@@ -67,9 +67,12 @@ export default function IdeasView({ rows, tabRieng = [], coTab = false, quyenTab
         viDuTen="VD: Ý tưởng TikTok mới"
         rows={rows}
         khoa={(r) => r.id}
+        ma={(r) => (r.idea_no != null ? String(r.idea_no) : null)}
+        hrefMo={(r) => `/wiki/marketing/du-lieu/video-ideas/${r.id}`}
         cot={cot}
         cotDs={cotDs}
         truong={TRUONG_Y_TUONG}
+        locCot={{ nguon: "nen_tang" }}
         tabCoDinh={TAB_Y_TUONG}
         timTrong={(r) => [r.gwt_idea, r.original_summary, r.gwt_product_fit, r.idea_no != null ? `#${r.idea_no}` : ""].filter(Boolean).join(" ")}
         onMo={(r) => setOpenId(r.id)}

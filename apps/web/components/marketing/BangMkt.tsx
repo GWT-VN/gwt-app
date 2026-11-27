@@ -3,16 +3,19 @@
 // Bảng dữ liệu Wiki › Marketing (Phân tích video · Kho hook · Ý tưởng) theo khuôn Ticket F
 // (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md; mẫu components/BangKhach.tsx). Khác Khách hàng: dữ liệu đã nạp đủ
 // (≤ 500 dòng, REST riêng lib/marketing) → tìm / lọc / sắp chạy TRONG BỘ NHỚ theo URL (`apLoc`), không phân trang, không chọn
-// hàng loạt. Bấm tên / dòng = mở ngăn chi tiết của màn (`onMo`).
+// hàng loạt. Bấm tên / dòng = mở ngăn chi tiết của màn (`onMo`). Khuôn F bản chốt 27/11: không số trên tab, lọc hiện ở nhãn
+// cột (`moLocCot`), bộ đếm duy nhất = PhanTrang, chuột phải dòng → Mở chi tiết · Xem nhanh · Sao chép mã · Sao chép đường dẫn.
 import { useRef, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { TabView } from '@/app/actions'
-import { boDau, chuanHoaTuKhoa, hrefBoLoc, OTimKiem, sapXepHopLe, ThanhDangLoc } from '@/bang'
+import { ArrowSquareOut, Copy, LinkSimple, SidebarSimple } from '@phosphor-icons/react/ssr'
+import { boDau, chuanHoaTuKhoa, OTimKiem, PhanTrang, sapXepHopLe } from '@/bang'
 import { apLoc, docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { useHangTab, type TabCoDinh } from '@/components/HangTab'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -35,7 +38,7 @@ function soSanh(a: string | number | null, b: string | number | null) {
 }
 
 export function BangMkt<T>({
-  bang, tieuDe, nhan, viDuTen, rows, khoa, cot, cotDs, truong, tabCoDinh, timTrong, onMo,
+  bang, tieuDe, nhan, viDuTen, rows, khoa, ma, hrefMo, cot, cotDs, truong, locCot = {}, tabCoDinh, timTrong, onMo,
   tabRieng, coTab, quyenTabChung, timGoiY, rongThat,
 }: {
   bang: BangTab
@@ -45,10 +48,16 @@ export function BangMkt<T>({
   viDuTen: string
   rows: T[]
   khoa: (r: T) => string
+  /** "Sao chép mã" ở menu chuột phải; thiếu / null = không có mục đó. */
+  ma?: (r: T) => string | null
+  /** Trang chi tiết riêng (Mở chi tiết + Sao chép đường dẫn ở menu chuột phải); thiếu = bản ghi chỉ có ngăn xem nhanh. */
+  hrefMo?: (r: T) => string
   cot: CotMkt<T>[]
   /** Khung < 640: ListView. */
   cotDs: CotDanhSach<T>[]
   truong: TruongMkt<T>[]
+  /** Cột → trường lọc khi khác id (vd cột `nguon` ↔ trường `nen_tang`); cùng id thì tự khớp. */
+  locCot?: Record<string, string>
   tabCoDinh: TabCoDinh[]
   /** Chữ để tìm (gộp các cột chữ). */
   timTrong: (r: T) => string
@@ -90,10 +99,8 @@ export function BangMkt<T>({
   const cotSap = theoId.get(sapXep.cot)?.sap
   if (cotSap) shown = [...shown].sort((a, b) => soSanh(cotSap(a), cotSap(b)) * (sapXep.tang ? 1 : -1))
 
-  // Số đếm từng tab cố định = số dòng khớp bộ lọc của tab (rẻ: lọc trong bộ nhớ).
-  const demTab = Object.fromEntries(tabCoDinh.map((t) => [t.v, apLoc(rows, docTatCa(new URLSearchParams(t.loc), truong), truong).length]))
-
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
+  const truongCua = (cotId: string) => locCot[cotId] ?? cotId
   const dieuKienTat = [
     ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
     ...dk.map((d) => {
@@ -102,8 +109,8 @@ export function BangMkt<T>({
       return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
     }),
   ]
-  const khoaLoc = ['q', ...truong.map((x) => x.id), 'cot', 'chieu']
-  const hangTab = useHangTab({ bang, coDinh: tabCoDinh, tabRieng, demTab, quyenTabChung, nhan, khu: 'Marketing', viDuTen, dieuKien: dieuKienTat })
+  const hangTab = useHangTab({ bang, coDinh: tabCoDinh, tabRieng, quyenTabChung, nhan, khu: 'Marketing', viDuTen, dieuKien: dieuKienTat })
+  const laBang = !(rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU)
 
   function doiUrl(thayDoi: Record<string, string | null>) {
     const tiep = new URLSearchParams(params.toString())
@@ -117,13 +124,39 @@ export function BangMkt<T>({
   const doiSapXep = (sap: { cot: string; tang: boolean } | null) =>
     doiUrl({ cot: sap?.cot ?? null, chieu: sap ? (sap.tang ? 'asc' : 'desc') : null })
   const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, truong.find((x) => x.id === id)!.kieu) })
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+
+  // Chuột phải dòng (khuôn F 27/11) — chỉ mở / sao chép, không thao tác ghi.
+  const menuDong = (r: T) => {
+    const m = ma?.(r)
+    const h = hrefMo?.(r)
+    return (
+      <>
+        {h && (
+          <ContextMenuItem onSelect={() => router.push(h)}>
+            <ArrowSquareOut aria-hidden="true" />
+            Mở chi tiết
+          </ContextMenuItem>
+        )}
+        <ContextMenuItem onSelect={() => onMo(r)}>
+          <SidebarSimple aria-hidden="true" />
+          Xem nhanh
+        </ContextMenuItem>
+        {(m || h) && <ContextMenuSeparator />}
+        {m && (
+          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m)}>
+            <Copy aria-hidden="true" />
+            Sao chép mã {nhan}
+          </ContextMenuItem>
+        )}
+        {h && (
+          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + h)}>
+            <LinkSimple aria-hidden="true" />
+            Sao chép đường dẫn
+          </ContextMenuItem>
+        )}
+      </>
+    )
+  }
 
   return (
     <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }}>
@@ -135,7 +168,16 @@ export function BangMkt<T>({
           timKiem={<OTimKiem placeholder={timGoiY} aria-label={`Tìm ${nhan}`} />}
           tabs={coTab ? hangTab.tabs : undefined}
           dangXem="bang"
-          loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
+          loc={
+            <NutLoc
+              ref={refNutLoc}
+              truong={truongLoc}
+              dieuKien={dk}
+              onDoi={datLoc}
+              onXoaHet={() => doiUrl(Object.fromEntries(truong.map((x) => [x.id, null])))}
+              coCot={(id) => laBang && shown.length > 0 && cotBang.hien.some((c) => truongCua(c.id) === id)}
+            />
+          }
           caiDat={
             <CaiDatHienThi
               ref={caiDat}
@@ -149,18 +191,9 @@ export function BangMkt<T>({
             />
           }
         />
-        <ThanhDangLoc
-          dieuKien={dieuKien}
-          hienThi={shown.length}
-          tong={rows.length}
-          nhan={nhan}
-          anSoDong
-          sapXep={sapXep.macDinh ? undefined : sapXep}
-          hrefXoaLoc={hrefBoLoc(pathname, params, ...khoaLoc)}
-        />
         <div ref={khungRef} className="border-none border-current">
-          {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
-            shown.length > 0 && <ListView aria-label={tieuDe} cot={cotDs} dong={shown} khoa={khoa} onMo={onMo} />
+          {!laBang ? (
+            shown.length > 0 && <ListView aria-label={tieuDe} cot={cotDs} dong={shown} khoa={khoa} onMo={onMo} menuDong={menuDong} />
           ) : (
             <TableWrap tabIndex={0} role="region" aria-label={`Vùng cuộn bảng ${tieuDe.toLowerCase()}`}>
               <KeoCot cot={cotBang.hien} doiCho={cotBang.doiCho}>
@@ -181,6 +214,7 @@ export function BangMkt<T>({
                             macDinh: sapXep.macDinh,
                             onDoi: (chieu) => doiSapXep(chieu ? { cot: c.id, tang: chieu === 'tang' } : null),
                           } : undefined}
+                          moLoc={moLocCot(truongCua(c.id), dk, truongLoc, moLocTruong)}
                         />
                       ))}
                       <ThemCot cot={cot} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -188,7 +222,13 @@ export function BangMkt<T>({
                   </TableHeader>
                   <TableBody>
                     {shown.map((r) => (
-                      <TableRow key={khoa(r)} className="cursor-pointer" onClick={() => onMo(r)}>
+                      <TableRow
+                        key={khoa(r)}
+                        className="cursor-pointer"
+                        onClick={() => onMo(r)}
+                        menu={menuDong(r)}
+                        tenMenu={`Thao tác ${ma?.(r) ?? khoa(r)}`}
+                      >
                         {cotBang.hien.map((c, i) => {
                           const d = theoId.get(c.id)!
                           return (
@@ -215,6 +255,8 @@ export function BangMkt<T>({
           moTa={rows.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : rongThat.moTa}
         />
       )}
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F — CEO 27/11): dữ liệu đã nạp đủ, không phân trang → luôn 1 trang. */}
+      <PhanTrang trang={1} soTrang={1} tong={shown.length} nhan={nhan} />
     </CauHinhBangDs>
   )
 }

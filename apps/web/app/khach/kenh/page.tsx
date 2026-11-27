@@ -35,7 +35,8 @@ export default async function SoatKenhPage({
   const { nhom: nhomRaw, q = '', trang: trangRaw } = await searchParams
   const nhom: NhomKenh = nhomRaw === 'nguoi' || nhomRaw === 'trong' ? nhomRaw : 'may'
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const [{ rows, tong, soTrang, dem }, kenh, tabRieng, quyen] = await Promise.all([
+  // `dem` (3 lượt count head của soatKenhKhach) không còn hiện — tab không số đếm (khuôn F 27/11).
+  const [{ rows, tong, soTrang }, kenh, tabRieng, quyen] = await Promise.all([
     soatKenhKhach(nhom, q, trang),
     kenhChon(),
     listTabView('kenh_tab'),
@@ -56,7 +57,6 @@ export default async function SoatKenhPage({
                 kenh={kenh}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={dem}
                 moTaNhom={MO_TA[nhom]}
               />
             </Suspense>

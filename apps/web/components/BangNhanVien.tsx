@@ -5,11 +5,12 @@ import { thGhim } from '@/components/ui/table-styles'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem } from '@/components/ui/context-menu'
 import { DataViewToolbar } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { useHangTab } from '@/components/HangTab'
-import { hrefBoLoc, KhungChon, OTimKiem, ThanhDangLoc } from '@/bang'
+import { KhungChon, OTimKiem, PhanTrang } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import type { TabView } from '@/app/actions'
 import { TAB_NV, TRANG_THAI_NV, TRUONG_NV } from '@/app/nhan-vien/truong-nhan-vien'
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils'
 
 import { useRef, useState, useTransition, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Copy, EnvelopeSimple } from '@phosphor-icons/react/ssr'
 import {
   capMatKhauMoi, demThamChieuNhanSu, doiTenNhanVien, guiLaiMatKhau, suaNhanVien, xoaNhanSu,
 } from '@/lib/nen-tang/nhan-su'
@@ -69,16 +71,36 @@ const TRUONG_LOC: TruongLoc[] = TRUONG_NV.map((x) => ({
   tuyChon: x.id === 'tt' ? TRANG_THAI_NV : VAI_TRO.map((v) => ({ giaTri: v, nhan: NHAN_VAI_TRO[v] })),
 }))
 
+/** Menu chuột phải một người. Nhân viên KHÔNG có trang chi tiết → không "Mở chi tiết" / "Sao chép đường dẫn". Ô nhập tên
+ *  trong dòng vẫn giữ menu chuột phải của trình duyệt (ContextMenu DS bỏ qua input). */
+function MenuNhanVien({ nv }: { nv: DongNhanVien }) {
+  return (
+    <>
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(nv.ten)}>
+        <Copy aria-hidden="true" />
+        Sao chép tên
+      </ContextMenuItem>
+      {nv.email && (
+        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(nv.email!)}>
+          <EnvelopeSimple aria-hidden="true" />
+          Sao chép email
+        </ContextMenuItem>
+      )}
+    </>
+  )
+}
+
 /**
  * Nhân viên — đầu + tab + Lọc theo khuôn Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md); THÂN là MA TRẬN
  * người × vai trò (tick là lưu) nên giữ bảng nhóm cột theo bộ phận, không cột co dãn / ẩn / đổi chỗ như bảng danh sách.
- * Lọc chạy ở server (app/nhan-vien/page.tsx), ở đây chỉ dựng nút Lọc + chip. Cột Người dính trái khi kéo ngang.
+ * Lọc chạy ở server (app/nhan-vien/page.tsx), ở đây chỉ dựng nút Lọc. Ma trận không có tiêu đề cột `TieuDeCot` → điều
+ * kiện lọc hiện chip cạnh nút "Xoá bộ lọc" (NutLoc `coCot` luôn false). Cột Người dính trái khi kéo ngang.
  */
 export function BangNhanVien({
-  ds, toiId, choXoa = false, choMatKhau = false, tong, tabRieng = [], quyenTabChung = false, demTab, nutChinh, ghiChu,
+  ds, toiId, choXoa = false, choMatKhau = false, tong, tabRieng = [], quyenTabChung = false, nutChinh, ghiChu,
 }: {
   ds: DongNhanVien[]; toiId: string; choXoa?: boolean; choMatKhau?: boolean
-  tong: number; tabRieng?: TabView[]; quyenTabChung?: boolean; demTab?: Record<string, number>
+  tong: number; tabRieng?: TabView[]; quyenTabChung?: boolean
   nutChinh?: ReactNode; ghiChu?: ReactNode
 }) {
   const router = useRouter()
@@ -86,13 +108,12 @@ export function BangNhanVien({
   const params = useSearchParams()
   const q = params.get('q')
   const dk = docTatCa(params, TRUONG_LOC)
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc } = useMoLoc()
   const tenGt = (t: TruongLoc) => (g: string) => t.tuyChon?.find((x) => x.giaTri === g)?.nhan ?? g
   const hangTab = useHangTab({
     bang: 'nhan_vien_tab',
     coDinh: TAB_NV,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan: 'nhân viên',
     khu: 'Hệ thống',
@@ -106,21 +127,17 @@ export function BangNhanVien({
       }),
     ],
   })
-  function datLoc(id: string, d: DieuKienLoc | null) {
+  function doiUrl(thayDoi: Record<string, string | null>) {
     const tiep = new URLSearchParams(params.toString())
-    const gt = ghiDieuKien(d, TRUONG_LOC.find((x) => x.id === id)!.kieu)
-    if (gt == null) tiep.delete(id)
-    else tiep.set(id, gt)
+    for (const [id, gt] of Object.entries(thayDoi)) {
+      if (gt == null) tiep.delete(id)
+      else tiep.set(id, gt)
+    }
     const s = tiep.toString()
     router.push(s ? `${pathname}?${s}` : pathname, { scroll: false })
   }
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const t = TRUONG_LOC.find((x) => x.id === d.truong)!
-      return { nhan: t.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={t} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, TRUONG_LOC.find((x) => x.id === id)!.kieu) })
+  const dangLoc = !!q || dk.length > 0
 
   // KHÔNG khoá ô lúc lưu — dù chỉ khoá một dòng. Người dùng bấm 3-4 vai trò liên
   // tiếp cho cùng một người là chuyện thường; khoá là nuốt mất cú bấm thứ 2 trở đi
@@ -184,10 +201,18 @@ export function BangNhanVien({
         nutChinh={nutChinh}
         tabs={hangTab.tabs}
         dangXem="bang"
-        loc={<NutLoc ref={refNutLoc} truong={TRUONG_LOC} dieuKien={dk} onDoi={datLoc} />}
+        loc={
+          // "Xoá bộ lọc" xoá điều kiện lọc trường (giữ tìm, tab).
+          <NutLoc
+            ref={refNutLoc}
+            truong={TRUONG_LOC}
+            dieuKien={dk}
+            onDoi={datLoc}
+            onXoaHet={() => doiUrl(Object.fromEntries(TRUONG_NV.map((x) => [x.id, null])))}
+            coCot={() => false}
+          />
+        }
       />
-      <ThanhDangLoc dieuKien={dieuKien} hienThi={ds.length} tong={tong} nhan="nhân viên" anSoDong
-        hrefXoaLoc={hrefBoLoc(pathname, params, 'q', ...TRUONG_NV.map((x) => x.id))} />
       {mkVuaCap && <MatKhauVuaCap email={mkVuaCap.email} matKhau={mkVuaCap.matKhau} />}
 
       <TableWrap tabIndex={0} role="region" aria-label="Vùng cuộn bảng nhân viên">
@@ -218,7 +243,12 @@ export function BangNhanVien({
               const vaiTro = vaiTroCua(nv)
               const dangChay = dangLuu[nv.id] ?? false
               return (
-                <TableRow key={nv.id} className={cn(!nv.hoat_dong && 'text-muted-foreground', dangChay && 'opacity-70')}>
+                <TableRow
+                  key={nv.id}
+                  className={cn(!nv.hoat_dong && 'text-muted-foreground', dangChay && 'opacity-70')}
+                  menu={<MenuNhanVien nv={nv} />}
+                  tenMenu={`Thao tác ${nv.email ?? nv.ten}`}
+                >
                   <TableCell ghim className="h-auto py-2 align-top">
                     <Input
                       aria-label={`Tên nhân viên ${nv.email ?? nv.ten}`}
@@ -365,10 +395,12 @@ export function BangNhanVien({
       </TableWrap>
       </div>
       {!ds.length && (
-        <EmptyState size="sm" kieu={dieuKien.length ? 'loc' : 'that'}
-          tieuDe={dieuKien.length ? 'Không có nhân viên nào khớp' : 'Chưa có nhân viên'}
-          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : undefined} />
+        <EmptyState size="sm" kieu={dangLoc ? 'loc' : 'that'}
+          tieuDe={dangLoc ? 'Không có nhân viên nào khớp' : 'Chưa có nhân viên'}
+          moTa={dangLoc ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : undefined} />
       )}
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F): số người khớp lọc; không phân trang → 1 trang. */}
+      <PhanTrang trang={1} soTrang={1} tong={ds.length} nhan="nhân viên" />
       {ghiChu}
 
       <p className="text-xs text-muted-foreground">

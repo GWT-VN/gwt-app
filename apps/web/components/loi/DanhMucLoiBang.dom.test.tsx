@@ -23,13 +23,14 @@ const bao = (ui: ReactNode) => (
   <DsRoot><CauHinhBangDs><KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{}}>{ui}</KhungChon></CauHinhBangDs></DsRoot>
 )
 
-it('Danh mục lỗi theo khuôn F: tìm ở đầu, tab trạng thái có số, bấm tab đổi `tt` trên URL', async () => {
+it('Danh mục lỗi theo khuôn F: tìm ở đầu, tab trạng thái (không số — bộ đếm ở phân trang), bấm tab đổi `tt` trên URL', async () => {
   const user = userEvent.setup()
-  render(bao(<DanhMucLoiBang rows={[]} choSua={false} demTab={{ 'tat-ca': 5, cho_duyet: 2, da_duyet: 3, ngung: 0 }} />))
+  render(bao(<DanhMucLoiBang rows={[]} tong={5} choSua={false} />))
   const toolbar = screen.getByRole('heading', { name: 'Danh mục lỗi' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm mã lỗi' })).toBeTruthy()
   expect(within(toolbar).getByRole('tablist', { name: 'Tab mã lỗi' })).toBeTruthy()
-  expect(screen.getByRole('tab', { name: /Chờ duyệt/ }).textContent).toContain('2')
+  expect(screen.getByRole('tab', { name: /Chờ duyệt/ }).textContent).not.toMatch(/\d/)
+  expect(screen.getByText(/trên 5 mã lỗi/)).toBeTruthy()
   await user.click(screen.getByRole('tab', { name: /Chờ duyệt/ }))
   expect(replace).toHaveBeenLastCalledWith('/danh-muc-loi?tt=cho_duyet&view=cho_duyet', { scroll: false })
 })

@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 // Bốn danh sách khu Sales theo khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md): tìm trong thanh công cụ,
-// hàng tab (tab cố định = bộ lọc chọn sẵn), bảng ghim cột đầu, link sang chi tiết.
+// hàng tab (tab cố định = bộ lọc chọn sẵn), bảng ghim cột đầu, link sang chi tiết. Khuôn F bản chốt 27/11: không số trên tab,
+// lọc ở nhãn cột + nút "Xoá bộ lọc", bộ đếm duy nhất ở PhanTrang, chuột phải dòng → menu mở / sao chép.
 import type { ReactNode } from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, test, vi } from 'vitest'
 import { KhungChon } from '@/bang'
@@ -66,6 +67,39 @@ test('Đơn hàng: tìm + tab + Lọc trong thanh công cụ, bảng ghim Mã đ
   expect(within(table).getByRole('link', { name: /ORD-1/ }).getAttribute('href')).toBe('/sales/don/ORD-1')
   // Nhãn "App" vẫn còn (đơn tạo trên app sửa/xoá được).
   expect(within(table).getByText('App')).toBeTruthy()
+  // Bộ đếm duy nhất = PhanTrang dưới bảng.
+  expect(screen.getByText(/trên 1 đơn/)).toBeTruthy()
+})
+
+test('Đơn hàng: đang lọc → chip ở nhãn cột (không còn hàng chip), "Xoá bộ lọc" bỏ điều kiện trường, giữ từ khoá', async () => {
+  nav.path = '/sales'
+  nav.query = 'q=an&tt=%C4%90%C3%A3+giao'
+  const user = userEvent.setup()
+  khung(
+    <BangDon
+      {...chung}
+      rows={[don]}
+      sapXep={{ cot: 'ngay', tang: false, macDinh: true }}
+      truong={TRUONG_DON.map((x) => ({ ...x, tuyChon: x.id === 'tt' ? [{ giaTri: 'Đã giao', nhan: 'Đã giao' }] : [] }))}
+    />,
+  )
+  expect(screen.queryByRole('region', { name: 'Điều kiện đang áp dụng' })).toBeNull()
+  const table = screen.getByRole('table', { name: 'Đơn hàng' })
+  expect(within(table).getByRole('columnheader', { name: /Tình trạng: Đã giao/ })).toBeTruthy()
+  await user.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
+  expect(nav.push).toHaveBeenLastCalledWith('/sales?q=an', { scroll: false })
+})
+
+test('Đơn hàng: chuột phải dòng → Mở chi tiết / Sao chép mã / Sao chép đường dẫn', async () => {
+  nav.path = '/sales'
+  nav.query = ''
+  khung(<BangDon {...chung} rows={[don]} sapXep={{ cot: 'ngay', tang: false, macDinh: true }} truong={[]} />)
+  fireEvent.contextMenu(screen.getByRole('link', { name: /ORD-1/ }).closest('tr')!)
+  expect(await screen.findByRole('menuitem', { name: 'Mở chi tiết' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép mã đơn' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép đường dẫn' })).toBeTruthy()
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Mở chi tiết' }))
+  expect(nav.push).toHaveBeenLastCalledWith('/sales/don/ORD-1')
 })
 
 test('Đơn hàng: bấm tab POU thay bộ lọc bằng nhom=DON_POU (không còn ?tab=DON_… đụng tab tự tạo)', async () => {
@@ -84,7 +118,7 @@ test('Đơn hàng: không có đơn khi đang lọc → trạng thái rỗng ki�
   expect(screen.getByRole('heading', { name: 'Không có đơn nào khớp' })).toBeTruthy()
 })
 
-test('Khách Sales: tab "Trùng SĐT" có số đỏ, bấm → lọc trùng + xếp theo SĐT', async () => {
+test('Khách Sales: tab "Trùng SĐT" (không số — khuôn F), bấm → lọc trùng + xếp theo SĐT', async () => {
   nav.path = '/sales/khach'
   nav.query = ''
   const user = userEvent.setup()
@@ -93,7 +127,6 @@ test('Khách Sales: tab "Trùng SĐT" có số đỏ, bấm → lọc trùng + x
       {...chung}
       rows={[{ customer_code: 'KH001', name: 'Khách B', phone: '0900000000', province: 'Huế', total_orders: 2, last_order_date: '2026-11-01' }]}
       sapXep={{ cot: 'mua', tang: false, macDinh: true }}
-      demTab={{ 'tat-ca': 9, 'trung-sdt': 2 }}
       truong={[]}
       taoKhach={<button>Tạo khách</button>}
     />,
@@ -101,7 +134,9 @@ test('Khách Sales: tab "Trùng SĐT" có số đỏ, bấm → lọc trùng + x
   const tb = toolbar('Khách hàng')
   expect(within(tb).getByRole('textbox', { name: 'Tìm khách hàng' })).toBeTruthy()
   expect(within(tb).getByRole('tablist', { name: 'Tab khách' })).toBeTruthy()
-  expect(screen.getByRole('tab', { name: /Trùng SĐT/ }).textContent).toContain('2')
+  expect(screen.getByRole('tab', { name: 'Tất cả', selected: true })).toBeTruthy()
+  // Khuôn F 27/11: không số đếm trên tab.
+  expect(screen.getByRole('tab', { name: /Trùng SĐT/ }).textContent).not.toMatch(/\d/)
   expect(within(screen.getByRole('table', { name: 'Khách hàng' })).getByRole('link', { name: 'Khách B' }).getAttribute('href')).toBe('/sales/khach/KH001')
   await user.click(screen.getByRole('tab', { name: /Trùng SĐT/ }))
   expect(nav.replace).toHaveBeenLastCalledWith('/sales/khach?trung_sdt=1&cot=phone&chieu=asc&view=trung-sdt', { scroll: false })
@@ -116,7 +151,6 @@ test('Bảng giá: tìm trong thanh công cụ, link chính sách / đối tác,
       {...chung}
       rows={[{ ma: 'MSP', ten: 'Máy lọc', gia_vat: 5000000, vat_pct: 0.1, vat_loai: null }]}
       sapXep={{ cot: 'gia', tang: false, macDinh: true }}
-      demTab={{ 'tat-ca': 1 }}
       lienKet={<a href="/sales/gia/chinh-sach">Chính sách giá đại lý</a>}
     />,
   )
@@ -129,6 +163,10 @@ test('Bảng giá: tìm trong thanh công cụ, link chính sách / đối tác,
   await user.click(within(within(table).getByRole('columnheader', { name: /^Tên sản phẩm/ })).getByRole('button'))
   await user.click(screen.getByRole('menuitemradio', { name: 'Tên từ A đến Z' }))
   expect(nav.push).toHaveBeenLastCalledWith('/sales/gia?q=loc&cot=ten&chieu=asc', { scroll: false })
+  // Không trang chi tiết → menu chuột phải chỉ có Sao chép mã.
+  fireEvent.contextMenu(within(table).getByRole('row', { name: /MSP/ }))
+  expect(await screen.findByRole('menuitem', { name: 'Sao chép mã sản phẩm' })).toBeTruthy()
+  expect(screen.queryByRole('menuitem', { name: 'Mở chi tiết' })).toBeNull()
 })
 
 test('CTKM: lưới thẻ thành bảng; tab "Đang chạy" = tt=ban_hanh; thao tác dòng ở menu "…"', async () => {
@@ -143,7 +181,6 @@ test('CTKM: lưới thẻ thành bảng; tab "Đang chạy" = tt=ban_hanh; thao 
         giam_toi_da: null, nhom_khach: 'tat_ca', trang_thai: 'nhap', so_kenh: 0, so_sp: 0, so_qua: 0, kenh_nhan: [],
       }]}
       sapXep={{ cot: 'ngay', tang: false, macDinh: true }}
-      demTab={{ 'tat-ca': 1, 'dang-chay': 0, nhap: 1 }}
       truong={[]}
       quyen={{ soan: true, duyet: false }}
     />,

@@ -13,7 +13,7 @@ import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { coTheVaoSales } from '@/lib/nen-tang/gac-cong'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { requireNhanSu } from '@/lib/nen-tang/phien'
-import { danhSachKhach, demKhachSales, kenhChonDuoc, kenhTrongDon, khachTrungSdt, nhanVienChonDuoc, tinhTrongKhach } from '../actions'
+import { danhSachKhach, kenhChonDuoc, kenhTrongDon, khachTrungSdt, nhanVienChonDuoc, tinhTrongKhach } from '../actions'
 import { TaoKhachButton } from '../TaoKhachButton'
 import { TRUONG_KHACH_SALES } from '../truong-sales'
 import { BangKhachSales } from './BangKhachSales'
@@ -29,7 +29,7 @@ export default async function SalesKhachPage({ searchParams }: { searchParams: P
   const dk = docTatCa(sp, TRUONG_KHACH_SALES)
   const trang = Math.max(1, Number(sp.trang) || 1)
   const trungSdt = sp.trung_sdt === '1'
-  const [{ rows, tong, soTrang, sapXep }, tinhOpts, kenhOpts, kenhDim, trung, nhanVien, tabRieng, quyen, soTatCa] = await Promise.all([
+  const [{ rows, tong, soTrang, sapXep }, tinhOpts, kenhOpts, kenhDim, trung, nhanVien, tabRieng, quyen] = await Promise.all([
     danhSachKhach(sp.q ?? '', dk, { trang, cot: sp.cot, chieu: sp.chieu, trungSdt }),
     tinhTrongKhach(),
     kenhTrongDon(),
@@ -38,7 +38,6 @@ export default async function SalesKhachPage({ searchParams }: { searchParams: P
     nhanVienChonDuoc(),
     listTabView('sales_khach_tab'),
     hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
-    demKhachSales(),
   ])
   const tuyChon: Record<string, string[]> = { tinh: tinhOpts, kenh: kenhOpts }
   const truong = TRUONG_KHACH_SALES.map((x) => ({ ...x, tuyChon: tuyChon[x.id].map((g) => ({ giaTri: g, nhan: g })) }))
@@ -59,7 +58,6 @@ export default async function SalesKhachPage({ searchParams }: { searchParams: P
                 sapXep={sapXep}
                 tabRieng={tabRieng}
                 quyenTabChung={quyen.viewChung}
-                demTab={{ 'tat-ca': soTatCa, 'trung-sdt': trung.reduce((n, t) => n + t.ma.length, 0) }}
                 truong={truong}
                 taoKhach={<TaoKhachButton kenh={kenhDim} nhanVien={nhanVien} />}
                 ghiChu={

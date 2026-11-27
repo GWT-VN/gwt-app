@@ -102,9 +102,9 @@ const COT_SERIAL: CotF<MayChoSerial>[] = [
   },
 ]
 
-type ChungBH = { tabRieng: TabView[]; quyenTabChung: boolean; demTab: Record<string, number> }
+type ChungBH = { tabRieng: TabView[]; quyenTabChung: boolean }
 const tabBH = (c: ChungBH) => ({
-  bang: 'bh_cho_tab' as const, coDinh: TAB_BH, rieng: c.tabRieng, quyenChung: c.quyenTabChung, dem: c.demTab,
+  bang: 'bh_cho_tab' as const, coDinh: TAB_BH, rieng: c.tabRieng, quyenChung: c.quyenTabChung,
   khu: 'CSKH', viDuTen: 'VD: Đơn bán Hà Nội',
 })
 const TIM = { placeholder: 'Tên/SĐT khách, serial, mã máy, mã đơn…', nhan: 'Tìm bảo hành chờ kích hoạt' }
@@ -157,6 +157,11 @@ export function BHChoKichHoatList({ items, gioiHan, ...chung }: ChungBH & { item
       khoa={khoa}
       moTa={(r) => `máy ${r.ten_noi_bo ?? r.ma_noi_bo ?? ''} của ${r.ten_khach ?? 'khách'}`}
       cot={cot}
+      // Dòng chờ không có trang riêng — chi tiết là hồ sơ khách (dòng chưa có hồ sơ CSKH: không có mục mở).
+      hrefDong={(r) => (r.customer_id ? `/khach/${r.customer_id}` : null)}
+      tenMo="Mở hồ sơ khách"
+      maDong={(r) => r.serial ?? r.ma_don}
+      tenMa="serial / mã đơn"
       tong={items.length}
       tab={tabBH(chung)}
       ghiChuLoc={items.length >= gioiHan ? `Giới hạn ${gioiHan} dòng — gõ cụ thể hơn` : undefined}
@@ -188,6 +193,8 @@ export function BangBHChoSerial({ items, ...chung }: ChungBH & { items: MayChoSe
         { id: 'ngay', ten: 'Ngày lắp', rong: 'minmax(0,1fr)', dienThoai: 'duoiPhai', o: (m) => hienNgay(m.install_date) },
       ]}
       hrefDong={(m) => `/may/${encodeURIComponent(m.serial)}`}
+      maDong={(m) => m.serial}
+      tenMa="mã tạm"
       tong={items.length}
       tab={tabBH(chung)}
       ghiChuLoc={items.length ? 'Mở máy, bấm "Bổ sung serial".' : undefined}

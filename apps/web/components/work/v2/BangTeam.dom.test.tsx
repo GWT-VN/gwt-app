@@ -252,3 +252,13 @@ test('cột Cập nhật đổi định dạng ở menu tiêu đề (URL cot_nga
   )
   expect(screen.getByText(hienNgay(ngay(-20)))).toBeTruthy()
 })
+
+test('bấm tiêu đề cột Hạn → pop lọc có chân "Định dạng ngày" (khuôn F: menu cột đã bỏ) — chọn kiểu → đổi ngay, pop vẫn mở', async () => {
+  const user = userEvent.setup()
+  man()
+  await user.click(screen.getByRole('button', { name: /^Hạn/ }))
+  const nhom = await screen.findByRole('group', { name: 'Định dạng ngày' })
+  expect(within(nhom).getByRole('button', { name: 'Ngày/tháng', pressed: true })).toBeTruthy()
+  await user.click(within(nhom).getByRole('button', { name: 'Ngày đủ năm' }))
+  expect(await within(nhom).findByRole('button', { name: 'Ngày đủ năm', pressed: true })).toBeTruthy()
+})

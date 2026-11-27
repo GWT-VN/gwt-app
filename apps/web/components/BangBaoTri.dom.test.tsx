@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { expect, test, vi } from 'vitest'
@@ -31,7 +31,6 @@ function mo({ rows = [luot], lich }: { rows?: MaintenanceDue[]; lich?: ReactNode
         <KhungChon khoaTrang={rows.map((r) => r.visit_id)} tong={rows.length} bat thamSo={{}}>
           <BangBaoTri
             rows={rows} choChon tabRieng={[]} quyenTabChung={false}
-            demTab={{ 'tat-ca': 9, sap: 3, 'qua-han': 2, 'con-han': 4, xong: 7 }}
             tong={rows.length} trang={1} soTrang={1}
             sapXep={{ cot: 'due_date', tang: true, macDinh: true }}
             lich={lich}
@@ -47,9 +46,11 @@ test('Lịch bảo trì dùng khuôn Ticket F: tìm ở đầu, đủ tab cũ (T
   const toolbar = screen.getByRole('heading', { name: 'Lịch bảo trì' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm lượt bảo trì' })).toBeTruthy()
   const tabs = within(toolbar).getByRole('tablist', { name: 'Tab lượt bảo trì' })
+  // Khuôn F: không số đếm trên tab — bộ đếm duy nhất ở phân trang.
   expect(within(tabs).getAllByRole('tab').map((t) => t.textContent)).toEqual([
-    'Tất cả 9', 'Sắp đến hạn 3', 'Quá hạn 2', 'Còn hạn 4', 'Đã xong 7', 'Lịch tháng ',
+    'Tất cả', 'Sắp đến hạn', 'Quá hạn', 'Còn hạn', 'Đã xong', 'Lịch tháng',
   ])
+  expect(screen.getByText(/trên 1 lượt/)).toBeTruthy()
   const table = screen.getByRole('table', { name: 'Lịch bảo trì' })
   expect(within(table).getByRole('columnheader', { name: /Khách/ }).hasAttribute('data-ghim')).toBe(true)
   expect(within(table).getByText('Chưa khớp khách')).toBeTruthy()
@@ -71,4 +72,40 @@ test('tab Lịch tháng: vẽ lịch thay bảng, không ô tìm / nút Lọc', 
   expect(screen.queryByRole('textbox', { name: 'Tìm lượt bảo trì' })).toBeNull()
   expect(screen.getByRole('tab', { name: /Lịch tháng/ }).getAttribute('aria-selected')).toBe('true')
   sp.v = 'q=an'
+})
+
+test('lọc ở nhãn cột: Tình trạng trên URL → tiêu đề thành chip; "Xoá bộ lọc" bỏ điều kiện trường, giữ tìm', async () => {
+  const user = userEvent.setup()
+  sp.v = 'q=an&tt=QU%C3%81+H%E1%BA%A0N'
+  try {
+    mo()
+    const table = screen.getByRole('table', { name: 'Lịch bảo trì' })
+    expect(within(table).getByRole('columnheader', { name: /Tình trạng: Quá hạn/ })).toBeTruthy()
+    expect(screen.queryByRole('region', { name: 'Điều kiện đang áp dụng' })).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
+    expect(push).toHaveBeenLastCalledWith('/bao-tri?q=an', { scroll: false })
+  } finally {
+    sp.v = 'q=an'
+  }
+})
+
+test('chuột phải dòng → menu sao chép (lượt không có trang chi tiết)', async () => {
+  mo()
+  fireEvent.contextMenu(screen.getByText('Công trình A').closest('tr')!)
+  expect(await screen.findByRole('menuitem', { name: 'Sao chép mã lượt' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép tên khách' })).toBeTruthy()
+  expect(screen.queryByRole('menuitem', { name: 'Mở chi tiết' })).toBeNull()
+})
+test('cột ngày "Đến hạn" lọc ở nhãn cột: đang lọc → chip; bấm tiêu đề mở pop lọc có chân "Định dạng ngày"', async () => {
+  const user = userEvent.setup()
+  sp.v = 'q=an&han=hom-nay~'
+  try {
+    mo()
+    const table = screen.getByRole('table', { name: 'Lịch bảo trì' })
+    const th = within(table).getByRole('columnheader', { name: /Đến hạn: hôm nay/i })
+    await user.click(within(th).getAllByRole('button')[0])
+    expect(await screen.findByRole('group', { name: 'Định dạng ngày' })).toBeTruthy()
+  } finally {
+    sp.v = 'q=an'
+  }
 })

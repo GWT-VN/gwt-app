@@ -2,6 +2,35 @@
 
 Kế hoạch + kiểm kê: `docs/rework/2026-11-27-dong-bo-bang-khuon-f.md`. Worktree `gwt-worktrees/rework-v2.0.0`, app `apps/web`.
 
+## ⚠️ CẬP NHẬT 27/11 chiều — khuôn F bản chốt (ĐÈ các mục cũ bên dưới nếu mâu thuẫn)
+
+CEO chốt trên màn Ticket F rồi đưa vào DS (commit `85357de`). Mẫu chuẩn MỚI để chép: `apps/web/app/ticket/_danh-sach/ds-f.tsx`
+(màn đầy đủ) + `apps/web/components/work/v2/BangTeam.tsx` (màn lọc phía client). Kiểu bảng (tiêu đề 44 viết hoa 600, chữ cách
+mép 20, ô chọn luôn hiện trong bảng) đã là MẶC ĐỊNH của `Table`/`TieuDeCot`/`CHON_BANG` — màn KHÔNG tự đè px/màu.
+
+1. **KHÔNG số đếm nào trên tab hay cạnh tiêu đề.** `useHangTab` đã bỏ prop `demTab`, `DataViewToolbar` bỏ prop `dem`, không dùng
+   `TabsCount`. Xoá luôn phần server đếm cho tab (count head / RPC đếm) ở page — tiết kiệm egress. Bộ đếm DUY NHẤT = `PhanTrang`
+   dưới bảng (`tong` = tổng bản ghi khớp lọc; màn không phân trang: `trang={1} soTrang={1} tong={dong.length}`), bọc `Suspense`
+   nếu component không tự gọi `useSearchParams`.
+2. **Bỏ hẳn hàng chip cũ `ThanhDangLoc` + `ChipLoc` dưới thanh công cụ.** Bộ lọc hiện ở NHÃN CỘT: `TieuDeCot moLoc={moLocCot(
+   truongId, dieuKien, truongLoc, moLocTruong)}` (import `moLocCot`, `useMoLoc` từ `components/ui/bo-loc-truong`) — bấm tiêu đề
+   cột mở thẳng pop lọc của trường đó, đang lọc thì nhãn thành chip "TÊN: GIÁ TRỊ". Cột ↔ trường khác id thì map như `LOC_COT`
+   của BangTeam.
+3. `NutLoc` thêm `onXoaHet={() => <xoá mọi tham số lọc khỏi URL>}` (nút "✕ Xoá bộ lọc") và `coCot={(id) => <đang ở chế độ Bảng> &&
+   <có dòng> && <cột của trường id đang hiện>}` — trường không có cột đang hiện (cột ẩn, Danh sách/Kanban, bảng rỗng) tự hiện chip
+   cạnh nút Xoá. Thiếu `coCot` = điều kiện đó vô hình → lỗi.
+4. Điều kiện của TAB cố định (vd "Gấp", "Cần xin SĐT") không cần chip: tab đang chọn đã nói. Từ khoá tìm đã nằm trong ô tìm.
+5. **Menu chuột phải mỗi dòng**: `TableRow menu={<…ContextMenuItem…/>} tenMenu={\`Thao tác ${ma}\`}` (+ `ListView menuDong` cùng
+   mục). Mục tối thiểu: Mở chi tiết (nếu màn có trang chi tiết) / Xem nhanh (nếu có), Sao chép mã, Sao chép đường dẫn. Icon Phosphor
+   `@phosphor-icons/react/ssr` (ArrowSquareOut, SidebarSimple, Copy, LinkSimple). Không thêm thao tác ghi dữ liệu mới vào menu.
+6. Mã / tên bản ghi chính bấm được để mở (nếu màn có chi tiết) — như ticket.
+7. Badge trạng thái dùng `variant="soft"` + `color` + `<BadgeDot />` đầu nhãn (chấm 6px) — `ChipTrangThai`/`OSuaTrangThai` đã có sẵn.
+8. Ô chọn: `CHON_BANG` (đã gộp với `CHON_BANG_GHIM`) — không tự thêm lề âm/ẩn chờ rê.
+
+Kiểm thêm cho mỗi màn: test DOM cũ tìm `region "Điều kiện đang áp dụng"` / link "Bỏ lọc …" / số trên tab → sửa sang DOM mới GIỮ ý
+kiểm (tab đang chọn `getByRole('tab', {selected:true})`, chip ở tiêu đề `getByRole('columnheader', {name:/giá trị/})`, nút
+"Xoá bộ lọc", bộ đếm `getByText(/trên N/)`).
+
 ## Mẫu phải chép theo (đọc kỹ cả 3 trước khi sửa)
 
 - `apps/web/app/khach-hang/page.tsx` — server: đọc searchParams, gọi list + `listTabView('<bang>')` + đếm tab + tuỳ chọn lọc.

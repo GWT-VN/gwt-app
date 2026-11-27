@@ -33,9 +33,8 @@ export default async function CtkmPage({ searchParams }: { searchParams: Promise
   }
 
   const dk = docTatCa(sp, TRUONG_CTKM)
-  const [ds, tatCa, quyen, nguon, tabRieng, q2] = await Promise.all([
+  const [ds, quyen, nguon, tabRieng, q2] = await Promise.all([
     danhSachCtkm(sp.q ?? '', dk),
-    danhSachCtkm(),
     quyenCtkm(),
     nguonChoForm(),
     listTabView('sales_ctkm_tab'),
@@ -68,11 +67,6 @@ export default async function CtkmPage({ searchParams }: { searchParams: Promise
                 sapXep={sapXep}
                 tabRieng={tabRieng}
                 quyenTabChung={q2.viewChung}
-                demTab={{
-                  'tat-ca': tatCa.length,
-                  'dang-chay': tatCa.filter((c) => c.trang_thai === 'ban_hanh').length,
-                  nhap: tatCa.filter((c) => c.trang_thai === 'nhap').length,
-                }}
                 truong={truong}
                 quyen={quyen}
                 ghiChu={

@@ -66,17 +66,20 @@ export default async function KhoLichSuSuaPage({ searchParams }: { searchParams:
           viDuTen="VD: Sửa trên Sheet"
           khu="Kho"
           truong={TRUONG_LICH_SU.map((x) => ({ ...x, tuyChon: x.id === 'nguon' ? NGUON_SUA : HANH_DONG_SUA }))}
+          locCot={{ hanh_dong: 'hd' }}
           cot={COT}
           dienThoai={{ tren: 'dong', duoi: 'luc', duoiPhai: 'hanh_dong' }}
           tong={tong}
           trang={trang}
           soTrang={Math.max(1, Math.ceil(tong / MOI_TRANG))}
+          moiTrang={MOI_TRANG}
           nutChinh={<NutDauKho />}
           rong={khongLoc ? KHONG_HO_TRO : undefined}
           dong={dong.map((d) => {
             const doi = moTaDoi(d.truoc, d.sau)
             return {
               khoa: String(d.id),
+              ma: d.internal_code ?? undefined,
               o: {
                 luc: <span className="text-muted-foreground">{ngayVN(d.luc)}</span>,
                 hanh_dong: <Badge variant="soft" color={MAU_HANH_DONG[d.hanh_dong] ?? 'secondary'}>{nhanHanhDong(d.hanh_dong)}</Badge>,

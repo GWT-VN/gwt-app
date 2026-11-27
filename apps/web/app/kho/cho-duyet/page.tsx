@@ -62,11 +62,6 @@ export default async function KhoChoDuyetPage({ searchParams }: { searchParams: 
             tabCoDinh={TAB_CHO_DUYET}
             tabRieng={tabRieng}
             quyenTabChung={quyen.viewChung}
-            demTab={{
-              'tat-ca': r.v.length,
-              nhap: r.v.filter((d) => d.loai === 'Nhập').length,
-              xuat: r.v.filter((d) => d.loai === 'Xuất').length,
-            }}
             viDuTen="VD: Xuất chờ duyệt"
             khu="Kho"
             timKiem="Tìm tên trong tin / mã gợi ý / người nhắn…"

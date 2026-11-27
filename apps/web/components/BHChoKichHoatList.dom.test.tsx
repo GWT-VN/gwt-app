@@ -26,12 +26,12 @@ const dong = (p: Partial<BHChoKichHoat>): BHChoKichHoat => ({
   nguon: 'da_lap_chua_kich_hoat', serial: 'SN9', ma_noi_bo: 'M01', ten_noi_bo: 'Máy RO', customer_id: 'c1', ten_khach: 'Khách A',
   sdt_khach: null, dia_chi: 'HN', ngay_lap: '2026-11-01', ngay_dat_hang: null, ma_don: null, so_luong: 1, ...p,
 })
-const chung = { tabRieng: [], quyenTabChung: false, demTab: { 'tat-ca': 3, 'da-lap': 1, 'don-ban': 2, 'cho-serial': 4 } }
+const chung = { tabRieng: [], quyenTabChung: false }
 const bao = (ui: ReactNode) => (
   <DsRoot><CauHinhBangDs><KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{}}>{ui}</KhungChon></CauHinhBangDs></DsRoot>
 )
 
-test('BH chờ kích hoạt theo khuôn F: tìm ở đầu, tab nguồn có số, kích hoạt gửi đúng dữ liệu cũ', async () => {
+test('BH chờ kích hoạt theo khuôn F: tìm ở đầu, tab nguồn (không số — bộ đếm ở phân trang), kích hoạt gửi đúng dữ liệu cũ', async () => {
   const user = userEvent.setup()
   render(bao(
     <BHChoKichHoatList
@@ -43,7 +43,8 @@ test('BH chờ kích hoạt theo khuôn F: tìm ở đầu, tab nguồn có số
   const toolbar = screen.getByRole('heading', { name: 'Chờ kích hoạt BH' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
   expect(within(toolbar).getByRole('textbox', { name: 'Tìm bảo hành chờ kích hoạt' })).toBeTruthy()
   expect(within(toolbar).getByRole('tablist', { name: 'Tab dòng' })).toBeTruthy()
-  expect(screen.getByRole('tab', { name: /Đơn bán/ }).textContent).toContain('2')
+  expect(screen.getByRole('tab', { name: /Đơn bán/ }).textContent).not.toMatch(/\d/)
+  expect(screen.getByText('1–2 trên 2 dòng')).toBeTruthy()
   // Dòng chưa có hồ sơ CSKH → đẩy sang /dang-ky-bh (không kích hoạt tại chỗ).
   expect(screen.getByRole('link', { name: 'Chọn khách…' }).getAttribute('href')).toBe('/dang-ky-bh')
   await user.click(screen.getByRole('button', { name: 'Kích hoạt BH' }))

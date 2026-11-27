@@ -65,6 +65,8 @@ export function BangNhomLoi({
       cot={COT}
       cotDs={COT_DS}
       hrefDong={href}
+      maDong={(r) => r.code}
+      tenMa="mã nhóm"
       tong={rows.length}
       tab={{
         bang: 'nhom_loi_tab', coDinh: TAB_NHOM_LOI, rieng: tabRieng, quyenChung: quyenTabChung,

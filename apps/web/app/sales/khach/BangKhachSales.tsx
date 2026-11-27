@@ -42,7 +42,6 @@ export function BangKhachSales(p: {
   sapXep: SapXep
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   truong: TruongLoc[]
   taoKhach: ReactNode
   ghiChu?: ReactNode

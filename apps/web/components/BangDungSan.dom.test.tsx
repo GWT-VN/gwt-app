@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
@@ -38,7 +38,7 @@ function mo(m: (typeof MAN)[number], dong = [{ khoa: 'a', o: { x: 'Ô một', y:
       <CauHinhBangDs>
         <BangDungSan
           tieuDe={m.ten} nhan="dòng" bang={m.bang} tabCoDinh={m.tab} tabRieng={[]} quyenTabChung={false}
-          demTab={{ [m.tab[0].v]: 7 }} viDuTen="VD" khu="Kho" timKiem={m.tim ? 'Tìm…' : undefined} truong={m.truong}
+          viDuTen="VD" khu="Kho" timKiem={m.tim ? 'Tìm…' : undefined} truong={m.truong}
           cot={[{ id: 'x', ten: 'Cột X', kieu: 'thuong', khoa: true }, { id: 'y', ten: 'Cột Y', kieu: 'thuong', phai: true }]}
           dienThoai={{ tren: 'x', duoi: 'y' }} dong={dong} tong={dong.length} trang={1} soTrang={1}
           nutChinh={<button>Nút chính</button>}
@@ -59,7 +59,9 @@ test.each(MAN)('$ten: khuôn Ticket F — tab, tìm trong thanh công cụ, cộ
   const table = screen.getByRole('table', { name: m.ten })
   expect(table.getAttribute('data-layout')).toBe('fixed')
   expect(within(table).getByRole('columnheader', { name: /Cột X/ }).hasAttribute('data-ghim')).toBe(true)
-  expect(screen.getByRole('tab', { name: new RegExp(m.tab[0].ten) }).textContent).toContain('7')
+  // Khuôn F: tab không mang số; bộ đếm DUY NHẤT là phân trang dưới bảng.
+  expect(screen.getByRole('tab', { selected: true }).textContent).toBe(m.tab[0].ten)
+  expect(screen.getByText(/1–1 trên 1 dòng/)).toBeTruthy()
   // Bấm tab cố định thứ 2: thay bộ lọc bằng bộ lọc của tab, giữ phạm vi kho, bỏ trang.
   await user.click(screen.getByRole('tab', { name: new RegExp(m.tab[1].ten) }))
   expect(replace).toHaveBeenLastCalledWith(`${m.duong}?${m.ky}`, { scroll: false })
@@ -70,4 +72,75 @@ test('rỗng khi đang lọc → EmptyState "không khớp bộ lọc"', () => {
   mo(MAN[1], [])
   expect(screen.getByRole('heading', { name: 'Không có dòng nào khớp bộ lọc' })).toBeTruthy()
   thamSo.v = 'kho=HCM&trang=3'
+})
+
+/** Bảng có cột trùng / khác id với trường lọc (như Nhật ký kho: `loai` ↔ `loai`, `trang_thai` ↔ `tt`, `ngay` không có cột). */
+function moLoc(dong = [{ khoa: '7', o: { x: 'Dòng bảy' }, href: '/kho/ma/LOI-01', ma: 'LOI-01' }, { khoa: '8', o: { x: 'Dòng tám' } }]) {
+  duongDan.v = '/kho/nhat-ky'
+  const chon = (...g: string[]) => g.map((x) => ({ giaTri: x, nhan: x }))
+  render(
+    <DsRoot>
+      <CauHinhBangDs>
+        <BangDungSan
+          tieuDe="Nhật ký nhập / xuất" nhan="dòng sổ" bang="kho_nhat_ky_tab" tabCoDinh={TAB_NHAT_KY} tabRieng={[]} quyenTabChung={false}
+          viDuTen="VD" khu="Kho" timKiem="Tìm…"
+          truong={[
+            { id: 'loai', ten: 'Loại', kieu: 'chon', tuyChon: chon('Nhập', 'Xuất') },
+            { id: 'tt', ten: 'Trạng thái', kieu: 'chon', tuyChon: chon('approved', 'void') },
+            { id: 'ngay', ten: 'Ngày nghiệp vụ', kieu: 'ngay' },
+          ]}
+          locCot={{ trang_thai: 'tt' }}
+          cot={[
+            { id: 'x', ten: 'Cột X', kieu: 'thuong', khoa: true },
+            { id: 'loai', ten: 'Loại', kieu: 'thuong' },
+            { id: 'trang_thai', ten: 'Trạng thái', kieu: 'thuong' },
+          ]}
+          dienThoai={{ tren: 'x' }} dong={dong} tong={240} trang={2} soTrang={3} moiTrang={100}
+        />
+      </CauHinhBangDs>
+    </DsRoot>,
+  )
+}
+
+test('lọc ở nhãn cột: chip "TÊN: GIÁ TRỊ" ở tiêu đề (cả cột khác id trường); trường không có cột → chip cạnh nút Lọc; "Xoá bộ lọc" giữ kho + tìm', async () => {
+  const user = userEvent.setup()
+  thamSo.v = `kho=HCM&q=loi&loai=${encodeURIComponent('Nhập')}&tt=void&ngay=khoang~2026-11-01..2026-11-27&trang=2`
+  try {
+    moLoc()
+    const table = screen.getByRole('table', { name: 'Nhật ký nhập / xuất' })
+    expect(within(table).getByRole('columnheader', { name: /Loại: Nhập/ })).toBeTruthy()
+    expect(within(table).getByRole('columnheader', { name: /Trạng thái: void/ })).toBeTruthy()
+    // Không còn hàng chip cũ dưới thanh công cụ.
+    expect(screen.queryByRole('region', { name: 'Điều kiện đang áp dụng' })).toBeNull()
+    const toolbar = screen.getByRole('heading', { name: 'Nhật ký nhập / xuất' }).closest('[data-slot="data-view-toolbar"]') as HTMLElement
+    const chip = toolbar.querySelectorAll('[data-slot="chip-loc"]')
+    expect(chip.length).toBe(1)
+    expect(chip[0].textContent).toContain('Ngày nghiệp vụ')
+    await user.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
+    expect(push).toHaveBeenLastCalledWith('/kho/nhat-ky?kho=HCM&q=loi', { scroll: false })
+  } finally {
+    thamSo.v = 'kho=HCM&trang=3'
+  }
+})
+
+test('bộ đếm duy nhất = phân trang theo số dòng mỗi trang của nguồn', () => {
+  moLoc()
+  expect(screen.getByText('101–200 trên 240 dòng sổ')).toBeTruthy()
+  expect(screen.getByText('Trang 2 / 3')).toBeTruthy()
+})
+
+test('chuột phải dòng → Mở chi tiết / Sao chép mã / Sao chép đường dẫn; dòng không có trang chi tiết chỉ còn Sao chép mã', async () => {
+  moLoc()
+  fireEvent.contextMenu(screen.getByText('Dòng bảy').closest('tr')!)
+  expect(await screen.findByRole('menu', { name: 'Thao tác LOI-01' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép mã' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép đường dẫn' })).toBeTruthy()
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Mở chi tiết' }))
+  expect(push).toHaveBeenLastCalledWith('/kho/ma/LOI-01')
+
+  fireEvent.contextMenu(screen.getByText('Dòng tám').closest('tr')!)
+  expect(await screen.findByRole('menu', { name: 'Thao tác 8' })).toBeTruthy()
+  expect(screen.getByRole('menuitem', { name: 'Sao chép mã' })).toBeTruthy()
+  expect(screen.queryByRole('menuitem', { name: 'Mở chi tiết' })).toBeNull()
+  expect(screen.queryByRole('menuitem', { name: 'Sao chép đường dẫn' })).toBeNull()
 })

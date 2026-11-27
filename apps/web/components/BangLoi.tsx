@@ -3,14 +3,16 @@
 import { useRef, type ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ArrowSquareOut, Copy, LinkSimple } from '@phosphor-icons/react/ssr'
 import type { CoreDue, TabView } from '@/app/actions'
-import { KHOA_LOC_LOI, SAP, TAB_LOI, TRUONG_LOI, TT_LOI } from '@/app/loi/truong-loi'
-import { hrefBoLoc, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDangLoc, useDaChon, type SapXep } from '@/bang'
+import { SAP, TAB_LOI, TRUONG_LOI, TT_LOI } from '@/app/loi/truong-loi'
+import { OChonDong, OChonTatCa, OTimKiem, PhanTrang, useDaChon, type SapXep } from '@/bang'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { useHangTab } from '@/components/HangTab'
 import { ThayLoiButton } from '@/components/ThayLoiButton'
 import { Badge } from '@/components/ui/badge'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, type CotDanhSach } from '@/components/ui/list-view'
@@ -45,6 +47,31 @@ const COT: CotBang[] = [
   { id: 'ghi', ten: 'Ghi log', kieu: 'thuong' },
 ]
 const THEO_ID = new Map(COT.map((cot) => [cot.id, cot]))
+/** Cột bảng → trường lọc (TRUONG_LOI): bấm tiêu đề mở thẳng pop lọc (khuôn F; pop có chân "Định dạng ngày" cho cột ngày). */
+const LOC_COT: Record<string, string> = { tinh_trang: 'tt', han_som: 'han' }
+
+const duongDanMay = (r: CoreDue) => `/may/${encodeURIComponent(r.serial)}`
+
+/** Menu chuột phải một dòng lõi (bảng + ListView): chi tiết = trang máy của dòng. */
+function MenuLoi({ r, mo }: { r: CoreDue; mo: (r: CoreDue) => void }) {
+  return (
+    <>
+      <ContextMenuItem onSelect={() => mo(r)}>
+        <ArrowSquareOut aria-hidden="true" />
+        Mở chi tiết máy
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(r.serial)}>
+        <Copy aria-hidden="true" />
+        Sao chép serial
+      </ContextMenuItem>
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDanMay(r))}>
+        <LinkSimple aria-hidden="true" />
+        Sao chép đường dẫn
+      </ContextMenuItem>
+    </>
+  )
+}
 
 const O: Record<string, (r: CoreDue, kieuNgay: KieuNgay) => { o: ReactNode; title?: string }> = {
   customer_name: (r) => ({
@@ -66,7 +93,7 @@ const O: Record<string, (r: CoreDue, kieuNgay: KieuNgay) => { o: ReactNode; titl
   }),
   serial: (r) => ({
     o: (
-      <Link href={`/may/${encodeURIComponent(r.serial)}`} prefetch={false} className="tabular-nums hover:underline">
+      <Link href={duongDanMay(r)} prefetch={false} className="tabular-nums hover:underline">
         {r.serial}
       </Link>
     ),
@@ -98,7 +125,7 @@ const COT_DS: CotDanhSach<CoreDue>[] = [
     rong: 'minmax(0,2fr)',
     dienThoai: 'tren',
     o: (r) => (
-      <Link href={`/may/${encodeURIComponent(r.serial)}`} prefetch={false} className="min-w-0 truncate font-medium hover:underline">
+      <Link href={duongDanMay(r)} prefetch={false} className="min-w-0 truncate font-medium hover:underline">
         {r.customer_name ?? r.serial}
       </Link>
     ),
@@ -110,7 +137,7 @@ const COT_DS: CotDanhSach<CoreDue>[] = [
 
 /** Lịch thay lõi `/loi` — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). */
 export function BangLoi({
-  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, demTab, canhBao, xuatExcel, thanhDaChon,
+  rows, tong, trang, soTrang, sapXep, choChon, tabRieng, quyenTabChung, canhBao, xuatExcel, thanhDaChon,
 }: {
   rows: CoreDue[]
   tong: number
@@ -120,7 +147,6 @@ export function BangLoi({
   choChon: boolean
   tabRieng: TabView[]
   quyenTabChung: boolean
-  demTab: Record<string, number>
   /** Lời nhắc theo bộ lọc đang xem (vd tab Quá hạn) — đứng ngay trên bảng. */
   canhBao?: ReactNode
   xuatExcel?: ReactNode
@@ -141,7 +167,7 @@ export function BangLoi({
   const dk = docTatCa(params, TRUONG_LOI)
   const truongLoc: TruongLoc[] = TRUONG_LOI.map((x) => ({ id: x.id, ten: x.ten, kieu: x.kieu, tuyChon: x.id === 'tt' ? TT_LOI : undefined }))
   const tenGiaTri = (g: string) => TT_LOI.find((y) => y.giaTri === g)?.nhan ?? g
-  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
   const dieuKienTat = [
     ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
     ...dk.map((d) => {
@@ -149,12 +175,11 @@ export function BangLoi({
       return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
     }),
   ]
-  const hrefXoaLoc = hrefBoLoc(pathname, params, ...KHOA_LOC_LOI)
+  const dangLoc = dieuKienTat.length > 0
   const hangTab = useHangTab({
     bang: 'loi_tab',
     coDinh: TAB_LOI,
     tabRieng,
-    demTab,
     quyenTabChung,
     nhan: 'dòng lõi',
     khu: 'CSKH',
@@ -178,13 +203,8 @@ export function BangLoi({
   }
 
   const datLoc = (id: string, d: DieuKienLoc | null) => doiUrl({ [id]: ghiDieuKien(d, TRUONG_LOI.find((x) => x.id === id)!.kieu) })
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  const moMay = (r: CoreDue) => router.push(duongDanMay(r))
+  const laBang = rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU
 
   return (
     <>
@@ -198,7 +218,15 @@ export function BangLoi({
         loc={
           <>
             {xuatExcel}
-            <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
+            {/* "Xoá bộ lọc" xoá điều kiện lọc trường (giữ tìm, sắp, cột). */}
+            <NutLoc
+              ref={refNutLoc}
+              truong={truongLoc}
+              dieuKien={dk}
+              onDoi={datLoc}
+              onXoaHet={() => doiUrl(Object.fromEntries(TRUONG_LOI.map((x) => [x.id, null])))}
+              coCot={(id) => laBang && rows.length > 0 && cotBang.hien.some((c) => LOC_COT[c.id] === id)}
+            />
           </>
         }
         caiDat={
@@ -214,27 +242,19 @@ export function BangLoi({
           />
         }
       />
-      <ThanhDangLoc
-        dieuKien={dieuKien}
-        hienThi={rows.length}
-        tong={tong}
-        nhan="dòng (máy × lõi)"
-        anSoDong
-        sapXep={sapXep.macDinh ? undefined : sapXep}
-        hrefXoaLoc={hrefXoaLoc}
-      />
       {canhBao}
       {/* Khung < 640 (điện thoại) → ListView; còn lại Bảng, hết chỗ thì cuộn ngang (khuôn Ticket F). */}
       <div ref={khungRef} className="border-none border-current">
-      {rongKhung !== null && rongKhung < RONG_BANG_TOI_THIEU ? (
+      {!laBang ? (
         rows.length > 0 && (
           <ListView
             aria-label="Lịch thay lõi"
             cot={COT_DS}
             dong={rows}
             khoa={khoaDong}
-            onMo={(r) => router.push(`/may/${encodeURIComponent(r.serial)}`)}
+            onMo={moMay}
             moKhi="ten"
+            menuDong={(r) => <MenuLoi r={r} mo={moMay} />}
           />
         )
       ) : (
@@ -264,6 +284,7 @@ export function BangLoi({
                       macDinh: sapXep.macDinh,
                       onDoi: (chieu) => doiSapXep(chieu ? { cot: cot.id, tang: chieu === 'tang' } : null),
                     } : undefined}
+                    moLoc={LOC_COT[cot.id] ? moLocCot(LOC_COT[cot.id], dk, truongLoc, moLocTruong) : undefined}
                   />
                 ))}
                 <ThemCot cot={COT} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -272,7 +293,12 @@ export function BangLoi({
             <TableBody>
               {/* Khoá dòng = (serial, filter_code): một máy có NHIỀU lõi nên riêng serial không định danh được một dòng. */}
               {rows.map((r) => (
-                <TableRow key={khoaDong(r)} chon={khoaDaChon.has(khoaDong(r))}>
+                <TableRow
+                  key={khoaDong(r)}
+                  chon={khoaDaChon.has(khoaDong(r))}
+                  menu={<MenuLoi r={r} mo={moMay} />}
+                  tenMenu={`Thao tác lõi ${r.filter_code} · ${r.serial}`}
+                >
                   <OChonDong khoa={khoaDong(r)} moTa={`lõi ${r.filter_code} của máy ${r.serial}`} />
                   {cotBang.hien.map((cot, i) => {
                     const { o, title } = O[cot.id](r, cotBang.kieuNgay(cot.id))
@@ -295,12 +321,13 @@ export function BangLoi({
       {!rows.length && (
         <EmptyState
           size="sm"
-          kieu={dieuKien.length ? 'loc' : 'that'}
-          tieuDe={dieuKien.length ? 'Không có lõi nào khớp' : 'Chưa có lịch thay lõi'}
-          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Lõi tới hạn thay theo từng máy sẽ hiện ở đây.'}
+          kieu={dangLoc ? 'loc' : 'that'}
+          tieuDe={dangLoc ? 'Không có lõi nào khớp' : 'Chưa có lịch thay lõi'}
+          moTa={dangLoc ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Lõi tới hạn thay theo từng máy sẽ hiện ở đây.'}
         />
       )}
-      <PhanTrang trang={trang} soTrang={soTrang} />
+      {/* Bộ đếm DUY NHẤT của màn (khuôn F): tổng dòng (máy × lõi) khớp lọc. */}
+      <PhanTrang trang={trang} soTrang={soTrang} tong={tong} nhan="dòng lõi" />
       {thanhDaChon}
     </>
   )
