@@ -63,7 +63,11 @@ type OnDoi = (truong: string, d: DieuKienLoc | null) => void
 /** Mở từ tiêu đề cột: thêm "Ẩn cột" ở cuối pop (CEO 27/11 "chỉ giữ lại action ẩn cột ở cuối cùng"). */
 /** Phần thêm ở CHÂN pop lọc mở từ tiêu đề cột (menu cột cũ đã bỏ — CEO 27/11): Định dạng ngày (cột ngày) + Ẩn cột. */
 export type PhuMoLoc = { anCot?: () => void; ngay?: NgayCot }
-export type MoLocRef = { mo: (truong: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => void }
+export type MoLocRef = {
+  mo: (truong: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => void
+  /** Bỏ điều kiện của trường (nút × trên chip nhãn cột). */
+  xoa?: (truong: string) => void
+}
 
 /**
  * Nối nút "Lọc" + các chip với chỗ mở từ ngoài (menu tiêu đề cột): `<NutLoc ref={x.nut}>`, `<ChipLoc ref={x.chip(id)}>`,
@@ -90,7 +94,10 @@ export function useMoLoc() {
         }
         return f
       },
-      mo: (id: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => (chip.get(id) ?? nut)?.mo(id, neo, phu),
+      // `mo.xoa`: gắn vào chính hàm `mo` để `moLocCot(id, dk, truong, mo)` có nút × mà 10 bên gọi không phải đổi.
+      mo: Object.assign((id: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => (chip.get(id) ?? nut)?.mo(id, neo, phu), {
+        xoa: (id: string) => nut?.xoa?.(id),
+      }),
     }
   })
   return x
@@ -401,7 +408,12 @@ function focusKeBen(g: HTMLElement | null) {
  * `TieuDeCot moLoc` của một cột lọc được: chip nhãn "TÊN: GIÁ TRỊ" khi đang lọc + bấm tiêu đề mở thẳng pop lọc (kèm
  * "Ẩn cột") — CEO 27/11. `mo` = `useMoLoc().mo`. Trường không có trong `truong` → undefined (cột không lọc).
  */
-export function moLocCot(id: string, dieuKien: DieuKienLoc[], truong: TruongLoc[], mo: MoLocRef['mo']) {
+export function moLocCot(
+  id: string,
+  dieuKien: DieuKienLoc[],
+  truong: TruongLoc[],
+  mo: MoLocRef['mo'] & { xoa?: (truong: string) => void },
+) {
   const x = truong.find((y) => y.id === id)
   if (!x) return undefined
   const d = dieuKien.find((y) => y.truong === id)
@@ -409,6 +421,7 @@ export function moLocCot(id: string, dieuKien: DieuKienLoc[], truong: TruongLoc[
     dang: !!d,
     giaTri: d ? nhanChip(d, x.ten, tenGiaTri(x)).giaTri : undefined,
     onMo: (neo: HTMLElement, phu?: PhuMoLoc) => mo(id, neo, phu),
+    onXoa: d && mo.xoa ? () => mo.xoa!(id) : undefined,
   }
 }
 
@@ -448,6 +461,7 @@ export function NutLoc({
       setNhap(dieuKien.find((d) => d.truong === id) ?? moi(x))
       setMo(true)
     },
+    xoa: (id) => onDoi(id, null),
   }))
   const t = nhap && truong.find((x) => x.id === nhap.truong)
   // Đổi trang trong pop đang mở (danh sách ↔ sửa) → focus ô đầu của trang mới.

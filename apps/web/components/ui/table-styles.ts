@@ -163,10 +163,20 @@ export const thSortPhai = 'justify-end'
  */
 export const thChipLoc = cn(
   kv,
-  'inline-flex min-w-0 items-center gap-1.5 h-6 -ml-2 px-2 rounded-(--radius-full) font-semibold',
+  // Đệm 7 + viền 1 = 8: chữ chip vẫn thẳng chữ ô.
+  'inline-flex min-w-0 items-center gap-1.5 h-6 -ml-2 px-[7px] rounded-(--radius-full) font-semibold',
   'bg-(--color-background-info-surface) text-(--color-text-info) tabular-nums',
-  // Bấm được (mở pop lọc) → con trỏ tay + nền đậm hơn khi rê.
-  'cursor-pointer hover:bg-(--color-background-info-soft-alpha)',
+  // Bấm được (mở pop lọc) → con trỏ tay; rê = VIỀN xanh đậm lên (CEO 27/11 "hover vào chip thì stroke đậm lên").
+  'cursor-pointer border border-solid border-(--color-border-info-surface) hover:border-(--color-border-info-outline)',
+)
+/** Chip có nút × (bỏ lọc nhanh, CEO 27/11): phải lùi còn 2 cho ô × tròn 20 nằm gọn trong chip. */
+export const thChipLocX = 'pr-0.5 gap-0.5'
+/** Phần chữ của chip có × = nút mở pop lọc (nút × là anh em — không lồng nút trong nút). */
+export const thChipMo = cn(
+  kv,
+  'inline-flex min-w-0 items-center gap-1.5 h-full m-0 p-0 border-0 bg-transparent rounded-(--radius-full)',
+  'font-[inherit] text-inherit cursor-pointer [outline:none] [&_svg]:size-3 [&_svg]:shrink-0',
+  'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-(--ring)',
 )
 /** `.b-th-loc`: icon lọc DS + số giá trị đang lọc, 12/18 color-text-info tabular, icon 12 (Phosphor regular). */
 export const thLoc = cn(

@@ -235,6 +235,9 @@ dời 1px cho tâm chip trùng tâm chữ nhãn. (4) **ListView**: `dongCuoi` (d
 Danh sách/Gọn/Bảng đều sắp theo cột; ô trống trong bảng = "Thêm" mờ. (8) Mẫu **menu chuột phải = đủ thao tác thanh hàng
 loạt** (Work: `KhungThaoTacViec` + `MenuThaoTacViec` — menu con > 10 mục có ô tìm; dòng nằm trong lựa chọn ≥ 2 → áp cả lựa
 chọn; hộp xoá sống ngoài menu); bỏ "Sao chép mã / đường dẫn". (9) Bảng ticket: mã ticket chữ mờ (muted), khẩn vẫn đỏ.
+(10) **Chip lọc ở nhãn cột** (`thChipLoc`): viền 1px info-surface, RÊ = viền info-outline đậm (thay nền đậm); đệm trái 7 +
+viền 1 = chữ vẫn thẳng ô. `moLoc.onXoa` (từ `moLocCot` — `useMoLoc().mo.xoa`) → chip có nút × (`chipX` bang-styles) bỏ lọc
+cột ngay, focus về tiêu đề; chữ chip = nút mở pop (`th-chip-mo`), × là nút anh em; bấm phần trống ô tiêu đề vẫn mở pop.
 
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.

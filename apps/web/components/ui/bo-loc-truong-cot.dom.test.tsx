@@ -29,7 +29,7 @@ const COT: CotBang[] = [
   { id: 'cs', ten: 'Phụ trách', rong: 84, kieu: 'loc' },
 ]
 
-function Man({ dau = [] }: { dau?: DieuKienLoc[] }) {
+function Man({ dau = [], coX = false }: { dau?: DieuKienLoc[]; coX?: boolean }) {
   const [dk, setDk] = useState(dau)
   const [an, setAn] = useState<string[]>([])
   const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
@@ -50,7 +50,11 @@ function Man({ dau = [] }: { dau?: DieuKienLoc[] }) {
               <TieuDeCot
                 key={c.id}
                 cot={c}
-                moLoc={{ dang: dk.some((d) => d.truong === c.id), onMo: (neo, phu) => moLocTruong(c.id, neo, phu) }}
+                moLoc={{
+                  dang: dk.some((d) => d.truong === c.id),
+                  onMo: (neo, phu) => moLocTruong(c.id, neo, phu),
+                  onXoa: coX ? () => doi(c.id, null) : undefined,
+                }}
                 menuCot={{ trai: null, phai: null, onDoi: () => {}, onAn: () => setAn((x) => [...x, c.id]) }}
               />
             ))}
@@ -108,6 +112,21 @@ describe('bấm tiêu đề cột → pop lọc của cột (không menu cột)'
     const pop = await screen.findByRole('dialog', { name: 'Lọc Trạng thái' })
     expect(within(pop).getByRole('option', { name: 'Đang mở' }).getAttribute('aria-checked')).toBe('true')
     expect(screen.queryByRole('menu')).toBeNull()
+  })
+
+  test('chip có × (CEO 27/11): × bỏ lọc cột ngay, focus về tiêu đề; bấm phần trống của ô vẫn mở pop', async () => {
+    const user = userEvent.setup()
+    render(<Man coX dau={[{ truong: 'tt', phep: 'la', giaTri: ['Open'] }, { truong: 'cs', phep: 'la', giaTri: ['Mai'] }]} />)
+    // Phần trống của ô tiêu đề (không trúng nút) → mở pop của cột.
+    await user.click(screen.getByRole('button', { name: /^Phụ trách/ }).closest('th')!)
+    expect(await screen.findByRole('dialog', { name: 'Lọc Phụ trách' })).toBeTruthy()
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    await user.click(within(screen.getByRole('table')).getByRole('button', { name: 'Bỏ lọc Trạng thái' }))
+    expect(chip()).toEqual(['Phụ trách: Mai'])
+    expect(within(screen.getByRole('table')).queryByRole('button', { name: 'Bỏ lọc Trạng thái' })).toBeNull()
+    await waitFor(() => expect(document.activeElement).toBe(nutCot('Trạng thái')))
+    expect(nutCot('Trạng thái').textContent).not.toContain('đang lọc')
   })
 
   test('cuối pop có "Ẩn cột" → đóng pop, ẩn cột', async () => {

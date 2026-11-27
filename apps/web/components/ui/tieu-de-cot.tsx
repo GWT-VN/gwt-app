@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type PointerEventHandler,
   type ReactNode,
 } from 'react'
@@ -28,12 +29,13 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, EyeSlash, SlidersHorizontal } from '@phosphor-icons/react/ssr'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, EyeSlash, SlidersHorizontal, X } from '@phosphor-icons/react/ssr'
 import { KIEU_NGAY, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import type { PhuMoLoc } from './bo-loc-truong'
 import { Badge, BadgeDot } from './badge'
+import { chipX } from './bang-styles'
 import { useDsPortal } from './ds-root'
 import {
   DropdownMenu,
@@ -102,7 +104,14 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
    * `onMo(nút tiêu đề)` — thường là `useMoLoc().mo(id, neo)`. `dang` = trường đang có điều kiện → dấu phễu trên tiêu đề.
    * Mọi kiểu cột dùng được (kể cả cột khoá). Dùng thay `loc` (tick nhanh "là") khi màn có bộ lọc theo trường.
    */
-  moLoc?: { dang: boolean; onMo: (neo: HTMLElement, phu?: PhuMoLoc) => void; /** Giá trị đang lọc → chip "TÊN: GIÁ TRỊ". */ giaTri?: string }
+  moLoc?: {
+    dang: boolean
+    onMo: (neo: HTMLElement, phu?: PhuMoLoc) => void
+    /** Giá trị đang lọc → chip "TÊN: GIÁ TRỊ". */
+    giaTri?: string
+    /** Có → chip có nút × bỏ lọc cột này ngay (CEO 27/11 "thêm icon X để tắt filter nhanh"). */
+    onXoa?: () => void
+  }
   /**
    * Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp → `onDoi(null)` = về mặc định: `cot.rong` khai sẵn, không khai thì
    * vừa nội dung — `useCotBang().coDan`).
@@ -227,17 +236,22 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
 
   // Cột đang lọc: NHÃN thành chip xanh nhạt (chữ cột + phễu) thay hàng chip lọc trên bảng (CEO 27/11 "Tô label thôi là
   // được. cho label hiện thành chip"). Chip nằm trong vùng rê đã nới của nút tiêu đề (thSort).
+  const chuChip = (
+    <>
+      <span className="min-w-0 truncate">
+        {cot.ten}
+        {moLoc?.giaTri ? `: ${moLoc.giaTri}` : ''}
+      </span>
+      <SlidersHorizontal aria-hidden="true" />
+      {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
+      <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
+    </>
+  )
   const nhan = (
     <>
       {dangLoc ? (
         <span data-slot="th-chip-loc" className={s.thChipLoc}>
-          <span className="min-w-0 truncate">
-            {cot.ten}
-            {moLoc?.giaTri ? `: ${moLoc.giaTri}` : ''}
-          </span>
-          <SlidersHorizontal aria-hidden="true" />
-          {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
-          <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
+          {chuChip}
         </span>
       ) : (
         <span className="min-w-0 truncate">{cot.ten}</span>
@@ -255,8 +269,54 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   )
 
   const nutLop = cn(s.thSort, cot.phai && s.thSortPhai)
+  const moPop = (neo: HTMLElement) => {
+    if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
+    moLoc?.onMo(neo, { anCot: menuCot?.onAn ? anCot : undefined, ngay })
+  }
+  // Chip có × : chữ chip = nút mở pop, × = nút anh em; bấm phần trống của ô (hay mép chip) vẫn mở pop như trước.
+  const coX = !!moLoc?.onXoa && dangLoc
+  const bamO = coX
+    ? (e: ReactMouseEvent) => {
+        if ((e.target as Element).closest('button, [role=separator]')) return
+        const nut = oRef.current?.querySelector<HTMLElement>('[data-slot="th-chip-mo"]')
+        if (nut) moPop(nut)
+      }
+    : undefined
   let noiDung: ReactNode
-  if (moLoc) {
+  if (moLoc && coX) {
+    noiDung = (
+      <span data-slot="th-chip-loc" className={cn(s.thChipLoc, s.thChipLocX)}>
+        <button
+          type="button"
+          ref={datTay}
+          data-slot="th-chip-mo"
+          className={s.thChipMo}
+          aria-haspopup="dialog"
+          aria-describedby={moTa}
+          onKeyDown={phimKeo}
+          onPointerDown={nhanKeo}
+          onClick={(e) => moPop(e.currentTarget)}
+        >
+          {chuChip}
+        </button>
+        <button
+          type="button"
+          className={chipX}
+          aria-label={`Bỏ lọc ${cot.ten}`}
+          // Không để cảm biến kéo cột (nghe pointerdown ở ô) bắt đầu kéo khi bấm ×.
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => {
+            moLoc.onXoa?.()
+            bao?.(`Đã bỏ lọc cột ${cot.ten}.`)
+            // Nút × mất cùng chip → focus về nút tiêu đề vừa dựng lại.
+            requestAnimationFrame(() => oRef.current?.querySelector<HTMLElement>('button')?.focus())
+          }}
+        >
+          <X aria-hidden="true" />
+        </button>
+      </span>
+    )
+  } else if (moLoc) {
     // Cột lọc được: bấm tiêu đề = mở THẲNG pop lọc của cột, cuối pop có "Ẩn cột" — không còn menu cột (CEO 27/11 "bấm vào
     // thì cho hiện phần lọc ra luôn. chỉ giữ lại action ẩn cột ở cuối cùng"). Dời cột = kéo (chuột) / Space (phím).
     // Không preventDefault pointerdown: cảm biến kéo dnd-kit bỏ qua sự kiện đã bị chặn.
@@ -270,10 +330,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
         aria-describedby={moTa}
         onKeyDown={phimKeo}
         onPointerDown={nhanKeo}
-        onClick={(e) => {
-          if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
-          moLoc.onMo(e.currentTarget, { anCot: menuCot?.onAn ? anCot : undefined, ngay })
-        }}
+        onClick={(e) => moPop(e.currentTarget)}
       >
         {nhan}
       </button>
@@ -448,6 +505,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
       className={cn(s.th, coKeo && !cot.khoa && s.thKeo, s.oKeo, cot.phai && s.phai, ghim && s.thGhim, className)}
       style={{ zIndex: Math.max(3, 20 - viTri) }}
       onPointerDown={nhanKeo}
+      onClick={bamO}
     >
       {noiDung}
       {coDan && (
