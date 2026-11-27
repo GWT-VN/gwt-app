@@ -207,10 +207,18 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
     </button>
   ),
   // Bấm tên khách = mở ticket như bấm mã (CEO 27/11 "Cho phép ấn vào ticket hoặc tên khách để vào ticket").
+  // Ticket khẩn (đang mở): badge "Khẩn" (Badge DS soft danger) ngay sau tên khách (CEO 27/11).
   khach: (t, { mo }) => (
-    <button type="button" className={cn(nutMoTen, 'block max-w-full truncate text-left')} title={tenKhach(t)} onClick={() => mo(t.ticket_code)}>
-      {tenKhach(t)}
-    </button>
+    <span className="flex min-w-0 items-center gap-2 border-none border-current">
+      <button type="button" className={cn(nutMoTen, 'block min-w-0 truncate text-left')} title={tenKhach(t)} onClick={() => mo(t.ticket_code)}>
+        {tenKhach(t)}
+      </button>
+      {laKhan(t) && (
+        <Badge variant="soft" color="danger" className="shrink-0">
+          Khẩn
+        </Badge>
+      )}
+    </span>
   ),
   // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
   // hàng); tên đầy đủ + serial ở title.

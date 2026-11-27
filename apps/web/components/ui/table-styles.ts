@@ -50,14 +50,17 @@ export const tableWrapVien = cn(
  */
 export const tableWrapLuoi = cn(
   tableWrapVien,
-  // Không vạch giữa cột ô chọn và cột đầu (CEO 27/11, học Twenty) — ô chứa ô tick bỏ qua.
-  '[&_th:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-08)]!',
-  '[&_td:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-08)]!',
+  // Vạch cột alpha-05 = kẻ ngang dòng (CEO 27/11 "border cột mờ thêm"; trước 08). Không vạch giữa cột ô chọn và cột
+  // đầu (CEO 27/11, học Twenty) — ô chứa ô tick bỏ qua.
+  '[&_th:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-05)]!',
+  '[&_td:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-05)]!',
   '[&_th]:[border-top-style:none]! [&_tbody>tr:last-child>td]:[border-bottom-style:none]!',
   // Ô tick cách viền trái = khoảng trên/dưới: (44 − 18) / 2 = 13 (CEO 27/11 "padding đều trên dưới bên trái"; bảng dòng giữ 8).
   'md:[&_:is(th,td):has(>input[type=checkbox],>[role=checkbox])]:pl-[13px]!',
-  // Đệm nội dung một nửa bảng dòng (CEO 27/11): chữ ở 10 — ô thân đệm 10; tiêu đề 2 + nút 8 (chip lọc vẫn lấp đúng 8).
-  '[&_td:not(:has(>input[type=checkbox],>[role=checkbox]))]:px-2.5! [&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:px-0.5!',
+  // Đệm nội dung (CEO 27/11 "giảm còn 1 nửa" rồi "bên trái cột rộng thêm 4px"): chữ ở 14 trái · 10 phải — ô thân 14/10;
+  // tiêu đề 6 + nút 8 = 14 (chip lọc vẫn lấp đúng 8 của nút).
+  '[&_td:not(:has(>input[type=checkbox],>[role=checkbox]))]:pl-3.5! [&_td:not(:has(>input[type=checkbox],>[role=checkbox]))]:pr-2.5!',
+  '[&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pl-1.5! [&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pr-0.5!',
 )
 /** Phân trang của bảng lưới: thẳng ô tick (viền khung 1 + đệm 13). */
 export const phanTrangLuoi = cn(kv, 'mt-3 flex items-center justify-between gap-2 md:pl-[14px] text-[12px] leading-[18px] text-muted-foreground')
