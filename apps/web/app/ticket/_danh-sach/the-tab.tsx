@@ -12,7 +12,7 @@ import { listLanLoi } from '@/app/ticket/lan-loi-actions'
 import { ganErp, taoViec, timViec, viecGanErp, type ViecTeamRow } from '@/app/work/actions'
 import { NhanKetQua, NoiDungLan } from '@/app/ticket/[code]/_prototype/ct-gon'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
+import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
@@ -212,6 +212,7 @@ export function TicketKhacThat({ t, moDuoc, onMo }: { t: Ticket; moDuoc: (ma: st
             </ItemContent>
             <ItemActions>
               <Badge variant="soft" color={m?.color}>
+                <BadgeDot />
                 {m?.nhan}
               </Badge>
             </ItemActions>
@@ -260,6 +261,7 @@ export function ViecDaGan({ t, lan }: { t: Ticket; lan: number }) {
             </ItemContent>
             <ItemActions>
               <Badge variant="soft" color={v.status === 'done' ? 'success' : undefined}>
+                <BadgeDot />
                 {TT_VIEC[v.status] ?? v.status}
               </Badge>
             </ItemActions>

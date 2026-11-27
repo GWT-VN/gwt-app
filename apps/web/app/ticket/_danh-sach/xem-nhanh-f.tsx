@@ -35,7 +35,7 @@ import type { ReactNode } from 'react'
 import type { Ticket } from '@/app/actions'
 import { NhanKetQua, NoiDungLan, TRUOC } from '@/app/ticket/[code]/_prototype/ct-gon'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
+import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -93,6 +93,7 @@ function TongQuan({ t, nhanVien, luu, lanViec }: { t: DongF; nhanVien: NhanVien;
                 <OSuaTrangThai ma={t.ticket_code} value={{ tt: t.state }} muc={TT} onLuu={(v) => luu({ state: v.tt as Ticket['state'] })} />
               ) : (
                 <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
+                  <BadgeDot />
                   {TT.find((m) => m.gt === t.state)?.nhan}
                 </Badge>
               )}
@@ -309,6 +310,7 @@ function TicketKhac({ t, rows, moDuoc, onMo }: { t: DongF; rows: DongF[]; moDuoc
             </ItemContent>
             <ItemActions>
               <Badge variant="soft" color={TT.find((m) => m.gt === x.state)?.color}>
+                <BadgeDot />
                 {TT.find((m) => m.gt === x.state)?.nhan}
               </Badge>
             </ItemActions>

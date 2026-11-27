@@ -17,7 +17,7 @@ import { isoNgay, ngayTuIso } from '@/bang/ngay'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from './avatar'
-import { Badge, BadgeCaret, type badgeVariants } from './badge'
+import { Badge, BadgeCaret, BadgeDot, type badgeVariants } from './badge'
 import { Calendar } from './calendar'
 import { calendarPop } from './calendar-styles'
 import { ComboboxPanel } from './combobox'
@@ -240,6 +240,8 @@ export type GiaTriTrangThai = { tt: string; lyDo?: string }
 export function ChipTrangThai({ muc, value, caret }: { muc?: MucTrangThai; value: GiaTriTrangThai; caret?: boolean }) {
   return (
     <Badge variant="soft" color={muc?.color ?? 'secondary'}>
+      {/* Chấm 6px màu chữ badge đầu nhãn trạng thái (CEO 27/11 "thêm một icon tròn màu bên trong label nằm trước"). */}
+      <BadgeDot />
       {muc?.nhan ?? value.tt}
       {/* Khoảng trắng đầu bị gộp mất trong flex (không hiện) nhưng giữ chữ "Chờ · KT" cho trình đọc màn hình. */}
       {value.lyDo && <span className={chipPhu}> · {value.lyDo}</span>}
