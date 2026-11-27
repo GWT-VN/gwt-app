@@ -14,10 +14,10 @@ import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
-import { boDau, hrefBoLoc, KhungChon, OChonO, OTimKiem, ThanhDaChon, ThanhDangLoc } from '@/bang'
+import { boDau, KhungChon, OChonO, OTimKiem, PhanTrang, ThanhDaChon } from '@/bang'
 import { apLoc, canGiaTri, docTatCa, ghiDieuKien, TOI, type DieuKienLoc, type TruongDuLieu } from '@/bang/locTruong'
 import type { NenTang, ViecTeamRow } from '@/app/work/actions'
-import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,7 @@ import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type DangXem } from '@/com
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { BangTrangThai } from '@/components/ui/table'
 import { CHON_BANG } from '@/components/ui/table-styles'
-import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanChip, soNgayToiHan } from '@/lib/work'
 import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, TT, UU, type GiaTriNhap } from './chung'
@@ -35,6 +35,7 @@ import {
   COT_TEAM as COT,
   docSap,
   KanbanViec,
+  MenuViec,
   NGHIA,
   soNgayKhongDung,
   soSanh,
@@ -211,20 +212,6 @@ export function BangTeam({
     hien: dong.map((v) => v.id).join(','),
   }
 
-  const dieuKien = [
-    tab === 'gap' && {
-      nhan: 'Gấp',
-      giaTri: 'quá hạn + hạn hôm nay + P1',
-      href: hrefBoLoc(pathname, sp, 'tab'),
-    },
-    tab === 'lau' && {
-      nhan: 'Lâu không đụng',
-      giaTri: `chưa xong · ${NGAY_LAU} ngày không cập nhật`,
-      href: hrefBoLoc(pathname, sp, 'tab'),
-    },
-    q && { nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, sp, 'q') },
-  ].filter((d): d is { nhan: string; giaTri: string; href: string } => !!d)
-
   // ── Bộ lọc theo trường: giá trị chọn lấy từ dữ liệu CHƯA lọc (danh sách không co lại theo chính bộ lọc đang bật) ──
   const dangChon = (id: string) => dk.find((d) => d.truong === id)?.giaTri ?? []
   const idNguoi = [...new Set([...rows.flatMap((v) => v.assignees.map((a) => a.staff_id)), ...dangChon('nguoi')])]
@@ -246,15 +233,8 @@ export function BangTeam({
   const truongLoc: TruongLoc[] = TRUONG_VIEC.map((x) => ({ id: x.id, ten: x.ten, kieu: x.kieu, tuyChon: tuyChon[x.id] }))
   const datLoc = (id: string, d: DieuKienLoc | null) =>
     datUrl({ [id]: ghiDieuKien(d, TRUONG_VIEC.find((x) => x.id === id)!.kieu) })
-  // Menu tiêu đề cột → "Lọc…" mở pop lọc của đúng trường; đã có chip → mở chip đó (như ticket F).
-  const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
-  const dieuKienLoc = [
-    ...dieuKien,
-    ...dk.map((d) => {
-      const x = truongLoc.find((y) => y.id === d.truong)!
-      return { nhan: x.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={x} dieuKien={d} onDoi={datLoc} /> }
-    }),
-  ]
+  // Bấm tiêu đề cột → pop lọc của đúng trường; đang lọc → nhãn cột thành chip kèm giá trị (khuôn F — như ticket).
+  const { nut: refNutLoc, mo: moLocTruong } = useMoLoc()
 
   const cotDs: CotDanhSach<ViecTeamRow>[] = [
     {
@@ -313,7 +293,7 @@ export function BangTeam({
         tieuDe="Chưa có việc nào"
         moTa="Việc bạn được xem sẽ hiện ở đây. Tạo việc đầu tiên bằng nút + Việc mới."
       />
-    ) : dong.length === 0 && tab === 'lau' && dieuKienLoc.length === 1 ? (
+    ) : dong.length === 0 && tab === 'lau' && !q && !dk.length ? (
       // Chỉ có điều kiện của tab → đây là tin TỐT, không phải "lọc sai".
       <BangTrangThai
         trangThai="rongThat"
@@ -344,6 +324,7 @@ export function BangTeam({
         onMo={(v) => moViec(v.id)}
         moKhi="ten"
         dongNhap={nhap ? oNhapDs : undefined}
+        menuDong={(v) => <MenuViec v={v} moViec={moViec} />}
       />
     ) : (
       <BangViec
@@ -351,11 +332,9 @@ export function BangTeam({
         c={c}
         sap={sap}
         onSap={datSap}
-        moLoc={(cot) => {
-          const id = LOC_COT[cot]
-          return id ? { dang: dk.some((d) => d.truong === id), onMo: (neo, phu) => moLocTruong(id, neo, phu) } : undefined
-        }}
+        moLoc={(cot) => (LOC_COT[cot] ? moLocCot(LOC_COT[cot], dk, truongLoc, moLocTruong) : undefined)}
         o={o}
+        menu={(v) => <MenuViec v={v} moViec={moViec} />}
         dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}
       />
     )
@@ -371,7 +350,6 @@ export function BangTeam({
         >
           <DataViewToolbar
             tieuDe="Bảng team"
-            dem={{ thay: dong.length, tong: rows.length }}
             timKiem={
               <Suspense>
                 <OTimKiem placeholder="Tìm tiêu đề, mã việc, khách…" aria-label="Tìm việc" />
@@ -395,16 +373,22 @@ export function BangTeam({
                 <TabsList variant="pill" aria-label="Nhóm việc">
                   {TAB.map((t) => (
                     <TabsTrigger key={t.v} value={t.v}>
-                      {t.ten}{' '}
-                      <TabsCount color={t.v === 'gap' && nguon.gap.length ? 'danger' : undefined}>
-                        {nguon[t.v].length}
-                      </TabsCount>
+                      {t.ten}
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
             }
-            loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
+            loc={
+              <NutLoc
+                ref={refNutLoc}
+                truong={truongLoc}
+                dieuKien={dk}
+                onDoi={datLoc}
+                onXoaHet={() => datUrl(Object.fromEntries(KHOA_TRUONG.map((k) => [k, null])))}
+                coCot={(id) => dangXem === 'bang' && dong.length > 0 && c.hien.some((x) => LOC_COT[x.id] === id)}
+              />
+            }
             caiDat={
               <CaiDatHienThi
                 dangXem={dangXem}
@@ -422,16 +406,6 @@ export function BangTeam({
             onXemNhanh={(bat) => (bat ? dong[0] && xemViec.mo(dong[0].id) : xemViec.dong())}
           />
 
-          <ThanhDangLoc
-            dieuKien={dieuKienLoc}
-            hienThi={dong.length}
-            tong={rows.length}
-            nhan="việc"
-            // Số "đang thấy x / y" đã ở cạnh tiêu đề (như ticket F — CEO 26/11 "bỏ vì thừa").
-            anSoDong
-            sapXep={cotUrl ? { ...sap, macDinh: false } : undefined}
-          />
-
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
             tong={dong.length}
@@ -447,6 +421,12 @@ export function BangTeam({
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
             </ThanhDaChon>
           </KhungChon>
+          {/* Bộ đếm DUY NHẤT của màn (khuôn F — CEO 27/11): màn không phân trang → luôn 1 trang. Kanban đếm ở từng cột. */}
+          {dangXem !== 'kanban' && dong.length > 0 && (
+            <Suspense>
+              <PhanTrang trang={1} soTrang={1} tong={dong.length} nhan="việc" />
+            </Suspense>
+          )}
         </CauHinhBangDs>
       </TrangDuLieu>
     </KhungXemViec>

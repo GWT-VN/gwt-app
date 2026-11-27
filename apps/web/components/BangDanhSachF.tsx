@@ -147,7 +147,6 @@ export function BangDanhSachF<T>({
       <div className="border-none border-current">
         <DataViewToolbar
           tieuDe={tieuDe}
-          dem={{ thay: rows.length, tong }}
           timKiem={<OTimKiem placeholder={timKiem.placeholder} aria-label={timKiem.nhan} />}
           nutChinh={nutChinh}
           tabs={hangTab.tabs}

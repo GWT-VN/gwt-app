@@ -33,7 +33,6 @@ import {
 import type { Icon } from '@phosphor-icons/react'
 import { Popover as PopoverPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
-import { Badge } from './badge'
 import { Button } from './button'
 import { CotHienThi } from './cot-hien-thi'
 import {
@@ -146,7 +145,7 @@ export function CongCuXem({ dangXem, onDoiXem, dangXemCo, xemNhanh, onXemNhanh, 
 
 /**
  * DataViewToolbar — đầu trang + thanh công cụ dùng chung cho mọi màn dữ liệu (README DataViewToolbar, chốt 18/11):
- * 1. Đầu trang: tiêu đề 24/28 600 · badge số lượng (soft secondary) · ô tìm (slot, rộng 240 + icon kính lúp) · nút chính.
+ * 1. Đầu trang: tiêu đề 24/28 600 (KHÔNG số đếm — CEO 27/11: đếm duy nhất ở PhanTrang "1–N trên N") · ô tìm (slot, rộng 240 + icon kính lúp) · nút chính.
  * 2. Hàng tab (slot `tabs` — DS `Tabs` biến thể `pill`) + `CongCuXem` bên phải.
  * - Đổi dạng xem không đụng tab / lọc / sắp: thanh chỉ báo `onDoiXem`, tab + lọc sống ở URL / màn (CHUAN-FILTER).
  * - Ô tìm là của màn (vd `OTimKiem` của bang/ trong `CauHinhBangDs`): thanh chỉ đặt chỗ + icon + bề rộng.
@@ -155,7 +154,6 @@ export function CongCuXem({ dangXem, onDoiXem, dangXemCo, xemNhanh, onXemNhanh, 
 export function DataViewToolbar({
   tieuDe,
   capTieuDe: H = 'h1',
-  dem,
   timKiem,
   nutChinh,
   tabs,
@@ -164,8 +162,6 @@ export function DataViewToolbar({
   tieuDe: ReactNode
   /** Cấp thẻ tiêu đề — trang tài liệu (/ds) dùng h2. */
   capTieuDe?: 'h1' | 'h2'
-  /** Badge số lượng: `thay` (bằng `tong`) hoặc "`thay` / `tong`". */
-  dem?: { thay: number; tong: number }
   timKiem?: ReactNode
   nutChinh?: ReactNode
   tabs?: ReactNode
@@ -174,13 +170,6 @@ export function DataViewToolbar({
     <div data-slot="data-view-toolbar" className={dvGoc}>
       <header className={dvDau}>
         <H className={dvTieuDe}>{tieuDe}</H>
-        {dem && (
-          // Badge số lượng trung tính (CEO 27/11 "cho một cái badge số lượng luôn ko cần phải đang thấy").
-          <Badge variant="soft" color="secondary" className="tabular-nums" aria-live="polite" aria-atomic="true">
-            {dem.thay === dem.tong ? dem.thay : `${dem.thay} / ${dem.tong}`}
-            <span className="sr-only"> kết quả</span>
-          </Badge>
-        )}
         <span aria-hidden="true" className="flex-1 border-none border-current" />
         {timKiem && (
           <div data-slot="data-view-search" className={dvTim}>

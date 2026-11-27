@@ -160,7 +160,6 @@ export function BangBaoTri({
   const toolbar = (
     <DataViewToolbar
       tieuDe="Lịch bảo trì"
-      dem={lich ? undefined : { thay: rows.length, tong }}
       timKiem={lich ? undefined : <OTimKiem placeholder="Tên khách, SĐT, bộ máy, công trình…" aria-label="Tìm lượt bảo trì" />}
       tabs={hangTab.tabs}
       dangXem="bang"

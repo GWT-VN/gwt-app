@@ -13,8 +13,8 @@ import { BocGoiY, useCauHinh } from './CauHinh'
  * `tong` (tuỳ chọn): hiện thêm "1–50 trên 472 <nhan>" ở đầu (`moiTrang` mặc định 50,
  * khớp hàm liệt kê; truyền đúng số mỗi trang nếu trang dùng số khác).
  *
- * `luonHien`: vẫn hiện khi chỉ 1 trang (nút tắt) — màn bỏ số đếm ở tiêu đề/tab, lấy "1–7 trên 7" ở đây làm bộ đếm
- * duy nhất (CEO 27/11 Ticket "Nên cho hiển thị bằng pagination ở dưới ấy").
+ * `luonHien` (MẶC ĐỊNH bật, CEO 27/11 "áp dụng hết"): vẫn hiện khi chỉ 1 trang (nút tắt) nếu có `tong` — phân trang
+ * "1–7 trên 7" là bộ đếm DUY NHẤT của màn dữ liệu (không số ở tiêu đề / tab). `false` = ẩn khi 1 trang như cũ.
  *
  * Dùng useSearchParams -> component gọi PhanTrang phải nằm trong <Suspense>.
  */
@@ -24,7 +24,7 @@ export function PhanTrang({
   tong,
   moiTrang = 50,
   nhan = 'dòng',
-  luonHien = false,
+  luonHien = true,
 }: {
   trang: number
   soTrang: number

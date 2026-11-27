@@ -352,8 +352,8 @@ describe('cột ghim — cột khoá đứng đầu dính trái khi cuộn ngang
     expect(CHON_BANG_GHIM.chon_oTd).not.toContain('bg-none')
     expect(CHON_BANG_GHIM.chon_oTd).not.toContain('md:bg-transparent')
     // Kẻ ngang chạy tới ô chọn (không trong suốt ở lề).
-    expect(CHON_BANG_GHIM.chon_oTd).toContain('md:border-b-(--alpha-05)')
-    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('md:border-b-transparent')
+    expect(CHON_BANG_GHIM.chon_oTd).toContain('border-b-(--alpha-05)')
+    expect(CHON_BANG_GHIM.chon_oTd).not.toContain('border-b-transparent')
     // Ô chọn luôn hiện — không ẩn chờ rê.
     expect(CHON_BANG_GHIM.chon_oTd).not.toContain('*:opacity-0')
     expect(CHON_BANG_GHIM.chon_oTh).not.toContain('*:opacity-0')

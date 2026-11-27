@@ -132,7 +132,6 @@ export function BangMkt<T>({
         <DataViewToolbar
           tieuDe={tieuDe}
           capTieuDe="h2"
-          dem={{ thay: shown.length, tong: rows.length }}
           timKiem={<OTimKiem placeholder={timGoiY} aria-label={`Tìm ${nhan}`} />}
           tabs={coTab ? hangTab.tabs : undefined}
           dangXem="bang"

@@ -118,7 +118,6 @@ export function BangDungSan({
       <div className="border-none border-current">
         <DataViewToolbar
           tieuDe={tieuDe}
-          dem={{ thay: dong.length, tong }}
           timKiem={timKiem ? <OTimKiem placeholder={timKiem} aria-label={`Tìm ${nhan}`} /> : undefined}
           nutChinh={nutChinh}
           tabs={hangTab.tabs}

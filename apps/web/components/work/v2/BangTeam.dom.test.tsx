@@ -75,18 +75,21 @@ test('mặc định: mọi việc, sắp theo ưu tiên (gấp trước, khoá p
   expect(ma()).toEqual(['VIEC-1', 'VIEC-4', 'VIEC-3', 'VIEC-2'])
 })
 
-test('tab Gấp = chưa xong và (P1 hoặc quá hạn/hôm nay), sắp theo hạn; chip Gấp có link bỏ', () => {
+test('tab Gấp = chưa xong và (P1 hoặc quá hạn/hôm nay), sắp theo hạn; tab Gấp đang chọn, không số đếm trên tab (khuôn F)', () => {
   m.sp = new URLSearchParams('tab=gap')
   man()
   expect(ma()).toEqual(['VIEC-2', 'VIEC-1'])
-  expect(screen.getByRole('link', { name: 'Bỏ lọc Gấp' }).getAttribute('href')).toBe('/work/team')
+  expect(screen.getByRole('tab', { name: 'Gấp', selected: true })).toBeTruthy()
+  // Bộ đếm duy nhất ở phân trang.
+  expect(screen.getByText(/trên 2 việc/)).toBeTruthy()
 })
 
-test('lọc người từ URL: chỉ việc có người đó, chip ghi tên', () => {
+test('lọc người từ URL: chỉ việc có người đó, nhãn cột Người thành chip ghi tên (khuôn F)', () => {
   m.sp = new URLSearchParams('nguoi=u1')
   man()
   expect(ma()).toEqual(['VIEC-1'])
-  expect(within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' })).getByText('Demo An')).toBeTruthy()
+  expect(screen.getByRole('columnheader', { name: /Demo An/ })).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Xoá bộ lọc' })).toBeTruthy()
 })
 
 test('chọn 2 dòng → Đánh dấu xong gọi hangLoat một lượt, báo số bỏ qua', async () => {
@@ -108,9 +111,9 @@ test('lọc team từ URL (link cũ `?team=`): chỉ việc thuộc team đó, c
   const user = userEvent.setup()
   man()
   expect(ma()).toEqual(['VIEC-1'])
-  const chip = within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' }))
-  expect(chip.getByText('Team A')).toBeTruthy()
-  await user.click(screen.getByRole('button', { name: 'Bỏ lọc Team' }))
+  // Team không có cột → chip ở thanh công cụ cạnh nút Xoá bộ lọc (khuôn F `NutLoc coCot`).
+  expect(screen.getByText(/Team A/)).toBeTruthy()
+  await user.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }))
   expect(m.replace).toHaveBeenLastCalledWith('/work/team', { scroll: false })
   // Nút Lọc (phễu) thay "Thêm team" · "Thêm người" (CEO 26/11 "Thay bằng nút Lọc").
   expect(screen.queryByRole('button', { name: 'Thêm team' })).toBeNull()
@@ -234,8 +237,7 @@ test('tab Lâu không đụng: chưa xong và ≥ 14 ngày không cập nhật, 
     </DsRoot>,
   )
   expect(ma()).toEqual(['VIEC-5', 'VIEC-1'])
-  expect(within(screen.getByRole('region', { name: 'Điều kiện đang áp dụng' })).getByText(/14 ngày không cập nhật/))
-    .toBeTruthy()
+  expect(screen.getByRole('tab', { name: 'Lâu không đụng', selected: true })).toBeTruthy()
   // Cột Cập nhật mặc định Tương đối: 20 ngày → "20 ngày trước"; quá 30 ngày (40) → ngày ngắn.
   expect(screen.getByText('20 ngày trước')).toBeTruthy()
   expect(screen.getByText(hienNgay(ngay(-40), 'tuong-doi'))).toBeTruthy()

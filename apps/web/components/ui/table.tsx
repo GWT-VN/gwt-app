@@ -5,6 +5,7 @@ import { createContext, useContext, type ComponentProps, type ReactNode } from '
 import { cn } from '@/lib/utils'
 import { Alert, AlertActions, AlertDescription, AlertTitle } from './alert'
 import { Button } from './button'
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from './context-menu'
 import { EmptyState } from './empty-state'
 import { Skeleton, VungDoc } from './skeleton'
 import * as s from './table-styles'
@@ -100,14 +101,20 @@ export function TableFooter({ className, ...props }: ComponentProps<'tfoot'>) {
  * vào. Roving `tabIndex` (0 cho dòng trỏ, −1 cho dòng khác) do màn đặt. `ContextMenuTrigger asChild` gắn
  * `data-state=open|closed` lên dòng → `chon` thắng (NGUON: trigger asChild đè `data-state`).
  */
+/**
+ * `menu` (+ `tenMenu`): chuột phải dòng → ContextMenu DS với các mục đó (CEO 27/11 "bảng action khi chuột phải vào một
+ * row" — như `ListView menuDong`). Không có `menu` = dòng thường.
+ */
 export function TableRow({
   chon,
   conTro,
+  menu,
+  tenMenu,
   className,
   'data-state': dataState,
   ...props
-}: ComponentProps<'tr'> & { chon?: boolean; conTro?: boolean; 'data-state'?: string }) {
-  return (
+}: ComponentProps<'tr'> & { chon?: boolean; conTro?: boolean; 'data-state'?: string; menu?: ReactNode; tenMenu?: string }) {
+  const tr = (
     <tr
       data-slot="table-row"
       data-con-tro={conTro ? '' : undefined}
@@ -115,6 +122,13 @@ export function TableRow({
       {...props}
       data-state={chon ? 'selected' : dataState}
     />
+  )
+  if (!menu) return tr
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{tr}</ContextMenuTrigger>
+      <ContextMenuContent aria-label={tenMenu ?? 'Thao tác dòng'}>{menu}</ContextMenuContent>
+    </ContextMenu>
   )
 }
 

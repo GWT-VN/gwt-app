@@ -348,16 +348,41 @@ function focusKeBen(g: HTMLElement | null) {
   ;(ke?.querySelector<HTMLElement>('button') ?? g?.ownerDocument.querySelector<HTMLElement>('[data-slot="nut-loc"]'))?.focus()
 }
 
-/** Nút "Lọc" (thanh công cụ DataViewToolbar, khe `loc`) + pop chọn trường → sửa điều kiện. */
+/**
+ * `TieuDeCot moLoc` của một cột lọc được: chip nhãn "TÊN: GIÁ TRỊ" khi đang lọc + bấm tiêu đề mở thẳng pop lọc (kèm
+ * "Ẩn cột") — CEO 27/11. `mo` = `useMoLoc().mo`. Trường không có trong `truong` → undefined (cột không lọc).
+ */
+export function moLocCot(id: string, dieuKien: DieuKienLoc[], truong: TruongLoc[], mo: MoLocRef['mo']) {
+  const x = truong.find((y) => y.id === id)
+  if (!x) return undefined
+  const d = dieuKien.find((y) => y.truong === id)
+  return {
+    dang: !!d,
+    giaTri: d ? nhanChip(d, x.ten, tenGiaTri(x)).giaTri : undefined,
+    onMo: (neo: HTMLElement, phu?: PhuMoLoc) => mo(id, neo, phu),
+  }
+}
+
+/**
+ * Nút "Lọc" (thanh công cụ DataViewToolbar, khe `loc`) + pop chọn trường → sửa điều kiện. `onXoaHet` → khi đang có điều
+ * kiện, nút "✕ Xoá bộ lọc" (ghost, có chữ) đứng TRƯỚC nút Lọc (CEO 27/11 "Thêm nút reset filter… label rõ ràng") — thay
+ * "Xoá lọc" của hàng chip cũ. `coCot` (khuôn F): trường nào đang hiện thành chip ở nhãn cột (`moLocCot`) → `true`; điều
+ * kiện của trường KHÔNG có cột đang hiện (cột ẩn, trường không có cột, chế độ Danh sách/Kanban) hiện `ChipLoc` ngay trước
+ * nút Xoá — bộ lọc đang bật luôn thấy được ở đâu đó.
+ */
 export function NutLoc({
   truong,
   dieuKien,
   onDoi,
+  onXoaHet,
+  coCot,
   ref,
 }: {
   truong: TruongLoc[]
   dieuKien: DieuKienLoc[]
   onDoi: OnDoi
+  onXoaHet?: () => void
+  coCot?: (truongId: string) => boolean
   ref?: Ref<MoLocRef>
 }) {
   const [mo, setMo] = useState(false)
@@ -386,6 +411,19 @@ export function NutLoc({
     setMo(o)
   }
   return (
+    <>
+    {coCot &&
+      dieuKien.map((d) => {
+        const x = !coCot(d.truong) && truong.find((y) => y.id === d.truong)
+        return x && <ChipLoc key={d.truong} truong={x} dieuKien={d} onDoi={onDoi} />
+      })}
+    {onXoaHet && dieuKien.length > 0 && (
+      <Button variant="ghost" size="sm" onClick={onXoaHet}>
+        <X aria-hidden="true" />
+        {/* Khổ điện thoại: chỉ icon (thanh công cụ 390 tràn mép — đo 27/11), chữ vẫn cho trình đọc màn hình. */}
+        <span className="max-sm:sr-only">Xoá bộ lọc</span>
+      </Button>
+    )}
     <Popover open={mo} onOpenChange={doiMo}>
       {/* Cụm công cụ DataViewToolbar = nút icon ghost 32, icon 18 + tooltip (README) — y nút ⚙. */}
       <TooltipNhanh content="Lọc theo trường">
@@ -446,6 +484,7 @@ export function NutLoc({
         )}
       </PopoverContent>
     </Popover>
+    </>
   )
 }
 

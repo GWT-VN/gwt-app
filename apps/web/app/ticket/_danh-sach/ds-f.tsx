@@ -19,7 +19,6 @@ import {
   User,
   UserPlus,
   Wrench,
-  X,
 } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
 import { KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
@@ -38,7 +37,7 @@ import type { MayKhach } from '@/app/ticket/loi-actions'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM, phanTrangLuoi } from '@/components/ui/table-styles'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
@@ -47,7 +46,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { XemNhanh } from '@/components/ui/xem-nhanh'
 import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
-import { NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { chuaLuu, laDemo, mayLoi, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { HopGanViec } from './the-tab'
@@ -329,9 +328,7 @@ function DongBang({ t, hien, ng, menu }: { t: Dong; hien: CotBang[]; ng: NgCanhO
   // Chuột phải vào dòng → menu thao tác của ticket (CEO 27/11 "thêm bảng action khi chuột phải vào một row") — ContextMenu
   // DS như `ListView menuDong`.
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-    <TableRow chon={daChon.includes(t.ticket_code)}>
+    <TableRow chon={daChon.includes(t.ticket_code)} menu={menu} tenMenu={`Thao tác ${t.ticket_code}`}>
       <OChonDong khoa={t.ticket_code} moTa={`ticket ${t.ticket_code}`} />
       {hien.map((c, i) => (
         <TableCell key={c.id} cot={c.id} phai={c.phai} ghim={laGhim(c, i)}>
@@ -341,9 +338,6 @@ function DongBang({ t, hien, ng, menu }: { t: Dong; hien: CotBang[]; ng: NgCanhO
       {/* Ô dưới cột "+" (ThemCot). */}
       <TableCell aria-hidden="true" />
     </TableRow>
-      </ContextMenuTrigger>
-      <ContextMenuContent aria-label={`Thao tác ${t.ticket_code}`}>{menu}</ContextMenuContent>
-    </ContextMenu>
   )
 }
 
@@ -558,11 +552,6 @@ export function TicketF({
   // Lọc hiện ngay ở nhãn cột thành chip (tieu-de-cot) — KHÔNG còn hàng chip lọc phía trên (CEO 27/11 "Bỏ hết chip filter
   // cũ nhé. chốt bản filter hiện ở label"). Sửa/gỡ điều kiện qua menu tiêu đề cột hoặc nút Lọc.
   const thamSoLoc = TRUONG_F.map((x) => x.id)
-  const giaTriLoc = (id: string) => {
-    const d = dk.find((y) => y.truong === id)
-    const x = truongLoc.find((y) => y.id === id)
-    return d && x ? nhanChip(d, x.ten, (g) => x.tuyChon?.find((o) => o.giaTri === g)?.nhan ?? g).giaTri : undefined
-  }
   // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo — tab tự tạo tự lưu bộ lọc đang xem (tab-ticket.tsx).
   const hangTab = useTabTicket({
     tabRieng,
@@ -691,16 +680,7 @@ export function TicketF({
                         }
                       : undefined
                   }
-                  moLoc={
-                    TRUONG_F.some((y) => y.id === x.id)
-                      ? {
-                          dang: dk.some((d) => d.truong === x.id),
-                          // Chip ở nhãn kèm giá trị đang lọc (CEO 27/11 thử "BẢO HÀNH: CHƯA KÍCH HOẠT").
-                          giaTri: giaTriLoc(x.id),
-                          onMo: (neo, phu) => moLocTruong(x.id, neo, phu),
-                        }
-                      : undefined
-                  }
+                  moLoc={moLocCot(x.id, dk, truongLoc, moLocTruong)}
                 />
               ))}
               <ThemCot cot={COT} an={c.an} onHien={c.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
@@ -763,16 +743,19 @@ export function TicketF({
             nutChinh={<NutTaoTicket />}
             tabs={dangXem === 'kanban' ? undefined : hangTab.tabs}
             loc={
-              <>
-                {/* Xoá mọi điều kiện lọc trường (giữ tìm, sắp, cột) — CEO 27/11 "Thêm nút reset filter" cạnh nút Lọc. */}
-                {dk.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => dat(Object.fromEntries(thamSoLoc.map((k) => [k, null])))}>
-                    <X aria-hidden="true" />
-                    Xoá bộ lọc
-                  </Button>
-                )}
-                <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
-              </>
+              // "Xoá bộ lọc" xoá mọi điều kiện lọc trường (giữ tìm, sắp, cột).
+              <NutLoc
+                ref={refNutLoc}
+                truong={truongLoc}
+                dieuKien={dk}
+                onDoi={datLoc}
+                onXoaHet={() => dat(Object.fromEntries(thamSoLoc.map((k) => [k, null])))}
+                coCot={(id) =>
+                  dangXem !== 'kanban' && dong.length > 0 &&
+                  (rongKhung === null || rongKhung >= RONG_BANG_TOI_THIEU) &&
+                  c.hien.some((x) => x.id === id)
+                }
+              />
             }
             caiDat={
               <CaiDatHienThi

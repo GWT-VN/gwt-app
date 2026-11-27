@@ -70,7 +70,6 @@ export function TicketD({ rows, tong, demo }: DuLieuTicket) {
       <CauHinhBangDs giaoDien={O_TIM_PILL}>
         <DataViewToolbar
           tieuDe="Ticket CSKH"
-          dem={{ thay: the.length, tong }}
           timKiem={
             <Suspense>
               <OTimKiem placeholder="Mã ticket, serial, khách, SĐT…" aria-label="Tìm ticket" />

@@ -12,36 +12,16 @@ import { cn } from '@/lib/utils'
 const kv = 'border-none border-current'
 
 /*
- * Cột ô chọn nằm NGOÀI mép bảng (CEO 23/11): khung cuộn có ô chọn-tất-cả ở cột đầu → lùi trái đúng bề rộng cột chọn
- * (36 — khớp `<col>` 36 của các bảng) và nở thêm 36, nên cột dữ liệu đầu thẳng mép nội dung trang, ô chọn nằm ở lề. Chỉ từ md (lề trang ≥ 46);
- * dưới md lề 24 không đủ chỗ → cột chọn ở trong bảng như cũ. Khung có viền (`tableWrapVien`) không lùi.
- * (Lớp viết nguyên chuỗi ở từng chỗ — Tailwind chỉ quét chuỗi literal.)
- * NGOẠI LỆ bảng có cột GHIM (`th[data-ghim]`, bản ticket F — CEO 26/11 "align lại" + ô chọn luôn hiện như Twenty): ô
- * chọn nằm TRONG mép nội dung, mép trái ô tick thẳng tiêu đề trang (cặp `:has` → đè được lớp lùi ở trên).
+ * Cột ô chọn nằm TRONG mép bảng, luôn hiện, dính trái (khuôn F — CEO 27/11 áp mọi bảng; trước 23/11 ở lề ngoài + ẩn chờ
+ * rê, 26/11 bảng ticket đổi sang như Twenty). Xem `CHON_BANG`.
  */
 
 /** `.b-bang-khung`: tự cuộn hai chiều (header sticky dính trong khung), thanh cuộn ẩn — vẫn cuộn bằng chuột/phím. */
-export const tableWrap = cn(
-  kv,
-  'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:-ml-9',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-[calc(100%+36px)]',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:has-[>table>thead>tr>th[data-ghim]]:ml-0',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:has-[>table>thead>tr>th[data-ghim]]:w-full',
-)
+export const tableWrap = cn(kv, 'relative w-full overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
 /** `table-container` của shadcn (`Table` đứng ngoài `TableWrap`): cuộn ngang, thanh cuộn ẩn như `TableWrap`. */
-export const tableContainer = cn(
-  kv,
-  'relative w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:-ml-9',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-[calc(100%+36px)]',
-)
+export const tableContainer = cn(kv, 'relative w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden')
 /** `.ui-table-wrap`: viền 1px border, bo radius-xl, nền card (khối trạng thái của preview). */
-export const tableWrapVien = cn(
-  'border border-solid border-(--border) rounded-(--radius-xl) bg-card',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:ml-0',
-  'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-full',
-)
+export const tableWrapVien = cn('border border-solid border-(--border) rounded-(--radius-xl) bg-card')
 
 /**
  * Bảng LƯỚI (CEO 27/11 "làm thêm một version ở dạng table… thêm border cho trái phải và các cột. Bo góc 24px"): khung viền
@@ -58,9 +38,9 @@ export const tableWrapLuoi = cn(
   // Ô tick cách viền trái = khoảng trên/dưới: (44 − 18) / 2 = 13 (CEO 27/11 "padding đều trên dưới bên trái"; bảng dòng giữ 8).
   'md:[&_:is(th,td):has(>input[type=checkbox],>[role=checkbox])]:pl-[13px]!',
   // Đệm nội dung (CEO 27/11 "giảm còn 1 nửa" rồi "bên trái cột rộng thêm 4px"): chữ ở 14 trái · 10 phải — ô thân 14/10;
-  // tiêu đề 6 + nút 8 = 14 (chip lọc vẫn lấp đúng 8 của nút).
+  // tiêu đề cũng 14/10 (nút tiêu đề lùi −8 vào đệm, chữ vẫn ở 14).
   '[&_td:not(:has(>input[type=checkbox],>[role=checkbox]))]:pl-3.5! [&_td:not(:has(>input[type=checkbox],>[role=checkbox]))]:pr-2.5!',
-  '[&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pl-1.5! [&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pr-0.5!',
+  '[&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pl-3.5! [&_th:not(:has(>input[type=checkbox],>[role=checkbox]))]:pr-2.5!',
 )
 /** Phân trang của bảng lưới: thẳng ô tick (viền khung 1 + đệm 13). */
 export const phanTrangLuoi = cn(kv, 'mt-3 flex items-center justify-between gap-2 md:pl-[14px] text-[12px] leading-[18px] text-muted-foreground')
@@ -79,42 +59,34 @@ export const tableFixed = 'table-fixed has-[>colgroup[data-cho-do]]:invisible'
 export const oTick =
   '[&>[role=checkbox]]:top-0 [&>[role=checkbox]]:grid [&>input[type=checkbox]]:top-0 [&>input[type=checkbox]]:grid'
 
-/** `.b-bang th`: dính đầu, z 2, cao 36, đệm ngang 10, nền background, kẻ dưới alpha-08, chữ 12/18 400 muted, trái. */
+/**
+ * `.b-bang th` — KHUÔN F là mặc định MỌI bảng dữ liệu (CEO 27/11 "áp dụng hết… lưu vào DS trước"; trước chỉ bảng có cột
+ * ghim): dính đầu z 2, cao 44 = dòng thân, kẻ TRÊN + dưới alpha-08, chữ 12/18 600 VIẾT HOA giãn nhẹ, màu tertiary (như
+ * Twenty). Đệm ngang 20 = ô thân (`td`); nút tiêu đề (`thSort`) lùi −8 hai bên vào đệm → vùng rê/kéo/chip lọc rộng hơn mà
+ * chữ vẫn ở 20 (ảnh Figma CEO 12 + 8). Ô chọn (ô tick) giữ đệm riêng (`cotChon`/`chon_oTh`). Viết hoa ép xuống cả con
+ * (`**:`): nút tiêu đề bị preflight đặt `text-transform: none`.
+ */
 export const th = cn(
-  'sticky top-0 z-2 h-(--control-size-lg) px-2.5 bg-background',
-  // Chỉ cạnh dưới: kiểu none·none·solid (cạnh khác không vẽ, giữ currentColor như nguồn) — không dùng border-solid chung.
-  'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-08)',
-  // Bảng có cột GHIM (bản ticket F — CEO 26/11 "thử thêm một line ngăn cách ở trên hàng label, dưới phần tab"): kẻ
-  // TRÊN hàng tiêu đề cùng màu kẻ dưới. Thử nghiệm — chưa áp cho bảng khác.
-  '[table:has(>thead>tr>th[data-ghim])_&]:border-t [table:has(>thead>tr>th[data-ghim])_&]:[border-top-style:solid] [table:has(>thead>tr>th[data-ghim])_&]:border-t-(--alpha-08)',
-  // …và (CEO 26/11 "chiều cao hàng label bằng hàng thông tin, chữ semibold" + "cho label allcap"): cao như dòng thân,
-  // chữ 600 VIẾT HOA, giãn chữ nhẹ (chữ hoa cỡ 12 dính nét nếu để 0). Viết hoa ép xuống cả con (`**:`): nút tiêu đề
-  // (`TieuDeCot`) bị preflight đặt `text-transform: none`, không thừa kế từ th.
-  '[table:has(>thead>tr>th[data-ghim])_&]:h-(--control-size-2xl) [table:has(>thead>tr>th[data-ghim])_&]:font-semibold',
-  // Chữ tiêu đề hạ sắc độ về tertiary như Twenty (CEO 26/11 "hạ sắc độ label xuống giống twenty"; trước muted).
-  '[table:has(>thead>tr>th[data-ghim])_&]:text-(--color-text-tertiary)',
-  '[table:has(>thead>tr>th[data-ghim])_&]:uppercase [table:has(>thead>tr>th[data-ghim])_&]:**:uppercase [table:has(>thead>tr>th[data-ghim])_&]:tracking-wide',
-  'text-left align-middle text-[12px] leading-[18px] font-normal text-muted-foreground whitespace-nowrap',
-  // `.b-bang-c th`: đệm ngang 6.
-  'in-data-[layout=fixed]:px-1.5',
-  // Khuôn F (bảng ghim — CEO 27/11 ảnh Figma đo 12 + 8 = 20): ô tiêu đề đệm 12, nút tiêu đề (`thSort`) đệm thêm 8 → chữ tiêu
-  // đề ở 20 = chữ ô thân (`td` đệm 20). Chip lọc lấp đúng phần đệm 8 của nút. Trừ cột ô chọn.
-  '[table:has(>thead>tr>th[data-ghim])_&:not(:has(input[type=checkbox],[role=checkbox]))]:px-3',
+  'sticky top-0 z-2 h-(--control-size-2xl) bg-background',
+  'border-0 border-y [border-style:solid_none] border-current border-y-(--alpha-08)',
+  'text-left align-middle text-[12px] leading-[18px] font-semibold text-(--color-text-tertiary) whitespace-nowrap',
+  'uppercase **:uppercase tracking-wide',
+  '[&:not(:has(input[type=checkbox],[role=checkbox]))]:px-5',
   oTick,
 )
 /** `.b-bang td`: cao 44, đệm ngang 10, kẻ dưới alpha-05, không xuống dòng, tối đa 280 (`.b-bang-c`: đệm 6, không trần, cắt). */
 /** Hàng nháp của `DongThem` (CEO 25/11 "ra hẳn một hàng trống"): ô nền đang gõ alpha-05 (như nền rê dòng). */
-// `!`: ô thân Bảng tự mang nền (alpha-02) đè lớp của dòng. Ô đầu = cột chọn ở lề ngoài bảng → trong suốt như dòng thường.
-export const hangNhap = '[&>td:not(:first-child)]:bg-(--alpha-05)! [&>td:first-child]:bg-transparent! [&>td:first-child]:border-b-transparent'
+// `!`: ô thân Bảng tự mang nền (alpha-02) đè lớp của dòng; phủ cả ô chọn (cột chọn nằm trong bảng).
+export const hangNhap = '[&>td]:bg-(--alpha-05)!'
 
 export const td = cn(
-  'h-(--control-size-2xl) px-2.5 max-w-[280px] align-middle whitespace-nowrap',
+  'h-(--control-size-2xl) max-w-[280px] align-middle whitespace-nowrap',
+  // Đệm ngang 20 (khuôn F — thẳng chữ tiêu đề, xem `th`). Trừ cột ô chọn.
+  '[&:not(:has(input[type=checkbox],[role=checkbox]))]:px-5',
   'border-0 border-b [border-style:none_none_solid] border-current border-b-(--alpha-05)',
-  'in-data-[layout=fixed]:px-1.5 in-data-[layout=fixed]:max-w-none in-data-[layout=fixed]:overflow-hidden',
+  'in-data-[layout=fixed]:max-w-none in-data-[layout=fixed]:overflow-hidden',
   // `.b-bang-c tbody .ui-badge`: badge trong ô cao 22 (= avatar) → mọi phần tử trong dòng thẳng hàng.
   'in-data-[layout=fixed]:[&_[data-slot=badge]]:h-(--control-size-3xs)',
-  // Khuôn F: đệm ngang 20 (thẳng chữ tiêu đề 12 + 8, xem `th`). Trừ cột ô chọn.
-  '[table:has(>thead>tr>th[data-ghim])_&:not(:has(input[type=checkbox],[role=checkbox]))]:px-5',
   oTick,
 )
 /**
@@ -141,12 +113,8 @@ export const phai = 'text-right'
 /** `.b-ma`: mã 12/18 tabular, color-text-tertiary (font-sans, không mono). */
 export const ma = cn(kv, 'text-[12px] leading-[18px] tabular-nums text-(--color-text-tertiary) whitespace-nowrap')
 
-/**
- * `.b-cot-chon`: ô chọn rộng 36, đệm trái 16. Từ md cột nằm ở lề ngoài bảng (xem khung cuộn ở đầu file): đệm trái 10,
- * không kẻ; ô thân không nền hover/chọn — dòng sáng chỉ trong phần bảng.
- */
-export const cotChon =
-  'w-9 min-w-9 pl-4! md:pl-2.5! md:pr-0 md:border-b-transparent'
+/** `.b-cot-chon`: ô chọn rộng 36, đệm trái 16 (từ md 8 — xem `CHON_BANG`). */
+export const cotChon = 'w-9 min-w-9 pl-4! md:pl-2! md:pr-0'
 /** `.b-cot-dem`: cột đệm cuối ăn chỗ thừa (khung hẹp thì về 0) — cột thật giữ đúng độ rộng đã kéo. */
 export const cotDem = 'p-0!'
 
@@ -175,9 +143,9 @@ export const oKeo = cn(
 export const thSort = cn(
   kv,
   // w-full: <button> không tự giãn như div — `.b-loc-o` (flex, rộng 100%) + `flex: 1` của nguồn = phủ kín ô.
-  'flex w-full min-w-0 items-center gap-1 h-(--control-size-lg) m-0 p-0 rounded-none bg-transparent',
-  // Khuôn F: nút (vùng rê/kéo) đệm ngang 8 trong ô đệm 12 → chữ ở 20, chừa chỗ cho chip lọc (CEO 27/11 ảnh Figma 12 + 8).
-  '[table:has(>thead>tr>th[data-ghim])_&]:px-2',
+  // Lùi −8 hai bên vào đệm 20 của ô (đệm trong 8 bù lại → chữ vẫn ở 20): vùng rê/kéo rộng hơn, chừa chỗ chip lọc (CEO 27/11
+  // ảnh Figma 12 + 8). w-[100%+16]: <button> không tự giãn như div.
+  'flex w-[calc(100%+--spacing(4))] min-w-0 items-center gap-1 h-(--control-size-lg) -mx-2 my-0 px-2 py-0 rounded-none bg-transparent',
   'font-[inherit] text-inherit whitespace-nowrap cursor-[inherit] [outline:none]',
   'hover:text-foreground aria-expanded:text-foreground data-on:text-foreground data-on:font-medium',
   'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-(--ring)',
@@ -249,34 +217,23 @@ const nenDuc = 'bg-background! bg-[image:linear-gradient(var(--nen-dong,transpar
 export const thGhim = ghimTrai
 export const oGhim = cn(ghimTrai, 'z-1', nenDuc)
 
-/** Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong` / `OChonO`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`. */
-export const CHON_BANG: Partial<GiaoDienBang> = {
-  chon_oTh: cn(th, cotChon, anChoReDau),
-  // Ô thân trong suốt ở lề (md+): nền rê/chọn chỉ trong phần bảng. Ô tiêu đề GIỮ nền — dính đầu, che ô tick khi cuộn.
-  chon_oTd: cn(td, cotChon, anChoRe, 'md:bg-transparent!'),
-  // Dòng ListView (relative): từ md ô chọn nằm ở LỀ trái ngoài dòng như cột chọn của Bảng (mép phải ô tick cách mép nội
-  // dung 10 = lề âm −8 của danh sách + 2) — tên việc thẳng mép, không bị ô tick xô vào (CEO 25/11).
-  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'),
-}
 /**
- * Như `CHON_BANG` cho bảng có cột GHIM (`oGhim`): cột ô chọn cũng dính trái (không thì ô đang cuộn lộ ra ở 36px lề trái,
- * dưới cột ghim). Ô thân đục: dưới md nền + màu trạng thái dòng; từ md (cột chọn ở lề ngoài bảng) chỉ nền trang, không
- * màu dòng — như `md:bg-transparent` của `CHON_BANG` nhưng che được ô cuộn. Tiêu đề z 30: trên mọi tiêu đề `TieuDeCot`.
- * Ô chọn LUÔN HIỆN (như Twenty — CEO 26/11 "cho hiện sẵn checkbox cũng được"), không ẩn chờ rê như `CHON_BANG`; kẻ
- * ngang chạy suốt tới ô chọn (CEO 26/11 "cho đường line kéo dài tới checkbox luôn") thay vì trong suốt ở lề; nền dòng
- * (rê/chọn, `--nen-dong`) cũng phủ ô chọn (CEO 26/11 "nền xanh phải phủ dưới checkbox luôn").
+ * Ô chọn dòng của bang/ (`OChonTatCa` / `OChonDong` / `OChonO`) theo khung `.b-bang` — bơm qua `CauHinhBangDs giaoDien`.
+ * Khuôn F (mọi bảng, CEO 27/11): cột ô chọn TRONG mép nội dung, LUÔN HIỆN (như Twenty — CEO 26/11), dính trái (bảng cuộn
+ * ngang không lộ ô đang cuộn ở 36px trái); ô tick thụt 8 = mép chữ tab pill đầu (CEO 26/11 "checkbox phải thụt vào");
+ * kẻ ngang + nền dòng (`--nen-dong`) phủ cả ô chọn (CEO 26/11). Tiêu đề z 30: trên mọi tiêu đề `TieuDeCot`.
  */
-export const CHON_BANG_GHIM: Partial<GiaoDienBang> = {
-  ...CHON_BANG,
-  // Ô chọn trong mép nội dung (xem `tableWrap`): kẻ ngang bắt đầu ở mép tiêu đề trang, ô tick THỤT vào 8 như Twenty —
-  // CEO 26/11 "checkbox phải thụt vào, không align bằng line" + "cho bằng với chữ trong chip": mép ô tick = mép chữ tab
-  // pill đầu (hàng tab lùi ra 4 `dvTabs`, đệm tab 12 → chữ ở +8 so mép nội dung).
-  chon_oTh: cn(th, cotChon, 'md:pl-2! md:border-b-(--alpha-08) left-0 z-30'),
-  chon_oTd: cn(td, cotChon, 'md:pl-2! md:border-b-(--alpha-05) sticky left-0 z-1', nenDuc),
-  // Phân trang thẳng ô tick (cột chọn đệm trái 8 từ md — xem `chon_oTd`) — CEO 27/11 "1–4 trên 4 ticket cho align dọc với
-  // checkbox". Khung hẹp (< md) cột chọn đệm khác → chỉ ép từ md.
+export const CHON_BANG: Partial<GiaoDienBang> = {
+  chon_oTh: cn(th, cotChon, 'left-0 z-30'),
+  chon_oTd: cn(td, cotChon, 'sticky left-0 z-1', nenDuc),
+  // Dòng ListView (relative): từ md ô chọn nằm ở LỀ trái ngoài dòng (mép phải ô tick cách mép nội dung 10 = lề âm −8 của
+  // danh sách + 2) — tên việc thẳng mép, không bị ô tick xô vào (CEO 25/11).
+  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'),
+  // Phân trang thẳng ô tick (đệm trái 8 từ md) — CEO 27/11 "1–4 trên 4 ticket cho align dọc với checkbox".
   phanTrang_khung: cn(kv, 'mt-3 flex items-center justify-between gap-2 md:pl-2 text-[12px] leading-[18px] text-muted-foreground'),
 }
+/** @deprecated Cùng `CHON_BANG` (27/11 khuôn F gộp hai bản) — giữ tên cho chỗ gọi cũ. */
+export const CHON_BANG_GHIM = CHON_BANG
 
 /*
  * Vẻ bảng THƯỜNG — `.ui-table*` của bundle.css (bảng thường của artifact: NotificationMatrix, bảng số liệu…), chọn bằng

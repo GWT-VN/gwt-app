@@ -180,7 +180,6 @@ export function BangNhanVien({
       <div className="border-none border-current">
       <DataViewToolbar
         tieuDe="Nhân viên"
-        dem={{ thay: ds.length, tong }}
         timKiem={<OTimKiem placeholder="Tên, email…" aria-label="Tìm nhân viên" />}
         nutChinh={nutChinh}
         tabs={hangTab.tabs}

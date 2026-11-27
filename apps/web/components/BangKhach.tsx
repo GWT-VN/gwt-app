@@ -153,7 +153,6 @@ export function BangKhach({
       <div className="border-none border-current">
       <DataViewToolbar
         tieuDe="Khách hàng"
-        dem={{ thay: rows.length, tong }}
         timKiem={<OTimKiem placeholder="Tên, SĐT, mã khách…" aria-label="Tìm khách hàng" />}
         nutChinh={taoKhach}
         tabs={hangTab.tabs}

@@ -15,7 +15,7 @@
 import { useOptimistic, useState, useTransition, type MouseEvent, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Eye, PencilSimple, Play } from '@phosphor-icons/react/ssr'
-import { KhungChon, OChonDong, OChonTatCa, ThanhDaChon, useDaChon } from '@/bang'
+import { KhungChon, OChonDong, OChonTatCa, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import {
   batTatLuat,
@@ -64,9 +64,10 @@ import {
   TableWrap,
 } from '@/components/ui/table'
 import { CHON_BANG } from '@/components/ui/table-styles'
-import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ngayThang, nhanChip } from '@/lib/work'
 import { ThanhHangLoatViec } from './HangLoat'
+import { MenuViec } from './DangXemViec'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { SuaLuat } from './SuaLuat'
 import { chac, HanChu, NguoiChinh, TT, UU } from './chung'
@@ -131,11 +132,11 @@ function CongTacLuat({ l, duoc }: { l: LuatTuSinh; duoc: boolean }) {
   )
 }
 
-/** Dòng bảng việc: ô chọn của bang/ + nền chọn. */
-function DongViec({ v, children }: { v: ViecSinh; children: ReactNode }) {
+/** Dòng bảng việc: ô chọn của bang/ + nền chọn + menu chuột phải (khuôn F). */
+function DongViec({ v, moViec, children }: { v: ViecSinh; moViec: (id: number) => void; children: ReactNode }) {
   const { daChon } = useDaChon()
   return (
-    <TableRow chon={daChon.includes(String(v.id))}>
+    <TableRow chon={daChon.includes(String(v.id))} menu={<MenuViec v={v} moViec={moViec} />} tenMenu={`Thao tác ${v.ref}`}>
       <OChonDong khoa={String(v.id)} moTa={`việc ${v.ref}`} />
       {children}
     </TableRow>
@@ -368,13 +369,16 @@ export function TuSinh({
         </SwitchRow>
       </Card>
       {luat.length ? (
-        <ListView
-          aria-label="Luật sinh việc"
-          cot={cotLuat}
-          dong={luat}
-          khoa={(l) => l.key}
-          onMo={(l) => duocSuaLuat && setSua(l)}
-        />
+        <>
+          <ListView
+            aria-label="Luật sinh việc"
+            cot={cotLuat}
+            dong={luat}
+            khoa={(l) => l.key}
+            onMo={(l) => duocSuaLuat && setSua(l)}
+          />
+          <PhanTrang trang={1} soTrang={1} tong={luat.length} nhan="luật" />
+        </>
       ) : (
         <EmptyState
           size="sm"
@@ -433,7 +437,7 @@ export function TuSinh({
               </TableHeader>
               <TableBody>
                 {viec.map((v) => (
-                  <DongViec key={v.id} v={v}>
+                  <DongViec key={v.id} v={v} moViec={xem.mo}>
                     <TableCell>
                       {/* NutMoMa chỉ nổi cú bấm lên — Table không có onMo của ListView nên bắt tại đây. */}
                       <span className="inline-flex" onClick={() => xem.mo(v.id)}>
@@ -477,6 +481,8 @@ export function TuSinh({
           <ThanhDaChon nhan="việc">
             <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
           </ThanhDaChon>
+          {/* Bộ đếm duy nhất (khuôn F — CEO 27/11 bỏ số trên tab). */}
+          <PhanTrang trang={1} soTrang={1} tong={viec.length} nhan="việc" />
         </KhungChon>
       )}
     </>
@@ -488,7 +494,6 @@ export function TuSinh({
         <CauHinhBangDs giaoDien={CHON_BANG} thanhHangLoat="surface">
           <DataViewToolbar
             tieuDe="Việc tự sinh"
-            dem={tab === 'viec' ? { thay: viec.length, tong: duLieu.tong_auto } : undefined}
             nutChinh={
               duocSuaLuat && (
                 <Button onClick={() => hoi('chay')}>
@@ -500,16 +505,8 @@ export function TuSinh({
             tabs={
               <Tabs value={tab} onValueChange={doiTab}>
                 <TabsList variant="pill" aria-label="Phần của màn">
-                  <TabsTrigger value="luat">
-                    Luật sinh việc{' '}
-                    <TabsCount>
-                      {soBat}/{luat.length}
-                      <span className="sr-only"> đang bật</span>
-                    </TabsCount>
-                  </TabsTrigger>
-                  <TabsTrigger value="viec">
-                    Việc đã sinh <TabsCount>{viec.length}</TabsCount>
-                  </TabsTrigger>
+                  <TabsTrigger value="luat">Luật sinh việc</TabsTrigger>
+                  <TabsTrigger value="viec">Việc đã sinh</TabsTrigger>
                 </TabsList>
               </Tabs>
             }

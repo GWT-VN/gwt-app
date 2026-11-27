@@ -177,7 +177,6 @@ export function BangMay({
       <div className="border-none border-current">
       <DataViewToolbar
         tieuDe="Máy đã lắp"
-        dem={{ thay: rows.length, tong }}
         timKiem={<OTimKiem placeholder="Serial, tên khách, SĐT…" aria-label="Tìm máy" />}
         tabs={hangTab.tabs}
         dangXem="bang"

@@ -33,7 +33,11 @@ export const hang = cn(
 )
 
 /** `.b-ds-dau`: cao ≥ 36, chữ 12/18 muted; điện thoại ẩn hẳn. */
-export const hangDau = cn(hang, 'min-h-(--control-size-lg) text-[12px] leading-[18px] text-muted-foreground @max-[480px]:hidden')
+// Chữ đầu cột như tiêu đề Bảng khuôn F (CEO 27/11 áp mọi bảng): 12/18 600 VIẾT HOA giãn nhẹ, tertiary.
+export const hangDau = cn(
+  hang,
+  'min-h-(--control-size-lg) text-[12px] leading-[18px] font-semibold uppercase **:uppercase tracking-wide text-(--color-text-tertiary) @max-[480px]:hidden',
+)
 
 /**
  * Dòng dữ liệu: con trỏ tay; kẻ dưới 1px alpha-05 cách mép 12 (`::after`), ẩn khi chính dòng hoặc dòng KẾ đang rê/focus;
@@ -98,7 +102,7 @@ export const dau = cn(kv, 'flex min-w-0 items-center whitespace-nowrap')
  * chồng tay co dãn của Bảng — Danh sách không co dãn).
  */
 export const dauMenu = cn(
-  'static z-auto! h-auto px-0 bg-transparent border-b-0 [border-style:none] border-b-current flex min-w-0 items-center',
+  'static z-auto! h-auto px-0! bg-transparent border-b-0 [border-style:none] border-b-current flex min-w-0 items-center',
   '[&>button]:w-auto [&>button]:h-(--control-size-sm) [&>button]:rounded-(--radius-xs) [&>button]:cursor-pointer',
   '[&>button]:focus-visible:outline-offset-2',
 )

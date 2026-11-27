@@ -192,7 +192,6 @@ export function BangLoi({
       <div className="border-none border-current">
       <DataViewToolbar
         tieuDe="Lịch thay lõi"
-        dem={{ thay: rows.length, tong }}
         timKiem={<OTimKiem placeholder="Serial, khách, SĐT, mã lõi…" aria-label="Tìm lịch thay lõi" />}
         tabs={hangTab.tabs}
         dangXem="bang"

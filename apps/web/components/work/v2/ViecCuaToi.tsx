@@ -11,7 +11,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Plus } from '@phosphor-icons/react/ssr'
-import { KhungChon, OChonO, OTimKiem, ThanhDaChon } from '@/bang'
+import { KhungChon, OChonO, OTimKiem, PhanTrang, ThanhDaChon } from '@/bang'
 import { type NenTang, type ViecRow } from '@/app/work/actions'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
@@ -21,12 +21,12 @@ import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { CHON_BANG } from '@/components/ui/table-styles'
-import { Tabs, TabsCount, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { NHAN_NHOM, nhanChip, nhomTheoHan, THU_TU_NHOM } from '@/lib/work'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, VAI, type GiaTriNhap } from './chung'
-import { BangViec, COT_VIEC, docSap, KanbanViec, NGHIA, soSanh, TEN_COT, useOViec, useViecNhap, type Sap } from './DangXemViec'
+import { BangViec, COT_VIEC, docSap, KanbanViec, MenuViec, NGHIA, soSanh, TEN_COT, useOViec, useViecNhap, type Sap } from './DangXemViec'
 import { ThanhHangLoatViec } from './HangLoat'
 
 type Tab = 'mo' | 'qua-han' | 'toi-giao' | 'xong'
@@ -203,7 +203,6 @@ export function ViecCuaToi({
         >
           <DataViewToolbar
             tieuDe="Việc của tôi"
-            dem={{ thay: dong.length, tong: nguon[tab].length }}
             timKiem={
               <Suspense>
                 <OTimKiem placeholder="Tìm tiêu đề, mã việc…" />
@@ -226,10 +225,7 @@ export function ViecCuaToi({
                 <TabsList variant="pill" aria-label="Nhóm việc">
                   {TAB.map((t) => (
                     <TabsTrigger key={t.v} value={t.v}>
-                      {t.ten}{' '}
-                      <TabsCount color={t.v === 'qua-han' && nguon[t.v].length ? 'danger' : undefined}>
-                        {nguon[t.v].length}
-                      </TabsCount>
+                      {t.ten}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -261,6 +257,7 @@ export function ViecCuaToi({
                   dangMo={xem.id ? String(xem.id) : null}
                   moKhi="ten"
                   dongNhap={nhap ? oNhapDs : undefined}
+                  menuDong={(v) => <MenuViec v={v} moViec={xem.mo} />}
                   nhom={
                     tab === 'xong'
                       ? undefined
@@ -296,7 +293,15 @@ export function ViecCuaToi({
             ) : (
               <>
                 {(!nhap && rong) || (
-                  <BangViec dong={dong} c={c} sap={sap} onSap={datSap} o={o} dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined} />
+                  <BangViec
+                    dong={dong}
+                    c={c}
+                    sap={sap}
+                    onSap={datSap}
+                    o={o}
+                    dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}
+                    menu={(v) => <MenuViec v={v} moViec={xem.mo} />}
+                  />
                 )}
                 {choThem && !moi.mo && <div className={khungNutThem('bang')}>{moi.nut}</div>}
               </>
@@ -305,6 +310,12 @@ export function ViecCuaToi({
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
             </ThanhDaChon>
           </KhungChon>
+          {/* Bộ đếm DUY NHẤT của màn (khuôn F — CEO 27/11): không phân trang → luôn 1 trang. Kanban đếm ở từng cột. */}
+          {dangXem !== 'kanban' && dong.length > 0 && (
+            <Suspense>
+              <PhanTrang trang={1} soTrang={1} tong={dong.length} nhan="việc" />
+            </Suspense>
+          )}
         </CauHinhBangDs>
       </TrangDuLieu>
     </KhungXemViec>

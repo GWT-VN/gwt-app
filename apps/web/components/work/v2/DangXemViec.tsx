@@ -6,9 +6,11 @@
  */
 import { useState, type ReactNode, type Ref } from 'react'
 import { useRouter } from 'next/navigation'
+import { Copy, LinkSimple, SidebarSimple } from '@phosphor-icons/react/ssr'
 import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
+import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaNhap, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
@@ -284,11 +286,37 @@ export function useViecNhap(nenTang: NenTang) {
   }
 }
 
-/** Dòng bảng: ô chọn của bang/ + nền chọn. */
-function DongBang({ v, children }: { v: ViecXem; children: ReactNode }) {
+/**
+ * Mục menu chuột phải của một việc (khuôn F — như dòng ticket): Xem nhanh, sao chép mã, sao chép đường dẫn (`?xem=<id>`
+ * của màn đang đứng — mở lại đúng thẻ xem nhanh). Dùng cho `BangViec menu` và `ListView menuDong`.
+ */
+export function MenuViec({ v, moViec }: { v: Pick<ViecXem, 'id' | 'ref'>; moViec: (id: number) => void }) {
+  return (
+    <>
+      <ContextMenuItem onSelect={() => moViec(v.id)}>
+        <SidebarSimple aria-hidden="true" />
+        Xem nhanh
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(v.ref)}>
+        <Copy aria-hidden="true" />
+        Sao chép mã việc
+      </ContextMenuItem>
+      <ContextMenuItem
+        onSelect={() => void navigator.clipboard?.writeText(`${location.origin}${location.pathname}?xem=${v.id}`)}
+      >
+        <LinkSimple aria-hidden="true" />
+        Sao chép đường dẫn
+      </ContextMenuItem>
+    </>
+  )
+}
+
+/** Dòng bảng: ô chọn của bang/ + nền chọn + menu chuột phải (nếu có). */
+function DongBang({ v, menu, children }: { v: ViecXem; menu?: ReactNode; children: ReactNode }) {
   const { daChon } = useDaChon()
   return (
-    <TableRow chon={daChon.includes(String(v.id))}>
+    <TableRow chon={daChon.includes(String(v.id))} menu={menu} tenMenu={`Thao tác ${v.ref}`}>
       <OChonDong khoa={String(v.id)} moTa={`việc ${v.ref}`} />
       {children}
     </TableRow>
@@ -304,16 +332,19 @@ export function BangViec({
   moLoc,
   o,
   dongNhap,
+  menu,
 }: {
   dong: ViecXem[]
   c: ReturnType<typeof useCotBang>
   sap: Sap
   onSap: (s: Sap | null) => void
-  /** "Lọc…" trong menu tiêu đề cột → pop bộ lọc theo trường (bo-loc-truong) của cột đó; undefined = cột không lọc. */
+  /** Bấm tiêu đề cột → pop lọc của trường đó (`moLocCot` của bo-loc-truong; đang lọc → nhãn thành chip); undefined = không lọc. */
   moLoc?: (cotId: string) => PropsTieuDeCot['moLoc']
   o: (v: ViecXem, id: string, kieu?: KieuNgay) => ReactNode
   /** Hàng nháp "+ Việc mới": nội dung từng ô theo cột (`useViecNhap().o` + ô gõ tên ở cột Việc) — CEO 25/11. */
   dongNhap?: (cotId: string) => ReactNode
+  /** Mục menu chuột phải của dòng (`MenuViec`). */
+  menu?: (v: ViecXem) => ReactNode
 }) {
   // Tách sẵn: luật react-hooks/refs coi cả `c` là ref nếu `c.refBang` gắn thẳng vào `ref=`.
   const { refBang } = c
@@ -350,7 +381,7 @@ export function BangViec({
         </TableHeader>
         <TableBody>
           {dong.map((v) => (
-            <DongBang key={v.id} v={v}>
+            <DongBang key={v.id} v={v} menu={menu?.(v)}>
               {c.hien.map((x) => (
                 <TableCell key={x.id} cot={x.id} phai={x.phai}>
                   {o(v, x.id, x.ngay ? c.kieuNgay(x.id) : undefined)}

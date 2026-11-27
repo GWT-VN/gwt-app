@@ -91,7 +91,6 @@ function Day({ capTieuDe }: { capTieuDe?: 'h1' | 'h2' }) {
       <DataViewToolbar
         tieuDe="Ticket"
         capTieuDe={capTieuDe}
-        dem={{ thay: 19, tong: 22 }}
         timKiem={
           <Suspense>
             <OTimKiem placeholder="Tìm mã, khách, serial…" />

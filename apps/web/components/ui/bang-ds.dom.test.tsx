@@ -162,15 +162,15 @@ describe('FilterBar — ThanhDangLoc + ChipSapXep với giaoDien DS', () => {
 })
 
 describe('Pagination — PhanTrang', () => {
-  test('1 trang → không render gì (cả hai chế độ)', () => {
+  test('1 trang: không có tổng → không render gì; có tổng → vẫn hiện bộ đếm (khuôn F — CEO 27/11 đếm chỉ ở phân trang)', () => {
     expect(render(<PhanTrang trang={1} soTrang={1} />).container.innerHTML).toBe('')
-    expect(
-      render(
-        <Ds>
-          <PhanTrang trang={1} soTrang={1} tong={9} moiTrang={15} nhan="ticket" />
-        </Ds>,
-      ).container.querySelector('nav'),
-    ).toBeNull()
+    const { container } = render(
+      <Ds>
+        <PhanTrang trang={1} soTrang={1} tong={9} moiTrang={15} nhan="ticket" />
+      </Ds>,
+    )
+    expect(container.textContent).toContain('9')
+    expect(render(<PhanTrang trang={1} soTrang={1} tong={9} luonHien={false} />).container.innerHTML).toBe('')
   })
 
   test('DS trang 1/2: nav "Phân trang", "Trang trước" disabled (không ẩn), "Trang sau" giữ tham số khác, khoảng dòng', () => {

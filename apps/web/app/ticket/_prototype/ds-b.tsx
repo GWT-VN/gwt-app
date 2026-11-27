@@ -100,7 +100,6 @@ export function TicketB({ rows, tong, trang, soTrang, loaiList, dsLoi, demo }: D
       <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }} thanhHangLoat="surface">
         <DataViewToolbar
           tieuDe="Ticket CSKH"
-          dem={{ thay: rows.length, tong }}
           timKiem={
             <Suspense>
               <OTimKiem placeholder="Mã ticket, serial, khách, SĐT…" aria-label="Tìm ticket" />
