@@ -83,7 +83,8 @@ function TheLan({ lan, nguoi, moSan, vuaThem }: { lan: Lan; nguoi: string; moSan
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="border-0 border-t border-solid border-(--border) px-4 pt-3 pb-4">
-            <PropertyList>
+            {/* Khách báo ↔ Xử lý cách nhau ~40 (CEO 27/11): khoảng trắng chữ→chữ = 6 (đệm dưới ô) + 28 + 6 (đệm trên ô). */}
+            <PropertyList className="gap-y-7">
               <PropertyRow nhan="Khách báo">
                 <Textarea
                   variant="tran"
