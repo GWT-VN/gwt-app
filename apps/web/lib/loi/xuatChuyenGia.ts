@@ -24,7 +24,7 @@ export const COT_PA = [
 ] as const
 
 const SO_VI_DU = 3
-const TT_DONG: Record<TrangThaiDong, string> = { dang_xu_ly: 'Đang xử lý', da_xu_ly: 'Đã xử lý', khong_loi: 'Không phải lỗi' }
+const TT_DONG: Record<TrangThaiDong, string> = { cho_xu_ly: 'Chờ xử lý', dang_xu_ly: 'Đang xử lý', da_xu_ly: 'Đã xử lý', khong_loi: 'Không phải lỗi' }
 
 /** Che SĐT Việt Nam (liền / có cách / chấm / +84) và email trong văn bản tự do. Không đụng serial, số tiền, ngày. */
 export function cheThongTin(s: string | null | undefined): string {

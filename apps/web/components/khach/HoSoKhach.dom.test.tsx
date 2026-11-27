@@ -14,7 +14,10 @@ vi.mock('next/navigation', () => ({
 // Phần thân lần lỗi kéo server action — test này chỉ soi khung hồ sơ.
 vi.mock('@/app/ticket/_danh-sach/ds-f', () => ({ TT: [] }))
 vi.mock('@/app/ticket/_danh-sach/the-lan', () => ({ DsTheLan: () => null }))
-vi.mock('@/app/ticket/_danh-sach/the-tab', () => ({ LanLoiThat: () => null }))
+const { lanProps } = vi.hoisted(() => ({ lanProps: [] as { t: { ticket_code: string }; serial?: string }[] }))
+vi.mock('@/app/ticket/_danh-sach/the-tab', () => ({
+  LanLoiThat: (p: { t: { ticket_code: string }; serial?: string }) => (lanProps.push(p), null),
+}))
 
 const ticket = (ticket_code: string, created_at: string, serial: string | null = null) =>
   ({ ticket_code, state: 'Open', created_at, product_name: 'CTS20', serial }) as Ticket
@@ -161,4 +164,19 @@ test('ticket có cả dòng lỗi có máy lẫn không máy → có ở thẻ m
   expect(chuaRo.querySelector('[data-ticket="T1"]')).toBeTruthy()
   expect(chuaRo.querySelector('dl')!.textContent).toContain('Chưa phân loại ×1')
   expect(theMay(container, 'S1').querySelector('[data-ticket="T1"]')).toBeTruthy()
+})
+
+test('lần lỗi trong thẻ máy S2 → LanLoiThat nhận serial S2 (thêm lần gắn đúng máy); thẻ "Chưa rõ máy" không truyền serial', () => {
+  sp.v = 'tab=ticket&ticket=T3'
+  lanProps.length = 0
+  mo({
+    tickets: [ticket('T1', '2026-11-20T02:00:00Z'), ticket('T3', '2026-11-01T02:00:00Z')],
+    dongLoi: [dong('T1', '2026-11-20'), dong('T3', '2026-11-01', 'S2')],
+  })
+  expect(lanProps.filter((p) => p.t.ticket_code === 'T3').map((p) => p.serial)).toContain('S2')
+  lanProps.length = 0
+  sp.v = 'tab=ticket&ticket=T9'
+  mo({ tickets: [ticket('T9', '2026-11-20T02:00:00Z')], dongLoi: [dong('T9', '2026-11-20', null)], may: [] })
+  expect(lanProps.filter((p) => p.t.ticket_code === 'T9').map((p) => p.serial)).toEqual([undefined])
+  sp.v = 'tab=ticket&ticket=T1'
 })

@@ -29,7 +29,10 @@ vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
 }))
 
 import { getTicket, machinesOfCustomer, searchTickets, ticketsOfSerial } from './actions'
-import { danhMucLoi } from './ticket/loi-actions'
+import { danhMucLoi, dongMayCuaTicket, suaDongMay, themDongMay, xacNhanHuongXuLy, xoaDongMay } from './ticket/loi-actions'
+import { DONG_MAY_CHI_XEM_MD } from '@/lib/loi/dongMayTicket'
+import { suaLanLoi, themLanLoi, xoaLanLoi } from './ticket/lan-loi-actions'
+import { LAN_LOI_O_MD } from '@/lib/loi/lanLoi'
 
 beforeEach(() => {
   goi.length = 0
@@ -120,5 +123,72 @@ describe('danhMucLoi theo CSKH_NGUON', () => {
     duLieu = { 'st:public.loi_danh_muc': [{ code: 'E3', ten: 'Lỗi E3' }] }
     expect(await danhMucLoi()).toEqual([{ code: 'E3', ten: 'Lỗi E3' }])
     expect(goi).toEqual(['st:public.loi_danh_muc'])
+  })
+})
+
+describe('danhMucLoi(…, chiSt) — trang danh mục đọc đúng nguồn nó ghi', () => {
+  it('md + chiSt: đọc loi_danh_muc ST (luuLoi ghi ST), không đọc MD', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    duLieu = { 'st:public.loi_danh_muc': [{ code: 'E3', ten: 'Lỗi E3' }] }
+    expect(await danhMucLoi(false, true)).toEqual([{ code: 'E3', ten: 'Lỗi E3' }])
+    expect(goi).toEqual(['st:public.loi_danh_muc'])
+  })
+})
+
+const lanMd = (o: Record<string, unknown>) => ({
+  id: 'r', ticket_code: 'TK-1', report_no: 1, serial: 'S1', source_serial: null, internal_code: 'CTS20', issue_code: 'E3',
+  customer_said: null, handling: null, handling_source: null, status: 'dang_xu_ly', created_at: '2026-11-20T02:00:00Z',
+  issue_codes: { name: 'Lỗi E3' }, ...o,
+})
+
+describe('dongMayCuaTicket (trang chi tiết) theo CSKH_NGUON', () => {
+  it('md: MỘT dòng mỗi máy (lần mới nhất của máy, giữ thứ tự xuất hiện); cho_xu_ly giữ nguyên', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    duLieu = {
+      'md:customer_care.issue_reports': [
+        lanMd({ id: 'r1', report_no: 1, serial: 'S1', status: 'da_xu_ly' }),
+        lanMd({ id: 'r2', report_no: 2, serial: null, status: 'cho_xu_ly', issue_code: 'CHUA_PHAN_LOAI' }),
+        lanMd({ id: 'r3', report_no: 3, serial: 'S1', status: 'cho_xu_ly' }),
+      ],
+    }
+    const ds = await dongMayCuaTicket('TK-1')
+    expect(ds.map((d) => [d.id, d.serial, d.trang_thai])).toEqual([['r3', 'S1', 'cho_xu_ly'], ['r2', null, 'cho_xu_ly']])
+    expect(goi.filter((g) => g.startsWith('st:'))).toEqual([])
+  })
+
+  it('st: mọi dòng ticket_may như cũ', async () => {
+    vi.stubEnv('CSKH_NGUON', '')
+    duLieu = { 'st:public.ticket_may': [
+      { id: 'a', ticket_code: 'TK-1', serial: 'S1', loi_danh_muc: null },
+      { id: 'b', ticket_code: 'TK-1', serial: 'S1', loi_danh_muc: null },
+    ] }
+    expect((await dongMayCuaTicket('TK-1')).map((d) => d.id)).toEqual(['a', 'b'])
+  })
+})
+
+describe('ghi dòng máy ST bị chặn khi CSKH_NGUON=md (id dòng là của MD)', () => {
+  const ID = '11111111-1111-4111-8111-111111111111'
+  it('md: suaDongMay / themDongMay / xoaDongMay / xacNhanHuongXuLy → ok:false, không gọi DB', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    for (const r of [
+      await suaDongMay(ID, { loi_code: 'E3' }),
+      await themDongMay('TK-1', { loi_code: 'E3' }),
+      await xoaDongMay(ID),
+      await xacNhanHuongXuLy(ID, 'thay van', false),
+    ]) expect(r).toEqual({ ok: false, error: DONG_MAY_CHI_XEM_MD })
+    expect(goi).toEqual([])
+  })
+})
+
+describe('lần lỗi ST (ticket_lan_loi) bị chặn ghi khi CSKH_NGUON=md', () => {
+  const ID = '11111111-1111-4111-8111-111111111111'
+  it('md: themLanLoi / suaLanLoi / xoaLanLoi → ok:false, không gọi DB', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    for (const r of [
+      await themLanLoi('TK-1', { mo_ta: 'báo lại' }),
+      await suaLanLoi(ID, 'TK-1', { mo_ta: 'báo lại' }),
+      await xoaLanLoi(ID, 'TK-1'),
+    ]) expect(r).toEqual({ ok: false, error: LAN_LOI_O_MD })
+    expect(goi).toEqual([])
   })
 })

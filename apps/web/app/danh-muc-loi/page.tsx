@@ -31,7 +31,8 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
   const sp = await searchParams
   const q = typeof sp.q === 'string' ? sp.q : ''
   const [{ data: tatCa, loi: loiDanhMuc }, quyen, { data: nhom, loi: loiNhom }, tabRieng] = await Promise.all([
-    docAnToan('danhMucLoi', danhMucLoi, []),
+    // Trang này GHI danh mục vào ST (luuLoi, nhập Sheet…) → đọc ST kể cả khi CSKH_NGUON=md (đọc = nguồn ghi).
+    docAnToan('danhMucLoi', () => danhMucLoi(false, true), []),
     hoiQuyen({ sua: ['cs.nhom_loi.cau_hinh', 'QUANLY'], viewChung: ['he_thong.view_chung', 'QUANLY'] }),
     docAnToan('nhomLoiChon', nhomLoiChon, []),
     listTabView('danh_muc_loi_tab'),

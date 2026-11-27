@@ -13,8 +13,8 @@ import { suaDongMay, themDongMay, xacNhanHuongXuLy, xoaDongMay } from '@/app/tic
 import { CHUA_PHAN_LOAI, goiYHuongXuLy, nhanDongMay } from '@/lib/loi/dongMay'
 import { chipTrangThai, CHIP_TRANG_THAI, coTheBoDong, dsLoiChon, nhanNguonHuongXuLy, quyetDinhXacNhan } from '@/lib/loi/dongMayTicket'
 import { chuanHoaSerial } from '@/lib/loi/serial'
-import { GIOI_HAN } from '@/lib/loi/kiemDauVao'
-import type { DongMay, DongMayInput, LoiDanhMuc, TrangThaiDong } from '@/lib/loi/kieu'
+import { GIOI_HAN, TRANG_THAI_DONG } from '@/lib/loi/kiemDauVao'
+import type { DongMay, DongMayInput, LoiDanhMuc } from '@/lib/loi/kieu'
 
 type KQ = { ok: true } | { ok: false; error: string }
 
@@ -104,7 +104,7 @@ function DongCard({ d, dsLoi, choSua, soDong, dangChay, chay }: {
           <Input value={f.mo_ta} maxLength={GIOI_HAN.text} onChange={(e) => setF({ ...f, mo_ta: e.target.value })}
             aria-label="Mô tả lỗi của máy này" placeholder="Mô tả lỗi của máy này" />
           <div className="flex flex-wrap gap-2">
-            {(Object.keys(CHIP_TRANG_THAI) as TrangThaiDong[]).map((t) => (
+            {TRANG_THAI_DONG.map((t) => (
               <Button key={t} size="sm" type="button" aria-pressed={f.trang_thai === t}
                 variant={f.trang_thai === t ? 'secondary' : 'outline'} onClick={() => setF({ ...f, trang_thai: t })}>
                 {CHIP_TRANG_THAI[t].nhan}

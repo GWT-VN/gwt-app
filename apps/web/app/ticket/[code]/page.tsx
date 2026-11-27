@@ -16,6 +16,10 @@ import { dongMayCuaTicket, danhMucLoi } from '@/app/ticket/loi-actions'
 import { canhBaoTuQuery } from '@/lib/loi/canhBao'
 import { docAnToan, THIEU_DANH_MUC, THIEU_DONG_MAY } from '@/lib/loi/anToan'
 import { listLanLoi } from '@/app/ticket/lan-loi-actions'
+import { listLanLoiMd } from '@/app/ticket/lan-loi-md-actions'
+import { LanLoiThat } from '@/app/ticket/_danh-sach/the-tab'
+import { cskhNguon } from '@/lib/cskh/nguon'
+import { DONG_MAY_CHI_XEM_MD } from '@/lib/loi/dongMayTicket'
 import { listTepNhatKy } from '@/app/ticket/tep-actions'
 import { docThemTicket } from '@/app/ticket/dau-ticket-actions'
 import { docNguoiTicket } from '@/app/ticket/nguoi-actions'
@@ -40,11 +44,15 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const sp = await searchParams
   const canhBao = canhBaoTuQuery(sp.canhBao)
   const ma = decodeURIComponent(code)
-  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, { data: nguoi, loi: thieuNguoi }, quyen, suaDs] = await Promise.all([
+  // CSKH_NGUON=md: lần lỗi + máy & lỗi đọc / ghi ở MD (như Xem nhanh). Không màn nào ghi ST thứ nó hiển thị từ MD:
+  // khối lần lỗi ST (TicketEditor: ticket_lan_loi + sửa lần 1/loại vào tickets ST) thay bằng thẻ lần lỗi MD; máy & lỗi chỉ xem.
+  const md = cskhNguon() === 'md'
+  const [t, nhom, notes, staff, items, catalog, loaiList, { data: dongMay, loi: thieuDongMay }, { data: dsLoi, loi: thieuDanhMuc }, { data: lanLoi, loi: thieuLanLoi }, { data: lanMd }, { data: tepNK, loi: thieuTep }, { data: them, loi: thieuCotMoi }, { data: nguoi, loi: thieuNguoi }, quyen, suaDs] = await Promise.all([
     getTicket(ma), groupsOfTicket(ma), listTicketNotes(ma), listStaff(), listTicketItems(ma),
     listCatalogItems(), ticketTypes(),
     docAnToan('dongMayCuaTicket', () => dongMayCuaTicket(ma), []), docAnToan('danhMucLoi', () => danhMucLoi(), []),
-    docAnToan('listLanLoi', () => listLanLoi(ma), []),
+    docAnToan('listLanLoi', () => (md ? Promise.resolve([]) : listLanLoi(ma)), []),
+    docAnToan('listLanLoiMd', () => (md ? listLanLoiMd(ma) : Promise.resolve([])), []),
     docAnToan('listTepNhatKy', () => listTepNhatKy(ma), []),
     // Cột ngay_bao / cs_theo_doi (17/11) — chưa áp migration thì ẩn phần mới, trang chạy như cũ.
     docAnToan('docThemTicket', () => docThemTicket(ma), { ngay_bao: null, cs_theo_doi: null }),
@@ -64,7 +72,9 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
   const homNay = ngayVNHomNay()
   const ngayDau = ngayCuaLan(them.ngay_bao, t.created_at)
   const cuoi = lanLoi.at(-1)
-  const ngayCuoi = cuoi ? ngayCuaLan(cuoi.ngay, cuoi.created_at) : ngayDau
+  const cuoiMd = lanMd.length > 1 ? lanMd.at(-1) : undefined
+  const ngayCuoi = md ? (cuoiMd?.reported_on ?? ngayDau) : cuoi ? ngayCuaLan(cuoi.ngay, cuoi.created_at) : ngayDau
+  const soLan = md ? Math.max(1, lanMd.length) : 1 + lanLoi.length
 
   // PROTOTYPE vứt đi: ?variant=<gì cũng được> → trang chi tiết bản gọn dựng bằng DS v2 (CEO duyệt khung 26/11, thay 7 PA
   // A–G); chỉ dev; không có variant → màn cũ.
@@ -127,7 +137,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
           <DauTicket
             code={t.ticket_code} loai={t.ticket_type} model={t.product_name} tinh={t.province}
             state={t.state} khan={t.khan} csTheoDoi={them.cs_theo_doi} ktId={t.ky_thuat} staff={staff}
-            ngayDau={ngayDau} soLan={1 + lanLoi.length} ngayCuoi={ngayCuoi} homNay={homNay}
+            ngayDau={ngayDau} soLan={soLan} ngayCuoi={ngayCuoi} homNay={homNay}
             choSua={quyen.sua} choCs={quyen.sua && !thieuCotMoi} coCotMoi={!thieuCotMoi}
             dsCs={thieuNguoi ? null : nguoi?.cs ?? null} dsKt={thieuNguoi ? null : nguoi?.kt ?? null}
             ktHoSo={nguoi?.kt_ho_so ?? null} quanTri={suaDs}
@@ -146,11 +156,18 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
             </Alert>
           )}
 
-          <TicketEditor
-            code={t.ticket_code} lastNote={t.last_note} ticketType={t.ticket_type} description={t.description}
-            loaiList={loaiList} ngayBao={them.ngay_bao} ngayTao={t.created_at}
-            choSua={quyen.sua} coNgayBao={!thieuCotMoi} lanLoi={lanLoi} thieuLanLoi={thieuLanLoi}
-          />
+          {md ? (
+            <section className="space-y-2" aria-labelledby="cac-lan-loi" data-nguon="md">
+              <DetailHeading id="cac-lan-loi">Các lần lỗi · {soLan}</DetailHeading>
+              <LanLoiThat t={t} />
+            </section>
+          ) : (
+            <TicketEditor
+              code={t.ticket_code} lastNote={t.last_note} ticketType={t.ticket_type} description={t.description}
+              loaiList={loaiList} ngayBao={them.ngay_bao} ngayTao={t.created_at}
+              choSua={quyen.sua} coNgayBao={!thieuCotMoi} lanLoi={lanLoi} thieuLanLoi={thieuLanLoi}
+            />
+          )}
 
           {(t.serial || (t.customer_id && quyen.xemKhach)) && (
             <section aria-labelledby="ticket-lien-quan" className="space-y-2">
@@ -210,7 +227,8 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
                   ? <Alert color="warning"><AlertDescription>{THIEU_DONG_MAY}</AlertDescription></Alert>
                   : <>
                       {thieuDanhMuc && <Alert color="warning"><AlertDescription>{THIEU_DANH_MUC}</AlertDescription></Alert>}
-                      <DongMayTicket code={t.ticket_code} dong={dongMay} dsLoi={dsLoi} choSua={quyen.sua} />
+                      {md && <p className="text-sm text-muted-foreground">{DONG_MAY_CHI_XEM_MD}</p>}
+                      <DongMayTicket code={t.ticket_code} dong={dongMay} dsLoi={dsLoi} choSua={quyen.sua && !md} />
                     </>}
                 {nhom.length > 0 && (
                   <PropertyList>

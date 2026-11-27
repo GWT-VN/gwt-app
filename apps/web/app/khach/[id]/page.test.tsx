@@ -37,6 +37,7 @@ vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
 vi.mock('@/components/khach/HoSoKhach', () => ({ HoSoKhach: () => null }))
 
 import CustomerPage from './page'
+import { doQuyen } from '@/lib/nen-tang/kiem-quyen'
 
 const K = '11111111-1111-4111-8111-111111111111'
 const khach = { id: K, full_name: 'Khách thử', primary_phone: null, province: 'Hà Nội', address: null, source: null, ma_kh: 'KH1', customer_code: null, channel_id: null }
@@ -107,5 +108,23 @@ describe('hồ sơ khách đọc theo CSKH_NGUON', () => {
     expect(p.dongLoi).toEqual([expect.objectContaining({ ticket_code: 'TK-1', serial: 'S1', loi_code: 'E3', loi_ten: 'Lỗi E3' })])
     expect(goi).toEqual(expect.arrayContaining(['st:public.cs_customers', 'st:public.customer_contacts', 'st:public.v_tickets', 'st:public.v_installed_base', 'st:public.ticket_may']))
     expect(goi.filter((g) => g.startsWith('md:'))).toEqual([])
+  })
+})
+
+describe('hồ sơ khách khi thiếu quyền xem ticket', () => {
+  it('chỉ có cs.khach.xem (dongMayTheoTickets bị chặn cs.ticket.xem) → hồ sơ vẫn mở, Máy & lỗi rỗng', async () => {
+    vi.stubEnv('CSKH_NGUON', '')
+    duLieu = { 'st:public.cs_customers': [khach], 'st:public.v_tickets': [ticket], 'st:public.v_installed_base': may }
+    vi.mocked(doQuyen).mockImplementation(async (q: string) => {
+      if (q === 'cs.ticket.xem') throw new Error('KHONG_DU_QUYEN')
+    })
+    try {
+      const p = await moHoSo()
+      expect(p.khach.ten).toBe('Khách thử')
+      expect(p.tickets.map((t) => t.ticket_code)).toEqual(['TK-1'])
+      expect(p.dongLoi).toEqual([])
+    } finally {
+      vi.mocked(doQuyen).mockImplementation(async () => {})
+    }
   })
 })

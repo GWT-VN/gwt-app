@@ -31,3 +31,6 @@ export function lamSachLanLoi(i: { mo_ta?: unknown; xu_ly?: unknown }): { ok: tr
 export function lanTiepTheo(ds: readonly { lan: number }[]): number {
   return ds.reduce((m, x) => Math.max(m, x.lan), 1) + 1
 }
+
+/** CSKH_NGUON=md: lần lỗi hiển thị từ MD (lan-loi-md-actions) → ghi ticket_lan_loi ST là ghi vào chỗ không ai thấy. */
+export const LAN_LOI_O_MD = 'Lần lỗi đang lưu ở Masterdata — thêm / sửa ở thẻ Lần lỗi.'

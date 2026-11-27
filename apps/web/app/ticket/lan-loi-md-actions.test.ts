@@ -146,10 +146,10 @@ describe('themLanLoiMd', () => {
     expect(r.ok).toBe(true)
     expect(ghi.filter((g) => g.op === 'insert')).toHaveLength(2)
   })
-  it('23505 cả 2 lần → báo bấm Lưu lại, không thử lần 3', async () => {
+  it('23505 cả 2 lần → báo thử lại sau (thẻ lưu khi rời ô, không có nút Lưu), không thử lần 3', async () => {
     loiInsert = [{ code: '23505' }, { code: '23505' }, { code: '23505' }]
     const r = await themLanLoiMd(MA, { customer_said: 'x' })
-    expect(r).toEqual({ ok: false, error: 'Có người vừa thêm lần lỗi khác, bấm Lưu lại.' })
+    expect(r).toEqual({ ok: false, error: 'Có người vừa thêm lần lỗi khác, thử lại sau giây lát.' })
     expect(ghi.filter((g) => g.op === 'insert')).toHaveLength(2)
   })
   it('lỗi DB khác → không thử lại', async () => {

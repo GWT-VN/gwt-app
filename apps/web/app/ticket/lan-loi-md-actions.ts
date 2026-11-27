@@ -99,7 +99,7 @@ export async function themLanLoiMd(
     }
     if (error.code !== '23505') return { ok: false, error: thongBaoLoiDb(error, 'themLanLoiMd') }
   }
-  return { ok: false, error: 'Có người vừa thêm lần lỗi khác, bấm Lưu lại.' }
+  return { ok: false, error: 'Có người vừa thêm lần lỗi khác, thử lại sau giây lát.' }
 }
 
 /** Sửa một lần: chỉ các trường trong `patch` (undefined = không đổi). */

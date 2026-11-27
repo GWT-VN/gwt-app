@@ -165,6 +165,7 @@ export type Lan = {
 }
 
 const KQ = {
+  cho_xu_ly: { nhan: 'Chờ xử lý', color: 'warning' },
   dang_xu_ly: { nhan: 'Đang xử lý', color: 'warning' },
   da_xu_ly: { nhan: 'Đã xử lý', color: 'success' },
   khong_loi: { nhan: 'Không phải lỗi', color: 'secondary' },

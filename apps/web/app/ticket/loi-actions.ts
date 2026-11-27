@@ -12,6 +12,7 @@ import { boDau } from '@/bang/timkiem'
 import { kiemDangSerial } from '@/lib/loi/serial'
 import { serialBoSungChoTicket } from '@/lib/loi/ticketKhongSerial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
+import { DONG_MAY_CHI_XEM_MD } from '@/lib/loi/dongMayTicket'
 import { loiHopVoiMay } from '@/app/ticket/_danh-sach/truong-f'
 import { demDoiTrangThai, docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
 import { maDeXuat, timTrungTen } from '@/lib/loi/deXuat'
@@ -40,8 +41,7 @@ const dongTuLanMd = (r: LanMdDb): DongMay => ({
   id: r.id, ticket_code: r.ticket_code, thu_tu: r.report_no, serial: r.serial, source_serial: r.source_serial, internal_code: r.internal_code,
   loi_code: r.issue_code, loi_ten: r.issue_codes?.name ?? null, mo_ta: r.customer_said, huong_xu_ly: r.handling,
   huong_xu_ly_nguon: r.handling_source,
-  // ST không có "chờ xử lý": coi như đang xử lý.
-  trang_thai: r.status === 'cho_xu_ly' ? 'dang_xu_ly' : r.status, nguon: 'app', created_at: r.created_at,
+  trang_thai: r.status, nguon: 'app', created_at: r.created_at,
 })
 type MaLoiMd = {
   code: string; group_code: string | null; name: string; aliases: string[] | null; model_patterns: string[] | null; signs: string | null
@@ -63,10 +63,14 @@ function lamMoi(code?: string, danhMuc = false) {
 
 // ───────────────────────── Danh mục lỗi ─────────────────────────
 
-export async function danhMucLoi(chiDaDuyet = false): Promise<LoiDanhMuc[]> {
+/**
+ * `chiSt` = đọc ST kể cả khi CSKH_NGUON=md — cho màn GHI danh mục / ghi mã lỗi vào ST (/danh-muc-loi: luuLoi, nhập Sheet;
+ * /tao-ticket: ticket_may ST) để đọc đúng nguồn mình ghi. Màn chỉ hiển thị dữ liệu MD (chi tiết, danh sách) để mặc định.
+ */
+export async function danhMucLoi(chiDaDuyet = false, chiSt = false): Promise<LoiDanhMuc[]> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
-  if (cskhNguon() === 'md') {
+  if (cskhNguon() === 'md' && chiSt !== true) {
     // MD: customer_care.issue_codes (FK của issue_reports.issue_code) đổi sang khuôn LoiDanhMuc. Chỉ đọc —
     // ponytail: sửa / đề xuất / duyệt danh mục vẫn ghi ST tới đợt 2.
     let m = mdClient().schema('customer_care').from('issue_codes').select('*').order('sort_order').order('code')
@@ -250,7 +254,13 @@ export async function phanLoaiLai(chayThu: boolean): Promise<{ ok: true; baoCao:
 // ───────────────────────── Dòng máy ─────────────────────────
 
 export async function dongMayCuaTicket(code: string): Promise<DongMay[]> {
-  return (await dongMayTheoTickets([code]))[code] ?? []
+  const ds = (await dongMayTheoTickets([code]))[code] ?? []
+  if (cskhNguon() !== 'md') return ds
+  // MD: mỗi LẦN là một dòng → trang chi tiết gom MỘT dòng mỗi máy (serial), giữ thứ tự máy xuất hiện, lấy lần mới nhất
+  // của máy đó (trạng thái / lỗi hiện tại). Dòng "chưa rõ máy" gom một.
+  const theoMay = new Map<string | null, DongMay>()
+  for (const d of ds) theoMay.set(d.serial ?? d.source_serial ?? null, d)
+  return [...theoMay.values()]
 }
 
 export async function dongMayTheoTickets(codes: string[]): Promise<Record<string, DongMay[]>> {
@@ -289,6 +299,7 @@ export async function ticketCodesTheoLoi(loiCode: string): Promise<string[]> {
 export async function themDongMay(code: string, input: DongMayInput): Promise<KQ<{ id: string }>> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: DONG_MAY_CHI_XEM_MD }
   if (!maTicketHopLe(code)) return { ok: false, error: 'Mã ticket không hợp lệ.' }
   const d = input ?? {}
   if (d.loi_code != null && !MA_LOI.test(chuanMaLoi(d.loi_code))) return { ok: false, error: KHONG_DUNG_DUOC }
@@ -306,6 +317,7 @@ export async function themDongMay(code: string, input: DongMayInput): Promise<KQ
 export async function suaDongMay(id: string, patch: DongMayInput & { huong_xu_ly?: string }): Promise<KQ> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: DONG_MAY_CHI_XEM_MD }
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   const p = patch ?? {}
   if (p.mo_ta != null && (typeof p.mo_ta !== 'string' || p.mo_ta.length > GIOI_HAN.text)) return { ok: false, error: 'Mô tả quá dài.' }
@@ -436,6 +448,7 @@ export async function doiMayTicket(code: string, serial: string): Promise<KQ<{ l
 export async function xoaDongMay(id: string): Promise<KQ> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: DONG_MAY_CHI_XEM_MD }
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   const nv = await layNhanVien()
   // RPC khoá hàng ticket, đếm dòng, xoá và ghi audit trong một giao dịch.
@@ -450,6 +463,7 @@ export async function xoaDongMay(id: string): Promise<KQ> {
 export async function xacNhanHuongXuLy(id: string, noiDung: string, tuDanhMuc: boolean): Promise<KQ> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: DONG_MAY_CHI_XEM_MD }
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   const nd = typeof noiDung === 'string' ? noiDung.trim() : ''
   if (!nd) return { ok: false, error: 'Hướng xử lý không được trống.' }

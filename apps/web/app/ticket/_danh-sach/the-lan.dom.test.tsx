@@ -154,3 +154,24 @@ test('MD trống cho ticket: lần 1 dựng từ ticket mang ngày tạo theo gi
   fireEvent.blur(khach)
   await waitFor(() => expect(themLanLoiMd).toHaveBeenCalledWith(MA, { customer_said: 'Rò nước nhiều', reported_on: '2026-11-21' }))
 })
+
+test('MD + serial (thẻ máy ở hồ sơ khách): Thêm lần lỗi → themLanLoiMd gửi đúng serial máy đó', async () => {
+  docLanLoi.mockResolvedValue({ md: true, ds: [{ ...lanMd, serial: 'S1' }] })
+  render(<DsRoot><LanLoiThat t={t} serial="S2" /></DsRoot>)
+  fireEvent.click(await screen.findByRole('button', { name: 'Thêm lần lỗi' }))
+  const khach = await screen.findByRole('textbox', { name: 'Khách báo lần 2' })
+  fireEvent.change(khach, { target: { value: 'Máy 2 rò' } })
+  fireEvent.blur(khach)
+  await waitFor(() => expect(themLanLoiMd).toHaveBeenCalledWith(MA, expect.objectContaining({ customer_said: 'Máy 2 rò', serial: 'S2' })))
+})
+
+test('MD không serial (Xem nhanh): themLanLoiMd không gửi serial — server lấy máy của lần gần nhất', async () => {
+  docLanLoi.mockResolvedValue({ md: true, ds: [lanMd] })
+  mo()
+  fireEvent.click(await screen.findByRole('button', { name: 'Thêm lần lỗi' }))
+  const khach = await screen.findByRole('textbox', { name: 'Khách báo lần 2' })
+  fireEvent.change(khach, { target: { value: 'Lại rò' } })
+  fireEvent.blur(khach)
+  await waitFor(() => expect(themLanLoiMd).toHaveBeenCalled())
+  expect((themLanLoiMd.mock.calls[0] as unknown[])[1]).not.toHaveProperty('serial')
+})

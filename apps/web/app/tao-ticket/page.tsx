@@ -11,7 +11,7 @@ import { PageHeader } from '@/components/ui/page-header'
 
 export default async function TaoTicketPage() {
   const [loaiList, staff, me, { data: dsLoi, loi: thieuDanhMuc }, { data: nguoi, loi: thieuNguoi }] = await Promise.all([
-    ticketTypes(), listStaff(), currentStaff(), docAnToan('danhMucLoi', () => danhMucLoi(true), []),
+    ticketTypes(), listStaff(), currentStaff(), docAnToan('danhMucLoi', () => danhMucLoi(true, true), []),
     // Kỹ thuật theo hồ sơ thợ (18/11); chưa áp migration → chọn theo tài khoản nhân viên như cũ.
     docAnToan('docNguoiTicket', () => docNguoiTicket(''), null),
   ])

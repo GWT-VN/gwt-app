@@ -280,6 +280,7 @@ function TheMay({
             moSan={t.ticket_code === ticketMo}
             cuoi={i === n.tickets.length - 1}
             anMay={n.serial !== null}
+            serial={n.serial ?? undefined}
             demo={demo}
           />
         ))
@@ -289,7 +290,7 @@ function TheMay({
 }
 
 /** Một ticket gập/mở tới các lần lỗi. `anMay` = đang nằm trong thẻ máy → không lặp tên máy. */
-function DongTicket({ t, moSan, cuoi, anMay, demo }: { t: Ticket; moSan: boolean; cuoi: boolean; anMay: boolean; demo: boolean }) {
+function DongTicket({ t, moSan, cuoi, anMay, serial, demo }: { t: Ticket; moSan: boolean; cuoi: boolean; anMay: boolean; serial?: string; demo: boolean }) {
   const [mo, setMo] = useState(moSan)
   const tt = TT.find((m) => m.gt === t.state)
   return (
@@ -326,7 +327,7 @@ function DongTicket({ t, moSan, cuoi, anMay, demo }: { t: Ticket; moSan: boolean
                 nguoi={t.ky_thuat_ten ?? t.cs_ten ?? 'CSKH'}
               />
             ) : (
-              <LanLoiThat t={t} />
+              <LanLoiThat t={t} serial={serial} />
             )}
           </div>
         </CollapsibleContent>

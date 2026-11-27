@@ -64,7 +64,10 @@ export default async function CustomerPage({
     kenhChon().catch(() => []),
   ])
   // ponytail: tra tối đa GIOI_HAN.soMaTicket (200) ticket mới nhất — khách vượt mức thì Máy & lỗi đếm thiếu ticket cũ.
-  const dongTheoMa = tickets.length ? await dongMayTheoTickets(tickets.slice(0, GIOI_HAN.soMaTicket).map((t) => t.ticket_code)) : {}
+  // Dòng máy cần cs.ticket.xem — vai chỉ có cs.khach.xem thì Máy & lỗi rỗng, không hỏng cả hồ sơ (như kenhChon).
+  const dongTheoMa = tickets.length
+    ? await dongMayTheoTickets(tickets.slice(0, GIOI_HAN.soMaTicket).map((t) => t.ticket_code)).catch(() => ({}) as Record<string, never>)
+    : {}
   const tenMay = (s: string) => machines.find((m) => m.serial === s)?.product_name ?? null
   const k = customer.channel_id == null ? null : kenh.find((x) => x.id === customer.channel_id)
   return (

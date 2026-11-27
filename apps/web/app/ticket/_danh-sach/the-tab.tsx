@@ -62,7 +62,8 @@ const Loi = ({ chu }: { chu: string }) => <EmptyState size="sm" tieuDe="Chưa đ
  * - ST: lần 1 (mô tả + ghi chú xử lý của ticket) + lần 2+ (ticket_lan_loi), sửa chỉ trên màn như cũ.
  * - MD: mọi lần ở `customer_care.issue_reports`, sửa là lưu; ticket chưa có dòng nào → hiện lần 1 của ticket, ghi lần đầu tạo dòng.
  */
-export function LanLoiThat({ t }: { t: Ticket }) {
+/** `serial` = đang nằm trong thẻ MỘT máy (hồ sơ khách) → lần thêm mới gắn máy đó; không có (Xem nhanh) → server lấy máy lần gần nhất. */
+export function LanLoiThat({ t, serial }: { t: Ticket; serial?: string }) {
   const kq = useDoc(t.ticket_code, () => docLanLoi(t.ticket_code))
   if (!kq) return <DangTai />
   // Ngày lần 1 = ngày tạo ticket theo giờ VN (ticket tạo 0–7h VN không lùi về hôm trước).
@@ -74,7 +75,7 @@ export function LanLoiThat({ t }: { t: Ticket }) {
       : [lan1]
     : [lan1, ...(r?.ds ?? []).map((l) => ({ so: l.lan, ngay: l.ngay ?? l.created_at.slice(0, 10), khach: l.mo_ta, xuLy: l.xu_ly, vatTu: [] }))]
   const luu: LuuLan | undefined = r?.md
-    ? { them: (i) => themLanLoiMd(t.ticket_code, i), sua: (id, p) => suaLanLoiMd(id, t.ticket_code, p) }
+    ? { them: (i) => themLanLoiMd(t.ticket_code, serial ? { ...i, serial } : i), sua: (id, p) => suaLanLoiMd(id, t.ticket_code, p) }
     : undefined
   return (
     <div className="flex flex-col gap-3 border-none border-current">

@@ -2,12 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { dataClient } from '@/lib/nen-tang/db'
+import { cskhNguon } from '@/lib/cskh/nguon'
 import { requireStaff } from '@/lib/nen-tang/phien'
 import { doQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import type { KQ } from '@/lib/loi/ganDongMayServer'
 import { laUuid, maTicketHopLe, thongBaoLoiDb } from '@/lib/loi/kiemDauVao'
-import { lamSachLanLoi, lanTiepTheo, type LanLoi } from '@/lib/loi/lanLoi'
+import { LAN_LOI_O_MD, lamSachLanLoi, lanTiepTheo, type LanLoi } from '@/lib/loi/lanLoi'
 import { kiemNgay, ngayVNHomNay } from '@/lib/loi/ngayTicket'
 
 const COT = 'id, ticket_code, lan, mo_ta, xu_ly, tao_boi, created_at'
@@ -34,6 +35,7 @@ export async function listLanLoi(code: string): Promise<LanLoi[]> {
 export async function themLanLoi(code: string, input: { mo_ta: string; xu_ly?: string; ngay?: string | null }): Promise<KQ> {
   const user = await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: LAN_LOI_O_MD }
   if (!maTicketHopLe(code)) return { ok: false, error: LOI_MA }
   const sach = lamSachLanLoi(input ?? {})
   if (!sach.ok) return sach
@@ -58,6 +60,7 @@ export async function themLanLoi(code: string, input: { mo_ta: string; xu_ly?: s
 export async function suaLanLoi(id: string, code: string, input: { mo_ta: string; xu_ly?: string; ngay?: string | null }): Promise<KQ> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: LAN_LOI_O_MD }
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   if (!maTicketHopLe(code)) return { ok: false, error: LOI_MA }
   const sach = lamSachLanLoi(input ?? {})
@@ -77,6 +80,7 @@ export async function suaLanLoi(id: string, code: string, input: { mo_ta: string
 export async function xoaLanLoi(id: string, code: string): Promise<KQ> {
   await requireStaff()
   await doQuyen('cs.ticket.tao_sua')
+  if (cskhNguon() === 'md') return { ok: false, error: LAN_LOI_O_MD }
   if (!laUuid(id)) return { ok: false, error: LOI_ID }
   if (!maTicketHopLe(code)) return { ok: false, error: LOI_MA }
   const { error } = await dataClient().from('ticket_lan_loi').delete().eq('id', id).eq('ticket_code', code)

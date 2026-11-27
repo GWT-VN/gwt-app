@@ -4,6 +4,8 @@ import type { Ticket } from '@/app/actions'
 import TicketPage from './page'
 
 const quyen = vi.hoisted(() => ({ sua: true, lichKT: true, chiPhi: true, xemKhach: true, xemTatCa: true }))
+const nguon = vi.hoisted(() => ({ v: 'st' as 'st' | 'md' }))
+const goiSt = vi.hoisted(() => ({ listLanLoi: 0 }))
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({}), notFound: () => { throw new Error('Not found') } }))
 vi.mock('@/app/actions', () => ({
@@ -24,16 +26,27 @@ vi.mock('@/lib/nen-tang/nhan-su', () => ({ listStaff: async () => [] }))
 vi.mock('@/lib/nen-tang/phien', () => ({ layNhanVien: async () => ({ id: 'staff-1' }) }))
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({ hoiQuyen: async () => quyen }))
 vi.mock('@/lib/nen-tang/sua-danh-sach-server', () => ({ coSuaDanhSach: async () => false }))
+vi.mock('@/lib/cskh/nguon', () => ({ cskhNguon: () => nguon.v }))
 vi.mock('@/app/ticket/loi-actions', () => ({
-  dongMayCuaTicket: async () => [],
+  dongMayCuaTicket: async () => nguon.v === 'md'
+    ? [{ id: 'r2', ticket_code: 'TK-2611-042', thu_tu: 2, serial: 'TEST-001', source_serial: null, internal_code: null, loi_code: 'E3', loi_ten: 'Lỗi E3',
+        mo_ta: 'Khách báo lại (MD)', huong_xu_ly: null, huong_xu_ly_nguon: null, trang_thai: 'cho_xu_ly', nguon: 'app', created_at: '2026-11-25T02:00:00Z' }]
+    : [],
   danhMucLoi: async () => [],
 }))
-vi.mock('@/app/ticket/lan-loi-actions', () => ({ listLanLoi: async () => [
+vi.mock('@/app/ticket/lan-loi-md-actions', () => ({
+  listLanLoiMd: async () => [
+    { id: 'r1', report_no: 1, serial: 'TEST-001', issue_code: 'E3', issue_name: 'Lỗi E3', reported_on: '2026-11-23', customer_said: 'Nước rò', handling: null, status: 'da_xu_ly', created_by: null },
+    { id: 'r2', report_no: 2, serial: 'TEST-001', issue_code: 'E3', issue_name: 'Lỗi E3', reported_on: '2026-11-25', customer_said: 'Khách báo lại (MD)', handling: null, status: 'cho_xu_ly', created_by: null },
+  ],
+  docLanLoi: async () => ({ md: true, ds: [] }), themLanLoiMd: async () => ({ ok: true }), suaLanLoiMd: async () => ({ ok: true }),
+}))
+vi.mock('@/app/ticket/lan-loi-actions', () => ({ listLanLoi: async () => (goiSt.listLanLoi++, [
   {
     id: 'lan-2', lan: 2, ngay: '2026-11-25', created_at: '2026-11-25T02:00:00Z',
     mo_ta: 'Khách báo lại', xu_ly: 'Đã thay gioăng',
   },
-] }))
+]) }))
 vi.mock('@/app/ticket/tep-actions', () => ({ listTepNhatKy: async () => [] }))
 vi.mock('@/app/ticket/dau-ticket-actions', () => ({ docThemTicket: async () => ({ ngay_bao: '2026-11-23', cs_theo_doi: null }) }))
 vi.mock('@/app/ticket/nguoi-actions', () => ({ docNguoiTicket: async () => null }))
@@ -116,5 +129,35 @@ describe('Chi tiết ticket ở đường dẫn mặc định', () => {
     } finally {
       Object.assign(quyen, { sua: true, lichKT: true, chiPhi: true, xemKhach: true })
     }
+  })
+})
+
+describe('Chi tiết ticket khi CSKH_NGUON=md', () => {
+  it('lần lỗi đọc MD (thẻ như Xem nhanh), không đọc ticket_lan_loi ST; máy & lỗi chỉ xem, một dòng mỗi máy', async () => {
+    nguon.v = 'md'
+    goiSt.listLanLoi = 0
+    try {
+      const html = await moTicket()
+      expect(html).toContain('data-nguon="md"')
+      expect(html).toContain('Các lần lỗi · 2')
+      expect(goiSt.listLanLoi).toBe(0)
+      // TicketEditor (ghi lần 1 / loại / lần 2+ vào ST) không có ở md.
+      expect(html).not.toContain('Sửa loại / lần 1')
+      expect(html).not.toContain('Đã thay gioăng')
+      // Máy & lỗi: chỉ xem + ghi chú, không nút ghi ticket_may ST; trạng thái "Chờ xử lý" không bị đổi thành "Đang xử lý".
+      expect(html).toContain('chỉ xem')
+      expect(html).toContain('Chờ xử lý')
+      expect(html).not.toContain('Sửa dòng')
+      expect(html).not.toContain('＋ Thêm máy')
+    } finally {
+      nguon.v = 'st'
+    }
+  })
+
+  it('st: vẫn TicketEditor + nút sửa dòng máy như cũ', async () => {
+    const html = await moTicket()
+    expect(html).not.toContain('data-nguon="md"')
+    expect(html).toContain('Sửa loại / lần 1')
+    expect(html).toContain('＋ Thêm máy')
   })
 })

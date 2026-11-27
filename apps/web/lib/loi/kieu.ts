@@ -7,7 +7,8 @@ export type LoiDanhMuc = {
   // Duyệt RIÊNG phương án xử lý (migration 20261118090000). Không có cột (chưa áp) → coi như chưa duyệt.
   huong_duyet?: boolean; huong_duyet_boi?: string | null; huong_duyet_luc?: string | null; huong_y_kien?: string | null
 }
-export type TrangThaiDong = 'dang_xu_ly' | 'da_xu_ly' | 'khong_loi'
+/** `cho_xu_ly` chỉ có ở MD (lần lỗi mới) — ST không nhận (TRANG_THAI_DONG chỉ 3 giá trị). */
+export type TrangThaiDong = 'cho_xu_ly' | 'dang_xu_ly' | 'da_xu_ly' | 'khong_loi'
 export type DongMay = {
   id: string; ticket_code: string; thu_tu: number
   serial: string | null; source_serial: string | null; internal_code: string | null
