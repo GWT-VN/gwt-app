@@ -24,7 +24,7 @@ import {
 import type { Ticket } from '@/app/actions'
 import { KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { Badge, BadgeDot } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
@@ -147,6 +147,7 @@ function NutGanViecHangLoat({ rows, onMo }: { rows: Ticket[]; onMo: (ds: Ticket[
 function TrangThaiO({ t }: { t: Ticket }) {
   return (
     <Badge variant="soft" color={TT.find((m) => m.gt === t.state)?.color}>
+      <BadgeDot />
       {TT.find((m) => m.gt === t.state)?.nhan}
     </Badge>
   )
@@ -581,7 +582,7 @@ export function TicketF({
   const doiMay = async (t: Ticket, serial: string) => {
     const m = t.customer_id ? mayKhach[t.customer_id]?.find((x) => x.serial === serial) : undefined
     const ma = t.ticket_code
-    if (m && !laDemo(ma)) {
+    if (m) {
       const d = dongDau(t)
       const veCpl = !!d && !d.chuaPhanLoai && !loiHopVoiMay(dsLoi.find((x) => x.code === d.loi_code) ?? { code: d.loi_code }, m.internal_code)
       const homNay = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10)
@@ -604,6 +605,8 @@ export function TicketF({
         },
       }))
     }
+    // Ticket demo: chỉ đổi trên màn (giữ bản lạc quan), không gọi action — xem thử chọn máy khi DB local chưa có khách+máy.
+    if (laDemo(ma)) return
     try {
       if (await luuMay(ma, serial))
         // Dữ liệu mới về rồi mới mở pop Loại lỗi của hàng (ô tìm tự focus).

@@ -1,5 +1,6 @@
 // PROTOTYPE vứt đi — ticket Demo (không PII) khi DB local chưa có ticket nào. Chỉ dùng trong bộ nhớ, không ghi DB.
 import type { Ticket } from '@/app/actions'
+import type { MayKhach } from '@/app/ticket/loi-actions'
 
 const ngay = (truoc: number, gio = 9) => {
   const d = new Date()
@@ -39,7 +40,8 @@ export const TICKET_DEMO: Ticket[] = MAU.map(([ma, khach, may, loi, state, khan,
   product_name: may,
   internal_code: null,
   may_khong_trong_he_thong: false,
-  customer_id: null,
+  // Mã khách demo (không phải uuid) — để ô Máy có danh sách máy của khách (MAY_KHACH_DEMO); ghi DB vẫn chặn ở laDemo.
+  customer_id: i === 0 ? null : `DEMO-KH-${i}`,
   customer_name: khach,
   primary_phone: `0900000${String(100 + i)}`,
   warranty_activated: i % 4 !== 3,
@@ -56,6 +58,18 @@ export const TICKET_DEMO: Ticket[] = MAU.map(([ma, khach, may, loi, state, khan,
     { nhan: loi, serial: `DEMO-SN-${2400 + i}`, chuaPhanLoai: false, loi_code: `DEMO-LOI-${i}`, loi_ten: loi.split(' · ')[1], internal_code: loi.split(' · ')[0] },
   ],
 }))
+
+/** Máy demo theo khách: máy của ticket + máy thứ hai cho vài khách (CEO 27/11 "khách có tận 2 máy" — chọn thử ô Máy). */
+const MAY_THEM: Record<number, string> = { 2: 'Máy lọc nước GE CTS20', 4: 'Máy lọc nước GE GN620', 7: 'Máy lọc nước GE GN610' }
+export const MAY_KHACH_DEMO: Record<string, MayKhach[]> = Object.fromEntries(
+  TICKET_DEMO.flatMap((t, i) => {
+    if (!t.customer_id) return []
+    const may = (serial: string, ten: string): MayKhach => ({
+      serial, product_name: ten, internal_code: null, customer_id: t.customer_id!, warranty_activated: i % 4 !== 3, warranty_full_end: null,
+    })
+    return [[t.customer_id, [may(t.serial!, t.product_name!), ...(MAY_THEM[i] ? [may(`DEMO-SN-${2500 + i}`, MAY_THEM[i])] : [])]]]
+  }),
+)
 
 /** Lọc Demo theo đúng tham số tab của server (state / khan / mine) + từ khoá, để tab trong prototype có hiệu lực. */
 export function locDemo(sp: { state?: string; khan?: string; mine?: string; q?: string }) {

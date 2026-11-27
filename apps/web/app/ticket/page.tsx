@@ -21,7 +21,7 @@ import { redirect } from 'next/navigation'
 import { ManV2 } from '@/components/khung/ManV2'
 import { cotLocTicket } from '@/app/actions'
 import { TrangTicketPrototype } from './_prototype/trang'
-import { locDemo, TICKET_DEMO, TOI_DEMO } from './_prototype/demo'
+import { locDemo, MAY_KHACH_DEMO, TICKET_DEMO, TOI_DEMO } from './_prototype/demo'
 import { TicketF } from './_danh-sach/ds-f'
 import type { DuLieuTicket } from './_danh-sach/chung'
 import { queryTab, TRUONG_F, tuyChonF, VIEW_F } from './_danh-sach/truong-f'
@@ -85,7 +85,7 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten, ma_may: d.ma_may, ngung: d.trang_thai === 'ngung', choDuyet: d.trang_thai === 'cho_duyet' })),
     demo,
     quyenSua: sua,
-    mayKhach,
+    mayKhach: demo ? { ...MAY_KHACH_DEMO, ...mayKhach } : mayKhach,
     nhanVien: nhanVien.map((n) => ({ gt: n.id, nhan: n.ten, anMa: true })),
     tuyChonLoc: tuyChonF(demo ? [...cotDb, ...TICKET_DEMO] : cotDb),
     tabRieng,
