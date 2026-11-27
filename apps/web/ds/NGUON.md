@@ -202,6 +202,12 @@ tab dính đỉnh; tiêu đề Việc sửa thẳng trên chữ (`Textarea varia
 chính tả), bỏ nút bút. Khi đẩy lên artifact: README + preview XemNhanh (đầu thẻ mới, khe tiêu đề, khe thuộc tính), InlineEdit
 (ô hạn có giờ), Textarea (biến thể trần).
 
+**Chờ đồng bộ lên artifact** — cỡ chữ PropertyList + tiêu đề Xem nhanh theo số ĐO Notion (27/11, CEO "so với notion thì size
+chữ rất bé"; bảng đo `docs/rework/2026-11-27-hoc-hanh-vi-notion.md`): nhãn `dt` 12/18 → 14/20, icon nhãn xs 14 → sm 16, cột
+nhãn 96–128 → 112–160 (≤640: 96–128), khoảng dòng gap-y 2 → 6 (bước 38 = Notion 34 + 4); `xnTieuDe` 20/26 → `--text-heading-xl`
+32/38 (Notion side peek 32/38,4), đệm dưới 8 → 12. Áp mọi PropertyList (Xem nhanh + trang chi tiết) — Notion cùng cỡ ở peek
+lẫn trang. Khi đẩy lên artifact: `.ui-props` + preview PropertyList, XemNhanh.
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

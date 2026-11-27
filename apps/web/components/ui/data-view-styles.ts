@@ -163,10 +163,11 @@ export const xnDau = cn(
  */
 export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
 /**
- * Tiêu đề lớn dưới đầu thẻ, TRÊN hàng tab (học Notion — CEO 27/11 "tab cho xuống dưới, tiêu đề để chữ lớn"): heading-md
- * 20/26 600, xuống dòng đủ, đệm 16 trên · 8 dưới · 24 hai bên (thẳng mép nội dung).
+ * Tiêu đề lớn dưới đầu thẻ, TRÊN hàng tab (học Notion — CEO 27/11 "tab cho xuống dưới, tiêu đề để chữ lớn"): heading-xl
+ * 32/38 600 (Notion đo 27/11: 40/48 trên khung 976 — thẻ mình 440 nên lấy bậc token gần nhất), xuống dòng đủ, đệm 16 trên ·
+ * 12 dưới · 24 hai bên (thẳng mép nội dung).
  */
-export const xnTieuDe = cn(kv, 'shrink-0 px-6 pt-4 pb-2 text-[20px] leading-[26px] font-semibold text-foreground [overflow-wrap:anywhere]')
+export const xnTieuDe = cn(kv, 'shrink-0 px-6 pt-4 pb-3 [font:var(--text-heading-xl)] text-foreground [overflow-wrap:anywhere]')
 // Đệm 12 hai bên: đệm 12 của tab `line` TOẢ RA NGOÀI → icon/chữ tab đầu thẳng mép nội dung 24 (đo 27/11: trước ở 36).
 // Tab trải hết, KHÔNG gom "+N Thêm" (CEO 27/11 "bỏ hành vi dropdown, chỉ trải tab ra") → thừa chỗ thì cuộn ngang, giấu thanh cuộn.
 export const xnHangTab = cn(kv, 'shrink-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-3 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')

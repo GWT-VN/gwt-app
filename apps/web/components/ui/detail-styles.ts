@@ -79,23 +79,23 @@ export const pageHeaderActions = [
 /* ---------- PropertyList ---------- */
 
 /**
- * `.ui-props` (dl): lưới 2 cột nhãn 96–128 + phần còn lại, gap 2/12, căn giữa dọc · ≤640 nhãn 88–112 ·
+ * `.ui-props` (dl): lưới 2 cột nhãn 112–160 + phần còn lại, gap 6/12 (dòng cách nhau 38 = Notion đo 27/11) · ≤640 nhãn 96–128 ·
  * `data-layout="stack"`: 1 cột, gap 0, nhãn trên giá trị (nhãn hết cao tối thiểu, cách mục trên 10).
  */
 export const propsList = [
   kv,
   // items-start (25/11): giá trị nhiều dòng (danh sách người) thì nhãn thẳng DÒNG ĐẦU, không lơ lửng giữa — nhãn và
   // giá trị cùng cao tối thiểu 32 nên dòng một-giá-trị vẫn thẳng tâm như cũ.
-  'm-0 grid grid-cols-[minmax(96px,128px)_minmax(0,1fr)] items-start gap-x-3 gap-y-0.5',
-  '[@media(max-width:640px)]:not-data-layout:grid-cols-[minmax(88px,112px)_minmax(0,1fr)]',
+  'm-0 grid grid-cols-[minmax(112px,160px)_minmax(0,1fr)] items-start gap-x-3 gap-y-1.5',
+  '[@media(max-width:640px)]:not-data-layout:grid-cols-[minmax(96px,128px)_minmax(0,1fr)]',
   'data-[layout=stack]:grid-cols-[minmax(0,1fr)] data-[layout=stack]:gap-0',
   'data-[layout=stack]:[&>dt]:mt-2.5 data-[layout=stack]:[&>dt]:min-h-0 data-[layout=stack]:[&>dt:first-child]:mt-0',
 ].join(' ')
-/** dt: 12/18 muted-foreground, cao tối thiểu 32 (= ô sửa), icon control-icon-size-xs. */
+/** dt: 14/20 muted-foreground, cao tối thiểu 32 (= ô sửa), icon 16 (control-icon-size-sm) — đo Notion 27/11 (CEO: "chữ rất bé"). */
 export const propsTerm = [
   kv,
-  'flex min-h-(--control-size-md) items-center gap-1.5 text-[12px] leading-[18px] text-muted-foreground',
-  '[&_svg]:size-(--control-icon-size-xs) [&_svg]:shrink-0',
+  'flex min-h-(--control-size-md) items-center gap-1.5 text-[14px] leading-[20px] text-muted-foreground',
+  '[&_svg]:size-(--control-icon-size-sm) [&_svg]:shrink-0',
 ].join(' ')
 /** dd: 14/20, cao tối thiểu 32 (bằng ô sửa → sửa không nhảy dòng), ngắt từ dài. */
 export const propsValue = `${kv} m-0 flex min-h-(--control-size-md) min-w-0 items-center text-[14px] leading-[20px] [overflow-wrap:anywhere]`
