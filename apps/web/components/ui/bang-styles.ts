@@ -23,17 +23,20 @@ const kv = 'border-none border-current'
 
 // `.ui-chip`: cao 28 pill, chữ 12/18, nhãn thường + giá trị strong 600. Đệm trái 10 ở khung; phải 10 (không ×) / 4 (có ×).
 // Xuất (`chipKhung`/`chipX`) cho chip tự dựng ngoài bang/ — ChipLoc của bo-loc-truong.tsx.
+// Nền xanh nhạt info-soft-alpha + giá trị chữ info (CEO 27/11 "đổi màu subtle một chút thôi để nổi hơn so với phần tab")
+// — chip lọc tách khỏi tab pill xám (alpha-05) ngay hàng trên.
 export const chipKhung = cn(
   kv,
   'inline-flex max-w-full items-center gap-1 h-(--control-size-sm) pl-2.5 rounded-(--radius-full) whitespace-nowrap',
-  'bg-(--alpha-05) text-foreground text-[12px] leading-[18px] font-normal',
+  'bg-(--color-background-info-soft-alpha) text-foreground text-[12px] leading-[18px] font-normal',
+  '[&_strong]:text-(--color-text-info-soft)',
   '[&>span]:overflow-hidden [&>span]:text-ellipsis [&_strong]:font-semibold',
 )
 // `.ui-chip-x`: ô tròn 20, icon 12 muted; hover alpha-10 + foreground; focus-visible vòng ring sát mép.
 export const chipX = cn(
   kv,
   'grid size-5 shrink-0 place-content-center ml-0.5 p-0 rounded-(--radius-full) bg-transparent cursor-pointer',
-  'text-muted-foreground hover:bg-(--alpha-10) hover:text-foreground [&>svg]:size-3',
+  'text-muted-foreground hover:bg-(--color-background-info-soft-alpha-hover) hover:text-foreground [&>svg]:size-3',
   '[outline:none] focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-solid focus-visible:outline-(--ring)',
 )
 
