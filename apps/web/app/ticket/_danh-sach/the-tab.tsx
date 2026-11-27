@@ -15,7 +15,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
-import { DatePicker } from '@/components/ui/date-picker'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Field, FieldLabel } from '@/components/ui/field'
@@ -349,7 +349,9 @@ export function HopGanViec({
             </Field>
             <Field>
               <FieldLabel>Hạn</FieldLabel>
-              <DatePicker value={han} onValueChange={setHan} placeholder="Chưa hạn" />
+              {/* Hạn có GIỜ như khu Việc (CEO 27/11 "mất cái form chọn time"): DateTimePicker DS — lịch trên, ô ngày + giờ dưới;
+                  chỉ chọn ngày → 17:00 (giờ hành chính cuối ngày, như `hanLuu` của Work). */}
+              <DateTimePicker value={han} onValueChange={setHan} gioMacDinh="17:00" placeholder="Chưa hạn" />
             </Field>
             <Field>
               <FieldLabel>Người làm</FieldLabel>
