@@ -43,6 +43,8 @@ import {
  *   (giá trị về trễ — URL qua router — thì focus tạm ở "Thêm", chuyển sang tab khi nó hiện).
  *   Nút "Thêm" đứng NGOÀI `tablist` (tablist chỉ chứa tab). `line` + `thuGon` (Xem nhanh, học Twenty "+4 More ▾"): cùng
  *   logic, nút ghi số tab đang ẩn "+N Thêm ▾", hàng không cuộn (thu gọn đã lo tràn).
+ * - `cuoi` (pill/line thu gọn): nút đi SAU tab cuối (vd "+" thêm tab, "…" thao tác tab — Twenty "+ Add view" đứng ngay
+ *   sau view cuối, CEO 27/11). Nằm ngoài `tablist`; bề rộng của nó trừ vào chỗ của tab khi tính thu gọn.
  * - Icon trước chữ: đặt `<Icon aria-hidden />` (Phosphor) làm con đầu của `TabsTrigger` — cỡ token icon md tự áp, tên tab
  *   chỉ là chữ; menu "Thêm" hiện cả icon.
  * - Tab gắn URL (lọc trạng thái danh sách) → tham số chuẩn trong CHUAN-FILTER.md, điều khiển bằng `value`/`onValueChange`.
@@ -103,10 +105,11 @@ const UOC_THEM = 88 // ước rộng nút "Thêm" lần đo đầu (nút còn �
 export function TabsList({
   variant = 'default',
   thuGon = false,
+  cuoi,
   className,
   children,
   ...props
-}: ComponentProps<typeof TabsPrimitive.List> & { variant?: Kieu; thuGon?: boolean }) {
+}: ComponentProps<typeof TabsPrimitive.List> & { variant?: Kieu; thuGon?: boolean; cuoi?: ReactNode }) {
   const list = (ref?: Ref<HTMLDivElement>) => (
     <TabsPrimitive.List
       ref={ref}
@@ -118,8 +121,8 @@ export function TabsList({
       {children}
     </TabsPrimitive.List>
   )
-  if (variant === 'pill') return <HangThuGon variant="pill" thuGon={thuGon} list={list} />
-  if (variant === 'line' && thuGon) return <HangThuGon variant="line" thuGon list={list} />
+  if (variant === 'pill') return <HangThuGon variant="pill" thuGon={thuGon} list={list} cuoi={cuoi} />
+  if (variant === 'line' && thuGon) return <HangThuGon variant="line" thuGon list={list} cuoi={cuoi} />
   return <KieuTabs.Provider value={{ variant }}>{list()}</KieuTabs.Provider>
 }
 
@@ -128,16 +131,19 @@ function HangThuGon({
   variant,
   thuGon,
   list,
+  cuoi,
 }: {
   variant: 'pill' | 'line'
   thuGon: boolean
   list: (ref: Ref<HTMLDivElement>) => ReactNode
+  cuoi?: ReactNode
 }) {
   const line = variant === 'line'
   const { value, doi } = useContext(GiaTri)
   const khung = useRef<HTMLDivElement>(null)
   const ds = useRef<HTMLDivElement>(null)
   const them = useRef<HTMLButtonElement>(null)
+  const cuoiRef = useRef<HTMLDivElement>(null)
   const rong = useRef(new Map<string, number>())
   const rongThem = useRef(0)
   // Nhãn mọi tab (TabsTrigger ghi trong layout effect). Menu "Thêm" KHÔNG đọc ref này lúc render (chậm một nhịp: số
@@ -162,8 +168,10 @@ function HangThuGon({
     if (thuGon) {
       if (them.current && !them.current.hidden) rongThem.current = them.current.offsetWidth
       const ck = getComputedStyle(k)
-      const cho = k.clientWidth - (parseFloat(ck.paddingLeft) || 0) - (parseFloat(ck.paddingRight) || 0)
       const gap = parseFloat(getComputedStyle(l).columnGap) || 0
+      // Khe `cuoi` (nút sau tab cuối) chiếm chỗ cố định — trừ trước khi chia cho tab.
+      const rongCuoi = cuoiRef.current ? cuoiRef.current.offsetWidth + (parseFloat(ck.columnGap) || 0) : 0
+      const cho = k.clientWidth - (parseFloat(ck.paddingLeft) || 0) - (parseFloat(ck.paddingRight) || 0) - rongCuoi
       const gt = tabs.map((t) => t.dataset.value ?? '')
       const moi = tinhThuGon({
         rong: gt.map((x) => rong.current.get(x) ?? 0),
@@ -250,6 +258,11 @@ function HangThuGon({
               })}
             </DropdownMenuContent>
           </DropdownMenu>
+        )}
+        {cuoi && (
+          <div ref={cuoiRef} data-slot="tabs-cuoi" className="flex shrink-0 items-center gap-1 border-none border-current">
+            {cuoi}
+          </div>
         )}
       </div>
     </KieuTabs.Provider>

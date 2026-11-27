@@ -171,6 +171,13 @@ async, trả `{ loi }` → hiện FieldError, nút Lưu `loading`, khoá bấm �
 noiTuyen` (bỏ portal) đã GỠ: ngoài DsRoot không có token, lách vô ích. Khi đẩy lên artifact: README Table (batBuoc), README
 DataViewToolbar (toolbar không dạng xem), README SavedView (lỗi lưu); không đổi `bundle.css`.
 
+**Chờ đồng bộ lên artifact** — hàng tab view (27/11, CEO: "button thêm view thì nên ở cạnh tab" · "view tạo ra còn ko có
+trạng thái active"): `TabsList cuoi` (pill / line thu gọn) = khe nút ngay SAU tab cuối (học Twenty "+ Add view"), nằm
+ngoài `tablist`, bề rộng trừ vào chỗ của tab khi thu gọn. Icon dạng xem trên tab: đã thử, CEO bỏ ("hơi rối") — tab view
+chỉ chữ + số đếm. Bẫy: bọc `TabsTrigger` bằng `ContextMenuTrigger asChild` làm `data-state="closed"` đè
+`data-state="active"` → tab đang chọn mất kiểu; bọc qua `<span className="contents">`. Khi đẩy lên artifact: README +
+preview Tabs (khe cuối "+").
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

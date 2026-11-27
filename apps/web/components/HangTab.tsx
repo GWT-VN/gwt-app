@@ -141,33 +141,9 @@ export function useHangTab({
     return n == null ? null : <TabsCount color={nguy && n ? 'danger' : undefined}>{n}</TabsCount>
   }
 
-  const tabs = (
-    <div className="flex min-w-0 items-center gap-1 border-none border-current">
-      {/* flex-1: khung thu gọn đo theo chỗ có sẵn — co theo nội dung thì tab ẩn đi là khung co lại, không bung ra được nữa. */}
-      <Tabs value={value} onValueChange={mo} className="min-w-0 flex-1">
-        <TabsList variant="pill" thuGon aria-label={`Tab ${nhan}`}>
-          {coDinh.map((x) => (
-            <TabsTrigger key={x.v} value={x.v}>
-              {x.ten} {dem(x.v, x.nguy)}
-            </TabsTrigger>
-          ))}
-          {tabRieng.map((t) => {
-            const nut = (
-              <TabsTrigger key={t.id} value={`t:${t.id}`} title={t.chung ? `${t.ten} · dùng chung` : t.ten}>
-                {t.ten} {dem(`t:${t.id}`)}
-              </TabsTrigger>
-            )
-            return t.suaDuoc ? (
-              <ContextMenu key={t.id}>
-                <ContextMenuTrigger asChild>{nut}</ContextMenuTrigger>
-                <ContextMenuContent>{mucMenu(t, ContextMenuItem as Muc, ContextMenuSeparator)}</ContextMenuContent>
-              </ContextMenu>
-            ) : (
-              nut
-            )
-          })}
-        </TabsList>
-      </Tabs>
+  // Nút sau tab cuối (Twenty "+ Add view"): "…" thao tác tab tự tạo đang chọn, "+" thêm tab.
+  const cuoi = (
+    <>
       {rieng?.suaDuoc && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -190,6 +166,40 @@ export function useHangTab({
         chu={{ ...CHU_TAB, tieuDe: 'Thêm tab', placeholder: viDuTen, chiaSe: quyenTabChung && 'Dùng chung cho mọi người' }}
         onLuu={(v) => void luuMoi(v.ten, v.chiaSe)}
       />
+    </>
+  )
+
+  const tabs = (
+    <div className="flex min-w-0 items-center gap-1 border-none border-current">
+      {/* flex-1: khung thu gọn đo theo chỗ có sẵn — co theo nội dung thì tab ẩn đi là khung co lại, không bung ra được nữa. */}
+      <Tabs value={value} onValueChange={mo} className="min-w-0 flex-1">
+        <TabsList variant="pill" thuGon aria-label={`Tab ${nhan}`} cuoi={cuoi}>
+          {coDinh.map((x) => (
+            <TabsTrigger key={x.v} value={x.v}>
+              {x.ten} {dem(x.v, x.nguy)}
+            </TabsTrigger>
+          ))}
+          {tabRieng.map((t) => {
+            const nut = (
+              <TabsTrigger key={t.id} value={`t:${t.id}`} title={t.chung ? `${t.ten} · dùng chung` : t.ten}>
+                {t.ten} {dem(`t:${t.id}`)}
+              </TabsTrigger>
+            )
+            // ContextMenuTrigger asChild ghi `data-state="closed"` đè `data-state="active"` của tab → tab đang chọn mất
+            // kiểu active (CEO 27/11 "view tạo ra còn ko có trạng thái active"). Bọc span `contents` nhận thuộc tính đó.
+            return t.suaDuoc ? (
+              <ContextMenu key={t.id}>
+                <ContextMenuTrigger asChild>
+                  <span className="contents">{nut}</span>
+                </ContextMenuTrigger>
+                <ContextMenuContent>{mucMenu(t, ContextMenuItem as Muc, ContextMenuSeparator)}</ContextMenuContent>
+              </ContextMenu>
+            ) : (
+              nut
+            )
+          })}
+        </TabsList>
+      </Tabs>
       <ConfirmDialog
         open={!!doiTen}
         onOpenChange={(o) => !o && setDoiTen(null)}
