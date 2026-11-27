@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-// Lọc từ menu tiêu đề cột (học Twenty: menu cột → "Filter" mở bộ lọc của ĐÚNG trường đó). Mục "Lọc…" của TieuDeCot →
+// Lọc từ tiêu đề cột (CEO 27/11: bấm tiêu đề = mở thẳng pop lọc của ĐÚNG trường đó, cuối pop "Ẩn cột"). TieuDeCot →
 // `useMoLoc().mo(trường, nút tiêu đề)`: chưa có điều kiện → pop của NutLoc mở thẳng trang sửa trường đó (đủ phép + "Tôi");
 // đã có chip → mở chip đó. Đóng → focus về nút tiêu đề cột.
 import { useState } from 'react'
@@ -31,6 +31,7 @@ const COT: CotBang[] = [
 
 function Man({ dau = [] }: { dau?: DieuKienLoc[] }) {
   const [dk, setDk] = useState(dau)
+  const [an, setAn] = useState<string[]>([])
   const { nut: refNutLoc, chip: refChipLoc, mo: moLocTruong } = useMoLoc()
   const doi = (id: string, d: DieuKienLoc | null) =>
     setDk((x) => (!d ? x.filter((y) => y.truong !== id) : x.some((y) => y.truong === id) ? x.map((y) => (y.truong === id ? d : y)) : [...x, d]))
@@ -45,8 +46,13 @@ function Man({ dau = [] }: { dau?: DieuKienLoc[] }) {
       <table>
         <thead>
           <tr>
-            {COT.map((c) => (
-              <TieuDeCot key={c.id} cot={c} moLoc={{ dang: dk.some((d) => d.truong === c.id), onMo: (neo) => moLocTruong(c.id, neo) }} />
+            {COT.filter((c) => !an.includes(c.id)).map((c) => (
+              <TieuDeCot
+                key={c.id}
+                cot={c}
+                moLoc={{ dang: dk.some((d) => d.truong === c.id), onMo: (neo, phu) => moLocTruong(c.id, neo, phu) }}
+                menuCot={{ trai: null, phai: null, onDoi: () => {}, onAn: () => setAn((x) => [...x, c.id]) }}
+              />
             ))}
           </tr>
         </thead>
@@ -61,12 +67,11 @@ const chip = () =>
     .queryAllByRole('button', { name: /^Sửa lọc/ })
     .map((b) => b.textContent)
 
-describe('menu tiêu đề cột → Lọc', () => {
+describe('bấm tiêu đề cột → pop lọc của cột (không menu cột)', () => {
   test('chưa có điều kiện: mở thẳng trang sửa của trường đó (đủ phép, "Tôi" cho người); Esc → focus về tiêu đề cột', async () => {
     const user = userEvent.setup()
     render(<Man />)
     await user.click(nutCot('Phụ trách'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Lọc…' }))
     const pop = await screen.findByRole('dialog', { name: 'Lọc' })
     // Không qua danh sách trường: vào thẳng Phụ trách.
     const tim = await within(pop).findByRole('combobox', { name: 'Tìm Phụ trách' })
@@ -88,7 +93,6 @@ describe('menu tiêu đề cột → Lọc', () => {
     const user = userEvent.setup()
     render(<Man dau={[{ truong: 'tt', phep: 'khong-la', giaTri: ['Done'] }]} />)
     await user.click(nutCot('Trạng thái'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Lọc…' }))
     const pop = await screen.findByRole('dialog', { name: 'Lọc Trạng thái' })
     expect(within(pop).getByRole('combobox', { name: 'Điều kiện lọc Trạng thái' }).textContent).toContain('không là')
     expect(within(pop).getByRole('option', { name: 'Đã xong' }).getAttribute('aria-checked')).toBe('true')
@@ -106,11 +110,30 @@ describe('menu tiêu đề cột → Lọc', () => {
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
+  test('cuối pop có "Ẩn cột" → đóng pop, ẩn cột', async () => {
+    const user = userEvent.setup()
+    render(<Man />)
+    await user.click(nutCot('Phụ trách'))
+    expect(screen.queryByRole('menu')).toBeNull()
+    const pop = await screen.findByRole('dialog', { name: 'Lọc' })
+    await user.click(within(pop).getByRole('button', { name: 'Ẩn cột' }))
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Lọc' })).toBeNull())
+    expect(screen.queryByRole('button', { name: /^Phụ trách/ })).toBeNull()
+  })
+
+  test('mở từ nút Lọc (thanh công cụ): KHÔNG có "Ẩn cột"', async () => {
+    const user = userEvent.setup()
+    render(<Man />)
+    await user.click(screen.getByRole('button', { name: 'Lọc' }))
+    const pop = await screen.findByRole('dialog', { name: 'Lọc' })
+    await user.click(within(pop).getByRole('option', { name: /Phụ trách/ }))
+    expect(within(pop).queryByRole('button', { name: 'Ẩn cột' })).toBeNull()
+  })
+
   test('mở chip từ tiêu đề, bỏ hết giá trị rồi đóng → chip gỡ, focus vẫn về tiêu đề cột (không nhảy sang nút Lọc)', async () => {
     const user = userEvent.setup()
     render(<Man dau={[{ truong: 'tt', phep: 'la', giaTri: ['Open'] }]} />)
     await user.click(nutCot('Trạng thái'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Lọc…' }))
     const pop = await screen.findByRole('dialog', { name: 'Lọc Trạng thái' })
     await user.click(within(pop).getByRole('option', { name: 'Đang mở' }))
     await user.keyboard('{Escape}')

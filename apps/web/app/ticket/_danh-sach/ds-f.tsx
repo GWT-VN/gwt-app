@@ -8,14 +8,18 @@
 import { Suspense, useRef, useState, type ReactNode } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
+  ArrowSquareOut,
   ArrowsClockwise,
   CalendarPlus,
+  Copy,
+  SidebarSimple,
   LinkSimple,
   Cube,
   ShieldCheck,
   User,
   UserPlus,
   Wrench,
+  X,
 } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
 import { KhungChon, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDaChon, useDaChon } from '@/bang'
@@ -34,6 +38,7 @@ import type { MayKhach } from '@/app/ticket/loi-actions'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { nutMoTen } from '@/components/ui/list-view-styles'
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '@/components/ui/context-menu'
 import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
@@ -199,10 +204,11 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
       {t.ticket_code}
     </button>
   ),
-  khach: (t) => (
-    <span className="block truncate" title={tenKhach(t)}>
+  // Bấm tên khách = mở ticket như bấm mã (CEO 27/11 "Cho phép ấn vào ticket hoặc tên khách để vào ticket").
+  khach: (t, { mo }) => (
+    <button type="button" className={cn(nutMoTen, 'block max-w-full truncate text-left')} title={tenKhach(t)} onClick={() => mo(t.ticket_code)}>
       {tenKhach(t)}
-    </span>
+    </button>
   ),
   // CEO 26/11 "Chỉ cần 1 cột mã máy -> cột lỗi -> bảo hành": chỉ mã máy ngắn CỦA DÒNG MÁY ĐẦU (cặp với Loại lỗi cùng
   // hàng); tên đầy đủ + serial ở title.
@@ -302,9 +308,13 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   tao: (t, ng) => <span className="tabular-nums text-muted-foreground">{hienNgay(t.created_at, ng.kieuNgay('tao'))}</span>,
 }
 
-function DongBang({ t, hien, ng }: { t: Dong; hien: CotBang[]; ng: NgCanhO }) {
+function DongBang({ t, hien, ng, menu }: { t: Dong; hien: CotBang[]; ng: NgCanhO; menu: ReactNode }) {
   const { daChon } = useDaChon()
+  // Chuột phải vào dòng → menu thao tác của ticket (CEO 27/11 "thêm bảng action khi chuột phải vào một row") — ContextMenu
+  // DS như `ListView menuDong`.
   return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
     <TableRow chon={daChon.includes(t.ticket_code)}>
       <OChonDong khoa={t.ticket_code} moTa={`ticket ${t.ticket_code}`} />
       {hien.map((c, i) => (
@@ -315,6 +325,9 @@ function DongBang({ t, hien, ng }: { t: Dong; hien: CotBang[]; ng: NgCanhO }) {
       {/* Ô dưới cột "+" (ThemCot). */}
       <TableCell aria-hidden="true" />
     </TableRow>
+      </ContextMenuTrigger>
+      <ContextMenuContent aria-label={`Thao tác ${t.ticket_code}`}>{menu}</ContextMenuContent>
+    </ContextMenu>
   )
 }
 
@@ -529,6 +542,11 @@ export function TicketF({
   // Lọc hiện ngay ở nhãn cột thành chip (tieu-de-cot) — KHÔNG còn hàng chip lọc phía trên (CEO 27/11 "Bỏ hết chip filter
   // cũ nhé. chốt bản filter hiện ở label"). Sửa/gỡ điều kiện qua menu tiêu đề cột hoặc nút Lọc.
   const thamSoLoc = TRUONG_F.map((x) => x.id)
+  const giaTriLoc = (id: string) => {
+    const d = dk.find((y) => y.truong === id)
+    const x = truongLoc.find((y) => y.id === id)
+    return d && x ? nhanChip(d, x.ten, (g) => x.tuyChon?.find((o) => o.giaTri === g)?.nhan ?? g).giaTri : undefined
+  }
   // Tab: 4 cố định (bộ lọc chọn sẵn) + tab tự tạo — tab tự tạo tự lưu bộ lọc đang xem (tab-ticket.tsx).
   const hangTab = useTabTicket({
     tabRieng,
@@ -592,6 +610,39 @@ export function TicketF({
       ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi, mayKhach, doiMay }
       : null,
   }
+  const duongDan = (ma: string) => `/ticket/${encodeURIComponent(ma)}`
+  const menuDong = (d: Dong) => (
+    <>
+      {!laDemo(d.ticket_code) && (
+        <ContextMenuItem onSelect={() => router.push(duongDan(d.ticket_code))}>
+          <ArrowSquareOut aria-hidden="true" />
+          Mở chi tiết
+        </ContextMenuItem>
+      )}
+      <ContextMenuItem onSelect={() => mo(d.ticket_code)}>
+        <SidebarSimple aria-hidden="true" />
+        Xem nhanh
+      </ContextMenuItem>
+      <ContextMenuSeparator />
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(d.ticket_code)}>
+        <Copy aria-hidden="true" />
+        Sao chép mã ticket
+      </ContextMenuItem>
+      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDan(d.ticket_code))}>
+        <LinkSimple aria-hidden="true" />
+        Sao chép đường dẫn
+      </ContextMenuItem>
+      {quyenSua && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuItem onSelect={() => setGanViec([d])}>
+            <UserPlus aria-hidden="true" />
+            Giao việc…
+          </ContextMenuItem>
+        </>
+      )}
+    </>
+  )
   const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT
   const [khungRef, rongKhung] = useRongKhung()
   const bang = (
@@ -623,7 +674,12 @@ export function TicketF({
                   }
                   moLoc={
                     TRUONG_F.some((y) => y.id === x.id)
-                      ? { dang: dk.some((d) => d.truong === x.id), onMo: (neo) => moLocTruong(x.id, neo) }
+                      ? {
+                          dang: dk.some((d) => d.truong === x.id),
+                          // Chip ở nhãn kèm giá trị đang lọc (CEO 27/11 thử "BẢO HÀNH: CHƯA KÍCH HOẠT").
+                          giaTri: giaTriLoc(x.id),
+                          onMo: (neo, phu) => moLocTruong(x.id, neo, phu),
+                        }
                       : undefined
                   }
                 />
@@ -633,7 +689,7 @@ export function TicketF({
           </TableHeader>
           <TableBody>
             {dong.map((d) => (
-              <DongBang key={d.ticket_code} t={d} hien={c.hien} ng={ng} />
+              <DongBang key={d.ticket_code} t={d} hien={c.hien} ng={ng} menu={menuDong(d)} />
             ))}
           </TableBody>
         </Table>
@@ -641,7 +697,16 @@ export function TicketF({
     </TableWrap>
   )
   const ds = (
-    <ListView aria-label="Ticket CSKH" cot={COT_DS} dong={dong} khoa={(d) => d.ticket_code} onMo={(d) => bam(d.ticket_code)} dangMo={xem} moKhi="ten" />
+    <ListView
+      aria-label="Ticket CSKH"
+      cot={COT_DS}
+      dong={dong}
+      khoa={(d) => d.ticket_code}
+      onMo={(d) => bam(d.ticket_code)}
+      dangMo={xem}
+      moKhi="ten"
+      menuDong={menuDong}
+    />
   )
 
   return (
@@ -678,7 +743,18 @@ export function TicketF({
             }
             nutChinh={<NutTaoTicket />}
             tabs={dangXem === 'kanban' ? undefined : hangTab.tabs}
-            loc={<NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />}
+            loc={
+              <>
+                {/* Xoá mọi điều kiện lọc trường (giữ tìm, sắp, cột) — CEO 27/11 "Thêm nút reset filter" cạnh nút Lọc. */}
+                {dk.length > 0 && (
+                  <Button variant="ghost" size="sm" onClick={() => dat(Object.fromEntries(thamSoLoc.map((k) => [k, null])))}>
+                    <X aria-hidden="true" />
+                    Xoá bộ lọc
+                  </Button>
+                )}
+                <NutLoc ref={refNutLoc} truong={truongLoc} dieuKien={dk} onDoi={datLoc} />
+              </>
+            }
             caiDat={
               <CaiDatHienThi
                 ref={caiDat}

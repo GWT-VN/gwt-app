@@ -58,7 +58,7 @@ const moLoc = async (user: ReturnType<typeof userEvent.setup>) => {
 }
 
 describe('nút Lọc → trường → điều kiện → giá trị → chip', () => {
-  test('bàn phím: focus ô "Tìm trường", lọc không dấu, Enter vào trường, Enter tick giá trị (áp ngay), Esc đóng + focus về nút', async () => {
+  test('bàn phím: focus ô "Tìm trường", lọc không dấu, Enter vào trường, Shift+Enter tick giữ pop, Enter tick + đóng, focus về nút', async () => {
     const user = userEvent.setup()
     const onDoi = vi.fn()
     render(<Man onDoi={onDoi} />)
@@ -76,14 +76,14 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
     const giaTri = await within(pop).findByRole('combobox', { name: 'Tìm Tỉnh/TP' })
     await waitFor(() => expect(document.activeElement).toBe(giaTri))
     expect(within(pop).getByRole('combobox', { name: 'Điều kiện lọc Tỉnh/TP' }).textContent).toContain('là')
-    await user.keyboard('{ArrowDown}{Enter}')
+    // Shift+Enter: tick mà GIỮ pop (chọn nhiều).
+    await user.keyboard('{ArrowDown}{Shift>}{Enter}{/Shift}')
     expect(onDoi).toHaveBeenLastCalledWith('tinh', { truong: 'tinh', phep: 'la', giaTri: ['Đà Nẵng'] })
     expect(chip()).toEqual(['Tỉnh/TP: Đà Nẵng'])
     expect(within(pop).getByRole('option', { name: 'Đà Nẵng' }).getAttribute('aria-checked')).toBe('true')
-    // Pop vẫn mở (tick nhiều), Enter tick tiếp.
+    // Enter trơn: tick rồi ĐÓNG pop (CEO 27/11 "bấm filter xong thì phải ẩn menu chọn đi").
     await user.keyboard('{ArrowDown}{Enter}')
     expect(chip()).toEqual(['Tỉnh/TP: Đà Nẵng, TP.HCM'])
-    await user.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Lọc' })).toBeNull())
     await waitFor(() => expect(document.activeElement).toBe(nut))
   })
@@ -125,7 +125,11 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
     expect(within(ds).getAllByRole('option').map((x) => x.textContent)).toEqual(['Tôi', 'Mai'])
     await user.keyboard('{Enter}')
     expect(chip()).toEqual(['Phụ trách: Tôi'])
-    await user.click(within(pop).getByRole('combobox', { name: 'Điều kiện lọc Phụ trách' }))
+    // Chọn xong pop đóng → mở lại từ chip để đổi điều kiện.
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Lọc' })).toBeNull())
+    await user.click(screen.getByRole('button', { name: 'Sửa lọc Phụ trách: Tôi' }))
+    const pop2 = await screen.findByRole('dialog', { name: 'Lọc Phụ trách' })
+    await user.click(within(pop2).getByRole('combobox', { name: 'Điều kiện lọc Phụ trách' }))
     expect(screen.getAllByRole('option').map((x) => x.textContent)).toEqual(expect.arrayContaining(['là', 'không là']))
     await user.click(screen.getByRole('option', { name: 'không là' }))
     expect(chip()).toEqual(['Phụ trách: Không Tôi'])
@@ -136,7 +140,10 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
     render(<Man />)
     const pop = await moLoc(user)
     await user.click(within(pop).getByRole('option', { name: 'Tỉnh/TP' }))
+    // Giữ Shift khi bấm = chọn nhiều, pop không đóng.
+    await user.keyboard('{Shift>}')
     for (const t of ['Hà Nội', 'Đà Nẵng', 'TP.HCM', 'Huế']) await user.click(await within(pop).findByRole('option', { name: t }))
+    await user.keyboard('{/Shift}')
     expect(chip()).toEqual(['Tỉnh/TP: 4 lựa chọn'])
     await user.click(within(pop).getByRole('combobox', { name: 'Điều kiện lọc Tỉnh/TP' }))
     await user.click(screen.getByRole('option', { name: 'trống' }))
@@ -198,7 +205,7 @@ describe('nút Lọc → trường → điều kiện → giá trị → chip', 
 })
 
 describe('chip', () => {
-  test('bấm chip → sửa; bỏ hết giá trị: chip còn tới khi đóng, đóng → tự gỡ', async () => {
+  test('bấm chip → sửa; bỏ giá trị cuối → pop đóng, chip tự gỡ, focus về nút Lọc', async () => {
     const user = userEvent.setup()
     const onDoi = vi.fn()
     render(<Man dau={[{ truong: 'tt', phep: 'la', giaTri: ['Open'] }]} onDoi={onDoi} />)
@@ -206,8 +213,6 @@ describe('chip', () => {
     const pop = await screen.findByRole('dialog', { name: 'Lọc Trạng thái' })
     expect(within(pop).queryByRole('button', { name: 'Quay lại' })).toBeNull()
     await user.click(within(pop).getByRole('option', { name: 'Đang mở' }))
-    expect(chip()).toEqual(['Trạng thái: Đang mở'])
-    await user.keyboard('{Escape}')
     await waitFor(() => expect(chip()).toEqual([]))
     expect(onDoi).toHaveBeenLastCalledWith('tt', null)
     // Chip mất → focus không rơi về body: hết chip thì về nút Lọc.

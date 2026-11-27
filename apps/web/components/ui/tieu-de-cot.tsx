@@ -32,6 +32,7 @@ import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CalendarBlank, CaretDown, Ey
 import { KIEU_NGAY, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
+import type { PhuMoLoc } from './bo-loc-truong'
 import { Badge, BadgeDot } from './badge'
 import { useDsPortal } from './ds-root'
 import {
@@ -101,7 +102,7 @@ export type PropsTieuDeCot<C extends CotBang = CotBang> = {
    * `onMo(nút tiêu đề)` — thường là `useMoLoc().mo(id, neo)`. `dang` = trường đang có điều kiện → dấu phễu trên tiêu đề.
    * Mọi kiểu cột dùng được (kể cả cột khoá). Dùng thay `loc` (tick nhanh "là") khi màn có bộ lọc theo trường.
    */
-  moLoc?: { dang: boolean; onMo: (neo: HTMLElement) => void }
+  moLoc?: { dang: boolean; onMo: (neo: HTMLElement, phu?: PhuMoLoc) => void; /** Giá trị đang lọc → chip "TÊN: GIÁ TRỊ". */ giaTri?: string }
   /**
    * Có → tay co dãn ở mép phải (kéo / ←→ 8px / nhấp đúp → `onDoi(null)` = về mặc định: `cot.rong` khai sẵn, không khai thì
    * vừa nội dung — `useCotBang().coDan`).
@@ -200,9 +201,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const Tag = la
   const soLoc = loc?.daChon.length ?? 0
   const coSapLoc = (cot.kieu === 'sap' && !!sap) || (cot.kieu === 'loc' && !!loc)
-  const coMenu = coSapLoc || !!menuCot || !!moLoc || !!ngay
-  // "Lọc…" chọn xong: chờ menu đóng hẳn (Radix trả focus) rồi mới mở pop lọc — không để focus của menu giành lại.
-  const choMoLoc = useRef(false)
+  const coMenu = coSapLoc || !!menuCot || !!ngay
   const dangLoc = soLoc > 0 || !!moLoc?.dang
   const min = toiThieu(cot)
   const nghia = cot.kieu === 'sap' && sap?.chieu ? cot.nghia[sap.chieu] : null
@@ -229,25 +228,11 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
   const nhan = (
     <>
       {dangLoc ? (
-        // Bấm chip = mở THẲNG pop lọc của cột (CEO 27/11 "rê chuột vào phần chip này là cho chọn vào filter luôn"); phần còn
-        // lại của tiêu đề vẫn mở menu cột. Kéo cột vẫn chạy khi thật sự kéo (cảm biến dnd-kit cần dời 8px) — nên KHÔNG chặn
-        // pointerdown khi có kéo; không có kéo thì chặn để Radix không mở menu lúc nhấn. Bàn phím: menu cột → "Lọc…".
-        <span
-          data-slot="th-chip-loc"
-          className={s.thChipLoc}
-          onPointerDown={moLoc && !coKeo ? (e) => e.preventDefault() : undefined}
-          onClick={
-            moLoc
-              ? (e) => {
-                  e.stopPropagation()
-                  if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
-                  const nut = e.currentTarget.closest('button')
-                  if (nut) moLoc.onMo(nut)
-                }
-              : undefined
-          }
-        >
-          <span className="min-w-0 truncate">{cot.ten}</span>
+        <span data-slot="th-chip-loc" className={s.thChipLoc}>
+          <span className="min-w-0 truncate">
+            {cot.ten}
+            {moLoc?.giaTri ? `: ${moLoc.giaTri}` : ''}
+          </span>
           <SlidersHorizontal aria-hidden="true" />
           {soLoc > 0 && <span aria-hidden="true">{soLoc}</span>}
           <span className="sr-only">, đang lọc{soLoc > 0 ? ` ${soLoc}` : ''}</span>
@@ -269,7 +254,29 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
 
   const nutLop = cn(s.thSort, cot.phai && s.thSortPhai)
   let noiDung: ReactNode
-  if (coMenu) {
+  if (moLoc) {
+    // Cột lọc được: bấm tiêu đề = mở THẲNG pop lọc của cột, cuối pop có "Ẩn cột" — không còn menu cột (CEO 27/11 "bấm vào
+    // thì cho hiện phần lọc ra luôn. chỉ giữ lại action ẩn cột ở cuối cùng"). Dời cột = kéo (chuột) / Space (phím).
+    // Không preventDefault pointerdown: cảm biến kéo dnd-kit bỏ qua sự kiện đã bị chặn.
+    noiDung = (
+      <button
+        type="button"
+        ref={datTay}
+        className={nutLop}
+        data-on={nghia || dangLoc ? '' : undefined}
+        aria-haspopup="dialog"
+        aria-describedby={moTa}
+        onKeyDown={phimKeo}
+        onPointerDown={nhanKeo}
+        onClick={(e) => {
+          if (dangKeo || Date.now() - (ketThuc?.current ?? 0) < 300) return
+          moLoc.onMo(e.currentTarget, { anCot: menuCot?.onAn ? anCot : undefined })
+        }}
+      >
+        {nhan}
+      </button>
+    )
+  } else if (coMenu) {
     noiDung = (
       <DropdownMenu open={mo} onOpenChange={setMo}>
         <DropdownMenuTrigger asChild>
@@ -307,34 +314,15 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
           align={cot.phai || menuPhai ? 'end' : 'start'}
           aria-labelledby={undefined}
           aria-label={
-            moLoc
-              ? `Cột ${tenNho}`
-              : cot.kieu === 'sap' && sap
+            cot.kieu === 'sap' && sap
                 ? `Sắp xếp theo ${tenNho}`
                 : cot.kieu === 'loc' && loc
                   ? `Lọc theo ${tenNho}`
-                  : `Cột ${tenNho}`
+                : `Cột ${tenNho}`
           }
           // preview khối "Menu tiêu đề cột": menu rộng 240.
           className="w-[240px]"
-          onCloseAutoFocus={(e) => {
-            if (!choMoLoc.current || !moLoc) return
-            choMoLoc.current = false
-            const nut = oRef.current?.querySelector<HTMLElement>('button')
-            if (!nut) return
-            e.preventDefault()
-            moLoc.onMo(nut)
-          }}
         >
-          {moLoc && (
-            <>
-              <DropdownMenuItem onSelect={() => (choMoLoc.current = true)}>
-                <SlidersHorizontal aria-hidden="true" />
-                Lọc…
-              </DropdownMenuItem>
-              {(coSapLoc || menuCot || ngay) && <DropdownMenuSeparator />}
-            </>
-          )}
           {cot.kieu === 'sap' && sap && (
             <>
               <DropdownMenuLabel>Sắp xếp</DropdownMenuLabel>

@@ -172,7 +172,7 @@ export function BangF<T>({
                           } : undefined}
                           moLoc={
                             truong.some((y) => y.id === c.id)
-                              ? { dang: dk.some((d) => d.truong === c.id), onMo: (neo) => moLocTruong(c.id, neo) }
+                              ? { dang: dk.some((d) => d.truong === c.id), onMo: (neo, phu) => moLocTruong(c.id, neo, phu) }
                               : undefined
                           }
                         />

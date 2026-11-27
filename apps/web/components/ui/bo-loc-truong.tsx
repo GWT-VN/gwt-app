@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefCallback } from 'react'
-import { ArrowLeft, CalendarBlank, Check, SlidersHorizontal, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
+import { ArrowLeft, CalendarBlank, Check, EyeSlash, SlidersHorizontal, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
 import {
   canGiaTri,
   laRong,
@@ -24,7 +24,7 @@ import { cdDau } from './data-view-styles'
 import { DatePicker } from './date-picker'
 import { DateRangePicker } from './date-range-picker'
 import { Input } from './input'
-import { menuCheck, menuContent } from './menu-styles'
+import { menuCheck, menuContent, menuItem, menuSeparator } from './menu-styles'
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import { TooltipNhanh } from './tooltip'
@@ -58,7 +58,9 @@ export type TruongLoc = {
 }
 type OnDoi = (truong: string, d: DieuKienLoc | null) => void
 /** Mở pop lọc của một trường từ ngoài; `neo` = nơi neo pop + nhận lại focus khi đóng (vd nút tiêu đề cột). */
-export type MoLocRef = { mo: (truong: string, neo?: HTMLElement | null) => void }
+/** Mở từ tiêu đề cột: thêm "Ẩn cột" ở cuối pop (CEO 27/11 "chỉ giữ lại action ẩn cột ở cuối cùng"). */
+export type PhuMoLoc = { anCot?: () => void }
+export type MoLocRef = { mo: (truong: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => void }
 
 /**
  * Nối nút "Lọc" + các chip với chỗ mở từ ngoài (menu tiêu đề cột): `<NutLoc ref={x.nut}>`, `<ChipLoc ref={x.chip(id)}>`,
@@ -85,7 +87,7 @@ export function useMoLoc() {
         }
         return f
       },
-      mo: (id: string, neo?: HTMLElement | null) => (chip.get(id) ?? nut)?.mo(id, neo),
+      mo: (id: string, neo?: HTMLElement | null, phu?: PhuMoLoc) => (chip.get(id) ?? nut)?.mo(id, neo, phu),
     }
   })
   return x
@@ -126,6 +128,19 @@ const kv = 'border-none border-current'
 const khungPop = cn(menuContent, 'w-[280px] max-w-[calc(100vw-32px)] max-h-(--radix-popover-content-available-height)')
 const TU_FOCUS = '[data-tu-focus]'
 
+/** Cuối pop lọc mở từ tiêu đề cột: vạch + "Ẩn cột" (kiểu mục menu DS). */
+function NutAnCot({ onAn }: { onAn: () => void }) {
+  return (
+    <>
+      <div role="separator" className={menuSeparator} />
+      <button type="button" className={cn(menuItem, 'hover:bg-(--menu-item-bg)')} onClick={onAn}>
+        <EyeSlash aria-hidden="true" />
+        Ẩn cột
+      </button>
+    </>
+  )
+}
+
 const moi = (t: TruongLoc): DieuKienLoc => ({ truong: t.id, phep: PHEP_MAC_DINH[t.kieu], giaTri: [] })
 const tenGiaTri = (t: TruongLoc) => (g: string) => t.tuyChon?.find((m) => m.giaTri === g)?.nhan ?? g
 
@@ -144,7 +159,8 @@ function DsTim({
   tenDs: string
   goiY: string
   muc: { gt: string; nhan: string; dau?: ReactNode; chon?: boolean }[]
-  onChon: (gt: string) => void
+  /** `giu`: bấm kèm Ctrl/⌘/Shift (hoặc Space/Enter kèm phím đó) — bên gọi giữ pop mở để chọn tiếp. */
+  onChon: (gt: string, giu: boolean) => void
   /** Vạch sau mục thứ i (mục ghim) — chỉ khi không gõ tìm. */
   tachSau?: number
   rong: string
@@ -154,6 +170,11 @@ function DsTim({
   const [go, setGo] = useState('')
   const [sang, setSang] = useState('')
   const goc = useRef<HTMLDivElement>(null)
+  // cmdk `onSelect` không kèm sự kiện → ghi phím bổ trợ lúc nhấn chuột/phím ngay trước đó.
+  const phu = useRef(false)
+  const ghiPhu = (e: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }) => {
+    phu.current = e.ctrlKey || e.metaKey || e.shiftKey
+  }
   const tu = boDau(go.trim())
   const ds = tu ? muc.filter((m) => boDau(m.nhan).includes(tu)) : muc
   const sangThat = ds.some((m) => m.gt === sang) ? sang : (ds[0]?.gt ?? '')
@@ -163,6 +184,7 @@ function DsTim({
   return (
     <Command
       ref={goc}
+      onKeyDownCapture={ghiPhu}
       value={sangThat}
       onValueChange={setSang}
       shouldFilter={false}
@@ -182,10 +204,10 @@ function DsTim({
       <div aria-live="polite" className={ghiChu ? cs.commandEmpty : kv}>
         {ghiChu}
       </div>
-      <CommandList label={tenDs} className={cs.trongPopDs}>
+      <CommandList label={tenDs} className={cs.trongPopDs} onPointerDownCapture={ghiPhu}>
         {ds.map((m, i) => (
           <Fragment key={m.gt}>
-            <CommandItem value={m.gt} aria-checked={nhieu ? !!m.chon : undefined} onSelect={() => onChon(m.gt)}>
+            <CommandItem value={m.gt} aria-checked={nhieu ? !!m.chon : undefined} onSelect={() => onChon(m.gt, phu.current)}>
               {m.dau}
               <span className="min-w-0 truncate">{m.nhan}</span>
               {m.chon && <Check aria-hidden="true" className={menuCheck} />}
@@ -209,7 +231,8 @@ function SuaDieuKien({
   truong: TruongLoc
   nhap: DieuKienLoc
   onNhap: (d: DieuKienLoc) => void
-  onXong: () => void
+  /** Đóng pop; `cuoi` = điều kiện vừa đặt (state `nhap` chưa kịp cập nhật). */
+  onXong: (cuoi?: DieuKienLoc) => void
   lui?: () => void
 }) {
   const doiPhep = (p: PhepLoc) => {
@@ -231,9 +254,13 @@ function SuaDieuKien({
         rong="Chưa có giá trị nào"
         tachSau={t.kieu === 'nguoi' ? 0 : undefined}
         muc={muc.map((m) => ({ gt: m.giaTri, nhan: m.nhan, chon: nhap.giaTri.includes(m.giaTri) }))}
-        onChon={(g) =>
-          onNhap({ ...nhap, giaTri: nhap.giaTri.includes(g) ? nhap.giaTri.filter((x) => x !== g) : [...nhap.giaTri, g] })
-        }
+        // Chọn một giá trị → áp lọc và ĐÓNG pop (CEO 27/11 "bấm filter xong thì phải ẩn menu chọn đi"); giữ Ctrl/⌘/Shift
+        // khi bấm để chọn tiếp nhiều giá trị.
+        onChon={(g, giu) => {
+          const d = { ...nhap, giaTri: nhap.giaTri.includes(g) ? nhap.giaTri.filter((x) => x !== g) : [...nhap.giaTri, g] }
+          onNhap(d)
+          if (!giu) onXong(d)
+        }}
       />
     )
   } else if (t.kieu === 'ngay')
@@ -304,8 +331,8 @@ function useNhap(dieuKien: DieuKienLoc[], onDoi: OnDoi) {
     setNhap(d)
     if (!laRong(d)) onDoi(d.truong, d)
   }
-  const dong = () => {
-    if (nhap && laRong(nhap) && dieuKien.some((d) => d.truong === nhap.truong)) onDoi(nhap.truong, null)
+  const dong = (cuoi: DieuKienLoc | null = nhap) => {
+    if (cuoi && laRong(cuoi) && dieuKien.some((d) => d.truong === cuoi.truong)) onDoi(cuoi.truong, null)
     setNhap(null)
   }
   return { nhap, setNhap, doi, dong }
@@ -334,14 +361,16 @@ export function NutLoc({
   ref?: Ref<MoLocRef>
 }) {
   const [mo, setMo] = useState(false)
+  const [phu, setPhu] = useState<PhuMoLoc>()
   const { nhap, setNhap, doi, dong } = useNhap(dieuKien, onDoi)
   const khung = useRef<HTMLDivElement>(null)
   const ngoai = useNeoNgoai()
   useImperativeHandle(ref, () => ({
-    mo: (id, neo) => {
+    mo: (id, neo, p) => {
       const x = truong.find((y) => y.id === id)
       if (!x) return
       ngoai.dat(neo)
+      setPhu(p)
       setNhap(dieuKien.find((d) => d.truong === id) ?? moi(x))
       setMo(true)
     },
@@ -351,8 +380,9 @@ export function NutLoc({
   useEffect(() => {
     if (mo) focusTrong(khung.current)
   }, [mo, nhap?.truong])
-  const doiMo = (o: boolean) => {
-    if (!o) dong()
+  const doiMo = (o: boolean, cuoi?: DieuKienLoc) => {
+    if (!o) dong(cuoi)
+    else setPhu(undefined)
     setMo(o)
   }
   return (
@@ -380,16 +410,26 @@ export function NutLoc({
         onCloseAutoFocus={(e) => void ngoai.traFocus(e)}
       >
         {t && nhap ? (
-          <SuaDieuKien
-            truong={t}
-            nhap={nhap}
-            onNhap={doi}
-            onXong={() => doiMo(false)}
-            lui={() => {
-              dong()
-              setNhap(null)
-            }}
-          />
+          <>
+            <SuaDieuKien
+              truong={t}
+              nhap={nhap}
+              onNhap={doi}
+              onXong={(d) => doiMo(false, d)}
+              lui={() => {
+                dong()
+                setNhap(null)
+              }}
+            />
+            {phu?.anCot && (
+              <NutAnCot
+                onAn={() => {
+                  doiMo(false)
+                  phu.anCot?.()
+                }}
+              />
+            )}
+          </>
         ) : (
           <DsTim
             bamMep
@@ -422,6 +462,7 @@ export function ChipLoc({
   ref?: Ref<MoLocRef>
 }) {
   const [mo, setMo] = useState(false)
+  const [phu, setPhu] = useState<PhuMoLoc>()
   const { nhap, setNhap, doi, dong } = useNhap([d], onDoi)
   const goc = useRef<HTMLSpanElement>(null)
   const khung = useRef<HTMLDivElement>(null)
@@ -430,24 +471,26 @@ export function ChipLoc({
   // Đóng khi rỗng = chip sắp mất → không trả focus về chữ chip (Radix) mà sang chỗ còn lại (`focusKeBen`) — mở từ tiêu
   // đề cột thì về tiêu đề đó.
   const seGo = useRef(false)
-  const doiMo = (o: boolean) => {
+  const doiMo = (o: boolean, cuoi: DieuKienLoc | null = nhap) => {
     if (o) setNhap(d)
     else {
-      seGo.current = !!nhap && laRong(nhap)
+      setPhu(undefined)
+      seGo.current = !!cuoi && laRong(cuoi)
       // Chuyển focus TRƯỚC khi gỡ (bên gọi có thể gỡ chip ngay trong `onDoi`, Popover mất luôn, không còn onCloseAutoFocus).
       if (seGo.current) {
         const neo = ngoai.neo.current
         if (neo) neo.focus()
         else focusKeBen(goc.current)
       }
-      dong()
+      dong(cuoi)
     }
     setMo(o)
   }
   useImperativeHandle(ref, () => ({
-    mo: (_id, neo) => {
+    mo: (_id, neo, p) => {
       ngoai.dat(neo)
       doiMo(true)
+      setPhu(p)
     },
   }))
   const go = () => {
@@ -496,7 +539,15 @@ export function ChipLoc({
           ngoai.traFocus(e)
         }}
       >
-        {nhap && <SuaDieuKien truong={t} nhap={nhap} onNhap={doi} onXong={() => doiMo(false)} />}
+        {nhap && <SuaDieuKien truong={t} nhap={nhap} onNhap={doi} onXong={(c) => doiMo(false, c)} />}
+        {nhap && phu?.anCot && (
+          <NutAnCot
+            onAn={() => {
+              doiMo(false)
+              phu.anCot?.()
+            }}
+          />
+        )}
       </PopoverContent>
     </Popover>
   )

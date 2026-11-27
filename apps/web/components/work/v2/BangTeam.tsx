@@ -353,7 +353,7 @@ export function BangTeam({
         onSap={datSap}
         moLoc={(cot) => {
           const id = LOC_COT[cot]
-          return id ? { dang: dk.some((d) => d.truong === id), onMo: (neo) => moLocTruong(id, neo) } : undefined
+          return id ? { dang: dk.some((d) => d.truong === id), onMo: (neo, phu) => moLocTruong(id, neo, phu) } : undefined
         }}
         o={o}
         dongNhap={nhap ? (id) => (id === 'viec' ? moi.oGo : vn.o(id)) : undefined}
