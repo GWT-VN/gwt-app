@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowsOutSimple, CaretDoubleRight, CaretDown, CaretUp } from '@phosphor-icons/react/ssr'
+import { ArrowsInSimple, ArrowsOutSimple, CaretDoubleRight, CaretDown, CaretUp } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import {
   xnChan,
   xnCuon,
   xnCuonCa,
+  xnCuonRong,
   xnDau,
   xnHangTab,
   xnHangTabDinh,
@@ -22,6 +23,7 @@ import {
   xnThe,
   xnThuocTinh,
   xnTheCoDinh,
+  xnTheRong,
   xnTieuDe,
 } from './data-view-styles'
 import { useDsPortal } from './ds-root'
@@ -115,6 +117,11 @@ export function XemNhanh({
   })
   const mo = the != null
   const portal = useDsPortal()
+  // Mở toàn màn (chỉ thẻ `coDinh` KHÔNG có `moTrang`): giữ khi lướt bản ghi, đóng thẻ thì về lại thẻ hẹp.
+  const [rong, setRong] = useState(false)
+  if (!mo && rong) setRong(false)
+  const toanMan = !!coDinh && !!the && !the.moTrang
+  const rongThat = rong && toanMan
   useEffect(() => {
     if (!mo) return
     const k = (e: KeyboardEvent) => {
@@ -122,7 +129,7 @@ export function XemNhanh({
       if ((e.target as Element | null)?.closest?.(BO_QUA)) return
       // Ctrl/⌘+Enter = mở toàn trang (học Notion 27/11) — bấm chính link ⤢ để Next Link điều hướng như bấm chuột.
       if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key === 'Enter') {
-        const a = document.querySelector<HTMLAnchorElement>('[data-slot="xem-nhanh"] a[aria-keyshortcuts="Control+Enter"]')
+        const a = document.querySelector<HTMLElement>('[data-slot="xem-nhanh"] [aria-keyshortcuts="Control+Enter"]')
         if (a) {
           e.preventDefault()
           a.click()
@@ -156,7 +163,12 @@ export function XemNhanh({
         {children}
       </div>
       {the && (
-        <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
+        <aside
+          data-slot="xem-nhanh"
+          data-rong={rongThat || undefined}
+          aria-label={`Xem nhanh ${the.ma}`}
+          className={cn(xnThe, coDinh && xnTheCoDinh, rongThat && xnTheRong)}
+        >
           <div className={xnDau}>
             <TooltipNhanh content="Đóng" phim="Esc">
               <Button variant="ghost" size="icon-sm" aria-label="Đóng xem nhanh (Esc)" onClick={onDong}>
@@ -169,6 +181,22 @@ export function XemNhanh({
                   <Link href={the.moTrang} aria-label={`Mở toàn trang ${the.ma}`} aria-keyshortcuts="Control+Enter">
                     <ArrowsOutSimple aria-hidden="true" />
                   </Link>
+                </Button>
+              </TooltipNhanh>
+            )}
+            {toanMan && (
+              // Màn chưa có trang riêng (Việc) → mở rộng NGAY thẻ ra toàn vùng nội dung (≥ 768; nhỏ hơn thẻ đã phủ kín).
+              <TooltipNhanh content={rongThat ? 'Thu về' : 'Mở toàn màn'} phim="Ctrl+↵">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="max-md:hidden"
+                  aria-label={rongThat ? `Thu ${the.ma} về thẻ` : `Mở toàn màn ${the.ma}`}
+                  aria-pressed={rongThat}
+                  aria-keyshortcuts="Control+Enter"
+                  onClick={() => setRong((r) => !r)}
+                >
+                  {rongThat ? <ArrowsInSimple aria-hidden="true" /> : <ArrowsOutSimple aria-hidden="true" />}
                 </Button>
               </TooltipNhanh>
             )}
@@ -216,7 +244,7 @@ export function XemNhanh({
           )}
           {the.tab && the.thuocTinh ? (
             <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
-              <div className={xnCuonCa}>
+              <div className={cn(xnCuonCa, rongThat && xnCuonRong)}>
                 {the.tieuDe && (
                   <div data-slot="xem-nhanh-tieu-de" className={xnTieuDe}>
                     {the.tieuDe}
@@ -256,7 +284,7 @@ export function XemNhanh({
                   ))}
                 </TabsList>
               </div>
-              <div className={xnCuon}>
+              <div className={cn(xnCuon, rongThat && xnCuonRong)}>
                 {the.tab.ds.map((x) => (
                   <TabsContent key={x.gt} value={x.gt}>
                     {x.noiDung}

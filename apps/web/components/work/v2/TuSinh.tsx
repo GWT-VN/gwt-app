@@ -66,7 +66,7 @@ import {
 import { CHON_BANG } from '@/components/ui/table-styles'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ngayThang, nhanChip } from '@/lib/work'
-import { ThanhHangLoatViec } from './HangLoat'
+import { KhungThaoTacViec, ThanhHangLoatViec } from './HangLoat'
 import { MenuViec } from './DangXemViec'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { SuaLuat } from './SuaLuat'
@@ -410,6 +410,7 @@ export function TuSinh({
           moTa="Khi bộ quét chạy và có sự kiện khớp luật đang bật, việc sinh ra sẽ hiện ở đây."
         />
       ) : (
+        <KhungThaoTacViec nenTang={nenTang} xong={lamMoi}>
         <KhungChon khoaTrang={viec.map((v) => String(v.id))} tong={viec.length} bat thamSo={{ tab, hien: viec.map((v) => v.id).join(',') }}>
           <TableWrap>
             <Table layout="fixed" className="min-w-180">
@@ -484,6 +485,7 @@ export function TuSinh({
           {/* Bộ đếm duy nhất (khuôn F — CEO 27/11 bỏ số trên tab). */}
           <PhanTrang trang={1} soTrang={1} tong={viec.length} nhan="việc" />
         </KhungChon>
+        </KhungThaoTacViec>
       )}
     </>
   )

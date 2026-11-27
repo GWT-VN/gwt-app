@@ -227,9 +227,9 @@ export const oGhim = cn(ghimTrai, 'z-1', nenDuc)
 export const CHON_BANG: Partial<GiaoDienBang> = {
   chon_oTh: cn(th, cotChon, 'left-0 z-30'),
   chon_oTd: cn(td, cotChon, 'sticky left-0 z-1', nenDuc),
-  // Dòng ListView (relative): từ md ô chọn nằm ở LỀ trái ngoài dòng (mép phải ô tick cách mép nội dung 10 = lề âm −8 của
-  // danh sách + 2) — tên việc thẳng mép, không bị ô tick xô vào (CEO 25/11).
-  chon_oO: cn('inline-flex', anChoReO, 'md:absolute md:right-full md:top-1/2 md:mr-2.5 md:-translate-y-1/2 [&>input]:top-0'),
+  // Dòng ListView: ô chọn NẰM TRONG dòng, đầu ô đầu, luôn hiện như cột ô chọn của Bảng khuôn F (CEO 27/11 "đẩy checkbox
+  // vào bên trong luôn" — thay luật 25/11 ô tick ra lề ngoài dòng). Nền rê / chọn của dòng phủ cả ô tick.
+  chon_oO: cn('inline-flex shrink-0', '[&>input]:top-0'),
   // Phân trang thẳng ô tick (đệm trái 8 từ md) — CEO 27/11 "1–4 trên 4 ticket cho align dọc với checkbox".
   phanTrang_khung: cn(kv, 'mt-3 flex items-center justify-between gap-2 md:pl-2 text-[12px] leading-[18px] text-muted-foreground'),
 }

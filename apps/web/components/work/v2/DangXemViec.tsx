@@ -6,11 +6,10 @@
  */
 import { useState, type ReactNode, type Ref } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, LinkSimple, SidebarSimple } from '@phosphor-icons/react/ssr'
+import { MenuThaoTacViec } from './HangLoat'
 import { OChonDong, OChonTatCa, useDaChon } from '@/bang'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { doiTrangThai, keoTha, suaViec, type NenTang, type ViecTeamRow } from '@/app/work/actions'
-import { ContextMenuItem, ContextMenuSeparator } from '@/components/ui/context-menu'
 import { DongThem, type DongThemRef } from '@/components/ui/dong-them'
 import { OSuaHan, OSuaNguoi, OSuaNhan, OSuaNhap, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { KanbanBoard, NoiDungThe, type TheKanban } from '@/components/ui/kanban-board'
@@ -22,7 +21,6 @@ import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { hienNgay, KIEU_NGAY_MAC_DINH, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
 import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type GiaTriNhap, type Uu } from './chung'
-import { saoChep } from '@/lib/sao-chep'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
@@ -209,7 +207,8 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
             gioMacDinh="17:00"
             value={hanO(v.due_at)}
             onLuu={(h) => luu(suaViec(v.id, h ? { due: hanLuu(h) } : { xoa_due: true }))}
-            hien={() => <HanChu due={v.due_at} kieu={kieu} />}
+            // Trống → chữ "Thêm" mờ thay "—" (CEO 27/11): ô bảng tự nói là bấm để đặt hạn.
+            hien={() => (v.due_at ? <HanChu due={v.due_at} kieu={kieu} /> : <span className="text-(--color-text-tertiary)">Thêm</span>)}
           />
         )
     }
@@ -293,26 +292,9 @@ export function useViecNhap(nenTang: NenTang) {
  * Mục menu chuột phải của một việc (khuôn F — như dòng ticket): Xem nhanh, sao chép mã, sao chép đường dẫn (`?xem=<id>`
  * của màn đang đứng — mở lại đúng thẻ xem nhanh). Dùng cho `BangViec menu` và `ListView menuDong`.
  */
+/** Menu chuột phải của dòng việc = `MenuThaoTacViec` (đủ thao tác hàng loạt — CEO 27/11). Giữ tên cho chỗ gọi cũ. */
 export function MenuViec({ v, moViec }: { v: Pick<ViecXem, 'id' | 'ref'>; moViec: (id: number) => void }) {
-  return (
-    <>
-      <ContextMenuItem onSelect={() => moViec(v.id)}>
-        <SidebarSimple aria-hidden="true" />
-        Xem nhanh
-      </ContextMenuItem>
-      <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => void saoChep(v.ref)}>
-        <Copy aria-hidden="true" />
-        Sao chép mã việc
-      </ContextMenuItem>
-      <ContextMenuItem
-        onSelect={() => void saoChep(`${location.origin}${location.pathname}?xem=${v.id}`)}
-      >
-        <LinkSimple aria-hidden="true" />
-        Sao chép đường dẫn
-      </ContextMenuItem>
-    </>
-  )
+  return <MenuThaoTacViec id={v.id} moViec={moViec} />
 }
 
 /** Dòng bảng: ô chọn của bang/ + nền chọn + menu chuột phải (nếu có). */
@@ -337,6 +319,7 @@ export function BangViec({
   dongNhap,
   menu,
   sapMacDinh,
+  luoi,
 }: {
   dong: ViecXem[]
   c: ReturnType<typeof useCotBang>
@@ -351,11 +334,16 @@ export function BangViec({
   menu?: (v: ViecXem) => ReactNode
   /** Sắp đang là mặc định của màn (URL chưa có `cot`) → tiêu đề không hiện mũi tên. */
   sapMacDinh?: boolean
+  /**
+   * Dạng "Bảng" = bảng KẺ VIỀN ĐỦ (`TableWrap luoi`); bỏ = bảng dạng dòng khuôn F — dạng "Danh sách" (CEO 27/11: "table
+   * phải là table có full border, cái bên trái phải là cái đang hiển thị hiện tại").
+   */
+  luoi?: boolean
 }) {
   // Tách sẵn: luật react-hooks/refs coi cả `c` là ref nếu `c.refBang` gắn thẳng vào `ref=`.
   const { refBang } = c
   return (
-    <TableWrap>
+    <TableWrap luoi={luoi}>
       {/* Mọi cột rộng cố định theo `c.doRong` (Việc tự vừa nội dung, có trần), cột trống cuối ăn phần dư — kéo tay co cột
           nào chỉ cột đó đổi (học Twenty). */}
       <Table ref={refBang} layout="fixed" style={{ minWidth: 36 + c.tongRong }}>

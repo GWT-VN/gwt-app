@@ -106,8 +106,11 @@ export const propsTitle = `${kv} mt-5 mb-1 text-[12px] leading-[18px] font-semib
 /* ---------- Timeline ---------- */
 
 export const timelineList = `${kv} m-0 list-none p-0`
-/** Nhãn ngày 12/18 600 muted-foreground, thụt 36 (thẳng chữ nội dung), lề 4 trên 12 dưới. */
-export const timelineDay = `${kv} mt-1 mb-3 pl-9 text-[12px] leading-[18px] font-semibold text-muted-foreground`
+/**
+ * Nhãn ngày 12/18 600 muted-foreground, KHÔNG thụt — thẳng mép trái mốc/avatar (CEO 27/11 "label thứ căn về với biểu tượng
+ * avatar"; trước thụt 36 = thẳng chữ nội dung), lề 4 trên 12 dưới.
+ */
+export const timelineDay = `${kv} mt-1 mb-3 text-[12px] leading-[18px] font-semibold text-muted-foreground`
 /**
  * Mục: lưới mốc 24 + nội dung, cách cột 12, đệm dưới 16. Đường nối 1px alpha-08 từ dưới mốc (top 28) tới đáy − 4,
  * ngắt ở mục cuối danh sách và mục cuối ngày (ngay trước nhãn ngày). Focus chỉ bằng code (tabIndex −1, sau "Xem thêm").
@@ -144,8 +147,8 @@ export const timelineBody = [
   '[box-shadow:inset_0_0_0_1px_var(--alpha-08)] [overflow-wrap:anywhere] whitespace-pre-line',
 ].join(' ')
 export const timelineFiles = `${kv} col-start-2 mt-1.5 flex flex-wrap gap-1.5`
-/** Hàng "Hiện N hoạt động cũ hơn": chữ nút thẳng mép nhãn ngày (36 − đệm nút sm). */
-export const timelineMore = `${kv} -mt-1 mb-3 ml-[calc(36px-var(--control-gutter-sm))] list-none`
+/** Hàng "Hiện N hoạt động cũ hơn": chữ nút thẳng mép nhãn ngày = mép avatar (lề âm = đệm nút sm; CEO 27/11). */
+export const timelineMore = `${kv} -mt-1 mb-3 -ml-(--control-gutter-sm) list-none`
 
 /* ---------- Chip (tệp đính) ---------- */
 

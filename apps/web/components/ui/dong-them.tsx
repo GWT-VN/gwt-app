@@ -32,7 +32,10 @@ const LE = { ds: 'px-4', bang: 'px-1.5', the: 'px-2' } as const
 /** Khung chứa nút "+": cao control-size-lg, icon thẳng mép chữ nhờ lề âm của `nutThem`. */
 export const khungNutThem = (kieu: keyof typeof LE) =>
   cn('flex min-h-(--control-size-lg) min-w-0 items-center border-none border-current', LE[kieu])
-/** Ô gõ trơn — chữ 14/20 như tên dòng, không viền/nền/outline (như ô chữ Composer); hàng nháp đã có nền "đang gõ". */
+/**
+ * Ô gõ trơn — chữ 14/20 như tên dòng, không viền/nền/outline (như ô chữ Composer); hàng nháp đã có nền "đang gõ". CEO
+ * 27/11: gõ INLINE, không hiện khung ô nhập (đã thử khung "đang sửa" kiểu Notion — bị bỏ).
+ */
 const O_GO =
   'w-full min-w-0 border-none bg-transparent p-0 text-[14px] leading-[20px] text-foreground [outline:none] placeholder:text-(--color-text-tertiary)'
 
@@ -114,7 +117,17 @@ export function useDongMoi({ nhan, nhanDoc, placeholder, onTao, onDong, ref }: P
   )
 
   const nut: ReactNode = (
-    <Button variant="ghost" size="xs" className={nutThem} aria-label={nhanDoc} onClick={() => setMo(true)}>
+    <Button
+      variant="ghost"
+      size="xs"
+      className={nutThem}
+      aria-label={nhanDoc}
+      onClick={() => {
+        setMo(true)
+        // Bên gọi để nút hiện CÙNG hàng nháp (kiểu "+ New page" của Notion) → bấm lại = focus lại ô gõ.
+        oGoRef.current?.focus()
+      }}
+    >
       <Plus aria-hidden="true" />
       {nhan}
     </Button>

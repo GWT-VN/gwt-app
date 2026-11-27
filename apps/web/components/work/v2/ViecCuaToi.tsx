@@ -20,14 +20,14 @@ import { khungNutThem, useDongMoi, type DongThemRef } from '@/components/ui/dong
 import { DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
-import { CHON_BANG } from '@/components/ui/table-styles'
+import { CHON_BANG, phanTrangLuoi } from '@/components/ui/table-styles'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
-import { NHAN_NHOM, nhanChip, nhomTheoHan, THU_TU_NHOM } from '@/lib/work'
+import { nhanChip, nhomTheoHan } from '@/lib/work'
 import { KhungXemViec, useXemViec } from './KhungXemViec'
 import { GOI_Y_THEM, NguoiChinh, taoNhanhViec, VAI, type GiaTriNhap } from './chung'
 import { BangViec, COT_VIEC, docSap, KanbanViec, MenuViec, NGHIA, soSanh, TEN_COT, useOViec, useViecNhap, type Sap } from './DangXemViec'
-import { ThanhHangLoatViec } from './HangLoat'
+import { KhungThaoTacViec, ThanhHangLoatViec } from './HangLoat'
 
 type Tab = 'mo' | 'qua-han' | 'toi-giao' | 'xong'
 const TAB: { v: Tab; ten: string }[] = [
@@ -141,7 +141,8 @@ export function ViecCuaToi({
   }
   const loc = nguon[tab].filter((v) => khop(v, q))
   // Danh sách + Kanban giữ thứ tự riêng (nhóm theo hạn / thứ tự cột); Bảng sắp theo `cot`/`chieu`, mặc định hạn gần.
-  const dong = dangXem === 'bang' ? [...loc].sort(soSanh(sap)) : loc
+  // Danh sách · Gọn · Bảng đều sắp theo cột (Gọn hết nhóm theo hạn từ 27/11); Kanban giữ thứ tự gốc trong cột.
+  const dong = dangXem !== 'kanban' ? [...loc].sort(soSanh(sap)) : loc
 
   const datUrl = (sua: Record<string, string | null>) => {
     const p = new URLSearchParams(sp.toString())
@@ -196,7 +197,7 @@ export function ViecCuaToi({
     <KhungXemViec ds={dong} nenTang={nenTang}>
       <TrangDuLieu>
         <CauHinhBangDs
-          giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }}
+          giaoDien={{ ...O_TIM_PILL, ...CHON_BANG, ...(dangXem === 'bang' ? { phanTrang_khung: phanTrangLuoi } : {}) }}
           thanhHangLoat="surface"
           tenCot={TEN_COT}
           nghiaSapXep={NGHIA}
@@ -238,13 +239,14 @@ export function ViecCuaToi({
           />
 
           {/* Danh sách + Bảng đều chọn dòng được (ô chọn ẩn chờ rê); Kanban không có ô chọn. */}
+          <KhungThaoTacViec nenTang={nenTang} xong={lamMoi}>
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
             tong={dong.length}
             bat={dangXem !== 'kanban'}
             thamSo={{ tab, q: q || undefined, cot: cotUrl ?? undefined, chieu, hien: dong.map((v) => v.id).join(',') }}
           >
-            {dangXem === 'danh-sach' ? (
+            {dangXem === 'gon' ? (
               // Rỗng → chỉ EmptyState, không vẽ hàng tiêu đề cột trơ trọi bên dưới (CEO 25/11: "thừa").
               <>
                 {(!nhap && rong) || (
@@ -258,21 +260,7 @@ export function ViecCuaToi({
                   moKhi="ten"
                   dongNhap={nhap ? oNhapDs : undefined}
                   menuDong={(v) => <MenuViec v={v} moViec={xem.mo} />}
-                  nhom={
-                    tab === 'xong'
-                      ? undefined
-                      : {
-                          theo: (v) => nhomTheoHan(v.due_at),
-                          muc: THU_TU_NHOM.map((n) => ({
-                            gt: n,
-                            nhan: (
-                              <span className={n === 'qua_han' ? 'text-(--color-text-danger)' : undefined}>
-                                {NHAN_NHOM[n]}
-                              </span>
-                            ),
-                          })),
-                        }
-                  }
+                  // Không nhóm theo hạn: phân loại đã có tab (CEO 27/11 "hiển thị theo tab, bảng sát nhãn cột").
                 />
                 )}
                 {choThem && !moi.mo && <div className={khungNutThem('ds')}>{moi.nut}</div>}
@@ -294,6 +282,7 @@ export function ViecCuaToi({
               <>
                 {(!nhap && rong) || (
                   <BangViec
+                    luoi={dangXem === 'bang'}
                     dong={dong}
                     c={c}
                     sap={sap}
@@ -311,6 +300,7 @@ export function ViecCuaToi({
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
             </ThanhDaChon>
           </KhungChon>
+          </KhungThaoTacViec>
           {/* Bộ đếm DUY NHẤT của màn (khuôn F — CEO 27/11): không phân trang → luôn 1 trang. Kanban đếm ở từng cột. */}
           {dangXem !== 'kanban' && dong.length > 0 && (
             <Suspense>

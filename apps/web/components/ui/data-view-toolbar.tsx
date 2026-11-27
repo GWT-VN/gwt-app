@@ -69,7 +69,7 @@ import type { BenTha, CotBang } from './use-cot-bang'
 
 export { DANG_XEM, type DangXem }
 
-const ICON_XEM: Record<DangXem, Icon> = { 'danh-sach': ListBullets, bang: Table, kanban: Kanban }
+const ICON_XEM: Record<DangXem, Icon> = { 'danh-sach': ListBullets, gon: Rows, bang: Table, kanban: Kanban }
 /** Dạng xem được chọn ở màn (giữ thứ tự `DANG_XEM`). */
 const xemCo = (co?: readonly DangXem[]) => (co ? DANG_XEM.filter((x) => co.includes(x.id)) : DANG_XEM)
 
@@ -77,7 +77,7 @@ type PropsCongCu = {
   dangXem: DangXem
   onDoiXem?: (v: DangXem) => void
   /**
-   * Dạng xem màn này cho chọn (mặc định đủ ba, thứ tự theo `DANG_XEM`). Vd ticket F (CEO 26/11 "giữ 2 dạng"):
+   * Dạng xem màn này cho chọn (mặc định đủ BỐN — Danh sách · Gọn · Bảng · Kanban, CEO 27/11; thứ tự theo `DANG_XEM`). Vd ticket F (CEO 26/11 "giữ 2 dạng"):
    * `['bang', 'kanban']` — Danh sách chỉ còn là cách hiện tự động khi khung hẹp, không phải nút.
    */
   dangXemCo?: readonly DangXem[]

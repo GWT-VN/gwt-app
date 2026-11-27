@@ -13,13 +13,18 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react'
-import { ArrowLeft, CaretDown, CaretRight, PencilSimple, WarningCircle } from '@phosphor-icons/react/ssr'
+import { ArrowLeft, CaretDown, CaretRight, PencilSimple, WarningCircle, X } from '@phosphor-icons/react/ssr'
+import { Command as CommandPrimitive } from 'cmdk'
+import { locMucChon } from '@/bang/timkiem'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from './avatar'
 import { Badge, BadgeCaret, BadgeDot, type badgeVariants } from './badge'
 import { DateTimePicker } from './date-time-picker'
 import { ComboboxPanel } from './combobox'
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from './command'
+import { commandInput, commandInputWrapper, trongPopDs, trongPopGoc, trongPopHangTim } from './command-styles'
+import { chip, chipX } from './detail-styles'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +53,7 @@ import {
   oSuaInput,
   oSuaMui,
   oSuaDeO,
+  oSuaDeOChip,
   oSuaNhan,
   oSuaWrap,
   oSuaWrapDeO,
@@ -215,7 +221,7 @@ export function OSuaNhan<T extends string>({
           <button
             type="button"
             data-an-mui=""
-            className={deO ? cn(oSua, oSuaDeO) : oSuaNhan}
+            className={deO ? cn(oSua, oSuaDeO, oSuaDeOChip) : oSuaNhan}
             aria-label={`Sửa ${truong} ${ma}`}
             aria-describedby={id}
           >
@@ -332,7 +338,7 @@ export function OSuaTrangThai({
           <button
             type="button"
             data-an-mui=""
-            className={deO ? cn(oSua, oSuaDeO) : oSuaNhan}
+            className={deO ? cn(oSua, oSuaDeO, oSuaDeOChip) : oSuaNhan}
             aria-label={`Sửa ${truong} ${ma}`}
             aria-describedby={id}
           >
@@ -705,6 +711,126 @@ export function OSuaNguoi({
               })
             }
           />
+        </PopoverContent>
+      </Popover>
+    </NeoO>
+  )
+}
+
+/**
+ * Ô NHIỀU NGƯỜI (học Notion Person — CEO 27/11 "khi đã add rồi thì cho phép click vào tên người để hiện ra rồi add tiếp như
+ * notion"): ô = avatar + tên từng người (trống → "Chưa có" mờ); bấm → pop (đè ô khi trong PropertyRow): dòng đầu = người đã
+ * chọn thành CHIP có × + ô gõ ngay sau chip; dưới = nhân sự chưa chọn (lọc không dấu, tối đa 30). Chọn → thêm, pop Ở LẠI để
+ * thêm tiếp, ô gõ xoá trắng; × hoặc Backspace khi ô gõ trống → bỏ người cuối. `khoaBo(m)` = không cho bỏ (vd người cuối
+ * cùng của việc). Không lạc quan: bên gọi lưu rồi nạp lại `value` (thêm/bỏ là hai lệnh server riêng).
+ */
+export function OSuaNhieuNguoi({
+  ma,
+  truong,
+  value,
+  options,
+  onThem,
+  onBo,
+  khoaBo,
+}: {
+  ma: string
+  truong: string
+  value: MucChon[]
+  options: MucChon[]
+  onThem: (m: MucChon) => unknown
+  onBo: (m: MucChon) => unknown
+  khoaBo?: (m: MucChon) => boolean
+}) {
+  const id = useId()
+  const [mo, setMo] = useState(false)
+  const [q, setQ] = useState('')
+  const deO = useDeO()
+  const daChon = new Set(value.map((v) => v.gt))
+  const { ds } = locMucChon(options.filter((o) => !daChon.has(o.gt)), q, 30)
+  const avatar = (ten: string, size?: 'sm') => (
+    <Avatar aria-hidden="true" size={size}>
+      <AvatarFallback>{chuDau(ten)}</AvatarFallback>
+    </Avatar>
+  )
+  return (
+    <NeoO>
+      <Popover
+        open={mo}
+        onOpenChange={(m) => {
+          setMo(m)
+          if (!m) setQ('')
+        }}
+      >
+        <PopoverTrigger asChild>
+          <button type="button" className={cn(oSua, deO && oSuaDeO)} aria-label={`Sửa ${truong} ${ma}`} aria-describedby={id}>
+            <span id={id} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-none border-current">
+              {value.length ? (
+                value.map((v) => (
+                  <span key={v.gt} className={nguoi}>
+                    {avatar(v.nhan)}
+                    <span className={cat}>{v.nhan}</span>
+                  </span>
+                ))
+              ) : (
+                <span className="text-(--color-text-tertiary)">Chưa có</span>
+              )}
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          aria-label={`Chọn ${truong}`}
+          collisionPadding={16}
+          {...(deO ? DE_O_TIM : {})}
+          className={cn(menuContent, 'w-auto min-w-[240px] max-w-[calc(100vw-16px)]', deO && deOPop)}
+        >
+          <Command shouldFilter={false} className={trongPopGoc}>
+            <div className={cn(commandInputWrapper, trongPopHangTim, 'h-auto min-h-(--control-size-md) flex-wrap gap-1 py-1')}>
+              {value.map((v) => (
+                <span key={v.gt} className={chip}>
+                  {avatar(v.nhan, 'sm')}
+                  <span>{v.nhan}</span>
+                  {!khoaBo?.(v) && (
+                    <button type="button" data-slot="chip-x" className={chipX} aria-label={`Bỏ ${v.nhan}`} onClick={() => void onBo(v)}>
+                      <X aria-hidden="true" />
+                    </button>
+                  )}
+                </span>
+              ))}
+              <CommandPrimitive.Input
+                autoFocus
+                value={q}
+                onValueChange={setQ}
+                aria-label={`Thêm ${truong}`}
+                placeholder={value.length ? 'Thêm người…' : 'Gõ tên…'}
+                className={cn(commandInput, 'min-w-20')}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Backspace' || q || !value.length) return
+                  const cuoi = value[value.length - 1]
+                  if (!khoaBo?.(cuoi)) void onBo(cuoi)
+                }}
+              />
+            </div>
+            <CommandList className={trongPopDs}>
+              <CommandEmpty>{q.trim() ? `Không có ai khớp "${q.trim()}".` : 'Đã chọn hết.'}</CommandEmpty>
+              {ds.length > 0 && (
+                <CommandGroup heading="Nhân sự">
+                  {ds.map((m) => (
+                    <CommandItem
+                      key={m.gt}
+                      value={m.gt}
+                      onSelect={() => {
+                        void onThem(m)
+                        setQ('')
+                      }}
+                    >
+                      {avatar(m.nhan)}
+                      {m.nhan}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+            </CommandList>
+          </Command>
         </PopoverContent>
       </Popover>
     </NeoO>

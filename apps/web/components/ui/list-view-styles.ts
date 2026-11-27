@@ -57,6 +57,13 @@ export const hangDong = cn(
 
 /** `moKhi="ten"`: chỉ bấm tên / mã mới mở → dòng không con trỏ tay (bấm chỗ trống không làm gì). */
 export const hangChiMoTen = 'cursor-default'
+/**
+ * Dòng chân bảng kiểu Notion (CEO 27/11 gửi ảnh bảng trống Notion): `dongCuoi` = dòng "+ Mới" NẰM TRONG bảng (đệm 16 như
+ * chữ dòng, cao 50, kẻ dưới như dòng thật); `dongTrong` = dòng kẻ trống bên dưới khi bảng chưa có bản ghi (chỉ để nhìn).
+ */
+const keDuoi = "relative after:content-[''] after:absolute after:left-3 after:right-3 after:bottom-0 after:h-px after:bg-(--alpha-05) after:border-none after:border-current"
+export const dongCuoi = cn(kv, keDuoi, 'flex min-h-[50px] items-center px-4')
+export const dongTrong = cn(kv, keDuoi, 'h-[50px]')
 /** Dòng nháp của `DongThem` (CEO 25/11 "ra hẳn một hàng trống"): cùng lưới cột, nền đang gõ alpha-05, không kẻ dưới. */
 export const hangNhap = cn(hang, 'bg-(--alpha-05) [&_[data-slot=badge]]:h-(--control-size-3xs)') // nhãn cao 22 như dòng thật
 

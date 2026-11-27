@@ -49,31 +49,32 @@ beforeEach(() => {
 })
 afterEach(() => thongBao.dong())
 
-test('đổi dạng xem: Danh sách (mặc định) → Bảng (chọn dòng + thanh hàng loạt) → Kanban (cột theo trạng thái)', async () => {
+test('đổi dạng xem: Danh sách (mặc định, bảng dòng) → Gọn (ListView) → Bảng (kẻ viền) → Kanban', async () => {
   m.hangLoat.mockResolvedValue({ ok: true, duLieu: { da_sua: 1, bo_qua: 0 } })
   const user = userEvent.setup()
   man()
   expect(screen.getByRole('radio', { name: 'Danh sách' }).getAttribute('aria-checked')).toBe('true')
-  // ListView (role table, tên "Việc của tôi"): ô tick ở cột đầu CHỈ để chọn dòng (CEO 23/11) — không còn "đánh dấu xong".
-  expect(screen.getByRole('table', { name: 'Việc của tôi' })).toBeTruthy()
-  expect(screen.queryByRole('checkbox', { name: /Đánh dấu xong/ })).toBeNull()
-  await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-2' }))
-  expect(screen.getByRole('toolbar', { name: 'Thao tác hàng loạt' })).toBeTruthy()
-  expect(m.replace).not.toHaveBeenCalled() // bấm ô chọn không mở Xem nhanh (?xem=)
-  await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-2' }))
-
-  await user.click(screen.getByRole('radio', { name: 'Bảng' }))
-  expect(screen.queryByRole('table', { name: 'Việc của tôi' })).toBeNull()
+  // Danh sách = bảng dạng dòng khuôn F (CEO 27/11): sắp mặc định theo hạn gần nhất — VIEC-2 (mai) trước VIEC-1.
   const bang = screen.getByRole('table')
-  // Bảng sắp mặc định theo hạn gần nhất: VIEC-2 (mai) trước VIEC-1.
-  expect(within(bang).getAllByRole('button', { name: /^Mở VIEC-/ }).map((b) => b.textContent)).toEqual([
-    'VIEC-2',
-    'VIEC-1',
-  ])
+  expect(bang.closest('[data-luoi]')).toBeNull()
+  expect(within(bang).getAllByRole('button', { name: /^Mở VIEC-/ }).map((b) => b.textContent)).toEqual(['VIEC-2', 'VIEC-1'])
+  // Ô tick CHỈ để chọn dòng (CEO 23/11) — không còn "đánh dấu xong".
+  expect(screen.queryByRole('checkbox', { name: /Đánh dấu xong/ })).toBeNull()
   await user.click(screen.getByRole('checkbox', { name: 'Chọn việc VIEC-1' }))
+  expect(m.replace).not.toHaveBeenCalled() // bấm ô chọn không mở Xem nhanh (?xem=)
   const thanh = screen.getByRole('toolbar', { name: 'Thao tác hàng loạt' })
   await user.click(within(thanh).getByRole('button', { name: 'Đánh dấu xong' }))
   expect(m.hangLoat).toHaveBeenCalledWith([1], { status: 'done' })
+
+  // Gọn = ListView (role table, tên "Việc của tôi"), không nhóm theo hạn (phân loại ở tab).
+  await user.click(screen.getByRole('radio', { name: 'Gọn' }))
+  expect(screen.getByRole('table', { name: 'Việc của tôi' })).toBeTruthy()
+  expect(document.querySelector('[data-nhom]')).toBeNull()
+
+  // Bảng = bảng kẻ viền (`TableWrap luoi`).
+  await user.click(screen.getByRole('radio', { name: 'Bảng' }))
+  expect(screen.queryByRole('table', { name: 'Việc của tôi' })).toBeNull()
+  expect(screen.getByRole('table').closest('[data-luoi]')).not.toBeNull()
 
   await user.click(screen.getByRole('radio', { name: 'Kanban' }))
   expect(screen.queryAllByRole('table')).toHaveLength(0)

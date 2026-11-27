@@ -53,6 +53,12 @@ export const oSuaMui = [
  * SAU `oSua`.
  */
 export const oSuaDeO = 'flex w-[calc(100%+12px)] max-w-none'
+/**
+ * Ô nhãn / chip khi đè ô: hạ chip 1px (CEO 27/11 "căn gióng"). Tâm HỘP chip = tâm hộp chữ nhãn, nhưng mắt so tâm viên chip
+ * với thân chữ (x-height) của nhãn 14px — thân chữ Inter nằm dưới tâm dòng ~1,3px → chip trông cao hơn nhãn. Chữ thường
+ * (cùng cỡ nhãn) không cần. Ghép SAU oSuaDeO ở OSuaNhan / OSuaTrangThai.
+ */
+export const oSuaDeOChip = '*:*:translate-y-px'
 /** Neo giãn hết ô khi đè ô. */
 export const oSuaWrapDeO = 'flex w-full'
 /**
@@ -65,7 +71,7 @@ export const DE_O_TIM = { ...DE_O, sideOffset: -30, align: 'start' } as const
 export const deOMenu = 'w-[calc(var(--radix-dropdown-menu-trigger-width)+16px)] min-w-[240px]'
 export const deOPop = 'w-[calc(var(--radix-popover-trigger-width)+16px)] min-w-[240px]'
 /** Dòng đầu popup đè ô của menu nhãn / trạng thái: giá trị đang chọn nằm đúng chỗ cũ (Notion), không bấm được. */
-export const deODau = 'flex h-[30px] items-center px-2 border-none border-current'
+export const deODau = 'flex h-[30px] items-center px-2 border-none border-current *:translate-y-px'
 
 /** `.b-osua-chu`: ô chữ trọn bề ngang ô, tối đa 280 (bundle.css gõ 280px). */
 export const oSuaChu = 'w-full max-w-[280px]'

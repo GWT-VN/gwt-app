@@ -18,7 +18,8 @@ const doc = (p: string) =>
 describe('ChiTietViec — mọi chỗ dựng panel đều truyền key', () => {
   // v2 (23/11): mọi màn Việc (của tôi, Bảng team, Tự sinh) dựng panel qua KhungXemViec → useTheViec. Từ 26/11 thẻ có
   // tab (bố cục ticket F): mỗi tab + chân là một khối riêng, khối nào cũng phải mang key theo việc.
-  const NOI_DUNG = ['<TongQuan', '<ViecCon', '<HoatDong', '<LienKet', '<Chan'].map((x) => [
+  // `<Chan>` (nút Đánh dấu xong ở chân thẻ) bỏ 27/11 — CEO "bỏ CTA đánh dấu"; đổi xong qua ô Trạng thái.
+  const NOI_DUNG = ['<TongQuan', '<ViecCon', '<HoatDong', '<LienKet'].map((x) => [
     'components/work/v2/XemNhanh.tsx',
     x,
   ])
@@ -164,9 +165,10 @@ describe('Xem nhanh việc — việc con + phụ thuộc', () => {
   })
 
   it('việc con tick xong được ngay tại panel', () => {
-    const i = src.indexOf('ct.subtasks.map')
+    // Bảng mini việc con (ListView, 27/11): ô tick nằm trong `o` của cột tên, trước `dong={ct.subtasks}`.
+    const i = src.indexOf('function ViecCon(')
     expect(
-      /<Checkbox/.test(src.slice(i, i + 1200)),
+      /<Checkbox[\s\S]*?onCheckedChange[\s\S]*?dong=\{ct\.subtasks\}/.test(src.slice(i, i + 3000)),
       'danh sách việc con phải có ô tick, không chỉ đọc.',
     ).toBe(true)
   })

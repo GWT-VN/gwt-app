@@ -25,7 +25,7 @@ import { khungNutThem, useDongMoi, type DongThemRef } from '@/components/ui/dong
 import { CaiDatHienThi, DataViewToolbar, TrangDuLieu, type DangXem } from '@/components/ui/data-view-toolbar'
 import { ListView, NhanDau, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
 import { BangTrangThai } from '@/components/ui/table'
-import { CHON_BANG } from '@/components/ui/table-styles'
+import { CHON_BANG, phanTrangLuoi } from '@/components/ui/table-styles'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useCotBang } from '@/components/ui/use-cot-bang'
 import { nhanChip, soNgayToiHan } from '@/lib/work'
@@ -44,7 +44,7 @@ import {
   useViecNhap,
   type Sap,
 } from './DangXemViec'
-import { ThanhHangLoatViec } from './HangLoat'
+import { KhungThaoTacViec, ThanhHangLoatViec } from './HangLoat'
 
 type Tab = 'moi' | 'gap' | 'lau'
 const TAB: { v: Tab; ten: string }[] = [
@@ -111,7 +111,7 @@ export function BangTeam({
   const pathname = usePathname()
   const spRo = useSearchParams()
   const sp = new URLSearchParams(spRo.toString())
-  const [dangXem, setDangXem] = useState<DangXem>('bang')
+  const [dangXem, setDangXem] = useState<DangXem>('danh-sach')
   const xemViec = useXemViec()
   const c = useCotBang(COT, { url: true })
   const moViec = (id: number) => {
@@ -315,7 +315,7 @@ export function BangTeam({
         moViec={moViec}
         lamMoi={lamMoi}
       />
-    ) : dangXem === 'danh-sach' ? (
+    ) : dangXem === 'gon' ? (
       <ListView
         aria-label="Bảng team"
         cot={cotDs}
@@ -328,6 +328,7 @@ export function BangTeam({
       />
     ) : (
       <BangViec
+        luoi={dangXem === 'bang'}
         dong={dong}
         c={c}
         sap={sap}
@@ -344,7 +345,7 @@ export function BangTeam({
     <KhungXemViec ds={dong} nenTang={nenTang}>
       <TrangDuLieu>
         <CauHinhBangDs
-          giaoDien={{ ...O_TIM_PILL, ...CHON_BANG }}
+          giaoDien={{ ...O_TIM_PILL, ...CHON_BANG, ...(dangXem === 'bang' ? { phanTrang_khung: phanTrangLuoi } : {}) }}
           thanhHangLoat="surface"
           tenCot={TEN_COT}
           nghiaSapXep={NGHIA}
@@ -387,7 +388,7 @@ export function BangTeam({
                 dieuKien={dk}
                 onDoi={datLoc}
                 onXoaHet={() => datUrl(Object.fromEntries(KHOA_TRUONG.map((k) => [k, null])))}
-                coCot={(id) => dangXem === 'bang' && dong.length > 0 && c.hien.some((x) => LOC_COT[x.id] === id)}
+                coCot={(id) => (dangXem === 'bang' || dangXem === 'danh-sach') && dong.length > 0 && c.hien.some((x) => LOC_COT[x.id] === id)}
               />
             }
             caiDat={
@@ -407,6 +408,7 @@ export function BangTeam({
             onXemNhanh={(bat) => (bat ? dong[0] && xemViec.mo(dong[0].id) : xemViec.dong())}
           />
 
+          <KhungThaoTacViec nenTang={nenTang} xong={lamMoi}>
           <KhungChon
             khoaTrang={dong.map((v) => String(v.id))}
             tong={dong.length}
@@ -416,12 +418,13 @@ export function BangTeam({
             {xem}
             {/* Kanban có "+ Việc mới" ở chân từng cột. */}
             {choThem && dangXem !== 'kanban' && !moi.mo && (
-              <div className={khungNutThem(dangXem === 'bang' && dong.length ? 'bang' : 'ds')}>{moi.nut}</div>
+              <div className={khungNutThem((dangXem === 'bang' || dangXem === 'danh-sach') && dong.length ? 'bang' : 'ds')}>{moi.nut}</div>
             )}
             <ThanhDaChon nhan="việc">
               <ThanhHangLoatViec nenTang={nenTang} xong={lamMoi} />
             </ThanhDaChon>
           </KhungChon>
+          </KhungThaoTacViec>
           {/* Bộ đếm DUY NHẤT của màn (khuôn F — CEO 27/11): màn không phân trang → luôn 1 trang. Kanban đếm ở từng cột. */}
           {dangXem !== 'kanban' && dong.length > 0 && (
             <Suspense>

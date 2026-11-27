@@ -221,6 +221,21 @@ XemNhanh: ⤢ ghi "Ctrl+↵" + `aria-keyshortcuts`, Ctrl/⌘+Enter (ngoài ô g�
 Work dời thành MỘT dòng nhạt "Tạo bởi · lúc · nguồn · ai xem" ở tab Hoạt động + dòng "Chỉ xem" (khoá) dưới thuộc tính khi
 không sửa được; ticket bỏ hẳn (tab Nhật ký đã có dòng tạo + ghi chú cuối).
 
+**Chờ đồng bộ lên artifact** — Xem nhanh + Data view đợt 2 học Notion (27/11, CEO phê từng chỗ; bảng "Đã làm" ở
+`docs/rework/2026-11-27-hoc-hanh-vi-notion.md`):
+(1) **XemNhanh** rộng 576 (đủ 5 tab ticket); nút **Mở toàn màn** (⤢ Ctrl+↵, `aria-pressed`) — thẻ giãn từ mép khung trái
++16 tới mép phải −16, nội dung cuộn canh giữa tối đa 816 (`xnTheRong`, `xnCuonRong`); bỏ CTA "Đánh dấu xong" ở chân (đổi
+trạng thái qua ô Trạng thái). (2) **`OSuaNhieuNguoi`** (inline-edit): ô nhiều người kiểu Notion Person — ô = avatar + tên,
+trống "Chưa có"; bấm → pop dòng đầu = chip người đã chọn (×) + ô gõ (Backspace ô rỗng bỏ chip cuối), chọn thêm giữ pop mở;
+`khoaBo` chặn bỏ người cuối. (3) Ô trống PropertyRow = "Chưa có" mờ (bỏ "—"). Chip trong ô đè (`oSuaDeOChip`, `deODau`)
+dời 1px cho tâm chip trùng tâm chữ nhãn. (4) **ListView**: `dongCuoi` (dòng "+ Mới" nằm TRONG bảng) + `dongTrong` (dòng trắng
+50 có kẻ) — bảng con rỗng vẫn hiện như bảng (Notion empty database); nháp `O_GO` = chữ gõ thẳng, không khung input.
+(5) Timeline: nhãn ngày thẳng mép avatar. (6) Ô chọn dòng (`chon_oO` Table + bang) nằm TRONG dòng, luôn hiện.
+(7) **Data view 4 dạng mặc định**: Danh sách (bảng khuôn F) · Gọn (ListView, không nhóm) · Bảng (`luoi` kẻ viền đủ) · Kanban;
+Danh sách/Gọn/Bảng đều sắp theo cột; ô trống trong bảng = "Thêm" mờ. (8) Mẫu **menu chuột phải = đủ thao tác thanh hàng
+loạt** (Work: `KhungThaoTacViec` + `MenuThaoTacViec` — menu con > 10 mục có ô tìm; dòng nằm trong lựa chọn ≥ 2 → áp cả lựa
+chọn; hộp xoá sống ngoài menu); bỏ "Sao chép mã / đường dẫn". (9) Bảng ticket: mã ticket chữ mờ (muted), khẩn vẫn đỏ.
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

@@ -76,14 +76,14 @@ function Man({ onCotAn = () => {}, onSapXep = () => {} }: { onCotAn?: (a: string
   )
 }
 
-test('đầu trang: tiêu đề, KHÔNG số đếm; dạng xem là radiogroup 3 radio, Bảng đang chọn', () => {
+test('đầu trang: tiêu đề, KHÔNG số đếm; dạng xem là radiogroup 4 radio (mặc định đủ 4 — CEO 27/11), Bảng đang chọn', () => {
   render(<Man />)
   expect(screen.getByRole('heading', { name: 'Ticket' })).toBeTruthy()
   // Không số đếm cạnh tiêu đề (CEO 27/11 — đếm duy nhất ở PhanTrang).
   expect(document.querySelector('[data-slot="data-view-toolbar"] [data-slot="badge"]')).toBeNull()
   const nhom = screen.getByRole('radiogroup', { name: 'Dạng xem' })
   const radio = within(nhom).getAllByRole('radio')
-  expect(radio.map((r) => r.getAttribute('aria-label'))).toEqual(['Danh sách', 'Bảng', 'Kanban'])
+  expect(radio.map((r) => r.getAttribute('aria-label'))).toEqual(['Danh sách', 'Gọn', 'Bảng', 'Kanban'])
   expect(within(nhom).getByRole('radio', { name: 'Bảng' }).getAttribute('aria-checked')).toBe('true')
 })
 

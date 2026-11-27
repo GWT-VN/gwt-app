@@ -165,6 +165,7 @@ export function moTaNhatKy(verb: string, payload: Record<string, unknown> | null
     case 'assigned': return `gán ${p.ten ?? 'ai đó'} · ${NHAN_VAI_TRO[String(p.role)] ?? p.role}`
     case 'unassigned': return 'bỏ một người khỏi việc'
     case 'commented': return 'bình luận'
+    case 'subtask_added': return p.title ? `thêm việc con "${String(p.title)}"` : 'thêm việc con'
     case 'mentioned': {
       const ten = Array.isArray(p.ten) ? p.ten.filter(Boolean) : []
       return `nhắc ${ten.length ? ten.join(', ') : 'ai đó'} trong bình luận`

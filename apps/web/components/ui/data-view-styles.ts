@@ -5,12 +5,15 @@
 import { cn } from '@/lib/utils'
 import { menuContent, menuItem } from './menu-styles'
 
-export type DangXem = 'danh-sach' | 'bang' | 'kanban'
+export type DangXem = 'danh-sach' | 'gon' | 'bang' | 'kanban'
 
 /** Ba dạng xem (README: "Danh sách · Bảng · Kanban"). `tip` = mô tả thêm cho tooltip, KHÔNG lặp `ten` (aria-label). */
 export const DANG_XEM: readonly { id: DangXem; ten: string; tip: string }[] = [
   { id: 'danh-sach', ten: 'Danh sách', tip: 'Mỗi bản ghi một dòng' },
-  { id: 'bang', ten: 'Bảng', tip: 'Nhiều cột, kéo đổi chỗ' },
+  // Gọn = ListView (dòng thưa, nhãn + tên + mã trên một cụm) — CEO 27/11 "giữ dạng list thêm 1 view nữa vì kiểu đó rất
+  // gọn" + "default 4 loại view luôn": mọi màn có đổi dạng xem đều có đủ 4.
+  { id: 'gon', ten: 'Gọn', tip: 'Danh sách gọn, ít cột' },
+  { id: 'bang', ten: 'Bảng', tip: 'Bảng kẻ viền, nhiều cột' },
   { id: 'kanban', ten: 'Kanban', tip: 'Thẻ theo cột trạng thái' },
 ]
 
@@ -125,16 +128,17 @@ export const svChip = cn(
 )
 
 /**
- * `.b-chitiet`: thẻ nổi bên phải khung chứa (top/right/bottom 8), 440 (tối đa 100vw − 16), bo 3xl, nền background,
+ * `.b-chitiet`: thẻ nổi bên phải khung chứa (top/right/bottom 8), 576 (tối đa 100vw − 16 — CEO 27/11 "mở rộng để xem hết
+ * tab": hàng 5 tab ticket đo 541 + đệm 24 = 565; artifact 440), bo 3xl, nền background,
  * bóng hairline + 300, z 44 (nguồn — dưới bulkbar 55), trượt vào 200ms cubic-bezier(0.19, 1, 0.22, 1) từ opacity 0 +
  * dịch phải 16 (`b-truot`; transition + @starting-style, tắt khi giảm chuyển động). < 768: phủ kín khung, không bo, không
- * bóng, z 50. Nội dung chính nhường chỗ (≥ 768: lề phải 456 = 440 + 8 + 8) — thẻ không che bảng.
+ * bóng, z 50. Nội dung chính nhường chỗ (≥ 768: lề phải 592 = 576 + 8 + 8) — thẻ không che bảng.
  */
 export const xnKhung = cn(kv, 'relative')
-export const xnNoiDungNhuong = 'md:mr-[456px]'
+export const xnNoiDungNhuong = 'md:mr-[592px]'
 export const xnThe = cn(
   kv,
-  'absolute top-2 right-2 bottom-2 z-44 flex w-[min(440px,calc(100vw-16px))] flex-col overflow-hidden',
+  'absolute top-2 right-2 bottom-2 z-44 flex w-[min(576px,calc(100vw-16px))] flex-col overflow-hidden',
   'rounded-(--radius-3xl) bg-background [box-shadow:var(--shadow-hairline),var(--shadow-300)]',
   'transition-[opacity,translate] duration-200 ease-[cubic-bezier(0.19,1,0.22,1)] starting:translate-x-4 starting:opacity-0',
   'motion-reduce:transition-none',
@@ -142,12 +146,18 @@ export const xnThe = cn(
 )
 /**
  * `coDinh` (thẻ bám màn hình ở màn app): cách 16 trên · phải · dưới (CEO 25/11: 8 rồi 12 vẫn sát viền) → rộng tối đa
- * 100vw − 32, nội dung nhường 472 = 440 + 16 + 16 (CEO 25/11 lần 2: 12 vẫn kịch → 16). Bản trong khung chứa (artifact) giữ 8.
+ * 100vw − 32, nội dung nhường 608 = 576 + 16 + 16 (CEO 25/11 lần 2: 12 vẫn kịch → 16). Bản trong khung chứa (artifact) giữ 8.
  * Cạnh TRÊN đo từ NỀN TRẮNG của vùng nội dung, không từ mép màn (CEO 27/11): `.pD-main` cách đỉnh 8 + kẻ trên 1px → nền
  * trắng bắt đầu ở 9 → thẻ ở 9 + 16 = 25 (trước 16 = chỉ cách nền trắng 7). Phải · dưới vùng nội dung sát mép màn → 16.
  */
-export const xnTheCoDinh = 'fixed md:top-[25px] md:right-4 md:bottom-4 md:w-[min(440px,calc(100vw-32px))]'
-export const xnNoiDungNhuongCoDinh = 'md:mr-[472px]'
+export const xnTheCoDinh = 'fixed md:top-[25px] md:right-4 md:bottom-4 md:w-[min(576px,calc(100vw-32px))]'
+export const xnNoiDungNhuongCoDinh = 'md:mr-[608px]'
+/**
+ * Mở toàn màn (thẻ `coDinh` không có trang riêng — CEO 27/11 "thiếu option mở full màn"): thẻ giãn trái tới mép vùng nội
+ * dung + 16 (`--khung-trai-rong` của KhungApp), nội dung cột giữa tối đa 816 (768 chữ + đệm 24×2, kiểu trang Notion).
+ */
+export const xnTheRong = 'md:left-[calc(var(--khung-trai-rong,0px)+16px)] md:w-auto'
+export const xnCuonRong = '[&>*]:mx-auto [&>*]:w-full [&>*]:max-w-[816px]'
 /**
  * `.b-ct-dau`: cao 52, cách 4, không xuống dòng, gạch dưới 1px alpha-05. Nút thao tác đứng TRÁI (kiểu Notion, CEO 27/11):
  * đệm trái 19 → icon 18 trong nút 28 (lề 5) thẳng mép nội dung 24 (đo 27/11); đệm phải 24.

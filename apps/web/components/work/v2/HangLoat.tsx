@@ -11,13 +11,14 @@
  *   xoá mới nộp lại `dau_van` cho `xoaHangLoat` (danh sách đổi giữa hai nhịp là server từ chối). Việc tự sinh mà luật
  *   còn bật thì cron 15 phút dựng lại — hộp phải nói ra, không thì xoá xong 15 phút sau thấy y nguyên.
  */
-import { useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowsClockwise,
   CalendarBlank,
   CheckCircle,
   DotsThree,
   Flag,
+  SidebarSimple,
   Trash,
   UserMinus,
   UsersThree,
@@ -40,6 +41,13 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { ComboboxPanel } from '@/components/ui/combobox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import {
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+} from '@/components/ui/context-menu'
 import { calendarFoot, calendarFootClear, calendarPop } from '@/components/ui/date-picker'
 import {
   DropdownMenu,
@@ -262,19 +270,22 @@ function ThemThaoTac({
 }
 
 /**
- * Xoá hai nhịp. Bấm "Xoá…" → hộp mở ngay, con số điền vào khi `xemTruocXoa` về. Danh sách id chốt lúc đếm — nộp đúng
- * danh sách đó kèm `dau_van`. Xoá xong: toast, hộp đóng rồi mới bỏ chọn (thanh — và hộp trong nó — biến mất sau cùng).
+ * Xoá hai nhịp. `moHoi(ids, sau)` → hộp mở ngay, con số điền vào khi `xemTruocXoa` về. Danh sách id chốt lúc đếm — nộp
+ * đúng danh sách đó kèm `dau_van`. Xoá xong: toast, hộp đóng rồi mới gọi `sau` (thanh hàng loạt: bỏ chọn + làm mới).
+ * Trả `hop` để bên gọi đặt ở chỗ SỐNG LÂU hơn nút mở (menu chuột phải đóng là gỡ mục — hộp không được nằm trong menu).
  */
-function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () => void }) {
+function useXoaViec() {
   const [mo, setMo] = useState(false)
   const [xt, setXt] = useState<XemTruocXoa | null>(null)
   const [idsXoa, setIdsXoa] = useState<number[]>([])
   const [loi, setLoi] = useState<string | null>(null)
   const luot = useRef(0)
   const daXoa = useRef(false)
+  const sauRef = useRef<() => void>(() => {})
 
-  async function moHoi() {
+  async function moHoi(ids: number[], sau: () => void) {
     const lan = ++luot.current
+    sauRef.current = sau
     setIdsXoa(ids)
     setXt(null)
     setLoi(null)
@@ -313,7 +324,7 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
     setMo(false)
     if (daXoa.current) {
       daXoa.current = false
-      xong()
+      sauRef.current()
     }
   }
 
@@ -337,46 +348,72 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
         ].filter((x): x is string => !!x)
       : undefined
 
+  const hop = (
+    <ConfirmDialog
+      open={mo}
+      onOpenChange={doiMo}
+      pha
+      color="danger"
+      icon={<Trash />}
+      tieuDe={xt && !khongQuyen ? `Xoá ${xt.se_xoa} việc? Không khôi phục được` : 'Xoá việc đã chọn?'}
+      moTa={
+        !xt
+          ? 'Đang đếm việc sẽ mất…'
+          : khongQuyen
+            ? `Bạn không có quyền xoá việc nào trong ${idsXoa.length} việc đã chọn.`
+            : undefined
+      }
+      hauQua={hauQua}
+      nutXacNhan={xt && !khongQuyen ? `Xoá ${xt.se_xoa} việc` : 'Xoá việc'}
+      khoaXacNhan={!xt?.dau_van || khongQuyen}
+      loi={loi}
+      onXacNhan={xoa}
+    >
+      {mocLai && (
+        <Alert color="warning">
+          <AlertTitle>{xt.tu_sinh} việc trong đó là việc tự sinh — cron sẽ dựng lại sau tối đa 15 phút.</AlertTitle>
+          <AlertDescription>
+            Luật đang bật: {xt.luat_dang_bat.join(' · ')}. Muốn xoá cho hẳn thì tắt luật ở /work/tu-sinh trước, rồi mới
+            xoá.
+          </AlertDescription>
+        </Alert>
+      )}
+    </ConfirmDialog>
+  )
+  return { moHoi, hop }
+}
+
+/** Nút "Xoá…" của thanh hàng loạt. */
+function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () => void }) {
+  const { moHoi, hop } = useXoaViec()
   return (
     <>
-      <Button variant="destructive" size="sm" disabled={dang} onClick={() => void moHoi()}>
+      <Button variant="destructive" size="sm" disabled={dang} onClick={() => void moHoi(ids, xong)}>
         <Trash aria-hidden="true" />
         Xoá…
       </Button>
-      <ConfirmDialog
-        open={mo}
-        onOpenChange={doiMo}
-        pha
-        color="danger"
-        icon={<Trash />}
-        tieuDe={xt && !khongQuyen ? `Xoá ${xt.se_xoa} việc? Không khôi phục được` : 'Xoá việc đã chọn?'}
-        moTa={
-          !xt
-            ? 'Đang đếm việc sẽ mất…'
-            : khongQuyen
-              ? `Bạn không có quyền xoá việc nào trong ${idsXoa.length} việc đã chọn.`
-              : undefined
-        }
-        hauQua={hauQua}
-        nutXacNhan={xt && !khongQuyen ? `Xoá ${xt.se_xoa} việc` : 'Xoá việc'}
-        khoaXacNhan={!xt?.dau_van || khongQuyen}
-        loi={loi}
-        onXacNhan={xoa}
-      >
-        {mocLai && (
-          <Alert color="warning">
-            <AlertTitle>
-              {xt.tu_sinh} việc trong đó là việc tự sinh — cron sẽ dựng lại sau tối đa 15 phút.
-            </AlertTitle>
-            <AlertDescription>
-              Luật đang bật: {xt.luat_dang_bat.join(' · ')}. Muốn xoá cho hẳn thì tắt luật ở /work/tu-sinh trước,
-              rồi mới xoá.
-            </AlertDescription>
-          </Alert>
-        )}
-      </ConfirmDialog>
+      {hop}
     </>
   )
+}
+
+/** Chạy một lệnh hàng loạt trên `ids` + toast; xong (ok) → `sau`. */
+function useChayHangLoat() {
+  const [dang, setDang] = useState(false)
+  async function chay(ids: number[], input: Input, moTa: string, sau: () => void) {
+    setDang(true)
+    try {
+      const kq = await hangLoat(ids, input)
+      bao(moTa, kq)
+      if (kq.ok) sau()
+    } catch (e) {
+      // Action bị reject (mất mạng, phiên deploy lệch) — không để thanh khoá cứng tới khi tải lại.
+      thongBao.loi(`${moTa}: chưa xong — ${e instanceof Error ? e.message : 'mất kết nối'}`)
+    } finally {
+      setDang(false)
+    }
+  }
+  return { dang, chay }
 }
 
 /**
@@ -386,25 +423,14 @@ function XoaViec({ ids, dang, xong }: { ids: number[]; dang: boolean; xong: () =
  */
 export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: () => void }) {
   const { daChon, soDong, boChonHet } = useDaChon()
-  const [dang, setDang] = useState(false)
   const ids = daChon.map(Number)
   const ketThuc = () => {
     boChonHet()
     xong()
   }
-  async function chay(input: Input, moTa: string) {
-    setDang(true)
-    try {
-      const kq = await hangLoat(ids, input)
-      bao(moTa, kq)
-      if (kq.ok) ketThuc()
-    } catch (e) {
-      // Action bị reject (mất mạng, phiên deploy lệch) — không để thanh khoá cứng tới khi tải lại.
-      thongBao.loi(`${moTa}: chưa xong — ${e instanceof Error ? e.message : 'mất kết nối'}`)
-    } finally {
-      setDang(false)
-    }
-  }
+  const hl = useChayHangLoat()
+  const dang = hl.dang
+  const chay = (input: Input, moTa: string) => hl.chay(ids, input, moTa, ketThuc)
   return (
     <>
       <Button
@@ -460,6 +486,186 @@ export function ThanhHangLoatViec({ nenTang, xong }: { nenTang: NenTang; xong: (
       <DoiHan dang={dang} chay={(i, m) => void chay(i, m)} />
       <ThemThaoTac nenTang={nenTang} dang={dang} chay={(i, m) => void chay(i, m)} />
       <XoaViec ids={ids} dang={dang} xong={ketThuc} />
+    </>
+  )
+}
+
+/* ---------- Menu chuột phải của dòng việc ---------- */
+
+type ThaoTacViec = { nenTang: NenTang; xong: () => void; xoa: (ids: number[], sau: () => void) => void }
+const ThaoTacCtx = createContext<ThaoTacViec | null>(null)
+
+/**
+ * Bọc quanh màn có danh sách việc (cùng chỗ `KhungChon`): cấp nền tảng + làm mới cho menu chuột phải của dòng, và giữ
+ * HỘP XOÁ ở đây (menu đóng là gỡ mục — hộp phải sống ngoài menu).
+ */
+export function KhungThaoTacViec({ nenTang, xong, children }: { nenTang: NenTang; xong: () => void; children: ReactNode }) {
+  const { moHoi, hop } = useXoaViec()
+  return (
+    <ThaoTacCtx.Provider value={{ nenTang, xong, xoa: (ids, sau) => void moHoi(ids, sau) }}>
+      {children}
+      {hop}
+    </ThaoTacCtx.Provider>
+  )
+}
+
+/** Menu con của menu chuột phải; > 10 mục thì có ô gõ để tìm (CHUAN-FILTER luật 2). */
+function MenuConPhai({
+  nhan,
+  icon,
+  muc,
+  goiY,
+  chon,
+}: {
+  nhan: string
+  icon?: ReactNode
+  muc: { khoa: string; nhan: ReactNode; tim: string; onChon: () => void }[]
+  goiY: string
+  chon?: ReactNode
+}) {
+  const [q, setQ] = useState('')
+  const tim = boDau(q.trim())
+  const ds = muc.filter((m) => !tim || boDau(m.tim).includes(tim))
+  return (
+    <ContextMenuSub onOpenChange={(m) => !m && setQ('')}>
+      <ContextMenuSubTrigger>
+        {icon}
+        {nhan}
+      </ContextMenuSubTrigger>
+      <ContextMenuSubContent>
+        {muc.length > 10 && <MenuTimKiem value={q} onValueChange={setQ} placeholder={goiY} />}
+        {ds.map((m) => (
+          <ContextMenuItem key={m.khoa} onSelect={m.onChon}>
+            {m.nhan}
+          </ContextMenuItem>
+        ))}
+        {chon}
+        <TuFocusMenuCon />
+      </ContextMenuSubContent>
+    </ContextMenuSub>
+  )
+}
+
+/**
+ * Menu chuột phải của MỘT dòng việc (CEO 27/11 "menu trạng thái cho chuột phải là hiện ra hết ở đây" — đủ thao tác của
+ * thanh hàng loạt; bỏ "Sao chép mã / đường dẫn"). Đối tượng: dòng đang bấm NẰM TRONG lựa chọn (≥ 2 dòng) → cả lựa chọn
+ * (như Notion/Linear), không thì chỉ dòng đó. Ngoài `KhungThaoTacViec` → chỉ còn "Xem nhanh".
+ */
+export function MenuThaoTacViec({ id, moViec }: { id: number; moViec: (id: number) => void }) {
+  const ctx = useContext(ThaoTacCtx)
+  const { daChon, boChonHet } = useDaChon()
+  const { chay } = useChayHangLoat()
+  const xem = (
+    <ContextMenuItem onSelect={() => moViec(id)}>
+      <SidebarSimple aria-hidden="true" />
+      Xem nhanh
+    </ContextMenuItem>
+  )
+  if (!ctx) return xem
+  const theoChon = daChon.includes(String(id)) && daChon.length > 1
+  const ids = theoChon ? daChon.map(Number) : [id]
+  const sau = () => {
+    if (theoChon) boChonHet()
+    ctx.xong()
+  }
+  const lam = (input: Input, moTa: string) => void chay(ids, input, moTa, sau)
+  // Ngày tính LÚC BẤM (không lúc vẽ — hàm thuần): 0 = hôm nay, 1 = mai.
+  const datHan = (them: number) => {
+    const d = new Date()
+    d.setDate(d.getDate() + them)
+    const n = isoNgay(d)
+    lam({ due: hanLuu(n) }, `Đã đặt hạn ${hienNgay(n)}`)
+  }
+  return (
+    <>
+      {xem}
+      <ContextMenuSeparator />
+      <ContextMenuItem onSelect={() => lam({ status: 'done' }, 'Đã đánh dấu xong')}>
+        <CheckCircle aria-hidden="true" />
+        {theoChon ? `Đánh dấu xong ${ids.length} việc` : 'Đánh dấu xong'}
+      </ContextMenuItem>
+      <MenuConPhai
+        nhan="Đổi trạng thái"
+        icon={<ArrowsClockwise aria-hidden="true" />}
+        goiY="Tìm trạng thái…"
+        muc={TT.map((t) => ({ khoa: t.gt, nhan: t.nhan, tim: t.nhan, onChon: () => lam({ status: t.gt }, `Đã chuyển sang ${t.nhan}`) }))}
+        chon={
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => lam({ status: 'cancelled' }, 'Đã huỷ việc')}>Huỷ việc</ContextMenuItem>
+          </>
+        }
+      />
+      <MenuConPhai
+        nhan="Gán người"
+        icon={<UserSwitch aria-hidden="true" />}
+        goiY="Gõ tên hoặc email…"
+        muc={ctx.nenTang.nhan_su.map((n) => ({
+          khoa: n.id,
+          nhan: n.ten,
+          tim: `${n.ten} ${n.email}`,
+          onChon: () => lam({ gan_ai: n.id, gan_vai: 'doer' }, `Đã gán ${n.ten}`),
+        }))}
+      />
+      <MenuConPhai
+        nhan="Đổi hạn"
+        icon={<CalendarBlank aria-hidden="true" />}
+        goiY="Tìm…"
+        muc={[
+          { khoa: 'nay', nhan: 'Hôm nay', tim: 'hom nay', onChon: () => datHan(0) },
+          { khoa: 'mai', nhan: 'Ngày mai', tim: 'ngay mai', onChon: () => datHan(1) },
+        ]}
+        chon={
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => lam({ xoa_due: true }, 'Đã xoá hạn')}>Xoá hạn</ContextMenuItem>
+          </>
+        }
+      />
+      <MenuConPhai
+        nhan="Đổi ưu tiên"
+        icon={<Flag aria-hidden="true" />}
+        goiY="Tìm mức…"
+        muc={UU.map((u) => ({
+          khoa: u.gt,
+          nhan: u.nhan,
+          tim: u.chu ?? u.gt,
+          onChon: () => lam({ priority: Number(u.gt) }, `Đã đổi ưu tiên sang ${u.chu}`),
+        }))}
+      />
+      <MenuConPhai
+        nhan="Đổi team"
+        icon={<UsersThree aria-hidden="true" />}
+        goiY="Tìm team…"
+        muc={ctx.nenTang.teams.map((t) => ({
+          khoa: String(t.id),
+          nhan: t.name,
+          tim: `${t.key} ${t.name}`,
+          onChon: () => lam({ team_id: t.id }, `Đã chuyển sang team ${t.name}`),
+        }))}
+        chon={
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => lam({ xoa_team: true }, 'Đã bỏ team')}>Bỏ team</ContextMenuItem>
+          </>
+        }
+      />
+      <MenuConPhai
+        nhan="Bỏ người"
+        icon={<UserMinus aria-hidden="true" />}
+        goiY="Gõ tên hoặc email…"
+        muc={ctx.nenTang.nhan_su.map((n) => ({
+          khoa: n.id,
+          nhan: n.ten,
+          tim: `${n.ten} ${n.email}`,
+          onChon: () => lam({ bo_ai: n.id }, `Đã bỏ ${n.ten}`),
+        }))}
+      />
+      <ContextMenuSeparator />
+      <ContextMenuItem variant="destructive" onSelect={() => ctx.xoa(ids, sau)}>
+        <Trash aria-hidden="true" />
+        {theoChon ? `Xoá ${ids.length} việc…` : 'Xoá…'}
+      </ContextMenuItem>
     </>
   )
 }

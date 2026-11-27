@@ -200,9 +200,14 @@ type NgCanhO = {
 const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
   // CEO 26/11 "Tách cột mã ticket ra riêng cho dễ xem": ô Khách chỉ tên (nút mở Xem nhanh; khẩn = chữ đỏ, kể cả lúc
   // rê/focus) — mã ở cột "Mã ticket" riêng.
-  // Mã = định danh chính: nút mở Xem nhanh, chữ thường; khẩn đang mở → MÃ chữ đỏ (kể cả lúc rê/focus) + sr-only.
+  // Mã = nút mở Xem nhanh, chữ MỜ (CEO 27/11 "cho mờ mã ticket xuống" — như mã việc ở Work); khẩn đang mở → MÃ chữ đỏ
+  // (kể cả lúc rê/focus) + sr-only.
   ma: (t, { mo }) => (
-    <button type="button" className={cn(nutMoTen, 'block max-w-full tabular-nums', laKhan(t) && CHU_DO)} onClick={() => mo(t.ticket_code)}>
+    <button
+      type="button"
+      className={cn(nutMoTen, 'block max-w-full tabular-nums', laKhan(t) ? CHU_DO : 'text-muted-foreground')}
+      onClick={() => mo(t.ticket_code)}
+    >
       {laKhan(t) && <SrKhan />}
       {t.ticket_code}
     </button>

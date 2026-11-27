@@ -87,3 +87,26 @@ tạo" thành một dòng nhạt cuối tab Hoạt động, nơi đã có lịch
 - Hover nền của ô giá trị: CDP đọc ra trong suốt, có thể Notion vẽ nền bằng lớp phủ riêng. Chưa kiểm bằng cách khác.
 - Theme sáng; khổ hẹp (Notion side peek ở màn nhỏ).
 - Kéo đổi độ rộng side peek; phím tắt Alt+J/K (lần thử bị lệch do bấm trúng "New template").
+
+## Kế hoạch tiếp — gõ "/" để chọn định dạng (CEO 27/11, CHƯA làm)
+
+CEO: "Lưu plan tiếp theo cho phép dùng cú pháp "/" để chọn format text" (ảnh ô Mô tả gõ `/b`).
+
+**Hành vi (học Notion slash command):**
+- Trong ô Mô tả (và sau này: bình luận, ghi chú ticket), gõ `/` ở đầu dòng hoặc sau khoảng trắng → menu nổi ngay dưới con trỏ.
+- Mục: Văn bản · Tiêu đề 1 / 2 / 3 · Danh sách chấm · Danh sách số · Việc cần làm (ô tick) · Trích dẫn · Mã (code) · Đường kẻ.
+- Gõ tiếp sau `/` để lọc (không dấu, khớp cả tên tiếng Anh: `/b` → bulleted, `/h1`…); ↑ ↓ chọn, Enter áp, Esc đóng
+  (giữ chữ `/…` đã gõ), Backspace xoá hết `/` → đóng. Không mục nào khớp sau 2–3 ký tự → menu tự đóng.
+- Áp định dạng → xoá chữ `/…`, khối hiện tại đổi kiểu, con trỏ ở lại.
+- Phím tắt Markdown khi gõ: `# ` tiêu đề, `- ` chấm, `1. ` số, `[] ` ô tick, `> ` trích dẫn, ``` mã.
+
+**Cần chốt trước khi làm (quyết định của CEO):**
+1. Lưu dạng gì: `work.task.description` đang là chữ trơn. Đề xuất: lưu **Markdown** (cột text giữ nguyên, không migration;
+   bot/Discord/ERP đọc được chữ). Phương án khác: JSON khối (Tiptap/ProseMirror) — giàu hơn nhưng cần cột mới + mọi nơi đọc
+   phải render.
+2. Bộ soạn: đề xuất **Tiptap** (ProseMirror, MIT, có sẵn extension slash-command + Markdown) thay `Textarea` — thư viện mới,
+   cần duyệt. Tự viết trên `contentEditable` rẻ lúc đầu nhưng IME tiếng Việt + undo dễ vỡ.
+3. Phạm vi lát 1: chỉ ô Mô tả việc (Work); ticket/bình luận lát sau.
+
+**Gate xong:** gõ tiếng Việt (Telex/VNI) không vỡ chữ khi menu mở; Esc/Enter không đóng thẻ Xem nhanh; test DOM cho lọc +
+áp khối; đo menu bám con trỏ, cách mép ≥ 16.
