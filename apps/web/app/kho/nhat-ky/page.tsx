@@ -43,7 +43,7 @@ export default async function KhoNhatKyPage({ searchParams }: { searchParams: Pr
 
       {dm && !dm.ok && <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning-surface)">Chưa tải được danh mục mã ({dm.loi}) — ô chọn mã khi sửa sẽ trống.</p>}
       <KhuSuaKho danhMuc={danhMuc}>
-      <Bang dau={['Ngày', 'Loại', 'Mã', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Ghi chú', 'Người nhắn', 'Trạng thái', '', ...(sua ? [''] : [])]} trong={!dong.length} phai={[4]}>
+      <Bang dau={['Ngày', 'Loại', 'Mã', 'Tên ghi trong tin', 'SL', 'Lý do / cho ai', 'Ghi chú', 'Người nhắn', 'Trạng thái', '', ...(sua ? [''] : [])]} trong={!dong.length} dangLoc={!!(sp.q || sp.loai || sp.tt || sp.ngtu || sp.ngden)} phai={[4]}>
         {dong.map((d) => (
           <TableRow key={d.id}>
             <O cls="whitespace-nowrap">{ngayVN(d.ngay)}</O>

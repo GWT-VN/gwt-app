@@ -4,6 +4,7 @@ import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Combobox } from '@/components/ui/combobox'
@@ -11,12 +12,14 @@ import { FieldLabel } from '@/components/ui/field'
 import { FormFooter, FormLayout } from '@/components/ui/form-layout'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { X } from '@phosphor-icons/react/ssr'
+import type { MucChon } from '@/bang'
 
-import { useEffect, useMemo, useState, useId } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChonTinh } from '@/components/ChonTinh'
 import { taoDon, suaDon, timKhachChoDon, boiCanhGia } from './actions'
-import { useTimXa } from '@/bang/useTimXa'
 import { ChannelSelect } from './ChannelSelect'
 import { fmtVnd } from './_ui'
 import { deriveSourceTab } from './_calc'
@@ -126,9 +129,19 @@ export function OrderForm({
 
   const initHasNewCust = !!initial && !initial.customer_code && !!(initial.customer_name || initial.phone)
   const [customerMode, setCustomerMode] = useState<'existing' | 'new'>(initHasNewCust ? 'new' : 'existing')
-  const [custQuery, setCustQuery] = useState('')
-  const [custSearchOpen, setCustSearchOpen] = useState(false)
-  const { ds: custHits, dangTim: searching, loi: loiTimKhach, thieuKyTu } = useTimXa(timKhachChoDon, custSearchOpen ? custQuery : '')
+  // Tìm khách = Combobox DS chế độ `tim` (pop portal, chọn bằng chuột/phím/chạm đều ăn). Bản tự vẽ cũ đóng danh sách
+  // bằng onBlur + relatedTarget: Safari/Firefox macOS/iOS không focus <button> khi bấm → relatedTarget null → danh sách
+  // đóng trước khi click tới, không chọn được khách. Combobox chỉ trả mã → nhớ bản ghi đủ của mỗi lượt tìm để chọn.
+  const khachDaTim = useRef(new Map<string, CustomerHit>())
+  const timKhach = useCallback(async (q: string): Promise<MucChon[]> => {
+    const ds = await timKhachChoDon(q)
+    for (const h of ds) khachDaTim.current.set(h.customer_code, h)
+    return ds.map((h) => ({
+      gt: h.customer_code,
+      nhan: h.name || '(chưa tên)',
+      phu: [h.phone_chuan || h.phone, h.province_moi || h.province].filter(Boolean).join(' · '),
+    }))
+  }, [])
   const [selectedCust, setSelectedCust] = useState<CustomerHit | null>(
     initial?.customer_code
       ? { customer_code: initial.customer_code, name: initial.customer_name, phone: initial.phone, phone_chuan: initial.phone, province: null, province_moi: null }
@@ -428,19 +441,11 @@ export function OrderForm({
           <Card>
             <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="text-sm font-semibold text-foreground">Khách hàng</span>
-              <div className="flex gap-1 text-sm">
-                {(['existing', 'new'] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setCustomerMode(m)}
-                    aria-pressed={customerMode === m}
-                    className={'rounded-md px-3 py-1 ' + (customerMode === m ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent')}
-                  >
-                    {m === 'existing' ? 'Khách cũ' : 'Khách mới'}
-                  </button>
-                ))}
-              </div>
+              <ToggleGroup type="single" variant="outline" size="sm" aria-label="Loại khách" value={customerMode}
+                onValueChange={(v) => { if (v) setCustomerMode(v as 'existing' | 'new') }}>
+                <ToggleGroupItem value="existing">Khách cũ</ToggleGroupItem>
+                <ToggleGroupItem value="new">Khách mới</ToggleGroupItem>
+              </ToggleGroup>
             </div>
 
             {customerMode === 'existing' ? (
@@ -450,35 +455,15 @@ export function OrderForm({
                     <b>{selectedCust.name || '(chưa tên)'}</b> · {selectedCust.phone_chuan || selectedCust.phone} ·{' '}
                     <span className="font-mono text-xs text-muted-foreground">{selectedCust.customer_code}</span>
                   </span>
-                  <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setSelectedCust(null)}>Đổi</button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedCust(null)}>Đổi</Button>
                 </div>
               ) : (
-                <div className="relative" onBlur={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget)) setCustSearchOpen(false)
-                }} onKeyDown={(e) => {
-                  if (e.key === 'Escape') setCustSearchOpen(false)
-                }}>
-                  <Input aria-label="Tìm khách hàng" placeholder="Tìm khách theo tên / SĐT / mã KH…" value={custQuery}
-                    onFocus={() => setCustSearchOpen(true)}
-                    onChange={(e) => { setCustQuery(e.target.value); setCustSearchOpen(true) }} />
-                  {custSearchOpen && !thieuKyTu && (
-                    <div className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
-                      {searching && <div className="px-3 py-2 text-sm text-muted-foreground">Đang tìm…</div>}
-                      {!searching && !loiTimKhach && custHits.map((h) => (
-                        <button key={h.customer_code} type="button" onClick={() => { setSelectedCust(h); setCustSearchOpen(false); setCustQuery('') }} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted">
-                          <b>{h.name || '(chưa tên)'}</b>{' '}
-                          <span className="text-muted-foreground">· {h.phone_chuan || h.phone || '—'} · {h.province_moi || h.province || ''}</span>
-                          <span className="ml-1 font-mono text-xs text-muted-foreground">{h.customer_code}</span>
-                        </button>
-                      ))}
-                      {!searching && (loiTimKhach || custHits.length === 0) && (
-                        <div role="status" className="px-3 py-2 text-sm text-muted-foreground">
-                          {loiTimKhach ? 'Chưa tìm được khách. Hãy thử lại.' : 'Không tìm thấy khách phù hợp.'}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <Combobox aria-label="Tìm khách hàng" value={null} tim={timKhach} max={20}
+                  placeholder="Tìm khách theo tên / SĐT / mã KH…" searchPlaceholder="Gõ tên, SĐT hoặc mã KH…"
+                  onValueChange={(gt) => {
+                    const h = gt ? khachDaTim.current.get(gt) : undefined
+                    if (h) setSelectedCust(h)
+                  }} />
               )
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
@@ -513,16 +498,14 @@ export function OrderForm({
               <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-(--color-background-info-surface) px-3 py-2 text-sm text-(--color-text-info)">
                 <span className="font-semibold">Đang áp:</span>
                 {chip.map((c, i) => (
-                  <span
+                  <Badge
                     key={`${c.kieu}-${c.nhan}-${i}`}
-                    className={
-                      'rounded-full px-2 py-0.5 text-xs font-semibold text-white ' +
-                      (c.kieu === 'cong' ? 'bg-emerald-600' : 'bg-teal-600')
-                    }
+                    variant="soft"
+                    color={c.kieu === 'cong' ? 'success' : 'info'}
                     title={c.kieu === 'cong' ? 'Chương trình cộng dồn — áp chồng lên chương trình chính' : undefined}
                   >
                     {c.kieu === 'cong' ? '+ ' : ''}{c.nhan}
-                  </span>
+                  </Badge>
                 ))}
                 {bcGia?.bac && bcGia.ctkm && (
                   <span className="text-xs text-(--color-text-info)">
@@ -566,12 +549,13 @@ export function OrderForm({
                     </div>
                     <label className="col-span-6 @min-[42rem]:col-span-2">
                       <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:sr-only">Số lượng</span>
-                      <Input type="number" min={0} className="text-right tabular-nums" value={l.quantity}
+                      <Input type="number" min={0} className="text-right tabular-nums" value={l.quantity} title="Số lượng (DVBT = số lần)"
                         onChange={(e) => setLine(l.key, { quantity: Number(e.target.value) })} />
                     </label>
                     <label className="col-span-6 @min-[42rem]:col-span-2">
                       <span className="mb-1 block text-xs text-muted-foreground @min-[42rem]:sr-only">Đơn giá (gồm VAT)</span>
                       <Input type="number" min={0} step="any" className="text-right tabular-nums" value={l.unit_price_vat}
+                        title="Đơn giá ĐÃ GỒM VAT — giống cột 'Đơn giá sau VAT' trong Google Sheet. Tiền trước VAT app tự tính ra."
                         onChange={(e) => setLine(l.key, { unit_price_vat: Number(e.target.value), giaTuGo: true })} disabled={l.is_gift} />
                     </label>
                     <label className="col-span-6 @min-[42rem]:col-span-2">
@@ -591,7 +575,7 @@ export function OrderForm({
                     </label>
                     <ChoiceLabel className="col-span-4 flex items-center justify-center gap-1 self-end pb-2 text-xs text-muted-foreground @min-[42rem]:col-span-1 @min-[42rem]:self-center @min-[42rem]:pb-0" nhan="Quà" title="Hàng tặng"><Checkbox checked={l.is_gift} onCheckedChange={(checked) => setLine(l.key, { is_gift: checked === true })} /></ChoiceLabel>
                     <Button type="button" variant="ghost" size="icon-sm" onClick={() => removeLine(l.key)}
-                      className="col-span-2 justify-self-end self-end @min-[42rem]:col-span-1 @min-[42rem]:self-center" aria-label={`Xoá dòng ${index + 1}`}>✕</Button>
+                      className="col-span-2 justify-self-end self-end @min-[42rem]:col-span-1 @min-[42rem]:self-center" aria-label={`Xoá dòng ${index + 1}`}><X aria-hidden="true" /></Button>
                     <LineGiaNhan
                       g={goiY[l.key]}
                       daGo={Number(l.unit_price_vat) || 0}
@@ -623,10 +607,9 @@ export function OrderForm({
                       {quaDaThem.has(q.ma) ? (
                         <span className="text-xs text-(--color-text-success)">✓ đã có trong đơn</span>
                       ) : (
-                        <button type="button" onClick={() => themQua(q)}
-                          className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700">
+                        <Button type="button" variant="outline" size="sm" onClick={() => themQua(q)}>
                           ＋ Thêm vào đơn
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ))}
@@ -732,11 +715,11 @@ export function OrderForm({
               Gập lại vì 20 ô, mở ra chỉ khi cần. */}
           {laPOE && (
             <Card>
-              <button type="button" onClick={() => setMoPOE((v) => !v)}
-                className="flex w-full items-center justify-between text-left text-sm font-semibold text-foreground">
+              <Button type="button" variant="ghost" shape="rounded" aria-expanded={moPOE} onClick={() => setMoPOE((v) => !v)}
+                className="w-full justify-between font-semibold">
                 <span>Hồ sơ &amp; lắp đặt (POE)</span>
-                <span className="text-muted-foreground">{moPOE ? '▲' : '▼ mở ra'}</span>
-              </button>
+                <span className="font-normal text-muted-foreground">{moPOE ? '▲ thu gọn' : '▼ mở ra'}</span>
+              </Button>
 
               {moPOE && (
                 <div className="mt-3 space-y-4">
@@ -867,8 +850,7 @@ function LineGiaNhan({
       )}
       {duoi && <span className="text-(--color-text-danger)">⚠ đang bán THẤP HƠN mức đã duyệt</span>}
       {lech && g.gia != null && (
-        <button type="button" onClick={() => onApLai(g.gia as number)}
-          className="text-(--color-text-info) underline hover:text-teal-900">áp lại giá này</button>
+        <Button type="button" variant="link" className="text-xs" onClick={() => onApLai(g.gia as number)}>áp lại giá này</Button>
       )}
     </div>
   )

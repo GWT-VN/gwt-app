@@ -162,7 +162,7 @@ export function RosterKyThuat({
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <span className="text-sm font-medium text-foreground">{k.ten}</span>
-                    {k.la_ctv && <Badge className="ml-1.5" color="info">CTV</Badge>}
+                    {k.la_ctv && <Badge variant="soft" className="ml-1.5" color="info">CTV</Badge>}
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {[k.sdt, k.vung, k.tinh, k.email].filter(Boolean).join(' · ') || '—'}
                     </div>
@@ -182,9 +182,9 @@ export function RosterKyThuat({
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs text-muted-foreground">{nTk} ticket đang mở</span>
                     {choTaiKhoanKT && k.email && !tt?.hoat_dong && <Button size="sm" variant="ghost" onClick={() => cap(k.id)} disabled={busy === k.id}>cấp đăng nhập</Button>}
-                    {choTaiKhoanKT && tt?.hoat_dong && <Button size="sm" variant="ghost" onClick={() => thu(k.id)} disabled={busy === k.id}>thu quyền</Button>}
+                    {choTaiKhoanKT && tt?.hoat_dong && <Button size="sm" variant="ghost" className="text-(--color-text-warning-ghost)" onClick={() => thu(k.id)} disabled={busy === k.id}>thu quyền</Button>}
                     <Button size="sm" variant="ghost" onClick={() => moSua(k)}>sửa</Button>
-                    <Button size="sm" variant="ghost" onClick={() => { setErr(null); setXoaId(k.id) }} disabled={busy === k.id}>xoá</Button>
+                    <Button size="sm" variant="ghost" className="text-(--color-text-danger-ghost)" onClick={() => { setErr(null); setXoaId(k.id) }} disabled={busy === k.id}>xoá</Button>
                   </div>
                 </div>
               )}

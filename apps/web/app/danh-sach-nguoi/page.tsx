@@ -43,7 +43,7 @@ export default async function DanhSachNguoiPage({ searchParams }: { searchParams
       <TrangDuLieu className="max-w-4xl space-y-4">
         <PageHeader tieuDe="Danh sách người" />
         <p className="text-sm text-muted-foreground">
-          Danh sách CS theo dõi và kỹ thuật dùng để chọn trên ticket, gán lịch. Người có vai trò Sửa danh sách người được chỉnh danh sách.
+          Danh sách CS theo dõi và kỹ thuật dùng để chọn trên ticket, gán lịch. Chỉ người có vai trò “Sửa danh sách người” (bánh răng › Nhân viên) sửa được.
           Ticket đã xong vẫn giữ tên người đã xoá. Gõ lại đúng tên để khôi phục.
         </p>
         <nav aria-label="Danh sách người" className="flex flex-wrap gap-2">

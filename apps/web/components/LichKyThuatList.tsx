@@ -74,7 +74,7 @@ export function LichKyThuatList({ rows }: { rows: LichKyThuatRow[] }) {
                     {r.trang_thai !== 'xong' && <Button disabled={busy === r.id} onClick={() => dat(r.id, 'xong')} variant="ghost" size="sm">✓ xong</Button>}
                     {r.trang_thai !== 'huy' && <Button disabled={busy === r.id} onClick={() => dat(r.id, 'huy')} variant="ghost" size="sm">huỷ</Button>}
                     {r.trang_thai === 'huy' && <Button disabled={busy === r.id} onClick={() => dat(r.id, 'hen')} variant="ghost" size="sm">mở lại</Button>}
-                    <Button disabled={busy === r.id} onClick={() => xoa(r.id)} className="text-xs text-destructive underline">xoá</Button>
+                    <Button disabled={busy === r.id} onClick={() => xoa(r.id)} variant="ghost" size="sm" className="text-(--color-text-danger-ghost)">xoá</Button>
                   </div>
                 </div>
               </li>

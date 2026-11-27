@@ -33,8 +33,9 @@ export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe:
           </div>
           <Alert color="info">
             <AlertDescription>
-              Bắp ghi sổ từ tin nhắn Discord kho và cập nhật khoảng mỗi 20 giây. Người có quyền Sửa sổ kho có thể sửa, huỷ dòng, duyệt mã và kiểm kê.
-              Mọi thay đổi được ghi vào <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>.
+              Bắp ghi sổ từ tin nhắn Discord kho và cập nhật khoảng mỗi 20 giây. Người có quyền <b>Sửa sổ kho</b> sửa, huỷ dòng, duyệt mã và kiểm kê được
+              ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự
+              cập nhật trong ~20 giây.
             </AlertDescription>
           </Alert>
           {children}
@@ -50,10 +51,16 @@ export function TrangThai({ ma }: { ma: string | null | undefined }) {
   return <Badge variant="soft" color={color}>{nhanTrangThai(ma)}</Badge>
 }
 
-export function Bang({ dau, children, trong, phai = [] }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; phai?: number[] }) {
+/**
+ * Bảng kho. `trong` → EmptyState trong khung bảng (khuôn Table DS: rỗng thì không vẽ hàng tiêu đề).
+ * `dangLoc` = trang đang có bộ lọc/tìm → "không khớp lọc"; không lọc → "chưa có dữ liệu".
+ */
+export function Bang({ dau, children, trong, dangLoc, phai = [] }: { dau: ReactNode[]; children: ReactNode; trong?: boolean; dangLoc?: boolean; phai?: number[] }) {
   return (
     <TableWrap vien>
-      {trong ? <EmptyState kieu="loc" capTieuDe={2} tieuDe="Chưa có dữ liệu." /> : (
+      {trong ? (dangLoc
+        ? <EmptyState kieu="loc" capTieuDe={2} tieuDe="Không có dòng nào khớp bộ lọc" moTa="Đổi hoặc bỏ bớt điều kiện lọc để xem thêm." />
+        : <EmptyState kieu="that" capTieuDe={2} tieuDe="Chưa có dữ liệu" />) : (
         <Table variant="thuong">
           <TableHeader>
             <TableRow>{dau.map((d, i) => <TableHead key={i} scope="col" phai={phai.includes(i)}>{d}</TableHead>)}</TableRow>
@@ -104,9 +111,18 @@ export const sl = (n: number) => new Intl.NumberFormat('vi-VN', { maximumFractio
  */
 export const ngayVN = (x: string | null | undefined): string => hienNgay(x, 'gio')
 
-/** Khi chưa đặt KHO_DB_URL / DB lỗi: báo rõ thay vì trang trắng. */
+/** Khi chưa đặt KHO_DB_URL / DB lỗi: báo rõ thay vì trang trắng. Không `loi` = trang gọi khi `daCauHinhKho()` sai. */
 export function LoiKho({ loi }: { loi?: string }) {
   if (loi) console.error('[kho] Chưa đọc được sổ kho', loi)
+  if (!loi || loi.includes('KHO_DB_URL')) return (
+    <Alert color="warning">
+      <AlertTitle>Kho chưa được cấu hình kết nối</AlertTitle>
+      <AlertDescription>
+        Máy chủ app thiếu biến môi trường <code>KHO_DB_URL</code> nên chưa đọc / ghi được sổ kho. Báo quản trị đặt biến này rồi
+        khởi động lại app. Trong lúc chờ, xem trên <a className="underline" href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Google Sheet</a>.
+      </AlertDescription>
+    </Alert>
+  )
   return (
     <Alert color="warning">
       <AlertTitle>Chưa đọc được sổ kho</AlertTitle>

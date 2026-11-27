@@ -81,7 +81,7 @@ export default async function AuditPage({
                     <TableCell className="font-mono text-xs text-muted-foreground break-all">{r.doi_tuong ?? '—'}</TableCell>
                     <TableCell className="font-mono text-xs text-muted-foreground whitespace-normal break-all max-w-md">{chiTiet(r.chi_tiet)}</TableCell>
                     <TableCell>
-                      <Badge color={r.ket_qua === 'ok' ? 'success' : 'danger'}>{r.ket_qua}</Badge>
+                      <Badge variant="soft" color={r.ket_qua === 'ok' ? 'success' : 'danger'}>{r.ket_qua}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}

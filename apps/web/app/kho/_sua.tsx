@@ -7,12 +7,12 @@
  * Danh mục mã (vài trăm mục) truyền MỘT lần qua <KhuSuaKho>, các nút trong từng dòng đọc qua context — không nhân bản theo dòng.
  */
 import { createContext, useContext, useMemo, useState, useTransition, type ReactNode } from 'react'
-import { OChonGoiY, type MucChon } from '@/bang'
+import type { MucChon } from '@/bang'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Combobox } from '@/components/ui/combobox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { controlOutline } from '@/components/ui/control-styles'
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
@@ -99,7 +99,9 @@ function HopSua({ dong, onDong }: { dong: DongSuaDuoc; onDong: () => void }) {
             {LOAI.map((x) => <NativeSelectOption key={x} value={x}>{x}</NativeSelectOption>)}
           </NativeSelect>
         </Nhan>
-        <Nhan ten="Mã hàng" rong><OChonGoiY giaTri={f.internal_code || null} onChon={dat('internal_code')} tuyChon={danhMuc} choTrong="Gõ mã hoặc tên để tìm…" choPhepXoa={false} className={controlOutline} /></Nhan>
+        {/* Combobox DS: pop portal ra ngoài hộp (DialogContent cuộn overflow-y-auto sẽ cắt danh sách thả tại chỗ). */}
+        <Nhan ten="Mã hàng" rong><Combobox aria-label="Mã hàng" value={f.internal_code || null} onValueChange={(gt) => dat('internal_code')(gt ?? '')}
+          options={danhMuc} placeholder="Chọn mã hàng…" searchPlaceholder="Gõ mã hoặc tên để tìm…" /></Nhan>
         <Nhan ten={f.loai === 'Điều chỉnh' ? 'Số lượng (âm = giảm tồn)' : 'Số lượng'}>
           <Input inputMode="decimal" value={f.qty} onChange={(e) => dat('qty')(e.target.value)} />
         </Nhan>
@@ -187,7 +189,7 @@ export function DuyetDong({ id, rawName, goiY }: { id: number; rawName: string; 
         placeholder="Chọn mã hàng…" />
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex items-center gap-1 text-xs text-muted-foreground" title={`Bot nhớ “${chuanTen(rawName)}” = mã này, lần sau tự nhận`}>
-          <input type="checkbox" checked={nho} onChange={(e) => setNho(e.target.checked)} /> Nhớ tên này cho lần sau
+          <Checkbox checked={nho} onCheckedChange={(c) => setNho(c === true)} /> Nhớ tên này cho lần sau
         </label>
         <span className="ml-auto flex gap-1">
           <Button type="button" onClick={duyet} disabled={dang || !ma} size="sm">{dang ? '…' : 'Duyệt'}</Button>

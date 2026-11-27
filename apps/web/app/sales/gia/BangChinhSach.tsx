@@ -3,6 +3,7 @@
 import { Checkbox } from '@/components/ui/checkbox'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
@@ -124,8 +125,7 @@ export function BangChinhSach({
               <Button disabled={dangChay} onClick={apHangLoat}>
                 {dangChay ? 'Đang áp…' : `Áp cho ${tick.size} mã`}
               </Button>
-              <button type="button" onClick={() => setTick(new Set())}
-                className="text-xs text-muted-foreground hover:text-foreground hover:underline">Bỏ chọn</button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setTick(new Set())}>Bỏ chọn</Button>
               <span className="w-full text-xs text-muted-foreground">
                 Để trống ô % rồi bấm Áp = <b>bỏ chính sách</b> của {tick.size} mã này ở bậc trên. Bản cũ vẫn nằm trong lịch sử.
               </span>
@@ -211,11 +211,11 @@ export function BangChinhSach({
       </p>
       {/* LỊCH SỬ PHIÊN BẢN — CEO chốt 22/08: phải biết đã đổi những gì, khi nào. */}
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <button type="button" onClick={() => setXemLichSu((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-foreground hover:bg-muted">
+        <Button type="button" variant="ghost" shape="rounded" aria-expanded={xemLichSu} onClick={() => setXemLichSu((v) => !v)}
+          className="h-auto w-full justify-between rounded-none px-4 py-3 font-semibold">
           <span>Lịch sử thay đổi <span className="ml-1 font-normal text-muted-foreground">({lichSu.length} bản ghi)</span></span>
           <span className="text-muted-foreground">{xemLichSu ? '▲' : '▼'}</span>
-        </button>
+        </Button>
         {xemLichSu && (
           <div className="overflow-x-auto border-t border-border">
             <Table variant="thuong">
@@ -247,7 +247,7 @@ export function BangChinhSach({
                       <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">{h.hieu_luc_tu}</TableCell>
                       <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">
                         {cu ? h.hieu_luc_den
-                            : <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">đang áp</span>}
+                            : <Badge variant="soft" color="success">đang áp</Badge>}
                       </TableCell>
                       <TableCell className="px-3 py-2 text-xs">{h.boi ?? '—'}</TableCell>
                     </TableRow>

@@ -117,7 +117,7 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
               aria-label={`Chọn yêu cầu ${NHAN_BANG[y.doi_tuong] ?? y.doi_tuong} của ${y.nguoi_gui ?? 'người gửi không rõ'}`} className="mt-1" />
             <div className="min-w-0 text-sm flex-1">
               <div className="text-foreground">
-                <Badge className="mr-1.5" color={y.loai === 'xoa' || y.loai === 'gop' ? 'danger' : y.loai === 'doi_serial' ? 'warning' : 'info'}>
+                <Badge variant="soft" className="mr-1.5" color={y.loai === 'xoa' || y.loai === 'gop' ? 'danger' : y.loai === 'doi_serial' ? 'warning' : 'info'}>
                   {NHAN_LOAI[y.loai] ?? y.loai}
                 </Badge>
                 {NHAN_BANG[y.doi_tuong] ?? y.doi_tuong}

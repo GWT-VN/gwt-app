@@ -8,6 +8,9 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Toggle } from '@/components/ui/toggle'
+import { X } from '@phosphor-icons/react/ssr'
 import { Card } from '@/components/ui/card'
 import { FieldLabel } from '@/components/ui/field'
 import { FormFooter, FormLayout, FormSection } from '@/components/ui/form-layout'
@@ -100,8 +103,9 @@ function DanhSachKhach({
             <span key={k.customer_code} className={'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ' + the}>
               {k.ten || '(chưa tên)'}
               <span className="font-mono opacity-60">{k.customer_code}</span>
-              <button type="button" className="opacity-60 hover:opacity-100"
-                onClick={() => doi((cu) => cu.filter((x) => x.customer_code !== k.customer_code))}>✕</button>
+              <Button type="button" variant="ghost" size="icon-xs" className="-my-1 -mr-1 size-5 text-current"
+                aria-label={`Bỏ ${k.ten || k.customer_code}`}
+                onClick={() => doi((cu) => cu.filter((x) => x.customer_code !== k.customer_code))}><X aria-hidden="true" /></Button>
             </span>
           ))}
         </div>
@@ -114,7 +118,7 @@ function DanhSachKhach({
 function OTruNhom({ nhan, co, doi }: { nhan: string; co: boolean; doi: () => void }) {
   return (
     <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-foreground">
-      <input type="checkbox" className="h-4 w-4 accent-rose-600" checked={co} onChange={doi} />
+      <Checkbox checked={co} onCheckedChange={doi} />
       {nhan}
     </label>
   )
@@ -260,12 +264,13 @@ export function CtkmForm({
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {kenh.length === 0 ? (
-              <span className="text-xs text-rose-600">Chưa chọn kênh nào — chương trình sẽ không áp cho đơn nào.</span>
+              <span className="text-xs text-(--color-text-danger)">Chưa chọn kênh nào — chương trình sẽ không áp cho đơn nào.</span>
             ) : kenh.map((id) => (
-              <span key={id} className="inline-flex items-center gap-1 rounded-full bg-(--color-background-info-soft-alpha) px-2 py-0.5 text-xs font-medium text-(--color-text-info-soft)">
+              <Badge key={id} variant="soft" color="info">
                 {tenKenh(id)}
-                <button type="button" className="text-teal-600 hover:text-rose-600" onClick={() => setKenh((ds) => ds.filter((x) => x !== id))}>✕</button>
-              </span>
+                <Button type="button" variant="ghost" size="icon-xs" className="-my-1 -mr-1.5 size-5 text-current"
+                  aria-label={`Bỏ kênh ${tenKenh(id)}`} onClick={() => setKenh((ds) => ds.filter((x) => x !== id))}><X aria-hidden="true" /></Button>
+              </Badge>
             ))}
           </div>
         </div>
@@ -294,7 +299,7 @@ export function CtkmForm({
               choTrong="＋ Gõ tên / SĐT / mã khách…"
             />
             {khachGom.length === 0 && (
-              <p className="mt-1 text-xs text-rose-600">
+              <p className="mt-1 text-xs text-(--color-text-danger)">
                 Chưa chọn khách nào — chương trình sẽ <b>không áp cho ai</b>.
               </p>
             )}
@@ -303,7 +308,7 @@ export function CtkmForm({
 
         <div>
           <FieldLabel className="mb-1">Loại trừ theo NHÓM — gạch cả một tập khách</FieldLabel>
-          <div className="space-y-2 rounded-lg border border-dashed border-rose-200 bg-rose-50/40 p-3">
+          <div className="space-y-2 rounded-lg border border-dashed border-(--color-border-danger-surface) bg-card p-3">
             <div>
               <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Theo lịch sử mua</div>
               <div className="flex flex-wrap gap-x-5 gap-y-1">
@@ -333,13 +338,11 @@ export function CtkmForm({
                   {kenh.map((id) => {
                     const tru = coNhomTru('KENH', String(id))
                     return (
-                      <button key={id} type="button" onClick={() => doiNhomTru('KENH', String(id))}
-                        className={
-                          'rounded-full px-2 py-0.5 text-xs font-medium ring-1 ' +
-                          (tru ? 'bg-rose-100 text-rose-800 ring-rose-300 line-through' : 'bg-card text-muted-foreground ring-slate-300')
-                        }>
+                      <Toggle key={id} variant="outline" size="sm" pressed={tru} onPressedChange={() => doiNhomTru('KENH', String(id))}
+                        aria-label={`Gạch kênh ${tenKenh(id)}`}
+                        className={tru ? 'text-(--color-text-danger) line-through' : undefined}>
                         {tenKenh(id)}
-                      </button>
+                      </Toggle>
                     )
                   })}
                 </div>
@@ -368,7 +371,7 @@ export function CtkmForm({
 
       <Buoc tieuDe="Sản phẩm & mức giảm" phu="Đặt mức chung, hoặc chỉnh riêng từng mã">
         {chiTangQua && (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning-surface)">
             Chương trình <b>chỉ tặng quà</b>: đơn giá giữ nguyên, không giảm đồng nào.
             Danh sách sản phẩm bên dưới là <b>điều kiện nhận quà</b> — mua mã trong danh
             sách thì được quà. Để trống = mua gì cũng được quà. Quà khai ở bước 5.
@@ -421,7 +424,7 @@ export function CtkmForm({
                     {!chiTangQua && <><TableHead className="py-1 text-center">Mức riêng</TableHead><TableHead className="py-1 text-right">Giá sau giảm</TableHead></>}
                     <TableHead /></TableRow>
                 </TableHeader>
-                <TableBody className="divide-y divide-slate-200">
+                <TableBody>
                   {sp.map((s, i) => {
                     const g = giaCua(s.internal_code)
                     const m = mucApDung(s.muc, mucChung)
@@ -434,14 +437,14 @@ export function CtkmForm({
                         <TableCell className="py-1.5 text-right tabular-nums text-muted-foreground">{tien(g)}</TableCell>
                         {!chiTangQua && <>
                           <TableCell className="py-1.5 text-center">
-                            <Input type="number" className="w-24 rounded border border-border px-2 py-1 text-right text-sm"
+                            <Input type="number" className="w-24 text-right"
                               aria-label={`Mức giảm riêng của ${s.internal_code}`} placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
                               onChange={(e) => setSp((ds) => ds.map((x, j) => j === i ? { ...x, muc: e.target.value === '' ? null : Number(e.target.value) } : x))} />
                           </TableCell>
                           <TableCell className="py-1.5 text-right font-semibold tabular-nums text-(--color-text-info)">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</TableCell>
                         </>}
                         <TableCell className="py-1.5 text-right">
-                          <button type="button" className="text-muted-foreground hover:text-rose-600" onClick={() => setSp((ds) => ds.filter((_, j) => j !== i))}>✕</button>
+                          <Button type="button" variant="ghost" size="icon-sm" aria-label={`Bỏ ${s.internal_code}`} onClick={() => setSp((ds) => ds.filter((_, j) => j !== i))}><X aria-hidden="true" /></Button>
                         </TableCell>
                       </TableRow>
                     )
@@ -453,8 +456,7 @@ export function CtkmForm({
         </div>
 
         <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-border bg-card p-3 text-sm">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[#0e8c9a]"
-            checked={congDon} onChange={(e) => setCongDon(e.target.checked)} />
+          <Checkbox className="mt-0.5" checked={congDon} onCheckedChange={(c) => setCongDon(c === true)} />
           <span>
             <b>Cho cộng dồn với chương trình khác</b>
             <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -495,7 +497,7 @@ export function CtkmForm({
             </div>
           </div>
           {qua.length === 0 ? (
-            <p className={'py-3 text-center text-sm ' + (chiTangQua ? 'text-rose-600' : 'text-muted-foreground')}>
+            <p className={'py-3 text-center text-sm ' + (chiTangQua ? 'text-(--color-text-danger)' : 'text-muted-foreground')}>
               {chiTangQua
                 ? 'Chương trình đang đặt "chỉ tặng quà" mà chưa có món quà nào — nó sẽ không làm gì cả.'
                 : 'Chương trình này không có quà.'}
@@ -508,16 +510,16 @@ export function CtkmForm({
                     <div className="text-sm font-medium text-foreground">{spDs.find((x) => x.ma === q.internal_code_qua)?.ten ?? q.internal_code_qua}</div>
                     <div className="font-mono text-[11px] text-muted-foreground">{q.internal_code_qua}</div>
                   </div>
-                  <Input type="number" className="col-span-3 sm:col-span-1 rounded border border-border px-2 py-1 text-right text-sm"
+                  <Input type="number" className="col-span-3 sm:col-span-1 text-right"
                     aria-label={`Số lượng quà ${i + 1}`} value={q.so_luong} onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, so_luong: Number(e.target.value) || 1 } : x))} />
-                  <Input type="number" className="col-span-5 sm:col-span-3 rounded border border-border px-2 py-1 text-right text-sm"
+                  <Input type="number" className="col-span-5 sm:col-span-3 text-right"
                     aria-label={`Giá trị quy đổi quà ${i + 1}`} value={q.gia_tri_quy_doi ?? ''} placeholder="giá trị quy đổi"
                     onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, gia_tri_quy_doi: e.target.value === '' ? null : Number(e.target.value) } : x))} />
-                  <Input className="col-span-11 sm:col-span-3 rounded border border-border px-2 py-1 text-sm"
+                  <Input className="col-span-11 sm:col-span-3"
                     aria-label={`Điều kiện nhận quà ${i + 1}`} value={q.dieu_kien ?? ''} placeholder="điều kiện nhận"
                     onChange={(e) => setQua((ds) => ds.map((x, j) => j === i ? { ...x, dieu_kien: e.target.value || null } : x))} />
-                  <button type="button" className="col-span-1 text-muted-foreground hover:text-rose-600"
-                    onClick={() => setQua((ds) => ds.filter((_, j) => j !== i))}>✕</button>
+                  <Button type="button" variant="ghost" size="icon-sm" className="col-span-1 justify-self-end" aria-label={`Bỏ quà ${i + 1}`}
+                    onClick={() => setQua((ds) => ds.filter((_, j) => j !== i))}><X aria-hidden="true" /></Button>
                 </div>
               ))}
             </div>

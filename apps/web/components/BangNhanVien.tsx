@@ -197,8 +197,8 @@ export function BangNhanVien({
                       {nv.hoat_dong ? 'Đang hoạt động' : 'Đã khoá'}
                     </Button>
                     <div>
-                      <button
-                        type="button"
+                      <Button
+                        type="button" variant="ghost" size="xs"
                         disabled={dangChay || !nv.email}
                         title={nv.email ? 'Gửi email đặt lại mật khẩu' : 'Chưa có email'}
                         onClick={() => {
@@ -209,15 +209,14 @@ export function BangNhanVien({
                             return r
                           })
                         }}
-                        className="text-[11px] text-muted-foreground underline hover:text-foreground disabled:opacity-40 disabled:no-underline"
                       >
                         gửi lại mật khẩu
-                      </button>
+                      </Button>
                     </div>
                     {choMatKhau && (
                       <div>
-                        <button
-                          type="button"
+                        <Button
+                          type="button" variant="ghost" size="xs"
                           disabled={dangChay || !nv.email}
                           title={nv.email
                             ? 'Đặt mật khẩu ban đầu mới và bắt họ đổi ở lần đăng nhập tới'
@@ -231,10 +230,9 @@ export function BangNhanVien({
                               return r
                             })
                           }}
-                          className="text-[11px] text-muted-foreground underline hover:text-foreground disabled:opacity-40 disabled:no-underline"
                         >
                           cấp mật khẩu mới
-                        </button>
+                        </Button>
                       </div>
                     )}
 
@@ -243,8 +241,8 @@ export function BangNhanVien({
                         {hoiXoa[nv.id] ? (
                           <span className="text-[11px] text-(--color-text-danger)">
                             Xoá hẳn?{' '}
-                            <button
-                              type="button" disabled={dangChay}
+                            <Button
+                              type="button" variant="destructive" size="xs" disabled={dangChay}
                               onClick={() => {
                                 setHoiXoa((h) => ({ ...h, [nv.id]: false }))
                                 // Xoá người nào thì dọn luôn ô mật khẩu của người đó,
@@ -253,22 +251,19 @@ export function BangNhanVien({
                                 setMkVuaCap((m) => (m && m.email === nv.email ? null : m))
                                 luu(nv.id, null, () => xoaNhanSu(nv.id))
                               }}
-                              className="underline font-medium disabled:opacity-40"
                             >
                               xoá
-                            </button>
-                            {' · '}
-                            <button
-                              type="button"
+                            </Button>{' '}
+                            <Button
+                              type="button" variant="ghost" size="xs"
                               onClick={() => setHoiXoa((h) => ({ ...h, [nv.id]: false }))}
-                              className="underline text-muted-foreground"
                             >
                               huỷ
-                            </button>
+                            </Button>
                           </span>
                         ) : (
-                          <button
-                            type="button"
+                          <Button
+                            type="button" variant="ghost" size="xs" className="text-(--color-text-danger-ghost)"
                             disabled={dangChay}
                             title="Chỉ xoá được người chưa có dữ liệu gì trong hệ thống"
                             onClick={() => {
@@ -287,10 +282,9 @@ export function BangNhanVien({
                                 return { ok: true }
                               })
                             }}
-                            className="text-[11px] text-(--color-text-danger) underline hover:text-(--color-text-danger) disabled:opacity-40 disabled:no-underline"
                           >
                             xoá
-                          </button>
+                          </Button>
                         )}
                       </div>
                     )}

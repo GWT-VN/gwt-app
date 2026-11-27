@@ -37,7 +37,7 @@ export default async function KhoLichSuSuaPage({ searchParams }: { searchParams:
         </div>
       </Suspense>
 
-      <Bang dau={['Lúc', 'Hành động', 'Nguồn', 'Người', 'Dòng / mã', 'Thay đổi', 'Lý do']} trong={!dong.length}>
+      <Bang dau={['Lúc', 'Hành động', 'Nguồn', 'Người', 'Dòng / mã', 'Thay đổi', 'Lý do']} trong={!dong.length} dangLoc={!!(nguon || hanhDong)}>
         {dong.map((d) => {
           const doi = moTaDoi(d.truoc, d.sau)
           return (

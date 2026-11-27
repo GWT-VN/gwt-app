@@ -27,8 +27,7 @@ export default async function LichCuaToiPage() {
         />
 
         {!kt ? (
-          <EmptyState kieu="quyen" capTieuDe={2} tieuDe="Chưa có hồ sơ kỹ thuật" moTa="Tài khoản của bạn chưa được gắn với hồ sơ kỹ thuật (khớp theo email). Liên hệ quản trị để được cấp.
-          " />
+          <EmptyState kieu="quyen" capTieuDe={2} tieuDe="Chưa có hồ sơ kỹ thuật" moTa="Tài khoản của bạn chưa được gắn với hồ sơ kỹ thuật (khớp theo email). Liên hệ quản trị để được cấp." />
         ) : (
           <LichCuaToiKT rows={rows} />
         )}

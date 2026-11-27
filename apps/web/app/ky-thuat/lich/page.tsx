@@ -107,6 +107,7 @@ export default async function XemLichKyThuatPage({
       <TrangDuLieu className="max-w-5xl space-y-4">
         <PageHeader
           tieuDe="Lịch kỹ thuật đã lên"
+          meta={["Xem các chuyến đã gán cho kỹ thuật. Gán chuyến mới ở nút Gán lịch kỹ thuật."]}
           hanhDong={<Button asChild variant="outline"><Link href="/ky-thuat">Gán lịch kỹ thuật</Link></Button>}
         />
 

@@ -113,4 +113,11 @@ describe('lib/kho/ghi — ghi sổ kho qua 5 hàm wh_* trong giao dịch READ WR
     expect(doiLoiGhi(loiDB('function public.wh_sua_dong(jsonb) does not exist', '42883')).message).toMatch(/chưa áp migration/)
     expect(doiLoiGhi(loiDB('permission denied for function wh_sua_dong', '42501')).message).toMatch(/chưa được cấp quyền ghi/)
   })
+
+  it('thiếu KHO_DB_URL (lỗi cấu hình) → câu rõ cho quản trị, không bảo "kiểm tra Lịch sử sửa"', async () => {
+    const lay = async (): Promise<KetNoi> => { throw new Error('Thiếu KHO_DB_URL') }
+    const p = taoKhoGhi(lay, { nguoi: 'ai@gwt.vn' }).huyDong(1, 'trùng')
+    await expect(p).rejects.toThrow(/thiếu KHO_DB_URL.*chưa ghi gì/)
+    await expect(p).rejects.not.toThrow(/Lịch sử sửa/)
+  })
 })

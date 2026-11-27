@@ -141,7 +141,6 @@ export function CustomerForm({
 
   return (
     <FormLayout onSubmit={submit} noValidate={false}>
-      {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       {khoaSheet && (
         <div className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning)">
           <b>Khách từ Google Sheet.</b> Tên · SĐT · địa chỉ · tỉnh · công ty xuất hoá đơn · MST ·
@@ -294,6 +293,8 @@ export function CustomerForm({
         </Card>
       )}
 
+      {/* Lỗi NGAY TRÊN nút gửi (như OrderForm) — để ở đầu form là người bấm "Tạo khách" ở cuối trang không thấy. */}
+      {error && <Alert color="danger"><AlertDescription>{error}</AlertDescription></Alert>}
       <FormFooter>
         <Button type="submit" loading={submitting} disabled={submitting}>
           {submitting ? 'Đang lưu…' : isEdit ? 'Lưu thay đổi' : 'Tạo khách'}

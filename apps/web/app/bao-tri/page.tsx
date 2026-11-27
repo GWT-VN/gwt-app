@@ -61,7 +61,7 @@ export default async function BaoTriPage({
         <TrangDuLieu className="max-w-7xl space-y-4">
           <PageHeader
             tieuDe="Lịch bảo trì"
-            meta={["Gói bảo trì theo hợp đồng"]}
+            meta={["Gói bảo trì theo hợp đồng", "bấm “Đã bảo trì” sau mỗi chuyến"]}
           />
 
           <Suspense>

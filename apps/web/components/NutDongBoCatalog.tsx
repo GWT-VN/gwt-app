@@ -60,7 +60,7 @@ export function NutDongBoCatalog({ logs }: { logs: CatalogSyncLog[] }) {
             {logs.map((l) => (
               <li key={l.id} className="px-3 py-2.5 text-sm flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <Badge color={l.ok ? 'success' : 'danger'}>{l.ok ? 'Thành công' : 'Lỗi'}</Badge>
+                  <Badge variant="soft" color={l.ok ? 'success' : 'danger'}>{l.ok ? 'Thành công' : 'Lỗi'}</Badge>
                   <span className="text-muted-foreground ml-2">{khiNao(l.chay_luc)}</span>
                   {l.thong_bao && <div className="text-xs text-(--color-text-warning) mt-0.5">{l.thong_bao}</div>}
                   {l.chi_tiet && (

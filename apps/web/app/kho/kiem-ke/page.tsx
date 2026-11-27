@@ -25,8 +25,9 @@ export default async function KhoKiemKePage({ searchParams }: { searchParams: Pr
   return (
     <KhungKho tieuDe="Kiểm kê" kho={k} moTa={`Tồn sổ tính từ dòng đã duyệt · bot ghi gần nhất ${ngayVN(r.v.ghiGanNhat)}`}>
       <div className="rounded-xl border border-border bg-(--color-background-warning-surface) p-3 text-sm text-(--color-text-warning-surface)">
-        Chỉ nhập <b>SL đếm</b> cho các mã đã kiểm, rồi chọn <b>Ghi kiểm kê</b>.
-        Nếu có chênh lệch, Kho ghi một dòng điều chỉnh theo tồn sổ tại thời điểm ghi.
+        Điền <b>SL đếm thực tế</b> cho những mã đã đếm (ô bỏ trống = không kiểm), rồi bấm <b>Ghi kiểm kê</b>.
+        Kiểm kê <b>có hiệu lực ngay</b>: mã nào lệch sẽ được ghi một dòng <b>“Điều chỉnh”</b> (ngày hôm nay) bằng đúng phần chênh,
+        và ghi vào Lịch sử sửa. Tồn sổ dùng để tính chênh là tồn LÚC GHI (có thể khác bảng dưới nếu bot vừa ghi thêm).
       </div>
       {!dm.ok && <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning-surface)">Chưa tải được danh mục mã ({dm.loi}) — chỉ kiểm được các mã có trong bảng.</p>}
       <BangKiemKe kho={k} dong={r.v.dong.map((d) => ({ ma: d.internal_code, ten: d.ten, don_vi: d.don_vi, ton: d.ton }))} danhMuc={dm.ok ? dm.v : []} />

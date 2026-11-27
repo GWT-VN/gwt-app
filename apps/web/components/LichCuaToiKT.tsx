@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -101,11 +102,10 @@ function DoNuocViec({
     )
   }
 
-  const oNum = 'w-20 rounded border px-1.5 py-0.5 text-xs'
   return (
     <div className="bg-card rounded-lg border p-2.5 space-y-1.5 text-xs">
       <label className="flex items-center gap-2 text-muted-foreground">Ngày làm thực tế
-        <input type="date" max={HOM_NAY()} value={ngay} onChange={(e) => setNgay(e.target.value)} className="rounded border px-2 py-1" />
+        <Input type="date" max={HOM_NAY()} value={ngay} onChange={(e) => setNgay(e.target.value)} className="w-40" />
       </label>
       <div className="grid grid-cols-[auto_1fr_1fr] gap-x-2 gap-y-1 items-center">
         <span />
@@ -114,16 +114,16 @@ function DoNuocViec({
         {ct.map((c) => (
           <div key={c.key} className="contents">
             <span className="text-muted-foreground">{c.nhan}</span>
-            <input inputMode="decimal" value={truoc[c.t] ?? ''} placeholder="chung điểm"
-              onChange={(e) => setTruoc((cur) => ({ ...cur, [c.t]: e.target.value }))} className={oNum} />
-            <input inputMode="decimal" value={sau[c.s] ?? ''} placeholder="sau"
-              onChange={(e) => setSau((cur) => ({ ...cur, [c.s]: e.target.value }))} className={oNum} />
+            <Input inputMode="decimal" value={truoc[c.t] ?? ''} placeholder="chung điểm" aria-label={`${c.nhan} trước lọc`}
+              onChange={(e) => setTruoc((cur) => ({ ...cur, [c.t]: e.target.value }))} />
+            <Input inputMode="decimal" value={sau[c.s] ?? ''} placeholder="sau" aria-label={`${c.nhan} sau lọc`}
+              onChange={(e) => setSau((cur) => ({ ...cur, [c.s]: e.target.value }))} />
           </div>
         ))}
       </div>
       {mmloai === null && <p className="text-[10px] text-muted-foreground">Không rõ loại máy — hiện đủ 4 chỉ tiêu.</p>}
       <p className="text-[10px] text-muted-foreground">Số lẻ gõ <code>7.9</code> hay <code>7,9</code> đều được.</p>
-      <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú khác" className="w-full rounded border px-2 py-1" />
+      <Input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="Ghi chú khác" aria-label="Ghi chú khác" />
       <div className="flex items-center gap-2 pt-0.5">
         <Button onClick={luu} disabled={busy} size="sm">{busy ? 'Đang lưu…' : 'Lưu kết quả'}</Button>
         <Button onClick={() => setMo(false)} variant="ghost" size="sm">Đóng</Button>

@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Card } from '@/components/ui/card'
 import { Combobox } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
@@ -115,14 +116,14 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
           <div className="rounded-lg border bg-muted p-2 text-xs">
             <p className="text-muted-foreground mb-1">
               Lịch tuần của kỹ thuật ({vnDate(tuan.tu)} – {vnDate(tuan.den)}): {tuan.chuyen.length} chuyến · {tuan.nghi.length} ngày nghỉ
-              <Button onClick={baoNghi} className="text-(--color-text-warning) underline ml-2">Báo nghỉ ngày {vnDate(ngay)}</Button>
+              <Button variant="ghost" size="xs" className="ml-2 text-(--color-text-warning-ghost)" onClick={baoNghi}>Báo nghỉ ngày {vnDate(ngay)}</Button>
             </p>
             {tuan.chuyen.length === 0 && tuan.nghi.length === 0 ? (
               <p className="text-muted-foreground">Trống — rảnh cả tuần.</p>
             ) : (
               <ul className="space-y-0.5">
                 {tuan.nghi.map((n) => (
-                  <li key={n.id} className="text-(--color-text-warning)">🌙 {vnDate(n.ngay)}: nghỉ phép{n.ly_do ? ` (${n.ly_do})` : ''} <Button onClick={() => boNghi(n.id)} className="text-muted-foreground underline">bỏ</Button></li>
+                  <li key={n.id} className="text-(--color-text-warning)">🌙 {vnDate(n.ngay)}: nghỉ phép{n.ly_do ? ` (${n.ly_do})` : ''} <Button variant="ghost" size="xs" onClick={() => boNghi(n.id)}>bỏ</Button></li>
                 ))}
                 {tuan.chuyen.map((c) => (
                   <li key={c.id} className="text-muted-foreground">📅 {vnDate(c.ngay)}: {c.ten_khach ?? c.dia_chi ?? 'chuyến'} · {c.viec.map((v) => NHAN_LOAI_VIEC[v.loai_viec] ?? v.loai_viec).join(', ')}</li>
@@ -133,13 +134,13 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
         )}
         {khachId && diaChi.trim() && ctx?.dia_chi !== diaChi.trim() && (
           <label className="flex items-center gap-1.5 text-xs text-(--color-text-warning)">
-            <input type="checkbox" checked={capMay} onChange={(e) => setCapMay(e.target.checked)} />
+            <Checkbox checked={capMay} onCheckedChange={(c) => setCapMay(c === true)} />
             Khách chuyển địa chỉ mới — cập nhật địa chỉ này cho máy của khách (sẽ hỏi xác nhận)
           </label>
         )}
         <div>
           <p className="text-xs text-muted-foreground mb-1">Khách (chọn để tự lấy địa chỉ + bộ/máy/ticket):</p>
-          {khachId ? <p className="text-xs text-(--color-text-success)">✓ đã chọn <Button onClick={() => { setKhachId(''); setCtx(null) }} className="underline text-muted-foreground ml-1">bỏ</Button></p> : <KhachPicker onPick={(id) => chonKhach(id)} />}
+          {khachId ? <p className="text-xs text-(--color-text-success)">✓ đã chọn <Button variant="link" className="ml-1 text-xs" onClick={() => { setKhachId(''); setCtx(null) }}>bỏ</Button></p> : <KhachPicker onPick={(id) => chonKhach(id)} />}
         </div>
 
         <div className="space-y-1.5">
@@ -194,7 +195,7 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
             </div>
           ))}
           <Button onClick={() => setViec((vs) => [...vs, { loai_viec: 'khac', mo_ta: '', ref: '' }])} variant="ghost" size="sm">+ thêm việc</Button>
-          {!khachId && <p className="text-[11px] text-amber-500">Chọn khách ở trên để hiện danh sách bộ/máy/ticket cho từng việc (không chọn vẫn nhập tay được).</p>}
+          {!khachId && <p className="text-[11px] text-(--color-text-warning)">Chọn khách ở trên để hiện danh sách bộ/máy/ticket cho từng việc (không chọn vẫn nhập tay được).</p>}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
