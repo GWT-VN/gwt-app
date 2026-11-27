@@ -50,7 +50,9 @@ export const tableWrapVien = cn(
  */
 export const tableWrapLuoi = cn(
   tableWrapVien,
-  '[&_th:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]! [&_td:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]!',
+  // Không vạch giữa cột ô chọn và cột đầu (CEO 27/11, học Twenty) — ô chứa ô tick bỏ qua.
+  '[&_th:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-08)]!',
+  '[&_td:not(:last-child):not(:has(>input[type=checkbox],>[role=checkbox]))]:[border-right:1px_solid_var(--alpha-08)]!',
   '[&_th]:[border-top-style:none]! [&_tbody>tr:last-child>td]:[border-bottom-style:none]!',
 )
 
