@@ -168,7 +168,8 @@ export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
  */
 export const xnTieuDe = cn(kv, 'shrink-0 px-6 pt-4 pb-2 text-[20px] leading-[26px] font-semibold text-foreground [overflow-wrap:anywhere]')
 // Đệm 12 hai bên: đệm 12 của tab `line` TOẢ RA NGOÀI → icon/chữ tab đầu thẳng mép nội dung 24 (đo 27/11: trước ở 36).
-export const xnHangTab = cn(kv, 'shrink-0 px-3 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
+// Tab trải hết, KHÔNG gom "+N Thêm" (CEO 27/11 "bỏ hành vi dropdown, chỉ trải tab ra") → thừa chỗ thì cuộn ngang, giấu thanh cuộn.
+export const xnHangTab = cn(kv, 'shrink-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-3 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
 /**
  * Bố cục có `the.thuocTinh` (học Notion — CEO 27/11 "chuyển tab xuống dưới, ở trên là thông tin các cột"): MỘT vùng cuộn
  * chứa tiêu đề → thuộc tính → hàng tab (dính đỉnh vùng cuộn khi cuộn qua) → nội dung tab. Ẩn thanh cuộn.

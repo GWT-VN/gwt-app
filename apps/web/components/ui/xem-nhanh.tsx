@@ -62,7 +62,7 @@ const LOP_MO = '[data-state="open"], [data-state="delayed-open"], [data-state="i
  *   TRƯỚC listener Esc của lớp (cùng document capture) nên phải tự nhường, không thì lớp kẹt mở.
  * - Không tự giữ state: bên gọi giữ bản ghi đang xem (thường là tham số URL) và truyền `the`.
  * - `the.tab` (học bố cục Twenty 26/11): hàng tab `line` có icon dưới đầu thẻ, đứng yên khi nội dung cuộn; tab không vừa
- *   gom vào "+N Thêm ▾" (`thuGon`). Bên gọi giữ tab đang chọn (`value` / `onDoi`). Không có `tab` → thân như cũ.
+ *   KHÔNG gom "+N Thêm" — trải hết, thừa thì cuộn ngang (CEO 27/11). Bên gọi giữ tab đang chọn (`value` / `onDoi`). Không có `tab` → thân như cũ.
  * - `the.chan`: thanh thao tác dính đáy thẻ, dồn phải (⋮ menu + nút chính) — không cuộn theo nội dung.
  */
 export function XemNhanh({
@@ -216,7 +216,7 @@ export function XemNhanh({
                   {the.thuocTinh}
                 </div>
                 <div className={cn(xnHangTab, xnHangTabDinh)}>
-                  <TabsList variant="line" thuGon aria-label={`Thông tin ${the.ma}`}>
+                  <TabsList variant="line" aria-label={`Thông tin ${the.ma}`}>
                     {the.tab.ds.map((x) => (
                       <TabsTrigger key={x.gt} value={x.gt}>
                         {x.icon}
@@ -237,7 +237,7 @@ export function XemNhanh({
           ) : the.tab ? (
             <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
               <div className={xnHangTab}>
-                <TabsList variant="line" thuGon aria-label={`Thông tin ${the.ma}`}>
+                <TabsList variant="line" aria-label={`Thông tin ${the.ma}`}>
                   {the.tab.ds.map((x) => (
                     <TabsTrigger key={x.gt} value={x.gt}>
                       {x.icon}
