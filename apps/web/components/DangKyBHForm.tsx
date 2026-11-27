@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { CaretDown } from '@phosphor-icons/react/ssr'
 
@@ -178,10 +179,10 @@ export function DangKyBHForm() {
     <div className="bg-card rounded-(--radius-xl) border p-5 space-y-4 max-w-2xl">
       <section className="space-y-2">
         <h2 className="text-base font-semibold text-foreground">Thiết bị</h2>
-        <label className="mt-1 flex items-center gap-2 text-sm text-foreground">
-          <input type="checkbox" checked={chuaSerial} onChange={(e) => datChuaSerial(e.target.checked)} />
+        <ChoiceLabel className="mt-1">
+          <Checkbox checked={chuaSerial} onCheckedChange={(v) => datChuaSerial(v === true)} />
           Chưa có serial — kích hoạt bảo hành trước, bổ sung serial sau
-        </label>
+        </ChoiceLabel>
         {chuaSerial ? (
           <>
             {chonThietBi}
@@ -211,11 +212,15 @@ export function DangKyBHForm() {
                 <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-card shadow-lg">
                   {serialLoc.map((s) => (
                     <li key={s.serial}>
-                      <Button type="button" onMouseDown={(e) => e.preventDefault()}
+                      <Button type="button" variant="ghost" size="sm" shape="rounded"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => chonSerialTrongList(s)}
-                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted tabular-nums">
-                        {s.serial}
-                        <span className="text-muted-foreground">{s.ten_khach ? ` · đã lắp: ${s.ten_khach}` : ' · tồn kho'}</span>
+                        className="h-auto w-full justify-start py-1.5 text-left leading-5 whitespace-normal [overflow-wrap:anywhere] tabular-nums">
+                        {/* Một span bọc: serial + tên khách chảy cùng dòng, hết chỗ thì xuống dòng (flex con riêng sẽ bóp cột). */}
+                        <span>
+                          {s.serial}
+                          <span className="text-muted-foreground">{s.ten_khach ? ` · đã lắp: ${s.ten_khach}` : ' · tồn kho'}</span>
+                        </span>
                       </Button>
                     </li>
                   ))}
@@ -285,10 +290,10 @@ export function DangKyBHForm() {
         {/* Hỏi theo chiều KHẲNG ĐỊNH: mặc định lắp tại nhà khách, tick khi khác.
             Bản trước hỏi ngược ("dùng địa chỉ khách", mặc định đã tick) nên tick
             vào lại làm ẩn mất ô nhập — đúng ngược ý người dùng đang định làm. */}
-        <label className="flex items-center gap-1.5 text-sm text-foreground mt-1">
-          <input type="checkbox" checked={!dungDcKhach} onChange={(e) => setDungDcKhach(!e.target.checked)} />
+        <ChoiceLabel className="mt-1">
+          <Checkbox checked={!dungDcKhach} onCheckedChange={(v) => setDungDcKhach(v !== true)} />
           Địa chỉ lắp khác địa chỉ khách
-        </label>
+        </ChoiceLabel>
         {!dungDcKhach && (
           <>
             <Input value={dcLap} onChange={(e) => setDcLap(e.target.value)} placeholder="Số nhà, thôn/xã, quận/huyện…"
@@ -336,9 +341,8 @@ export function DangKyBHForm() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button onClick={luu}
-          disabled={busy || !khachId || (chuaSerial ? !mayCode : (!serial.trim() || daKichHoat))}
-          className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 font-medium disabled:opacity-50">
+        <Button onClick={luu} loading={busy}
+          disabled={!khachId || (chuaSerial ? !mayCode : (!serial.trim() || daKichHoat))}>
           {busy ? 'Đang đăng ký…' : chuaSerial ? 'Kích hoạt bảo hành (chưa có serial)' : 'Đăng ký + kích hoạt bảo hành'}
         </Button>
         {!chuaSerial && daKichHoat && <span className="text-sm text-(--color-text-danger)">Serial đã kích hoạt — chọn serial khác.</span>}

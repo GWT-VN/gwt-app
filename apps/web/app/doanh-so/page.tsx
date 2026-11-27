@@ -51,34 +51,34 @@ export default async function DoanhSoPage() {
             [...theoThang.entries()].map(([thang, ds]) => {
               const tongThang = ds.reduce((s, r) => s + (r.tong_tien ?? 0), 0)
               return (
-                <section key={thang} className="bg-card rounded-(--radius-xl) border overflow-hidden">
-                  <div className="flex items-baseline justify-between px-4 py-2.5 bg-muted border-b">
+                <Card key={thang} className="overflow-hidden p-0">
+                  <div className="flex items-baseline justify-between border-b px-4 py-3">
                     <h2 className="font-medium text-foreground">{thangVN(thang)}</h2>
                     <span className="font-semibold text-foreground">{tien(tongThang)}</span>
                   </div>
-                  <Table>
-                    <TableHeader className="text-muted-foreground">
+                  <Table variant="thuong">
+                    <TableHeader>
                       <TableRow>
-                        <TableHead className="text-left px-4 py-2 font-medium">Hạng mục</TableHead>
-                        <TableHead className="text-left px-4 py-2 font-medium">Mã</TableHead>
-                        <TableHead className="text-right px-4 py-2 font-medium">Lượt</TableHead>
-                        <TableHead className="text-right px-4 py-2 font-medium">SL</TableHead>
-                        <TableHead className="text-right px-4 py-2 font-medium">Thành tiền</TableHead>
+                        <TableHead>Hạng mục</TableHead>
+                        <TableHead>Mã</TableHead>
+                        <TableHead phai>Lượt</TableHead>
+                        <TableHead phai>SL</TableHead>
+                        <TableHead phai>Thành tiền</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {ds.map((r) => (
                         <TableRow key={r.catalog_code ?? 'x'}>
-                          <TableCell className="px-4 py-2 text-foreground">{r.ten_hang_muc ?? '(không rõ)'}</TableCell>
-                          <TableCell className="px-4 py-2 tabular-nums text-xs text-muted-foreground">{r.catalog_code ?? '—'}</TableCell>
-                          <TableCell className="px-4 py-2 text-right text-muted-foreground">{r.so_luot}</TableCell>
-                          <TableCell className="px-4 py-2 text-right text-muted-foreground">{r.tong_so_luong ?? '—'}</TableCell>
-                          <TableCell className="px-4 py-2 text-right font-medium text-foreground">{tien(r.tong_tien)}</TableCell>
+                          <TableCell>{r.ten_hang_muc ?? '(không rõ)'}</TableCell>
+                          <TableCell className="tabular-nums text-muted-foreground">{r.catalog_code ?? '—'}</TableCell>
+                          <TableCell phai className="tabular-nums">{r.so_luot}</TableCell>
+                          <TableCell phai className="tabular-nums">{r.tong_so_luong ?? '—'}</TableCell>
+                          <TableCell phai className="tabular-nums font-medium">{tien(r.tong_tien)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </section>
+                </Card>
               )
             })
           )}

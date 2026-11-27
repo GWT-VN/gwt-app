@@ -128,9 +128,10 @@ export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
                 <TableCell className="px-4 py-2.5 whitespace-nowrap">
                   {r.customer_id ? (
                     <Button
+                      size="sm"
                       onClick={() => chay(r)}
-                      disabled={!chayDuoc || busy === k}
-                      className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium disabled:opacity-40">
+                      loading={busy === k}
+                      disabled={!chayDuoc}>
                       {busy === k ? 'Đang kích hoạt…' : 'Kích hoạt BH'}
                     </Button>
                   ) : (

@@ -4,6 +4,7 @@ import { duLieuTanSuat, soMayDangChay } from '@/app/ticket/loi-actions'
 import { ManV2 } from '@/components/khung/ManV2'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { Input } from '@/components/ui/input'
@@ -104,9 +105,9 @@ export default async function BaoCaoLoiPage({ searchParams }: { searchParams: Pr
                   <Input type="month" name="den" defaultValue={den} className="mt-1" />
                 </label>
                 {tab !== 'thang' && (
-                  <label className="flex items-center gap-1.5 text-sm text-muted-foreground pb-1">
-                    <input type="checkbox" name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
-                  </label>
+                  <ChoiceLabel className="pb-1.5">
+                    <Checkbox name="huy" value="1" defaultChecked={gomHuy} /> Gồm ticket đã huỷ
+                  </ChoiceLabel>
                 )}
                 {tab === 'thang' && nhom && <input type="hidden" name="nhom" value={nhom} />}
                 {tab === 'thang' && may && <input type="hidden" name="may" value={may} />}

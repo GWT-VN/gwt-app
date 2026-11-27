@@ -16,6 +16,7 @@ import { docThongTinLap } from '@/app/may/huy-lap-actions'
 import { QuanLyLap } from '@/components/bh/QuanLyLap'
 import { docAnToan } from '@/lib/loi/anToan'
 import { ManV2 } from '@/components/khung/ManV2'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
@@ -79,10 +80,7 @@ export default async function MachinePage({ params }: { params: Promise<{ serial
             <NutQuayLai macDinh="/" />
           </div>
 
-          <div className="flex items-center gap-3">
-            <PageHeader tieuDe={m.product_name} />
-            <WarrantyBadge m={m} />
-          </div>
+          <PageHeader tieuDe={m.product_name} meta={[<WarrantyBadge key="bh" m={m} />]} />
 
           {cho.cho_serial && <BoSungSerial maTam={m.serial} internalCode={cho.internal_code ?? m.internal_code} choSua={quyen.kichHoat} />}
           {lap && <QuanLyLap serial={m.serial} tt={lap} choSua={quyen.kichHoat} />}
@@ -194,10 +192,10 @@ async function MayKhoView({ serial }: { serial: string }) {
             <NutQuayLai macDinh="/serial" />
           </div>
 
-          <div className="flex items-center gap-3">
-            <PageHeader tieuDe={kho.ten_noi_bo ?? kho.serial} />
-            <span className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground whitespace-nowrap">Máy trong kho — chưa lắp khách</span>
-          </div>
+          <PageHeader
+            tieuDe={kho.ten_noi_bo ?? kho.serial}
+            meta={[<Badge key="kho" variant="soft" color="secondary">Máy trong kho — chưa lắp khách</Badge>]}
+          />
 
           <section className="bg-card rounded-(--radius-xl) border p-5">
             <h2 className="font-medium text-foreground mb-3">Thông tin máy</h2>

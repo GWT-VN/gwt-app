@@ -6,6 +6,7 @@ import { MucDoBadge, BaoHangBadge } from '@/components/NhomLoiBadge'
 import { OTimKiem, ThanhDangLoc } from '@/bang'
 import { ManV2 } from '@/components/khung/ManV2'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -71,8 +72,9 @@ export default async function NhomLoiPage({
 
           <Alert>
             <AlertDescription>
-              Nhóm được gom tự động từ mô tả lỗi. Trường loại ticket của Odoo chỉ ghi kênh tiếp nhận.
-              Một ticket có thể thuộc nhiều nhóm.
+              Nhóm được gom <strong>tự động từ nội dung mô tả lỗi</strong>, không theo &ldquo;loại ticket&rdquo; của Odoo —
+              vì loại ticket là kênh tiếp nhận (&ldquo;Khác&rdquo; chiếm 25%), không phải triệu chứng.
+              Một ticket có thể thuộc nhiều nhóm. Bấm vào nhóm để soi từng ticket.
             </AlertDescription>
           </Alert>
 
@@ -162,9 +164,9 @@ export default async function NhomLoiPage({
                     <span className="text-xs text-muted-foreground">{c.so} ticket</span>
                     <span className="flex flex-wrap gap-1">
                       {c.tickets.map((tc) => (
-                        <Link key={tc} href={`/ticket/${tc}`} className="px-1.5 py-0.5 rounded border text-[11px] font-mono text-muted-foreground hover:bg-muted">
-                          {tc}
-                        </Link>
+                        <Badge key={tc} asChild variant="outline" className="tabular-nums">
+                          <Link href={`/ticket/${tc}`}>{tc}</Link>
+                        </Badge>
                       ))}
                     </span>
                     {quyen.cauHinh && (

@@ -3,10 +3,11 @@
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { CaretDown } from '@phosphor-icons/react/ssr'
+import { CaretDown, Plus, X } from '@phosphor-icons/react/ssr'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { taoKhachChoDuyet, traKhachChung, type Kenh } from '@/app/actions'
@@ -33,7 +34,16 @@ import { canhBaoSdt, chuanHoaSdt } from '@/lib/sdt'
  * `onXong` có = đang mở trong hộp thoại (đóng lại rồi tải lại danh sách);
  * không có = đang ở trang riêng (nhảy thẳng vào hồ sơ khách vừa tạo).
  */
-export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => void }) {
+export function TaoKhachForm({
+  kenh,
+  onXong,
+  onCoDuLieu,
+}: {
+  kenh: Kenh[]
+  onXong?: () => void
+  /** Báo cho hộp thoại biết form đã có chữ chưa — để hỏi trước khi đóng làm mất dữ liệu. */
+  onCoDuLieu?: (co: boolean) => void
+}) {
   const [f, setF] = useState({
     full_name: '', primary_phone: '', address: '', province: '',
     notes: '', ten_cty: '', mst: '', dia_chi_cty: '', sdt_cty: '', email_cty: '',
@@ -49,6 +59,10 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
   const [err, setErr] = useState<string | null>(null)
   const [trungId, setTrungId] = useState<string | null>(null)
   const router = useRouter()
+
+  const coDuLieu =
+    Object.values(f).some((v) => v.trim() !== '') || kenhId !== '' || sdtPhu.length > 0 || dcPhu.length > 0
+  useEffect(() => onCoDuLieu?.(coDuLieu), [coDuLieu, onCoDuLieu])
 
   const sdtLuuDuoc = chuanHoaSdt(f.primary_phone).hopLe
   const dat = (k: keyof typeof f, v: string) => setF({ ...f, [k]: v })
@@ -199,8 +213,10 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
             <div className="rounded-lg border border-border p-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-foreground">SĐT phụ</span>
-                <Button type="button" onClick={() => setSdtPhu([...sdtPhu, { phone: '', contact_name: '', role: 'other', zalo_ok: true, ghi_chu: '' }])}
-                  className="text-xs text-foreground underline">＋ thêm dòng</Button>
+                <Button type="button" variant="ghost" size="sm"
+                  onClick={() => setSdtPhu([...sdtPhu, { phone: '', contact_name: '', role: 'other', zalo_ok: true, ghi_chu: '' }])}>
+                  <Plus aria-hidden="true" /> Thêm SĐT
+                </Button>
               </div>
               {sdtPhu.length === 0 && <p className="mt-1 text-xs text-muted-foreground">Chưa có. Số công ty, giúp việc, người nhà…</p>}
               {sdtPhu.map((x, i) => (
@@ -220,16 +236,18 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                     <NativeSelectOption value="manager">Quản lý</NativeSelectOption>
                     <NativeSelectOption value="other">Khác</NativeSelectOption>
                   </NativeSelect>
-                  <label className="flex items-center gap-1.5 text-sm text-foreground">
-                    <input type="checkbox" checked={x.zalo_ok}
-                      onChange={(e) => setSdtPhu(sdtPhu.map((y, j) => j === i ? { ...y, zalo_ok: e.target.checked } : y))} />
+                  <ChoiceLabel>
+                    <Checkbox checked={x.zalo_ok}
+                      onCheckedChange={(v) => setSdtPhu(sdtPhu.map((y, j) => j === i ? { ...y, zalo_ok: v === true } : y))} />
                     Zalo
-                  </label>
+                  </ChoiceLabel>
                   <Input value={x.ghi_chu} placeholder="Ghi chú: giờ gọi được, số của ai…"
                     onChange={(e) => setSdtPhu(sdtPhu.map((y, j) => j === i ? { ...y, ghi_chu: e.target.value } : y))}
                     className="min-w-[180px] flex-1 rounded-lg border border-border px-2 py-1.5 text-sm" />
-                  <Button type="button" onClick={() => setSdtPhu(sdtPhu.filter((_, j) => j !== i))}
-                    className="text-xs text-muted-foreground underline hover:text-(--color-text-danger)">xoá</Button>
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label={`Xoá SĐT phụ ${i + 1}`}
+                    onClick={() => setSdtPhu(sdtPhu.filter((_, j) => j !== i))}>
+                    <X aria-hidden="true" />
+                  </Button>
                 </div>
               ))}
             </div>
@@ -237,8 +255,10 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
             <div className="rounded-lg border border-border p-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-foreground">Địa chỉ phụ</span>
-                <Button type="button" onClick={() => setDcPhu([...dcPhu, { dia_chi: '', loai: 'nha', tinh: '', ghi_chu: '' }])}
-                  className="text-xs text-foreground underline">＋ thêm dòng</Button>
+                <Button type="button" variant="ghost" size="sm"
+                  onClick={() => setDcPhu([...dcPhu, { dia_chi: '', loai: 'nha', tinh: '', ghi_chu: '' }])}>
+                  <Plus aria-hidden="true" /> Thêm địa chỉ
+                </Button>
               </div>
               {/* KHÔNG có loại "công ty" ở đây: địa chỉ công ty đã là ô riêng trong
                   khối Thông tin công ty (in nguyên văn lên hoá đơn). Để hai chỗ cùng
@@ -266,8 +286,10 @@ export function TaoKhachForm({ kenh, onXong }: { kenh: Kenh[]; onXong?: () => vo
                   <Input aria-label={`Ghi chú địa chỉ phụ ${i + 1}`} value={x.ghi_chu} placeholder="Ghi chú: nhà bố mẹ, kho hàng…"
                     onChange={(e) => setDcPhu(dcPhu.map((y, j) => j === i ? { ...y, ghi_chu: e.target.value } : y))}
                     className="w-40 rounded-lg border border-border px-2 py-1.5 text-sm" />
-                  <Button type="button" onClick={() => setDcPhu(dcPhu.filter((_, j) => j !== i))}
-                    className="pb-1.5 text-xs text-muted-foreground underline hover:text-(--color-text-danger)">xoá</Button>
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label={`Xoá địa chỉ phụ ${i + 1}`}
+                    onClick={() => setDcPhu(dcPhu.filter((_, j) => j !== i))}>
+                    <X aria-hidden="true" />
+                  </Button>
                 </div>
               ))}
             </div>

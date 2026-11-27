@@ -130,7 +130,9 @@ export function LanLoiTiepTheo({ code, ds, choSua, lanKe, lanDau }: {
   const [canXoa, setCanXoa] = useState<LanLoi | null>(null)
   const [loiXoa, setLoiXoa] = useState<string | null>(null)
   const router = useRouter()
-  const moiNhat = ds.at(-1)?.id ?? 'lan-1'
+  // Mọi lần mở sẵn, xếp theo thời gian (Lần 1 → mới nhất): kỹ thuật đọc liền một mạch lịch sử, không phải bấm mở
+  // từng lần. Key theo danh sách id → thêm/xoá lần thì Accordion dựng lại, lần mới cũng mở.
+  const tatCa = ['lan-1', ...ds.map((l) => l.id)]
 
   function xong<T extends { ok: boolean }>(r: T): T {
     if (r.ok) {
@@ -154,8 +156,9 @@ export function LanLoiTiepTheo({ code, ds, choSua, lanKe, lanDau }: {
 
   return (
     <div className="space-y-3">
-      <Accordion key={moiNhat} type="multiple" defaultValue={[moiNhat]}>
-        {[...ds].reverse().map((l) => (
+      <Accordion key={tatCa.join()} type="multiple" defaultValue={tatCa}>
+        {lanDau}
+        {ds.map((l) => (
           <MucLanLoi key={l.id} id={l.id} lan={l.lan} ngay={ngayCuaLan(l.ngay, l.created_at)} moTa={l.mo_ta} xuLy={l.xu_ly}>
             {dangSua === l.id ? (
               <FormCap dau={`Sửa lần ${l.lan}`} moTa0={l.mo_ta} xuLy0={l.xu_ly ?? ''}
@@ -174,7 +177,6 @@ export function LanLoiTiepTheo({ code, ds, choSua, lanKe, lanDau }: {
             )}
           </MucLanLoi>
         ))}
-        {lanDau}
       </Accordion>
 
       {choSua && (dangThem ? (

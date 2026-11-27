@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { nhapPhuongAnDuyet, xuatFileChuyenGia, type XemTruocDuyet } from '@/app/ticket/xuat-chuyen-gia-actions'
@@ -74,10 +75,14 @@ export function NutXuatChuyenGia() {
         <Card className="max-w-3xl space-y-2 text-sm">
           <div className="font-medium text-foreground">Xem trước — chưa ghi gì</div>
           {xem.loi.length > 0 && (
-            <ul className="text-destructive bg-muted rounded p-2 text-xs space-y-0.5">
-              {xem.loi.map((l, i) => <li key={i}>{l}</li>)}
-              <li className="font-medium">Sửa file rồi chọn lại — có lỗi thì không ghi dòng nào.</li>
-            </ul>
+            <Alert color="danger">
+              <AlertTitle>Sửa file rồi chọn lại — có lỗi thì không ghi dòng nào.</AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc space-y-0.5 pl-4">
+                  {xem.loi.map((l, i) => <li key={i}>{l}</li>)}
+                </ul>
+              </AlertDescription>
+            </Alert>
           )}
           <p className="text-muted-foreground">
             {xem.duyet.length} phương án <strong>duyệt</strong> (sẽ hiện trên ticket) · {xem.boDuyet.length} <strong>thôi hiện</strong>

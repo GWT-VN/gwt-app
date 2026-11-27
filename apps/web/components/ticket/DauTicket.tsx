@@ -83,12 +83,13 @@ export function DauTicket({
             </NativeSelect>
           </div>
         ) : <Badge variant="soft" color={dangMo ? 'warning' : state === 'Done' ? 'success' : 'secondary'}>{nhanTT(state)}</Badge>}
-        {dangMo && (choSua ? (
+        {/* Khẩn bật/tắt được ở MỌI trạng thái (như trước rework) — ticket đang chờ linh kiện vẫn có thể khẩn. */}
+        {choSua ? (
           <Button variant={khan ? 'destructive' : 'outline'} size="sm" aria-pressed={khan} disabled={busy}
             onClick={() => luu(() => updateTicket(code, { khan: !khan }))}>
             Khẩn
           </Button>
-        ) : khan && <Badge variant="soft" color="danger">Khẩn</Badge>)}
+        ) : khan && <Badge variant="soft" color="danger">Khẩn</Badge>}
       </div>
 
       <PageHeader tieuDe={`${code} · ${loai ?? 'Ticket'}`} meta={meta ?? [model, tinh].filter(Boolean)} />

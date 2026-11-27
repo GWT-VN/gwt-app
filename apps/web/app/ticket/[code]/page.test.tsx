@@ -65,8 +65,32 @@ describe('Chi tiết ticket ở đường dẫn mặc định', () => {
     expect(html).toContain('/ticket/TK-2611-008')
     expect(html).toContain('/ticket/TK-2611-006')
     expect(html).toContain('Đã gọi khách lần đầu')
-    expect(html.indexOf('Lần 2')).toBeLessThan(html.indexOf('Lần 1'))
+    // Các lần lỗi xếp theo thời gian, mở sẵn hết: Lần 1 trước, lần mới nằm dưới.
+    expect(html.indexOf('Lần 1')).toBeLessThan(html.indexOf('Lần 2'))
     expect(html).toContain('/ky-thuat?kh=khach-mau&amp;loai=ticket&amp;ref=TK-2611-042')
+  })
+
+  it('mở sẵn khối Chi phí và khối khách/máy — thấy nút Nhận việc ngay khi ticket chưa ai nhận', async () => {
+    ticket.cs_phu_trach = null
+    quyen.chiPhi = false
+    try {
+      const html = await moTicket()
+      expect(html).toContain('Nhận việc')
+      expect(html).toContain('Chưa có mục nào.')
+      expect(html).toContain('0900000000')
+    } finally {
+      ticket.cs_phu_trach = 'staff-1'
+      quyen.chiPhi = true
+    }
+  })
+
+  it('máy không có trong hệ thống: giải thích Odoo ghi máy là tồn kho', async () => {
+    ticket.may_khong_trong_he_thong = true
+    try {
+      expect(await moTicket()).toContain('Odoo đang ghi máy là tồn kho dù nó có ticket')
+    } finally {
+      ticket.may_khong_trong_he_thong = false
+    }
   })
 
   it('chỉ hiện ticket liên quan trong phạm vi phân công của người xem', async () => {

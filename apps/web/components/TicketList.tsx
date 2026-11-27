@@ -17,7 +17,7 @@ export function TicketList({ tickets, empty }: { tickets: Ticket[]; empty: strin
               <ItemDescription className="tabular-nums">{vnDateTime(t.created_at)}{t.description && ` · ${t.description}`}</ItemDescription>
             </ItemContent>
             <ItemActions>
-              {t.state === 'Open' && t.khan && <Badge variant="soft" color="danger">Khẩn</Badge>}
+              {t.khan && <Badge variant="soft" color="danger">Khẩn</Badge>}
               <StateBadge state={t.state} />
             </ItemActions>
           </Link>

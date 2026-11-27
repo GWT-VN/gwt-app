@@ -5,6 +5,7 @@ import { useState } from 'react'
 import type { Kenh } from '@/app/actions'
 import { TaoKhachForm } from '@/components/TaoKhachForm'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 /**
@@ -26,19 +27,49 @@ import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle, DialogTri
  */
 export function TaoKhachButton({ kenh }: { kenh: Kenh[] }) {
   const [mo, setMo] = useState(false)
+  // Form đã có chữ → bấm ngoài / Esc / ✕ không đóng ngay mà hỏi lại (đóng nhầm là mất hết chữ đã gõ).
+  const [coDuLieu, setCoDuLieu] = useState(false)
+  const [hoiBo, setHoiBo] = useState(false)
   const router = useRouter()
 
+  const dong = () => {
+    setMo(false)
+    setCoDuLieu(false)
+  }
+
   return (
-    <Dialog open={mo} onOpenChange={setMo}>
-      <DialogTrigger asChild>
-        <Button>＋ Tạo khách</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>Tạo khách mới</DialogTitle></DialogHeader>
-        <DialogBody>
-          <TaoKhachForm kenh={kenh} onXong={() => { setMo(false); router.refresh() }} />
-        </DialogBody>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog
+        open={mo}
+        onOpenChange={(m) => {
+          if (m) setMo(true)
+          else if (coDuLieu) setHoiBo(true)
+          else dong()
+        }}
+      >
+        <DialogTrigger asChild>
+          <Button>Tạo khách</Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Tạo khách mới</DialogTitle></DialogHeader>
+          <DialogBody>
+            <TaoKhachForm kenh={kenh} onCoDuLieu={setCoDuLieu} onXong={() => { dong(); router.refresh() }} />
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
+      <ConfirmDialog
+        open={hoiBo}
+        onOpenChange={setHoiBo}
+        tieuDe="Bỏ thông tin đang nhập?"
+        moTa="Khách chưa được tạo. Đóng hộp này thì những gì đã gõ sẽ mất."
+        nutXacNhan="Bỏ thông tin"
+        nutHuy="Nhập tiếp"
+        pha
+        onXacNhan={() => {
+          setHoiBo(false)
+          dong()
+        }}
+      />
+    </>
   )
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import type { LoaiNguoi } from '@/app/ticket/nguoi-actions'
 import { dsChoChon, type NguoiDs } from '@/lib/loi/nguoiTicket'
 import { Combobox } from '@/components/ui/combobox'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 
 type KQ = { ok: true } | { ok: false; error: string }
 
@@ -45,16 +46,19 @@ export function ChonNguoi({ loai, ds, dangGan, onChon, disabled, quanTri = false
             />
           </div>
         ) : (
-          <select className="rounded-lg border px-2 py-1 text-sm bg-card text-foreground disabled:opacity-50"
-            disabled={disabled || busy} aria-label={`Chọn ${tenDs}`} value={dangGan ?? ''}
-            onChange={(e) => chon(e.target.value || null)}>
-            <option value="">— Chưa gán —</option>
-            {muc.map((x) => <option key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã xoá)' : ''}</option>)}
-          </select>
+          <div className="w-fit max-w-full">
+            <NativeSelect size="sm" disabled={disabled || busy} aria-label={`Chọn ${tenDs}`} value={dangGan ?? ''}
+              onChange={(e) => chon(e.target.value || null)}>
+              <NativeSelectOption value="">— Chưa gán —</NativeSelectOption>
+              {muc.map((x) => (
+                <NativeSelectOption key={x.id} value={x.id}>{nhan(x)}{x.an ? ' (đã xoá)' : ''}</NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </div>
         )}
         {quanTri && <Link href="/danh-sach-nguoi" className="text-xs text-muted-foreground underline whitespace-nowrap">Sửa danh sách →</Link>}
       </div>
-      {err && <span className="text-xs text-red-600">{err}</span>}
+      {err && <span className="text-xs text-(--color-text-danger)">{err}</span>}
     </div>
   )
 }

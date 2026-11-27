@@ -139,8 +139,9 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
           {t.may_khong_trong_he_thong && (
             <Alert color="danger">
               <AlertDescription>
-                Ticket này gắn serial <code className="break-all">{t.source_serial}</code> nhưng máy không có trong hệ thống.
-                Cần gán khách cho serial này trong Odoo rồi export lại.
+                Ticket này gắn serial <code className="break-all">{t.source_serial}</code> nhưng máy không có trong hệ thống
+                — Odoo đang ghi máy là tồn kho dù nó có ticket (tức đang ở nhà khách). Cần gán khách cho serial này trong
+                Odoo rồi export lại.
               </AlertDescription>
             </Alert>
           )}
@@ -162,7 +163,9 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
             </section>
           )}
 
-          <Accordion type="multiple">
+          {/* Chi phí + khối khách/máy (nút Nhận việc, sửa máy & lỗi) mở sẵn: mở ticket là thấy việc phải làm ngay.
+              Nhật ký gập lại — trigger đã có dòng tóm tắt. */}
+          <Accordion type="multiple" defaultValue={['chi-phi', 'thong-tin']}>
             <AccordionItem value="nhat-ky">
               <AccordionTrigger>
                 <span className="flex min-w-0 flex-col gap-1">

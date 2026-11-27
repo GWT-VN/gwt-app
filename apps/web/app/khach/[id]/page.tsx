@@ -137,23 +137,23 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                 {(customer.full_name ?? '?').trim().slice(0, 2).toUpperCase()}
               </span>
               <div className="min-w-[200px] flex-1">
-                <PageHeader tieuDe={customer.full_name} />
-                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-                  {customer.primary_phone
-                    ? <span className="tabular-nums">{customer.primary_phone}</span>
-                    : <span className="text-(--color-text-warning)">thiếu SĐT</span>}
-                  {customer.province && <span>· {customer.province}</span>}
-                  {customer.source && <span>· {customer.source}</span>}
-                  {/* Mã khách hiện ngay ở đầu hồ sơ: CEO 24/08 cầm mã đi tra mà không màn nào
-                      hiện mã. `ma_kh` là mã dùng chung hai khu; `customer_code` là mã nối sang
-                      Sales — hiện cả hai vì đang có 4 cặp lệch nhau cần đối chiếu tận nơi. */}
-                  {customer.ma_kh && <span className="tabular-nums text-xs">· {customer.ma_kh}</span>}
-                  {customer.customer_code && (
-                    <span className="tabular-nums text-xs">· Sales {customer.customer_code}</span>
-                  )}
-                </div>
+                {/* Mã khách hiện ngay ở đầu hồ sơ: CEO 24/08 cầm mã đi tra mà không màn nào
+                    hiện mã. `ma_kh` là mã dùng chung hai khu; `customer_code` là mã nối sang
+                    Sales — hiện cả hai vì đang có 4 cặp lệch nhau cần đối chiếu tận nơi. */}
+                <PageHeader
+                  tieuDe={customer.full_name}
+                  meta={[
+                    customer.primary_phone
+                      ? <span key="sdt" className="tabular-nums">{customer.primary_phone}</span>
+                      : <span key="sdt" className="text-(--color-text-warning)">thiếu SĐT</span>,
+                    customer.province,
+                    customer.source,
+                    customer.ma_kh && <span key="ma" className="tabular-nums">{customer.ma_kh}</span>,
+                    customer.customer_code && <span key="sales" className="tabular-nums">Sales {customer.customer_code}</span>,
+                  ].filter(Boolean)}
+                  hanhDong={<GopKhachButton giuId={customer.id} tenGiu={customer.full_name} />}
+                />
               </div>
-              <GopKhachButton giuId={customer.id} tenGiu={customer.full_name} />
             </div>
 
             <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-lg border border-border bg-muted">

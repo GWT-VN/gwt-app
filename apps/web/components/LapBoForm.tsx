@@ -3,6 +3,7 @@
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
 import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -69,8 +70,9 @@ function ChonSerialThietBi({
             <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-lg border bg-card shadow-lg">
               {loc.map((s) => (
                 <li key={s.serial}>
-                  <Button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => chon(s)}
-                    className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted tabular-nums">
+                  <Button type="button" variant="ghost" size="sm" shape="rounded"
+                    onMouseDown={(e) => e.preventDefault()} onClick={() => chon(s)}
+                    className="h-auto w-full justify-start py-1.5 text-left leading-5 whitespace-normal [overflow-wrap:anywhere] tabular-nums">
                     {s.serial}
                   </Button>
                 </li>
@@ -183,11 +185,11 @@ export function LapBoForm() {
                   value={chon[s.key] ?? ''}
                   onChange={(v) => setChon((p) => ({ ...p, [s.key]: v }))} />
               )}
-              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <input type="checkbox" checked={!!chuaSerial[s.key]}
-                  onChange={(e) => setChuaSerial((p) => ({ ...p, [s.key]: e.target.checked }))} />
+              <ChoiceLabel>
+                <Checkbox checked={!!chuaSerial[s.key]}
+                  onCheckedChange={(v) => setChuaSerial((p) => ({ ...p, [s.key]: v === true }))} />
                 Chưa có serial — kích hoạt trước, bổ sung sau
-              </label>
+              </ChoiceLabel>
             </div>
           ))}
         </div>
@@ -205,10 +207,10 @@ export function LapBoForm() {
         <label className="text-sm font-medium text-foreground">4. Địa chỉ lắp đặt</label>
         <p className="text-xs text-muted-foreground">Địa chỉ khách: {khachAddr || '—'}</p>
         {/* Hỏi theo chiều KHẲNG ĐỊNH — xem chú thích cùng khối ở DangKyBHForm. */}
-        <label className="flex items-center gap-1.5 text-sm text-foreground mt-1">
-          <input type="checkbox" checked={!dungDcKhach} onChange={(e) => setDungDcKhach(!e.target.checked)} />
+        <ChoiceLabel className="mt-1">
+          <Checkbox checked={!dungDcKhach} onCheckedChange={(v) => setDungDcKhach(v !== true)} />
           Địa chỉ lắp khác địa chỉ khách
-        </label>
+        </ChoiceLabel>
         {!dungDcKhach && (
           <>
             <Input value={dcLap} onChange={(e) => setDcLap(e.target.value)} placeholder="Số nhà, thôn/xã, quận/huyện…"
@@ -232,8 +234,7 @@ export function LapBoForm() {
       </label>
 
       <div className="flex items-center gap-3">
-        <Button onClick={luu} disabled={busy || !sanSang}
-          className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 font-medium disabled:opacity-50">
+        <Button onClick={luu} loading={busy} disabled={!sanSang}>
           {busy ? 'Đang lắp…' : 'Lắp bộ + kích hoạt bảo hành'}
         </Button>
         {err && <span className="text-sm text-(--color-text-danger)">{err}</span>}
