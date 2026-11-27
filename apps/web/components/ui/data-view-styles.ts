@@ -141,10 +141,12 @@ export const xnThe = cn(
   'max-md:inset-0 max-md:z-50 max-md:w-auto max-md:rounded-none max-md:[box-shadow:none]',
 )
 /**
- * `coDinh` (thẻ bám màn hình ở màn app): cách mép màn 16 trên · phải · dưới (CEO 25/11: 8 rồi 12 vẫn sát viền) → rộng tối đa
+ * `coDinh` (thẻ bám màn hình ở màn app): cách 16 trên · phải · dưới (CEO 25/11: 8 rồi 12 vẫn sát viền) → rộng tối đa
  * 100vw − 32, nội dung nhường 472 = 440 + 16 + 16 (CEO 25/11 lần 2: 12 vẫn kịch → 16). Bản trong khung chứa (artifact) giữ 8.
+ * Cạnh TRÊN đo từ NỀN TRẮNG của vùng nội dung, không từ mép màn (CEO 27/11): `.pD-main` cách đỉnh 8 + kẻ trên 1px → nền
+ * trắng bắt đầu ở 9 → thẻ ở 9 + 16 = 25 (trước 16 = chỉ cách nền trắng 7). Phải · dưới vùng nội dung sát mép màn → 16.
  */
-export const xnTheCoDinh = 'fixed md:top-4 md:right-4 md:bottom-4 md:w-[min(440px,calc(100vw-32px))]'
+export const xnTheCoDinh = 'fixed md:top-[25px] md:right-4 md:bottom-4 md:w-[min(440px,calc(100vw-32px))]'
 export const xnNoiDungNhuongCoDinh = 'md:mr-[472px]'
 /**
  * `.b-ct-dau`: cao 52, cách 4, không xuống dòng, gạch dưới 1px alpha-05. Nút thao tác đứng TRÁI (kiểu Notion, CEO 27/11):
