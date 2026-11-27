@@ -2,39 +2,33 @@
 
 /**
  * HỒ SƠ KHÁCH — màn "view full" của một khách (CEO 27/11: "view full ở đây là coi như view full một KH luôn… chuyển các tab
- * thành các dạng module… thêm phần filter để chỉnh view"; chốt 2 cột). Khách là trục: ticket, máy, bảo trì đều nối qua khách.
- * - ≥ 1200: 2 cột — TRÁI các module (`TheGap`) theo thứ tự của view đang chọn, PHẢI thẻ Khách (dính khi cuộn; CEO 27/11).
- *   < 1200: 1 cột, thẻ Khách lên đầu.
- * - View (`?view=`): Ticket trước (mặc định khi mở từ ticket) · Thông tin trước (sản phẩm + bảo trì) · Bảo trì trước. Đổi view
- *   chỉ đổi THỨ TỰ module, không đổi bộ module.
- * - `ticketMo` (`?ticket=`): ticket đang xem mở sẵn tới các lần lỗi; ticket khác gập.
+ * thành các dạng module"; chốt 2 cột). Khách là trục: ticket, máy, bảo trì đều nối qua khách.
+ * - Ba tab CỐ ĐỊNH (`?tab=`, Tabs line dưới PageHeader): Ticket (Máy & lỗi + Ticket) · Thông tin (Liên hệ · Địa chỉ · Kênh
+ *   + Sản phẩm đã mua) · Bảo trì & lõi (Bảo trì + Lõi lọc). Không có `?tab=` → Ticket.
+ * - ≥ 1200: 2 cột — TRÁI các module (`TheGap`) của tab, PHẢI thẻ Khách (dính khi cuộn). < 1200: 1 cột, thẻ Khách lên đầu
+ *   (đứng đầu DOM, ≥ 1200 đặt sang cột 2 bằng lưới). Thẻ Khách GỌN ở Ticket / Bảo trì, ĐẦY ĐỦ ở Thông tin.
+ * - `?ticket=`: ticket đang xem mở sẵn tới các lần lỗi (ticket khác gập), máy của nó được đánh dấu ở Máy & lỗi.
+ * - Chỉ đọc ở đợt này; sửa tại chỗ (qua hàng chờ duyệt) để đợt 2.
  * Ảnh sản phẩm: app chưa có nguồn ảnh → ô vuông icon (ponytail: thay bằng ảnh catalog khi có cột ảnh).
  */
 import { useState, type ReactNode } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { CaretDown, Cube, Eye } from '@phosphor-icons/react/ssr'
+import { CaretDown, Cube } from '@phosphor-icons/react/ssr'
 import type { Ticket } from '@/app/actions'
 import { TT } from '@/app/ticket/_danh-sach/ds-f'
 import { DsTheLan } from '@/app/ticket/_danh-sach/the-lan'
 import { LanLoiThat } from '@/app/ticket/_danh-sach/the-tab'
 import { Badge, BadgeDot } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ListView } from '@/components/ui/list-view'
 import { PageHeader } from '@/components/ui/page-header'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TheGap } from '@/components/ui/the-gap'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
+import { thongKeLoiTheoMay, type DongLoiMay, type ThongKeMay } from '@/lib/khach/thong-ke-loi'
 import { cn } from '@/lib/utils'
 
 export type KhachHoSo = {
@@ -46,6 +40,7 @@ export type KhachHoSo = {
   nguon: string | null
   maKh: string | null
   maSales: string | null
+  phuTrach: string | null
 }
 export type MayHoSo = {
   serial: string
@@ -56,102 +51,238 @@ export type MayHoSo = {
   install_date?: string | null
 }
 export type BaoTriHoSo = { id: string; lan: number | null; ngay: string | null; xong: string | null; boMay: string | null }
+export type LienHeHoSo = { id: string; sdt: string | null; ten: string | null; vaiTro: string | null; chinh: boolean }
+export type DiaChiHoSo = { id: string; diaChi: string; loai: string; tinh: string | null }
 
-const VIEW = [
-  { gt: 'ticket', nhan: 'Ticket trước', thuTu: ['ticket', 'may', 'baotri'] },
-  { gt: 'thong-tin', nhan: 'Thông tin trước', thuTu: ['may', 'baotri', 'ticket'] },
-  { gt: 'bao-tri', nhan: 'Bảo trì trước', thuTu: ['baotri', 'ticket', 'may'] },
+const TAB = [
+  { gt: 'ticket', nhan: 'Ticket' },
+  { gt: 'thong-tin', nhan: 'Thông tin' },
+  { gt: 'bao-tri', nhan: 'Bảo trì & lõi' },
 ] as const
-type View = (typeof VIEW)[number]['gt']
+export type TabHoSo = (typeof TAB)[number]['gt']
+const laTab = (v: string | null): v is TabHoSo => TAB.some((t) => t.gt === v)
 
 export function HoSoKhach({
   khach,
   may,
   tickets,
+  dongLoi = [],
   baoTri,
+  lienHe = [],
+  diaChiPhu = [],
+  kenh = null,
   demo,
+  tab: tabDau,
 }: {
   khach: KhachHoSo
   may: MayHoSo[]
   tickets: Ticket[]
+  /** Dòng máy báo lỗi của các ticket (module Máy & lỗi). */
+  dongLoi?: DongLoiMay[]
   baoTri: BaoTriHoSo[]
+  lienHe?: LienHeHoSo[]
+  diaChiPhu?: DiaChiHoSo[]
+  kenh?: string | null
   demo: boolean
+  tab?: TabHoSo
 }) {
   const sp = useSearchParams()
   const router = useRouter()
   const duong = usePathname()
-  const [view, setView] = useState<View>(() => (VIEW.find((v) => v.gt === sp.get('view'))?.gt ?? 'ticket') as View)
-  const ticketMo = sp.get('ticket')
-  const doiView = (v: View) => {
-    setView(v)
+  const [tab, setTab] = useState<TabHoSo>(() => {
+    const q = sp.get('tab')
+    return tabDau ?? (laTab(q) ? q : 'ticket')
+  })
+  const doiTab = (v: string) => {
+    if (!laTab(v)) return
+    setTab(v)
     const q = new URLSearchParams(sp.toString())
-    q.set('view', v)
+    q.set('tab', v)
+    q.delete('view') // tham số cũ (ô chọn thứ tự xem) — bỏ khi đổi tab
     router.replace(`${duong}?${q}`, { scroll: false })
   }
-  const dangView = VIEW.find((v) => v.gt === view)!
 
-  const khoi: Record<string, ReactNode> = {
-    ticket: <KhoiTicket key="ticket" tickets={tickets} ticketMo={ticketMo} demo={demo} />,
-    may: <KhoiMay key="may" may={may} demo={demo} />,
-    baotri: <KhoiBaoTri key="baotri" baoTri={baoTri} />,
+  // Ticket đang xem: `?ticket=` nếu là của khách này, không thì ticket mới nhất.
+  const dsTicket = [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at))
+  const q = sp.get('ticket')
+  const ticketMo = q && dsTicket.some((t) => t.ticket_code === q) ? q : (dsTicket[0]?.ticket_code ?? null)
+
+  const noiDung: Record<TabHoSo, ReactNode> = {
+    ticket: (
+      <>
+        <KhoiMayLoi
+          thongKe={thongKeLoiTheoMay(dongLoi)}
+          may={may}
+          dangBao={new Set(dongLoi.filter((d) => d.ticket_code === ticketMo).map((d) => d.serial))}
+          demo={demo}
+        />
+        <KhoiTicket tickets={dsTicket} ticketMo={ticketMo} demo={demo} />
+      </>
+    ),
+    'thong-tin': (
+      <>
+        <KhoiLienHe lienHe={lienHe} />
+        <KhoiDiaChi diaChi={khach.diaChi} tinh={khach.tinh} phu={diaChiPhu} />
+        <TheGap tieuDe="Kênh" data-module="kenh">
+          <PropertyList layout="stack">
+            <PropertyRow nhan="Kênh / đối tác">{kenh}</PropertyRow>
+          </PropertyList>
+        </TheGap>
+        <KhoiMay may={may} demo={demo} />
+      </>
+    ),
+    'bao-tri': (
+      <>
+        <KhoiBaoTri baoTri={baoTri} />
+        <TheGap tieuDe="Lõi lọc" data-module="loi-loc">
+          <EmptyState size="sm" tieuDe="Chưa nối dữ liệu lõi" />
+        </TheGap>
+      </>
+    ),
   }
 
+  const day = tab === 'thong-tin'
   return (
     <TrangDuLieu>
       <PageHeader
         tieuDe={khach.ten}
         meta={[khach.tinh, khach.maKh && <span key="ma" className="tabular-nums">{khach.maKh}</span>].filter(Boolean)}
-        hanhDong={
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Eye aria-hidden="true" />
-                {dangView.nhan}
-                <CaretDown aria-hidden="true" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[220px]">
-              <DropdownMenuLabel>Thứ tự xem</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value={view} onValueChange={(v) => doiView(v as View)}>
-                {VIEW.map((v) => (
-                  <DropdownMenuRadioItem key={v.gt} value={v.gt}>
-                    {v.nhan}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        }
       />
-      <div className="mt-6 grid items-start gap-4 border-none border-current min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
-        <div className="border-none border-current min-[1200px]:sticky min-[1200px]:top-4 min-[1200px]:col-start-2 min-[1200px]:row-start-1">
-          <TheGap tieuDe="Khách" data-module="khach">
-            <PropertyList layout="stack">
-              <PropertyRow nhan="SĐT">{khach.sdt && <span className="tabular-nums">{khach.sdt}</span>}</PropertyRow>
-              <PropertyRow nhan="Tỉnh/TP">{khach.tinh}</PropertyRow>
-              <PropertyRow nhan="Địa chỉ">{khach.diaChi}</PropertyRow>
-              <PropertyRow nhan="Nguồn">{khach.nguon}</PropertyRow>
-              <PropertyRow nhan="Mã khách">{khach.maKh && <span className="tabular-nums">{khach.maKh}</span>}</PropertyRow>
-              <PropertyRow nhan="Mã Sales">{khach.maSales && <span className="tabular-nums">{khach.maSales}</span>}</PropertyRow>
-            </PropertyList>
-          </TheGap>
+      <Tabs value={tab} onValueChange={doiTab} className="mt-4">
+        <TabsList variant="line" aria-label="Phần hồ sơ khách">
+          {TAB.map((t) => (
+            <TabsTrigger key={t.gt} value={t.gt}>
+              {t.nhan}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <div className="mt-4 grid items-start gap-4 border-none border-current min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
+          <div className="border-none border-current min-[1200px]:sticky min-[1200px]:top-4 min-[1200px]:col-start-2 min-[1200px]:row-start-1">
+            <TheGap tieuDe="Khách" data-module="khach">
+              <PropertyList layout="stack">
+                <PropertyRow nhan="Tên">{khach.ten}</PropertyRow>
+                <PropertyRow nhan="SĐT">{khach.sdt && <span className="tabular-nums">{khach.sdt}</span>}</PropertyRow>
+                <PropertyRow nhan="Tỉnh/TP">{khach.tinh}</PropertyRow>
+                <PropertyRow nhan="Phụ trách">{khach.phuTrach}</PropertyRow>
+                {day && (
+                  <>
+                    <PropertyRow nhan="Địa chỉ">{khach.diaChi}</PropertyRow>
+                    <PropertyRow nhan="Nguồn">{khach.nguon}</PropertyRow>
+                    <PropertyRow nhan="Mã khách">{khach.maKh && <span className="tabular-nums">{khach.maKh}</span>}</PropertyRow>
+                    <PropertyRow nhan="Mã Sales">{khach.maSales && <span className="tabular-nums">{khach.maSales}</span>}</PropertyRow>
+                  </>
+                )}
+              </PropertyList>
+            </TheGap>
+          </div>
+          {TAB.map((t) => (
+            <TabsContent
+              key={t.gt}
+              value={t.gt}
+              className="flex min-w-0 flex-col gap-4 pt-0 min-[1200px]:col-start-1 min-[1200px]:row-start-1"
+            >
+              {noiDung[t.gt]}
+            </TabsContent>
+          ))}
         </div>
-        <div className="flex min-w-0 flex-col gap-4 border-none border-current min-[1200px]:col-start-1 min-[1200px]:row-start-1">{dangView.thuTu.map((k) => khoi[k])}</div>
-      </div>
+      </Tabs>
     </TrangDuLieu>
   )
 }
 
-/** Ticket của khách: mới → cũ; ticket đang xem (`ticketMo`) mở sẵn tới các lần lỗi, không có thì mở ticket mới nhất. */
-function KhoiTicket({ tickets, ticketMo, demo }: { tickets: Ticket[]; ticketMo: string | null; demo: boolean }) {
-  const ds = [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at))
-  const mo = ticketMo && ds.some((t) => t.ticket_code === ticketMo) ? ticketMo : ds[0]?.ticket_code
+/**
+ * Máy & lỗi: mỗi máy của khách một dòng — tên · serial · BH · chip `Mã ×n` (số ticket báo lỗi đó, bỏ ticket huỷ). Máy
+ * chưa từng báo lỗi vẫn hiện (biết khách có mấy máy); dòng máy của ticket đang xem đánh dấu "Đang báo".
+ */
+function KhoiMayLoi({ thongKe, may, dangBao, demo }: { thongKe: ThongKeMay[]; may: MayHoSo[]; dangBao: Set<string | null>; demo: boolean }) {
+  const router = useRouter()
+  const theoSerial = new Map(may.map((m) => [m.serial, m]))
+  const coLoi = new Set(thongKe.map((m) => m.may))
+  const chuaRo = thongKe.filter((m) => m.may === null)
+  const dong: ThongKeMay[] = [
+    ...thongKe.filter((m) => m.may !== null),
+    ...may.filter((m) => !coLoi.has(m.serial)).map((m) => ({ may: m.serial, ten: m.product_name ?? m.internal_code, loi: [] })),
+    ...chuaRo,
+  ]
+  const khoa = (m: ThongKeMay) => m.may ?? '__chua-ro-may__'
+  const dang = dong.find((m) => dangBao.has(m.may))
   return (
-    <TheGap tieuDe={<>Ticket <Dem n={ds.length} /></>} data-module="ticket" khit={ds.length > 0}>
-      {ds.length === 0 ? (
+    <TheGap tieuDe={<>Máy & lỗi <Dem n={dong.length} /></>} data-module="may-loi" khit={dong.length > 0}>
+      {dong.length === 0 ? (
+        <EmptyState size="sm" tieuDe="Chưa có" />
+      ) : (
+        <ListView<ThongKeMay>
+          aria-label="Máy và lỗi đã báo"
+          cot={[
+            {
+              id: 'may',
+              ten: 'Máy',
+              rong: 'minmax(0,1fr)',
+              dienThoai: 'tren',
+              o: (m) => (
+                <span className="flex min-w-0 items-center gap-2 border-none border-current" data-dang-bao={m === dang ? '' : undefined}>
+                  <span className="truncate">
+                    {m.may === null ? 'Chưa rõ máy' : (theoSerial.get(m.may)?.product_name ?? m.ten ?? 'Chưa rõ tên máy')}
+                  </span>
+                  {m === dang && (
+                    <Badge variant="soft" color="info" className="shrink-0">
+                      Đang báo
+                    </Badge>
+                  )}
+                </span>
+              ),
+            },
+            { id: 'serial', ten: 'Serial', rong: '140px', dienThoai: 'duoi', o: (m) => <span className="tabular-nums">{m.may ?? '—'}</span> },
+            {
+              id: 'bh',
+              ten: 'Bảo hành',
+              rong: '112px',
+              anKhiHep: true,
+              o: (m) => {
+                const x = m.may ? theoSerial.get(m.may) : undefined
+                return x ? <ChuBh m={x} /> : <span className="text-muted-foreground">—</span>
+              },
+            },
+            {
+              id: 'loi',
+              ten: 'Lỗi đã báo',
+              rong: 'minmax(0,1.2fr)',
+              dienThoai: 'duoiPhai',
+              o: (m) =>
+                m.loi.length === 0 ? (
+                  <span className="text-muted-foreground">Chưa có</span>
+                ) : (
+                  <span className="flex min-w-0 flex-wrap gap-1 border-none border-current">
+                    {m.loi.map((l) => (
+                      <Badge key={l.code} variant="soft" color="secondary" title={l.ten} className="tabular-nums">
+                        {`${l.ten === 'Chưa phân loại' ? l.ten : l.code} ×${l.so_lan}`}
+                      </Badge>
+                    ))}
+                  </span>
+                ),
+            },
+          ]}
+          dong={dong}
+          khoa={khoa}
+          dangMo={dang ? khoa(dang) : null}
+          // Máy demo / máy chưa rõ serial không có trang máy.
+          onMo={(m) => !demo && m.may && router.push(`/may/${encodeURIComponent(m.may)}`)}
+        />
+      )}
+    </TheGap>
+  )
+}
+
+/** Ticket của khách (đã sắp mới → cũ): ticket đang xem (`ticketMo`) mở sẵn tới các lần lỗi. */
+function KhoiTicket({ tickets, ticketMo, demo }: { tickets: Ticket[]; ticketMo: string | null; demo: boolean }) {
+  return (
+    <TheGap tieuDe={<>Ticket <Dem n={tickets.length} /></>} data-module="ticket" khit={tickets.length > 0}>
+      {tickets.length === 0 ? (
         <EmptyState size="sm" tieuDe="Chưa có ticket" />
       ) : (
-        ds.map((t, i) => <DongTicket key={t.ticket_code} t={t} moSan={t.ticket_code === mo} cuoi={i === ds.length - 1} demo={demo} />)
+        tickets.map((t, i) => (
+          <DongTicket key={t.ticket_code} t={t} moSan={t.ticket_code === ticketMo} cuoi={i === tickets.length - 1} demo={demo} />
+        ))
       )}
     </TheGap>
   )
@@ -199,6 +330,57 @@ function DongTicket({ t, moSan, cuoi, demo }: { t: Ticket; moSan: boolean; cuoi:
         </CollapsibleContent>
       </div>
     </Collapsible>
+  )
+}
+
+/** Liên hệ (chỉ đọc): SĐT chính trước. */
+function KhoiLienHe({ lienHe }: { lienHe: LienHeHoSo[] }) {
+  return (
+    <TheGap tieuDe={<>Liên hệ <Dem n={lienHe.length} /></>} data-module="lien-he">
+      {lienHe.length === 0 ? (
+        <EmptyState size="sm" tieuDe="Chưa có" />
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-2 border-none border-current p-0">
+          {lienHe.map((c) => (
+            <li key={c.id} className="flex min-w-0 items-center gap-2 border-none border-current">
+              <span className="shrink-0 tabular-nums">{c.sdt ?? 'Chưa có SĐT'}</span>
+              {(c.ten || c.vaiTro) && (
+                <span className="min-w-0 truncate text-muted-foreground">· {[c.ten, c.vaiTro].filter(Boolean).join(' · ')}</span>
+              )}
+              {c.chinh && (
+                <Badge variant="soft" color="secondary" className="ml-auto shrink-0">
+                  Chính
+                </Badge>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </TheGap>
+  )
+}
+
+/** Địa chỉ (chỉ đọc): địa chỉ chính của hồ sơ + địa chỉ phụ (nhà / công ty / lắp đặt). */
+function KhoiDiaChi({ diaChi, tinh, phu }: { diaChi: string | null; tinh: string | null; phu: DiaChiHoSo[] }) {
+  const ds = [...(diaChi ? [{ id: 'chinh', diaChi, loai: 'Chính', tinh }] : []), ...phu]
+  return (
+    <TheGap tieuDe={<>Địa chỉ <Dem n={ds.length} /></>} data-module="dia-chi">
+      {ds.length === 0 ? (
+        <EmptyState size="sm" tieuDe="Chưa có" />
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-2 border-none border-current p-0">
+          {ds.map((d) => (
+            <li key={d.id} className="flex min-w-0 items-center gap-2 border-none border-current">
+              <span className="shrink-0 text-muted-foreground">{d.loai}</span>
+              <span className="min-w-0 truncate">
+                {d.diaChi}
+                {d.tinh && <span className="text-muted-foreground"> · {d.tinh}</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </TheGap>
   )
 }
 
@@ -287,6 +469,6 @@ const Dem = ({ n, chu }: { n: number; chu?: string }) => (
   <span className="font-normal tabular-nums text-muted-foreground">· {chu ?? n}</span>
 )
 
-/** Link "Xem hồ sơ khách" dùng ở chỗ khác (vd ⤢ Xem nhanh ticket). */
+/** Link "Xem hồ sơ khách" dùng ở chỗ khác (vd ⤢ Xem nhanh ticket): tab Ticket, ticket đang xem mở sẵn. */
 export const duongHoSoKhach = (id: string, ticket?: string) =>
-  `/khach/${encodeURIComponent(id)}?view=ticket${ticket ? `&ticket=${encodeURIComponent(ticket)}` : ''}`
+  `/khach/${encodeURIComponent(id)}?tab=ticket${ticket ? `&ticket=${encodeURIComponent(ticket)}` : ''}`

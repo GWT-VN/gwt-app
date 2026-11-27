@@ -3,6 +3,9 @@ import { Suspense } from 'react'
 import { HoSoKhach } from '@/components/khach/HoSoKhach'
 import { MAY_KHACH_DEMO, TICKET_DEMO } from '@/app/ticket/_prototype/demo'
 import { notFound } from 'next/navigation'
+import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
+import { dongLoiCuaTicket } from '@/lib/khach/thong-ke-loi'
+import { GIOI_HAN } from '@/lib/loi/kiemDauVao'
 import { getCustomer, ticketsOfCustomer, machinesOfCustomer, kenhChon, baoTriCuaKhach, diaChiCuaKhach } from '@/app/actions'
 import { DiaChiKhachList } from '@/components/DiaChiKhachList'
 import { NuocCuaKhach } from '@/components/NuocCuaKhach'
@@ -19,7 +22,7 @@ import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
 
 /**
- * /khach/[id] = HỒ SƠ KHÁCH v2 (2 cột, module + chọn thứ tự xem — CEO 27/11). Màn cũ (tab Máy/Ticket/Bảo trì/Sửa thông tin)
+ * /khach/[id] = HỒ SƠ KHÁCH v2 (2 cột, 3 tab cố định `?tab=` ticket / thong-tin / bao-tri — CEO 27/11). Màn cũ (tab Máy/Ticket/Bảo trì/Sửa thông tin)
  * giữ ở `?cu=1` tới khi v2 có đủ phần sửa thông tin / kênh / địa chỉ / nước. Dev: `DEMO-KH-*` = khách của ticket Demo.
  */
 export default async function CustomerPage({
@@ -36,23 +39,32 @@ export default async function CustomerPage({
     const tickets = TICKET_DEMO.filter((t) => t.customer_id === id)
     if (!tickets.length) notFound()
     const t = tickets[0]
+    const may = MAY_KHACH_DEMO[id] ?? []
+    const tenMay = (s: string) => may.find((m) => m.serial === s)?.product_name ?? null
     return (
       <ManV2>
         <Suspense>
           <HoSoKhach
             demo
-            khach={{ id, ten: t.customer_name ?? id, sdt: t.primary_phone, tinh: t.province, diaChi: null, nguon: 'Demo', maKh: id, maSales: null }}
-            may={MAY_KHACH_DEMO[id] ?? []}
+            khach={{ id, ten: t.customer_name ?? id, sdt: t.primary_phone, tinh: t.province, diaChi: null, nguon: 'Demo', maKh: id, maSales: null, phuTrach: null }}
+            may={may}
             tickets={tickets}
+            dongLoi={tickets.flatMap((x) => dongLoiCuaTicket(x, x.dong_may ?? [], tenMay))}
             baoTri={[]}
           />
         </Suspense>
       </ManV2>
     )
   }
-  const { customer } = await getCustomer(id)
+  const { customer, contacts } = await getCustomer(id)
   if (!customer) notFound()
-  const [tickets, machines, baoTri] = await Promise.all([ticketsOfCustomer(id), machinesOfCustomer(id), baoTriCuaKhach(id)])
+  const [tickets, machines, baoTri, diaChi, kenh] = await Promise.all([
+    ticketsOfCustomer(id), machinesOfCustomer(id), baoTriCuaKhach(id), diaChiCuaKhach(id), kenhChon(),
+  ])
+  // ponytail: tra tối đa GIOI_HAN.soMaTicket (200) ticket mới nhất — khách vượt mức thì Máy & lỗi đếm thiếu ticket cũ.
+  const dongTheoMa = tickets.length ? await dongMayTheoTickets(tickets.slice(0, GIOI_HAN.soMaTicket).map((t) => t.ticket_code)) : {}
+  const tenMay = (s: string) => machines.find((m) => m.serial === s)?.product_name ?? null
+  const k = customer.channel_id == null ? null : kenh.find((x) => x.id === customer.channel_id)
   return (
     <ManV2>
       <Suspense>
@@ -67,9 +79,15 @@ export default async function CustomerPage({
             nguon: customer.source,
             maKh: customer.ma_kh ?? null,
             maSales: customer.customer_code ?? null,
+            // ST chưa có "phụ trách" ở mức khách → để trống (đợt sau nối nguồn).
+            phuTrach: null,
           }}
           may={machines}
           tickets={tickets}
+          dongLoi={tickets.flatMap((t) => dongLoiCuaTicket(t, dongTheoMa[t.ticket_code] ?? [], tenMay))}
+          lienHe={contacts.map((c) => ({ id: c.id, sdt: c.phone, ten: c.contact_name, vaiTro: c.role, chinh: c.is_primary }))}
+          diaChiPhu={diaChi.map((d) => ({ id: d.id, diaChi: d.dia_chi, loai: d.loai, tinh: d.tinh }))}
+          kenh={k ? [k.channel_l1, k.channel_l2].filter(Boolean).join(' · ') : null}
           baoTri={baoTri.map((v) => ({ id: v.visit_id, lan: v.lan_thu, ngay: v.due_date, xong: v.completed_at, boMay: v.bo_may }))}
         />
       </Suspense>
