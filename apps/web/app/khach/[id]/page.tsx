@@ -59,7 +59,9 @@ export default async function CustomerPage({
   const { customer, contacts } = await getCustomer(id)
   if (!customer) notFound()
   const [tickets, machines, baoTri, diaChi, kenh] = await Promise.all([
-    ticketsOfCustomer(id), machinesOfCustomer(id), baoTriCuaKhach(id), diaChiCuaKhach(id), kenhChon(),
+    ticketsOfCustomer(id), machinesOfCustomer(id), baoTriCuaKhach(id), diaChiCuaKhach(id),
+    // Kênh cần quyền he_thong.kenh — thiếu quyền thì Kênh hiện "Chưa có", không hỏng cả hồ sơ.
+    kenhChon().catch(() => []),
   ])
   // ponytail: tra tối đa GIOI_HAN.soMaTicket (200) ticket mới nhất — khách vượt mức thì Máy & lỗi đếm thiếu ticket cũ.
   const dongTheoMa = tickets.length ? await dongMayTheoTickets(tickets.slice(0, GIOI_HAN.soMaTicket).map((t) => t.ticket_code)) : {}
