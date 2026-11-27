@@ -36,17 +36,22 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href="/wiki/marketing/du-lieu/phan-tich-video" style={{ color: "inherit" }}>Phân tích video</Link> · id {row.id}
-        </div>
-        <div className="meta-row" style={{ marginBottom: 8 }}>
-          <CatBadge cat={cat5a(row.content_category)} />
-          <span className="tag">{platformLabel(row.platform)}</span>
-          {row.is_viral ? <span className="pill-viral">● Viral</span> : <span className="pill-not">Chưa viral</span>}
-          {row.is_new_channel && <span className="chip">kênh mới</span>}
-          {extract.duration > 0 && <span className="chip mono">{ts(extract.duration)}</span>}
-        </div>
-        <PageHeader tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
+        <PageHeader
+          duongDan={
+            <div>
+              <div className="eyebrow">
+                <Link href="/wiki/marketing/du-lieu/phan-tich-video" style={{ color: "inherit" }}>Phân tích video</Link> · id {row.id}
+              </div>
+              <div className="meta-row">
+                <CatBadge cat={cat5a(row.content_category)} />
+                <span className="tag">{platformLabel(row.platform)}</span>
+                {row.is_viral ? <span className="pill-viral">● Viral</span> : <span className="pill-not">Chưa viral</span>}
+                {row.is_new_channel && <span className="chip">kênh mới</span>}
+                {extract.duration > 0 && <span className="chip mono">{ts(extract.duration)}</span>}
+              </div>
+            </div>
+          }
+          tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
         <p>
           {row.channel_name || "—"}
           {row.industry ? ` · ${row.industry}` : ""}
@@ -133,8 +138,7 @@ function ConfigLoi({ error }: { error: unknown }) {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Phân tích video</div>
-        <PageHeader tieuDe={<>Không mở được video này</>} />
+        <PageHeader duongDan={<div className="eyebrow">Phân tích video</div>} tieuDe={<>Không mở được video này</>} />
       </div>
       <DataError error={error} />
     </section>

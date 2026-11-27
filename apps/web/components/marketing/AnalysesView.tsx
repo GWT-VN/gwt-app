@@ -2,11 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import Drawer from "./Drawer";
+import { NameButton } from "./ads/shared";
 import { CatBadge, Chips, Field, MetricGrid } from "./DetailBits";
 import { cat5a, fmt, headlineMetric, platformLabel } from "@/lib/marketing/format";
 import type { AnalysisRow } from "@/lib/marketing/supabase-mkt";
@@ -48,7 +50,7 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
       {shown.length === 0 ? (
         <EmptyState kieu="loc" tieuDe={<>Không có video nào ở tuyến {filter}.</>} />
       ) : (
-        <TableWrap vien tabIndex={0} aria-label="Danh sách video đã phân tích">
+        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách video đã phân tích">
           <Table aria-label="Danh sách video đã phân tích" variant="thuong" className="min-w-[640px]">
             <TableHeader>
               <TableRow>
@@ -58,15 +60,9 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
             </TableHeader>
             <TableBody>
               {shown.map((r) => (
-                <TableRow key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
-                    onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      setOpenId(r.id);
-                    }
-                  }}>
+                <TableRow key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                   <TableCell className="td-title">
-                    {r.video_title || "(chưa đặt tiêu đề)"}
+                    <NameButton onOpen={() => setOpenId(r.id)}>{r.video_title || "(chưa đặt tiêu đề)"}</NameButton>
                     <small>{r.channel_name || "—"}</small>
                   </TableCell>
                   <TableCell><span className="tag">{platformLabel(r.platform)}</span></TableCell>
@@ -93,7 +89,7 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
         </TableWrap>
       )}
 
-      <Drawer title="Phân tích video" open={Boolean(current)} onClose={() => setOpenId(null)}>
+      <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (
           <>
             <div className="drawer-head">
@@ -109,7 +105,7 @@ export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
                     <span className="chip mono">{ts(current.extract.duration)}</span>
                   )}
                 </div>
-                <h2>{current.video_title || "(chưa đặt tiêu đề)"}</h2>
+                <SheetTitle asChild><h2>{current.video_title || "(chưa đặt tiêu đề)"}</h2></SheetTitle>
                 <div style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>
                   {current.channel_name || "—"}
                   {current.industry ? ` · ${current.industry}` : ""}

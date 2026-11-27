@@ -38,8 +38,7 @@ export default async function WikiHome() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Wiki nội bộ GWT</div>
-        <PageHeader tieuDe={<>Tri thức của công ty, gom về một chỗ</>} />
+        <PageHeader duongDan={<div className="eyebrow">Wiki nội bộ GWT</div>} tieuDe={<>Tri thức của công ty, gom về một chỗ</>} />
         <p>
           Mỗi mảng nghiệp vụ một khu. Khu nào đã có nội dung thì mở được ngay; khu chưa có
           vẫn hiện bên dưới để biết chỗ đó đang trống — thay vì mỗi người lại đẻ thêm một

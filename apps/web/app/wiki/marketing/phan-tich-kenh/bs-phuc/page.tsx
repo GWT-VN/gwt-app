@@ -78,8 +78,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Học hỏi · Phân tích kênh tham khảo</div>
-        <PageHeader tieuDe={<>Kênh TS. Hữu Phúc — Chống lão hóa</>} />
+        <PageHeader duongDan={<div className="eyebrow">Học hỏi · Phân tích kênh tham khảo</div>} tieuDe={<>Kênh TS. Hữu Phúc — Chống lão hóa</>} />
         <p>
           Mổ xẻ hệ 3 kênh TikTok chống lão hóa của BS Phúc để hiểu <b>họ hút và giữ người xem bằng cách nào</b>, rồi
           rút công thức áp cho video nước GWT. Phân tích từng video (transcript đầy đủ + bóc tách) nằm ở{" "}
@@ -102,7 +101,7 @@ export default function Page() {
         <h2 style={{ fontSize: "1.25rem" }}>1. Hệ thống 3 kênh chạy song song</h2>
         <p>Cùng một nhân vật + cùng công thức kịch bản, chạy trên 3 kênh đóng 3 vai khác nhau.</p>
       </div>
-      <TableWrap vien tabIndex={0} aria-label="Ba kênh">
+      <TableWrap vien role="region" tabIndex={0} aria-label="Ba kênh">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Ba kênh">
           <TableHeader>
             <TableRow><TableHead>Kênh</TableHead><TableHead>Handle</TableHead><TableHead>Số liệu</TableHead><TableHead>Đặc điểm view</TableHead><TableHead>Vai trò (suy luận)</TableHead></TableRow>
@@ -110,11 +109,11 @@ export default function Page() {
           <TableBody>
             {KENH.map((k) => (
               <TableRow key={k.handle}>
-                <TableCell className="td-title">{k.ten}</TableCell>
-                <TableCell><span className="tag">{k.handle}</span></TableCell>
-                <TableCell style={{ fontSize: ".8rem" }}>{k.so}</TableCell>
-                <TableCell style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{k.view}</TableCell>
-                <TableCell style={{ fontSize: ".82rem" }}>{k.vaitro}</TableCell>
+                <TableCell className="td-title whitespace-normal align-top">{k.ten}</TableCell>
+                <TableCell className="align-top"><span className="tag">{k.handle}</span></TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".8rem" }}>{k.so}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{k.view}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".82rem" }}>{k.vaitro}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -157,15 +156,15 @@ export default function Page() {
       <div className="page-head" style={{ marginTop: 22 }}>
         <h2 style={{ fontSize: "1.25rem" }}>3. Kỹ thuật giữ chân người xem</h2>
       </div>
-      <TableWrap vien tabIndex={0} aria-label="Kỹ thuật giữ chân">
+      <TableWrap vien role="region" tabIndex={0} aria-label="Kỹ thuật giữ chân">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Kỹ thuật giữ chân">
           <TableHeader><TableRow><TableHead>Kỹ thuật</TableHead><TableHead>Ví dụ</TableHead><TableHead>Vì sao hiệu quả</TableHead></TableRow></TableHeader>
           <TableBody>
             {GIU_CHAN.map(([a, b, c]) => (
               <TableRow key={a}>
-                <TableCell className="td-title" style={{ fontSize: ".85rem" }}>{a}</TableCell>
-                <TableCell style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{b}</TableCell>
-                <TableCell style={{ fontSize: ".85rem" }}>{c}</TableCell>
+                <TableCell className="td-title whitespace-normal align-top" style={{ fontSize: ".85rem" }}>{a}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".8rem", color: "var(--ink-3)" }}>{b}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".85rem" }}>{c}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -177,15 +176,15 @@ export default function Page() {
         <h2 style={{ fontSize: "1.25rem" }}>4. Kênh nhìn qua mô hình 5A (Kotler)</h2>
         <p>A1 Nhận biết → A2 Cuốn hút → A3 Tìm hiểu → A4 Hành động → A5 Ủng hộ. Kênh không chỉ làm video — kênh chạy cả một phễu.</p>
       </div>
-      <TableWrap vien tabIndex={0} aria-label="Mô hình 5A">
+      <TableWrap vien role="region" tabIndex={0} aria-label="Mô hình 5A">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Mô hình 5A">
           <TableHeader><TableRow><TableHead>Giai đoạn</TableHead><TableHead>Kênh làm gì</TableHead><TableHead>Quan sát</TableHead></TableRow></TableHeader>
           <TableBody>
             {A5.map(([a, b, c]) => (
               <TableRow key={a}>
-                <TableCell className="td-title" style={{ fontSize: ".85rem", whiteSpace: "nowrap" }}>{a}</TableCell>
-                <TableCell style={{ fontSize: ".85rem" }}>{b}</TableCell>
-                <TableCell style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>{c}</TableCell>
+                <TableCell className="td-title align-top" style={{ fontSize: ".85rem" }}>{a}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".85rem" }}>{b}</TableCell>
+                <TableCell className="whitespace-normal align-top" style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>{c}</TableCell>
               </TableRow>
             ))}
           </TableBody>

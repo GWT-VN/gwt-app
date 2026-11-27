@@ -155,7 +155,7 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
           </AlertDescription>
         </Alert>
       ) : (
-        <TableWrap vien tabIndex={0} aria-label="Bảng tra dữ kiện">
+        <TableWrap vien role="region" tabIndex={0} aria-label="Bảng tra dữ kiện">
           <Table variant="thuong" className="wiki-bang min-w-[760px]" aria-label="Dữ kiện sản phẩm">
             <TableHeader>
               <TableRow>
@@ -171,9 +171,9 @@ export default function TraCuuFact({ facts, congBoBanDau }: { facts: Fact[]; con
               {ketQua.map((f) => (
                 <TableRow key={f.ma} id={f.ma} className={CONG_BO[f.congBo]?.lop}>
                   <th scope="row" className="mono">{f.ma}</th>
-                  <TableCell><O>{f.duKien}</O></TableCell>
-                  <TableCell><O>{f.giaTri}</O></TableCell>
-                  <TableCell><O>{f.nguon}</O></TableCell>
+                  <TableCell className="whitespace-normal align-top"><O>{f.duKien}</O></TableCell>
+                  <TableCell className="whitespace-normal align-top"><O>{f.giaTri}</O></TableCell>
+                  <TableCell className="whitespace-normal align-top"><O>{f.nguon}</O></TableCell>
                   <TableCell title={HANG[f.hang] ?? ""}>{f.hang || <span className="wiki-o-trong">{f.hangGoc || "—"}</span>}</TableCell>
                   <TableCell title={CONG_BO[f.congBo]?.giaiThich ?? ""}>
                     <span aria-hidden="true">{f.congBo}</span>{" "}

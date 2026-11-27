@@ -41,8 +41,7 @@ export default async function TrangKhu({ params }: { params: Promise<{ khu: stri
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Wiki nội bộ</div>
-        <PageHeader tieuDe={<>
+        <PageHeader duongDan={<div className="eyebrow">Wiki nội bộ</div>} tieuDe={<>
           <span aria-hidden="true">{meta.icon}</span> {meta.ten}
         </>} />
         <p>{meta.moTa}</p>

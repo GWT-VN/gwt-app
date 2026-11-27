@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -52,14 +53,19 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href="/wiki/marketing/khung/5a" style={{ color: "inherit" }}>Chiến lược 5A</Link> · Tuyến {t.cat}
-        </div>
-        <div className="meta-row" style={{ marginBottom: 8 }}>
-          <span className={`cat cat-${t.cat}`} style={{ fontSize: ".8rem", padding: "3px 10px" }}>{t.cat}</span>
-          <span className="tag">{t.en}</span>
-        </div>
-        <PageHeader tieuDe={<>{t.name}</>} />
+        <PageHeader
+          duongDan={
+            <div>
+              <div className="eyebrow">
+                <Link href="/wiki/marketing/khung/5a" style={{ color: "inherit" }}>Chiến lược 5A</Link> · Tuyến {t.cat}
+              </div>
+              <div className="meta-row">
+                <span className={`cat cat-${t.cat}`} style={{ fontSize: ".8rem", padding: "3px 10px" }}>{t.cat}</span>
+                <span className="tag">{t.en}</span>
+              </div>
+            </div>
+          }
+          tieuDe={<>{t.name}</>} />
         <p><b style={{ color: "var(--ink)" }}>Nhiệm vụ:</b> {t.purpose}</p>
       </div>
 
@@ -179,16 +185,16 @@ export default async function Page({ params }: { params: Promise<{ cat: string }
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 10, marginTop: 26, flexWrap: "wrap" }}>
+      <div className="mt-6 flex flex-wrap gap-2.5">
         {prev && (
-          <Link className="btn btn-primary" href={`/wiki/marketing/khung/5a/${prev.slug}`} style={{ textDecoration: "none", background: "var(--surface)", color: "var(--ink)", border: "1px solid var(--line-2)", width: "auto" }}>
-            ← {prev.cat} {prev.name}
-          </Link>
+          <Button asChild variant="outline">
+            <Link href={`/wiki/marketing/khung/5a/${prev.slug}`}>← {prev.cat} {prev.name}</Link>
+          </Button>
         )}
         {next && (
-          <Link className="btn btn-primary" href={`/wiki/marketing/khung/5a/${next.slug}`} style={{ textDecoration: "none", width: "auto" }}>
-            {next.cat} {next.name} →
-          </Link>
+          <Button asChild>
+            <Link href={`/wiki/marketing/khung/5a/${next.slug}`}>{next.cat} {next.name} →</Link>
+          </Button>
         )}
       </div>
     </section>

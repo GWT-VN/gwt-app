@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/ui/empty-state";
 import { CTA_LABEL, ts, type Cue, type Extract } from "@/lib/marketing/transcript";
 
 /** Một câu trích, có mốc thời gian + nhãn V (lời thoại) / T (chữ trên hình). */
@@ -66,9 +67,12 @@ export default function Highlights({ extract }: { extract: Extract }) {
 
   if (noData) {
     return (
-      <div className="empty" style={{ padding: 16, fontSize: ".84rem" }}>
-        Chưa bóc được — transcript trống hoặc không theo định dạng <code>[V]</code>/<code>[T]</code>.
-      </div>
+      <EmptyState
+        size="sm"
+        capTieuDe={4}
+        tieuDe="Chưa bóc được"
+        moTa={<>Transcript trống hoặc không theo định dạng <code>[V]</code>/<code>[T]</code>.</>}
+      />
     );
   }
 

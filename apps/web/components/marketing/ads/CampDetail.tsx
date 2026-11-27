@@ -140,7 +140,7 @@ export default function CampDetail({
         </div>
       )}
 
-      <TableWrap vien tabIndex={0} aria-label="Kết quả từng kỳ của camp">
+      <TableWrap vien role="region" tabIndex={0} aria-label="Kết quả từng kỳ của camp">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Kết quả từng kỳ của camp">
           <TableHeader>
             <TableRow>

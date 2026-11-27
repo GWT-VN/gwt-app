@@ -13,7 +13,7 @@ import {
   type PeriodStat,
 } from "@/lib/marketing/ads-analysis";
 import type { AdResult, AdsWeek } from "@/lib/marketing/data/ads-results";
-import { CampNameButton, campLabel, CprPill, dec1, money, pct } from "./shared";
+import { NameButton, CprPill, dec1, money, pct } from "./shared";
 
 const isRunning = (a: AdResult) => a.status === "active" || a.status === "new";
 const statOf = (a: AdResult): PeriodStat | null =>
@@ -70,13 +70,13 @@ export default function PeriodDetail({
     benchmark: number,
     sub: boolean,
     note?: string,
-    label?: string,
+    ngu?: string,
   ) => {
     const perSdt = costPerSdt(p);
     return (
       <TableRow key={key} className={`ads-row${sub ? " ads-sub" : ""}`} onClick={() => onOpen(key)}>
         <TableCell className={`ad-name-col${sub ? "" : " td-title"}`}>
-          <CampNameButton onOpen={() => onOpen(key)} label={label}>{name}</CampNameButton>
+          <NameButton onOpen={() => onOpen(key)} ngu={ngu}>{name}</NameButton>
           {note && <small className="ads-note">{note}</small>}
         </TableCell>
         <TableCell className="num-cell">
@@ -133,7 +133,6 @@ export default function PeriodDetail({
         b.benchmark,
         false,
         a.note,
-        campLabel(a),
       );
     }
     return [
@@ -151,7 +150,7 @@ export default function PeriodDetail({
         line(
           campKey(a),
           <>
-            ↳ lên {a.startDate}
+            <span aria-hidden="true">↳</span> lên {a.startDate}
             {a.name !== b.creative && ` · ${a.name}`}
             {a.status === "new" && <span className="badge-new">Mới</span>}
             {(a.status === "off" || a.status === "expensive") && <span className="badge-off">Tắt</span>}
@@ -161,7 +160,7 @@ export default function PeriodDetail({
           b.benchmark,
           true,
           a.note,
-          campLabel(a),
+          b.creative,
         ),
       ),
     ];
@@ -173,7 +172,7 @@ export default function PeriodDetail({
         <div className={`section-head ${muted ? "off" : "active"}`}>
           {title} ({list.length})
         </div>
-        <TableWrap vien tabIndex={0} aria-label="Kết quả quảng cáo theo kỳ" className={muted ? "inactive-table" : undefined}>
+        <TableWrap vien role="region" tabIndex={0} aria-label="Kết quả quảng cáo theo kỳ" className={muted ? "inactive-table" : undefined}>
           <Table variant="thuong" className="min-w-[640px]" aria-label="Kết quả quảng cáo theo kỳ">
             <TableHeader>
               <TableRow>

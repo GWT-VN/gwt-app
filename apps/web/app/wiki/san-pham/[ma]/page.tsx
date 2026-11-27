@@ -31,8 +31,7 @@ export default async function TrangSanPham({ params }: { params: Promise<{ ma: s
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Product Knowledge Base · {sp.phienBanPKB} · cập nhật {sp.capNhat}</div>
-        <PageHeader tieuDe={<>{sp.ten}</>} />
+        <PageHeader duongDan={<div className="eyebrow">Product Knowledge Base · {sp.phienBanPKB} · cập nhật {sp.capNhat}</div>} tieuDe={<>{sp.ten}</>} />
         <p>{sp.tenDayDu} · {sp.kieuLap}</p>
         <div className="wiki-the-meta">
           <span className="chip mono">{sp.maNoiBo}</span>

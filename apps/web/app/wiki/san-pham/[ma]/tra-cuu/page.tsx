@@ -30,10 +30,13 @@ export default async function TrangTraCuu({
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · Phần 1 · Bảng sự thật
-        </div>
-        <PageHeader tieuDe={<>Tra cứu dữ kiện</>} />
+        <PageHeader
+          duongDan={
+            <div className="eyebrow">
+              <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · Phần 1 · Bảng sự thật
+            </div>
+          }
+          tieuDe={<>Tra cứu dữ kiện</>} />
         <p>
           Mọi câu nói về sản phẩm phải truy được về một mã <span className="chip mono">F-xxx</span>{" "}
           ở đây. <b>Không có mã → không được nói.</b>

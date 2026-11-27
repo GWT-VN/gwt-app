@@ -8,8 +8,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Khung ② — Chất lượng</div>
-        <PageHeader tieuDe={<>Khung chấm PAAST</>} />
+        <PageHeader duongDan={<div className="eyebrow">Khung ② — Chất lượng</div>} tieuDe={<>Khung chấm PAAST</>} />
         <p>Thẻ chấm 5 chữ để đánh giá và viết từng video. Mỗi chữ gắn một bộ khung con. Đủ 5 chữ = video khoẻ.</p>
       </div>
 

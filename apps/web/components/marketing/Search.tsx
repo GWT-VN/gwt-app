@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/lib/marketing/icons";
 import { Input } from "@/components/ui/input";
+import { commandEmpty, phu } from "@/components/ui/command-styles";
+import { menuContent, menuItem } from "@/components/ui/menu-styles";
+import { VungDoc } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export type SearchItem = { href: string; title: string; kind: string };
 
@@ -87,42 +91,31 @@ export default function Search({ index }: { index: SearchItem[] }) {
         />
       </div>
 
+      {/* Vùng thông báo RIÊNG, luôn có sẵn trong DOM (role không đổi qua lại trên cùng một phần tử). */}
+      <VungDoc chu={showResults ? (hits.length ? `${hits.length} kết quả` : `Không thấy gì khớp “${q}”.`) : ""} />
+
       {showResults && (
-        <div
-          id={listId}
-          role={hits.length ? "listbox" : "status"}
-          aria-label="Kết quả tìm kiếm Wiki"
-          style={{
-            position: "absolute", top: "calc(100% + 6px)", right: 0, width: "min(380px,80vw)",
-            background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)",
-            boxShadow: "var(--wiki-shadow-lg)", overflow: "hidden", zIndex: 30,
-          }}
-        >
+        <div className={cn(menuContent, "absolute top-[calc(100%+6px)] right-0 z-30 w-[min(380px,80vw)]")}>
           {hits.length === 0 ? (
-            <div style={{ padding: "12px 14px", fontSize: ".84rem", color: "var(--ink-3)" }}>
-              Không thấy gì khớp “{q}”.
-            </div>
+            <div className={commandEmpty}>Không thấy gì khớp “{q}”.</div>
           ) : (
-            hits.map((h, i) => (
-              <button
-                key={h.href}
-                id={`${listId}-${i}`}
-                role="option"
-                tabIndex={-1}
-                aria-selected={i === active}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => goTo(h)}
-                style={{
-                  display: "block", width: "100%", textAlign: "left", border: "none", cursor: "pointer",
-                  padding: "9px 14px", fontSize: ".85rem", color: "var(--ink)",
-                  background: i === active ? "var(--surface-2)" : "transparent",
-                  borderBottom: "1px solid var(--line)",
-                }}
-              >
-                {h.title}
-                <span style={{ display: "block", fontSize: ".72rem", color: "var(--ink-3)" }}>{h.kind}</span>
-              </button>
-            ))
+            <div id={listId} role="listbox" aria-label="Kết quả tìm kiếm Wiki">
+              {hits.map((h, i) => (
+                <button
+                  key={h.href}
+                  id={`${listId}-${i}`}
+                  role="option"
+                  tabIndex={-1}
+                  aria-selected={i === active}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => goTo(h)}
+                  className={cn(menuItem, "flex-col items-start gap-0 aria-selected:bg-(--menu-item-bg)")}
+                >
+                  {h.title}
+                  <span className={phu}>{h.kind}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

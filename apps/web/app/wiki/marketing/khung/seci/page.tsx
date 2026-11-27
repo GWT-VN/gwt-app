@@ -28,8 +28,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Khung ⑤ — Vòng học</div>
-        <PageHeader tieuDe={<>SECI playbook</>} />
+        <PageHeader duongDan={<div className="eyebrow">Khung ⑤ — Vòng học</div>} tieuDe={<>SECI playbook</>} />
         <p>
           Buổi review <b>không phải “chấm bài”</b> — nó là SECI (mô hình quản trị tri thức của Nonaka), để tri thức
           chảy từ người này sang người khác và <b>cả tập thể giỏi lên</b>, không phụ thuộc một cá nhân giỏi.

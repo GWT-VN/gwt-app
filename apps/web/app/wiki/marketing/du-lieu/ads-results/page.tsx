@@ -11,8 +11,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Dữ liệu ads · Facebook</div>
-        <PageHeader tieuDe={<>Kết quả chạy Ads</>} />
+        <PageHeader duongDan={<div className="eyebrow">Dữ liệu ads · Facebook</div>} tieuDe={<>Kết quả chạy Ads</>} />
         <p>
           Theo dõi chi phí và hiệu quả từng campaign Facebook Ads
           {` — ${activeCount} camp đang chạy kỳ ${latest.label}, ${ADS_WEEKS.length} kỳ đã ghi nhận`}.

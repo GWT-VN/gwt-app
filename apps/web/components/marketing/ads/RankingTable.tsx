@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import { costPerNewMessage, costPerOrder, costPerSdt } from "@/lib/marketing/ads-analysis";
 import type { Judged } from "./DecisionPanel";
-import { CampNameButton, campLabel, CprPill, DecisionBadge, dec1, Delta, money, pct } from "./shared";
+import { NameButton, campLabel, CprPill, DecisionBadge, dec1, Delta, money, pct } from "./shared";
 
 /** Camp đang chạy, xếp theo CPR so với chuẩn nhóm của nó — để WH và CTS/CTD so được với nhau. */
 export default function RankingTable({
@@ -23,7 +23,7 @@ export default function RankingTable({
         Camp đang chạy kỳ {periodLabel}, xếp theo cost/result so với chuẩn nhóm (rẻ nhất lên đầu). Bấm một dòng để
         xem từng kỳ.
       </p>
-      <TableWrap vien tabIndex={0} aria-label="Bảng xếp hạng quảng cáo">
+      <TableWrap vien role="region" tabIndex={0} aria-label="Bảng xếp hạng quảng cáo">
         <Table variant="thuong" className="min-w-[640px]" aria-label="Bảng xếp hạng quảng cáo">
           <TableHeader>
             <TableRow>
@@ -48,7 +48,7 @@ export default function RankingTable({
                 <TableRow key={camp.key} className="ads-row" onClick={() => onOpen(camp.key)}>
                   <TableCell className="num-cell">{i + 1}</TableCell>
                   <TableCell className="td-title ad-name-col">
-                    <CampNameButton onOpen={() => onOpen(camp.key)}>{campLabel(camp)}</CampNameButton>
+                    <NameButton onOpen={() => onOpen(camp.key)}>{campLabel(camp)}</NameButton>
                     {v.flags.length > 0 && <small className="ads-flag">{v.flags.join(" · ")}</small>}
                   </TableCell>
                   <TableCell className="num-cell"><CprPill cpr={v.cpr!} benchmark={v.benchmark} /></TableCell>

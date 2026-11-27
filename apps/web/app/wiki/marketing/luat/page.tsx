@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { listRules } from "@/lib/marketing/content";
@@ -10,8 +11,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Luật &amp; tuân thủ</div>
-        <PageHeader tieuDe={<>Luật QC &amp; nguồn dẫn chứng</>} />
+        <PageHeader duongDan={<div className="eyebrow">Luật &amp; tuân thủ</div>} tieuDe={<>Luật QC &amp; nguồn dẫn chứng</>} />
         <p>
           Toàn bộ rule đang có trong Marketing Kit — render thẳng từ <code>rules/*.md</code> ở gốc repo, không chép
           lại. <b>Luật QC thắng mọi rule khác.</b>
@@ -19,9 +19,11 @@ export default function Page() {
       </div>
 
       {rules.length === 0 ? (
-        <div className="empty">
-          Không thấy thư mục <code>rules/</code>. Chạy <code>npm run sync:rules</code> trong <code>marketing-os/</code>.
-        </div>
+        <EmptyState
+          kieu="loi"
+          tieuDe="Chưa có luật nào"
+          moTa={<>Không thấy thư mục <code>rules/</code>. Chạy <code>npm run sync:rules</code> trong <code>marketing-os/</code>.</>}
+        />
       ) : (
         <div className="grid grid-2">
           {rules.map((r) => (

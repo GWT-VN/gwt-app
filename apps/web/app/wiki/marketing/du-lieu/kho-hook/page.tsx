@@ -20,8 +20,7 @@ export default async function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Dữ liệu Supabase · hook_library</div>
-        <PageHeader tieuDe={<>Kho hook / CTA</>} />
+        <PageHeader duongDan={<div className="eyebrow">Dữ liệu Supabase · hook_library</div>} tieuDe={<>Kho hook / CTA</>} />
         <p>
           Ngân hàng câu hook, kêu gọi, câu hỏi và câu kết ấn tượng{total != null ? ` — ${total} câu` : ""} chắt từ
           video mẫu, để dùng lại. Lọc theo loại và phong cách; bấm một dòng để xem mẫu dùng lại + bản viết cho GWT.

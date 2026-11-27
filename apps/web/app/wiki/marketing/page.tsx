@@ -41,8 +41,7 @@ export default async function Home() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Bản đồ hệ thống</div>
-        <PageHeader tieuDe={<>Một nơi cho toàn bộ cách team làm video</>} />
+        <PageHeader duongDan={<div className="eyebrow">Bản đồ hệ thống</div>} tieuDe={<>Một nơi cho toàn bộ cách team làm video</>} />
         <p>
           Chiến lược, khung chấm, luật sửa, quy trình sản xuất và dữ liệu — gom về một chỗ. Bấm vào ô để mở, hoặc
           dùng thanh bên trái.

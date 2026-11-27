@@ -29,10 +29,13 @@ export default async function TrangNhom({ params }: { params: Promise<{ ma: stri
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · nhóm thông tin
-        </div>
-        <PageHeader tieuDe={<>
+        <PageHeader
+          duongDan={
+            <div className="eyebrow">
+              <Link href={`/wiki/san-pham/${sp.ma}`}>{sp.ten}</Link> · nhóm thông tin
+            </div>
+          }
+          tieuDe={<>
           <span aria-hidden="true">{n.icon}</span> {n.ten}
         </>} />
         <p>{n.moTa}</p>

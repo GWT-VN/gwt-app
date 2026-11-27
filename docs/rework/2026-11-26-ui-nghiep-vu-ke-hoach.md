@@ -12,11 +12,24 @@
 
 ## Tiến độ triển khai
 
-Mã giao diện của các đợt 1–7 đã được chuyển trên `rework/v2.0.0`. Bốn màn đã dùng v2 tiếp tục là mốc hồi quy. Hai lượt review của Matt Pocock đối chiếu yêu cầu và chuẩn repo, tập trung vào thao tác hiện có, quyền, khả năng tìm trong danh sách dài và chế độ tối.
+Mã giao diện của các đợt 1–7 đã được chuyển trên `rework/v2.0.0` (code đã đổi). **Chưa nghiệm thu bằng mắt:** các ô
+đánh dấu ở mục 3–5 vẫn mở. Bốn màn đã dùng v2 tiếp tục là mốc hồi quy.
 
-- Đã đối chiếu 89/89 file trang nghiệp vụ với các vỏ UI v2. Bốn màn đã chuyển từ trước được kiểm hồi quy.
-- Chrome headless kiểm bố cục mặc định của chi tiết ticket và báo cáo doanh số ở 1440, 900 và 390 px, cả hai theme. Cả 12 trường hợp dùng dữ liệu giả đều vừa chiều ngang trang.
-- Kiểm đăng nhập, ghi dữ liệu và luồng theo vai trên trình duyệt cần Supabase local. Các test luồng trong repo dùng dữ liệu giả.
+Trạng thái kiểm thật (sửa 27/11 — bản trước ghi "đã đối chiếu / đã review / đã kiểm hồi quy" mà không kèm bằng chứng
+xem lại được; các câu đó đã gỡ):
+
+- Đã có: bọc `ManV2` + component DS ở các file trang nghiệp vụ (đọc mã). Không có biên bản đối chiếu từng màn nên chưa
+  tính là "đã kiểm 89/89".
+- Ghi nhận nhưng chưa kèm ảnh/log trong repo: Chrome headless đo chi tiết ticket và báo cáo doanh số ở 1440/900/390,
+  sáng + tối, dữ liệu giả, vừa chiều ngang (12 ca). Chỉ hai màn này; chưa phải soát bằng mắt.
+- Chưa có: hai lượt review Matt Pocock không để lại biên bản/finding trong `docs/rework/` → coi như chưa review.
+- Chưa có: đăng nhập, ghi dữ liệu, luồng theo vai trên trình duyệt (cần Supabase local).
+- Đợt 7 Wiki/Marketing (27/11): đã sửa lỗi sau review (nút menu Wiki ≤860, bảng trong bài xuống dòng, nút/EmptyState/
+  PageHeader DS, tên hộp thoại, a11y bảng) + `tsc`/`eslint` file sửa/`vitest` thư mục wiki & marketing. Đo trong trình
+  duyệt: `/wiki/marketing` ở 1100, 1440 (sáng) và 390 (tối, mở menu); `/wiki/marketing/luat/ad-compliance-vn` ở 900
+  (bảng xuống dòng, không tràn). **Còn mở:** soát ảnh đủ 390/900/1440 × sáng/tối cho mọi trang đợt 7; Kho hook, Phân
+  tích video/sâu, Video Ideas chưa xem được với dữ liệu (nguồn Marketing local trả lỗi) — Drawer, nút tên trong bảng
+  chưa thử bằng tay.
 
 ## 1. Phạm vi và mốc hoàn thành
 
@@ -30,7 +43,7 @@ Mã giao diện của các đợt 1–7 đã được chuyển trên `rework/v2.
 | **Tổng file `page.tsx` tại mốc đối chiếu** | **101** | |
 
 - Tất cả tài liệu triển khai, thay đổi và commit thuộc `rework/v2.0.0`. Giữ công việc trên worktree của nhánh. Bản kế hoạch này dừng ở phạm vi UI.
-- `/ticket/[code]` vào UI cũ theo URL mặc định. Mẫu chi tiết DS ở `app/ticket/[code]/_prototype/` chỉ mở trong dev với `?variant=...`. Ưu tiên đưa bố cục đã duyệt vào đường dẫn thật, với đầy đủ hành động.
+- `/ticket/[code]` theo URL mặc định đã bọc `ManV2` (DS v2: `TrangDuLieu`, `DauTicket`, `Accordion`). Mẫu bố cục gọn ở `app/ticket/[code]/_prototype/` vẫn chỉ mở trong dev với `?variant=...`; việc còn lại là so bố cục đã duyệt với bản mặc định và đủ hành động (ô đợt 1).
 - Màn có chỉnh lẻ về ngày, bảng hoặc nhãn tiếp tục dùng các chỉnh sửa đó trong UI mới. Chỉ tính đã chuyển xong khi lối vào mặc định dùng UI v2.
 - Giữ màn đang tồn tại kể cả khi mở qua link trực tiếp, ví dụ `/can-don`. Các đề xuất gộp màn, đổi URL, bổ sung nghiệp vụ, đồng bộ artifact ngoài repo và đưa thay đổi từ `main` sang v2 là quyết định riêng.
 - Tách phần chênh lệch từ `main` khỏi tiêu chí của đợt UI. Hai trang ticket nằm trong vùng xung đột đã xác minh. Tính năng ghi chú tự do của PR #39 là một mục cần đối chiếu khi có yêu cầu đưa nghiệp vụ đó vào rework.
@@ -103,6 +116,11 @@ Mọi đường dẫn mã trong mục 2–3 tính từ `apps/web/`. Mỗi nhóm 
 
 **Điểm sửa** · `app/wiki/layout.tsx`, `app/wiki/wiki.css`, `components/wiki/WikiShell.tsx` và các template/page sau. Áp DS một lần qua vỏ Wiki, sau đó chuyển các kiểu trang còn khác. Giữ selector cũ tới khi các caller của nó đã được kiểm.
 
+**Còn mở (27/11):** kiểm bằng mắt 390/900/1440 × sáng/tối cho cả ba nhóm dưới. Ghi chú kỹ thuật: điểm gãy của vỏ Wiki
+đo theo bề rộng vùng wiki (`@container`, ≤860 → sidebar wiki ẩn, nút menu mở Sheet), không theo màn — vì KhungApp đã
+chiếm 340px bên trái từ 768px. Trang render markdown (`/wiki/[khu]/[slug]`, `/marketing/[slug]`, `/luat/[slug]`,
+`/quy-trinh/[slug]`, `/san-pham/[ma]/phan/[slug]`) lấy h1 từ tài liệu nên chưa dùng `PageHeader`.
+
 - [ ] Trang chủ, khu và sản phẩm (8) · `/wiki`, `/wiki/[khu]`, `/wiki/[khu]/[slug]`, `/wiki/san-pham`, `/wiki/san-pham/[ma]`, `/wiki/san-pham/[ma]/nhom/[nhom]`, `/wiki/san-pham/[ma]/phan/[slug]`, `/wiki/san-pham/[ma]/tra-cuu`. Kiểm tìm kiếm, mục lục, anchor và đường dẫn chéo.
 - [ ] Tài liệu và case Marketing (14) · `/wiki/marketing`, `/wiki/marketing/[slug]`, `/wiki/marketing/kho-case`, `/wiki/marketing/kho-case/[slug]`, `/wiki/marketing/khung/5a`, `/wiki/marketing/khung/5a/[cat]`, `/wiki/marketing/khung/luat-sua`, `/wiki/marketing/khung/paast`, `/wiki/marketing/khung/quy-trinh`, `/wiki/marketing/khung/quy-trinh/[slug]`, `/wiki/marketing/khung/seci`, `/wiki/marketing/luat`, `/wiki/marketing/luat/[slug]`, `/wiki/marketing/phan-tich-kenh/bs-phuc`. Kiểm bài dài, bảng trong bài và liên kết bộ sưu tập → chi tiết.
 - [ ] Dữ liệu Marketing (8) · Các route dưới `/wiki/marketing/du-lieu`: `/ads-results`, `/kho-hook`, `/phan-tich-sau`, `/phan-tich-sau/[id]`, `/phan-tich-video`, `/phan-tich-video/[id]`, `/video-ideas`, `/video-ideas/[id]`. Kiểm lọc, bảng và chi tiết. Kiểm cả khi nguồn dữ liệu trả rỗng hoặc lỗi.
@@ -121,7 +139,7 @@ npm.cmd test
 npm.cmd run build
 ```
 
-Kỳ vọng các lệnh thoát 0 và lint không thêm lỗi/cảnh báo vào đường dẫn vừa sửa. Mốc tham chiếu ngày 26/11 có 2.001 test pass và 4 cảnh báo lint. Khi component DS có cấu hình so khớp, chạy thêm `node ds/so-khop.mjs <TênComponent>` với bản dev local. Đối chiếu với các ngoại lệ đã ghi trong `ds/NGUON.md`.
+Kỳ vọng các lệnh thoát 0 và lint không thêm lỗi/cảnh báo vào đường dẫn vừa sửa. Chưa có mốc đếm test/lint xem lại được (con số "2.001 test pass" bản trước không kèm lệnh/log nên đã gỡ) — lần chạy đủ bộ đầu tiên ghi lại số ca + ca hỏng làm mốc. Khi component DS có cấu hình so khớp, chạy thêm `node ds/so-khop.mjs <TênComponent>` với bản dev local. Đối chiếu với các ngoại lệ đã ghi trong `ds/NGUON.md`.
 
 - [ ] Ghi nhận route đã qua kiểm tra và gắn bằng chứng xem được. Commit phần thay đổi của luồng trên `rework/v2.0.0`. Khi thay phần dùng chung, chạy lại luồng Ticket F, Work, đăng nhập và đổi mật khẩu.
 

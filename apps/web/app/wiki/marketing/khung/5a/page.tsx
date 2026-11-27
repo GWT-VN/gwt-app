@@ -11,8 +11,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Khung ① — Chiến lược</div>
-        <PageHeader tieuDe={<>Chiến lược nội dung 5A (A1–A5)</>} />
+        <PageHeader duongDan={<div className="eyebrow">Khung ① — Chiến lược</div>} tieuDe={<>Chiến lược nội dung 5A (A1–A5)</>} />
         <p>
           Năm <b>chức năng chiến lược</b>, không phải năm định dạng cố định. Trước khi làm mỗi video, hỏi: video này
           đang làm nhiệm vụ gì trong hành trình khách hàng? <b>Bấm vào một tuyến để xem đầy đủ</b> — bản chất, lý
@@ -81,10 +80,10 @@ export default function Page() {
               <TableBody>
                 {k.rows.map((r) => (
                   <TableRow key={r.cat} style={{ cursor: "auto" }}>
-                    <TableCell style={{ width: 44 }}><span className={`cat cat-${r.cat}`}>{r.cat}</span></TableCell>
-                    <TableCell className="num-cell" style={{ width: 52, fontWeight: 700 }}>{r.pct}</TableCell>
-                    <TableCell style={{ width: 54, fontSize: ".8rem", color: "var(--ink-3)" }}>{r.label}</TableCell>
-                    <TableCell style={{ fontSize: ".82rem" }}>{r.detail}</TableCell>
+                    <TableCell className="align-top" style={{ width: 44 }}><span className={`cat cat-${r.cat}`}>{r.cat}</span></TableCell>
+                    <TableCell className="num-cell align-top" style={{ width: 52, fontWeight: 700 }}>{r.pct}</TableCell>
+                    <TableCell className="whitespace-normal align-top" style={{ width: 54, fontSize: ".8rem", color: "var(--ink-3)" }}>{r.label}</TableCell>
+                    <TableCell className="whitespace-normal align-top" style={{ fontSize: ".82rem" }}>{r.detail}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

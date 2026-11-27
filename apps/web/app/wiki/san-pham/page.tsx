@@ -17,8 +17,7 @@ export default function DanhSachSanPham() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Nhánh Sản phẩm</div>
-        <PageHeader tieuDe={<>Product Knowledge Base</>} />
+        <PageHeader duongDan={<div className="eyebrow">Nhánh Sản phẩm</div>} tieuDe={<>Product Knowledge Base</>} />
         <p>
           Mỗi máy một bộ hồ sơ 10 phần theo cùng một khuôn. Mọi câu nói về sản phẩm phải truy được
           về một mã <span className="chip mono">F-xxx</span> trong phần Bảng sự thật — không có mã

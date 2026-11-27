@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 
 import { useMemo, useState } from "react";
 import Drawer from "./Drawer";
+import { NameButton } from "./ads/shared";
 import { Chips, Field } from "./DetailBits";
 import type { HookItem } from "@/lib/marketing/supabase-mkt";
 import { Icon } from "@/lib/marketing/icons";
@@ -74,10 +76,12 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
         </div>
       )}
 
-      {shown.length === 0 ? (
+      {rows.length === 0 ? (
+        <EmptyState tieuDe="Chưa có câu mẫu nào" moTa="Câu hook, kêu gọi, câu hỏi và câu kết chắt từ video mẫu sẽ hiện ở đây." />
+      ) : shown.length === 0 ? (
         <EmptyState kieu="loc" tieuDe={<>Không có câu nào khớp bộ lọc.</>} />
       ) : (
-        <TableWrap vien tabIndex={0} aria-label="Danh sách câu mẫu">
+        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách câu mẫu">
           <Table aria-label="Danh sách câu mẫu" variant="thuong" className="min-w-[640px]">
             <TableHeader>
               <TableRow>
@@ -90,15 +94,9 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
             </TableHeader>
             <TableBody>
               {shown.map((r) => (
-                <TableRow key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
-                    onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      setOpenId(r.id);
-                    }
-                  }}>
-                  <TableCell className="td-title" style={{ maxWidth: 440 }}>
-                    {r.text}
+                <TableRow key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
+                  <TableCell className="td-title whitespace-normal align-top" style={{ maxWidth: 440 }}>
+                    <NameButton onOpen={() => setOpenId(r.id)}>{r.text}</NameButton>
                   </TableCell>
                   <TableCell><span className="chip">{kindLabel(r.kind)}</span></TableCell>
                   <TableCell style={{ fontSize: ".76rem", color: "var(--ink-3)" }}>{r.hook_style || "—"}</TableCell>
@@ -111,7 +109,7 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
         </TableWrap>
       )}
 
-      <Drawer title="Chi tiết câu mẫu" open={Boolean(current)} onClose={() => setOpenId(null)}>
+      <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (
           <>
             <div className="drawer-head">
@@ -120,7 +118,7 @@ export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
                   <span className="chip">{kindLabel(current.kind)}</span>
                   {current.hook_style && <span className="tag">{current.hook_style}</span>}
                 </div>
-                <h2 style={{ fontSize: "1.05rem", lineHeight: 1.45 }}>{current.text}</h2>
+                <SheetTitle asChild><h2 style={{ fontSize: "1.05rem", lineHeight: 1.45 }}>{current.text}</h2></SheetTitle>
               </div>
             </div>
 

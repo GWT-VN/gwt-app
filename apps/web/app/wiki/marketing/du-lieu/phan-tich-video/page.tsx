@@ -20,8 +20,7 @@ export default async function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Dữ liệu Supabase · video_analyses</div>
-        <PageHeader tieuDe={<>Phân tích video</>} />
+        <PageHeader duongDan={<div className="eyebrow">Dữ liệu Supabase · video_analyses</div>} tieuDe={<>Phân tích video</>} />
         <p>
           Kho video viral đã mổ theo khung 5A/PAAST{total != null ? ` — ${total} video` : ""}. Bấm một dòng để mở
           chi tiết bên phải.

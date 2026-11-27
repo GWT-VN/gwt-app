@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -61,17 +62,22 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href="/wiki/marketing/kho-case" style={{ color: "inherit" }}>Kho case</Link> · {c.code} · {c.buoi}
-        </div>
-        <div className="meta-row" style={{ marginBottom: 8 }}>
-          <span className={c.verdict === "win" ? "badge-win" : c.verdict === "fix" ? "pill-status" : c.verdict === "ref" ? "tag" : "badge-fail"}>
-            {VERDICT_LABEL[c.verdict]}
-          </span>
-          <span className="tag">{c.brandFull}</span>
-          {c.paastScore && <span className="chip mono">{c.paastScore}</span>}
-        </div>
-        <PageHeader tieuDe={<>{c.title}</>} />
+        <PageHeader
+          duongDan={
+            <div>
+              <div className="eyebrow">
+                <Link href="/wiki/marketing/kho-case" style={{ color: "inherit" }}>Kho case</Link> · {c.code} · {c.buoi}
+              </div>
+              <div className="meta-row">
+                <span className={c.verdict === "win" ? "badge-win" : c.verdict === "fix" ? "pill-status" : c.verdict === "ref" ? "tag" : "badge-fail"}>
+                  {VERDICT_LABEL[c.verdict]}
+                </span>
+                <span className="tag">{c.brandFull}</span>
+                {c.paastScore && <span className="chip mono">{c.paastScore}</span>}
+              </div>
+            </div>
+          }
+          tieuDe={<>{c.title}</>} />
         <p style={{ color: "var(--accent-strong)", fontWeight: 600 }}>{c.verdictNote}</p>
       </div>
 
@@ -154,10 +160,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         </>
       )}
 
-      <div style={{ marginTop: 30 }}>
-        <Link className="btn btn-primary" href="/wiki/marketing/kho-case" style={{ display: "inline-block", textDecoration: "none" }}>
-          ← Về kho case
-        </Link>
+      <div className="mt-7">
+        <Button asChild variant="outline">
+          <Link href="/wiki/marketing/kho-case">← Về kho case</Link>
+        </Button>
       </div>
     </section>
   );

@@ -16,8 +16,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Khung ③ — Luật sửa</div>
-        <PageHeader tieuDe={<>Luật sửa content</>} />
+        <PageHeader duongDan={<div className="eyebrow">Khung ③ — Luật sửa</div>} tieuDe={<>Luật sửa content</>} />
         <p>
           {LUAT_COUNT} nguyên tắc lặp đi lặp lại qua các buổi review — “tri thức ẩn” của CEO Thiện biến thành luật tra
           cứu được. Đọc mục này <b>trước khi viết kịch bản mới</b>.

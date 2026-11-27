@@ -11,8 +11,7 @@ export default function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Học hỏi</div>
-        <PageHeader tieuDe={<>Kho case WIN / FAIL</>} />
+        <PageHeader duongDan={<div className="eyebrow">Học hỏi</div>} tieuDe={<>Kho case WIN / FAIL</>} />
         <p>
           {ALL_CASES.length} ca đã mổ trong các buổi SECI — mỗi ca ghi đủ: nội dung video, chấm theo từng chữ PAAST,
           điểm đúng, điểm sai, lời CEO Thiện, hướng sửa, và <b>áp cho GWT thế nào</b>. Bấm vào một ca để xem đầy đủ.

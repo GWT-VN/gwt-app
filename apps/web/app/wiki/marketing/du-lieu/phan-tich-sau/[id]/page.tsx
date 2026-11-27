@@ -30,15 +30,20 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">
-          <Link href="/wiki/marketing/du-lieu/phan-tich-sau" style={{ color: "inherit" }}>Phân tích chuyên sâu</Link>
-        </div>
-        <div className="meta-row" style={{ marginBottom: 8 }}>
-          <CatBadge cat={cat5a(row.content_category)} />
-          <span className="tag">{platformLabel(row.platform)}</span>
-          {row.channel_type && <span className="chip">{row.channel_type}</span>}
-        </div>
-        <PageHeader tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
+        <PageHeader
+          duongDan={
+            <div>
+              <div className="eyebrow">
+                <Link href="/wiki/marketing/du-lieu/phan-tich-sau" style={{ color: "inherit" }}>Phân tích chuyên sâu</Link>
+              </div>
+              <div className="meta-row">
+                <CatBadge cat={cat5a(row.content_category)} />
+                <span className="tag">{platformLabel(row.platform)}</span>
+                {row.channel_type && <span className="chip">{row.channel_type}</span>}
+              </div>
+            </div>
+          }
+          tieuDe={<>{row.video_title || "(chưa đặt tiêu đề)"}</>} />
         <p>
           {row.channel_name || "—"}
           {row.url && (
@@ -139,8 +144,7 @@ function ConfigLoi({ error }: { error: unknown }) {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Phân tích chuyên sâu</div>
-        <PageHeader tieuDe={<>Không mở được bản phân tích này</>} />
+        <PageHeader duongDan={<div className="eyebrow">Phân tích chuyên sâu</div>} tieuDe={<>Không mở được bản phân tích này</>} />
       </div>
       <DataError error={error} />
     </section>

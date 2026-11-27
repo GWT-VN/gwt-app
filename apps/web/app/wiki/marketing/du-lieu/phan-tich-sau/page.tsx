@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 import Link from "next/link";
@@ -23,8 +24,7 @@ export default async function Page() {
   return (
     <section className="view">
       <div className="page-head">
-        <div className="eyebrow">Dữ liệu Supabase · video_deep_analysis</div>
-        <PageHeader tieuDe={<>Phân tích chuyên sâu</>} />
+        <PageHeader duongDan={<div className="eyebrow">Dữ liệu Supabase · video_deep_analysis</div>} tieuDe={<>Phân tích chuyên sâu</>} />
         <p>
           Bản mổ SÂU của video mẫu{total != null ? ` — ${total} video` : ""}: cấu trúc theo mốc thời gian, lời khuyên
           dùng ngay, cơ chế phễu và cách áp cho GWT. Bấm một dòng để mở đầy đủ kèm full transcript.
@@ -34,9 +34,9 @@ export default async function Page() {
       {loi ? (
         <DataError error={loi} />
       ) : !rows || rows.length === 0 ? (
-        <div className="empty">Chưa có bản phân tích chuyên sâu nào.</div>
+        <EmptyState tieuDe="Chưa có bản phân tích chuyên sâu nào" moTa="Bản mổ sâu của video mẫu sẽ hiện ở đây khi được thêm vào bảng video_deep_analysis." />
       ) : (
-        <TableWrap vien tabIndex={0} aria-label="Danh sách phân tích sâu">
+        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách phân tích sâu">
           <Table variant="thuong" className="min-w-[640px]" aria-label="Danh sách phân tích sâu">
             <TableHeader>
               <TableRow>

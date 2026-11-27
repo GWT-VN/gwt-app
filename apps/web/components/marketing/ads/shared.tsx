@@ -21,21 +21,26 @@ export function campLabel(c: Pick<Camp, "creative" | "name" | "startDate">): str
   return c.name === c.creative ? `${c.name} · lên ${c.startDate}` : `${c.creative} · ${c.name} · lên ${c.startDate}`;
 }
 
-/** Mở từ tên bằng chuột hoặc bàn phím; hàng vẫn nhận chuột ở các ô khác. */
-export function CampNameButton({ onOpen, children, label }: { onOpen: () => void; children: ReactNode; label?: string }) {
+/**
+ * Tên mở chi tiết: `Button variant="link"` (Enter/Space tự nhiên); hàng vẫn nhận chuột ở các ô khác.
+ * Tên truy cập = chữ đang hiện (WCAG 2.5.3, kể cả badge "Mới"/"Tắt" trong nút); `ngu` = ngữ cảnh chỉ đọc cho trình đọc
+ * màn hình, đặt TRƯỚC chữ hiện (vd tên creative cho dòng con "↳ lên 01/11").
+ */
+export function NameButton({ onOpen, children, ngu }: { onOpen: () => void; children: ReactNode; ngu?: string }) {
   return (
     <Button
       type="button"
-      variant="ghost"
-      size="sm"
-      aria-label={label}
-      className="h-auto max-w-full whitespace-normal px-0 text-left leading-normal underline underline-offset-2"
+      variant="link"
+      className="max-w-full whitespace-normal text-left leading-normal"
       onClick={(event) => {
         event.stopPropagation();
         onOpen();
       }}
     >
-      <span>{children}</span>
+      <span>
+        {ngu && <span className="sr-only">{ngu} </span>}
+        {children}
+      </span>
     </Button>
   );
 }

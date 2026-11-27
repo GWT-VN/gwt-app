@@ -7,7 +7,7 @@ import {
   type Verdict,
 } from "@/lib/marketing/ads-analysis";
 import type { AdsWeek } from "@/lib/marketing/data/ads-results";
-import { CampNameButton, campLabel, CprPill, DecisionBadge, OffBadge } from "./shared";
+import { NameButton, CprPill, DecisionBadge, OffBadge } from "./shared";
 
 function sdtTotal(periods: (PeriodStat | null)[]) {
   const t = periods.reduce((s, p) => s + (p?.sdt ?? 0), 0);
@@ -44,7 +44,7 @@ export default function TrendTable({
       return (
         <TableRow key={c.key} className="ads-row" onClick={() => onOpen(c.key)}>
           <TableCell className="td-title ad-name-col">
-            <CampNameButton onOpen={() => onOpen(c.key)} label={campLabel(c)}>{g.name}</CampNameButton>{" "}
+            <NameButton onOpen={() => onOpen(c.key)}>{g.name}</NameButton>{" "}
             {badge(c)} <span className="ads-muted">lên {c.startDate}</span>
           </TableCell>
           {cells(c.periods, b)}
@@ -55,7 +55,7 @@ export default function TrendTable({
     return [
       <TableRow key={g.key} className="ads-row" onClick={() => onOpen(g.key)}>
         <TableCell className="td-title ad-name-col">
-          <CampNameButton onOpen={() => onOpen(g.key)}>{g.name}</CampNameButton>{" "}
+          <NameButton onOpen={() => onOpen(g.key)}>{g.name}</NameButton>{" "}
           <span className="ads-muted">{g.camps.length} camp</span>
         </TableCell>
         {cells(g.periods, b)}
@@ -64,9 +64,9 @@ export default function TrendTable({
       ...g.camps.map((c) => (
         <TableRow key={c.key} className="ads-row ads-sub" onClick={() => onOpen(c.key)}>
           <TableCell className="ad-name-col">
-            <CampNameButton onOpen={() => onOpen(c.key)} label={campLabel(c)}>
-              ↳ lên {c.startDate}{c.name !== g.name && ` · ${c.name}`}
-            </CampNameButton>{" "}
+            <NameButton onOpen={() => onOpen(c.key)} ngu={g.name}>
+              <span aria-hidden="true">↳</span> lên {c.startDate}{c.name !== g.name && ` · ${c.name}`}
+            </NameButton>{" "}
             {badge(c)}
           </TableCell>
           {cells(c.periods, b)}
@@ -82,7 +82,7 @@ export default function TrendTable({
         <div className={`section-head ${muted ? "off" : "active"}`}>
           {title} ({list.length})
         </div>
-        <TableWrap vien tabIndex={0} aria-label="Xu hướng quảng cáo" className={muted ? "inactive-table" : undefined}>
+        <TableWrap vien role="region" tabIndex={0} aria-label="Xu hướng quảng cáo" className={muted ? "inactive-table" : undefined}>
           <Table variant="thuong" className="min-w-[640px]" aria-label="Xu hướng quảng cáo">
             <TableHeader>
               <TableRow>

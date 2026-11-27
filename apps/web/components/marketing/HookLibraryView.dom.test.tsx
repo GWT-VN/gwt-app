@@ -20,12 +20,20 @@ test('lọc câu hỏi và mở chi tiết bằng bàn phím', async () => {
   render(<DsRoot><HookLibraryView rows={rows} /></DsRoot>)
   await user.click(screen.getByRole('button', { name: 'Câu hỏi 1' }))
   expect(screen.queryByText('Xem thêm tại GWT.')).toBeNull()
-  const row = screen.getByRole('row', { name: /Bạn dùng máy nào/ })
-  row.focus()
+  // Mở bằng nút tên trong ô (Enter/Space tự nhiên của <button>), không phải dòng tabIndex.
+  const nut = screen.getByRole('button', { name: 'Bạn dùng máy nào?' })
+  nut.focus()
   await user.keyboard('{Enter}')
-  const dialog = screen.getByRole('dialog', { name: 'Chi tiết câu mẫu' })
-  expect(within(dialog).getByText('Bạn dùng máy nào?')).toBeTruthy()
+  // Tên hộp thoại = tiêu đề thật của câu, không phải nhãn chung.
+  const dialog = screen.getByRole('dialog', { name: 'Bạn dùng máy nào?' })
+  expect(within(dialog).getByRole('heading', { name: 'Bạn dùng máy nào?' })).toBeTruthy()
   await user.keyboard('{Escape}')
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
-  expect(document.activeElement).toBe(row)
+  expect(document.activeElement).toBe(nut)
+})
+
+test('kho trống hẳn thì báo chưa có dữ liệu, không báo "không khớp bộ lọc"', () => {
+  render(<DsRoot><HookLibraryView rows={[]} /></DsRoot>)
+  expect(screen.getByRole('heading', { name: 'Chưa có câu mẫu nào' })).toBeTruthy()
+  expect(screen.queryByText(/khớp bộ lọc/)).toBeNull()
 })

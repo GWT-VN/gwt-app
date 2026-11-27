@@ -2,11 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import Drawer from "./Drawer";
+import { NameButton } from "./ads/shared";
 import { Chips, Field } from "./DetailBits";
 import { fmt, platformLabel } from "@/lib/marketing/format";
 import type { IdeaRow } from "@/lib/marketing/supabase-mkt";
@@ -49,7 +51,7 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
       {shown.length === 0 ? (
         <EmptyState kieu="loc" tieuDe={<>Chưa có ý tưởng nào ở trạng thái này.</>} />
       ) : (
-        <TableWrap vien tabIndex={0} aria-label="Danh sách ý tưởng video">
+        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách ý tưởng video">
           <Table aria-label="Danh sách ý tưởng video" variant="thuong" className="min-w-[640px]">
             <TableHeader>
               <TableRow>
@@ -61,16 +63,10 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
               {shown.map((r) => {
                 const idea = r.gwt_idea || r.original_summary || "(chưa có ý tưởng)";
                 return (
-                  <TableRow key={r.id} onClick={() => setOpenId(r.id)} tabIndex={0}
-                      onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      setOpenId(r.id);
-                    }
-                  }}>
+                  <TableRow key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                     <TableCell className="num-cell">#{r.idea_no ?? "—"}</TableCell>
-                    <TableCell className="td-title">
-                      {idea.length > 90 ? `${idea.slice(0, 90)}…` : idea}
+                    <TableCell className="td-title whitespace-normal align-top">
+                      <NameButton onOpen={() => setOpenId(r.id)}>{idea.length > 90 ? `${idea.slice(0, 90)}…` : idea}</NameButton>
                     </TableCell>
                     <TableCell><span className="tag">{platformLabel(r.source_platform)}</span></TableCell>
                     <TableCell style={{ fontSize: ".78rem", color: "var(--ink-2)" }}>
@@ -96,7 +92,7 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
         </TableWrap>
       )}
 
-      <Drawer title="Chi tiết ý tưởng" open={Boolean(current)} onClose={() => setOpenId(null)}>
+      <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (
           <>
             <div className="drawer-head">
@@ -108,7 +104,7 @@ export default function IdeasView({ rows }: { rows: IdeaRow[] }) {
                   {current.content_type && <span className="chip">{current.content_type}</span>}
                   {current.extract.duration > 0 && <span className="chip mono">{ts(current.extract.duration)}</span>}
                 </div>
-                <h2>Ý tưởng cho GWT</h2>
+                <SheetTitle asChild><h2>Ý tưởng #{current.idea_no ?? "—"} cho GWT</h2></SheetTitle>
                 <div style={{ fontSize: ".82rem", color: "var(--ink-3)" }}>
                   SP phù hợp: {current.gwt_product_fit?.replace(/,/g, ", ") || "—"}
                   {current.view_count ? ` · nguồn ${fmt(current.view_count)} view` : ""}

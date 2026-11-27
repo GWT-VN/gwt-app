@@ -99,16 +99,17 @@ export default function Markdown({ children }: { children: string }) {
           h3: heading("h3"),
           h4: heading("h4"),
           input: ({ checked }) => <input type="checkbox" checked={checked === true} disabled aria-label={checked ? 'Đã đánh dấu' : 'Chưa đánh dấu'} />,
+          // Bảng trong bài là chữ dài: ô DS mặc định `whitespace-nowrap` (bảng số liệu) → ở đây cho xuống dòng, căn trên.
           table: ({ children }) => (
-            <TableWrap vien className="my-4" tabIndex={0} aria-label="Bảng trong tài liệu">
+            <TableWrap vien className="my-4" role="region" tabIndex={0} aria-label="Bảng trong tài liệu">
               <Table variant="thuong">{children}</Table>
             </TableWrap>
           ),
           thead: ({ children }) => <TableHeader>{children}</TableHeader>,
           tbody: ({ children }) => <TableBody>{children}</TableBody>,
           tr: ({ children }) => <TableRow>{children}</TableRow>,
-          th: ({ children, style }) => <TableHead scope="col" style={style}>{children}</TableHead>,
-          td: ({ children, style }) => <TableCell className="align-top" style={style}>{children}</TableCell>,
+          th: ({ children, style }) => <TableHead scope="col" className="whitespace-normal align-top" style={style}>{children}</TableHead>,
+          td: ({ children, style }) => <TableCell className="whitespace-normal align-top" style={style}>{children}</TableCell>,
           a: ({ href, children }) => {
             const to = rewriteHref(href);
             const external = to?.startsWith("http");
