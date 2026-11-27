@@ -24,6 +24,7 @@ import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import type { KieuNgay } from '@/lib/dinh-dang-ngay'
 import type { BangTab } from '@/lib/tab-view'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Cờ lọc bật/tắt (`?<id>=1`, tab cố định đặt) — tab đang chọn đã nói (khuôn F: không chip); vẫn vào tóm tắt khi lưu tab. */
 export type CoLoc = { id: string; nhan: string; giaTri: string }
@@ -124,13 +125,13 @@ export function BangF<T>({
           </>
         )}
         {m && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m)}>
+          <ContextMenuItem onSelect={() => void saoChep(m)}>
             <Copy aria-hidden="true" />
             Sao chép mã {nhan}
           </ContextMenuItem>
         )}
         {h && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + h)}>
+          <ContextMenuItem onSelect={() => void saoChep(location.origin + h)}>
             <LinkSimple aria-hidden="true" />
             Sao chép đường dẫn
           </ContextMenuItem>

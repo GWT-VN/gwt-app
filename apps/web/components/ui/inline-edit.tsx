@@ -483,6 +483,7 @@ export function OSuaHan({
   value,
   onLuu,
   onXoa,
+  gioMacDinh,
   truong = 'hạn',
   hien = hienHan,
 }: {
@@ -491,6 +492,8 @@ export function OSuaHan({
   value: string
   onLuu: Luu<string>
   onXoa?: () => unknown
+  /** "HH:mm" bên gọi tự gán khi chỉ có ngày (vd Work 17:00) — hiện làm gợi ý ở ô giờ để người dùng biết trước. */
+  gioMacDinh?: string
   truong?: string
   hien?: (v: string) => ReactNode
 }) {
@@ -507,6 +510,7 @@ export function OSuaHan({
         // Hạn đã qua vẫn đặt được (việc trễ, ghi lại hạn cũ) — không chặn ngày trước hôm nay.
         tuNgay="0001-01-01"
         choXoa={!!onXoa}
+        gioMacDinh={gioMacDinh}
         onValueChange={(v) => {
           if (v === null) return void onXoa?.()
           if (laChiNgay(v) || coMui) return luu(v)

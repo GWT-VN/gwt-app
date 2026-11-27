@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefCallback } from 'react'
+import { Fragment, useEffect, useId, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefCallback } from 'react'
 import { ArrowLeft, CalendarBlank, Check, EyeSlash, SlidersHorizontal, ListBullets, TextT, User, X } from '@phosphor-icons/react/ssr'
 import {
   canGiaTri,
@@ -138,6 +138,7 @@ const TU_FOCUS = '[data-tu-focus]'
 function ChanCot({ phu, dong }: { phu?: PhuMoLoc; dong: () => void }) {
   // `phu` chụp lúc mở pop → giữ kiểu đang chọn tại chỗ để dấu ✓ theo kịp khi đổi.
   const [kieu, setKieu] = useState(phu?.ngay?.kieu)
+  const idNhom = useId()
   if (!phu?.anCot && !phu?.ngay) return null
   const { anCot, ngay } = phu
   const mucLop = cn(menuItem, 'hover:bg-(--menu-item-bg)')
@@ -146,8 +147,8 @@ function ChanCot({ phu, dong }: { phu?: PhuMoLoc; dong: () => void }) {
       {ngay && (
         <>
           <div role="separator" className={menuSeparator} />
-          <div role="group" aria-labelledby="chan-cot-ngay">
-            <div id="chan-cot-ngay" className={menuLabel}>
+          <div role="group" aria-labelledby={idNhom}>
+            <div id={idNhom} className={menuLabel}>
               Định dạng ngày
             </div>
             {KIEU_NGAY.map((k) => (

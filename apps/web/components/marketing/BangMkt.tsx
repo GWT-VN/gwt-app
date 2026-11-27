@@ -27,6 +27,7 @@ import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import type { TruongMkt } from '@/app/wiki/marketing/du-lieu/truong-mkt'
 import type { BangTab } from '@/lib/tab-view'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Cột: `o` = nội dung ô, `chu` = chữ đầy đủ (title khi bị cắt), `sap` = khoá sắp (cột `kieu: 'sap'`). */
 export type CotMkt<T> = CotBang & { o: (r: T) => ReactNode; chu?: (r: T) => string | null | undefined; sap?: (r: T) => string | number | null }
@@ -143,13 +144,13 @@ export function BangMkt<T>({
         </ContextMenuItem>
         {(m || h) && <ContextMenuSeparator />}
         {m && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m)}>
+          <ContextMenuItem onSelect={() => void saoChep(m)}>
             <Copy aria-hidden="true" />
             Sao chép mã {nhan}
           </ContextMenuItem>
         )}
         {h && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + h)}>
+          <ContextMenuItem onSelect={() => void saoChep(location.origin + h)}>
             <LinkSimple aria-hidden="true" />
             Sao chép đường dẫn
           </ContextMenuItem>

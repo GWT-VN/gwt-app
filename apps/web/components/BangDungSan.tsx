@@ -18,6 +18,7 @@ import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { laGhim, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import type { BangTab } from '@/lib/tab-view'
+import { saoChep } from '@/lib/sao-chep'
 
 /**
  * Một dòng: ô ĐÃ DỰNG ở server theo id cột (Server Component không truyền được hàm vẽ ô sang client). `href` = trang chi
@@ -131,12 +132,12 @@ export function BangDungSan({
           <ContextMenuSeparator />
         </>
       )}
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(d.ma ?? d.khoa)}>
+      <ContextMenuItem onSelect={() => void saoChep(d.ma ?? d.khoa)}>
         <Copy aria-hidden="true" />
         Sao chép mã
       </ContextMenuItem>
       {d.href && (
-        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + d.href)}>
+        <ContextMenuItem onSelect={() => void saoChep(location.origin + d.href)}>
           <LinkSimple aria-hidden="true" />
           Sao chép đường dẫn
         </ContextMenuItem>

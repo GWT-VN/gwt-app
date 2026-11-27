@@ -22,6 +22,7 @@ import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
+import { saoChep } from '@/lib/sao-chep'
 
 function HanBadge({ tt, ngay }: { tt: string; ngay: number | null }) {
   if (tt === 'QUÁ HẠN') return <Badge variant="soft" color="danger">Quá {Math.abs(ngay ?? 0)} ngày</Badge>
@@ -61,11 +62,11 @@ function MenuLoi({ r, mo }: { r: CoreDue; mo: (r: CoreDue) => void }) {
         Mở chi tiết máy
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(r.serial)}>
+      <ContextMenuItem onSelect={() => void saoChep(r.serial)}>
         <Copy aria-hidden="true" />
         Sao chép serial
       </ContextMenuItem>
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDanMay(r))}>
+      <ContextMenuItem onSelect={() => void saoChep(location.origin + duongDanMay(r))}>
         <LinkSimple aria-hidden="true" />
         Sao chép đường dẫn
       </ContextMenuItem>

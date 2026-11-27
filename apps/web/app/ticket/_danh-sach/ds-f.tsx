@@ -54,6 +54,7 @@ import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, 
 import { useTabTicket } from './tab-ticket'
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Giá trị lạc quan khi kéo thẻ Kanban (đang lưu DB) — bỏ khi lưu xong (dữ liệu server mới về) hoặc trả lại khi lỗi. */
 type Sua = Partial<Ticket>
@@ -631,11 +632,11 @@ export function TicketF({
         Xem nhanh
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(d.ticket_code)}>
+      <ContextMenuItem onSelect={() => void saoChep(d.ticket_code)}>
         <Copy aria-hidden="true" />
         Sao chép mã ticket
       </ContextMenuItem>
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDan(d.ticket_code))}>
+      <ContextMenuItem onSelect={() => void saoChep(location.origin + duongDan(d.ticket_code))}>
         <LinkSimple aria-hidden="true" />
         Sao chép đường dẫn
       </ContextMenuItem>

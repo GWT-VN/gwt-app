@@ -19,6 +19,7 @@ import { ThemCot } from '@/components/ui/them-cot'
 import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
 import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
+import { saoChep } from '@/lib/sao-chep'
 
 type Khach = {
   id: string; full_name: string; primary_phone: string | null; address: string | null
@@ -52,12 +53,12 @@ function MenuKhach({ k, mo }: { k: Khach; mo: (k: Khach) => void }) {
       </ContextMenuItem>
       <ContextMenuSeparator />
       {ma && (
-        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(ma)}>
+        <ContextMenuItem onSelect={() => void saoChep(ma)}>
           <Copy aria-hidden="true" />
           Sao chép mã khách
         </ContextMenuItem>
       )}
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(`${location.origin}/khach/${k.id}`)}>
+      <ContextMenuItem onSelect={() => void saoChep(`${location.origin}/khach/${k.id}`)}>
         <LinkSimple aria-hidden="true" />
         Sao chép đường dẫn
       </ContextMenuItem>

@@ -22,6 +22,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import { laMaBo } from '@/lib/danhSach'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Bảo hành — cùng nhánh WarrantyBadge (components/Badge.tsx), kiểu Badge DS soft. */
 function BaoHanhMay({ m }: { m: Machine }) {
@@ -59,11 +60,11 @@ function MenuMay({ m, mo }: { m: Machine; mo: (m: Machine) => void }) {
         Mở chi tiết
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m.serial)}>
+      <ContextMenuItem onSelect={() => void saoChep(m.serial)}>
         <Copy aria-hidden="true" />
         Sao chép serial
       </ContextMenuItem>
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + duongDanMay(m))}>
+      <ContextMenuItem onSelect={() => void saoChep(location.origin + duongDanMay(m))}>
         <LinkSimple aria-hidden="true" />
         Sao chép đường dẫn
       </ContextMenuItem>

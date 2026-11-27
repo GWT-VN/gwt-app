@@ -26,6 +26,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import type { KieuNgay } from '@/lib/dinh-dang-ngay'
 import type { BangTab } from '@/lib/tab-view'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Cột: khai báo `CotBang` + cách vẽ ô (`kieuNgay` của cột `ngay` để gọi `hienNgay(v, kieu)`) + `title` khi ô bị cắt. */
 export type CotF<T> = CotBang & {
@@ -159,13 +160,13 @@ export function BangDanhSachF<T>({
           </>
         )}
         {m && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(m)}>
+          <ContextMenuItem onSelect={() => void saoChep(m)}>
             <Copy aria-hidden="true" />
             Sao chép {tenMa}
           </ContextMenuItem>
         )}
         {h && (
-          <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(location.origin + h)}>
+          <ContextMenuItem onSelect={() => void saoChep(location.origin + h)}>
             <LinkSimple aria-hidden="true" />
             Sao chép đường dẫn
           </ContextMenuItem>

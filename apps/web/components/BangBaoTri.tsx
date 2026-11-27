@@ -23,6 +23,7 @@ import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/
 import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { coDoNuoc } from '@/lib/nuoc'
+import { saoChep } from '@/lib/sao-chep'
 
 function TinhTrangBadge({ tt }: { tt: string }) {
   if (tt === 'QUÁ HẠN') return <Badge variant="soft" color="danger">Quá hạn</Badge>
@@ -50,7 +51,7 @@ const THEO_ID = new Map(COT.map((cot) => [cot.id, cot]))
  *  ngày). */
 const LOC_COT: Record<string, string> = { tinh_trang: 'tt', due_date: 'han' }
 
-const chep = (s: string) => void navigator.clipboard?.writeText(s)
+const chep = (s: string) => void saoChep(s)
 /** Menu chuột phải một lượt bảo trì. Lượt KHÔNG có trang chi tiết (và chưa có mã khách để mở hồ sơ) → không "Mở chi
  *  tiết" / "Sao chép đường dẫn"; chỉ sao chép mã lượt + tên + SĐT để gọi khách. */
 function MenuBaoTri({ r }: { r: MaintenanceDue }) {

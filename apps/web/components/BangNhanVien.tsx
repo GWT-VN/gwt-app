@@ -28,6 +28,7 @@ import {
   HO_SO_VAI_TRO, NHAN_BO_PHAN, NHAN_VAI_TRO, VAI_TRO,
   apDungLoaiTruCapBac, apDungLoaiTruKhiTick, type BoPhan, type VaiTro,
 } from '@/lib/nen-tang/vai-tro'
+import { saoChep } from '@/lib/sao-chep'
 
 export type DongNhanVien = {
   id: string
@@ -76,12 +77,12 @@ const TRUONG_LOC: TruongLoc[] = TRUONG_NV.map((x) => ({
 function MenuNhanVien({ nv }: { nv: DongNhanVien }) {
   return (
     <>
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(nv.ten)}>
+      <ContextMenuItem onSelect={() => void saoChep(nv.ten)}>
         <Copy aria-hidden="true" />
         Sao chép tên
       </ContextMenuItem>
       {nv.email && (
-        <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(nv.email!)}>
+        <ContextMenuItem onSelect={() => void saoChep(nv.email!)}>
           <EnvelopeSimple aria-hidden="true" />
           Sao chép email
         </ContextMenuItem>

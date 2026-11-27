@@ -4,7 +4,7 @@
  * "Xem nhanh một việc" v2 — dữ liệu `the` cho khung DS `XemNhanh` (components/ui/xem-nhanh.tsx: đầu "MÃ · tiêu đề", ‹ ›,
  * ✕, Esc, hàng tab, chân dính đáy). Bố cục theo thẻ Xem nhanh ticket F (CEO 26/11 "làm layout popup công việc cho giống
  * popup này" — mẫu app/ticket/_danh-sach/xem-nhanh-f.tsx): tab line có icon Tổng quan · Việc con · Hoạt động · Liên kết;
- * Tổng quan = nhóm gập/mở (Accordion) gồm dòng icon + nhãn mờ · giá trị sửa tại chỗ; chân = ⋮ + Đánh dấu xong.
+ * Tổng quan = nhóm gập/mở (Accordion) gồm dòng icon + nhãn mờ · giá trị sửa tại chỗ; chân = Đánh dấu xong.
  * Khác mẫu có chủ đích: mỗi hành động MỘT chỗ (không lặp ở nhóm và chân); trường trống hiện "—" (không lặp tên nhãn).
  * Nghiệp vụ giữ y bản trước (quyền `co_the_sua`, việc con, chặn/đang chặn, @nhắc tên, nhật ký). Mọi action trả `KQ`.
  */
@@ -19,8 +19,6 @@ import {
   Check,
   CircleHalf,
   Clock,
-  Copy,
-  DotsThreeVertical,
   Eye,
   Flag,
   Globe,
@@ -72,7 +70,6 @@ import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
 import { ComboboxPanel } from '@/components/ui/combobox'
 import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Composer } from '@/components/ui/composer'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ChipTrangThai, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai, type MucNhan } from '@/components/ui/inline-edit'
 import { cat, nguoi, nutThem } from '@/components/ui/inline-edit-styles'
@@ -374,6 +371,7 @@ function TongQuan({ c }: { c: Ctx }) {
                   <span className={CUM}>
                     <OSuaHan
                       ma={t.ref}
+                      gioMacDinh="17:00"
                       value={hanO(t.due_at)}
                       onLuu={(h) => luu(suaViec(t.id, h ? { due: hanLuu(h) } : { xoa_due: true }))}
                       hien={(v) => <HanChu due={v ? hanLuu(v) : null} />}
@@ -725,7 +723,7 @@ function LienKet({ c }: { c: Ctx }) {
   )
 }
 
-/** Chân thẻ: ⋮ (sao chép mã) · nút chính Đánh dấu xong / Bỏ đánh dấu xong (viền). */
+/** Chân thẻ: nút chính Đánh dấu xong / Bỏ đánh dấu xong (viền). Bỏ ⋮ "Sao chép mã" (CEO 27/11: "hơi thừa"). */
 function Chan({ c }: { c: Ctx }) {
   const { ct, chay } = c
   const t = ct.task
@@ -734,24 +732,6 @@ function Chan({ c }: { c: Ctx }) {
   const chanMo = ct.chan_boi.some((b) => !roi(b.status))
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label={`Thao tác khác cho ${t.ref}`}>
-            <DotsThreeVertical aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" side="top">
-          <DropdownMenuItem
-            onSelect={() => {
-              void navigator.clipboard?.writeText(t.ref)
-              thongBao.xong(`Đã sao chép ${t.ref}`)
-            }}
-          >
-            <Copy aria-hidden="true" />
-            Sao chép mã
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
       <Button
         variant={xong ? 'outline' : 'default'}
         loading={dang}

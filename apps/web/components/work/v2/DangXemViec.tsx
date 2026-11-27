@@ -22,6 +22,7 @@ import type { CotBang, useCotBang } from '@/components/ui/use-cot-bang'
 import { hienNgay, KIEU_NGAY_MAC_DINH, type KieuNgay } from '@/lib/dinh-dang-ngay'
 import { mocThoiGian, nhanHan, soNgayToiHan } from '@/lib/work'
 import { chac, doiNguoiChinh, GOI_Y_THEM_NGAN, HanChu, hanLuu, hanO, TT, UU, type GiaTriNhap, type Uu } from './chung'
+import { saoChep } from '@/lib/sao-chep'
 
 /** Trường mà các dạng xem đọc — `ViecRow` (Việc của tôi) và `ViecTeamRow` (Bảng team) đều có. */
 export type ViecXem = Pick<
@@ -205,6 +206,7 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
         return (
           <OSuaHan
             ma={v.ref}
+            gioMacDinh="17:00"
             value={hanO(v.due_at)}
             onLuu={(h) => luu(suaViec(v.id, h ? { due: hanLuu(h) } : { xoa_due: true }))}
             hien={() => <HanChu due={v.due_at} kieu={kieu} />}
@@ -245,6 +247,7 @@ export function useViecNhap(nenTang: NenTang) {
         return (
           <OSuaHan
             ma="Việc mới"
+            gioMacDinh="17:00"
             value={n.han}
             onLuu={(han) => doi({ han })}
             hien={() => <HanChu due={n.han ? hanLuu(n.han) : null} />}
@@ -298,12 +301,12 @@ export function MenuViec({ v, moViec }: { v: Pick<ViecXem, 'id' | 'ref'>; moViec
         Xem nhanh
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem onSelect={() => void navigator.clipboard?.writeText(v.ref)}>
+      <ContextMenuItem onSelect={() => void saoChep(v.ref)}>
         <Copy aria-hidden="true" />
         Sao chép mã việc
       </ContextMenuItem>
       <ContextMenuItem
-        onSelect={() => void navigator.clipboard?.writeText(`${location.origin}${location.pathname}?xem=${v.id}`)}
+        onSelect={() => void saoChep(`${location.origin}${location.pathname}?xem=${v.id}`)}
       >
         <LinkSimple aria-hidden="true" />
         Sao chép đường dẫn
