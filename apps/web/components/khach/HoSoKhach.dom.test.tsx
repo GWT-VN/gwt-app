@@ -133,3 +133,16 @@ test('duongHoSoKhach → tab Ticket, ticket đang xem', () => {
   expect(duongHoSoKhach('K 1', 'T1')).toBe('/khach/K%201?tab=ticket&ticket=T1')
   expect(duongHoSoKhach('K1')).toBe('/khach/K1?tab=ticket')
 })
+
+test('ticket có cả dòng lỗi có máy lẫn không máy → có ở thẻ máy và thẻ "Chưa rõ máy" (chip lỗi không máy)', () => {
+  const { container } = mo({
+    tickets: [ticket('T1', '2026-11-01T02:00:00Z')],
+    dongLoi: [dong('T1', '2026-11-01'), { ...dong('T1', '2026-11-01', null), loi_code: 'CHUA_PHAN_LOAI', loi_ten: null }],
+  })
+  const chuaRo = container.querySelector('[data-module="may-ticket"][data-may=""]')!
+  expect(chuaRo.textContent).toContain('Chưa rõ máy')
+  fireEvent.click(chuaRo.querySelector('button')!)
+  expect(chuaRo.querySelector('[data-ticket="T1"]')).toBeTruthy()
+  expect(chuaRo.querySelector('dl')!.textContent).toContain('Chưa phân loại ×1')
+  expect(theMay(container, 'S1').querySelector('[data-ticket="T1"]')).toBeTruthy()
+})

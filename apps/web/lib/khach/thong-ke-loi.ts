@@ -76,8 +76,10 @@ export type NhomMay<T> = { serial: string | null; ten: string | null; tickets: T
 /**
  * Gom ticket theo máy (tab Ticket hồ sơ khách — CEO 27/11 "tên máy KH mua → mở ra có ticket riêng cho máy đó"):
  * - Mỗi máy của khách một nhóm, kể cả máy chưa có ticket.
- * - Ticket thuộc máy theo dòng lỗi (báo nhiều máy → có ở mỗi máy); không có dòng lỗi mang serial thì theo `serial` của
- *   ticket; serial không thuộc máy của khách → nhóm riêng (tên từ ticket); không máy nào → nhóm `serial: null`.
+ * - Ticket thuộc máy theo dòng lỗi (báo nhiều máy → có ở mỗi máy; có thêm dòng không máy → có cả ở nhóm `serial: null`
+ *   "Chưa rõ máy"); dòng lỗi toàn không máy mà ticket có `serial` → dòng đó là của máy ticket (`ganMayTicket`, trước khi
+ *   đếm); không dòng lỗi → theo `serial` của ticket. Serial không thuộc máy của khách → nhóm riêng (tên từ dòng lỗi của
+ *   serial đó, rồi tên trên ticket).
  * - `loi` = chip `Mã ×n` của máy (`thongKeLoiTheoMay`, bỏ ticket huỷ).
  * - Sắp: nhóm có ticket `dangXem` trước, rồi ticket gần nhất mới trước, rồi máy chưa có ticket (giữ thứ tự `may`);
  *   "Chưa rõ máy" luôn cuối. Ticket trong nhóm mới → cũ.
@@ -88,6 +90,7 @@ export function gomTicketTheoMay<T extends Pick<Ticket, 'ticket_code' | 'created
   may: { serial: string; product_name: string | null; internal_code: string | null }[],
   dangXem: string | null,
 ): NhomMay<T>[] {
+  dongLoi = ganMayTicket(dongLoi, tickets)
   const loi = new Map(thongKeLoiTheoMay(dongLoi).map((m) => [m.may, m.loi]))
   const nhom = new Map<string | null, NhomMay<T>>()
   const lay = (serial: string | null, ten: string | null) => {
@@ -97,14 +100,23 @@ export function gomTicketTheoMay<T extends Pick<Ticket, 'ticket_code' | 'created
   }
   for (const m of may) lay(m.serial, m.product_name ?? m.internal_code)
   for (const t of [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at))) {
-    const dong = dongLoi.filter((d) => d.ticket_code === t.ticket_code && d.serial !== null)
-    const serials = new Set<string | null>(dong.map((d) => d.serial))
-    if (serials.size === 0) serials.add(t.serial)
-    for (const s of serials) lay(s, s && (t.product_name ?? dong.find((d) => d.serial === s)?.internal_code ?? null)).tickets.push(t)
+    const dong = dongLoi.filter((d) => d.ticket_code === t.ticket_code)
+    const serials = new Set<string | null>(dong.length ? dong.map((d) => d.serial) : [t.serial])
+    for (const s of serials) {
+      const d = s ? dong.find((x) => x.serial === s) : undefined
+      lay(s, s && (d?.product_name ?? d?.internal_code ?? t.product_name ?? null)).tickets.push(t)
+    }
   }
   const coXem = (n: NhomMay<T>) => n.tickets.some((t) => t.ticket_code === dangXem)
   const moiNhat = (n: NhomMay<T>) => n.tickets[0]?.created_at ?? ''
   return [...nhom.values()].sort(
     (a, b) => Number(a.serial === null) - Number(b.serial === null) || Number(coXem(b)) - Number(coXem(a)) || moiNhat(b).localeCompare(moiNhat(a)),
   )
+}
+
+/** Ticket mà MỌI dòng lỗi đều không máy nhưng chính ticket có `serial` → gán serial đó cho các dòng (đếm lỗi cho máy đó). */
+function ganMayTicket(dongLoi: DongLoiMay[], tickets: Pick<Ticket, 'ticket_code' | 'serial'>[]): DongLoiMay[] {
+  const coMay = new Set(dongLoi.filter((d) => d.serial !== null).map((d) => d.ticket_code))
+  const serial = new Map(tickets.filter((t) => t.serial && !coMay.has(t.ticket_code)).map((t) => [t.ticket_code, t.serial]))
+  return dongLoi.map((d) => (d.serial === null && serial.has(d.ticket_code) ? { ...d, serial: serial.get(d.ticket_code)! } : d))
 }

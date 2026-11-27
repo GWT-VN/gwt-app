@@ -66,3 +66,28 @@ test('gomTicketTheoMay: mỗi máy một nhóm, ticket theo dòng lỗi / serial
   // Không ticket nào thiếu máy → không có nhóm "Chưa rõ máy".
   expect(gomTicketTheoMay([], [], may, null).map((n) => n.serial)).toEqual(['A', 'B', 'C'])
 })
+
+test('gomTicketTheoMay: dòng lỗi không máy — ticket có máy trên ticket nhận lỗi đó; ticket lẫn hai loại có ở cả máy lẫn "Chưa rõ máy"', () => {
+  const t = (ticket_code: string, serial: string | null = null, product_name: string | null = null) =>
+    ({ ticket_code, created_at: '2026-11-01', serial, product_name }) as Pick<Ticket, 'ticket_code' | 'created_at' | 'serial' | 'product_name'>
+  const d = (ticket_code: string, serial: string | null, loi_code: string, x: Partial<DongLoiMay> = {}): DongLoiMay => ({
+    ticket_code, state: 'Open', serial, internal_code: null, product_name: null, loi_code, loi_ten: null, ngay: '2026-11-01', ...x,
+  })
+  const may = [{ serial: 'S1', product_name: 'Máy 1', internal_code: null }, { serial: 'B', product_name: 'Máy B', internal_code: null }]
+  // Ca A: T có [S1/E3, null/CHUA_PHAN_LOAI] → T ở S1 và ở "Chưa rõ máy" (chip Chưa phân loại).
+  const a = gomTicketTheoMay([t('T')], [d('T', 'S1', 'E3'), d('T', null, 'CHUA_PHAN_LOAI')], may, null)
+  expect(a.find((n) => n.serial === 'S1')!.tickets.map((x) => x.ticket_code)).toEqual(['T'])
+  const chuaRo = a.find((n) => n.serial === null)!
+  expect(chuaRo.tickets.map((x) => x.ticket_code)).toEqual(['T'])
+  expect(chuaRo.loi).toMatchObject([{ code: 'CHUA_PHAN_LOAI', ten: 'Chưa phân loại', so_lan: 1 }])
+  // Ca B: T mang serial B, dòng lỗi duy nhất không máy → lỗi đếm cho B, không có nhóm "Chưa rõ máy".
+  const b = gomTicketTheoMay([t('T', 'B')], [d('T', null, 'CHUA_PHAN_LOAI')], may, null)
+  expect(b.find((n) => n.serial === 'B')!.tickets.map((x) => x.ticket_code)).toEqual(['T'])
+  expect(b.find((n) => n.serial === 'B')!.loi).toMatchObject([{ code: 'CHUA_PHAN_LOAI', so_lan: 1 }])
+  expect(b.some((n) => n.serial === null)).toBe(false)
+  // Serial lạ: tên lấy từ dòng lỗi của chính serial đó trước tên trên ticket.
+  const z = gomTicketTheoMay([t('T', null, 'Tên trên ticket')], [d('T', 'Z9', 'E1', { product_name: 'Máy Z9', internal_code: 'GN610' })], may, null)
+  expect(z.find((n) => n.serial === 'Z9')!.ten).toBe('Máy Z9')
+  const z2 = gomTicketTheoMay([t('T', null, 'Tên trên ticket')], [d('T', 'Z9', 'E1', { internal_code: 'GN610' })], may, null)
+  expect(z2.find((n) => n.serial === 'Z9')!.ten).toBe('GN610')
+})
