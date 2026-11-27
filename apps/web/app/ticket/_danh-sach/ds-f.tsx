@@ -6,7 +6,7 @@
 // Dữ liệu: server (page.tsx → searchTickets) đã lọc theo tab + trường + tìm, sắp, cắt trang; số tab đếm ở DB.
 // Sửa tại chỗ (Xem nhanh, kéo thẻ, hàng loạt) CHƯA nối mutation — chỉ đổi state trên màn (bước 4 của kế hoạch).
 import { Suspense, useRef, useState, type ReactNode } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowsClockwise,
   CalendarPlus,
@@ -517,6 +517,11 @@ export function TicketF({
     if (!ma) setTabTam(null)
     dat({ xem: ma, ...(ma ? {} : { xem_tab: null }) }, true)
   }
+  // Bấm ticket (mã ở bảng, dòng ListView, thẻ Kanban) → mở THẲNG trang chi tiết (CEO 27/11 "click vào ticket sẽ mở ra màn
+  // chi tiết luôn"). Đang bật thẻ Xem nhanh (nút ở thanh công cụ) thì bấm chỉ đổi bản ghi trong thẻ — README DataViewToolbar
+  // "tắt → bấm bản ghi mở trang chi tiết". Ticket demo (không có trang chi tiết) vẫn mở Xem nhanh.
+  const router = useRouter()
+  const bam = (ma: string) => (xem || laDemo(ma) ? mo(ma) : router.push(`/ticket/${encodeURIComponent(ma)}`))
   const tabXem: TabXem = tabTam ?? TAB_XEM.find((x) => x === sp.get('xem_tab')) ?? 'tong'
   const doiTab = (v: TabXem) => {
     setTabTam(v)
@@ -590,7 +595,7 @@ export function TicketF({
   // Ô sửa được (CEO 26/11 "Mở chọn giá trị" — học hành vi Twenty): Trạng thái, Phụ trách, Loại, Loại lỗi. Máy và Tỉnh/TP
   // chỉ đọc (Tỉnh/TP đọc từ KHÁCH; đổi máy cần đọc máy của khách + DB local chưa có ticket_may — báo phiên chính).
   const ng: NgCanhO = {
-    mo,
+    mo: bam,
     kieuNgay: c.kieuNgay,
     sua: quyenSua
       ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi, mayKhach, doiMay }
@@ -645,7 +650,7 @@ export function TicketF({
     </TableWrap>
   )
   const ds = (
-    <ListView aria-label="Ticket CSKH" cot={COT_DS} dong={dong} khoa={(d) => d.ticket_code} onMo={(d) => mo(d.ticket_code)} dangMo={xem} moKhi="ten" />
+    <ListView aria-label="Ticket CSKH" cot={COT_DS} dong={dong} khoa={(d) => d.ticket_code} onMo={(d) => bam(d.ticket_code)} dangMo={xem} moKhi="ten" />
   )
 
   return (
@@ -762,7 +767,7 @@ export function TicketF({
                   ),
                 }))}
                 onChuyen={chuyenThe}
-                onMo={(ma) => mo(ma)}
+                onMo={(ma) => bam(ma)}
                 menuCot={{
                   them: { nhan: 'Thêm ticket', onThem: chuaLuu },
                   onAn: (c) => datNhomAn([...nhomAn, c.id]),
