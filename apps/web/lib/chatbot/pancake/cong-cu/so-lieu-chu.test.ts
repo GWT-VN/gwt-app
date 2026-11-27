@@ -172,12 +172,12 @@ describe("bảng giá nhiều máy kèm tổng giá trị quà", () => {
     expect(giaTriQua(km({}))).toBeNull();
     expect(giaTriQua(null)).toBeNull();
   });
-  it("mỗi máy có quà ghi ', quà tặng trị giá N'; máy không quà thì không", () => {
+  it("mỗi máy có quà ghi '+ quà tặng trị giá N'; máy không quà thì không", () => {
     const r = traLoiGiaDanhMuc([{ ten: "Lọc tổng", ds: [
       { ...MAY, ten: "WH30A", gia: [{ dong: 249950000 } as never], khuyenMai: km({ giaSauKm: 249950000, quaMoTa: "combo trị giá 56.400.000đ, gồm: …" }) },
       { ...MAY, ten: "GN610", gia: [{ dong: 16950000 } as never], khuyenMai: km({ giaSauKm: 11865000 }) },
     ] }], { xinSo: false, daCoSo: false })!;
-    expect(r.soLieu).toContain("WH30A khuyến mãi còn 249.950.000 đ (giá gốc 249.950.000 đ), quà tặng trị giá 56.400.000 đ");
+    expect(r.soLieu).toContain("WH30A khuyến mãi còn 249.950.000 đ (giá gốc 249.950.000 đ) + quà tặng trị giá 56.400.000 đ");
     expect(r.soLieu).toContain("GN610 khuyến mãi còn 11.865.000 đ (giá gốc 16.950.000 đ)");
     expect(r.soLieu).not.toMatch(/GN610[^,\n]*quà/);
   });

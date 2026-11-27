@@ -49,7 +49,7 @@ export function traLoiGiaDanhMuc(
       // Đã chốt 2026-10-21: máy đang khuyến mãi báo GIÁ SAU KM làm giá chính (giá khách trả), niêm yết chỉ để so.
       // anh Dũng chốt 2026-11-27: bảng giá nhiều máy ghi kèm TỔNG giá trị quà (không kể từng món).
       const qua = giaTriQua(sl.khuyenMai);
-      const kemQua = qua ? `, quà tặng trị giá ${tienViet(qua)}` : "";
+      const kemQua = qua ? ` + quà tặng trị giá ${tienViet(qua)}` : "";
       return [km ? `${sl.ten} khuyến mãi còn ${tienViet(km)} (giá gốc ${goc})${kemQua}` : `${sl.ten} ${goc}${kemQua}`];
     });
     return may.length ? [`- ${n.ten}: ${may.join(", ")}`] : [];
