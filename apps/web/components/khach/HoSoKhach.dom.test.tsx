@@ -180,3 +180,29 @@ test('lần lỗi trong thẻ máy S2 → LanLoiThat nhận serial S2 (thêm l�
   expect(lanProps.filter((p) => p.t.ticket_code === 'T9').map((p) => p.serial)).toEqual([undefined])
   sp.v = 'tab=ticket&ticket=T1'
 })
+
+test('máy chờ serial: đầu thẻ tên + nhãn "Chờ serial" (không hiện mã tạm); thân có Serial "Chưa có · mã tạm"; máy thường không nhãn', () => {
+  sp.v = 'tab=ticket'
+  const may = [MAY[0], { ...MAY[1], serial: 'TAM202611001', cho_serial: true }]
+  const { container, unmount } = mo({ may })
+  const tam = theMay(container, 'TAM202611001')
+  fireEvent.click(tam.querySelector('button')!)
+  const dau = tam.querySelector('button')!
+  expect(dau.textContent).toContain('GN610')
+  expect(dau.textContent).toContain('Chờ serial')
+  expect(dau.textContent).not.toContain('TAM202611001')
+  const dl = tam.querySelector('dl')!.textContent
+  expect(dl).toContain('Serial')
+  expect(dl).toContain('Chưa có')
+  expect(dl).toContain('mã tạm TAM202611001')
+  expect(theMay(container, 'S1').textContent).not.toContain('Chờ serial')
+  expect(theMay(container, 'S1').querySelector('dl')!.textContent).not.toContain('mã tạm')
+  unmount()
+  // Sản phẩm đã mua: ô serial của máy chờ serial = nhãn + mã tạm; máy thường chỉ serial.
+  sp.v = 'tab=thong-tin'
+  const bang = mo({ may }).container.querySelector('[data-module="may"]')!
+  expect(bang.textContent).toContain('Chờ serial')
+  expect(bang.textContent).toContain('TAM202611001')
+  expect(bang.textContent!.match(/Chờ serial/g)).toHaveLength(1)
+  sp.v = 'tab=ticket&ticket=T1'
+})

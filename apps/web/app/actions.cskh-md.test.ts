@@ -100,6 +100,26 @@ describe('machinesOfCustomer: ảnh product_master', () => {
     }
     expect((await machinesOfCustomer('k')).map((m) => m.image_url)).toEqual(['https://anh.test/a.png', null, null, null])
   })
+  it('md: cờ chờ serial từ customer_care.machine_details (nối theo serial; không có dòng = false), không đọc ST', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    duLieu = {
+      'md:public.v_installed_base': [{ serial: 'TAM202611001', internal_code: null }, { serial: 'S2', internal_code: null }, { serial: 'S3', internal_code: null }],
+      'md:customer_care.machine_details': [{ serial: 'TAM202611001', waiting_for_serial: true }, { serial: 'S2', waiting_for_serial: false }],
+    }
+    expect((await machinesOfCustomer('k')).map((m) => m.cho_serial)).toEqual([true, false, false])
+    expect(goi).toContain('md:customer_care.machine_details')
+    expect(goi.filter((g) => g.startsWith('st:'))).toEqual([])
+  })
+  it('st: cờ chờ serial từ installed_base.cho_serial (v_installed_base chưa có cột), không gọi MD', async () => {
+    vi.stubEnv('CSKH_NGUON', '')
+    duLieu = {
+      'st:public.v_installed_base': [{ serial: 'TAM202611001' }, { serial: 'S2' }],
+      'st:public.installed_base': [{ serial: 'TAM202611001', cho_serial: true }, { serial: 'S2', cho_serial: false }],
+    }
+    expect((await machinesOfCustomer('k')).map((m) => m.cho_serial)).toEqual([true, false])
+    expect(goi).toContain('st:public.installed_base')
+    expect(goi.filter((g) => g.startsWith('md:'))).toEqual([])
+  })
 })
 
 describe('danhMucLoi theo CSKH_NGUON', () => {

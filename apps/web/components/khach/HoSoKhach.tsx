@@ -53,6 +53,8 @@ export type MayHoSo = {
   install_date?: string | null
   /** Ảnh sản phẩm (chỉ khi CSKH_NGUON=md: product_master.image_url). Không có → ô icon. */
   image_url?: string | null
+  /** Kích hoạt BH khi chưa có serial — `serial` đang là mã tạm TAM… (ST installed_base.cho_serial · MD machine_details). */
+  cho_serial?: boolean
 }
 export type BaoTriHoSo = { id: string; lan: number | null; ngay: string | null; xong: string | null; boMay: string | null }
 export type LienHeHoSo = { id: string; sdt: string | null; ten: string | null; vaiTro: string | null; chinh: boolean }
@@ -229,10 +231,18 @@ function TheMay({
       moSan={moSan}
       khit
       tieuDe={
-        <span>
-          {n.serial === null ? 'Chưa rõ máy' : (n.ten ?? 'Chưa rõ tên máy')}
-          {n.serial && <span className="font-normal tabular-nums text-muted-foreground"> {n.serial}</span>}
-        </span>
+        may?.cho_serial ? (
+          // Máy chờ serial: nhãn thay mã tạm (mã tạm ở thân, dòng Serial). Tên cắt "…", nhãn giữ nguyên.
+          <span className="flex min-w-0 items-center gap-2 border-none border-current">
+            <span className="truncate">{n.ten ?? 'Chưa rõ tên máy'}</span>
+            <ChoSerial />
+          </span>
+        ) : (
+          <span>
+            {n.serial === null ? 'Chưa rõ máy' : (n.ten ?? 'Chưa rõ tên máy')}
+            {n.serial && <span className="font-normal tabular-nums text-muted-foreground"> {n.serial}</span>}
+          </span>
+        )
       }
       thaoTac={
         <span className="flex items-center gap-2 border-none border-current">
@@ -247,6 +257,13 @@ function TheMay({
     >
       <div className="mx-4 border-0 border-b border-solid border-(--border) py-3">
         <PropertyList>
+          {may?.cho_serial && (
+            <PropertyRow nhan="Serial">
+              <span>
+                Chưa có <span className="tabular-nums text-muted-foreground">· mã tạm {may.serial}</span>
+              </span>
+            </PropertyRow>
+          )}
           {may && (
             <>
               <PropertyRow nhan="Bảo hành đến">
@@ -425,7 +442,22 @@ function KhoiMay({ may, demo }: { may: MayHoSo[]; demo: boolean }) {
                 </span>
               ),
             },
-            { id: 'serial', ten: 'Serial', rong: '150px', dienThoai: 'duoi', o: (m) => <span className="tabular-nums">{m.serial}</span> },
+            {
+              id: 'serial',
+              ten: 'Serial',
+              rong: '150px',
+              dienThoai: 'duoi',
+              o: (m) =>
+                m.cho_serial ? (
+                  // Chờ serial: nhãn + mã tạm mờ dòng dưới (như mã nội bộ ở cột Sản phẩm).
+                  <span className="flex min-w-0 flex-col items-start border-none border-current">
+                    <ChoSerial />
+                    <span className="text-[12px] leading-[18px] tabular-nums text-muted-foreground">{m.serial}</span>
+                  </span>
+                ) : (
+                  <span className="tabular-nums">{m.serial}</span>
+                ),
+            },
             {
               id: 'lap',
               ten: 'Ngày lắp',
@@ -452,6 +484,12 @@ const BH = {
 } as const
 const loaiBh = (m: MayHoSo): keyof typeof BH =>
   !m.warranty_activated ? 'chua' : m.warranty_full_end && m.warranty_full_end < new Date().toISOString().slice(0, 10) ? 'het' : 'con'
+
+const ChoSerial = () => (
+  <Badge variant="soft" color="warning" className="shrink-0">
+    Chờ serial
+  </Badge>
+)
 
 function ChuBh({ m }: { m: MayHoSo }) {
   const k = loaiBh(m)

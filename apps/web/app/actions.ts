@@ -79,6 +79,8 @@ export type Machine = {
   ghi_chu: string | null
   /** Chỉ có khi CSKH_NGUON=md (machinesOfCustomer): ảnh sản phẩm `product_master.image_url`. */
   image_url?: string | null
+  /** Chỉ có ở machinesOfCustomer: máy kích hoạt BH khi chưa có serial — `serial` đang là mã tạm TAM… */
+  cho_serial?: boolean
 }
 
 /** Tra máy theo serial / tên khách / SĐT / địa chỉ (không dấu). Rỗng -> máy lắp gần nhất. */
@@ -2821,8 +2823,18 @@ export async function machinesOfCustomer(customerId: string): Promise<Machine[]>
     .from('v_installed_base').select('*').eq('customer_id', customerId)
     .order('install_date', { ascending: false, nullsFirst: false })
   if (error) throw new Error(error.message)
-  const may = (data ?? []) as Machine[]
-  if (cskhNguon() !== 'md' || !may.length) return may
+  if (!data?.length) return []
+  const md = cskhNguon() === 'md'
+  // Cờ "chờ serial" (kích hoạt BH trước, serial đang là mã tạm TAM…): ST ở installed_base.cho_serial (v_installed_base
+  // chưa có cột), MD ở customer_care.machine_details (1–1, không có dòng = false). Lỗi đọc cờ → coi như máy thường.
+  const serials = (data as Machine[]).map((m) => m.serial)
+  const { data: co } = md
+    ? await db.schema('customer_care').from('machine_details').select('serial, waiting_for_serial').in('serial', serials)
+    : await db.from('installed_base').select('serial, cho_serial').in('serial', serials)
+  const cho = new Set(((co ?? []) as { serial: string; waiting_for_serial?: boolean; cho_serial?: boolean }[])
+    .filter((r) => r.waiting_for_serial ?? r.cho_serial).map((r) => r.serial))
+  const may = (data as Machine[]).map((m) => ({ ...m, cho_serial: cho.has(m.serial) }))
+  if (!md) return may
   // MD: ảnh sản phẩm từ product_master (chỉ đọc, nối theo internal_code). Lỗi đọc ảnh → vẫn trả máy, không ảnh.
   // Chỉ nhận URL http(s): cột có dấu 'CHUA_LAY' (MD baseline_05: mọi chỗ tiêu thụ phải lọc) → ô icon.
   const ma = [...new Set(may.flatMap((m) => (m.internal_code ? [m.internal_code] : [])))]
