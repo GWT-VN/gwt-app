@@ -54,7 +54,7 @@ export function SavedView({
   query: string
   /** Tên khu cho dòng chia sẻ ("Chia sẻ cho cả khu CSKH"). */
   khu: string
-  onLuu: (v: GiaTriLuu) => void
+  onLuu: (v: GiaTriLuu) => void | Promise<void | { loi: string }>
   /** Nút mở (PopoverTrigger asChild); mặc định nút ghost "Lưu bộ lọc". */
   trigger?: ReactNode
   chu?: Partial<ChuSavedView>
@@ -70,10 +70,17 @@ export function SavedView({
     ...chuRieng,
   }
   const [mo, setMo] = useState(false)
+  const [dangLuu, setDangLuu] = useState(false)
+  const [loiLuu, setLoiLuu] = useState<string>()
+  const khoa = useRef(false)
   const o = useRef<HTMLInputElement>(null)
   const idTieuDe = useId()
   return (
-    <Popover open={mo} onOpenChange={setMo}>
+    <Popover open={mo} onOpenChange={(moi) => {
+      if (khoa.current) return
+      setLoiLuu(undefined)
+      setMo(moi)
+    }}>
       <PopoverTrigger asChild>
         {trigger ?? (
           <Button variant="ghost" size="sm">
@@ -97,10 +104,27 @@ export function SavedView({
           idTieuDe={idTieuDe}
           dieuKien={dieuKien}
           chu={chu}
-          luu={(ten, chiaSe) => {
-            onLuu({ ten, chiaSe, query })
-            if (chu.xong) thongBao.xong(chu.xong(ten))
-            setMo(false)
+          dangLuu={dangLuu}
+          loiLuu={loiLuu}
+          luu={async (ten, chiaSe) => {
+            if (khoa.current) return
+            khoa.current = true
+            setDangLuu(true)
+            setLoiLuu(undefined)
+            try {
+              const ketQua = await onLuu({ ten, chiaSe, query })
+              if (ketQua?.loi) {
+                setLoiLuu(ketQua.loi)
+                return
+              }
+              if (chu.xong) thongBao.xong(chu.xong(ten))
+              setMo(false)
+            } catch {
+              setLoiLuu('Không lưu được. Thử lại.')
+            } finally {
+              khoa.current = false
+              setDangLuu(false)
+            }
           }}
         />
       </PopoverContent>
@@ -113,12 +137,16 @@ function NoiDung({
   idTieuDe,
   dieuKien,
   chu,
+  dangLuu,
+  loiLuu,
   luu,
 }: {
   o: RefObject<HTMLInputElement | null>
   idTieuDe: string
   dieuKien: { nhan: string; giaTri: string }[]
   chu: ChuSavedView
+  dangLuu: boolean
+  loiLuu?: string
   luu: (ten: string, chiaSe: boolean) => void
 }) {
   const [ten, setTen] = useState('')
@@ -179,13 +207,14 @@ function NoiDung({
           <Checkbox checked={chiaSe} onCheckedChange={(v) => setChiaSe(v === true)} />
         </ChoiceLabel>
       )}
+      {loiLuu && <FieldError role="alert">{loiLuu}</FieldError>}
       <div className={svChan}>
         <PopoverPrimitive.Close asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" disabled={dangLuu}>
             Huỷ
           </Button>
         </PopoverPrimitive.Close>
-        <Button type="submit" size="sm">
+        <Button type="submit" size="sm" loading={dangLuu}>
           Lưu
         </Button>
       </div>

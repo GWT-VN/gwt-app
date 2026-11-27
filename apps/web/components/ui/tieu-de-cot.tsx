@@ -80,7 +80,7 @@ type Chieu = 'tang' | 'giam'
 /** Một tag trong menu lọc — vẽ bằng `Badge` outline (+ chấm màu) như trong ô. Có cả "Chưa phân loại" nếu dữ liệu có. */
 export type MucLoc = { giaTri: string; nhan: string; color?: 'info' | 'success' | 'warning' | 'danger' | 'discovery' }
 
-export type SapCot = { chieu: Chieu | null; onDoi: (chieu: Chieu | null) => void }
+export type SapCot = { chieu: Chieu | null; macDinh?: boolean; onDoi: (chieu: Chieu | null) => void }
 export type LocCot = { tuyChon: MucLoc[]; daChon: string[]; onDoi: (giaTri: string[]) => void }
 
 /**
@@ -215,7 +215,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
     bao?.(`Đã dời cột ${cot.ten} sang ${ben === 'trai' ? 'trái, trước' : 'phải, sau'} cột ${ke}.`)
   }
   const anCot = () => {
-    if (!menuCot) return
+    if (!menuCot?.onAn) return
     // Ô này sắp bị gỡ (Radix trả focus về nút đã mất) → đưa focus sang tiêu đề kế bên sau khi dựng lại.
     const o = oRef.current
     const ke = (o?.nextElementSibling ?? o?.previousElementSibling) as HTMLElement | null
@@ -324,7 +324,7 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
                   </DropdownMenuRadioItem>
                 ))}
               </DropdownMenuRadioGroup>
-              {sap.chieu && (
+              {sap.chieu && !sap.macDinh && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => sap.onDoi(null)}>Bỏ sắp xếp</DropdownMenuItem>
@@ -393,10 +393,12 @@ function ODau({ p, keo }: { p: PropsTieuDeCot; keo?: Keo }) {
                 <ArrowRight aria-hidden="true" />
                 Dời sang phải
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={anCot}>
-                <EyeSlash aria-hidden="true" />
-                Ẩn cột
-              </DropdownMenuItem>
+              {menuCot.onAn && (
+                <DropdownMenuItem onSelect={anCot}>
+                  <EyeSlash aria-hidden="true" />
+                  Ẩn cột
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuContent>

@@ -2,6 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { CaretDown, DownloadSimple } from '@phosphor-icons/react/ssr'
+import { Button } from '@/components/ui/button'
+import { Checkbox, ChoiceLabel } from '@/components/ui/checkbox'
+import { useDsPortal } from '@/components/ui/ds-root'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export type CotXuat = { key: string; nhan: string; pii?: boolean }
 type KetQuaXuat = { ok: true; csv: string } | { ok: true; pending: true } | { ok: false; error: string }
@@ -39,6 +44,7 @@ export function NutXuat({
   onTai?: (id: string) => Promise<KetQuaTai>
 }) {
   const router = useRouter()
+  const dsPortal = useDsPortal()
   const [mo, setMo] = useState(false)
   const [chon, setChon] = useState<string[]>([...macDinh])
   const [busy, setBusy] = useState(false)
@@ -70,50 +76,54 @@ export function NutXuat({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="relative">
-        <button onClick={() => { setMo((v) => !v); setMsg(null); setErr(null) }} disabled={busy}
-          className="rounded-lg border bg-white text-slate-700 px-3 py-1.5 text-sm disabled:opacity-50">
-          ⬇ Xuất Excel ▾
-        </button>
-        {mo && (
-          <>
-            <div className="fixed inset-0 z-10" onClick={() => setMo(false)} />
-            <div className="absolute z-20 mt-1 w-64 rounded-lg border bg-white shadow-lg p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-slate-600">Chọn trường xuất</span>
-                <div className="flex gap-2 text-[11px]">
-                  <button onClick={() => setChon(cot.map((c) => c.key))} className="text-slate-500 hover:underline">Tất cả</button>
-                  <button onClick={() => setChon([])} className="text-slate-500 hover:underline">Bỏ hết</button>
-                </div>
-              </div>
-              <ul className="max-h-56 overflow-auto space-y-1 pr-1">
-                {cot.map((c) => (
-                  <li key={c.key}>
-                    <label className="flex items-center gap-2 text-sm text-slate-700">
-                      <input type="checkbox" checked={chon.includes(c.key)} onChange={() => toggle(c.key)} />
-                      {c.nhan}{c.pii && <span className="text-[10px] text-amber-600">(PII)</span>}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-              {coPii && <p className="text-[11px] text-amber-700">Có SĐT/địa chỉ → admin xuất ngay, CS phải chờ duyệt.</p>}
-              <button onClick={xuat} disabled={busy || chon.length === 0}
-                className="w-full rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm font-medium disabled:opacity-50">
-                {busy ? 'Đang xuất…' : coPii ? 'Xuất (cần duyệt)' : 'Xuất'}
-              </button>
+      <Popover open={mo} onOpenChange={(moi) => {
+        setMo(moi)
+        if (moi) { setMsg(null); setErr(null) }
+      }}>
+        <PopoverTrigger asChild>
+          <Button loading={busy} size="sm" variant="ghost">
+            <DownloadSimple aria-hidden="true" />
+            Xuất Excel
+            <CaretDown aria-hidden="true" className="size-3!" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          aria-label="Chọn trường xuất"
+          noiTuyen={!dsPortal}
+          className="w-64 max-w-(--radix-popover-content-available-width) space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">Chọn trường xuất</span>
+            <div className="flex gap-2 text-[11px]">
+              <button onClick={() => setChon(cot.map((c) => c.key))} className="text-muted-foreground hover:underline">Tất cả</button>
+              <button onClick={() => setChon([])} className="text-muted-foreground hover:underline">Bỏ hết</button>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+          <ul className="max-h-56 overflow-auto space-y-1 pr-1">
+            {cot.map((c) => (
+              <li key={c.key}>
+                <ChoiceLabel>
+                  <Checkbox checked={chon.includes(c.key)} onCheckedChange={() => toggle(c.key)} />
+                  {c.nhan}{c.pii && <span className="ml-1 text-xs text-(--color-text-warning)">(PII)</span>}
+                </ChoiceLabel>
+              </li>
+            ))}
+          </ul>
+          {coPii && <p className="text-[11px] text-(--color-text-warning)">Có SĐT/địa chỉ → admin xuất ngay, CS phải chờ duyệt.</p>}
+          <Button size="sm" onClick={xuat} disabled={chon.length === 0} loading={busy} className="w-full">
+            {busy ? 'Đang xuất…' : coPii ? 'Xuất (cần duyệt)' : 'Xuất'}
+          </Button>
+        </PopoverContent>
+      </Popover>
 
       {daDuyet.map((y) => (
-        <button key={y.id} onClick={() => tai(y.id)} disabled={busy}
-          className="rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 px-3 py-1.5 text-sm disabled:opacity-50">
-          ⬇ Tải bản đã duyệt{y.nhan ? ` ${y.nhan}` : ''}
-        </button>
+        <Button key={y.id} onClick={() => tai(y.id)} disabled={busy} variant="outline" size="sm">
+          <DownloadSimple aria-hidden="true" />
+          Tải bản đã duyệt{y.nhan ? ` ${y.nhan}` : ''}
+        </Button>
       ))}
-      {msg && <span className="text-sm text-emerald-700">{msg}</span>}
-      {err && <span className="text-sm text-red-600">{err}</span>}
+      {msg && <span className="text-sm text-(--color-text-success)">{msg}</span>}
+      {err && <span className="text-sm text-(--color-text-danger)">{err}</span>}
     </div>
   )
 }

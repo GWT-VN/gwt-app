@@ -11,7 +11,7 @@ import { menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { TableHead } from './table'
 import { BaoCotCtx } from './tieu-de-cot'
-import type { CotBang } from './use-cot-bang'
+import { anDuoc, type CotBang } from './use-cot-bang'
 
 const TUY_CHINH = '__tuy-chinh'
 
@@ -47,7 +47,7 @@ export function ThemCot({
   const sangCaiDat = useRef(false)
   const bao = useContext(BaoCotCtx)
 
-  const dangAn = cot.filter((c) => !c.khoa && an.includes(c.id))
+  const dangAn = cot.filter((c) => anDuoc(c) && an.includes(c.id))
   const tu = boDau(go.trim())
   const ds = tu ? dangAn.filter((c) => boDau(c.ten).includes(tu)) : dangAn
   const khoa = [...ds.map((c) => c.id), ...(onTuyChinh ? [TUY_CHINH] : [])]

@@ -4613,7 +4613,10 @@ export async function listKhachHang(
 
 export async function khoaTatCaKhachHang(t: ThamSoLoc): Promise<string[]> {
   return gomKhoa(
-    (trang, moiTrang) => listKhachHang(t.q ?? '', { trang, moiTrang, cot: t.cot, chieu: t.chieu }),
+    (trang, moiTrang) => listKhachHang(t.q ?? '', {
+      trang, moiTrang, cot: t.cot, chieu: t.chieu,
+      thieuSdt: t.thieu_sdt === '1', kenhTuDong: t.kenh_tu_dong === '1',
+    }),
     (r) => r.id,
     TOI_DA_CHON
   )

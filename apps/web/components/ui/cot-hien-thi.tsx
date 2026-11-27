@@ -20,7 +20,7 @@ import { cdDongCot, cdKeChua } from './data-view-styles'
 import { useDsPortal } from './ds-root'
 import { menuLabel } from './menu-styles'
 import { CamBienPhimKeo, useEscKhiKeo } from './tieu-de-cot'
-import type { BenTha, CotBang } from './use-cot-bang'
+import { anDuoc, type BenTha, type CotBang } from './use-cot-bang'
 
 /**
  * CotHienThi — thân trang "Cột hiển thị" của ⚙ `CaiDatHienThi` (học Twenty 26/11, mục C): hai nhóm "Đang hiện" / "Đang
@@ -74,7 +74,7 @@ export function CotHienThi({
 
   const khoa = cot.filter((c) => c.khoa)
   const hien = cot.filter((c) => !c.khoa && !an.includes(c.id))
-  const dangAn = cot.filter((c) => !c.khoa && an.includes(c.id))
+  const dangAn = cot.filter((c) => anDuoc(c) && an.includes(c.id))
   // Một danh sách cho cả hai nhóm, mốc `__an` chia: trên = hiện, dưới = ẩn.
   const ids = [...hien.map((c) => c.id), MOC_AN, ...dangAn.map((c) => c.id)]
   const ten = (x: UniqueIdentifier) => cot.find((c) => c.id === x)?.ten ?? String(x)
@@ -90,6 +90,7 @@ export function CotHienThi({
     const i = m.indexOf(String(a))
     const moc = m.indexOf(MOC_AN)
     const dangAnA = an.includes(String(a))
+    if (i > moc && !anDuoc(cot.find((c) => c.id === a)!)) return 'ở chỗ cũ'
     if (i > moc) return dangAnA ? 'trong nhóm Đang ẩn' : 'sang Đang ẩn'
     const ke = i > 0 ? `sau cột ${ten(m[i - 1])}` : m[i + 1] && m[i + 1] !== MOC_AN ? `trước cột ${ten(m[i + 1])}` : 'đầu nhóm'
     return dangAnA ? `sang Đang hiện, ${ke}` : ke
@@ -103,6 +104,7 @@ export function CotHienThi({
     const moc = m.indexOf(MOC_AN)
     const i = m.indexOf(a)
     const seAn = i > moc
+    if (seAn && !anDuoc(cot.find((c) => c.id === a)!)) return
     if (seAn !== an.includes(a)) onAn?.(seAn ? [...an, a] : an.filter((y) => y !== a))
     if (seAn) return
     // Thứ tự trong nhóm hiện: đặt cạnh cột kề (useCotBang gộp được hai lần đổi state liên tiếp — setS hàm).
@@ -151,7 +153,7 @@ export function CotHienThi({
               </div>
             ))}
             {hien.map((c) => (
-              <DongKeo key={c.id} cot={c} keo={!!onDoiCho} an={false} onMat={() => dao(c.id)} />
+              <DongKeo key={c.id} cot={c} keo={!!onDoiCho} an={false} onMat={anDuoc(c) ? () => dao(c.id) : undefined} />
             ))}
           </div>
           <div role="group" aria-label="Đang ẩn" className="border-none border-current">
@@ -182,7 +184,7 @@ function MocAn() {
   )
 }
 
-function DongKeo({ cot, keo, an, onMat }: { cot: CotBang; keo: boolean; an: boolean; onMat: () => void }) {
+function DongKeo({ cot, keo, an, onMat }: { cot: CotBang; keo: boolean; an: boolean; onMat?: () => void }) {
   // Tách sẵn: luật react-hooks/refs coi cả object của useSortable là ref vì setNodeRef gắn vào `ref=`.
   const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: cot.id,
@@ -195,7 +197,7 @@ function DongKeo({ cot, keo, an, onMat }: { cot: CotBang; keo: boolean; an: bool
       ref={setNodeRef}
       data-cot-cd={cot.id}
       data-keo={isDragging ? '' : undefined}
-      className={cn(cdDongCot, 'cursor-pointer hover:bg-(--menu-item-bg)')}
+      className={cn(cdDongCot, onMat && 'cursor-pointer hover:bg-(--menu-item-bg)')}
       style={{ transform: CSS.Translate.toString(transform), transition: transition }}
       onClick={onMat}
     >
@@ -217,18 +219,20 @@ function DongKeo({ cot, keo, an, onMat }: { cot: CotBang; keo: boolean; an: bool
         <span aria-hidden="true" className={cdKeChua} />
       )}
       <span className="min-w-0 flex-1 truncate">{cot.ten}</span>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        data-mat={cot.id}
-        aria-label={`${an ? 'Hiện' : 'Ẩn'} ${cot.ten}`}
-        onClick={(e) => {
-          e.stopPropagation()
-          onMat()
-        }}
-      >
-        {an ? <EyeSlash aria-hidden="true" /> : <Eye aria-hidden="true" />}
-      </Button>
+      {onMat ? (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          data-mat={cot.id}
+          aria-label={`${an ? 'Hiện' : 'Ẩn'} ${cot.ten}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onMat()
+          }}
+        >
+          {an ? <EyeSlash aria-hidden="true" /> : <Eye aria-hidden="true" />}
+        </Button>
+      ) : <span aria-hidden="true" className={cdKeChua} />}
     </div>
   )
 }

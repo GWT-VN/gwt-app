@@ -31,6 +31,8 @@ type CotChung = {
   rongToiDa?: number
   toiThieu?: number
   khoa?: boolean
+  /** Luôn hiện, vẫn đổi chỗ được. */
+  batBuoc?: boolean
   anMacDinh?: boolean
   phai?: boolean
   icon?: ReactNode
@@ -61,7 +63,7 @@ export type MenuCot = {
   trai: string | null
   phai: string | null
   onDoi: (ben: BenTha) => void
-  onAn: () => void
+  onAn?: () => void
 }
 /** Định dạng ngày của một cột `ngay` cho `TieuDeCot ngay` (`useCotBang().ngayCot(id)`). */
 export type NgayCot = { kieu: KieuNgay; onDoi: (k: KieuNgay) => void }
@@ -95,10 +97,12 @@ export function doiChoMang(thuTu: string[], id: string, dich: string, ben: BenTh
 /** `keoTay` = CHỈ cột người dùng đã kéo co dãn (px) — cột vắng mặt dùng `rong` khai sẵn hoặc vừa nội dung. */
 type TrangThaiCot = { thuTu: string[]; keoTay: Record<string, number>; an: string[]; ngay: Record<string, KieuNgay> }
 
+export const anDuoc = (c: CotBang) => !c.khoa && !c.batBuoc
+
 const macDinh = (cot: CotBang[]): TrangThaiCot => ({
   thuTu: cot.map((c) => c.id),
   keoTay: {},
-  an: cot.filter((c) => c.anMacDinh && !c.khoa).map((c) => c.id),
+  an: cot.filter((c) => c.anMacDinh && anDuoc(c)).map((c) => c.id),
   ngay: {},
 })
 
@@ -130,7 +134,7 @@ export function docUrlCot(sp: URLSearchParams, cot: CotBang[]): TrangThaiCot {
     const px = Number(so)
     if (c && so && Number.isFinite(px)) keoTay[id] = Math.max(toiThieu(c), Math.round(px))
   }
-  const an = sp.has(P_AN) ? ds(P_AN).filter((x) => !theoId.get(x)?.khoa) : md.an
+  const an = sp.has(P_AN) ? ds(P_AN).filter((x) => anDuoc(theoId.get(x)!)) : md.an
   const ngay: Record<string, KieuNgay> = {}
   for (const cap of (sp.get(P_NGAY) ?? '').split(',')) {
     const [id, k] = cap.split(':')
@@ -297,7 +301,7 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
     setS((t) => ({ ...t, thuTu: giuCotKhoa(doiChoMang(t.thuTu, id, dich, ben), cot) }))
   const anHien = (id: string, hienCot?: boolean) =>
     setS((t) => {
-      if (cot.find((c) => c.id === id)?.khoa) return t
+      if (!cot.some((c) => c.id === id && anDuoc(c))) return t
       const dangAn = t.an.includes(id)
       const an = (hienCot ?? dangAn) ? t.an.filter((x) => x !== id) : dangAn ? t.an : [...t.an, id]
       return { ...t, an }
@@ -344,7 +348,18 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
       }),
     /** Về mặc định cả thứ tự, độ rộng, ẩn hiện. */
     datLai: () => setS(macDinh(cot)),
-    /** Bật/tắt hiện một cột (`hien` bỏ trống = đảo). Cột `khoa` luôn hiện. */
+    /** Áp danh sách cột hiện theo thứ tự của một chế độ xem đã lưu. */
+    datCotHien: (ids: string[]) => {
+      const md = macDinh(cot)
+      const hien = new Set(ids.filter((id) => md.thuTu.includes(id)))
+      const conLai = md.thuTu.filter((id) => !hien.has(id))
+      setS((t) => ({
+        ...t,
+        thuTu: giuCotKhoa([...hien, ...conLai], cot),
+        an: cot.filter((c) => anDuoc(c) && !hien.has(c.id)).map((c) => c.id),
+      }))
+    },
+    /** Bật/tắt hiện một cột (`hien` bỏ trống = đảo). Cột `khoa` hoặc `batBuoc` luôn hiện. */
     anHien,
     /** "Thêm cột" (`ThemCot`): hiện cột đang ẩn và đưa nó về CUỐI bảng (sau cột đang hiện cuối cùng). */
     themCot: (id: string) =>
@@ -366,7 +381,7 @@ export function useCotBang(cot: CotBang[], { url = false }: { url?: boolean } = 
           const k = ben === 'trai' ? trai : phai
           if (k) doiCho(id, k.id, ben)
         },
-        onAn: () => anHien(id, false),
+        onAn: anDuoc(x) ? () => anHien(id, false) : undefined,
       }
     },
     /** "Định dạng ngày" cho tiêu đề cột `id` (`TieuDeCot ngay`); cột không phải cột ngày → `undefined`. */

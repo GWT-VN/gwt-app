@@ -35,22 +35,23 @@ function PopoverContent({
   align = 'start',
   sideOffset = 4,
   collisionPadding = 8,
+  // Dùng nội tuyến khi màn cũ chưa có DsRoot.
+  noiTuyen = false,
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Content>) {
+}: ComponentProps<typeof PopoverPrimitive.Content> & { noiTuyen?: boolean }) {
   const container = useDsPortal()
-  if (!container) return null
-  return (
-    <PopoverPrimitive.Portal container={container}>
-      <PopoverPrimitive.Content
-        data-slot="popover-content"
-        align={align}
-        sideOffset={sideOffset}
-        collisionPadding={collisionPadding}
-        className={cn(menuContent, 'w-72 p-4', className)}
-        {...props}
-      />
-    </PopoverPrimitive.Portal>
+  if (!container && !noiTuyen) return null
+  const noiDung = (
+    <PopoverPrimitive.Content
+      data-slot="popover-content"
+      align={align}
+      sideOffset={sideOffset}
+      collisionPadding={collisionPadding}
+      className={cn(menuContent, 'w-72 p-4', className)}
+      {...props}
+    />
   )
+  return noiTuyen ? noiDung : <PopoverPrimitive.Portal container={container}>{noiDung}</PopoverPrimitive.Portal>
 }
 
 function PopoverAnchor({ ...props }: ComponentProps<typeof PopoverPrimitive.Anchor>) {

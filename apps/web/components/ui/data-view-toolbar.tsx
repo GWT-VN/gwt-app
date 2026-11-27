@@ -76,15 +76,15 @@ const xemCo = (co?: readonly DangXem[]) => (co ? DANG_XEM.filter((x) => co.inclu
 
 type PropsCongCu = {
   dangXem: DangXem
-  onDoiXem: (v: DangXem) => void
+  onDoiXem?: (v: DangXem) => void
   /**
    * Dạng xem màn này cho chọn (mặc định đủ ba, thứ tự theo `DANG_XEM`). Vd ticket F (CEO 26/11 "giữ 2 dạng"):
    * `['bang', 'kanban']` — Danh sách chỉ còn là cách hiện tự động khi khung hẹp, không phải nút.
    */
   dangXemCo?: readonly DangXem[]
   /** Thẻ xem nhanh đang bật — README: mặc định TẮT (tắt → bấm bản ghi mở trang chi tiết). */
-  xemNhanh: boolean
-  onXemNhanh: (bat: boolean) => void
+  xemNhanh?: boolean
+  onXemNhanh?: (bat: boolean) => void
   /** Nút ⚙ — thường là `<CaiDatHienThi …/>`. Không truyền thì không có ⚙ (và không có vạch ngăn đầu). */
   caiDat?: ReactNode
   /** Nút "Lọc" theo trường — thường là `<NutLoc …/>` (bo-loc-truong.tsx); đứng trước ⚙ như Filter · Options của Twenty. */
@@ -99,46 +99,47 @@ type PropsCongCu = {
 export function CongCuXem({ dangXem, onDoiXem, dangXemCo, xemNhanh, onXemNhanh, caiDat, loc }: PropsCongCu) {
   return (
     <div data-slot="data-view-tools" className={dvCongCu}>
-      {(loc || caiDat) && (
-        <>
-          {loc}
-          {caiDat}
-          <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />
-        </>
+      {loc}
+      {caiDat}
+      {(loc || caiDat) && (onDoiXem || onXemNhanh) && (
+        <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />
       )}
-      <ToggleGroup
-        type="single"
-        value={dangXem}
-        onValueChange={(v) => v && onDoiXem(v as DangXem)}
-        aria-label="Dạng xem"
-        spacing={0.5}
-        size="icon"
-        className={dvBoCuc}
-      >
-        {xemCo(dangXemCo).map(({ id, ten, tip }) => {
-          const I = ICON_XEM[id]
-          return (
-            <TooltipNhanh key={id} content={tip}>
-              <ToggleGroupItem value={id} aria-label={ten} className="[&_svg]:size-[18px]">
-                <I aria-hidden="true" />
-              </ToggleGroupItem>
-            </TooltipNhanh>
-          )
-        })}
-      </ToggleGroup>
-      <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />
-      {/* Như "Toggle pinned summary" của ChatGPT: tắt thì bấm bản ghi mở trang chi tiết. */}
-      <TooltipNhanh content={xemNhanh ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'}>
-        <Toggle
-          pressed={xemNhanh}
-          onPressedChange={onXemNhanh}
+      {onDoiXem && (
+        <ToggleGroup
+          type="single"
+          value={dangXem}
+          onValueChange={(v) => v && onDoiXem(v as DangXem)}
+          aria-label="Dạng xem"
+          spacing={0.5}
           size="icon"
-          aria-label="Thẻ xem nhanh bên phải"
-          className="[&_svg]:size-[18px]"
+          className={dvBoCuc}
         >
-          <SidebarSimple mirrored aria-hidden="true" />
-        </Toggle>
-      </TooltipNhanh>
+          {xemCo(dangXemCo).map(({ id, ten, tip }) => {
+            const I = ICON_XEM[id]
+            return (
+              <TooltipNhanh key={id} content={tip}>
+                <ToggleGroupItem value={id} aria-label={ten} className="[&_svg]:size-[18px]">
+                  <I aria-hidden="true" />
+                </ToggleGroupItem>
+              </TooltipNhanh>
+            )
+          })}
+        </ToggleGroup>
+      )}
+      {onDoiXem && onXemNhanh && <span data-slot="data-view-ngan" aria-hidden="true" className={dvNgan} />}
+      {onXemNhanh && (
+        <TooltipNhanh content={xemNhanh ? 'Ẩn thẻ xem nhanh' : 'Hiện thẻ xem nhanh'}>
+          <Toggle
+            pressed={xemNhanh}
+            onPressedChange={onXemNhanh}
+            size="icon"
+            aria-label="Thẻ xem nhanh bên phải"
+            className="[&_svg]:size-[18px]"
+          >
+            <SidebarSimple mirrored aria-hidden="true" />
+          </Toggle>
+        </TooltipNhanh>
+      )}
     </div>
   )
 }
@@ -174,7 +175,7 @@ export function DataViewToolbar({
       <header className={dvDau}>
         <H className={dvTieuDe}>{tieuDe}</H>
         {dem && (
-          <span className={dvDem}>
+          <span className={dvDem} aria-live="polite" aria-atomic="true">
             đang thấy {dem.thay} / {dem.tong}
           </span>
         )}
@@ -294,7 +295,7 @@ export function CaiDatHienThi({
   ref,
 }: {
   dangXem: DangXem
-  onDoiXem: (v: DangXem) => void
+  onDoiXem?: (v: DangXem) => void
   /** Như `DataViewToolbar dangXemCo`: trang "Bố cục" chỉ liệt kê các dạng này. */
   dangXemCo?: readonly DangXem[]
   /**
@@ -425,7 +426,7 @@ export function CaiDatHienThi({
                 </Button>
               </PopoverPrimitive.Close>
             </div>
-            <MucCd I={IXem} ten="Bố cục" gt={tenXem} mui trang="bocuc" onClick={() => vao('bocuc')} />
+            {onDoiXem && <MucCd I={IXem} ten="Bố cục" gt={tenXem} mui trang="bocuc" onClick={() => vao('bocuc')} />}
             {dangXem === 'bang' && cot.length > 0 && (
               <MucCd I={Eye} ten="Cột hiển thị" gt={hien.length} mui trang="cot" onClick={() => vao('cot')} />
             )}
@@ -473,7 +474,7 @@ export function CaiDatHienThi({
                   chon={dangXem === id}
                   dau={<I aria-hidden="true" />}
                   onClick={() => {
-                    onDoiXem(id)
+                    onDoiXem?.(id)
                     ve()
                   }}
                 >

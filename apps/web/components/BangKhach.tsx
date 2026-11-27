@@ -1,178 +1,310 @@
 'use client'
 
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
-
-import { Input } from '@/components/ui/input'
-import { Combobox } from '@/components/ui/combobox'
-import { Button } from '@/components/ui/button'
-
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
+import { BookmarkSimple, Funnel, Trash } from '@phosphor-icons/react/ssr'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { OChonTatCa, OChonDong, TieuDeCotSapXep } from '@/bang'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { luuBangView, xoaBangView, type BangView } from '@/app/actions'
+import { hrefBoLoc, OChonDong, OChonTatCa, OTimKiem, PhanTrang, ThanhDangLoc, useDaChon, type SapXep } from '@/bang'
+import { Button } from '@/components/ui/button'
+import { Combobox } from '@/components/ui/combobox'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { CaiDatHienThi, DataViewToolbar, type CaiDatRef } from '@/components/ui/data-view-toolbar'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { EmptyState } from '@/components/ui/empty-state'
+import { SavedView } from '@/components/ui/saved-view'
+import { thongBao } from '@/components/ui/sonner'
+import { Table, TableBody, TableCell, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { ThemCot } from '@/components/ui/them-cot'
+import { ColCotBang, KeoCot, TieuDeCot } from '@/components/ui/tieu-de-cot'
+import { TooltipNhanh } from '@/components/ui/tooltip'
+import { laGhim, RONG_O_CHON, RONG_THEM_COT, useCotBang, type CotBang } from '@/components/ui/use-cot-bang'
 
-type Kh = {
+type Khach = {
   id: string; full_name: string; primary_phone: string | null; address: string | null
   province: string | null; source: string | null; notes: string | null; machines: number
-  /** Mã dùng chung hai khu (KH-2608-0108) và mã nối sang Sales (KH02419). */
   ma_kh: string | null; customer_code: string | null
 }
-type CotDef = { key: string; nhan: string; batBuoc?: boolean; sapXep?: string; phai?: boolean; render: (c: Kh) => ReactNode }
 
-/** Đăng ký cột của bảng KHÁCH — thêm cột mới ở đây là picker + view tự có. */
-const COT: CotDef[] = [
-  { key: 'full_name', nhan: 'Khách', sapXep: 'full_name',
-    render: (c) => <Link href={`/khach/${c.id}`} prefetch={false} className="text-foreground underline font-medium">{c.full_name}</Link> },
-  // CEO 24/08: cầm mã khách trong tay mà bảng không hiện mã, ô tìm cũng không nhận mã
-  // ⇒ không mở nổi hồ sơ. Bật sẵn cột này thay vì giấu trong picker cột.
-  { key: 'ma_kh', nhan: 'Mã KH', sapXep: 'ma_kh',
-    render: (c) => <span className="tabular-nums text-xs text-muted-foreground">{c.ma_kh ?? '—'}</span> },
-  { key: 'customer_code', nhan: 'Mã Sales',
-    render: (c) => <span className="tabular-nums text-xs text-muted-foreground">{c.customer_code ?? '—'}</span> },
-  { key: 'primary_phone', nhan: 'SĐT', batBuoc: true,
-    render: (c) => <span className="tabular-nums text-xs text-foreground">{c.primary_phone ?? <span className="text-(--color-text-warning)">—</span>}</span> },
-  { key: 'address', nhan: 'Địa chỉ', render: (c) => c.address ?? '—' },
-  { key: 'province', nhan: 'Tỉnh/TP', sapXep: 'province', render: (c) => c.province ?? '—' },
-  { key: 'machines', nhan: 'Máy', phai: true, render: (c) => c.machines },
-  { key: 'source', nhan: 'Nguồn', render: (c) => c.source ?? '—' },
-  { key: 'notes', nhan: 'Ghi chú', render: (c) => c.notes ?? '—' },
+const COT: (CotBang & { id: Exclude<keyof Khach, 'id'> })[] = [
+  { id: 'full_name', ten: 'Khách', kieu: 'sap', khoa: true, toiThieu: 128, rongToiDa: 260, nghia: { tang: 'Tên từ A đến Z', giam: 'Tên từ Z đến A' } },
+  { id: 'ma_kh', ten: 'Mã KH', kieu: 'sap', toiThieu: 100, nghia: { tang: 'Mã nhỏ trước', giam: 'Mã lớn trước' } },
+  { id: 'primary_phone', ten: 'SĐT', kieu: 'thuong', batBuoc: true, toiThieu: 112 },
+  { id: 'address', ten: 'Địa chỉ', kieu: 'thuong', toiThieu: 124, rongToiDa: 320 },
+  { id: 'province', ten: 'Tỉnh/TP', kieu: 'sap', toiThieu: 92, nghia: { tang: 'Tỉnh/TP từ A đến Z', giam: 'Tỉnh/TP từ Z đến A' } },
+  { id: 'machines', ten: 'Máy', kieu: 'thuong', phai: true },
+  { id: 'customer_code', ten: 'Mã Sales', kieu: 'thuong', anMacDinh: true },
+  { id: 'source', ten: 'Nguồn', kieu: 'thuong', anMacDinh: true, rongToiDa: 180 },
+  { id: 'notes', ten: 'Ghi chú', kieu: 'thuong', anMacDinh: true, rongToiDa: 320 },
 ]
-const MAC_DINH = ['full_name', 'ma_kh', 'primary_phone', 'address', 'province', 'machines']
-const BAT_BUOC = COT.filter((c) => c.batBuoc).map((c) => c.key)
+const THEO_ID = new Map(COT.map((cot) => [String(cot.id), cot]))
 
-function chuanHoa(cot: string[]): string[] {
-  const hople = cot.filter((k) => COT.some((c) => c.key === k))
-  for (const b of BAT_BUOC) if (!hople.includes(b)) hople.push(b)
-  return hople.length ? hople : [...MAC_DINH]
-}
-
-/** Bảng khách với cột tuỳ chỉnh (bật/tắt + đổi thứ tự) + lưu/nạp view (cá nhân / chung). */
-export function BangKhach({ rows, choViewChung, views }: { rows: Kh[]; choViewChung: boolean; views: BangView[] }) {
+/** Danh sách khách CSKH: cùng bố cục bảng dữ liệu DS với Ticket F. */
+export function BangKhach({
+  rows, tong, trang, soTrang, sapXep, choChon, choViewChung, views,
+  soThieuSdt, soKenhTuDong, taoKhach, xuatExcel, thanhDaChon,
+}: {
+  rows: Khach[]
+  tong: number
+  trang: number
+  soTrang: number
+  sapXep: SapXep
+  choChon: boolean
+  choViewChung: boolean
+  views: BangView[]
+  soThieuSdt: number
+  soKenhTuDong: number
+  taoKhach: ReactNode
+  xuatExcel: ReactNode
+  thanhDaChon?: ReactNode
+}) {
   const router = useRouter()
-  const [hien, setHien] = useState<string[]>([...MAC_DINH])
-  const [moCot, setMoCot] = useState(false)
+  const pathname = usePathname()
+  const params = useSearchParams()
+  const cotBang = useCotBang(COT, { url: true })
+  const { refBang } = cotBang
+  const caiDat = useRef<CaiDatRef>(null)
+  const { daChon } = useDaChon()
+  const khoaDaChon = new Set(daChon)
   const [viewId, setViewId] = useState<string | null>(null)
-  const [tenView, setTenView] = useState('')
-  const [chung, setChung] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
+  const [viewXoa, setViewXoa] = useState<BangView | null>(null)
+  const [loiXoa, setLoiXoa] = useState<string>()
+  const nutLuu = useRef<HTMLButtonElement>(null)
+  const viewDangChon = views.find((view) => view.id === viewId)
 
-  const cols = hien.map((k) => COT.find((c) => c.key === k)).filter((c): c is CotDef => !!c)
+  const q = params.get('q')
+  const boLoc = [
+    { id: 'thieu_sdt', ten: 'Cần xin lại SĐT', nhan: 'SĐT', giaTri: 'Cần xin lại', so: soThieuSdt },
+    { id: 'kenh_tu_dong', ten: 'Kênh máy tự điền, cần soát', nhan: 'Kênh', giaTri: 'Máy tự điền', so: soKenhTuDong },
+  ].map((loc) => ({ ...loc, bat: params.get(loc.id) === '1' }))
+  const locDangBat = boLoc.filter((loc) => loc.bat)
+  const dieuKien = [
+    ...(q ? [{ nhan: 'Từ khoá', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
+    ...locDangBat.map(({ id, nhan, giaTri }) => ({ nhan, giaTri, href: hrefBoLoc(pathname, params, id) })),
+  ]
+  const hrefXoaLoc = hrefBoLoc(pathname, params, 'q', 'thieu_sdt', 'kenh_tu_dong', 'cot', 'chieu')
 
-  function toggle(key: string) {
-    if (BAT_BUOC.includes(key)) return
-    setHien((cur) => cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key])
+  function doiUrl(thayDoi: Record<string, string | null>) {
+    const tiep = new URLSearchParams(params.toString())
+    for (const [id, giaTri] of Object.entries(thayDoi)) {
+      if (giaTri == null) tiep.delete(id)
+      else tiep.set(id, giaTri)
+    }
+    tiep.delete('trang')
+    const query = tiep.toString()
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false })
   }
-  function doiCho(i: number, delta: number) {
-    setHien((cur) => {
-      const j = i + delta
-      if (j < 0 || j >= cur.length) return cur
-      const n = [...cur]
-      ;[n[i], n[j]] = [n[j], n[i]]
-      return n
-    })
+
+  function doiSapXep(sap: { cot: string; tang: boolean } | null) {
+    doiUrl({ cot: sap?.cot ?? null, chieu: sap ? (sap.tang ? 'asc' : 'desc') : null })
   }
-  async function luu() {
-    setBusy(true); setErr(null)
-    const r = await luuBangView('cs_customers', tenView, hien, chung)
-    setBusy(false)
-    if (!r.ok) { setErr(r.error); return }
-    setTenView(''); setChung(false); router.refresh()
+
+  function chonView(id: string | null) {
+    setViewId(id)
+    const view = views.find((v) => v.id === id)
+    if (view) cotBang.datCotHien(view.cot)
+    else cotBang.datLai()
   }
-  async function xoa(id: string) {
-    if (!window.confirm('Xoá view này?')) return
-    const r = await xoaBangView(id)
-    if (!r.ok) setErr(r.error); else router.refresh()
+
+  async function luuView({ ten, chiaSe }: { ten: string; chiaSe: boolean }) {
+    const ketQua = await luuBangView('cs_customers', ten, cotBang.hien.map((cot) => cot.id), chiaSe)
+    if (!ketQua.ok) return { loi: ketQua.error }
+    thongBao.xong(`Đã lưu chế độ xem “${ten}”`)
+  }
+
+  async function xoaView() {
+    if (!viewXoa) return
+    setLoiXoa(undefined)
+    const ketQua = await xoaBangView(viewXoa.id)
+    if (!ketQua.ok) {
+      setLoiXoa(ketQua.error)
+      throw new Error(ketQua.error)
+    }
+    if (viewId === viewXoa.id) {
+      chonView(null)
+      requestAnimationFrame(() => nutLuu.current?.focus())
+    }
+    thongBao.xong(`Đã xoá chế độ xem “${viewXoa.ten}”`)
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-2 mb-2">
-        <div className="w-56 max-w-full">
-          <Combobox aria-label="Chế độ xem" placeholder="View: Mặc định" searchPlaceholder="Tìm chế độ xem…"
-            value={views.some((v) => v.id === viewId) ? viewId : null}
-            options={views.map((v) => ({ gt: v.id, nhan: v.ten + (v.chu === 'chung' ? ' (chung)' : '') }))}
-            onValueChange={(id) => {
-              setViewId(id)
-              setHien(chuanHoa(views.find((v) => v.id === id)?.cot ?? MAC_DINH))
-            }}
-          />
-        </div>
-        <Button onClick={() => setMoCot((v) => !v)}
-          className="rounded-lg border bg-card px-3 py-1.5 text-sm text-foreground">Cột ▾</Button>
-      </div>
-
-      {moCot && (
-        <div className="mb-2 rounded-lg border bg-card p-3 space-y-2 max-w-md">
-          <p className="text-xs font-medium text-muted-foreground">Cột hiển thị (▲▼ đổi thứ tự)</p>
-          <ul className="space-y-1">
-            {hien.map((k, i) => {
-              const c = COT.find((x) => x.key === k)
-              if (!c) return null
-              return (
-                <li key={k} className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked disabled={c.batBuoc} onChange={() => toggle(k)} />
-                  <span className="flex-1">{c.nhan}{c.batBuoc && <span className="text-[10px] text-muted-foreground"> (bắt buộc)</span>}</span>
-                  <Button onClick={() => doiCho(i, -1)} className="text-muted-foreground hover:text-foreground">▲</Button>
-                  <Button onClick={() => doiCho(i, 1)} className="text-muted-foreground hover:text-foreground">▼</Button>
-                </li>
-              )
-            })}
-          </ul>
-          {COT.some((c) => !hien.includes(c.key)) && (
-            <div className="pt-1 border-t">
-              <p className="text-xs text-muted-foreground mb-1">Cột ẩn — bấm để thêm:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {COT.filter((c) => !hien.includes(c.key)).map((c) => (
-                  <Button key={c.key} onClick={() => toggle(c.key)}
-                    className="rounded border px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted">+ {c.nhan}</Button>
-                ))}
+    <>
+      <DataViewToolbar
+        tieuDe="Khách hàng"
+        dem={{ thay: rows.length, tong }}
+        timKiem={<OTimKiem placeholder="Tên, SĐT, mã khách…" aria-label="Tìm khách hàng" />}
+        nutChinh={taoKhach}
+        tabs={
+          <div className="flex flex-wrap items-center gap-2 pl-1">
+            {views.length > 0 && (
+              <div className="w-48 max-w-full">
+                <Combobox
+                  aria-label="Chế độ xem"
+                  placeholder="Mặc định"
+                  searchPlaceholder="Tìm chế độ xem…"
+                  value={viewDangChon?.id ?? null}
+                  options={views.map((v) => ({ gt: v.id, nhan: v.ten + (v.chu === 'chung' ? ' (chung)' : '') }))}
+                  onValueChange={chonView}
+                />
               </div>
-            </div>
-          )}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
-            <Input value={tenView} onChange={(e) => setTenView(e.target.value)} placeholder="Tên view…"
-              className="rounded border px-2 py-1 text-sm w-32 text-foreground" />
-            {choViewChung && <label className="flex items-center gap-1 text-xs text-muted-foreground"><input type="checkbox" checked={chung} onChange={(e) => setChung(e.target.checked)} /> Chung (mọi người)</label>}
-            <Button onClick={luu} disabled={busy || !tenView.trim()}
-              className="rounded-lg bg-primary text-primary-foreground px-3 py-1 text-sm disabled:opacity-50">Lưu view</Button>
-            {err && <span className="text-xs text-(--color-text-danger)">{err}</span>}
+            )}
+            <SavedView
+              khu="CSKH"
+              dieuKien={[]}
+              query=""
+              trigger={
+                <Button ref={nutLuu} variant="ghost" size="sm">
+                  <BookmarkSimple aria-hidden="true" />
+                  Lưu chế độ xem
+                </Button>
+              }
+              chu={{
+                tieuDe: 'Lưu cột của bảng',
+                nhanTen: 'Tên chế độ xem',
+                placeholder: 'Ví dụ: Danh sách liên hệ',
+                loiTrong: 'Nhập tên để tìm lại cách hiển thị này.',
+                chiaSe: choViewChung && 'Chia sẻ cho mọi người',
+                xong: false,
+              }}
+              onLuu={luuView}
+            />
+            {viewDangChon && (viewDangChon.chu !== 'chung' || choViewChung) && (
+              <TooltipNhanh content="Xoá chế độ xem đã chọn">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Xoá chế độ xem ${viewDangChon.ten}`}
+                  onClick={() => {
+                    setLoiXoa(undefined)
+                    setViewXoa(viewDangChon)
+                  }}
+                >
+                  <Trash aria-hidden="true" />
+                </Button>
+              </TooltipNhanh>
+            )}
+            {xuatExcel}
           </div>
-          {views.length > 0 && (
-            <div className="pt-1 text-xs text-muted-foreground border-t">
-              View đã lưu:{' '}
-              {views.map((v) => (
-                <span key={v.id} className="mr-2 whitespace-nowrap">{v.ten}{v.chu === 'chung' && ' (chung)'}
-                  <Button onClick={() => xoa(v.id)} className="text-(--color-text-danger) ml-0.5" title="Xoá view">✕</Button>
-                </span>
+        }
+        dangXem="bang"
+        loc={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant={locDangBat.length ? 'secondary' : 'ghost'}>
+                <Funnel aria-hidden="true" />
+                Lọc
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {boLoc.map((loc) => (
+                <DropdownMenuCheckboxItem
+                  key={loc.id}
+                  checked={loc.bat}
+                  onCheckedChange={(bat) => doiUrl({ [loc.id]: bat ? '1' : null })}
+                >
+                  {loc.ten} ({loc.so})
+                </DropdownMenuCheckboxItem>
               ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="bg-card rounded-(--radius-xl) border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <OChonTatCa nhan="khách" />
-              {cols.map((c) => c.sapXep
-                ? <TieuDeCotSapXep key={c.key} cot={c.sapXep} nhan={c.nhan} chieuMacDinh="asc" dangMacDinh={c.key === 'full_name'} />
-                : <TableHead key={c.key} className={`px-4 py-3 font-medium ${c.phai ? 'text-right' : 'text-left'}`}>{c.nhan}</TableHead>)}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.id} className="hover:bg-muted align-top">
-                <OChonDong khoa={r.id} moTa={`khách ${r.full_name}`} />
-                {cols.map((c) => <TableCell key={c.key} className={`px-4 py-3 text-foreground ${c.phai ? 'text-right' : ''}`}>{c.render(r)}</TableCell>)}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
+        caiDat={
+          <CaiDatHienThi
+            ref={caiDat}
+            dangXem="bang"
+            cot={cotBang.thuTu.map((id) => THEO_ID.get(id)!)}
+            cotAn={cotBang.an}
+            onCotAn={(an) => COT.forEach((cot) => cotBang.anHien(cot.id, !an.includes(cot.id)))}
+            onDoiChoCot={cotBang.doiCho}
+            sapXep={sapXep}
+            onSapXep={doiSapXep}
+          />
+        }
+      />
+      <ThanhDangLoc
+        dieuKien={dieuKien}
+        hienThi={rows.length}
+        tong={tong}
+        nhan="khách"
+        anSoDong
+        sapXep={sapXep.macDinh ? undefined : sapXep}
+        hrefXoaLoc={hrefXoaLoc}
+      />
+      <TableWrap tabIndex={0} role="region" aria-label="Vùng cuộn bảng khách hàng">
+        <KeoCot cot={cotBang.hien} doiCho={cotBang.doiCho}>
+          <Table
+            ref={refBang}
+            aria-label="Khách hàng"
+            layout="fixed"
+            style={{ minWidth: cotBang.tongRong + RONG_THEM_COT + (choChon ? RONG_O_CHON : 0) }}
+          >
+            <ColCotBang hien={cotBang.hien} doRong={cotBang.doRong} choDo={cotBang.choDo} chon={choChon} />
+            <TableHeader>
+              <TableRow>
+                <OChonTatCa nhan="khách" />
+                {cotBang.hien.map((cot, i) => (
+                  <TieuDeCot
+                    key={cot.id}
+                    cot={cot}
+                    viTri={i}
+                    menuPhai={i === cotBang.hien.length - 1}
+                    menuCot={cotBang.menuCot(cot.id)}
+                    coDan={{ rong: cotBang.doRong[cot.id], onDoi: (px) => cotBang.coDan(cot.id, px) }}
+                    sap={cot.kieu === 'sap' ? {
+                      chieu: sapXep.cot === cot.id ? (sapXep.tang ? 'tang' : 'giam') : null,
+                      macDinh: sapXep.macDinh,
+                      onDoi: (chieu) => doiSapXep(chieu ? { cot: cot.id, tang: chieu === 'tang' } : null),
+                    } : undefined}
+                  />
+                ))}
+                <ThemCot cot={COT} an={cotBang.an} onHien={cotBang.themCot} onTuyChinh={() => caiDat.current?.mo('cot')} />
               </TableRow>
-            ))}
-            {rows.length === 0 && <TableRow><TableCell colSpan={cols.length + 1} className="px-4 py-10 text-center text-muted-foreground">Không tìm thấy khách nào.</TableCell></TableRow>}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+            </TableHeader>
+            <TableBody>
+              {rows.map((khach) => (
+                <TableRow key={khach.id} chon={khoaDaChon.has(khach.id)}>
+                  <OChonDong khoa={khach.id} moTa={`khách ${khach.full_name}`} />
+                  {cotBang.hien.map((cot, i) => {
+                    const giaTri = khach[THEO_ID.get(cot.id)!.id]
+                    return (
+                      <TableCell key={cot.id} cot={cot.id} phai={cot.phai} ghim={laGhim(cot, i)} title={giaTri?.toString()}>
+                        {cot.id === 'full_name' ? (
+                          <Link href={`/khach/${khach.id}`} prefetch={false} className="font-medium hover:underline">
+                            {khach.full_name}
+                          </Link>
+                        ) : cot.id === 'primary_phone' && giaTri == null ? (
+                          <span className="text-(--color-text-warning)" aria-label="Chưa có số điện thoại">—</span>
+                        ) : giaTri ?? '—'}
+                      </TableCell>
+                    )
+                  })}
+                  <TableCell />
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </KeoCot>
+      </TableWrap>
+      {!rows.length && (
+        <EmptyState
+          size="sm"
+          kieu={dieuKien.length ? 'loc' : 'that'}
+          tieuDe={dieuKien.length ? 'Không tìm thấy khách nào' : 'Chưa có khách hàng'}
+          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : 'Tạo khách hàng để bắt đầu theo dõi liên hệ và máy đã lắp.'}
+        />
+      )}
+      <PhanTrang trang={trang} soTrang={soTrang} />
+      {thanhDaChon}
+      <ConfirmDialog
+        open={viewXoa != null}
+        onOpenChange={(mo) => { if (!mo) setViewXoa(null) }}
+        tieuDe={`Xoá chế độ xem “${viewXoa?.ten ?? ''}”?`}
+        moTa="Cấu hình cột đã lưu sẽ bị xoá."
+        nutXacNhan="Xoá chế độ xem"
+        pha
+        loi={loiXoa}
+        onXacNhan={xoaView}
+      />
+    </>
   )
 }
