@@ -51,6 +51,8 @@ export type MayHoSo = {
   warranty_activated: boolean | null
   warranty_full_end: string | null
   install_date?: string | null
+  /** Ảnh sản phẩm (chỉ khi CSKH_NGUON=md: product_master.image_url). Không có → ô icon. */
+  image_url?: string | null
 }
 export type BaoTriHoSo = { id: string; lan: number | null; ngay: string | null; xong: string | null; boMay: string | null }
 export type LienHeHoSo = { id: string; sdt: string | null; ten: string | null; vaiTro: string | null; chinh: boolean }
@@ -402,12 +404,19 @@ function KhoiMay({ may, demo }: { may: MayHoSo[]; demo: boolean }) {
               dienThoai: 'tren',
               o: (m) => (
                 <span className="flex min-w-0 items-center gap-3 border-none border-current">
-                  <span
-                    aria-hidden="true"
-                    className="grid size-8 shrink-0 place-content-center rounded-(--radius-md) border-none border-current bg-(--alpha-05) text-muted-foreground [&_svg]:size-4"
-                  >
-                    <Cube />
-                  </span>
+                  {m.image_url ? (
+                    // Ảnh trang trí (tên máy ngay bên cạnh) → alt rỗng. Ảnh ở host ngoài (product_master) → <img> thường.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.image_url} alt="" width={32} height={32} loading="lazy" decoding="async"
+                      className="size-8 shrink-0 rounded-(--radius-md) bg-(--alpha-05) object-cover" />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="grid size-8 shrink-0 place-content-center rounded-(--radius-md) border-none border-current bg-(--alpha-05) text-muted-foreground [&_svg]:size-4"
+                    >
+                      <Cube />
+                    </span>
+                  )}
                   <span className="flex min-w-0 flex-col border-none border-current">
                     <span className="truncate">{m.product_name ?? 'Chưa rõ tên máy'}</span>
                     {m.internal_code && <span className="text-[12px] leading-[18px] tabular-nums text-muted-foreground">{m.internal_code}</span>}

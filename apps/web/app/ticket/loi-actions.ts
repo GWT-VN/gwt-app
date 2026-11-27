@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import * as XLSX from 'xlsx'
-import { dataClient } from '@/lib/nen-tang/db'
+import { dataClient, mdClient } from '@/lib/nen-tang/db'
+import { cskhNguon } from '@/lib/cskh/nguon'
 import { requireStaff, layNhanVien } from '@/lib/nen-tang/phien'
 import { coQuyen, doQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { KHONG_DU_QUYEN } from '@/lib/nen-tang/nhan-su-luat'
@@ -28,6 +29,24 @@ const raDong = (r: DongDb): DongMay => {
   const { loi_danh_muc, ...x } = r
   return { ...x, loi_ten: loi_danh_muc?.ten ?? null }
 }
+// MD (CSKH_NGUON=md): lần lỗi + danh mục ở customer_care — đổi về đúng khuôn DongMay / LoiDanhMuc của app.
+const COT_LAN_MD = 'id, ticket_code, report_no, serial, source_serial, internal_code, issue_code, customer_said, handling, handling_source, status, created_at, issue_codes(name)'
+type LanMdDb = {
+  id: string; ticket_code: string; report_no: number; serial: string | null; source_serial: string | null; internal_code: string | null
+  issue_code: string; customer_said: string | null; handling: string | null; handling_source: DongMay['huong_xu_ly_nguon']
+  status: 'cho_xu_ly' | 'dang_xu_ly' | 'da_xu_ly' | 'khong_loi'; created_at: string; issue_codes: { name: string } | null
+}
+const dongTuLanMd = (r: LanMdDb): DongMay => ({
+  id: r.id, ticket_code: r.ticket_code, thu_tu: r.report_no, serial: r.serial, source_serial: r.source_serial, internal_code: r.internal_code,
+  loi_code: r.issue_code, loi_ten: r.issue_codes?.name ?? null, mo_ta: r.customer_said, huong_xu_ly: r.handling,
+  huong_xu_ly_nguon: r.handling_source,
+  // ST không có "chờ xử lý": coi như đang xử lý.
+  trang_thai: r.status === 'cho_xu_ly' ? 'dang_xu_ly' : r.status, nguon: 'app', created_at: r.created_at,
+})
+type MaLoiMd = {
+  code: string; group_code: string | null; name: string; aliases: string[] | null; model_patterns: string[] | null; signs: string | null
+  handling: string | null; source: string | null; status: LoiDanhMuc['trang_thai']; approved_by: string | null; approved_at: string | null; sort_order: number | null
+}
 const NGUON_TU_DONG = ['tu_dong', 'backfill']
 const LOI_ID = 'Mã dòng máy không hợp lệ.'
 
@@ -47,6 +66,18 @@ function lamMoi(code?: string, danhMuc = false) {
 export async function danhMucLoi(chiDaDuyet = false): Promise<LoiDanhMuc[]> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
+  if (cskhNguon() === 'md') {
+    // MD: customer_care.issue_codes (FK của issue_reports.issue_code) đổi sang khuôn LoiDanhMuc. Chỉ đọc —
+    // ponytail: sửa / đề xuất / duyệt danh mục vẫn ghi ST tới đợt 2.
+    let m = mdClient().schema('customer_care').from('issue_codes').select('*').order('sort_order').order('code')
+    if (chiDaDuyet) m = m.eq('status', 'da_duyet')
+    const { data, error } = await m
+    if (error) throw new Error(thongBaoLoiDb(error, 'danhMucLoi'))
+    return ((data ?? []) as MaLoiMd[]).map((r) => ({
+      code: r.code, nhom: r.group_code, ten: r.name, aliases: r.aliases ?? [], ma_may: r.model_patterns ?? [], dau_hieu: r.signs,
+      huong_xu_ly: r.handling, nguon: r.source, trang_thai: r.status, duyet_boi: r.approved_by, duyet_luc: r.approved_at, thu_tu: r.sort_order ?? 0,
+    }))
+  }
   let q = dataClient().from('loi_danh_muc').select('*').order('thu_tu').order('code')
   if (chiDaDuyet) q = q.eq('trang_thai', 'da_duyet')
   const { data, error } = await q
@@ -228,6 +259,15 @@ export async function dongMayTheoTickets(codes: string[]): Promise<Record<string
   if (!Array.isArray(codes) || codes.length > GIOI_HAN.soMaTicket) throw new Error('Quá nhiều ticket trong một lần tra.')
   const ds = codes.filter(maTicketHopLe)
   if (!ds.length) return {}
+  if (cskhNguon() === 'md') {
+    // MD: mỗi lần lỗi (customer_care.issue_reports) = một dòng máy, cùng khuôn DongMay (thu_tu = report_no).
+    const { data, error } = await mdClient().schema('customer_care').from('issue_reports').select(COT_LAN_MD)
+      .in('ticket_code', ds).order('ticket_code').order('report_no')
+    if (error) throw new Error(thongBaoLoiDb(error, 'dongMayTheoTickets'))
+    const ra: Record<string, DongMay[]> = {}
+    for (const r of (data ?? []) as unknown as LanMdDb[]) (ra[r.ticket_code] ??= []).push(dongTuLanMd(r))
+    return ra
+  }
   const { data, error } = await dataClient().from('ticket_may').select(COT_DONG)
     .in('ticket_code', ds).order('ticket_code').order('thu_tu')
   if (error) throw new Error(thongBaoLoiDb(error, 'dongMayTheoTickets'))

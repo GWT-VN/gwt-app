@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { expect, test, vi } from 'vitest'
 import type { Ticket } from '@/app/actions'
 import type { DongLoiMay } from '@/lib/khach/thong-ke-loi'
-import { duongHoSoKhach, HoSoKhach } from './HoSoKhach'
+import { duongHoSoKhach, HoSoKhach, type MayHoSo } from './HoSoKhach'
 
 const { replace, sp } = vi.hoisted(() => ({ replace: vi.fn(), sp: { v: 'tab=ticket&ticket=T1' } }))
 vi.mock('next/navigation', () => ({
@@ -26,12 +26,12 @@ const MAY = [
   { serial: 'S2', product_name: 'GN610', internal_code: 'GN610', warranty_activated: false, warranty_full_end: null },
 ]
 
-function mo(p: { tickets?: Ticket[]; dongLoi?: DongLoiMay[] } = {}) {
+function mo(p: { tickets?: Ticket[]; dongLoi?: DongLoiMay[]; may?: MayHoSo[] } = {}) {
   return render(
     <HoSoKhach
       demo={false}
       khach={{ id: 'K1', ten: 'Khách thử', sdt: null, tinh: 'Hà Nội', diaChi: null, nguon: null, maKh: null, maSales: null, phuTrach: null }}
-      may={MAY}
+      may={p.may ?? MAY}
       tickets={p.tickets ?? [ticket('T1', '2026-11-01T02:00:00Z'), ticket('T2', '2026-11-20T02:00:00Z')]}
       dongLoi={p.dongLoi ?? [dong('T1', '2026-11-01'), dong('T2', '2026-11-20')]}
       baoTri={[]}
@@ -118,6 +118,22 @@ test('thẻ Khách: cột phải khi ≥ 1200; gọn ở tab Ticket, đầy đ�
   expect(r.container.querySelector('[data-module="khach"]')!.textContent).toContain('Mã Sales')
   expect(r.container.querySelector('[data-module="may"]')).toBeTruthy()
   expect(r.container.querySelector('[data-module="ticket"]')).toBeNull()
+  sp.v = 'tab=ticket&ticket=T1'
+})
+
+test('Sản phẩm đã mua: máy có ảnh → <img alt=""> 32px bo radius-md; không ảnh → ô icon', () => {
+  sp.v = 'tab=thong-tin'
+  const { container } = mo({ may: [{ ...MAY[0], image_url: 'https://anh.test/cts20.png' }, MAY[1]] })
+  const bang = container.querySelector('[data-module="may"]')!
+  const anh = bang.querySelectorAll('img')
+  expect(anh).toHaveLength(1)
+  expect(anh[0].getAttribute('src')).toBe('https://anh.test/cts20.png')
+  expect(anh[0].getAttribute('alt')).toBe('')
+  expect(anh[0].className).toContain('size-8')
+  expect(anh[0].className).toContain('rounded-(--radius-md)')
+  expect(anh[0].className).toContain('object-cover')
+  // Máy không ảnh giữ ô icon (span aria-hidden chứa svg).
+  expect(bang.querySelectorAll('span[aria-hidden="true"] > svg')).toHaveLength(1)
   sp.v = 'tab=ticket&ticket=T1'
 })
 

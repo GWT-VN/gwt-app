@@ -8,6 +8,7 @@ import { boDau } from '@/bang/timkiem'
 import type { DoNuoc } from '@/lib/nuoc'
 import { revalidatePath } from 'next/cache'
 import { dataClient } from '@/lib/nen-tang/db'
+import { cskhDb, cskhNguon } from '@/lib/cskh/nguon'
 import { layNhanVien, requireStaff } from '@/lib/nen-tang/phien'
 import { chuanHoaVaiTro } from '@/lib/nen-tang/vai-tro'
 import { KHONG_DU_QUYEN } from '@/lib/nen-tang/nhan-su-luat'
@@ -76,6 +77,8 @@ export type Machine = {
   co_chinh_sach_bh: boolean
   ngay_lap_do_chac: DoChacNgayLap | null
   ghi_chu: string | null
+  /** Chỉ có khi CSKH_NGUON=md (machinesOfCustomer): ảnh sản phẩm `product_master.image_url`. */
+  image_url?: string | null
 }
 
 /** Tra máy theo serial / tên khách / SĐT / địa chỉ (không dấu). Rỗng -> máy lắp gần nhất. */
@@ -230,11 +233,12 @@ export type Customer = {
 export async function getCustomer(id: string) {
   await requireStaff()
   await doQuyen('cs.khach.xem')
-  const db = dataClient()
+  const db = cskhDb()
   // ĐỌC BẰNG `ma_kh` (migration 22/08): dòng do Sales ghi không có `customer_id` — đi mỗi
   // `customer_id` là màn hình trống mà không có lỗi nào để lần. Phải lấy hồ sơ trước để có mã,
   // nên hai câu này không chạy song song được nữa; đổi lại không sót dữ liệu của khu kia.
-  const { data: c, error: e1 } = await db.from('cs_customers').select('*').eq('id', id).maybeSingle()
+  // MD: bảng khách tên `customers` (ST là `cs_customers`), cùng cột.
+  const { data: c, error: e1 } = await db.from(cskhNguon() === 'md' ? 'customers' : 'cs_customers').select('*').eq('id', id).maybeSingle()
   if (e1) throw new Error(e1.message)
   const { data: contacts, error: e2 } = await db.from('customer_contacts').select('*')
     .or(locVeTinh((c as Customer | null)?.ma_kh ?? null, id))
@@ -2448,6 +2452,13 @@ export type Ticket = {
   }[]
 }
 
+/**
+ * Ticket ĐỌC theo nguồn: MD = `customer_care.v_tickets` (cột = type Ticket + ten_kd + loi_codes, nên thay luôn
+ * v_tickets_loi); ST như cũ (`coLoi` → v_tickets_loi). Mốc hoạt động (tickets + ticket_note) vẫn đọc ST: ghi chú còn ghi ở ST.
+ */
+const veTicket = (coLoi = false) =>
+  cskhNguon() === 'md' ? cskhDb().schema('customer_care').from('v_tickets') : cskhDb().from(coLoi ? 'v_tickets_loi' : 'v_tickets')
+
 /** Tuỳ chọn thêm của searchTickets cho danh sách F (/ticket). Mọi trường tuỳ chọn — caller cũ không truyền thì như cũ. */
 export type TuyChonTicketF = {
   /** Lọc theo trường (bang/locTruong + TRUONG_F của app/ticket/_danh-sach). `loi` = mã lỗi (v_tickets_loi). */
@@ -2499,8 +2510,7 @@ export async function searchTickets(
   }
 
   const dungTruyVan = () => {
-    let truyVan = dataClient()
-      .from(dungViLoi ? 'v_tickets_loi' : 'v_tickets')
+    let truyVan = veTicket(dungViLoi)
       .select('*', { count: 'exact', head: !!tuyChon.chiDem })
     if (maLoi) truyVan = truyVan.contains('loi_codes', [maLoi])
     if (dkLoi) {
@@ -2657,8 +2667,8 @@ export async function ticketsOfSerial(serial: string): Promise<Ticket[]> {
 export async function ticketsOfCustomer(customerId: string): Promise<Ticket[]> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
-  const { data, error } = await dataClient()
-    .from('v_tickets').select('*').eq('customer_id', customerId)
+  const { data, error } = await veTicket()
+    .select('*').eq('customer_id', customerId)
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
   return (data ?? []) as Ticket[]
@@ -2806,11 +2816,18 @@ export async function doanhSoCskh(): Promise<DoanhSo[]> {
 export async function machinesOfCustomer(customerId: string): Promise<Machine[]> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
-  const { data, error } = await dataClient()
+  const db = cskhDb()
+  const { data, error } = await db
     .from('v_installed_base').select('*').eq('customer_id', customerId)
     .order('install_date', { ascending: false, nullsFirst: false })
   if (error) throw new Error(error.message)
-  return (data ?? []) as Machine[]
+  const may = (data ?? []) as Machine[]
+  if (cskhNguon() !== 'md' || !may.length) return may
+  // MD: ảnh sản phẩm từ product_master (chỉ đọc, nối theo internal_code). Lỗi đọc ảnh → vẫn trả máy, không ảnh.
+  const ma = [...new Set(may.flatMap((m) => (m.internal_code ? [m.internal_code] : [])))]
+  const { data: sp } = ma.length ? await db.from('product_master').select('internal_code, image_url').in('internal_code', ma) : { data: [] }
+  const anh = new Map(((sp ?? []) as { internal_code: string; image_url: string | null }[]).map((p) => [p.internal_code, p.image_url]))
+  return may.map((m) => ({ ...m, image_url: (m.internal_code && anh.get(m.internal_code)) || null }))
 }
 
 // ── Hệ serial: kho serial + hàng chờ duyệt ──────────────────────────────────
