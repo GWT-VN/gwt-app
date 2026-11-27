@@ -9,7 +9,6 @@ import Link from 'next/link'
 import {
   AddressBook,
   Barcode,
-  CalendarPlus,
   ChatText,
   CircleHalf,
   Cube,
@@ -32,7 +31,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
-import { OSuaNguoi, OSuaTrangThai } from '@/components/ui/inline-edit'
+import { OSuaChon, OSuaNguoi, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/item'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
@@ -72,7 +71,7 @@ function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; child
 }
 
 /** Thuộc tính chính của ticket — dưới tiêu đề, TRÊN hàng tab (học Notion, CEO 27/11): Trạng thái · Phụ trách · Loại · Kỹ thuật. */
-function ThuocTinh({ t, nhanVien, luu }: { t: DongF; nhanVien: NhanVien; luu: Luu }) {
+function ThuocTinh({ t, nhanVien, loai, luu }: { t: DongF; nhanVien: NhanVien; loai: NhanVien; luu: Luu }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
           <PropertyList>
@@ -101,11 +100,36 @@ function ThuocTinh({ t, nhanVien, luu }: { t: DongF; nhanVien: NhanVien; luu: Lu
                 t.cs_ten
               )}
             </Truong>
+            {/* Loại + Kỹ thuật sửa tại chỗ như ô bảng (CEO 27/11 "không chỉnh được loại" · "phải có chỗ gán user kỹ thuật");
+                thay CTA "Hẹn KTV" ở chân thẻ. */}
             <Truong icon={ic(Tag)} nhan="Loại">
-              {t.ticket_type}
+              {luu && loai.length > 0 ? (
+                <OSuaChon
+                  ma={t.ticket_code}
+                  truong="loại"
+                  value={t.ticket_type}
+                  chuaGiao="Chưa có"
+                  options={loai}
+                  onLuu={(v) => (v ? luu({ ticket_type: v }) : Promise.reject(new Error('Loại không được trống.')))}
+                />
+              ) : (
+                t.ticket_type
+              )}
             </Truong>
             <Truong icon={ic(Wrench)} nhan="Kỹ thuật">
-              {t.ky_thuat_ten}
+              {luu ? (
+                <OSuaNguoi
+                  ma={t.ticket_code}
+                  truong="kỹ thuật"
+                  value={t.ky_thuat}
+                  mucDangChon={t.ky_thuat ? { gt: t.ky_thuat, nhan: t.ky_thuat_ten ?? '—' } : undefined}
+                  options={nhanVien}
+                  chuaGiao="Chưa có"
+                  onLuu={(v) => luu({ ky_thuat: v })}
+                />
+              ) : (
+                t.ky_thuat_ten
+              )}
             </Truong>
           </PropertyList>
   )
@@ -299,24 +323,13 @@ function TicketKhac({ t, rows, moDuoc, onMo }: { t: DongF; rows: DongF[]; moDuoc
   )
 }
 
-/** Thanh dính đáy: Gắn việc · Hẹn KTV (luồng hẹn có sẵn ở trang chi tiết). Bỏ ⋮: "Mở trang chi tiết" lên đầu thẻ (⤢),
- *  "Sao chép mã" thừa (CEO 27/11). */
-function ThanhThaoTac({ chiTiet, moGanViec }: { chiTiet: string; moGanViec: (() => void) | null }) {
+/** Thanh dính đáy: chỉ còn Gắn việc. Bỏ "Hẹn KTV" (CEO 27/11) — gán kỹ thuật ở ô Kỹ thuật trên hàng thuộc tính. */
+function ThanhThaoTac({ moGanViec }: { moGanViec: () => void }) {
   return (
-    <>
-      {moGanViec && (
-        <Button variant="outline" onClick={moGanViec}>
-          <LinkSimple aria-hidden="true" />
-          Gắn việc
-        </Button>
-      )}
-      <Button asChild>
-        <Link href={chiTiet} prefetch={false}>
-          <CalendarPlus aria-hidden="true" />
-          Hẹn KTV
-        </Link>
-      </Button>
-    </>
+    <Button variant="outline" onClick={moGanViec}>
+      <LinkSimple aria-hidden="true" />
+      Gắn việc
+    </Button>
   )
 }
 
@@ -327,6 +340,7 @@ export function theXemNhanhF({
   t,
   rows,
   nhanVien,
+  loai,
   luu,
   tab,
   onTab,
@@ -338,6 +352,8 @@ export function theXemNhanhF({
   t: DongF
   rows: DongF[]
   nhanVien: NhanVien
+  /** Các loại ticket (như ô Loại của bảng) — rỗng thì ô Loại chỉ đọc. */
+  loai: NhanVien
   /** Lưu trạng thái / phụ trách (updateTicket); null = không quyền sửa → chỉ đọc. */
   luu: Luu
   tab: TabXem
@@ -357,7 +373,7 @@ export function theXemNhanhF({
     phu: tenKhach(t),
     // Tên khách làm tiêu đề lớn trên hàng tab (CEO 27/11, học Notion); đầu thẻ chỉ còn mã.
     tieuDe: tenKhach(t),
-    thuocTinh: <ThuocTinh key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} />,
+    thuocTinh: <ThuocTinh key={t.ticket_code} t={t} nhanVien={nhanVien} loai={loai} luu={luu} />,
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabXem),
@@ -382,6 +398,6 @@ export function theXemNhanhF({
     },
     // ⤢ Mở toàn trang ở đầu thẻ (kiểu Notion, CEO 27/11) — thay mục "Mở trang chi tiết" trong ⋮ ở chân.
     moTrang: chiTiet,
-    chan: <ThanhThaoTac chiTiet={chiTiet} moGanViec={luu && !demo ? moGanViec : null} />,
+    chan: luu && !demo ? <ThanhThaoTac moGanViec={moGanViec} /> : undefined,
   }
 }

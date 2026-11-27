@@ -723,6 +723,7 @@ export function TicketF({
           t,
           rows,
           nhanVien,
+          loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })),
           luu: quyenSua ? (patch) => luuTicket(t.ticket_code, patch) : null,
           lanViec,
           moGanViec: () => setGanViec([t]),

@@ -4,7 +4,8 @@
  * Các lần lỗi = THẺ gập/mở (CEO 27/11 "biến thành thẻ có thể collapse được"): mỗi lần một `Card` (viền, bo xl), đầu thẻ là
  * nút gập — `Lần N · khách báo dd/MM · trạng thái` + mũi tên; gập vẫn hiện một dòng tóm tắt khách báo. Trong thẻ: Khách báo +
  * Xử lý là ô chữ TRƠN gõ thẳng (như Mô tả bên Work — không nút "+ Ghi xử lý", không hộp), dưới Xử lý là "ai · lúc".
- * "+ Thêm lần lỗi" ở đầu danh sách → thẻ mới mở sẵn trên cùng, con trỏ ở ô Khách báo. Mới nhất trên cùng, mở sẵn.
+ * Thứ tự CŨ → MỚI, "+ Thêm lần lỗi" ngay DƯỚI thẻ cuối (CEO 27/11) → thẻ mới mở sẵn ở cuối, con trỏ ở ô Khách báo; lần
+ * mới nhất mở sẵn.
  *
  * ponytail: BẢN DỰNG BỐ CỤC — chữ gõ chỉ giữ trên màn, chưa lưu DB (chờ CEO chốt chỗ lưu "xử lý lần 1" + vật tư theo lần).
  * Nối thật: lần 2+ → `themLanLoi` / `suaLanLoi` (app/ticket/lan-loi-actions.ts).
@@ -25,25 +26,25 @@ const homNay = () => new Date().toISOString().slice(0, 10)
 /** Ô gõ trong PropertyRow: đệm 6 trên/dưới = dòng chữ 20 nằm giữa hàng 32 như nhãn → chữ ô thẳng chữ nhãn. */
 const O_GO = 'py-1.5'
 
-/** `ds` mới nhất trên cùng. `nguoi` = người xử lý hiện dưới ô Xử lý. */
+/** `ds` cũ → mới. `nguoi` = người xử lý hiện dưới ô Xử lý. */
 export function DsTheLan({ ds: goc, nguoi }: { ds: Lan[]; nguoi: string }) {
   const [moi, setMoi] = useState<Lan[]>([])
-  const ds = [...moi, ...goc]
+  const ds = [...goc, ...moi]
   const them = () => {
     const so = Math.max(0, ...ds.map((l) => l.so)) + 1
-    setMoi((x) => [{ so, ngay: homNay(), khach: null, xuLy: null, vatTu: [] }, ...x])
+    setMoi((x) => [...x, { so, ngay: homNay(), khach: null, xuLy: null, vatTu: [] }])
   }
   return (
     <div className="flex flex-col gap-3 border-none border-current">
+      {ds.map((lan, i) => (
+        <TheLan key={lan.so} lan={lan} nguoi={nguoi} moSan={i === ds.length - 1} vuaThem={moi.some((m) => m.so === lan.so)} />
+      ))}
       <div className="border-none border-current">
         <Button variant="ghost" size="sm" className="-ml-2.5" onClick={them}>
           <Plus aria-hidden="true" />
           Thêm lần lỗi
         </Button>
       </div>
-      {ds.map((lan, i) => (
-        <TheLan key={lan.so} lan={lan} nguoi={nguoi} moSan={i === 0} vuaThem={moi.some((m) => m.so === lan.so)} />
-      ))}
     </div>
   )
 }

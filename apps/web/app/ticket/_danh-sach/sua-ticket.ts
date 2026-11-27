@@ -7,7 +7,7 @@ import type { MucChon } from '@/bang/OChonGoiY'
 import { DEMO_KHONG_LUU, laDemo } from './chung'
 import { dongDau, maCuaMay } from './truong-f'
 
-export type SuaTruong = { state?: Ticket['state']; cs_phu_trach?: string | null; ticket_type?: string }
+export type SuaTruong = { state?: Ticket['state']; cs_phu_trach?: string | null; ky_thuat?: string | null; ticket_type?: string }
 
 export async function luuTicket(ma: string, patch: SuaTruong): Promise<void> {
   if (laDemo(ma)) throw new Error(DEMO_KHONG_LUU)

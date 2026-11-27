@@ -56,14 +56,14 @@ function DangTai() {
 }
 const Loi = ({ chu }: { chu: string }) => <EmptyState size="sm" tieuDe="Chưa đọc được" moTa={chu} />
 
-/** Lần lỗi: lần 1 (mô tả + ghi chú xử lý của ticket) + các lần 2+ (ticket_lan_loi), mới nhất trên cùng, mở sẵn lần mới nhất. */
+/** Lần lỗi: lần 1 (mô tả + ghi chú xử lý của ticket) + các lần 2+ (ticket_lan_loi), cũ → mới, mở sẵn lần mới nhất. */
 export function LanLoiThat({ t }: { t: Ticket }) {
   const kq = useDoc(t.ticket_code, () => listLanLoi(t.ticket_code))
   if (!kq) return <DangTai />
   const ds = [
     { so: 1, ngay: t.created_at.slice(0, 10), khach: t.description, xuLy: t.last_note, vatTu: [] as string[] },
     ...(kq.data ?? []).map((l) => ({ so: l.lan, ngay: l.ngay ?? l.created_at.slice(0, 10), khach: l.mo_ta, xuLy: l.xu_ly, vatTu: [] as string[] })),
-  ].reverse()
+  ]
   return (
     <div className="flex flex-col gap-3 border-none border-current">
       {/* Đọc lần 2+ lỗi → vẫn hiện lần 1 (của ticket), báo phần thiếu — như trang chi tiết. */}
