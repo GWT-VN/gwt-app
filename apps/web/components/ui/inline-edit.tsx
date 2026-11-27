@@ -642,11 +642,21 @@ export function OSuaNguoi({
   const deO = useDeO()
   const ten = tenCua(gt)
   const avatar =
-    gt === null || !coAvatar ? null : (
-      <Avatar aria-hidden="true">
-        <AvatarFallback>{chuDau(ten)}</AvatarFallback>
-      </Avatar>
-    )
+    gt === null
+      ? null
+      : coAvatar
+        ? (
+            <Avatar aria-hidden="true">
+              <AvatarFallback>{chuDau(ten)}</AvatarFallback>
+            </Avatar>
+          )
+        : // Ô chọn chữ (OSuaChon): mục có `icon` → icon đứng trước tên, cỡ icon sm, màu muted như icon nhãn.
+          (options?.find((m) => m.gt === gt)?.icon && (
+            <span className="inline-flex shrink-0 text-muted-foreground [&_svg]:size-(--control-icon-size-sm)">
+              {options.find((m) => m.gt === gt)!.icon}
+            </span>
+          )) ||
+          null
   return (
     <NeoO>
       <Popover open={mo} onOpenChange={setMo}>

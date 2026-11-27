@@ -2,6 +2,8 @@
 
 // Phần chung của danh sách ticket (/ticket, ds-f.tsx + xem-nhanh-f.tsx). Prototype ?variant= dùng lại qua _prototype/chung.tsx.
 import Link from 'next/link'
+import type { ReactNode } from 'react'
+import { ChatsCircle, Funnel, ShieldCheck, Tag, Toolbox, Wrench } from '@phosphor-icons/react/ssr'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Ticket, TicketTab } from '@/app/actions'
 import type { MayKhach } from '@/app/ticket/loi-actions'
@@ -68,3 +70,13 @@ export function NutTaoTicket() {
     </Button>
   )
 }
+
+/** Icon theo loại ticket (CEO 27/11 "thêm icon cho phần này") — menu chọn Loại + ô Loại. Loại lạ → nhãn chung. */
+const ICON_LOAI: Record<string, ReactNode> = {
+  'Bảo hành': <ShieldCheck aria-hidden="true" />,
+  'Lắp đặt': <Toolbox aria-hidden="true" />,
+  'Sửa chữa': <Wrench aria-hidden="true" />,
+  'Thay lõi': <Funnel aria-hidden="true" />,
+  'Tư vấn': <ChatsCircle aria-hidden="true" />,
+}
+export const mucLoai = (loai: string[]) => loai.map((g) => ({ gt: g, nhan: g, icon: ICON_LOAI[g] ?? <Tag aria-hidden="true" /> }))

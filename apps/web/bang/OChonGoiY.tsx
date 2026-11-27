@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { locMucChon } from './timkiem'
 
 /**
@@ -16,7 +16,8 @@ import { locMucChon } from './timkiem'
  * Khớp không dấu ở cả hai đầu, tìm theo `gt` (mã) LẪN `nhan` (tên) LẪN `phu`.
  */
 /** `anMa`: `gt` là khoá máy (uuid…) không phải mã người đọc — pop không hiện cột mã (ô Phụ trách theo staff id). */
-export type MucChon = { gt: string; nhan: string; phu?: string; anMa?: boolean }
+/** `icon` (Phosphor, aria-hidden) — hiện trước tên ở menu chọn + ô đang chọn (`OSuaChon`, ComboboxPanel). */
+export type MucChon = { gt: string; nhan: string; phu?: string; anMa?: boolean; icon?: ReactNode }
 
 export function OChonGoiY({
   giaTri,

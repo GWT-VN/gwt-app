@@ -241,6 +241,8 @@ cột ngay, focus về tiêu đề; chữ chip = nút mở pop (`th-chip-mo`), �
 (11) **`TheGap`** (`components/ui/the-gap.tsx`, MỚI): thẻ gập = Card + Collapsible. Đầu thẻ một dòng căn giữa (min 48,
 đệm 8 16): `tieuDe` · `thaoTac` (chip sửa được, nằm trên lớp bấm) · mũi tên; nút gập phủ cả đầu thẻ bằng lớp `after`
 (không lồng nút); kẻ đầu↔thân lùi 16 hai bên (thẳng mép chữ); `khit` = thân không đệm. Dùng: thẻ lần lỗi ticket.
+(12) **`MucChon.icon`** (bang): icon Phosphor trước tên ở menu ComboboxPanel + ô `OSuaChon` (cỡ sm, muted). Ticket: icon
+theo Loại (`mucLoai` — Bảo hành khiên · Lắp đặt hộp đồ nghề · Sửa chữa cờ lê · Thay lõi phễu · Tư vấn chat).
 
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.

@@ -48,7 +48,7 @@ import { cn } from '@/lib/utils'
 import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
 import { moLocCot, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
 import { hienNgay, type KieuNgay } from '@/lib/dinh-dang-ngay'
-import { chuaLuu, laDemo, mayLoi, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
+import { chuaLuu, laDemo, mayLoi, mucLoai, NutTaoTicket, tenKhach, useDatUrl, type DuLieuTicket } from './chung'
 import { HopGanViec } from './the-tab'
 import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, maMayNgan, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
@@ -620,7 +620,7 @@ export function TicketF({
     mo: bam,
     kieuNgay: c.kieuNgay,
     sua: quyenSua
-      ? { nhanVien, loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })), dsLoi, mayKhach, doiMay }
+      ? { nhanVien, loai: mucLoai(tuyChonLoc.loai ?? []), dsLoi, mayKhach, doiMay }
       : null,
   }
   const duongDan = (ma: string) => `/ticket/${encodeURIComponent(ma)}`
@@ -723,7 +723,7 @@ export function TicketF({
           t,
           rows,
           nhanVien,
-          loai: (tuyChonLoc.loai ?? []).map((g) => ({ gt: g, nhan: g })),
+          loai: mucLoai(tuyChonLoc.loai ?? []),
           luu: quyenSua ? (patch) => luuTicket(t.ticket_code, patch) : null,
           lanViec,
           moGanViec: () => setGanViec([t]),

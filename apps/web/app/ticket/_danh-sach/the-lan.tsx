@@ -80,8 +80,8 @@ function TheLan({ lan, nguoi, moSan, vuaThem }: { lan: Lan; nguoi: string; moSan
         />
       }
     >
-      {/* Khách báo ↔ Xử lý cách nhau ~40 (CEO 27/11): khoảng trắng chữ→chữ = 6 (đệm dưới ô) + 28 + 6 (đệm trên ô). */}
-      <PropertyList className="gap-y-7">
+      {/* Dòng cách dòng ~40 (CEO 27/11, nhãn→nhãn): hàng 32 + khe 8; khách báo nhiều dòng thì khoảng trắng chữ→chữ = 20. */}
+      <PropertyList className="gap-y-2">
         <PropertyRow nhan="Khách báo">
           <Textarea
             variant="tran"

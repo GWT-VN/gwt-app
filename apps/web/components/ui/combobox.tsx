@@ -238,6 +238,7 @@ export function ComboboxPanel({
   const lopDs = cs.trongPopDs
   const noiDung = (m: MucChon) => (
     <>
+      {m.icon}
       {m.nhan !== m.gt && !m.anMa && (
         // `.ui-menu-item .ui-code`: mono 12, muted, rộng tối thiểu 24 (bundle.css gõ 24px); số thẳng cột.
         <span className="min-w-[24px] shrink-0 font-mono text-[12px] tabular-nums text-muted-foreground">{m.gt}</span>
