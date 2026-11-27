@@ -4,14 +4,14 @@
 // `@base-ui/react` (16 export) — DS chưa cài thư viện đó, giữ bản ghép kiểu shadcn cũ: Popover + Command (cmdk). Hỏi lại CEO
 // khi màn nghiệp vụ cần chip chọn nhiều.
 import { useRef, useState, type ReactNode } from 'react'
-import { CaretUpDown, Check, MagnifyingGlass, X } from '@phosphor-icons/react/ssr'
+import { CaretUpDown, Check, MagnifyingGlass, Plus, X } from '@phosphor-icons/react/ssr'
 import type { MucChon } from '@/bang/OChonGoiY'
-import { locMucChon } from '@/bang/timkiem'
+import { boDau, locMucChon } from '@/bang/timkiem'
 import { TOI_THIEU_KY_TU, useTimXa } from '@/bang/useTimXa'
 import { cn } from '@/lib/utils'
 import { Command, CommandInput, CommandItem, CommandList, useGanMucSang } from './command'
 import * as cs from './command-styles'
-import { menuCheck, menuContent } from './menu-styles'
+import { menuCheck, menuContent, menuItem, menuSeparator } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { nutXoaTrongO, selectTrigger, selectValue } from './control-styles'
 import { Spinner } from './spinner'
@@ -165,9 +165,17 @@ export function ComboboxPanel({
   defaultSearch = '',
   tinh = false,
   className,
+  onTaoMoi,
+  loaiTao = 'mục',
 }: {
   value: string | null
   onSelect(m: MucChon): void
+  /**
+   * Có → chân pop "＋ Thêm <loaiTao> "<chữ gõ>"" khi đã gõ mà không mục nào TRÙNG tên (bỏ dấu); không mục nào khớp thì Enter
+   * cũng thêm. Như chân "Tạo … mới" của RecordPicker (thêm 27/11 cho ô Lỗi ticket — lỗi mới vào danh mục chờ duyệt).
+   */
+  onTaoMoi?: (q: string) => void
+  loaiTao?: string
   options?: MucChon[]
   tim?: (q: string) => Promise<MucChon[]>
   searchPlaceholder?: string
@@ -211,6 +219,18 @@ export function ComboboxPanel({
     // N kết quả ĐẦU; chưa chạm → đó là toàn bộ kết quả.
     ghiChu = tong >= max ? `${ds.length} kết quả đầu — gõ thêm để thu hẹp` : `${tong} kết quả`
   else ghiChu = tong > ds.length ? `Đang hiện ${ds.length} / ${tong} mục — gõ thêm để thu hẹp` : `${tong} mục`
+
+  const coTao = !!onTaoMoi && !!tu && !tinh && !ds.some((m) => boDau(m.nhan).toLowerCase() === boDau(tu).toLowerCase())
+  const chanTao = coTao && (
+    <>
+      <div data-slot="combobox-tao-sep" className={menuSeparator} />
+      {/* Nút thường ngoài danh sách cmdk (Tab tới được) — như chân RecordPicker. */}
+      <button type="button" data-slot="combobox-tao" className={cn(menuItem, 'hover:bg-(--menu-item-bg)')} onClick={() => onTaoMoi(tu)}>
+        <Plus aria-hidden="true" />
+        <span className="min-w-0 truncate">{`Thêm ${loaiTao} "${tu}"`}</span>
+      </button>
+    </>
+  )
 
   // Phần Command mặc định đã là `.ui-menu*` (command-styles.ts); Combobox chỉ thêm phần "Command trong pop" (`trongPop*`).
   const lopGoc = cn(cs.trongPopGoc, className)
@@ -295,6 +315,10 @@ export function ComboboxPanel({
       onKeyDown={(e) => {
         // cmdk đã bỏ qua phím khi nativeEvent.isComposing / keyCode 229; cờ riêng phủ trình duyệt/bộ gõ không gắn cờ đó.
         if (ghep.current && e.key === 'Enter') e.preventDefault()
+        else if (e.key === 'Enter' && coTao && !ds.length) {
+          e.preventDefault()
+          onTaoMoi(tu)
+        }
       }}
     >
       <CommandInput
@@ -321,6 +345,7 @@ export function ComboboxPanel({
         ))}
       </CommandList>
       {ghiChuO}
+      {chanTao}
     </Command>
   )
 }

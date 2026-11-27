@@ -567,6 +567,7 @@ export function OSuaNguoi({
   max,
   chuaGiao = 'Chưa giao',
   avatar: coAvatar = true,
+  onTaoMoi,
 }: {
   ma: string
   truong: string
@@ -580,6 +581,8 @@ export function OSuaNguoi({
   chuaGiao?: string
   /** false = ô chọn chữ thường (không avatar) — `OSuaChon`. */
   avatar?: boolean
+  /** Có → chân pop "＋ Thêm <truong> "…"": bên gọi tạo mục mới, trả mục đó → ô chọn luôn (lạc quan + Hoàn tác như chọn thường). */
+  onTaoMoi?: (q: string) => Promise<MucChon>
 }) {
   // Mọi mục đã chọn trong phiên (chế độ `tim`: không có danh sách ở client) — Hoàn tác / Thử lại về mục CŨ vẫn hiện tên.
   const [nho, setNho] = useState<ReadonlyMap<string, MucChon>>(() => new Map())
@@ -645,6 +648,20 @@ export function OSuaNguoi({
               luu(m.gt, cau(m.nhan))
               setMo(false)
             }}
+            loaiTao={truong}
+            onTaoMoi={
+              onTaoMoi &&
+              (async (q) => {
+                setMo(false)
+                try {
+                  const m = await onTaoMoi(q)
+                  setNho((n) => new Map(n).set(m.gt, m))
+                  luu(m.gt, cau(m.nhan))
+                } catch (e) {
+                  thongBao.loi(`${ma}: chưa thêm được ${truong} "${q}" — ${chuLoi(e)}`)
+                }
+              })
+            }
           />
         </PopoverContent>
       </Popover>

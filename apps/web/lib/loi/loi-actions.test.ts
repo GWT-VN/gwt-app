@@ -361,3 +361,24 @@ describe('doiMayTicket — ô Máy danh sách ticket F (CEO 26/11 "Cho sửa Má
     expect(ghi.find((g) => g.bang === 'ticket_may')!.arg).not.toHaveProperty('loi_code')
   })
 })
+
+describe('deXuatLoi (CSKH thêm lỗi mới từ ô Lỗi — chờ duyệt)', () => {
+  it('quyền tao_sua trước DB; tạo DX-… trạng thái cho_duyet, áp mã máy', async () => {
+    phan = { 'select:loi_danh_muc': { data: [{ code: 'A1', ten: 'Rò nước', trang_thai: 'da_duyet' }] } }
+    // boDau bị mock = giữ nguyên chữ → dùng tên không dấu (bỏ dấu đã test ở deXuat.test.ts).
+    const r = await A.deXuatLoi('  Keu   to ', 'GPUN-4000XEN-G')
+    expect(r).toEqual({ ok: true, code: 'DX-KEU-TO', ten: 'Keu to', moi: true })
+    expect(chuoi.indexOf('doQuyen')).toBeLessThan(chuoi.findIndex((x) => x.startsWith('db:')))
+    const w = ghi.find((g) => g.op === 'insert' && g.bang === 'loi_danh_muc')!.arg as Record<string, unknown>
+    expect(w).toMatchObject({ code: 'DX-KEU-TO', ten: 'Keu to', trang_thai: 'cho_duyet', ma_may: ['GPUN-4000XEN-G%'], duyet_boi: null })
+  })
+  it('trùng tên lỗi có sẵn → trả lỗi đó, không ghi', async () => {
+    phan = { 'select:loi_danh_muc': { data: [{ code: 'A1', ten: 'Rò nước', trang_thai: 'cho_duyet' }] } }
+    expect(await A.deXuatLoi('Rò  nước', null)).toEqual({ ok: true, code: 'A1', ten: 'Rò nước', moi: false })
+    expect(ghi).toEqual([])
+  })
+  it('tên quá ngắn → từ chối, không chạm DB', async () => {
+    expect((await A.deXuatLoi('a', null)).ok).toBe(false)
+    khongChamDb()
+  })
+})

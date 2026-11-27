@@ -13,6 +13,7 @@ import { serialBoSungChoTicket } from '@/lib/loi/ticketKhongSerial'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 import { loiHopVoiMay } from '@/app/ticket/_danh-sach/truong-f'
 import { demDoiTrangThai, docDanhMuc, docGanTicket } from '@/lib/loi/danhMucNhap'
+import { maDeXuat, timTrungTen } from '@/lib/loi/deXuat'
 import type { DongCa, MauSo } from '@/lib/loi/tanSuat'
 import type { DongMay, DongMayInput, KetQuaTraSerial, KhachVaMay, LoiDanhMuc, TrangThaiLoi } from '@/lib/loi/kieu'
 
@@ -75,6 +76,32 @@ export async function luuLoi(input: Omit<LoiDanhMuc, 'duyet_boi' | 'duyet_luc'>)
   await ghiAudit('luu_loi_danh_muc', `loi:${row.code}`, { trang_thai: row.trang_thai })
   lamMoi(undefined, true)
   return { ok: true }
+}
+
+/**
+ * CSKH đề xuất lỗi mới từ ô Lỗi của ticket (CEO 27/11, phương án A): vào danh mục ở trạng thái CHỜ DUYỆT, áp cho đúng mã
+ * máy; QUANLY duyệt / gộp / ngừng ở /danh-muc-loi. Tên trùng (bỏ dấu, lỗi chưa ngừng) → trả lỗi có sẵn, không tạo thêm.
+ * Quyền: người sửa được ticket (`cs.ticket.tao_sua`) — KHÔNG cần quyền cấu hình danh mục.
+ */
+export async function deXuatLoi(ten: string, internalCode: string | null): Promise<KQ<{ code: string; ten: string; moi: boolean }>> {
+  await requireStaff()
+  await doQuyen('cs.ticket.tao_sua')
+  const t = typeof ten === 'string' ? ten.trim().replace(/\s+/g, ' ') : ''
+  if (t.length < 3 || t.length > GIOI_HAN.ten) return { ok: false, error: `Tên lỗi 3–${GIOI_HAN.ten} ký tự.` }
+  const may = typeof internalCode === 'string' && internalCode.trim() ? internalCode.trim() : null
+  const db = dataClient()
+  const { data, error } = await db.from('loi_danh_muc').select('code, ten, trang_thai')
+  if (error) return { ok: false, error: thongBaoLoiDb(error, 'deXuatLoi') }
+  const ds = (data ?? []) as { code: string; ten: string; trang_thai: string }[]
+  const trung = timTrungTen(t, ds)
+  if (trung) return { ok: true, code: trung.code, ten: trung.ten, moi: false }
+  const sach = lamSachLoi({ code: maDeXuat(t, ds.map((d) => d.code)), ten: t, trang_thai: 'cho_duyet', ma_may: may ? [may] : [], nguon: 'cs_de_xuat' })
+  if (!sach.ok) return sach
+  const { error: e2 } = await db.from('loi_danh_muc').insert({ ...sach.row, duyet_boi: null, duyet_luc: null })
+  if (e2) return { ok: false, error: thongBaoLoiDb(e2, 'deXuatLoi') }
+  await ghiAudit('de_xuat_loi', `loi:${sach.row.code}`, { ten: t, ma_may: sach.row.ma_may })
+  lamMoi(undefined, true)
+  return { ok: true, code: sach.row.code, ten: t, moi: true }
 }
 
 export async function datTrangThaiLoi(code: string, trang_thai: TrangThaiLoi): Promise<KQ> {

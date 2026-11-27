@@ -332,3 +332,24 @@ test('nút ✕ dùng chung hằng nutXoaTrongO (control-styles) với TimeInput'
   const cls = screen.getByRole('button', { name: 'Bỏ chọn Hà Nội' }).className.split(' ')
   expect(nutXoaTrongO.split(' ').every((c) => cls.includes(c))).toBe(true)
 })
+
+test('onTaoMoi: gõ tên không trùng → chân "Thêm <loaiTao> "…""; trùng tên (bỏ dấu) → không hiện; không mục nào khớp → Enter thêm', async () => {
+  const user = userEvent.setup()
+  const tao = vi.fn()
+  render(
+    <DsRoot>
+      <ComboboxPanel value={null} onSelect={() => {}} options={[{ gt: 'A', nhan: 'Rò nước' }]} onTaoMoi={tao} loaiTao="loại lỗi" />
+    </DsRoot>,
+  )
+  const o = screen.getByRole('combobox')
+  await user.type(o, 'ro nuoc')
+  expect(screen.queryByRole('button', { name: /^Thêm loại lỗi/ })).toBeNull()
+  await user.clear(o)
+  await user.type(o, 'Kêu to')
+  const nut = screen.getByRole('button', { name: 'Thêm loại lỗi "Kêu to"' })
+  await user.click(nut)
+  expect(tao).toHaveBeenLastCalledWith('Kêu to')
+  await user.click(o)
+  await user.keyboard('{Enter}')
+  expect(tao).toHaveBeenCalledTimes(2)
+})

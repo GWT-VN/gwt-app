@@ -33,7 +33,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaChon, OSuaNguoi, OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import type { MucChon } from '@/bang/OChonGoiY'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
-import { luuLoi, luuMay, luuTicket } from './sua-ticket'
+import { luuLoi, luuMay, luuTicket, taoLoiMoi } from './sua-ticket'
 import type { MayKhach } from '@/app/ticket/loi-actions'
 import { KanbanBoard, NoiDungTheTruong, type CotKanban, type TruongThe } from '@/components/ui/kanban-board'
 import { ListView, NutMoMa, NutMoTen, type CotDanhSach } from '@/components/ui/list-view'
@@ -112,7 +112,9 @@ function NguoiPhuTrach({ ten }: { ten: string | null }) {
 /** Mục pop Loại lỗi: lỗi còn dùng (không "ngưng") của máy cùng hàng + "Chưa phân loại" (luôn có). */
 function mucLoi(ds: DuLieuTicket['dsLoi'], t: Ticket): MucChon[] {
   const may = maCuaMay(t)
-  const co = ds.filter((d) => !d.ngung && loiHopVoiMay(d, may)).map((d) => ({ gt: d.code, nhan: d.ten }))
+  const co = ds
+    .filter((d) => !d.ngung && loiHopVoiMay(d, may))
+    .map((d) => ({ gt: d.code, nhan: d.ten, ...(d.choDuyet ? { phu: 'chờ duyệt' } : {}) }))
   return co.some((m) => m.gt === CHUA_PHAN_LOAI) ? co : [...co, { gt: CHUA_PHAN_LOAI, nhan: 'Chưa phân loại' }]
 }
 
@@ -256,8 +258,13 @@ const O: Record<string, (t: Dong, ng: NgCanhO) => React.ReactNode> = {
             chuaGiao="—"
             options={mucLoi(sua.dsLoi, t)}
             onLuu={(v) => luuLoi(t, v ?? CHUA_PHAN_LOAI)}
+            // Lỗi chưa có → gõ rồi "＋ Thêm loại lỗi": vào danh mục CHỜ DUYỆT (CEO 27/11, phương án A).
+            onTaoMoi={(q) => taoLoiMoi(t, q)}
           />
           </span>
+          {d && sua.dsLoi.some((x) => x.code === d.loi_code && x.choDuyet) && (
+            <span className="shrink-0 text-[12px] text-muted-foreground">chờ duyệt</span>
+          )}
           <ThemDong t={t} />
         </span>
       )

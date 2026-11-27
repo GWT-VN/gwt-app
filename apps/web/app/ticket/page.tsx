@@ -82,7 +82,7 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
     trang,
     soTrang: demo ? 1 : ketQua.soTrang,
     loaiList: [],
-    dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten, ma_may: d.ma_may, ngung: d.trang_thai === 'ngung' })),
+    dsLoi: dsLoi.map((d) => ({ code: d.code, ten: d.ten, ma_may: d.ma_may, ngung: d.trang_thai === 'ngung', choDuyet: d.trang_thai === 'cho_duyet' })),
     demo,
     quyenSua: sua,
     mayKhach,

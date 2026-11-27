@@ -14,7 +14,7 @@ export type DuLieuTicket = {
   trang: number
   soTrang: number
   loaiList: string[]
-  dsLoi: { code: string; ten: string; ma_may?: string[]; ngung?: boolean }[]
+  dsLoi: { code: string; ten: string; ma_may?: string[]; ngung?: boolean; choDuyet?: boolean }[]
   /** DB local gần như trống → có thêm ticket Demo trong bộ nhớ (chỉ dev). */
   demo?: boolean
   /** F: giá trị có trong dữ liệu CHƯA lọc của từng trường chọn/người (đọc DB, truong-f.ts `tuyChonF`). */
