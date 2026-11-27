@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { dongLoiCuaTicket, thongKeLoiTheoMay, type DongLoiMay } from './thong-ke-loi'
+import type { Ticket } from '@/app/actions'
+import { dongLoiCuaTicket, gomTicketTheoMay, thongKeLoiTheoMay, type DongLoiMay } from './thong-ke-loi'
 
 test('đếm theo máy × mã lỗi, bỏ ticket huỷ, gom máy null thành "Chưa rõ máy"', () => {
   const r = thongKeLoiTheoMay([
@@ -32,4 +33,36 @@ test('dongLoiCuaTicket: lấy trạng thái + ngày của ticket, tên máy tra 
     { ticket_code: 'T9', state: 'Done', serial: 'S1', internal_code: 'GN610', product_name: 'Máy GN610', loi_code: 'E3', loi_ten: 'Báo lỗi E3', ngay: '2026-11-05' },
     { ticket_code: 'T9', state: 'Done', serial: null, internal_code: null, product_name: null, loi_code: 'CHUA_PHAN_LOAI', loi_ten: null, ngay: '2026-11-05' },
   ])
+})
+
+test('gomTicketTheoMay: mỗi máy một nhóm, ticket theo dòng lỗi / serial ticket / serial lạ / chưa rõ; nhóm đang xem lên đầu', () => {
+  const t = (ticket_code: string, created_at: string, serial: string | null = null, product_name: string | null = null) =>
+    ({ ticket_code, created_at, serial, product_name }) as Pick<Ticket, 'ticket_code' | 'created_at' | 'serial' | 'product_name'>
+  const d = (ticket_code: string, serial: string | null, loi_code = 'E3'): DongLoiMay => ({
+    ticket_code, state: 'Open', serial, internal_code: null, product_name: null, loi_code, loi_ten: null, ngay: '2026-11-01',
+  })
+  const may = [
+    { serial: 'A', product_name: 'Máy A', internal_code: null },
+    { serial: 'B', product_name: null, internal_code: 'GN610' },
+    { serial: 'C', product_name: 'Máy C', internal_code: null },
+  ]
+  const tickets = [
+    t('T1', '2026-11-01'), // báo cả A và B
+    t('T2', '2026-11-10', 'B'), // không dòng lỗi, serial trên ticket
+    t('T3', '2026-11-05', 'Z9', 'Máy lạ'), // serial không thuộc máy của khách
+    t('T4', '2026-11-20'), // không máy
+  ]
+  const r = gomTicketTheoMay(tickets, [d('T1', 'A'), d('T1', 'B'), d('T1', 'B')], may, null)
+  expect(r.map((n) => [n.serial, n.ten, n.tickets.map((x) => x.ticket_code)])).toEqual([
+    ['B', 'GN610', ['T2', 'T1']],
+    ['Z9', 'Máy lạ', ['T3']],
+    ['A', 'Máy A', ['T1']],
+    ['C', 'Máy C', []],
+    [null, null, ['T4']],
+  ])
+  expect(r[0].loi).toMatchObject([{ code: 'E3', so_lan: 1 }])
+  // Đang xem T1 → nhóm chứa T1 (A, B) lên đầu; "Chưa rõ máy" vẫn cuối.
+  expect(gomTicketTheoMay(tickets, [d('T1', 'A'), d('T1', 'B')], may, 'T1').map((n) => n.serial)).toEqual(['B', 'A', 'Z9', 'C', null])
+  // Không ticket nào thiếu máy → không có nhóm "Chưa rõ máy".
+  expect(gomTicketTheoMay([], [], may, null).map((n) => n.serial)).toEqual(['A', 'B', 'C'])
 })

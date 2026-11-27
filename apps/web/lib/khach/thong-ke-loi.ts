@@ -69,3 +69,42 @@ export function thongKeLoiTheoMay(dong: DongLoiMay[]): ThongKeMay[] {
   const tong = (m: ThongKeMay) => m.loi.reduce((s, l) => s + l.so_lan, 0)
   return ra.sort((a, b) => Number(a.may === null) - Number(b.may === null) || tong(b) - tong(a))
 }
+
+/** Một thẻ máy ở tab Ticket hồ sơ khách: `serial: null` = "Chưa rõ máy". */
+export type NhomMay<T> = { serial: string | null; ten: string | null; tickets: T[]; loi: LoiCuaMay[] }
+
+/**
+ * Gom ticket theo máy (tab Ticket hồ sơ khách — CEO 27/11 "tên máy KH mua → mở ra có ticket riêng cho máy đó"):
+ * - Mỗi máy của khách một nhóm, kể cả máy chưa có ticket.
+ * - Ticket thuộc máy theo dòng lỗi (báo nhiều máy → có ở mỗi máy); không có dòng lỗi mang serial thì theo `serial` của
+ *   ticket; serial không thuộc máy của khách → nhóm riêng (tên từ ticket); không máy nào → nhóm `serial: null`.
+ * - `loi` = chip `Mã ×n` của máy (`thongKeLoiTheoMay`, bỏ ticket huỷ).
+ * - Sắp: nhóm có ticket `dangXem` trước, rồi ticket gần nhất mới trước, rồi máy chưa có ticket (giữ thứ tự `may`);
+ *   "Chưa rõ máy" luôn cuối. Ticket trong nhóm mới → cũ.
+ */
+export function gomTicketTheoMay<T extends Pick<Ticket, 'ticket_code' | 'created_at' | 'serial' | 'product_name'>>(
+  tickets: T[],
+  dongLoi: DongLoiMay[],
+  may: { serial: string; product_name: string | null; internal_code: string | null }[],
+  dangXem: string | null,
+): NhomMay<T>[] {
+  const loi = new Map(thongKeLoiTheoMay(dongLoi).map((m) => [m.may, m.loi]))
+  const nhom = new Map<string | null, NhomMay<T>>()
+  const lay = (serial: string | null, ten: string | null) => {
+    let n = nhom.get(serial)
+    if (!n) nhom.set(serial, (n = { serial, ten, tickets: [], loi: loi.get(serial) ?? [] }))
+    return n
+  }
+  for (const m of may) lay(m.serial, m.product_name ?? m.internal_code)
+  for (const t of [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at))) {
+    const dong = dongLoi.filter((d) => d.ticket_code === t.ticket_code && d.serial !== null)
+    const serials = new Set<string | null>(dong.map((d) => d.serial))
+    if (serials.size === 0) serials.add(t.serial)
+    for (const s of serials) lay(s, s && (t.product_name ?? dong.find((d) => d.serial === s)?.internal_code ?? null)).tickets.push(t)
+  }
+  const coXem = (n: NhomMay<T>) => n.tickets.some((t) => t.ticket_code === dangXem)
+  const moiNhat = (n: NhomMay<T>) => n.tickets[0]?.created_at ?? ''
+  return [...nhom.values()].sort(
+    (a, b) => Number(a.serial === null) - Number(b.serial === null) || Number(coXem(b)) - Number(coXem(a)) || moiNhat(b).localeCompare(moiNhat(a)),
+  )
+}
