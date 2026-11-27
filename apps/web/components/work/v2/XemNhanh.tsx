@@ -375,7 +375,7 @@ function TongQuan({ c }: { c: Ctx }) {
                     <OSuaHan
                       ma={t.ref}
                       value={hanO(t.due_at)}
-                      onLuu={(h) => luu(suaViec(t.id, { due: hanLuu(h) }))}
+                      onLuu={(h) => luu(suaViec(t.id, h ? { due: hanLuu(h) } : { xoa_due: true }))}
                       hien={(v) => <HanChu due={v ? hanLuu(v) : null} />}
                     />
                     {t.due_at && (
@@ -736,7 +736,7 @@ function Chan({ c }: { c: Ctx }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Thao tác khác cho ${t.ref}`}>
+          <Button variant="ghost" size="icon" aria-label={`Thao tác khác cho ${t.ref}`}>
             <DotsThreeVertical aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
@@ -753,7 +753,6 @@ function Chan({ c }: { c: Ctx }) {
         </DropdownMenuContent>
       </DropdownMenu>
       <Button
-        size="sm"
         variant={xong ? 'outline' : 'default'}
         loading={dang}
         disabled={!xong && chanMo}

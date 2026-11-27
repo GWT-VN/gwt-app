@@ -206,7 +206,7 @@ export function useOViec(nenTang: NenTang, moViec: (id: number) => void, rongNgu
           <OSuaHan
             ma={v.ref}
             value={hanO(v.due_at)}
-            onLuu={(h) => luu(suaViec(v.id, { due: hanLuu(h) }))}
+            onLuu={(h) => luu(suaViec(v.id, h ? { due: hanLuu(h) } : { xoa_due: true }))}
             hien={() => <HanChu due={v.due_at} kieu={kieu} />}
           />
         )

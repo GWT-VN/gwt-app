@@ -339,7 +339,7 @@ function ThanhThaoTac({ t, moGanViec }: { t: DongF; moGanViec: (() => void) | nu
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Thao tác khác cho ${t.ticket_code}`}>
+          <Button variant="ghost" size="icon" aria-label={`Thao tác khác cho ${t.ticket_code}`}>
             <DotsThreeVertical aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
@@ -362,12 +362,12 @@ function ThanhThaoTac({ t, moGanViec }: { t: DongF; moGanViec: (() => void) | nu
         </DropdownMenuContent>
       </DropdownMenu>
       {moGanViec && (
-        <Button variant="outline" size="sm" onClick={moGanViec}>
+        <Button variant="outline" onClick={moGanViec}>
           <LinkSimple aria-hidden="true" />
           Gắn việc
         </Button>
       )}
-      <Button size="sm" asChild>
+      <Button asChild>
         <Link href={chiTiet} prefetch={false}>
           <CalendarPlus aria-hidden="true" />
           Hẹn KTV

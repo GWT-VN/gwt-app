@@ -160,9 +160,12 @@ export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
 export const xnHangTab = cn(kv, 'shrink-0 px-6 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
 /** Vùng cuộn dưới hàng tab: đệm 8 24 24 (+ đệm trên 12 của TabsContent = 20 như `xnThan`), ẩn thanh cuộn. */
 export const xnCuon = cn(kv, 'min-h-0 flex-1 overflow-y-auto px-6 pt-2 pb-6 [scrollbar-width:none]')
-/** Thanh thao tác dính đáy thẻ: cao 52 như đầu thẻ, đệm 0 24, dồn phải, cách 8, gạch trên 1px alpha-05. */
+/**
+ * Thanh thao tác dính đáy thẻ: đệm 16 trên/dưới · 24 hai bên, nút cỡ chuẩn 32 (CEO 27/11 "padding trên dưới 16px. CTA size
+ * to hơn" — trước cao 52 với nút sm 28), dồn phải, cách 8, gạch trên 1px alpha-05.
+ */
 export const xnChan = cn(
-  'flex h-[52px] shrink-0 items-center justify-end gap-2 px-6',
+  'flex shrink-0 items-center justify-end gap-2 px-6 py-4',
   'border-none border-current [border-top:1px_solid_var(--alpha-05)]',
 )
 /** `.b-ma`: 12/18 tertiary tabular-nums. */
