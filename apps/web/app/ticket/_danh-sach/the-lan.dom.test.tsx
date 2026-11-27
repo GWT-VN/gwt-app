@@ -101,3 +101,56 @@ test('ST (mặc định): đổi trạng thái / rời ô chỉ trên màn — k
   expect(suaLanLoiMd).not.toHaveBeenCalled()
   expect(themLanLoiMd).not.toHaveBeenCalled()
 })
+
+/** Promise mở tay: `xong(v)` cho nó về đích. */
+function treo<T>() {
+  let xong!: (v: T) => void
+  const p = new Promise<T>((r) => (xong = r))
+  return { p, xong }
+}
+
+test('MD: thẻ mới — gõ v1 rời ô, gõ v2 rời ô khi lần tạo CHƯA xong → sau khi tạo vẫn gửi { customer_said: v2 }', async () => {
+  docLanLoi.mockResolvedValue({ md: true, ds: [lanMd] })
+  const tao = treo<{ ok: true; id: string; report_no: number }>()
+  themLanLoiMd.mockImplementationOnce(() => tao.p)
+  mo()
+  fireEvent.click(await screen.findByRole('button', { name: 'Thêm lần lỗi' }))
+  const khach = await screen.findByRole('textbox', { name: 'Khách báo lần 2' })
+  fireEvent.change(khach, { target: { value: 'v1' } })
+  fireEvent.blur(khach)
+  fireEvent.change(khach, { target: { value: 'v2' } })
+  fireEvent.blur(khach)
+  await waitFor(() => expect(themLanLoiMd).toHaveBeenCalledTimes(1))
+  expect(themLanLoiMd).toHaveBeenCalledWith(MA, expect.objectContaining({ customer_said: 'v1' }))
+  expect(suaLanLoiMd).not.toHaveBeenCalled()
+  tao.xong({ ok: true, id: '99999999-9999-4999-8999-999999999999', report_no: 2 })
+  await waitFor(() => expect(suaLanLoiMd).toHaveBeenCalledWith('99999999-9999-4999-8999-999999999999', MA, { customer_said: 'v2' }))
+  expect(themLanLoiMd).toHaveBeenCalledTimes(1)
+})
+
+test('MD: hai lần rời ô Xử lý liên tiếp → sửa nối đuôi (lần 2 chỉ gửi khi lần 1 xong), lần cuối mang v2', async () => {
+  docLanLoi.mockResolvedValue({ md: true, ds: [lanMd] })
+  const lan1 = treo<{ ok: true }>()
+  suaLanLoiMd.mockImplementationOnce(() => lan1.p)
+  mo()
+  const o = await screen.findByRole('textbox', { name: 'Xử lý lần 1' })
+  fireEvent.change(o, { target: { value: 'v1' } })
+  fireEvent.blur(o)
+  fireEvent.change(o, { target: { value: 'v2' } })
+  fireEvent.blur(o)
+  await waitFor(() => expect(suaLanLoiMd).toHaveBeenCalledTimes(1))
+  await new Promise((r) => setTimeout(r, 20))
+  expect(suaLanLoiMd).toHaveBeenCalledTimes(1) // lần 2 còn xếp hàng
+  lan1.xong({ ok: true })
+  await waitFor(() => expect(suaLanLoiMd).toHaveBeenCalledTimes(2))
+  expect(suaLanLoiMd.mock.calls.map((c) => (c as unknown[])[2])).toEqual([{ handling: 'v1' }, { handling: 'v2' }])
+})
+
+test('MD trống cho ticket: lần 1 dựng từ ticket mang ngày tạo theo giờ VN', async () => {
+  docLanLoi.mockResolvedValue({ md: true, ds: [] })
+  render(<DsRoot><LanLoiThat t={{ ...t, created_at: '2026-11-20T20:00:00Z' } as Ticket} /></DsRoot>)
+  const khach = await screen.findByRole('textbox', { name: 'Khách báo lần 1' })
+  fireEvent.change(khach, { target: { value: 'Rò nước nhiều' } })
+  fireEvent.blur(khach)
+  await waitFor(() => expect(themLanLoiMd).toHaveBeenCalledWith(MA, { customer_said: 'Rò nước nhiều', reported_on: '2026-11-21' }))
+})

@@ -75,25 +75,22 @@ function TheLan({ lan, nguoi, luu, moSan, vuaThem }: { lan: LanThe; nguoi: strin
   const [tt, setTt] = useState<TrangThaiLanMd>(lan.tt ?? (lan.xuLy ? 'da_xu_ly' : 'cho_xu_ly'))
   const [so, setSo] = useState(lan.so)
   const id = useRef(lan.id)
-  const tao = useRef<Promise<void> | null>(null)
+  // Mọi lần ghi của MỘT thẻ xếp hàng nối đuôi: lần sau luôn tới DB sau (không v1 đè v2), và lần tạo xong mới tới lần sửa.
+  const hang = useRef<Promise<unknown>>(Promise.resolve())
   const daLuu = useRef({ customer_said: lan.khach ?? '', handling: lan.xuLy ?? '' })
 
-  /** Ghi `patch`; thẻ chưa có id → tạo trước (một lần dù bấm dồn), rồi gửi nốt phần lần tạo không mang. Lỗi → ném. */
-  async function ghi(patch: SuaThe) {
+  /** Một lần ghi: thẻ chưa có id → tạo trước, rồi gửi nốt phần lần tạo không mang. Lỗi → ném. */
+  async function ghiMot(patch: SuaThe) {
     if (!luu) return
     if (!id.current) {
-      tao.current ??= luu.them({ customer_said: khach, reported_on: lan.ngay }).then((r) => {
-        if (!r.ok) {
-          tao.current = null
-          throw new Error(r.error)
-        }
-        id.current = r.id
-        daLuu.current.customer_said = khach
-        setSo(r.report_no)
-      })
-      await tao.current
+      const daGui = patch.customer_said ?? khach
+      const r = await luu.them({ customer_said: daGui, reported_on: lan.ngay })
+      if (!r.ok) throw new Error(r.error)
+      id.current = r.id
+      setSo(r.report_no)
       const con: SuaThe = { ...patch }
-      delete con.customer_said
+      // Chỉ bỏ khách báo khi đúng giá trị lần tạo đã mang.
+      if (con.customer_said === daGui) delete con.customer_said
       if (con.handling === undefined && xuLy) con.handling = xuLy
       if (con.status === undefined && tt !== 'cho_xu_ly') con.status = tt
       if (!Object.keys(con).length) return
@@ -101,6 +98,11 @@ function TheLan({ lan, nguoi, luu, moSan, vuaThem }: { lan: LanThe; nguoi: strin
     }
     const r = await luu.sua(id.current!, patch)
     if (!r.ok) throw new Error(r.error)
+  }
+  const ghi = (patch: SuaThe) => {
+    const lam = hang.current.then(() => ghiMot(patch))
+    hang.current = lam.catch(() => {})
+    return lam
   }
   const roi = (k: 'customer_said' | 'handling', v: string) => {
     if (!luu || v.trim() === daLuu.current[k].trim()) return

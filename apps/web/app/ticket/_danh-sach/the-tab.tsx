@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { thongBao } from '@/components/ui/sonner'
 import { Textarea } from '@/components/ui/textarea'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
+import { ngayVNHomNay } from '@/lib/loi/ngayTicket'
 import { mayLoi, ngayNgan, tenKhach } from './chung'
 import { TT } from './ds-f'
 import { DsTheLan, type LanThe, type LuuLan } from './the-lan'
@@ -64,7 +65,8 @@ const Loi = ({ chu }: { chu: string }) => <EmptyState size="sm" tieuDe="Chưa đ
 export function LanLoiThat({ t }: { t: Ticket }) {
   const kq = useDoc(t.ticket_code, () => docLanLoi(t.ticket_code))
   if (!kq) return <DangTai />
-  const lan1: LanThe = { so: 1, ngay: t.created_at.slice(0, 10), khach: t.description, xuLy: t.last_note, vatTu: [] }
+  // Ngày lần 1 = ngày tạo ticket theo giờ VN (ticket tạo 0–7h VN không lùi về hôm trước).
+  const lan1: LanThe = { so: 1, ngay: ngayVNHomNay(new Date(t.created_at)), khach: t.description, xuLy: t.last_note, vatTu: [] }
   const r = kq.data
   const ds: LanThe[] = r?.md
     ? r.ds.length
