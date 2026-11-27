@@ -1,5 +1,8 @@
 import { Suspense } from 'react'
-import { listKhachHang, khoaTatCaKhachHang, exportCuaToi, listBangView, kenhChon, demKhachThieuSdt, demKhachKenhTuDong } from '@/app/actions'
+import {
+  listKhachHang, khoaTatCaKhachHang, exportCuaToi, listTabView, kenhChon, demKhachThieuSdt, demKhachKenhTuDong,
+  demKhachTatCa, tuyChonKhach,
+} from '@/app/actions'
 import { ExportKhachButton } from '@/components/ExportKhachButton'
 import { ThaoTacHangLoat } from '@/components/ThaoTacHangLoat'
 import { BangKhach } from '@/components/BangKhach'
@@ -12,27 +15,34 @@ import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
 import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { TRUONG_KHACH } from './truong-khach'
 
+// Danh sách khách CSKH — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md).
 export default async function KhachHangPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; trang?: string; cot?: string; chieu?: string; thieu_sdt?: string; kenh_tu_dong?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }) {
-  const { q = '', trang: trangRaw, cot, chieu, thieu_sdt, kenh_tu_dong } = await searchParams
+  const sp = await searchParams
+  const { q = '', trang: trangRaw, cot, chieu, thieu_sdt, kenh_tu_dong } = sp
+  const loc = Object.fromEntries(TRUONG_KHACH.map((x) => [x.id, sp[x.id]]))
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const [{ rows, tong, soTrang, sapXep }, quyen, exportDuyet, views, kenh, soThieuSdt, soKenhTuDong] = await Promise.all([
-    listKhachHang(q, { trang, cot, chieu, thieuSdt: thieu_sdt === '1', kenhTuDong: kenh_tu_dong === '1' }),
-    hoiQuyen({
-      hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
-      xoaHangLoat: ['cs.khach.xoa_hang_loat', 'ADMIN'],
-      viewChung: ['he_thong.view_chung', 'QUANLY'],
-    }),
-    exportCuaToi(),
-    listBangView('cs_customers'),
-    kenhChon(),
-    demKhachThieuSdt(),
-    demKhachKenhTuDong(),
-  ])
+  const [{ rows, tong, soTrang, sapXep }, quyen, exportDuyet, tabRieng, kenh, soThieuSdt, soKenhTuDong, soTatCa, tuyChon] =
+    await Promise.all([
+      listKhachHang(q, { trang, cot, chieu, thieuSdt: thieu_sdt === '1', kenhTuDong: kenh_tu_dong === '1', loc }),
+      hoiQuyen({
+        hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
+        xoaHangLoat: ['cs.khach.xoa_hang_loat', 'ADMIN'],
+        viewChung: ['he_thong.view_chung', 'QUANLY'],
+      }),
+      exportCuaToi(),
+      listTabView('khach_tab'),
+      kenhChon(),
+      demKhachThieuSdt(),
+      demKhachKenhTuDong(),
+      demKhachTatCa(),
+      tuyChonKhach(),
+    ])
 
   return (
     <ManV2>
@@ -42,7 +52,7 @@ export default async function KhachHangPage({
             khoaTrang={rows.map((c) => c.id)}
             tong={tong}
             bat={quyen.hangLoat}
-            thamSo={{ q, cot, chieu, thieu_sdt, kenh_tu_dong }}
+            thamSo={{ q, cot, chieu, thieu_sdt, kenh_tu_dong, ...loc }}
             layTatCaKhoa={khoaTatCaKhachHang}
           >
             <Suspense>
@@ -53,10 +63,10 @@ export default async function KhachHangPage({
                 soTrang={soTrang}
                 sapXep={sapXep}
                 choChon={quyen.hangLoat}
-                choViewChung={quyen.viewChung}
-                views={views}
-                soThieuSdt={soThieuSdt}
-                soKenhTuDong={soKenhTuDong}
+                tabRieng={tabRieng}
+                quyenTabChung={quyen.viewChung}
+                demTab={{ 'tat-ca': soTatCa, 'thieu-sdt': soThieuSdt, kenh: soKenhTuDong }}
+                tuyChonLoc={tuyChon}
                 taoKhach={<TaoKhachButton kenh={kenh} />}
                 xuatExcel={<ExportKhachButton q={q} daDuyet={exportDuyet} />}
                 thanhDaChon={

@@ -5,7 +5,7 @@
 // L1 Bảng + thẻ Xem nhanh (bố cục Twenty, xem-nhanh-f.tsx) · L3 tab view có số đếm · L2 Kanban là dạng xem phụ.
 // Dữ liệu: server (page.tsx → searchTickets) đã lọc theo tab + trường + tìm, sắp, cắt trang; số tab đếm ở DB.
 // Sửa tại chỗ (Xem nhanh, kéo thẻ, hàng loạt) CHƯA nối mutation — chỉ đổi state trên màn (bước 4 của kế hoạch).
-import { Suspense, useCallback, useRef, useState, type ReactNode } from 'react'
+import { Suspense, useRef, useState, type ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   ArrowsClockwise,
@@ -48,6 +48,7 @@ import { chuaLuu, laDemo, mayLoi, NutTaoTicket, tenKhach, useDatUrl, type DuLieu
 import { HopGanViec } from './the-tab'
 import { BH_F, CHUA_GIAO, docViewF, dongDau, KHAN_CO, KHAN_KHONG, loiHopVoiMay, maCuaMay, maMayDong, maMayNgan, soDongThem, TRUONG_F } from './truong-f'
 import { useTabTicket } from './tab-ticket'
+import { RONG_BANG_TOI_THIEU, useRongKhung } from '@/components/ui/use-rong-khung'
 import { TAB_XEM, theXemNhanhF, type TabXem } from './xem-nhanh-f'
 
 /** Giá trị lạc quan khi kéo thẻ Kanban (đang lưu DB) — bỏ khi lưu xong (dữ liệu server mới về) hoặc trả lại khi lỗi. */
@@ -144,27 +145,9 @@ function TrangThaiO({ t }: { t: Ticket }) {
   )
 }
 
-/**
- * Bề rộng thật của khung chứa (ResizeObserver); null trước lần đo đầu. Ref dạng callback: khung chỉ mount khi đang ở
- * dạng Bảng (đổi từ Danh sách/Kanban sang thì vẫn bắt được).
- */
-function useRongKhung() {
-  const [w, setW] = useState<number | null>(null)
-  const ro = useRef<ResizeObserver | null>(null)
-  const ref = useCallback((el: HTMLDivElement | null) => {
-    ro.current?.disconnect()
-    if (!el) return
-    ro.current = new ResizeObserver(([e]) => setW(Math.floor(e.contentRect.width)))
-    ro.current.observe(el)
-  }, [])
-  return [ref, w] as const
-}
-
 /** Dạng xem cho người dùng chọn ở F (CEO 26/11 "giữ 2 dạng"). */
 const XEM_F = ['bang', 'kanban'] as const satisfies readonly DangXem[]
 
-/** Vùng chứa hẹp hơn mức này (điện thoại) → ListView thay Bảng. */
-const RONG_BANG_TOI_THIEU = 640
 
 // ── Bảng (L1) ───────────────────────────────────────────────────────────────────────────────────────────────────────
 // Cột theo DS (`CotBang`, useCotBang): thứ tự / độ rộng / ẩn ghi lên URL (`cot_thu_tu`, `cot_rong`, `cot_an`). Cột đầu

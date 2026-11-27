@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { danhMucLoi, mayCuaCacKhach } from '@/app/ticket/loi-actions'
 import { docAnToan, THIEU_DANH_MUC } from '@/lib/loi/anToan'
-import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, listTicketTab, type Ticket } from '@/app/actions'
+import { searchTickets, ticketTypes, khoaTatCaTicket, listBangView, listTabView, type Ticket } from '@/app/actions'
 import { currentStaff, listStaff } from '@/lib/nen-tang/nhan-su'
 import type { KetQuaTrang } from '@/bang'
 import { ExportTicketButton } from '@/components/ExportTicketButton'
@@ -40,7 +40,7 @@ async function duLieuF(sp: SP): Promise<DuLieuTicket> {
   const [me, tabRieng, { viewChung, sua }, nhanVien] = await Promise.all([
     currentStaff(),
     // Tab tự tạo (bang_view 'ticket_tab'). Đọc lỗi → chỉ 4 tab cố định, không vỡ trang.
-    docAnToan('listTicketTab', () => listTicketTab(), []).then((r) => r.data),
+    docAnToan('listTabView', () => listTabView('ticket_tab'), []).then((r) => r.data),
     hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'], sua: ['cs.ticket.tao_sua', 'NHANVIEN'] }),
     // Người phụ trách chọn được ở ô bảng / Xem nhanh (như form Tạo ticket).
     listStaff(),

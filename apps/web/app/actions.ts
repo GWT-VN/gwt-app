@@ -28,9 +28,12 @@ import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
 import { chuanMaLoi, MA_LOI } from '@/lib/loi/kiemDauVao'
-import type { DieuKienLoc } from '@/bang/locTruong'
+import { docTatCa, type DieuKienLoc } from '@/bang/locTruong'
+import { chon as locChon } from '@/bang/locDb'
+import { TRUONG_KHACH } from '@/app/khach-hang/truong-khach'
 import { dieuKienOrTicket } from '@/app/ticket/_danh-sach/loc-db'
-import { KHOA_COT, KHOA_LOC, locCua } from '@/app/ticket/_danh-sach/truong-f'
+import { KHOA_COT, locCua } from '@/bang/tabView'
+import { laBangTab, TAB_VIEW, type BangTab } from '@/lib/tab-view'
 import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
@@ -4561,7 +4564,11 @@ export async function listToFix(
 /** Danh sách KHÁCH HÀNG tổng (tất cả khách, trừ da_xoa) — trang /khach-hang. */
 export async function listKhachHang(
   q = '',
-  tuyChon: TuyChonDanhSach & { thieuSdt?: boolean; kenhTuDong?: boolean } = {}
+  tuyChon: TuyChonDanhSach & {
+    thieuSdt?: boolean; kenhTuDong?: boolean
+    /** Tham số URL của Lọc ▸ trường (`tinh`, `nguon` — TRUONG_KHACH). */
+    loc?: Record<string, string | undefined>
+  } = {}
 ): Promise<KetQuaTrang<Customer & { machines: number }>> {
   await requireStaff()
   await doQuyen('cs.khach.xem')
@@ -4588,6 +4595,11 @@ export async function listKhachHang(
   if (tuyChon.thieuSdt) truyVan = truyVan.or('primary_phone.is.null,needs_phone.is.true')
   // "Kênh máy tự điền" — CEO 24/08 yêu cầu highlight được để soát lại đợt back-fill mig 54.
   if (tuyChon.kenhTuDong) truyVan = truyVan.eq('channel_tu_dong', true)
+  // Lọc ▸ trường (khuôn Ticket F): mỗi điều kiện một nhóm `.or()`, nhiều nhóm = VÀ.
+  for (const d of docTatCa(tuyChon.loc ?? {}, TRUONG_KHACH)) {
+    const cot = TRUONG_KHACH.find((x) => x.id === d.truong)!.cot
+    for (const g of locChon(cot, d)) truyVan = truyVan.or(g)
+  }
 
   const { data, error, count } = await truyVan
     .order(sx.cot, { ascending: sx.tang, nullsFirst: false }).order('id', { ascending: true })
@@ -4616,6 +4628,7 @@ export async function khoaTatCaKhachHang(t: ThamSoLoc): Promise<string[]> {
     (trang, moiTrang) => listKhachHang(t.q ?? '', {
       trang, moiTrang, cot: t.cot, chieu: t.chieu,
       thieuSdt: t.thieu_sdt === '1', kenhTuDong: t.kenh_tu_dong === '1',
+      loc: Object.fromEntries(TRUONG_KHACH.map((x) => [x.id, t[x.id]])),
     }),
     (r) => r.id,
     TOI_DA_CHON
@@ -4716,15 +4729,18 @@ export async function xoaBangView(id: string) {
   return { ok: true as const }
 }
 
-// ── Tab tự tạo của danh sách ticket F (CEO 26/11 "Cho phép tạo thêm tab phân loại") ─────────────────────────────
-// Không migration: dùng lại bang_view với khoá bảng 'ticket_tab', `cot` = { loc: "<query>" } (object — reader cũ của
-// bảng 'tickets' đọc mảng cột, không đụng khoá này). Gác quyền như bang_view: của mình = email; 'chung' chỉ người có
-// he_thong.view_chung ghi / sửa / xoá.
-export type TicketTab = { id: string; ten: string; chung: boolean; loc: string; suaDuoc: boolean }
-const BANG_TAB = 'ticket_tab'
+// ── Tab tự tạo của bảng danh sách (khuôn Ticket F; CEO 26/11 "Cho phép tạo thêm tab phân loại", 27/11 "Đồng bộ lại hết
+// format bảng biểu") ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Không migration: dùng lại bang_view, khoá bảng = `TAB_VIEW` (lib/tab-view.ts: ticket_tab, khach_tab…), `cot` =
+// { loc: "<query>" }. Gác quyền như bang_view: của mình = email; 'chung' chỉ người có he_thong.view_chung ghi / sửa / xoá.
+export type TabView = { id: string; ten: string; chung: boolean; loc: string; suaDuoc: boolean }
+/** Tên cũ (ticket F) — cùng kiểu. */
+export type TicketTab = TabView
 const TEN_TAB_TOI_DA = 40
-/** Chỉ giữ tham số lọc / tìm / sắp / cột hợp lệ (bỏ thứ lạ), chuẩn hoá thứ tự. */
-const locTabHopLe = (loc: unknown) => (typeof loc === 'string' && loc.length <= 4000 ? locCua(new URLSearchParams(loc), [...KHOA_LOC, ...KHOA_COT]) : '')
+const KHONG_THAY_BANG = { ok: false as const, error: 'Bảng không có tab tự tạo.' }
+/** Chỉ giữ tham số lọc / tìm / sắp / cột hợp lệ của bảng đó (bỏ thứ lạ), chuẩn hoá thứ tự. */
+const locTabHopLe = (bang: BangTab, loc: unknown) =>
+  typeof loc === 'string' && loc.length <= 4000 ? locCua(new URLSearchParams(loc), [...TAB_VIEW[bang].khoaLoc, ...KHOA_COT]) : ''
 function tenTabHopLe(ten: unknown): string | { error: string } {
   const t = typeof ten === 'string' ? ten.trim() : ''
   if (!t) return { error: 'Nhập tên tab.' }
@@ -4732,12 +4748,13 @@ function tenTabHopLe(ten: unknown): string | { error: string } {
   return t
 }
 
-export async function listTicketTab(): Promise<TicketTab[]> {
+export async function listTabView(bang: BangTab): Promise<TabView[]> {
   const u = await requireStaff()
   await doQuyen('he_thong.view_xem')
+  if (!laBangTab(bang)) return []
   const email = u.email ?? ''
   const [{ data, error }, quyenChung] = await Promise.all([
-    dataClient().from('bang_view').select('id, ten, chu, cot').eq('bang', BANG_TAB)
+    dataClient().from('bang_view').select('id, ten, chu, cot').eq('bang', bang)
       .or(`chu.eq.chung,chu.eq.${email}`).order('created_at'),
     coQuyen('he_thong.view_chung', 'QUANLY'),
   ])
@@ -4746,66 +4763,70 @@ export async function listTicketTab(): Promise<TicketTab[]> {
     id: r.id,
     ten: r.ten,
     chung: r.chu === 'chung',
-    loc: locTabHopLe(r.cot?.loc),
+    loc: locTabHopLe(bang, r.cot?.loc),
     suaDuoc: r.chu === 'chung' ? quyenChung : r.chu === email,
   }))
 }
 
-export async function luuTicketTab(ten: string, loc: string, chung: boolean) {
+export async function luuTabView(bang: BangTab, ten: string, loc: string, chung: boolean) {
   const u = await requireStaff()
   await doQuyen('he_thong.view_xem')
+  if (!laBangTab(bang)) return KHONG_THAY_BANG
   const t = tenTabHopLe(ten)
   if (typeof t !== 'string') return { ok: false as const, error: t.error }
   if (chung && !(await coQuyen('he_thong.view_chung', 'QUANLY'))) return { ok: false as const, error: 'Chỉ quản lý/admin tạo tab dùng chung.' }
   const { data, error } = await dataClient().from('bang_view')
-    .insert({ bang: BANG_TAB, ten: t, chu: chung ? 'chung' : (u.email ?? ''), cot: { loc: locTabHopLe(loc) }, tao_boi: u.email ?? null })
+    .insert({ bang, ten: t, chu: chung ? 'chung' : (u.email ?? ''), cot: { loc: locTabHopLe(bang, loc) }, tao_boi: u.email ?? null })
     .select('id').single()
   if (error) return { ok: false as const, error: error.message }
-  await ghiAudit('luu_ticket_tab', BANG_TAB, { ten: t, chung })
-  revalidatePath('/ticket')
+  await ghiAudit('luu_tab_view', bang, { ten: t, chung })
+  revalidatePath(TAB_VIEW[bang].duongDan)
   return { ok: true as const, id: (data as { id: string }).id }
 }
 
 /** Tab này người đăng nhập sửa / xoá được? (đúng khoá bảng; của mình, hoặc chung + có quyền view chung). */
-async function chanSuaTab(id: string): Promise<string | null> {
+async function chanSuaTab(bang: BangTab, id: string): Promise<string | null> {
   const u = await requireStaff()
+  await doQuyen('he_thong.view_xem')
+  if (!laBangTab(bang)) return KHONG_THAY_BANG.error
   const { data } = await dataClient().from('bang_view').select('chu, bang').eq('id', id).maybeSingle()
   const r = data as { chu: string; bang: string } | null
-  if (!r || r.bang !== BANG_TAB) return 'Không thấy tab.'
+  if (!r || r.bang !== bang) return 'Không thấy tab.'
   if (r.chu === 'chung' ? !(await coQuyen('he_thong.view_chung', 'QUANLY')) : r.chu !== (u.email ?? '')) return KHONG_DU_QUYEN
   return null
 }
 
-async function suaTicketTab(id: string, patch: { ten?: string; cot?: { loc: string } }) {
+async function suaTabView(bang: BangTab, id: string, patch: { ten?: string; cot?: { loc: string } }) {
   await requireStaff()
   await doQuyen('he_thong.view_xem')
-  const chan = await chanSuaTab(id)
+  const chan = await chanSuaTab(bang, id)
   if (chan) return { ok: false as const, error: chan }
-  const { error } = await dataClient().from('bang_view').update(patch).eq('id', id).eq('bang', BANG_TAB)
+  const { error } = await dataClient().from('bang_view').update(patch).eq('id', id).eq('bang', bang)
   if (error) return { ok: false as const, error: error.message }
-  revalidatePath('/ticket')
+  revalidatePath(TAB_VIEW[bang].duongDan)
   return { ok: true as const }
 }
 
-export async function doiTenTicketTab(id: string, ten: string) {
+export async function doiTenTabView(bang: BangTab, id: string, ten: string) {
   const t = tenTabHopLe(ten)
   if (typeof t !== 'string') return { ok: false as const, error: t.error }
-  return suaTicketTab(id, { ten: t })
+  return suaTabView(bang, id, { ten: t })
 }
 
-/** "Cập nhật theo bộ lọc hiện tại". */
-export async function capNhatTicketTab(id: string, loc: string) {
-  return suaTicketTab(id, { cot: { loc: locTabHopLe(loc) } })
+/** Tự lưu bộ lọc / sắp / cột đang xem vào tab tự tạo (CEO 27/11: không nút "Lưu"). */
+export async function capNhatTabView(bang: BangTab, id: string, loc: string) {
+  if (!laBangTab(bang)) return KHONG_THAY_BANG
+  return suaTabView(bang, id, { cot: { loc: locTabHopLe(bang, loc) } })
 }
 
-export async function xoaTicketTab(id: string) {
+export async function xoaTabView(bang: BangTab, id: string) {
   await requireStaff()
   await doQuyen('he_thong.view_xem')
-  const chan = await chanSuaTab(id)
+  const chan = await chanSuaTab(bang, id)
   if (chan) return { ok: false as const, error: chan }
-  const { error } = await dataClient().from('bang_view').delete().eq('id', id).eq('bang', BANG_TAB)
+  const { error } = await dataClient().from('bang_view').delete().eq('id', id).eq('bang', bang)
   if (error) return { ok: false as const, error: error.message }
-  revalidatePath('/ticket')
+  revalidatePath(TAB_VIEW[bang].duongDan)
   return { ok: true as const }
 }
 
@@ -5421,6 +5442,27 @@ export async function demKhachKenhTuDong(): Promise<number> {
   const { count } = await dataClient()
     .from('cs_customers').select('id', { count: 'exact', head: true })
     .neq('trang_thai', 'da_xoa').eq('channel_tu_dong', true)
+  return count ?? 0
+}
+
+/** Giá trị đang có trong dữ liệu cho Lọc ▸ Tỉnh/TP, Nguồn (danh sách không co theo chính bộ lọc đang bật). */
+export async function tuyChonKhach(): Promise<Record<string, string[]>> {
+  await requireStaff()
+  await doQuyen('cs.khach.xem')
+  // ponytail: kéo 2 cột của mọi khách (~500 dòng 27/11, ~1 khách mới/ngày); quá vài nghìn thì đổi sang RPC distinct.
+  const { data, error } = await dataClient().from('cs_customers').select('province, source')
+    .neq('trang_thai', 'da_xoa').range(0, 9999)
+  if (error) throw new Error(error.message)
+  const rows = (data ?? []) as { province: string | null; source: string | null }[]
+  const khac = (vs: (string | null)[]) => [...new Set(vs.filter((v): v is string => !!v?.trim()))].sort((a, b) => a.localeCompare(b, 'vi'))
+  return { tinh: khac(rows.map((r) => r.province)), nguon: khac(rows.map((r) => r.source)) }
+}
+
+/** Tổng khách (không lọc) — số đếm tab "Tất cả". */
+export async function demKhachTatCa(): Promise<number> {
+  await requireStaff()
+  await doQuyen('cs.khach.xem')
+  const { count } = await dataClient().from('cs_customers').select('id', { count: 'exact', head: true }).neq('trang_thai', 'da_xoa')
   return count ?? 0
 }
 

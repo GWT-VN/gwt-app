@@ -4,6 +4,7 @@
 import type { Ticket } from '@/app/actions'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
 import type { TruongDuLieu } from '@/bang/locTruong'
+import { locCua as locCuaChung, queryTab as queryTabChung } from '@/bang/tabView'
 import { CHUA_PHAN_LOAI } from '@/lib/loi/dongMay'
 
 /** Giá trị của trường Khẩn. */
@@ -123,24 +124,8 @@ export function tuyChonF(rows: Pick<Ticket, 'state' | 'cs_ten' | 'ticket_type' |
 
 /** Tham số URL thuộc "bộ lọc" của một tab: lọc trường + tìm + sắp. */
 export const KHOA_LOC: string[] = [...TRUONG_F.map((x) => x.id), 'q', 'cot', 'chieu']
-/** Tham số cột (thứ tự / độ rộng / ẩn) — tab tự tạo lưu cả phần này. */
-export const KHOA_COT = ['cot_thu_tu', 'cot_rong', 'cot_an', 'cot_ngay']
-
-/** Chuẩn hoá query của các khoá cho trước (bỏ rỗng, sắp theo khoá) — so "tab đã đổi chưa" và lưu tab. */
-export function locCua(sp: URLSearchParams, khoa: string[] = KHOA_LOC): string {
-  const p = new URLSearchParams()
-  for (const k of [...khoa].sort()) {
-    const v = sp.get(k)
-    if (v) p.set(k, v)
-  }
-  return p.toString()
-}
-
-/** URL khi bấm tab: giữ tham số không thuộc bộ lọc (dạng xem, cột, variant…), thay bộ lọc bằng `loc` của tab. */
-export function queryTab(sp: URLSearchParams, loc: string, view: string | null, bo: string[] = KHOA_LOC): string {
-  const p = new URLSearchParams(sp.toString())
-  for (const k of [...bo, 'view', 'tab', 'xem', 'xem_tab', 'trang']) p.delete(k)
-  for (const [k, v] of new URLSearchParams(loc)) p.set(k, v)
-  if (view) p.set('view', view)
-  return p.toString()
-}
+export { KHOA_COT } from '@/bang/tabView'
+/** `locCua` / `queryTab` chung (bang/tabView.ts) với khoá mặc định = bộ lọc ticket F. */
+export const locCua = (sp: URLSearchParams, khoa: string[] = KHOA_LOC) => locCuaChung(sp, khoa)
+export const queryTab = (sp: URLSearchParams, loc: string, view: string | null, bo: string[] = KHOA_LOC) =>
+  queryTabChung(sp, loc, view, bo)
