@@ -33,7 +33,6 @@ import {
   SealCheck,
   ShieldCheck,
   Sparkle,
-  TextT,
   Ticket as IconTicket,
   TreeStructure,
   User,
@@ -278,6 +277,8 @@ export function useTheViec({
   return {
     ma: t.ref,
     phu: t.title,
+    // Tiêu đề lớn trên hàng tab (CEO 27/11, học Notion) — thay dòng "Tiêu đề" trong Tổng quan.
+    tieuDe: <TieuDe lon value={t.title} sua={c.sua} onLuu={(title) => c.chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />,
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabViec),
@@ -347,9 +348,6 @@ function TongQuan({ c }: { c: Ctx }) {
           <AccordionTrigger>Việc</AccordionTrigger>
           <AccordionContent>
             <PropertyList>
-              <Truong icon={ic(TextT)} nhan="Tiêu đề">
-                <TieuDe value={t.title} sua={sua} onLuu={(title) => chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />
-              </Truong>
               <Truong icon={ic(CircleHalf)} nhan="Trạng thái">
                 <OSuaTrangThai ma={t.ref} value={{ tt: t.status }} muc={TT} onLuu={(g) => luu(doiTrangThai(t.id, g.tt))} />
               </Truong>
@@ -859,7 +857,9 @@ function DongViec({ v, onMo, children }: { v: ViecNho; onMo: () => void; childre
  * lưu, Esc huỷ, focus về nút bút.
  * Không dùng OSuaChu: ô đó cắt một dòng ≤ 280px (ô bảng), tiêu đề thẻ phải hiện trọn — xem đề xuất DS.
  */
-function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v: string) => Promise<boolean> }) {
+function TieuDe({ value, sua, onLuu, lon }: { value: string; sua: boolean; onLuu: (v: string) => Promise<boolean>; lon?: boolean }) {
+  // `lon`: tiêu đề lớn của thẻ (cỡ chữ do khung `xnTieuDe` quyết) — không ép 500 / đệm dòng thuộc tính.
+  const chu = lon ? 'min-w-0 [overflow-wrap:anywhere] border-none border-current' : TEN
   const [nhap, setNhap] = useState<string | null>(null)
   const dang = useRef(false)
   const traFocus = useRef(false)
@@ -870,7 +870,7 @@ function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v:
       nut.current?.focus()
     }
   }, [nhap])
-  if (!sua) return <span className={cn(TEN, 'py-1.5')}>{value}</span>
+  if (!sua) return <span className={cn(chu, !lon && 'py-1.5')}>{value}</span>
   // Gọi một lần mỗi lượt sửa (Enter rồi ô bị gỡ có thể bắn thêm blur).
   const ket = (luuLai: boolean, focusVe: boolean) => {
     if (!dang.current || nhap === null) return
@@ -885,6 +885,7 @@ function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v:
       <Input
         autoFocus
         aria-label="Tiêu đề việc"
+        className={lon ? 'text-[20px] font-semibold' : undefined}
         value={nhap}
         onChange={(e) => setNhap(e.target.value)}
         onBlur={() => ket(true, false)}
@@ -903,13 +904,13 @@ function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v:
   return (
     <div className="flex w-full min-w-0 items-start gap-1 border-none border-current">
       {/* Dòng đầu thẳng tâm nhãn (dòng 32): chữ đệm 6 trên/dưới (6 + 20/2 = 16), nút bút 28 lùi 2 (2 + 28/2 = 16). */}
-      <span className={cn(TEN, 'flex-1 py-1.5')}>{value}</span>
+      <span className={cn(chu, 'flex-1', !lon && 'py-1.5')}>{value}</span>
       <TooltipNhanh content={<span aria-hidden="true">Sửa tiêu đề</span>}>
         <Button
           ref={nut}
           variant="ghost"
           size="icon-sm"
-          className="mt-0.5"
+          className={lon ? undefined : 'mt-0.5'}
           aria-label="Sửa tiêu đề"
           onClick={() => {
             dang.current = true

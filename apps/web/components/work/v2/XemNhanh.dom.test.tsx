@@ -90,13 +90,16 @@ const oCua = (nhan: string) => screen.getByText(nhan, { selector: 'dt' }).nextEl
 
 beforeEach(() => vi.clearAllMocks())
 
-test('tải xong → đầu "MÃ · tiêu đề"; Đánh dấu xong (chân) gọi action, tải lại, báo màn; việc con mở được', async () => {
+test('tải xong → đầu thẻ là mã, tiêu đề LỚN trên hàng tab (học Notion); Đánh dấu xong (chân) gọi action, tải lại, báo màn; việc con mở được', async () => {
   chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
   const p = ve()
   await daTai()
   expect(the().textContent).toContain('VIEC-7')
-  expect(the().textContent).toContain('· Việc demo')
-  expect(within(oCua('Tiêu đề')).getByText('Việc demo')).toBeTruthy()
+  const tieuDe = the().querySelector('[data-slot="xem-nhanh-tieu-de"]')!
+  expect(tieuDe.textContent).toContain('Việc demo')
+  // Tiêu đề đứng TRƯỚC hàng tab.
+  expect(tieuDe.compareDocumentPosition(screen.getByRole('tablist')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Sửa tiêu đề' })).toBeTruthy()
   await userEvent.click(screen.getByRole('button', { name: 'Đánh dấu xong' }))
   await waitFor(() => expect(p.onDoi).toHaveBeenCalledOnce())
   expect(actions.doiTrangThai).toHaveBeenCalledWith(7, 'done')

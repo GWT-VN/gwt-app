@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
-import { CaretLeft, CaretRight, X } from '@phosphor-icons/react/ssr'
+import Link from 'next/link'
+import { ArrowsOutSimple, CaretDoubleRight, CaretDown, CaretUp } from '@phosphor-icons/react/ssr'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
 import {
@@ -17,9 +18,12 @@ import {
   xnThan,
   xnThe,
   xnTheCoDinh,
+  xnTieuDe,
 } from './data-view-styles'
 import { useDsPortal } from './ds-root'
+import { Separator } from './separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
+import { TooltipNhanh } from './tooltip'
 
 /** Một tab của thẻ (`the.tab.ds`): `icon` Phosphor `aria-hidden` đứng trước nhãn. */
 export type TabXemNhanh = { gt: string; nhan: string; icon?: ReactNode; noiDung: ReactNode }
@@ -43,7 +47,9 @@ const LOP_MO = '[data-state="open"], [data-state="delayed-open"], [data-state="i
  * XemNhanh — khung "thẻ xem nhanh" bên phải màn dữ liệu (README DataViewToolbar: bật nút xem nhanh → bấm bản ghi mở thẻ
  * bên phải; prototype `XemNhanh`). Bọc nội dung màn (`children`); có `the` → thẻ nổi 440 bám phải khung chứa và nội
  * dung NHƯỜNG chỗ (≥ 768 lề phải 456) — thẻ không che bảng. < 768: thẻ phủ kín khung.
- * - Đầu thẻ: mã · dòng phụ · ‹ › (bản ghi trước / sau) · ✕. Thân = `the.noiDung`; trống → chú "chưa chốt" (nội dung thẻ
+ * - Đầu thẻ (học HÀNH VI side peek của Notion — CEO 27/11 "các action để ở trên giống notion"): thao tác ở TRÁI — » đóng ·
+ *   ⤢ mở toàn trang (`the.moTrang`, chỉ khi màn có trang chi tiết) | ↑ ↓ bản ghi trước / sau, mỗi nút có tooltip kèm phím —
+ *   rồi mới tới mã · dòng phụ. Thân = `the.noiDung`; trống → chú "chưa chốt" (nội dung thẻ
  *   từng màn tự dựng từ DS: Alert · PropertyList · Timeline — chưa chốt chung).
  * - Phím khi thẻ mở: ↑/k trước, ↓/j sau, Esc đóng — nghe ở document pha capture và `preventDefault` phím đã dùng (Esc
  *   đóng thẻ không bỏ luôn lựa chọn dòng của ThanhDaChon). Bỏ qua khi đang gõ trong ô / trong menu / hộp, bộ gõ đang ghép
@@ -76,6 +82,10 @@ export function XemNhanh({
     noiDung?: ReactNode
     tab?: { value: string; onDoi: (v: string) => void; ds: TabXemNhanh[] }
     chan?: ReactNode
+    /** Tiêu đề lớn dưới đầu thẻ, trên hàng tab (thường là tên bản ghi, có thể là ô sửa). Có `tieuDe` → đầu thẻ chỉ còn mã. */
+    tieuDe?: ReactNode
+    /** Đường dẫn trang chi tiết đầy đủ → nút ⤢ "Mở toàn trang" ở đầu thẻ. Không có = màn chưa có trang riêng. */
+    moTrang?: string
   } | null
   onDong: () => void
   /** Không truyền = đang ở bản ghi đầu (nút ‹ tắt). */
@@ -129,7 +139,41 @@ export function XemNhanh({
       {the && (
         <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
           <div className={xnDau}>
-            {the.phuTruoc && the.phu ? (
+            <TooltipNhanh content="Đóng (Esc)">
+              <Button variant="ghost" size="icon-sm" aria-label="Đóng xem nhanh (Esc)" onClick={onDong}>
+                <CaretDoubleRight aria-hidden="true" />
+              </Button>
+            </TooltipNhanh>
+            {the.moTrang && (
+              <TooltipNhanh content="Mở toàn trang">
+                <Button variant="ghost" size="icon-sm" asChild>
+                  <Link href={the.moTrang} aria-label={`Mở toàn trang ${the.ma}`}>
+                    <ArrowsOutSimple aria-hidden="true" />
+                  </Link>
+                </Button>
+              </TooltipNhanh>
+            )}
+            <Separator orientation="vertical" className="mx-1 h-4!" />
+            <TooltipNhanh content="Bản ghi trước (↑)">
+              <Button variant="ghost" size="icon-sm" aria-label="Bản ghi trước (↑)" disabled={!onTruoc} onClick={onTruoc}>
+                <CaretUp aria-hidden="true" />
+              </Button>
+            </TooltipNhanh>
+            <TooltipNhanh content="Bản ghi sau (↓)">
+              <Button variant="ghost" size="icon-sm" aria-label="Bản ghi sau (↓)" disabled={!onSau} onClick={onSau}>
+                <CaretDown aria-hidden="true" />
+              </Button>
+            </TooltipNhanh>
+            <span aria-hidden="true" className="w-2 shrink-0 border-none border-current" />
+            {the.tieuDe ? (
+              <>
+                <span className={cn(xnMa, the.khan && 'text-(--color-text-danger)')}>
+                  {the.khan && <span className="sr-only">Khẩn: </span>}
+                  {the.ma}
+                </span>
+                {the.co}
+              </>
+            ) : the.phuTruoc && the.phu ? (
               <>
                 <span className={cn(xnMa, 'min-w-0 truncate')}>{the.phu}</span>
                 <span className={xnMa}>· {the.ma}</span>
@@ -145,17 +189,12 @@ export function XemNhanh({
                 {the.phu && <span className={cn(xnMa, 'min-w-0 truncate')}>· {the.phu}</span>}
               </>
             )}
-            <span aria-hidden="true" className="flex-1 border-none border-current" />
-            <Button variant="ghost" size="icon-sm" aria-label="Bản ghi trước (↑)" disabled={!onTruoc} onClick={onTruoc}>
-              <CaretLeft aria-hidden="true" />
-            </Button>
-            <Button variant="ghost" size="icon-sm" aria-label="Bản ghi sau (↓)" disabled={!onSau} onClick={onSau}>
-              <CaretRight aria-hidden="true" />
-            </Button>
-            <Button variant="ghost" size="icon-sm" aria-label="Đóng xem nhanh (Esc)" onClick={onDong}>
-              <X aria-hidden="true" />
-            </Button>
           </div>
+          {the.tieuDe && (
+            <div data-slot="xem-nhanh-tieu-de" className={xnTieuDe}>
+              {the.tieuDe}
+            </div>
+          )}
           {the.tab ? (
             <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
               <div className={xnHangTab}>

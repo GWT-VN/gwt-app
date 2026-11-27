@@ -191,6 +191,13 @@ luoi`) là biến thể phụ: viền khung bo 12, vạch cột alpha-05, chữ 
 FilterBar/BulkActionBar theo khuôn này, README Table ("ô chọn trong bảng", "menu dòng"), DataViewToolbar (bỏ đếm), FilterBar
 (chip ở nhãn cột thay hàng chip).
 
+**Chờ đồng bộ lên artifact** — Xem nhanh học HÀNH VI side peek Notion (27/11, CEO "các action để ở trên giống notion" ·
+"tab cho xuống dưới, tiêu đề để chữ lớn"): đầu thẻ = thao tác bên TRÁI (» đóng · ⤢ mở toàn trang `the.moTrang` | ↑ ↓ trước/
+sau, tooltip kèm phím, icon xám `muted` rê mới đậm) rồi mã; `the.tieuDe` = tiêu đề lớn 20/26 600 dưới đầu thẻ, TRÊN hàng tab;
+hàng tab đệm 12 (đệm tab toả ra ngoài → icon tab đầu thẳng mép 24); chân thẻ đệm 16, nút cỡ 32, bỏ ⋮ (mở trang lên ⤢, "Sao
+chép mã" thừa). Ô Hạn bảng (`OSuaHan`) = DateTimePicker gọn (có ô giờ, `gioMacDinh`). Tiêu đề cột: sắp MẶC ĐỊNH không hiện
+mũi tên. Khi đẩy lên artifact: README + preview XemNhanh (đầu thẻ mới, khe tiêu đề), InlineEdit (ô hạn có giờ).
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

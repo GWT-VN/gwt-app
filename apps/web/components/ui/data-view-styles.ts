@@ -146,9 +146,14 @@ export const xnThe = cn(
  */
 export const xnTheCoDinh = 'fixed md:top-4 md:right-4 md:bottom-4 md:w-[min(440px,calc(100vw-32px))]'
 export const xnNoiDungNhuongCoDinh = 'md:mr-[472px]'
-/** `.b-ct-dau`: cao 52, đệm 0 10 0 24, cách 4, không xuống dòng, gạch dưới 1px alpha-05. */
+/**
+ * `.b-ct-dau`: cao 52, cách 4, không xuống dòng, gạch dưới 1px alpha-05. Nút thao tác đứng TRÁI (kiểu Notion, CEO 27/11):
+ * đệm trái 19 → icon 18 trong nút 28 (lề 5) thẳng mép nội dung 24 (đo 27/11); đệm phải 24.
+ */
 export const xnDau = cn(
-  'flex h-[52px] min-w-0 shrink-0 items-center gap-1 pr-2.5 pl-6 whitespace-nowrap',
+  'flex h-[52px] min-w-0 shrink-0 items-center gap-1 pr-6 pl-[19px] whitespace-nowrap',
+  // Nút thao tác đầu thẻ xám nhạt, rê / focus mới đậm (như Notion) — không giành mắt với tiêu đề.
+  '[&>:is(button,a)]:text-muted-foreground [&>:is(button,a):hover]:text-foreground [&>:is(button,a):focus-visible]:text-foreground',
   'border-none border-current [border-bottom:1px_solid_var(--alpha-05)]',
 )
 /**
@@ -157,7 +162,13 @@ export const xnDau = cn(
  * chân) đè đúng gạch chân 1px alpha-05 của hàng — cùng gạch với `xnDau`.
  */
 export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
-export const xnHangTab = cn(kv, 'shrink-0 px-6 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
+/**
+ * Tiêu đề lớn dưới đầu thẻ, TRÊN hàng tab (học Notion — CEO 27/11 "tab cho xuống dưới, tiêu đề để chữ lớn"): heading-md
+ * 20/26 600, xuống dòng đủ, đệm 16 trên · 8 dưới · 24 hai bên (thẳng mép nội dung).
+ */
+export const xnTieuDe = cn(kv, 'shrink-0 px-6 pt-4 pb-2 text-[20px] leading-[26px] font-semibold text-foreground [overflow-wrap:anywhere]')
+// Đệm 12 hai bên: đệm 12 của tab `line` TOẢ RA NGOÀI → icon/chữ tab đầu thẳng mép nội dung 24 (đo 27/11: trước ở 36).
+export const xnHangTab = cn(kv, 'shrink-0 px-3 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
 /** Vùng cuộn dưới hàng tab: đệm 8 24 24 (+ đệm trên 12 của TabsContent = 20 như `xnThan`), ẩn thanh cuộn. */
 export const xnCuon = cn(kv, 'min-h-0 flex-1 overflow-y-auto px-6 pt-2 pb-6 [scrollbar-width:none]')
 /**

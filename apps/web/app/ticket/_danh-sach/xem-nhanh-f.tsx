@@ -14,9 +14,7 @@ import {
   CircleHalf,
   Clock,
   ClockCounterClockwise,
-  Copy,
   Cube,
-  DotsThreeVertical,
   House,
   MapPin,
   Package,
@@ -28,7 +26,6 @@ import {
   User,
   UserCircle,
   Wrench,
-  ArrowSquareOut,
   LinkSimple,
 } from '@phosphor-icons/react/ssr'
 import type { ReactNode } from 'react'
@@ -37,12 +34,10 @@ import { NhanKetQua, NoiDungLan, TRUOC } from '@/app/ticket/[code]/_prototype/ct
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge, BadgeDot } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { EmptyState } from '@/components/ui/empty-state'
 import { OSuaNguoi, OSuaTrangThai } from '@/components/ui/inline-edit'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/item'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
-import { thongBao } from '@/components/ui/sonner'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
 import { chuaLuu, cheSdt, laDemo, mayLoi, ngayGioNgan, ngayNgan, tenKhach } from './chung'
@@ -332,35 +327,11 @@ function TicketKhac({ t, rows, moDuoc, onMo }: { t: DongF; rows: DongF[]; moDuoc
   )
 }
 
-/** Thanh dính đáy: ⋮ (mở trang chi tiết, sao chép mã) · Gắn việc · Hẹn KTV (luồng hẹn có sẵn ở trang chi tiết). */
-function ThanhThaoTac({ t, moGanViec }: { t: DongF; moGanViec: (() => void) | null }) {
-  const chiTiet = `/ticket/${encodeURIComponent(t.ticket_code)}${laDemo(t.ticket_code) ? '?variant=G' : ''}`
+/** Thanh dính đáy: Gắn việc · Hẹn KTV (luồng hẹn có sẵn ở trang chi tiết). Bỏ ⋮: "Mở trang chi tiết" lên đầu thẻ (⤢),
+ *  "Sao chép mã" thừa (CEO 27/11). */
+function ThanhThaoTac({ chiTiet, moGanViec }: { chiTiet: string; moGanViec: (() => void) | null }) {
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label={`Thao tác khác cho ${t.ticket_code}`}>
-            <DotsThreeVertical aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" side="top">
-          <DropdownMenuItem asChild>
-            <Link href={chiTiet}>
-              <ArrowSquareOut aria-hidden="true" />
-              Mở trang chi tiết
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              void navigator.clipboard?.writeText(t.ticket_code)
-              thongBao.xong(`Đã sao chép ${t.ticket_code}`)
-            }}
-          >
-            <Copy aria-hidden="true" />
-            Sao chép mã
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
       {moGanViec && (
         <Button variant="outline" onClick={moGanViec}>
           <LinkSimple aria-hidden="true" />
@@ -406,11 +377,14 @@ export function theXemNhanhF({
   moGanViec: () => void
 }): The {
   const demo = laDemo(t.ticket_code)
+  const chiTiet = `/ticket/${encodeURIComponent(t.ticket_code)}${demo ? '?variant=G' : ''}`
   return {
     ma: t.ticket_code,
     // "MÃ · Tên khách" (CEO 26/11 "đổi lại ticket ở đầu"); khẩn → MÃ đỏ + sr-only "Khẩn: ".
     khan: laKhan(t),
     phu: tenKhach(t),
+    // Tên khách làm tiêu đề lớn trên hàng tab (CEO 27/11, học Notion); đầu thẻ chỉ còn mã.
+    tieuDe: tenKhach(t),
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabXem),
@@ -433,6 +407,8 @@ export function theXemNhanhF({
         },
       ],
     },
-    chan: <ThanhThaoTac t={t} moGanViec={luu && !demo ? moGanViec : null} />,
+    // ⤢ Mở toàn trang ở đầu thẻ (kiểu Notion, CEO 27/11) — thay mục "Mở trang chi tiết" trong ⋮ ở chân.
+    moTrang: chiTiet,
+    chan: <ThanhThaoTac chiTiet={chiTiet} moGanViec={luu && !demo ? moGanViec : null} />,
   }
 }
