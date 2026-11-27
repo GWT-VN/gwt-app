@@ -79,7 +79,7 @@ const ham = (name: string, description: string, parameters: ReturnType<typeof ob
 export const CONG_CU = [
   ham("tim_tai_lieu", "Tìm trong kho tài liệu GWT (chính sách, bảo hành, đổi trả, lắp đặt, giao hàng, hướng dẫn dùng, kỹ thuật, nguồn nước, hỏi đáp). Trả các đoạn liên quan nhất. Viết câu tìm ngắn, cụ thể.",
     obj({ cau: { type: "string", description: "Câu cần tìm, vd 'lọc tổng dùng nước giếng khoan được không'" } })),
-  ham("tra_may", "Số liệu CHÍNH XÁC của MỘT máy theo mã (vd CTS10, WH15A, GN620): giá niêm yết đã gồm VAT, khuyến mãi tháng này, lõi lọc và chu kỳ thay, bảo hành.",
+  ham("tra_may", "Số liệu CHÍNH XÁC của MỘT máy theo mã (vd CTS10, WH15A, GN620): giá niêm yết đã gồm VAT, khuyến mãi tháng này, lõi lọc và chu kỳ thay, bảo hành, thông số kỹ thuật, kích thước và khối lượng, điều kiện lắp đặt (nguồn điện, áp lực nước).",
     obj({ ma: { type: "string", description: "Mã máy, vd CTS20" } })),
   ham("bang_gia", "Giá niêm yết các dòng máy theo nhóm: de_ban (máy để bàn), am_tu (máy âm tủ bếp), loc_tong (lọc tổng đầu nguồn), tat_ca.",
     obj({ nhom: { type: "string", enum: ["de_ban", "am_tu", "loc_tong", "tat_ca"] } })),

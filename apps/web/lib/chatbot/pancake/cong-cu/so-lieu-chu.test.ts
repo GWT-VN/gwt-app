@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { khoiSoLieu } from "./so-lieu-chu.ts";
+import { khoiSoLieu, khoiThongSo } from "./so-lieu-chu.ts";
 import type { SoLieuMay } from "./masterdata.ts";
 
 /**
@@ -112,5 +112,42 @@ describe("khoiSoLieu — giá lõi", () => {
       ...MAY, loi: [{ tenLoi: "Bộ lọc GE CFNC cho máy CTS10", chuKy: "12 tháng", gia: 5000000 }],
     });
     expect(k).toContain("- Chu kỳ thay Bộ lọc GE CFNC cho máy CTS10: 12 tháng một lần (giá 5.000.000 đ)");
+  });
+});
+
+describe("khoiThongSo", () => {
+  // Đo 2026-11-27: kích thước chỉ nằm ở mẩu tài liệu ~100 ký tự, tìm kiếm lúc thấy lúc không → bot chuyển NV câu hỏi thông số.
+  const WH = (muc: string, noiDung: string, thuTu: number) => ({ ma: "WH15A", muc, noiDung, thuTu });
+
+  it("không có đoạn nào thì chuỗi rỗng", () => {
+    expect(khoiThongSo([])).toBe("");
+  });
+
+  it("chỉ lấy mục thông số, kích thước, điều kiện lắp đặt — theo thứ tự đó, bỏ Mô tả / Danh mục", () => {
+    const r = khoiThongSo([
+      WH("Điều kiện lắp đặt", "Áp lực nước từ bơm cấp: 0,15–0,4 MPa.", 12),
+      WH("Mô tả", "Giải pháp lọc tổng GE 15A…", 4),
+      WH("Kích thước & khối lượng", "Kích thước máy (Sâu×Rộng×Cao): 550×650×950 mm.", 8),
+      WH("Danh mục", "Ngành hàng: Machines.", 6),
+    ]);
+    expect(r).toBe([
+      "THÔNG SỐ MASTERDATA (chính xác, ưu tiên hơn đoạn tài liệu):",
+      "- Kích thước & khối lượng: Kích thước máy (Sâu×Rộng×Cao): 550×650×950 mm.",
+      "- Điều kiện lắp đặt: Áp lực nước từ bơm cấp: 0,15–0,4 MPa.",
+    ].join("\n"));
+  });
+
+  it("biến thể cùng thông số (CTS10NB/NW) gộp một dòng; khác nhau thì ghi mã", () => {
+    const giong = khoiThongSo([
+      { ma: "CTS10NB", muc: "Kích thước & khối lượng", noiDung: "430×242×400 mm.", thuTu: 8 },
+      { ma: "CTS10NW", muc: "Kích thước & khối lượng", noiDung: "430×242×400 mm.", thuTu: 8 },
+    ]);
+    expect(giong.split("\n")).toHaveLength(2);
+    const khac = khoiThongSo([
+      { ma: "A1", muc: "Kích thước & khối lượng", noiDung: "1×1×1 mm.", thuTu: 8 },
+      { ma: "A2", muc: "Kích thước & khối lượng", noiDung: "2×2×2 mm.", thuTu: 8 },
+    ]);
+    expect(khac).toContain("- A1 · Kích thước & khối lượng: 1×1×1 mm.");
+    expect(khac).toContain("- A2 · Kích thước & khối lượng: 2×2×2 mm.");
   });
 });

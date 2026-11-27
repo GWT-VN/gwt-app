@@ -112,3 +112,24 @@ export function khoiSoLieu(sl: SoLieuMay | null): string {
   }
   return d.join("\n");
 }
+
+/** Một đoạn của tài liệu masterdata_sync (một mục `## …` của chatbot_doc_md). */
+export type DoanThongSo = { ma: string; muc: string; noiDung: string; thuTu: number };
+
+const MUC_THONG_SO = ["Thông số kỹ thuật", "Kích thước & khối lượng", "Điều kiện lắp đặt"];
+
+/**
+ * Thông số máy cho tra_may. Đo 2026-11-27: kích thước / khối lượng chỉ nằm ở mẩu tài liệu ~100 ký tự, tim_tai_lieu
+ * lúc lấy được lúc không → cùng câu "cho xin thông số" khi trả lời đủ, khi chuyển NV vì "tài liệu chưa có kích thước".
+ * Biến thể cùng thông số (CTS10NB/NW) gộp một dòng; khác nhau thì ghi mã để không trộn số của hai máy.
+ */
+export function khoiThongSo(doan: DoanThongSo[]): string {
+  const chon = doan.filter((d) => MUC_THONG_SO.includes(d.muc) && d.noiDung.trim())
+    .sort((a, b) => MUC_THONG_SO.indexOf(a.muc) - MUC_THONG_SO.indexOf(b.muc) || a.thuTu - b.thuTu || a.ma.localeCompare(b.ma));
+  const dong = new Map<string, DoanThongSo>();
+  for (const d of chon) if (!dong.has(`${d.muc}|${d.noiDung.trim()}`)) dong.set(`${d.muc}|${d.noiDung.trim()}`, d);
+  if (!dong.size) return "";
+  const nhieuMa = new Set([...dong.values()].map((d) => d.ma)).size > 1;
+  return ["THÔNG SỐ MASTERDATA (chính xác, ưu tiên hơn đoạn tài liệu):",
+    ...[...dong.values()].map((d) => `- ${nhieuMa ? `${d.ma} · ` : ""}${d.muc}: ${d.noiDung.trim()}`)].join("\n");
+}

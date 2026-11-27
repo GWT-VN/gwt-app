@@ -80,3 +80,42 @@ describe("taoCongCuTra", () => {
     await expect(cc.tonKho("CTS20")).rejects.toThrow("TON_KHO_DOC");
   });
 });
+
+describe("traMay kèm thông số", () => {
+  beforeEach(() => { quenMasterdata(); });
+  it("đọc đoạn Kích thước của tài liệu masterdata_sync đúng mã, nối sau số liệu", async () => {
+    const { sb } = sbGia({
+      alias: [{ alias_norm: "WH15A", internal_code: "WH15A" }],
+      bang: { chatbot_price: [{ internal_code: "WH15A", product_name: "GE WH15A", gia_ban: 179950000 }], chatbot_machine_filter: [], chatbot_warranty: [], chatbot_promotion: [] },
+    });
+    const bang: Record<string, unknown[]> = {
+      documents: [{ id: "d1", title: "Hệ thống lọc nước GE WH15A (WH15A)" }, { id: "d2", title: "Hệ thống lọc nước GE WH30A (WH30A)" }],
+      chunks: [{ document_id: "d1", content: "Kích thước máy (Sâu×Rộng×Cao): 550×650×950 mm.", metadata: { elementIds: ["p1-e8"], headingPath: ["WH15A", "Kích thước & khối lượng"] } }],
+    };
+    const loc: string[][] = [];
+    (sb as { from?: unknown }).from = (ten: string) => ({
+      select: () => {
+        const q = {
+          eq: () => q,
+          in: async (_c: string, ids: string[]) => { loc.push(ids); return { data: bang[ten], error: null }; },
+          then: (res: (v: unknown) => void) => res({ data: bang[ten], error: null }),
+        };
+        return q;
+      },
+    });
+    const r = await taoCongCuTra(sb).traMay("WH15A");
+    expect(r).toContain("179.950.000 đ");
+    expect(r).toContain("- Kích thước & khối lượng: Kích thước máy (Sâu×Rộng×Cao): 550×650×950 mm.");
+    expect(loc).toEqual([["d1"]]);
+  });
+
+  it("đọc thông số hỏng thì vẫn trả số liệu máy như cũ", async () => {
+    const { sb } = sbGia({
+      alias: [{ alias_norm: "WH15A", internal_code: "WH15A" }],
+      bang: { chatbot_price: [{ internal_code: "WH15A", product_name: "GE WH15A", gia_ban: 179950000 }], chatbot_machine_filter: [], chatbot_warranty: [], chatbot_promotion: [] },
+    });
+    const r = await taoCongCuTra(sb).traMay("WH15A");
+    expect(r).toContain("179.950.000 đ");
+    expect(r).not.toContain("THÔNG SỐ");
+  });
+});
