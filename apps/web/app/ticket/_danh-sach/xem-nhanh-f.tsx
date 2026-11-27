@@ -70,7 +70,7 @@ function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; child
   )
 }
 
-/** Thuộc tính chính của ticket — dưới tiêu đề, TRÊN hàng tab (học Notion, CEO 27/11): Trạng thái · Phụ trách · Loại · Kỹ thuật. */
+/** Thuộc tính chính của ticket — dưới tiêu đề, TRÊN hàng tab (học Notion, CEO 27/11): Trạng thái · Phụ trách · Kỹ thuật · Loại. */
 function ThuocTinh({ t, nhanVien, loai, luu }: { t: DongF; nhanVien: NhanVien; loai: NhanVien; luu: Luu }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
@@ -100,6 +100,22 @@ function ThuocTinh({ t, nhanVien, loai, luu }: { t: DongF; nhanVien: NhanVien; l
                 t.cs_ten
               )}
             </Truong>
+            {/* Thứ tự Phụ trách → Kỹ thuật → Loại (CEO 27/11): hai ô người liền nhau, Loại xuống cuối. */}
+            <Truong icon={ic(Wrench)} nhan="Kỹ thuật">
+              {luu ? (
+                <OSuaNguoi
+                  ma={t.ticket_code}
+                  truong="kỹ thuật"
+                  value={t.ky_thuat}
+                  mucDangChon={t.ky_thuat ? { gt: t.ky_thuat, nhan: t.ky_thuat_ten ?? '—' } : undefined}
+                  options={nhanVien}
+                  chuaGiao="Chưa có"
+                  onLuu={(v) => luu({ ky_thuat: v })}
+                />
+              ) : (
+                t.ky_thuat_ten
+              )}
+            </Truong>
             {/* Loại + Kỹ thuật sửa tại chỗ như ô bảng (CEO 27/11 "không chỉnh được loại" · "phải có chỗ gán user kỹ thuật");
                 thay CTA "Hẹn KTV" ở chân thẻ. */}
             <Truong icon={ic(Tag)} nhan="Loại">
@@ -114,21 +130,6 @@ function ThuocTinh({ t, nhanVien, loai, luu }: { t: DongF; nhanVien: NhanVien; l
                 />
               ) : (
                 t.ticket_type
-              )}
-            </Truong>
-            <Truong icon={ic(Wrench)} nhan="Kỹ thuật">
-              {luu ? (
-                <OSuaNguoi
-                  ma={t.ticket_code}
-                  truong="kỹ thuật"
-                  value={t.ky_thuat}
-                  mucDangChon={t.ky_thuat ? { gt: t.ky_thuat, nhan: t.ky_thuat_ten ?? '—' } : undefined}
-                  options={nhanVien}
-                  chuaGiao="Chưa có"
-                  onLuu={(v) => luu({ ky_thuat: v })}
-                />
-              ) : (
-                t.ky_thuat_ten
               )}
             </Truong>
           </PropertyList>

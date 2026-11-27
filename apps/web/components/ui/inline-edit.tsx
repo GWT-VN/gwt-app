@@ -650,11 +650,12 @@ export function OSuaNguoi({
               <AvatarFallback>{chuDau(ten)}</AvatarFallback>
             </Avatar>
           )
-        : // Ô chọn chữ (OSuaChon): mục có `icon` → icon đứng trước tên, cỡ icon sm, màu muted như icon nhãn.
+        : // Ô chọn chữ (OSuaChon): mục có `icon` → icon trong vòng tròn CỠ AVATAR (CEO 27/11 "để tránh trông xô lệch so với
+          // avatar") — chữ ô Loại thẳng chữ ô người ở hàng trên/dưới.
           (options?.find((m) => m.gt === gt)?.icon && (
-            <span className="inline-flex shrink-0 text-muted-foreground [&_svg]:size-(--control-icon-size-sm)">
+            <Avatar aria-hidden="true" className="[&_svg]:size-3">
               {options.find((m) => m.gt === gt)!.icon}
-            </span>
+            </Avatar>
           )) ||
           null
   return (
