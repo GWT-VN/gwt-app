@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * Các lần lỗi = THẺ gập/mở (CEO 27/11 "biến thành thẻ có thể collapse được"): mỗi lần một `Card` (viền, bo xl), đầu thẻ là
- * nút gập — `Lần N · khách báo dd/MM · trạng thái` + mũi tên; gập vẫn hiện một dòng tóm tắt khách báo. Trong thẻ: Khách báo +
+ * Các lần lỗi = THẺ gập/mở (`TheGap`, CEO 27/11): đầu thẻ MỘT dòng căn giữa `Lần N · khách báo dd/MM · [trạng thái sửa
+ * được]` + mũi tên; gập chỉ còn đầu thẻ (bỏ dòng tóm tắt). Trong thẻ: Khách báo +
  * Xử lý là ô chữ TRƠN gõ thẳng (như Mô tả bên Work — không nút "+ Ghi xử lý", không hộp), dưới Xử lý là "ai · lúc".
  * Thứ tự CŨ → MỚI, "+ Thêm lần lỗi" ngay DƯỚI thẻ cuối (CEO 27/11) → thẻ mới mở sẵn ở cuối, con trỏ ở ô Khách báo; lần
  * mới nhất mở sẵn.
@@ -11,15 +11,13 @@
  * Nối thật: lần 2+ → `themLanLoi` / `suaLanLoi` (app/ticket/lan-loi-actions.ts).
  */
 import { useState } from 'react'
-import { CaretDown, Plus } from '@phosphor-icons/react/ssr'
+import { Plus } from '@phosphor-icons/react/ssr'
 import type { Lan } from '@/app/ticket/[code]/_prototype/chung'
-import { NhanKetQua } from '@/app/ticket/[code]/_prototype/ct-gon'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { OSuaTrangThai, type MucTrangThai } from '@/components/ui/inline-edit'
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { TheGap } from '@/components/ui/the-gap'
 import { ngayNgan } from './chung'
 
 const homNay = () => new Date().toISOString().slice(0, 10)
@@ -49,71 +47,67 @@ export function DsTheLan({ ds: goc, nguoi }: { ds: Lan[]; nguoi: string }) {
   )
 }
 
+/** Trạng thái MỘT lần lỗi — chỉnh ở chip đầu thẻ (CEO 27/11 "trạng thái phải được chỉnh chứ"). */
+const TT_LAN: MucTrangThai[] = [
+  { gt: 'cho', nhan: 'Chờ xử lý', color: 'warning' },
+  { gt: 'dang', nhan: 'Đang xử lý', color: 'info' },
+  { gt: 'xong', nhan: 'Đã xử lý', color: 'success' },
+]
+
 function TheLan({ lan, nguoi, moSan, vuaThem }: { lan: Lan; nguoi: string; moSan: boolean; vuaThem: boolean }) {
-  const [mo, setMo] = useState(moSan)
   const [khach, setKhach] = useState(lan.khach ?? '')
   const [xuLy, setXuLy] = useState(lan.xuLy ?? '')
-  const id = `lan-${lan.so}`
+  // ponytail: DB chưa có cột trạng thái theo lần — giữ trên màn; mặc định suy từ có/không ghi xử lý như nhãn cũ.
+  const [tt, setTt] = useState(lan.xuLy ? 'xong' : 'cho')
   return (
-    <Collapsible open={mo} onOpenChange={setMo} asChild>
-      <Card data-lan={lan.so} className="overflow-hidden p-0">
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              'flex w-full cursor-pointer items-start gap-2 border-none bg-transparent px-4 py-3 text-left [font:inherit] text-inherit',
-              'hover:bg-(--alpha-03) [outline:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-(--ring)',
-            )}
-          >
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5 border-none border-current">
-              <span id={id} className="flex flex-wrap items-center gap-2 border-none border-current font-semibold">
-                Lần {lan.so}
-                <span className="font-normal tabular-nums text-muted-foreground">· khách báo {ngayNgan(lan.ngay ?? homNay())}</span>
-                <NhanKetQua lan={{ ...lan, xuLy: xuLy || null }} />
-              </span>
-              {!mo && (
-                <span className="truncate text-muted-foreground">{khach || <span className="text-(--color-text-tertiary)">Chưa ghi khách báo</span>}</span>
-              )}
-            </span>
-            <CaretDown
-              aria-hidden="true"
-              className={cn('mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform', mo && 'rotate-180')}
+    <TheGap
+      data-lan={lan.so}
+      moSan={moSan}
+      tieuDe={
+        <>
+          Lần {lan.so}
+          <span className="font-normal tabular-nums text-muted-foreground">· khách báo {ngayNgan(lan.ngay ?? homNay())}</span>
+        </>
+      }
+      thaoTac={
+        <OSuaTrangThai
+          ma={`Lần ${lan.so}`}
+          value={{ tt }}
+          muc={TT_LAN}
+          onLuu={async (v) => {
+            setTt(v.tt)
+          }}
+        />
+      }
+    >
+      {/* Khách báo ↔ Xử lý cách nhau ~40 (CEO 27/11): khoảng trắng chữ→chữ = 6 (đệm dưới ô) + 28 + 6 (đệm trên ô). */}
+      <PropertyList className="gap-y-7">
+        <PropertyRow nhan="Khách báo">
+          <Textarea
+            variant="tran"
+            className={O_GO}
+            aria-label={`Khách báo lần ${lan.so}`}
+            placeholder="Khách báo gì…"
+            value={khach}
+            autoFocus={vuaThem}
+            onChange={(e) => setKhach(e.target.value)}
+          />
+        </PropertyRow>
+        <PropertyRow nhan="Xử lý">
+          <span className="flex w-full flex-col border-none border-current">
+            <Textarea
+              variant="tran"
+              className={O_GO}
+              aria-label={`Xử lý lần ${lan.so}`}
+              placeholder="Ghi cách xử lý…"
+              value={xuLy}
+              onChange={(e) => setXuLy(e.target.value)}
             />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="border-0 border-t border-solid border-(--border) px-4 pt-3 pb-4">
-            {/* Khách báo ↔ Xử lý cách nhau ~40 (CEO 27/11): khoảng trắng chữ→chữ = 6 (đệm dưới ô) + 28 + 6 (đệm trên ô). */}
-            <PropertyList className="gap-y-7">
-              <PropertyRow nhan="Khách báo">
-                <Textarea
-                  variant="tran"
-                  className={O_GO}
-                  aria-label={`Khách báo lần ${lan.so}`}
-                  placeholder="Khách báo gì…"
-                  value={khach}
-                  autoFocus={vuaThem}
-                  onChange={(e) => setKhach(e.target.value)}
-                />
-              </PropertyRow>
-              <PropertyRow nhan="Xử lý">
-                <span className="flex w-full flex-col border-none border-current">
-                  <Textarea
-                    variant="tran"
-                    className={O_GO}
-                    aria-label={`Xử lý lần ${lan.so}`}
-                    placeholder="Ghi cách xử lý…"
-                    value={xuLy}
-                    onChange={(e) => setXuLy(e.target.value)}
-                  />
-                  {xuLy && <span className="-mt-1 pb-1.5 ds-text-xs text-muted-foreground">{nguoi}</span>}
-                </span>
-              </PropertyRow>
-              {lan.thaoTu && <PropertyRow nhan="Tháo từ máy khác">{lan.thaoTu}</PropertyRow>}
-            </PropertyList>
-          </div>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
+            {xuLy && <span className="-mt-1 pb-1.5 ds-text-xs text-muted-foreground">{nguoi}</span>}
+          </span>
+        </PropertyRow>
+        {lan.thaoTu && <PropertyRow nhan="Tháo từ máy khác">{lan.thaoTu}</PropertyRow>}
+      </PropertyList>
+    </TheGap>
   )
 }

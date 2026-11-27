@@ -238,6 +238,9 @@ chọn; hộp xoá sống ngoài menu); bỏ "Sao chép mã / đường dẫn". 
 (10) **Chip lọc ở nhãn cột** (`thChipLoc`): viền 1px info-surface, RÊ = viền info-outline đậm (thay nền đậm); đệm trái 7 +
 viền 1 = chữ vẫn thẳng ô. `moLoc.onXoa` (từ `moLocCot` — `useMoLoc().mo.xoa`) → chip có nút × (`chipX` bang-styles) bỏ lọc
 cột ngay, focus về tiêu đề; chữ chip = nút mở pop (`th-chip-mo`), × là nút anh em; bấm phần trống ô tiêu đề vẫn mở pop.
+(11) **`TheGap`** (`components/ui/the-gap.tsx`, MỚI): thẻ gập = Card + Collapsible. Đầu thẻ một dòng căn giữa (min 48,
+đệm 8 16): `tieuDe` · `thaoTac` (chip sửa được, nằm trên lớp bấm) · mũi tên; nút gập phủ cả đầu thẻ bằng lớp `after`
+(không lồng nút); kẻ đầu↔thân lùi 16 hai bên (thẳng mép chữ); `khit` = thân không đệm. Dùng: thẻ lần lỗi ticket.
 
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
