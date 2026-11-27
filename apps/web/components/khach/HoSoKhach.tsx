@@ -3,7 +3,7 @@
 /**
  * HỒ SƠ KHÁCH — màn "view full" của một khách (CEO 27/11: "view full ở đây là coi như view full một KH luôn… chuyển các tab
  * thành các dạng module… thêm phần filter để chỉnh view"; chốt 2 cột). Khách là trục: ticket, máy, bảo trì đều nối qua khách.
- * - ≥ 1200: 2 cột — TRÁI thẻ Khách (dính khi cuộn), PHẢI các module (`TheGap`) theo thứ tự của view đang chọn.
+ * - ≥ 1200: 2 cột — TRÁI các module (`TheGap`) theo thứ tự của view đang chọn, PHẢI thẻ Khách (dính khi cuộn; CEO 27/11).
  *   < 1200: 1 cột, thẻ Khách lên đầu.
  * - View (`?view=`): Ticket trước (mặc định khi mở từ ticket) · Thông tin trước (sản phẩm + bảo trì) · Bảo trì trước. Đổi view
  *   chỉ đổi THỨ TỰ module, không đổi bộ module.
@@ -123,8 +123,8 @@ export function HoSoKhach({
           </DropdownMenu>
         }
       />
-      <div className="mt-6 grid items-start gap-4 border-none border-current min-[1200px]:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
-        <div className="border-none border-current min-[1200px]:sticky min-[1200px]:top-4">
+      <div className="mt-6 grid items-start gap-4 border-none border-current min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
+        <div className="border-none border-current min-[1200px]:sticky min-[1200px]:top-4 min-[1200px]:col-start-2 min-[1200px]:row-start-1">
           <TheGap tieuDe="Khách" data-module="khach">
             <PropertyList layout="stack">
               <PropertyRow nhan="SĐT">{khach.sdt && <span className="tabular-nums">{khach.sdt}</span>}</PropertyRow>
@@ -136,7 +136,7 @@ export function HoSoKhach({
             </PropertyList>
           </TheGap>
         </div>
-        <div className="flex min-w-0 flex-col gap-4 border-none border-current">{dangView.thuTu.map((k) => khoi[k])}</div>
+        <div className="flex min-w-0 flex-col gap-4 border-none border-current min-[1200px]:col-start-1 min-[1200px]:row-start-1">{dangView.thuTu.map((k) => khoi[k])}</div>
       </div>
     </TrangDuLieu>
   )
