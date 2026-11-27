@@ -20,13 +20,17 @@ export type DongLoiMay = {
 export type LoiCuaMay = { code: string; ten: string; so_lan: number; gan_nhat: string; tickets: string[] }
 export type ThongKeMay = { may: string | null; ten: string | null; loi: LoiCuaMay[] }
 
-/** Dòng máy (ticket_may hoặc `Ticket.dong_may`) của một ticket → `DongLoiMay`; tên máy tra theo serial. */
+/**
+ * Dòng máy (ticket_may hoặc `Ticket.dong_may`) của một ticket → `DongLoiMay`; tên máy tra theo serial. Dòng
+ * `trang_thai = 'khong_loi'` bị bỏ (Ruling 5, khớp view MD machine_issue_stats) — ticket không còn dòng nào thì gom
+ * máy theo `t.serial` như ticket chưa có dòng lỗi.
+ */
 export function dongLoiCuaTicket(
   t: Pick<Ticket, 'ticket_code' | 'state' | 'created_at'>,
-  dong: { serial: string | null; internal_code: string | null; loi_code: string; loi_ten: string | null }[],
+  dong: { serial: string | null; internal_code: string | null; loi_code: string; loi_ten: string | null; trang_thai?: string }[],
   tenMay: (serial: string) => string | null,
 ): DongLoiMay[] {
-  return dong.map((d) => ({
+  return dong.filter((d) => d.trang_thai !== 'khong_loi').map((d) => ({
     ticket_code: t.ticket_code,
     state: t.state,
     serial: d.serial,

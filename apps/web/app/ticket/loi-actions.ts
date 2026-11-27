@@ -360,7 +360,11 @@ export type MayKhach = {
   warranty_activated: boolean | null; warranty_full_end: string | null
 }
 
-/** Máy đã lắp của nhiều khách (pop chọn ô Máy ở danh sách ticket F) — MỘT truy vấn cho cả trang. */
+/**
+ * Máy đã lắp của nhiều khách (pop chọn ô Máy ở danh sách ticket F) — MỘT truy vấn cho cả trang.
+ * ponytail: luôn đọc ST kể cả CSKH_NGUON=md — danh sách này đi cùng thao tác ghi đổi máy (doiMayTicket ghi ST); khách
+ * chỉ có ở MD → không có máy để chọn (ô Máy chỉ đọc). Chuyển sang cskhDb cùng lúc chuyển ghi ở đợt 2.
+ */
 export async function mayCuaCacKhach(ids: string[]): Promise<Record<string, MayKhach[]>> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')

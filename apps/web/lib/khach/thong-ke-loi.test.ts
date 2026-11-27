@@ -35,6 +35,21 @@ test('dongLoiCuaTicket: lấy trạng thái + ngày của ticket, tên máy tra 
   ])
 })
 
+test('dongLoiCuaTicket: lần khong_loi không tính (Ruling 5) — 1 khong_loi + 1 dang_xu_ly cùng mã → ×1; ticket chỉ khong_loi vẫn về máy t.serial', () => {
+  const t = { ticket_code: 'T1', state: 'Open' as const, created_at: '2026-11-05T02:00:00Z', serial: 'S1', product_name: 'GN610' }
+  const t2 = { ticket_code: 'T2', state: 'Open' as const, created_at: '2026-11-06T02:00:00Z', serial: 'S1', product_name: 'GN610' }
+  const dong = dongLoiCuaTicket(t, [
+    { serial: 'S1', internal_code: 'GN610', loi_code: 'E3', loi_ten: 'Báo lỗi E3', trang_thai: 'khong_loi' },
+    { serial: 'S1', internal_code: 'GN610', loi_code: 'E3', loi_ten: 'Báo lỗi E3', trang_thai: 'dang_xu_ly' },
+  ], () => 'GN610')
+  expect(dong).toHaveLength(1)
+  expect(thongKeLoiTheoMay(dong)[0].loi).toEqual([expect.objectContaining({ code: 'E3', so_lan: 1 })])
+  const chiKhongLoi = dongLoiCuaTicket(t2, [{ serial: null, internal_code: null, loi_code: 'E1', loi_ten: null, trang_thai: 'khong_loi' }], () => null)
+  expect(chiKhongLoi).toEqual([])
+  const nhom = gomTicketTheoMay([t as Ticket, t2 as Ticket], [...dong, ...chiKhongLoi], [{ serial: 'S1', product_name: 'GN610', internal_code: 'GN610' }], null)
+  expect(nhom.map((n) => [n.serial, n.tickets.map((x) => x.ticket_code), n.loi.map((l) => `${l.code}×${l.so_lan}`)])).toEqual([['S1', ['T2', 'T1'], ['E3×1']]])
+})
+
 test('gomTicketTheoMay: mỗi máy một nhóm, ticket theo dòng lỗi / serial ticket / serial lạ / chưa rõ; nhóm đang xem lên đầu', () => {
   const t = (ticket_code: string, created_at: string, serial: string | null = null, product_name: string | null = null) =>
     ({ ticket_code, created_at, serial, product_name }) as Pick<Ticket, 'ticket_code' | 'created_at' | 'serial' | 'product_name'>

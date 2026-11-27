@@ -2656,8 +2656,8 @@ export async function searchTickets(
 export async function ticketsOfSerial(serial: string): Promise<Ticket[]> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
-  const { data, error } = await dataClient()
-    .from('v_tickets').select('*').eq('serial', serial)
+  const { data, error } = await veTicket()
+    .select('*').eq('serial', serial)
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
   return (data ?? []) as Ticket[]
@@ -2677,8 +2677,8 @@ export async function ticketsOfCustomer(customerId: string): Promise<Ticket[]> {
 export async function getTicket(code: string): Promise<Ticket | null> {
   await requireStaff()
   await doQuyen('cs.ticket.xem')
-  const { data, error } = await dataClient()
-    .from('v_tickets').select('*').eq('ticket_code', code).maybeSingle()
+  const { data, error } = await veTicket()
+    .select('*').eq('ticket_code', code).maybeSingle()
   if (error) throw new Error(error.message)
   return (data as Ticket) ?? null
 }
@@ -2824,9 +2824,11 @@ export async function machinesOfCustomer(customerId: string): Promise<Machine[]>
   const may = (data ?? []) as Machine[]
   if (cskhNguon() !== 'md' || !may.length) return may
   // MD: ảnh sản phẩm từ product_master (chỉ đọc, nối theo internal_code). Lỗi đọc ảnh → vẫn trả máy, không ảnh.
+  // Chỉ nhận URL http(s): cột có dấu 'CHUA_LAY' (MD baseline_05: mọi chỗ tiêu thụ phải lọc) → ô icon.
   const ma = [...new Set(may.flatMap((m) => (m.internal_code ? [m.internal_code] : [])))]
   const { data: sp } = ma.length ? await db.from('product_master').select('internal_code, image_url').in('internal_code', ma) : { data: [] }
-  const anh = new Map(((sp ?? []) as { internal_code: string; image_url: string | null }[]).map((p) => [p.internal_code, p.image_url]))
+  const anh = new Map(((sp ?? []) as { internal_code: string; image_url: string | null }[])
+    .filter((p) => /^https?:\/\//i.test(p.image_url ?? '')).map((p) => [p.internal_code, p.image_url]))
   return may.map((m) => ({ ...m, image_url: (m.internal_code && anh.get(m.internal_code)) || null }))
 }
 

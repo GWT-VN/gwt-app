@@ -8,7 +8,10 @@ function bang(nguon: 'st' | 'md', schema: string, ten: string) {
   goi.push(khoa)
   const kq = () => ({ data: duLieu[khoa] ?? [], error: null, count: (duLieu[khoa] ?? []).length })
   const b: Record<string, unknown> = new Proxy({}, {
-    get: (_, p: string) => (p === 'then' ? (res: (v: unknown) => unknown) => Promise.resolve(kq()).then(res) : () => b),
+    get: (_, p: string) =>
+      p === 'then' ? (res: (v: unknown) => unknown) => Promise.resolve(kq()).then(res)
+        : p === 'maybeSingle' ? async () => ({ data: (duLieu[khoa] ?? [])[0] ?? null, error: null })
+          : () => b,
   })
   return b
 }
@@ -25,7 +28,7 @@ vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   doQuyen: vi.fn(async () => {}), coQuyen: vi.fn(async () => true), coQuyenHienNut: vi.fn(async () => true),
 }))
 
-import { searchTickets } from './actions'
+import { getTicket, machinesOfCustomer, searchTickets, ticketsOfSerial } from './actions'
 import { danhMucLoi } from './ticket/loi-actions'
 
 beforeEach(() => {
@@ -60,6 +63,39 @@ describe('searchTickets theo CSKH_NGUON', () => {
     expect(kq.rows.map((r) => r.ticket_code)).toEqual(['TK-1'])
     expect(goi).toContain('st:public.v_tickets_loi')
     expect(goi.filter((g) => g.startsWith('md:'))).toEqual([])
+  })
+})
+
+describe('getTicket / ticketsOfSerial theo CSKH_NGUON', () => {
+  it('md: đọc customer_care.v_tickets, không đọc ST', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    duLieu = { 'md:customer_care.v_tickets': [{ ticket_code: 'SEED-TK-001', serial: 'S1' }] }
+    expect((await getTicket('SEED-TK-001'))?.ticket_code).toBe('SEED-TK-001')
+    expect((await ticketsOfSerial('S1')).map((t) => t.ticket_code)).toEqual(['SEED-TK-001'])
+    expect(goi).toEqual(['md:customer_care.v_tickets', 'md:customer_care.v_tickets'])
+  })
+  it('st: v_tickets của ST như cũ', async () => {
+    vi.stubEnv('CSKH_NGUON', '')
+    duLieu = { 'st:public.v_tickets': [{ ticket_code: 'TK-1', serial: 'S1' }] }
+    expect((await getTicket('TK-1'))?.ticket_code).toBe('TK-1')
+    expect((await ticketsOfSerial('S1')).map((t) => t.ticket_code)).toEqual(['TK-1'])
+    expect(goi).toEqual(['st:public.v_tickets', 'st:public.v_tickets'])
+  })
+})
+
+describe('machinesOfCustomer: ảnh product_master', () => {
+  it('md: chỉ nhận URL http(s) — dấu CHUA_LAY / rỗng / đường dẫn lạ → null (ô icon)', async () => {
+    vi.stubEnv('CSKH_NGUON', 'md')
+    duLieu = {
+      'md:public.v_installed_base': ['A', 'B', 'C', 'D'].map((x) => ({ serial: `S${x}`, internal_code: `M${x}` })),
+      'md:public.product_master': [
+        { internal_code: 'MA', image_url: 'https://anh.test/a.png' },
+        { internal_code: 'MB', image_url: 'CHUA_LAY' },
+        { internal_code: 'MC', image_url: '' },
+        { internal_code: 'MD', image_url: 'javascript:alert(1)' },
+      ],
+    }
+    expect((await machinesOfCustomer('k')).map((m) => m.image_url)).toEqual(['https://anh.test/a.png', null, null, null])
   })
 })
 
