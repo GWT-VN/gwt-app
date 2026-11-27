@@ -69,14 +69,19 @@ function TooltipContent({
  *   (Radix mặc định đóng cả ba). Lý do cuộn: Tab tới nút ngoài khung nhìn → trình duyệt tự cuộn → tooltip vừa mở đã
  *   tắt (đo thật ở so-khop khổ 390). Hai ca kia: CSS artifact giữ `::after` chừng nào nút còn `:focus-visible`.
  * - Trigger có thể là <button> hoặc <a> (asChild) → ref kiểu HTMLElement.
+ * - `phim` (học Notion 27/11): phím tắt sau tên, cùng dòng, mờ 60% — "Đóng  Esc". Chỉ để NHÌN (aria-hidden); tên đọc của
+ *   nút tự ghi phím nếu cần.
  */
 function TooltipNhanh({
   content,
+  phim,
   side = 'bottom',
   sideOffset = 6,
   children,
 }: {
   content: ReactNode
+  /** Phím tắt hiện mờ sau tên, vd "Esc", "Ctrl+↵", "↑". */
+  phim?: string
   side?: 'bottom' | 'right' | 'top' | 'left'
   /** Khoảng cách tới trigger (px). Mặc định 6 = `.ui-tip`; tip thanh bên Sidebar 8 (`.pD-icon` tip). */
   sideOffset?: number
@@ -117,6 +122,11 @@ function TooltipNhanh({
           }}
         >
           {content}
+          {phim && (
+            <span aria-hidden="true" className="ml-2 border-none border-current opacity-60">
+              {phim}
+            </span>
+          )}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

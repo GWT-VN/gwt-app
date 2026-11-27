@@ -64,9 +64,9 @@ type Dong = DongF
 // ── Nhãn ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 export const TT: MucTrangThai[] = [
   // CEO 26/11: "trạng thái đang mở là màu vàng vì là ticket support KH" (đang hỗ trợ khách, chờ xử lý).
-  { gt: 'Open', nhan: 'Đang mở', color: 'warning' },
-  { gt: 'Done', nhan: 'Đã xong', color: 'success' },
-  { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary' },
+  { gt: 'Open', nhan: 'Đang mở', color: 'warning', nhom: 'Đang mở' },
+  { gt: 'Done', nhan: 'Đã xong', color: 'success', nhom: 'Đã đóng' },
+  { gt: 'Cancel', nhan: 'Đã huỷ', color: 'secondary', nhom: 'Đã đóng' },
 ]
 
 // Bảng/danh sách: MỘT nhãn màu mỗi hàng (Trạng thái) — CEO 26/11 "quá nhiều dạng label rối mắt". Bảo hành = chữ;

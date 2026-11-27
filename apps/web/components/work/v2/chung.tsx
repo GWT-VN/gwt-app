@@ -24,11 +24,12 @@ export const UU: MucNhan<Uu>[] = [
 
 /** Trạng thái DB (work.task.status) → chip soft theo nghĩa của canvas. */
 export const TT: MucTrangThai[] = [
-  { gt: 'todo', nhan: 'Cần làm' },
-  { gt: 'doing', nhan: 'Đang làm', color: 'info' },
-  { gt: 'blocked', nhan: 'Bị chặn', color: 'warning' },
-  { gt: 'review', nhan: 'Chờ duyệt', color: 'discovery' },
-  { gt: 'done', nhan: 'Xong', color: 'success' },
+  // `nhom` = nhóm trong menu chọn (học Notion 27/11: To-do · In progress · Complete).
+  { gt: 'todo', nhan: 'Cần làm', nhom: 'Chưa làm' },
+  { gt: 'doing', nhan: 'Đang làm', color: 'info', nhom: 'Đang làm' },
+  { gt: 'blocked', nhan: 'Bị chặn', color: 'warning', nhom: 'Đang làm' },
+  { gt: 'review', nhan: 'Chờ duyệt', color: 'discovery', nhom: 'Đang làm' },
+  { gt: 'done', nhan: 'Xong', color: 'success', nhom: 'Xong' },
 ]
 
 /** Vai DB → chữ của canvas (Chính · Làm cùng · Duyệt · Theo dõi). Không vai = việc mình tạo giao người khác. */

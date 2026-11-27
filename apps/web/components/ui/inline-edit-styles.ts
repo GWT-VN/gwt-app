@@ -47,6 +47,26 @@ export const oSuaMui = [
   'group-hover/osua:opacity-100 group-aria-expanded/osua:opacity-100 group-focus-visible/osua:opacity-100',
 ].join(' ')
 
+/**
+ * Kiểu "đè ô" (ô sửa trong `PropertyRow` — học Notion 27/11, `useDeO`): nút giãn hết ô giá trị (+6 hai bên như `oSua`),
+ * rê = nền alpha-05 cả ô (MỘT lớp — ô nhãn/chip cũng dùng `oSua` thay `oSuaNhan` nên không có viền rê trên chip). Ghép
+ * SAU `oSua`.
+ */
+export const oSuaDeO = 'flex w-[calc(100%+12px)] max-w-none'
+/** Neo giãn hết ô khi đè ô. */
+export const oSuaWrapDeO = 'flex w-full'
+/**
+ * Vị trí popup đè ô: lùi lên = cao nút 30 + đệm menu 6 → dòng đầu popup (đệm mục 6, cao 30/32) trùng chỗ giá trị; lùi trái
+ * 8 = đệm ngang mục → chữ / icon dòng đầu thẳng chữ giá trị. Rộng = nút + 16, tối thiểu 240.
+ */
+export const DE_O = { side: 'bottom', sideOffset: -36, alignOffset: -8, avoidCollisions: true } as const
+/** Pop có ô tìm (ComboboxPanel): hàng tìm sát đỉnh pop (không đệm trên) → chỉ lùi bằng cao nút 30 — tâm ô tìm trùng tâm giá trị (đo 27/11). */
+export const DE_O_TIM = { ...DE_O, sideOffset: -30, align: 'start' } as const
+export const deOMenu = 'w-[calc(var(--radix-dropdown-menu-trigger-width)+16px)] min-w-[240px]'
+export const deOPop = 'w-[calc(var(--radix-popover-trigger-width)+16px)] min-w-[240px]'
+/** Dòng đầu popup đè ô của menu nhãn / trạng thái: giá trị đang chọn nằm đúng chỗ cũ (Notion), không bấm được. */
+export const deODau = 'flex h-[30px] items-center px-2 border-none border-current'
+
 /** `.b-osua-chu`: ô chữ trọn bề ngang ô, tối đa 280 (bundle.css gõ 280px). */
 export const oSuaChu = 'w-full max-w-[280px]'
 

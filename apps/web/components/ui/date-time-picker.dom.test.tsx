@@ -46,6 +46,7 @@ const oNgay = () => screen.getByRole('textbox', { name: 'Ngày' }) as HTMLInputE
 const oGio = () => screen.getByRole('combobox', { name: 'Giờ' }) as HTMLInputElement
 const ngay = (re: RegExp) => screen.getByRole('button', { name: re }) as HTMLButtonElement
 const nut = (ten: string) => screen.getByRole('button', { name: ten }) as HTMLButtonElement
+const congTacGio = () => screen.getByRole('switch', { name: 'Có giờ' })
 
 function dung(dau?: string | null) {
   const onDoi = vi.fn()
@@ -88,6 +89,10 @@ test('giá trị chỉ ngày: trigger "22/11"; mở thấy ô ngày, ô giờ tr
   await user.click(trigger())
   await pop()
   expect(oNgay().value).toBe('22/11/2026')
+  // Chưa có giờ, không gioMacDinh → công tắc "Có giờ" tắt, ô giờ ẩn (học Notion "Include time").
+  expect(congTacGio().getAttribute('aria-checked')).toBe('false')
+  expect(screen.queryByRole('combobox', { name: 'Giờ' })).toBeNull()
+  await user.click(congTacGio())
   expect(oGio().value).toBe('')
   expect(oGio().placeholder).toBe('Giờ')
   await user.click(oGio())
@@ -114,6 +119,8 @@ test('Enter ở ô giờ trống = Xong chỉ ngày (không lấy gợi ý đang
   const onDoi = dung()
   await user.click(trigger())
   await pop()
+  await user.click(congTacGio())
+  await user.click(oNgay())
   await user.keyboard('26/11{Tab}{Enter}')
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-26')
 })
@@ -168,6 +175,7 @@ test('Enter mã IME 229 và rời ô giờ chưa chốt hạn', async () => {
   const onDoi = dung('2026-11-22')
   await user.click(trigger())
   await pop()
+  await user.click(congTacGio())
   await user.click(oGio())
   await user.keyboard('1430')
   fireEvent.keyDown(oGio(), { key: 'Enter', keyCode: 229 })
@@ -207,6 +215,8 @@ test('gõ 26/11, Tab, 1430, Enter → lưu 2026-11-26T14:30:00+07:00, đóng pop
   await pop()
   // Mở pop là đang ở ô ngày.
   await waitFor(() => expect(document.activeElement).toBe(oNgay()))
+  await user.click(congTacGio())
+  await user.click(oNgay())
   await user.keyboard('26/11{Tab}1430{Enter}')
   expect(onDoi).toHaveBeenCalledTimes(1)
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-26T14:30:00+07:00')
@@ -239,9 +249,35 @@ test('chỉ đổi giờ, ô ngày trống → lấy hôm nay', async () => {
   const onDoi = dung()
   await user.click(trigger())
   await pop()
+  await user.click(congTacGio())
   await user.click(oGio())
   await user.keyboard('1600{Enter}')
   expect(onDoi).toHaveBeenLastCalledWith('2026-11-20T16:00:00+07:00')
+})
+
+test('"Có giờ" bật sẵn khi giá trị có giờ; tắt → ô giờ ẩn, Xong lưu CHỈ ngày', async () => {
+  const user = userEvent.setup()
+  const onDoi = dung('2026-11-22T09:00:00+07:00')
+  await user.click(trigger())
+  await pop()
+  expect(congTacGio().getAttribute('aria-checked')).toBe('true')
+  expect(oGio().value).toBe('09:00')
+  await user.click(congTacGio())
+  expect(screen.queryByRole('combobox', { name: 'Giờ' })).toBeNull()
+  await user.click(nut('Xong'))
+  expect(onDoi).toHaveBeenLastCalledWith('2026-11-22')
+})
+
+test('"Hôm nay" đặt ô ngày = hôm nay (chưa lưu); Xong mới lưu', async () => {
+  const user = userEvent.setup()
+  const onDoi = dung('2026-12-05')
+  await user.click(trigger())
+  await pop()
+  await user.click(nut('Hôm nay'))
+  expect(oNgay().value).toBe('20/11/2026')
+  expect(onDoi).not.toHaveBeenCalled()
+  await user.click(nut('Xong'))
+  expect(onDoi).toHaveBeenLastCalledWith('2026-11-20')
 })
 
 test('Xoá có hiệu lực ngay → null; chưa có giá trị thì không có nút Xoá', async () => {

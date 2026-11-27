@@ -208,6 +208,19 @@ nhãn 96–128 → 112–160 (≤640: 96–128), khoảng dòng gap-y 2 → 6 (b
 32/38 (Notion side peek 32/38,4), đệm dưới 8 → 12. Áp mọi PropertyList (Xem nhanh + trang chi tiết) — Notion cùng cỡ ở peek
 lẫn trang. Khi đẩy lên artifact: `.ui-props` + preview PropertyList, XemNhanh.
 
+**Chờ đồng bộ lên artifact** — 4 hành vi học Notion (27/11, CEO "làm cả 4 mục"; bảng `docs/rework/2026-11-27-hoc-hanh-vi-notion.md`):
+(1) **Đè ô** — InlineEdit nằm trong `PropertyRow` (context `DeO`, file `de-o.tsx`): nút giãn hết ô giá trị, rê = nền alpha-05
+cả ô (một lớp, không viền chip); popup mở ĐÈ lên ô (`DE_O`: lùi lên 36 / trái 8; pop có ô tìm `DE_O_TIM` lùi 30 → tâm ô tìm
+trùng tâm giá trị, đo lệch 0,5px), rộng = ô + 16 (tối thiểu 240); menu nhãn / trạng thái có dòng đầu = giá trị đang chọn
+(aria-hidden) + vạch — chip trùng đúng chỗ cũ (đo lệch 0). Ô bảng (ngoài PropertyRow) giữ popup thả xuống như cũ.
+(2) `MucTrangThai.nhom` → menu trạng thái chia nhóm có tiêu đề + vạch (Work: Chưa làm · Đang làm · Xong; ticket: Đang mở ·
+Đã đóng). (3) DateTimePicker: công tắc **Có giờ** (Switch sm, bật sẵn khi value có giờ hoặc có `gioMacDinh`; tắt = lưu chỉ
+ngày, bỏ cả gioMacDinh) + nút **Hôm nay** ở chân (đặt nháp, chưa lưu); ô gõ ngày GIỮ dưới lịch (CEO 22/11) — không chép vị
+trí ô gõ trên cùng của Notion; pop `collisionPadding` 16. (4) `TooltipNhanh phim` = phím tắt mờ 60% sau tên ("Đóng  Esc");
+XemNhanh: ⤢ ghi "Ctrl+↵" + `aria-keyshortcuts`, Ctrl/⌘+Enter (ngoài ô gõ) = bấm ⤢. Kèm: nhóm "Hệ thống" bỏ khỏi Tổng quan —
+Work dời thành MỘT dòng nhạt "Tạo bởi · lúc · nguồn · ai xem" ở tab Hoạt động + dòng "Chỉ xem" (khoá) dưới thuộc tính khi
+không sửa được; ticket bỏ hẳn (tab Nhật ký đã có dòng tạo + ghi chú cuối).
+
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.
 Do đó: (a) gạch dưới hàng tìm GIỮ `border` khi focus — không đậm lên (`commandInputWrapper` bỏ `focus-within` alpha-50,

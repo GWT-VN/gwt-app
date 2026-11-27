@@ -122,6 +122,8 @@ test('tiêu đề kiểu Notion: gõ thẳng vào chữ, Enter lưu; Esc trả l
   await userEvent.type(o, 'Bỏ đi{Escape}')
   expect(o.value).toBe('Việc demo')
   expect(actions.suaViec).not.toHaveBeenCalled()
+  // Esc rời ô ở khung hình sau (requestAnimationFrame) — chờ xong mới gõ tiếp, không thì máy bận làm blur chen vào giữa lúc gõ.
+  await waitFor(() => expect(document.activeElement).not.toBe(o))
   await userEvent.clear(o)
   await userEvent.type(o, 'Việc mới đổi{Enter}')
   await waitFor(() => expect(actions.suaViec).toHaveBeenCalledWith(7, { title: 'Việc mới đổi' }))
@@ -142,23 +144,20 @@ test('tab: đủ 4 tab, chuyển tab đổi nội dung; Hoạt động tô tên 
   expect(screen.getByRole('button', { name: 'Thêm việc phải xong trước' })).toBeTruthy()
 })
 
-test('thuộc tính nằm giữa tiêu đề và hàng tab; nhóm Tổng quan thu/mở được: thu "Hệ thống" → ẩn dòng, mở lại → hiện', async () => {
+test('thuộc tính nằm giữa tiêu đề và hàng tab; Tổng quan KHÔNG còn nhóm Hệ thống — dời thành một dòng ở tab Hoạt động', async () => {
   chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
   ve()
   await daTai()
   const thuocTinh = the().querySelector('[data-slot="xem-nhanh-thuoc-tinh"]')!
   expect(within(thuocTinh as HTMLElement).getByText('Trạng thái', { selector: 'dt' })).toBeTruthy()
   expect(thuocTinh.compareDocumentPosition(screen.getByRole('tablist')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-  const nut = screen.getByRole('button', { name: 'Hệ thống' })
-  expect(nut.getAttribute('aria-expanded')).toBe('true')
-  expect(screen.getByText('Người tạo', { selector: 'dt' })).toBeTruthy()
-  await userEvent.click(nut)
-  expect(nut.getAttribute('aria-expanded')).toBe('false')
+  // Học Notion 27/11: người tạo / ngày tạo / quyền không chiếm thân trang.
+  expect(screen.queryByRole('button', { name: 'Hệ thống' })).toBeNull()
   expect(screen.queryByText('Người tạo', { selector: 'dt' })).toBeNull()
-  // Nhóm khác không bị ảnh hưởng (type="multiple").
-  expect(screen.getByRole('button', { name: 'Mô tả' }).getAttribute('aria-expanded')).toBe('true')
-  await userEvent.click(nut)
-  expect(screen.getByText('Người tạo', { selector: 'dt' })).toBeTruthy()
+  const moTa = screen.getByRole('button', { name: 'Mô tả' })
+  expect(moTa.getAttribute('aria-expanded')).toBe('true')
+  await userEvent.click(screen.getByRole('tab', { name: /Hoạt động/ }))
+  expect(await screen.findByText(/^Tạo bởi /)).toBeTruthy()
 })
 
 test('còn việc chặn chưa xong → cảnh báo ở Tổng quan + không đánh dấu xong được', async () => {

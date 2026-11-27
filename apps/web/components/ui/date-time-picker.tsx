@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 import { CalendarBlank, CaretDown } from '@phosphor-icons/react/ssr'
 import { isoNgay, ngayTuIso } from '@/bang/ngay'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
@@ -10,9 +10,11 @@ import { Button } from './button'
 import { Calendar } from './calendar'
 import { calendarFoot, calendarFootClear, calendarPop } from './calendar-styles'
 import { selectTrigger, selectValue } from './control-styles'
-import { oSua, oSuaMui } from './inline-edit-styles'
+import { useDeO } from './de-o'
+import { oSua, oSuaDeO, oSuaMui } from './inline-edit-styles'
 import { Input } from './input'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { Switch } from './switch'
 import { TimeInput } from './time-input'
 import { useMoBangChuot } from './use-mo-bang-chuot'
 import { useTriggerChon, type TriggerChonProps } from './use-trigger-chon'
@@ -35,6 +37,9 @@ export { ghepIso, hienNgayGio, hienNgayGioGon, laChiNgay, tachIso }
  * - Ngày trước `tuNgay` (mặc định hôm nay) bị tắt, TRỪ ngày của `value` (hạn cũ đã qua vẫn hiện, chọn lại được).
  * - `value` từ DB ở múi khác (`…Z`) được đổi về `mui` trước khi hiện / sửa (`tachIso`).
  * - `open` / `onOpenChange` điều khiển từ ngoài được (vd mục menu "Đặt hạn…" mở pop tại ô Hạn).
+ * - Học Notion 27/11: công tắc **Có giờ** (Notion "Include time") — tắt thì ẩn ô giờ và lưu CHỈ NGÀY (bỏ cả `gioMacDinh`);
+ *   mở pop thì công tắc bật sẵn khi `value` có giờ hoặc bên gọi có `gioMacDinh`. Chân pop có **Hôm nay** (đặt ô ngày = hôm
+ *   nay, lịch về tháng này — chưa lưu, vẫn bấm Xong).
  * - Trigger: ô form = `selectTrigger` + CalendarBlank (y DatePicker — cùng cao); `gon` = nút `oSua` của InlineEdit.
  *   Tên đọc = nhãn + giá trị (`useTriggerChon`). Pop `role="dialog"` "Chọn ngày giờ", portal vùng DS z-90.
  */
@@ -80,6 +85,7 @@ export function DateTimePicker({
   }
   const { idGiaTri, trigger } = useTriggerChon(trig, !!value, mo)
   const chuot = useMoBangChuot()
+  const deO = useDeO()
 
   const nay = isoNgay(new Date())
   const tu = tuNgay ?? nay
@@ -89,6 +95,7 @@ export function DateTimePicker({
   const [chu, setChu] = useState('')
   const [gio, setGio] = useState<string | null>(null)
   const [gioDaXoa, setGioDaXoa] = useState(false)
+  const [coGio, setCoGio] = useState(false)
   const [thang, setThang] = useState(() => ngayTuIso(nay))
   const [moTruoc, setMoTruoc] = useState(false)
   if (mo !== moTruoc) {
@@ -97,6 +104,7 @@ export function DateTimePicker({
       setChu(cu ? hienNgay(cu.ngay, 'day-du') : '') // ô GÕ: đủ năm để docNgay đọc lại được
       setGio(cu?.gio ?? null)
       setGioDaXoa(false)
+      setCoGio(!!cu?.gio || !!gioMacDinh)
       setThang(ngayTuIso(cu?.ngay ?? nay))
     }
   }
@@ -117,6 +125,15 @@ export function DateTimePicker({
     datMo(false)
   }
   const oNgayRef = useRef<HTMLInputElement>(null)
+  const idCoGio = useId()
+  const batGio = (b: boolean) => {
+    setCoGio(b)
+    if (!b) {
+      // Tắt giờ = chỉ ngày: xoá giờ nháp và KHÔNG tự gán gioMacDinh.
+      setGio(null)
+      setGioDaXoa(true)
+    } else setGioDaXoa(false)
+  }
 
   return (
     <Popover open={mo} onOpenChange={datMo}>
@@ -126,7 +143,7 @@ export function DateTimePicker({
             type="button"
             {...trigger}
             data-slot="date-time-picker-trigger"
-            className={oSua}
+            className={cn(oSua, deO && oSuaDeO)}
             onPointerDown={chuot.onPointerDown}
             onKeyDown={chuot.onKeyDown}
           >
@@ -155,6 +172,8 @@ export function DateTimePicker({
       {name && <input type="hidden" name={name} value={value ?? ''} />}
       <PopoverContent
         aria-label="Chọn ngày giờ"
+        // Lớp nổi cách mép màn ≥ 16 (luật tu-kiem A; ô giãn cả hàng thuộc tính làm pop căn giữa sát mép phải — đo 27/11).
+        collisionPadding={16}
         data-mo-chuot={chuot.chuot || undefined}
         className={cn(calendarPop, 'flex flex-col overflow-hidden', 'data-mo-chuot:[&_:focus-visible]:[outline:none]! data-mo-chuot:[&_:focus-visible]:outline-offset-0!')}
         onKeyDownCapture={chuot.onKeyDown}
@@ -204,36 +223,54 @@ export function DateTimePicker({
               }}
             />
           </div>
-          <div className="w-28 shrink-0 border-none border-current">
-            <TimeInput
-              aria-label="Giờ"
-              goiYPhiaTren
-              placeholder={gioMacDinh ?? 'Giờ'}
-              value={gio}
-              onValueChange={doiGio}
-              onEnter={(g) => {
-                doiGio(g)
-                chot(g)
-              }}
-            />
-          </div>
+          {coGio && (
+            <div className="w-28 shrink-0 border-none border-current">
+              <TimeInput
+                aria-label="Giờ"
+                goiYPhiaTren
+                placeholder={gioMacDinh ?? 'Giờ'}
+                value={gio}
+                onValueChange={doiGio}
+                onEnter={(g) => {
+                  doiGio(g)
+                  chot(g)
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <div className="mt-3 flex shrink-0 items-center justify-between border-none border-current">
+          <label htmlFor={idCoGio} className="cursor-pointer border-none border-current">
+            Có giờ
+          </label>
+          <Switch id={idCoGio} size="sm" checked={coGio} onCheckedChange={batGio} />
         </div>
         <div className={cn(calendarFoot, 'shrink-0')}>
-          {value && choXoa ? (
+          <div className="flex gap-1 border-none border-current">
             <Button
               variant="ghost"
               size="sm"
-              className={calendarFootClear}
               onClick={() => {
-                onValueChange(null)
-                datMo(false)
+                setChu(hienNgay(nay, 'day-du'))
+                setThang(ngayTuIso(nay))
               }}
             >
-              Xoá
+              Hôm nay
             </Button>
-          ) : (
-            <span />
-          )}
+            {value && choXoa && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={calendarFootClear}
+                onClick={() => {
+                  onValueChange(null)
+                  datMo(false)
+                }}
+              >
+                Xoá
+              </Button>
+            )}
+          </div>
           <div className="flex gap-2 border-none border-current">
             <Button size="sm" variant="outline" onClick={() => datMo(false)}>
               Huỷ

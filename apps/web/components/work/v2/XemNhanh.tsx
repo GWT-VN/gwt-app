@@ -18,24 +18,20 @@ import {
   ChatText,
   Check,
   CircleHalf,
-  Clock,
   Eye,
   Flag,
-  Globe,
   HourglassMedium,
   House,
   LinkSimple,
+  LockSimple,
   ListChecks,
   Plus,
   Prohibit,
   Receipt,
   SealCheck,
-  ShieldCheck,
-  Sparkle,
   Ticket as IconTicket,
   TreeStructure,
   User,
-  UserCircle,
   Users,
   UsersThree,
   X,
@@ -363,7 +359,7 @@ function ThuocTinh({ c }: { c: Ctx }) {
               </Truong>
               <Truong icon={ic(CalendarBlank)} nhan="Hạn">
                 {sua ? (
-                  <span className={CUM}>
+                  <span className={cn(CUM, 'flex w-full')}>
                     <OSuaHan
                       ma={t.ref}
                       gioMacDinh="17:00"
@@ -447,6 +443,13 @@ function ThuocTinh({ c }: { c: Ctx }) {
                 </Truong>
               )}
             </PropertyList>
+      {/* Thay dòng "Quyền của bạn" của nhóm Hệ thống cũ (27/11): chỉ báo khi KHÔNG sửa được — vì sao các ô không bấm được. */}
+      {!sua && (
+        <p className="m-0 mt-2 flex items-center gap-1.5 border-none border-current text-[12px] leading-[18px] text-muted-foreground">
+          <LockSimple aria-hidden="true" className="size-(--control-icon-size-xs) shrink-0" />
+          Chỉ xem — bạn không phải người làm việc này
+        </p>
+      )}
     </div>
   )
 }
@@ -455,10 +458,9 @@ function ThuocTinh({ c }: { c: Ctx }) {
 function TongQuan({ c }: { c: Ctx }) {
   const { ct, sua, chay } = c
   const t = ct.task
-  const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
     <div className="border-none border-current">
-      <Accordion type="multiple" defaultValue={['mo-ta', 'he-thong']}>
+      <Accordion type="multiple" defaultValue={['mo-ta']}>
         <AccordionItem value="mo-ta">
           <AccordionTrigger>Mô tả</AccordionTrigger>
           <AccordionContent>
@@ -478,29 +480,6 @@ function TongQuan({ c }: { c: Ctx }) {
                 {t.description || <span className="text-(--color-text-tertiary)">—</span>}
               </p>
             )}
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="he-thong">
-          <AccordionTrigger>Hệ thống</AccordionTrigger>
-          <AccordionContent>
-            <PropertyList>
-              <Truong icon={ic(UserCircle)} nhan="Người tạo">
-                {t.creator_ten}
-              </Truong>
-              <Truong icon={ic(Clock)} nhan="Ngày tạo">
-                <span className="tabular-nums">{hienNgay(t.created_at, 'gio')}</span>
-              </Truong>
-              <Truong icon={ic(Sparkle)} nhan="Nguồn">
-                {t.origin === 'manual' ? 'Tạo tay' : 'Tự sinh'}
-              </Truong>
-              <Truong icon={ic(Globe)} nhan="Ai xem được">
-                {PHAM_VI[t.visibility] ?? t.visibility}
-              </Truong>
-              <Truong icon={ic(ShieldCheck)} nhan="Quyền của bạn">
-                {/* Ngắn cho vừa một dòng (dòng nhiều dòng lệch tâm nhãn). */}
-                {sua ? 'Sửa được' : 'Chỉ xem — không phải người làm'}
-              </Truong>
-            </PropertyList>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -576,6 +555,12 @@ function HoatDong({ c }: { c: Ctx }) {
   return (
     <div className={COT}>
       <Timeline muc={muc} hien={8} aria-label={`Hoạt động ${t.ref}`} />
+      {/* Nhóm "Hệ thống" cũ ở Tổng quan dời về đây thành MỘT dòng nhạt (học Notion 27/11: "Last edited · ai · lúc nào" ở
+          chân menu ⋯, không chiếm thân trang). */}
+      <p className="m-0 border-none border-current text-[12px] leading-[18px] text-muted-foreground tabular-nums">
+        Tạo bởi {t.creator_ten ?? '—'} · {hienNgay(t.created_at, 'gio')} · {t.origin === 'manual' ? 'tạo tay' : 'tự sinh'} · ai
+        xem: {(PHAM_VI[t.visibility] ?? t.visibility).toLowerCase()}
+      </p>
       <BinhLuan
         nhanSu={nenTang.nhan_su}
         onGui={async (body, nhac) => {

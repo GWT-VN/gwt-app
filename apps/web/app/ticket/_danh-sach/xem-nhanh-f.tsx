@@ -12,8 +12,6 @@ import {
   CalendarPlus,
   ChatText,
   CircleHalf,
-  Clock,
-  ClockCounterClockwise,
   Cube,
   House,
   MapPin,
@@ -24,7 +22,6 @@ import {
   Tag,
   Ticket as IconTicket,
   User,
-  UserCircle,
   Wrench,
   LinkSimple,
 } from '@phosphor-icons/react/ssr'
@@ -40,7 +37,7 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle }
 import { PropertyList, PropertyRow } from '@/components/ui/property-list'
 import { Timeline, type MucTimeline } from '@/components/ui/timeline'
 import type { XemNhanh } from '@/components/ui/xem-nhanh'
-import { chuaLuu, cheSdt, laDemo, mayLoi, ngayGioNgan, ngayNgan, tenKhach } from './chung'
+import { chuaLuu, cheSdt, laDemo, mayLoi, ngayNgan, tenKhach } from './chung'
 import { LanLoiThat, NhatKyThat, TicketKhacThat, VatTuThat, ViecDaGan } from './the-tab'
 import { ChuBaoHanh, laKhan, TT, type DongF } from './ds-f'
 import type { SuaTruong } from './sua-ticket'
@@ -52,7 +49,6 @@ type NhanVien = { gt: string; nhan: string; anMa?: boolean }[]
 export const TAB_XEM = ['tong', 'lan', 'nk', 'vt', 'khac'] as const
 export type TabXem = (typeof TAB_XEM)[number]
 
-const ngayGio = ngayGioNgan
 
 /**
  * Một dòng trường: icon + nhãn mờ (cột trái) · giá trị; trống → "—". Không lặp tên trường ở ô giá trị như Twenty: CEO
@@ -117,7 +113,7 @@ function ThuocTinh({ t, nhanVien, luu }: { t: DongF; nhanVien: NhanVien; luu: Lu
 function TongQuan({ t, lanViec }: { t: DongF; lanViec: number }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
-    <Accordion type="multiple" defaultValue={['may', 'khach', 'viec', 'he-thong']}>
+    <Accordion type="multiple" defaultValue={['may', 'khach', 'viec']}>
       <AccordionItem value="may">
         <AccordionTrigger>Máy</AccordionTrigger>
         <AccordionContent>
@@ -165,21 +161,8 @@ function TongQuan({ t, lanViec }: { t: DongF; lanViec: number }) {
           </AccordionContent>
         </AccordionItem>
       )}
-      <AccordionItem value="he-thong">
-        <AccordionTrigger>Hệ thống</AccordionTrigger>
-        <AccordionContent>
-          <PropertyList>
-            <Truong icon={ic(Clock)} nhan="Ngày tạo">
-              <span className="tabular-nums">{ngayGio(t.created_at)}</span>
-            </Truong>
-            {/* Danh sách chưa kèm người tạo (DB có ở trang chi tiết) → trường trống, hiện tên mờ. */}
-            <Truong icon={ic(UserCircle)} nhan="Người tạo" />
-            <Truong icon={ic(ClockCounterClockwise)} nhan="Hoạt động cuối">
-              {t.hoat_dong_cuoi && <span className="tabular-nums">{ngayGio(t.hoat_dong_cuoi)}</span>}
-            </Truong>
-          </PropertyList>
-        </AccordionContent>
-      </AccordionItem>
+      {/* Nhóm "Hệ thống" (ngày tạo · người tạo · hoạt động cuối) bỏ 27/11 (học Notion): tab Nhật ký đã có dòng "tạo ticket"
+          + ghi chú cuối kèm giờ. */}
     </Accordion>
   )
 }

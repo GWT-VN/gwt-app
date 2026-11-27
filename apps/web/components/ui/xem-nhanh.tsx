@@ -118,8 +118,18 @@ export function XemNhanh({
   useEffect(() => {
     if (!mo) return
     const k = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey) return
+      if (e.defaultPrevented || e.isComposing) return
       if ((e.target as Element | null)?.closest?.(BO_QUA)) return
+      // Ctrl/⌘+Enter = mở toàn trang (học Notion 27/11) — bấm chính link ⤢ để Next Link điều hướng như bấm chuột.
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key === 'Enter') {
+        const a = document.querySelector<HTMLAnchorElement>('[data-slot="xem-nhanh"] a[aria-keyshortcuts="Control+Enter"]')
+        if (a) {
+          e.preventDefault()
+          a.click()
+        }
+        return
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return
       const h = ham.current
       if (e.key === 'Escape') {
         if (document.body.hasAttribute('data-dang-keo') || portal?.querySelector(LOP_MO)) return
@@ -148,27 +158,27 @@ export function XemNhanh({
       {the && (
         <aside data-slot="xem-nhanh" aria-label={`Xem nhanh ${the.ma}`} className={cn(xnThe, coDinh && xnTheCoDinh)}>
           <div className={xnDau}>
-            <TooltipNhanh content="Đóng (Esc)">
+            <TooltipNhanh content="Đóng" phim="Esc">
               <Button variant="ghost" size="icon-sm" aria-label="Đóng xem nhanh (Esc)" onClick={onDong}>
                 <CaretDoubleRight aria-hidden="true" />
               </Button>
             </TooltipNhanh>
             {the.moTrang && (
-              <TooltipNhanh content="Mở toàn trang">
+              <TooltipNhanh content="Mở toàn trang" phim="Ctrl+↵">
                 <Button variant="ghost" size="icon-sm" asChild>
-                  <Link href={the.moTrang} aria-label={`Mở toàn trang ${the.ma}`}>
+                  <Link href={the.moTrang} aria-label={`Mở toàn trang ${the.ma}`} aria-keyshortcuts="Control+Enter">
                     <ArrowsOutSimple aria-hidden="true" />
                   </Link>
                 </Button>
               </TooltipNhanh>
             )}
             <Separator orientation="vertical" className="mx-1 h-4!" />
-            <TooltipNhanh content="Bản ghi trước (↑)">
+            <TooltipNhanh content="Bản ghi trước" phim="↑">
               <Button variant="ghost" size="icon-sm" aria-label="Bản ghi trước (↑)" disabled={!onTruoc} onClick={onTruoc}>
                 <CaretUp aria-hidden="true" />
               </Button>
             </TooltipNhanh>
-            <TooltipNhanh content="Bản ghi sau (↓)">
+            <TooltipNhanh content="Bản ghi sau" phim="↓">
               <Button variant="ghost" size="icon-sm" aria-label="Bản ghi sau (↓)" disabled={!onSau} onClick={onSau}>
                 <CaretDown aria-hidden="true" />
               </Button>

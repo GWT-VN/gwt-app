@@ -72,6 +72,16 @@ Quyền xem thuộc nút Share.
 Đề xuất: bỏ nhóm Hệ thống khỏi Tổng quan, bỏ hẳn "Quyền của bạn" (người xem đang thấy thì đã có quyền). Dời "Tạo bởi · ngày
 tạo" thành một dòng nhạt cuối tab Hoạt động, nơi đã có lịch sử thao tác. Chờ CEO chốt.
 
+## Đã làm (27/11, CEO "làm cả 4 mục")
+
+| Mục | Đã làm | Khác Notion (cố ý) |
+|---|---|---|
+| Popup đè ô | Ô trong PropertyRow: popup đè ô, rộng bằng cột; menu nhãn/trạng thái có dòng đầu = giá trị đang chọn; pop người/chọn có ô tìm ở đúng chỗ giá trị | Ô bảng chưa đè ô (giữ thả xuống) |
+| Trạng thái chia nhóm | `nhom`: Work Chưa làm · Đang làm · Xong; ticket Đang mở · Đã đóng | — |
+| Ô ngày | Công tắc "Có giờ" + nút "Hôm nay" | Ô gõ ngày giữ DƯỚI lịch (CEO chốt 22/11), không lên trên cùng |
+| Tooltip phím tắt | "Đóng Esc", "Mở toàn trang Ctrl+↵", "↑", "↓"; Ctrl+Enter mở trang | Đổi bản ghi giữ ↑/↓, j/k (Notion Alt+K/J) |
+| Hệ thống | Work: dòng nhạt cuối tab Hoạt động + dòng "Chỉ xem" khi không sửa được; ticket: bỏ (Nhật ký đã có) | Notion để ở chân menu ⋯ — mình không có ⋯ |
+
 ## Chưa đo được
 
 - Hover nền của ô giá trị: CDP đọc ra trong suốt, có thể Notion vẽ nền bằng lớp phủ riêng. Chưa kiểm bằng cách khác.

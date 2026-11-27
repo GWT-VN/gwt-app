@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  Fragment,
   useContext,
   useEffect,
   useId,
@@ -26,12 +27,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import { Input } from './input'
 import {
   cat,
   chipPhu,
+  DE_O,
+  DE_O_TIM,
+  deODau,
+  deOMenu,
+  deOPop,
   khach,
   LY_DO_CHO,
   luuY,
@@ -40,10 +47,13 @@ import {
   oSuaChu,
   oSuaInput,
   oSuaMui,
+  oSuaDeO,
   oSuaNhan,
   oSuaWrap,
+  oSuaWrapDeO,
   recordPickerKhung,
 } from './inline-edit-styles'
+import { useDeO } from './de-o'
 import { menuCheck, menuContent } from './menu-styles'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { RecordPicker, type BanGhi } from './record-picker'
@@ -117,10 +127,12 @@ function useLacQuan<T>(value: T, onLuu: Luu<T>, ma: string, truong: string, xong
 
 /** Neo ô: chặn bấm + Enter/Space nổi lên dòng (kể cả từ menu/pop trong portal — React nổi bọt theo cây component). */
 function NeoO({ children }: { children: ReactNode }) {
+  const deO = useDeO()
   return (
     <span
       data-slot="inline-edit"
-      className={oSuaWrap}
+      data-de-o={deO || undefined}
+      className={cn(oSuaWrap, deO && oSuaWrapDeO)}
       onClick={(e: MouseEvent) => e.stopPropagation()}
       onKeyDown={(e: KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') e.stopPropagation()
@@ -195,18 +207,33 @@ export function OSuaNhan<T extends string>({
   const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => `${ma}: ${truong} → ${chuNhan(tim(v), v)}`)
   const id = useId()
   const dang = tim(gt)
+  const deO = useDeO()
   return (
     <NeoO>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button type="button" data-an-mui="" className={oSuaNhan} aria-label={`Sửa ${truong} ${ma}`} aria-describedby={id}>
+          <button
+            type="button"
+            data-an-mui=""
+            className={deO ? cn(oSua, oSuaDeO) : oSuaNhan}
+            aria-label={`Sửa ${truong} ${ma}`}
+            aria-describedby={id}
+          >
             {/* display: contents → nhãn là "cháu" của nút trong DOM nhưng là con trong bố cục (viền rê vẽ trên nhãn). */}
             <span id={id} className="contents">
               {dang?.nhan ?? gt}
             </span>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className={cn(rong && 'min-w-[240px]')}>
+        <DropdownMenuContent align="start" {...(deO ? DE_O : {})} className={cn(rong && 'min-w-[240px]', deO && deOMenu)}>
+          {deO && (
+            <>
+              <div aria-hidden="true" className={deODau}>
+                {dang?.nhan ?? gt}
+              </div>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuRadioGroup value={gt}>
             {muc.map((m) => (
               <MucRadio key={m.gt} value={m.gt} chip={typeof m.nhan !== 'string'} onSelect={() => luu(m.gt)}>
@@ -231,6 +258,11 @@ export type MucTrangThai = {
   color?: MauBadge
   /** Chọn trạng thái này phải chọn thêm lý do (vd "Chờ"). */
   hoiLyDo?: boolean
+  /**
+   * Nhóm của trạng thái (học Notion 27/11: To-do · In progress · Complete) — menu chia nhóm theo thứ tự `muc`, mỗi nhóm
+   * có tiêu đề + vạch ngăn. Bỏ trống ở mọi mục = danh sách phẳng như cũ.
+   */
+  nhom?: string
 }
 export type GiaTriTrangThai = { tt: string; lyDo?: string }
 
@@ -291,12 +323,19 @@ export function OSuaTrangThai({
     daDoi.current = true
     setBuoc2(b)
   }
+  const deO = useDeO()
 
   return (
     <NeoO>
       <DropdownMenu onOpenChange={(mo) => mo && setBuoc2(null)}>
         <DropdownMenuTrigger asChild>
-          <button type="button" data-an-mui="" className={oSuaNhan} aria-label={`Sửa ${truong} ${ma}`} aria-describedby={id}>
+          <button
+            type="button"
+            data-an-mui=""
+            className={deO ? cn(oSua, oSuaDeO) : oSuaNhan}
+            aria-label={`Sửa ${truong} ${ma}`}
+            aria-describedby={id}
+          >
             <span id={id} className="contents">
               <ChipTrangThai muc={tim(gt.tt)} value={gt} caret />
             </span>
@@ -305,11 +344,20 @@ export function OSuaTrangThai({
         <DropdownMenuContent
           ref={khungRef}
           align="start"
-         
+          {...(deO ? DE_O : {})}
+          className={cn(deO && deOMenu)}
           onKeyDown={(e) => {
             if (buoc2 && e.key === 'ArrowLeft') doiBuoc(null)
           }}
         >
+          {deO && !buoc2 && (
+            <>
+              <div aria-hidden="true" className={deODau}>
+                <ChipTrangThai muc={tim(gt.tt)} value={gt} />
+              </div>
+              <DropdownMenuSeparator />
+            </>
+          )}
           {buoc2 ? (
             <>
               <DropdownMenuItem
@@ -332,30 +380,37 @@ export function OSuaTrangThai({
             </>
           ) : (
             <DropdownMenuRadioGroup value={gt.tt}>
-              {muc.map((m) => (
-                <MucRadio
-                  key={m.gt}
-                  value={m.gt}
-                  chip
-                  phai={
-                    m.hoiLyDo ? (
-                      <>
-                        <span className="sr-only">(chọn lý do)</span>
-                        <CaretRight aria-hidden="true" className={menuCheck} />
-                      </>
-                    ) : undefined
-                  }
-                  onSelect={(e) => {
-                    if (!m.hoiLyDo) return luu({ tt: m.gt })
-                    e.preventDefault()
-                    doiBuoc(m.gt)
-                  }}
-                >
-                  {/* data-hoi-ly-do: điểm focus khi quay lại từ bước 2. */}
-                  <span data-hoi-ly-do={m.hoiLyDo || undefined} className="contents">
-                    <ChipTrangThai muc={m} value={{ tt: m.gt, lyDo: m.gt === gt.tt ? gt.lyDo : undefined }} />
-                  </span>
-                </MucRadio>
+              {muc.map((m, i) => (
+                <Fragment key={m.gt}>
+                  {m.nhom && m.nhom !== muc[i - 1]?.nhom && (
+                    <>
+                      {i > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel>{m.nhom}</DropdownMenuLabel>
+                    </>
+                  )}
+                  <MucRadio
+                    value={m.gt}
+                    chip
+                    phai={
+                      m.hoiLyDo ? (
+                        <>
+                          <span className="sr-only">(chọn lý do)</span>
+                          <CaretRight aria-hidden="true" className={menuCheck} />
+                        </>
+                      ) : undefined
+                    }
+                    onSelect={(e) => {
+                      if (!m.hoiLyDo) return luu({ tt: m.gt })
+                      e.preventDefault()
+                      doiBuoc(m.gt)
+                    }}
+                  >
+                    {/* data-hoi-ly-do: điểm focus khi quay lại từ bước 2. */}
+                    <span data-hoi-ly-do={m.hoiLyDo || undefined} className="contents">
+                      <ChipTrangThai muc={m} value={{ tt: m.gt, lyDo: m.gt === gt.tt ? gt.lyDo : undefined }} />
+                    </span>
+                  </MucRadio>
+                </Fragment>
               ))}
             </DropdownMenuRadioGroup>
           )}
@@ -578,6 +633,7 @@ export function OSuaNguoi({
   const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => cau(tenCua(v)))
   const id = useId()
   const [mo, setMo] = useState(false)
+  const deO = useDeO()
   const ten = tenCua(gt)
   const avatar =
     gt === null || !coAvatar ? null : (
@@ -592,7 +648,7 @@ export function OSuaNguoi({
           <button
             type="button"
             data-gon={gon ? '' : undefined}
-            className={gon ? oSuaNhan : oSua}
+            className={cn(gon ? oSuaNhan : oSua, deO && oSuaDeO)}
             aria-label={`Sửa ${truong} ${ma}`}
             aria-describedby={id}
           >
@@ -616,9 +672,11 @@ export function OSuaNguoi({
           aria-label={`Chọn ${truong}`}
           // Pop của ô bảng bám ô nhưng cách mép màn ≥ 16 (luật lớp nổi, tu-kiem A — 8 bị phê "sát viền").
           collisionPadding={16}
+          {...(deO ? DE_O_TIM : {})}
           className={cn(
             menuContent,
             'w-auto min-w-[240px] max-w-[calc(100vw-16px)] max-h-(--radix-popover-content-available-height)',
+            deO && deOPop,
           )}
         >
           <ComboboxPanel
@@ -691,11 +749,12 @@ export function OSuaKhach({
   const { gt, luu } = useLacQuan(value, onLuu, ma, truong, (v) => `${ma}: ${truong} → ${v?.ten ?? '—'}`)
   const id = useId()
   const [mo, setMo] = useState(false)
+  const deO = useDeO()
   return (
     <NeoO>
       <Popover open={mo} onOpenChange={setMo}>
         <PopoverTrigger asChild>
-          <button type="button" className={oSua} aria-label={`Sửa ${truong} ${ma}`} aria-describedby={id}>
+          <button type="button" className={cn(oSua, deO && oSuaDeO)} aria-label={`Sửa ${truong} ${ma}`} aria-describedby={id}>
             <span id={id} className={khach}>
               {children ?? (
                 <>
@@ -711,7 +770,7 @@ export function OSuaKhach({
             <CaretDown aria-hidden="true" className={oSuaMui} />
           </button>
         </PopoverTrigger>
-        <PopoverContent aria-label={`Chọn ${truong}`} className={cn(menuContent, recordPickerKhung)}>
+        <PopoverContent aria-label={`Chọn ${truong}`} {...(deO ? DE_O_TIM : {})} className={cn(menuContent, recordPickerKhung)}>
           <RecordPicker
             muc={muc}
             tim={tim}

@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { Badge } from './badge'
 import { DsRoot } from './ds-root'
 import { OSuaChu, OSuaHan, OSuaNguoi, OSuaNhan, OSuaTrangThai } from './inline-edit'
+import { PropertyList, PropertyRow } from './property-list'
 import { thongBao } from './sonner'
 
 // Giờ VN cho cả file (ô hạn): đặt trước mọi import.
@@ -188,6 +189,50 @@ test('OSuaTrangThai: Badge soft theo màu + caret bên trong; chọn "Đang xử
   expect(xong.mock.calls[0][0]).toBe('TK-1 → Đang xử lý')
   expect(o.textContent).toBe('Đang xử lý')
   expect(moDong).not.toHaveBeenCalled()
+})
+
+test('OSuaTrangThai `nhom`: menu chia nhóm có tiêu đề (học Notion To-do · In progress · Complete)', async () => {
+  const user = userEvent.setup()
+  render(
+    <Dong>
+      <OSuaTrangThai
+        ma="TK-1"
+        value={{ tt: 'a' }}
+        muc={[
+          { gt: 'a', nhan: 'Cần làm', nhom: 'Chưa làm' },
+          { gt: 'b', nhan: 'Đang làm', nhom: 'Đang làm' },
+          { gt: 'c', nhan: 'Chờ duyệt', nhom: 'Đang làm' },
+          { gt: 'd', nhan: 'Xong', nhom: 'Xong' },
+        ]}
+        onLuu={() => {}}
+      />
+    </Dong>,
+  )
+  await user.click(nut('Sửa trạng thái TK-1'))
+  const menu = await screen.findByRole('menu')
+  const chu = [...menu.querySelectorAll('[data-slot="dropdown-menu-label"], [role="menuitemradio"]')].map((e) => e.textContent)
+  expect(chu).toEqual(['Chưa làm', 'Cần làm', 'Đang làm', 'Đang làm', 'Chờ duyệt', 'Xong', 'Xong'])
+  expect(menu.querySelectorAll('[role="separator"]').length).toBe(2)
+})
+
+test('trong PropertyRow → "đè ô": nút giãn cả ô, popup có dòng đầu = giá trị đang chọn (ẩn với trình đọc), lùi lên đè ô', async () => {
+  const user = userEvent.setup()
+  render(
+    <DsRoot>
+      <PropertyList>
+        <PropertyRow nhan="Ưu tiên">
+          <OSuaNhan ma="TK-1" truong="ưu tiên" value="P3" muc={UU} onLuu={() => {}} />
+        </PropertyRow>
+      </PropertyList>
+    </DsRoot>,
+  )
+  const o = nut('Sửa ưu tiên TK-1')
+  expect(o.closest('[data-slot="inline-edit"]')!.hasAttribute('data-de-o')).toBe(true)
+  await user.click(o)
+  const menu = await screen.findByRole('menu')
+  const dau = menu.firstElementChild as HTMLElement
+  expect(dau.getAttribute('aria-hidden')).toBe('true')
+  expect(dau.textContent).toBe('Thường')
 })
 
 test('OSuaTrangThai: chọn "Chờ" hỏi lý do (khách · KT · vật tư · hãng · duyệt), chọn "KT" → lưu cả lý do', async () => {

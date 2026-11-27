@@ -305,6 +305,26 @@ test('XemNhanh: thẻ có tên, nội dung trống ghi "chưa chốt"; ↑↓ l�
   expect(onDong).toHaveBeenCalledTimes(2)
 })
 
+test('XemNhanh: Ctrl+Enter = bấm ⤢ mở toàn trang (học Notion); đang gõ trong ô thì nhường; tooltip ghi phím', async () => {
+  const user = userEvent.setup()
+  const bam = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+  render(
+    <DsRoot>
+      <XemNhanh the={{ ma: 'T-101', moTrang: '/viec/101' }} onDong={() => {}}>
+        <input aria-label="Ô gõ" />
+      </XemNhanh>
+    </DsRoot>,
+  )
+  const link = screen.getByRole('link', { name: 'Mở toàn trang T-101' })
+  expect(link.getAttribute('aria-keyshortcuts')).toBe('Control+Enter')
+  await user.keyboard('{Control>}{Enter}{/Control}')
+  expect(bam).toHaveBeenCalledTimes(1)
+  await user.click(screen.getByRole('textbox', { name: 'Ô gõ' }))
+  await user.keyboard('{Control>}{Enter}{/Control}')
+  expect(bam).toHaveBeenCalledTimes(1)
+  bam.mockRestore()
+})
+
 test('XemNhanh: không có thẻ → không render khung, không nghe phím', async () => {
   const user = userEvent.setup()
   const onSau = vi.fn()

@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { DeO } from './de-o'
 import { propsEmpty, propsList, propsTerm, propsTitle, propsValue } from './detail-styles'
 
 /**
@@ -12,7 +13,7 @@ import { propsEmpty, propsList, propsTerm, propsTitle, propsValue } from './deta
  *   hình vẫn nghe "Chưa có".
  * - Icon trước nhãn: đặt `<Icon aria-hidden />` (Phosphor) trong `nhan` — cỡ token icon xs tự áp.
  * - Giá trị sửa tại chỗ: đặt `InlineEdit`/`Select`/`Combobox` của DS làm con của `PropertyRow` (ô sửa tự mang tên
- *   "Sửa <nhãn>").
+ *   "Sửa <nhãn>"). Ô InlineEdit trong PropertyRow mở kiểu "đè ô" (`DeO` — học Notion 27/11).
  */
 export function PropertyList({
   tieuDe,
@@ -55,7 +56,7 @@ export function PropertyRow({ nhan, trong, children }: { nhan: ReactNode; trong?
             )}
           </span>
         ) : (
-          children
+          <DeO>{children}</DeO>
         )}
       </dd>
     </>
