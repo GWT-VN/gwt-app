@@ -69,7 +69,8 @@ export function moiSdtCuoi(s: string): string {
 export const boDaLap = (s: string): string =>
   s.replace(/(\n\s*\n\s*)dạ(?!\p{L})[\s,]*(\p{L})/giu, (_, cach: string, chu: string) => `${cach}${chu.toUpperCase()}`);
 
-const TRAN_DOAN = 900;
+// Trần an toàn, KHÔNG phải cắt nội dung: đoạn dài nhất trong chatbot.chunks đo 2026-11-27 là 3.078 ký tự (p95 2.473). 900 cũ cắt mất ~40% chữ kiến thức.
+const TRAN_DOAN = 3200;
 
 // OpenAI strict: mọi object additionalProperties false + required đủ khoá.
 const obj = (properties: Record<string, unknown>) => ({ type: "object" as const, additionalProperties: false, required: Object.keys(properties), properties });
@@ -168,6 +169,7 @@ export function dungLoiDanTuTra(hotline: string): string {
     "Cần dữ kiện thì DÙNG CÔNG CỤ trước khi viết: tra_may khi khách nói tới một máy, bang_gia khi khách hỏi giá chưa rõ máy, tim_tai_lieu cho chính sách, lắp đặt, bảo hành, kỹ thuật, nguồn nước. Có thể gọi nhiều công cụ một lúc.",
     // Đo 2026-11-26: khách «Cao quá» → nháp «anh cứ tham khảo thêm» dù kho có cách NV xử lý khi khách chê lọc tổng đắt.
     "Khách bày tỏ thái độ hay phản hồi (chê giá cao, phân vân, so sánh với nơi khác, chưa cần, lo ngại) cũng tra tim_tai_lieu tình huống đó trước khi viết — kho có cách nhân viên GWT thường xử lý; trả lời theo đó, đừng chỉ đáp xã giao.",
+    "KHÔNG chê, hạ thấp hay xếp hạng thương hiệu, sản phẩm hoặc nơi bán khác — kể cả khi tài liệu có câu chê. Khách so sánh thì ghi nhận bên kia, nói điểm mạnh của GE và gợi ý chọn theo nhu cầu, nguồn nước.",
     "MỌI con số (giá, thông số, thời gian, phần trăm, số năm bảo hành) CHỈ được lấy từ kết quả công cụ, chép đúng dạng (vd 22.950.000 đ). Không tra được thì nói em kiểm tra rồi báo lại — không đoán, không làm tròn.",
     "Khi gọi chot_tra_loi, ghi can_cu cho MỖI con số và mỗi khẳng định về sản phẩm (thông số, tính năng, mô tả máy), chính sách, khuyến mãi, quà tặng trong tra_loi: y = ý đó, trich = đoạn chép NGUYÊN VĂN từ kết quả công cụ (hoặc hội thoại, lời dặn) — không sửa chữ, không rút gọn bằng \"…\". Ý không chép được nguyên văn nghĩa là không có dữ liệu: BỎ ý đó khỏi tra_loi. Câu hỏi lại khách, mời để số, chuyển nhân viên không cần căn cứ.",
     "Khi gọi chot_tra_loi, ghi `xung_ho`: cách gọi khách suy từ hội thoại theo luật GIỌNG (goi = cách gọi khách, xung = em hoặc chau khi xưng cháu); có dòng \"Cách gọi khách đã biết\" mà hội thoại không cho thấy khác thì giữ nguyên.",
