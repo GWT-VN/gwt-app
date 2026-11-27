@@ -29,7 +29,7 @@ export default async function PhanQuyenPage() {
             <AlertTitle>⚡ Ma trận ĐANG LÀ LUẬT THẬT — bỏ tick một ô là người đó mất việc đó ngay.</AlertTitle>
             <AlertDescription>
               Không còn chạy thử. Muốn quay về luật cũ thì đặt biến môi trường
-              <code className="mx-1 text-[11px]">MA_TRAN_QUYEN=off</code> rồi khởi động lại — mất khoảng một
+              <code className="mx-1 text-xs">MA_TRAN_QUYEN=off</code> rồi khởi động lại — mất khoảng một
               phút, không cần deploy lại.
             </AlertDescription>
           </Alert>

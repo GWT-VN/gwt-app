@@ -1,6 +1,8 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { thGhim } from '@/components/ui/table-styles'
+import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
@@ -29,7 +31,7 @@ const TEN_COT: Record<VaiTro, string> = {
   marketing: 'MKT', kho: 'Kho', ke_toan: 'Kế toán', tai_chinh: 'Tài chính',
 }
 
-const GHIM = 'sticky left-0 z-20 bg-inherit border-r'
+/** Ma trận quyền × vai trò — chỉ kiểu ô Table DS (không thanh công cụ): cột "Được làm gì" dính trái khi kéo ngang. */
 
 export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
   const [ghiDe, setGhiDe] = useState<Record<string, boolean>>({})
@@ -71,18 +73,19 @@ export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
     <div className="space-y-2">
       {loi && <Alert color="danger"><AlertDescription>{loi}</AlertDescription></Alert>}
 
-      <TableWrap vien tabIndex={0} aria-label="Ma trận quyền">
+      <TableWrap vien tabIndex={0} role="region" aria-label="Vùng cuộn ma trận quyền">
         <Table variant="thuong" aria-label="Ma trận quyền">
           <TableHeader>
-            <TableRow className="bg-muted">
-              <TableHead className={`${GHIM} bg-muted text-left px-3 py-2 font-medium border-b`}>
+            <TableRow>
+              <TableHead scope="col" className={cn(thGhim, 'z-2')}>
                 Được làm gì
               </TableHead>
               {VAI_TRO.map((v) => (
                 <TableHead
                   key={v}
+                  scope="col"
                   title={`${NHAN_VAI_TRO[v]} · ${NHAN_BO_PHAN[HO_SO_VAI_TRO[v].boPhan]}`}
-                  className="px-2 py-2 text-[11px] font-medium border-b border-l text-center whitespace-nowrap"
+                  className="text-center"
                 >
                   {TEN_COT[v]}
                 </TableHead>
@@ -93,19 +96,17 @@ export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
           <TableBody>
             {NHOM_QUYEN.map(({ nhom, ds }) => (
               <Fragment key={nhom}>
-                  <TableRow className="bg-muted/70">
-                    <TableCell
-                      className={`${GHIM} bg-muted/70 px-3 py-1.5 text-xs font-medium text-muted-foreground border-b`}
-                    >
+                  <TableRow>
+                    <TableCell ghim className="text-xs font-semibold text-muted-foreground">
                       {NHAN_NHOM[nhom]}
                     </TableCell>
-                    <TableCell colSpan={VAI_TRO.length} className="border-b border-l bg-muted/70" />
+                    <TableCell colSpan={VAI_TRO.length} />
                   </TableRow>
                   {ds.map((q) => (
-                    <TableRow key={q} className="bg-card hover:bg-muted/70">
-                      <TableCell className={`${GHIM} bg-card px-3 py-1.5 border-b`}>
+                    <TableRow key={q}>
+                      <TableCell ghim className="h-auto py-2">
                         <div className="text-foreground">{HO_SO_QUYEN[q].nhan}</div>
-                        <div className="text-[10px] font-mono text-muted-foreground">{q}</div>
+                        <div className="font-mono text-xs text-muted-foreground">{q}</div>
                       </TableCell>
                       {VAI_TRO.map((v) =>
                         // Cột Quản trị: vẽ dấu tích đặc thay vì ô khoá. Ô checkbox bị
@@ -114,12 +115,12 @@ export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
                           <TableCell
                             key={v}
                             title="Quản trị hệ thống luôn có toàn quyền"
-                            className="px-2 py-1.5 border-b border-l text-center bg-muted text-muted-foreground"
+                            className="text-center text-muted-foreground"
                           >
                             ✓
                           </TableCell>
                         ) : (
-                          <TableCell key={v} className="px-2 py-1.5 border-b border-l text-center">
+                          <TableCell key={v} className="text-center">
                             <Checkbox
                               aria-label={`${NHAN_VAI_TRO[v]} — ${HO_SO_QUYEN[q].nhan}`}
                               checked={coQuyen(v, q)}
@@ -133,12 +134,12 @@ export function MaTranQuyen({ maTran }: { maTran: Record<string, MaQuyen[]> }) {
               </Fragment>
             ))}
 
-            <TableRow className="bg-muted/70">
-              <TableCell className={`${GHIM} bg-muted/70 px-3 py-2 text-xs text-muted-foreground border-t`}>
+            <TableRow>
+              <TableCell ghim className="text-xs text-muted-foreground">
                 Trả vai trò về mặc định
               </TableCell>
               {VAI_TRO.map((v) => (
-                <TableCell key={v} className="px-1 py-2 border-t border-l text-center">
+                <TableCell key={v} className="text-center">
                   <Button variant="ghost" size="sm"
                     type="button"
                     disabled={v === 'admin'}

@@ -60,21 +60,21 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
                 <Table variant="thuong">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="px-3 py-2.5 font-medium">Sản phẩm</TableHead>
-                      <TableHead className="px-3 py-2.5 font-medium">Mã nội bộ</TableHead>
-                      <TableHead className="px-3 py-2.5 font-medium">Danh mục</TableHead>
-                      <TableHead className="px-3 py-2.5 text-right font-medium">SL</TableHead>
-                      {!laDonTang && <TableHead className="px-3 py-2.5 text-right font-medium" title="Đơn giá ĐÃ GỒM VAT">Đơn giá<span className="ml-0.5 font-normal text-muted-foreground">(gồm VAT)</span></TableHead>}
-                      {!laDonTang && <TableHead className="px-3 py-2.5 text-right font-medium" title="Giá niêm yết 1 đơn vị, đã gồm VAT">Niêm yết</TableHead>}
-                      {!laDonTang && <TableHead className="px-3 py-2.5 text-right font-medium" title="(giá niêm yết × SL) − thành tiền">Khuyến mãi</TableHead>}
-                      {!laDonTang && <TableHead className="px-3 py-2.5 text-right font-medium">VAT</TableHead>}
-                      {!laDonTang && <TableHead className="px-3 py-2.5 text-right font-medium">Thành tiền</TableHead>}
+                      <TableHead>Sản phẩm</TableHead>
+                      <TableHead>Mã nội bộ</TableHead>
+                      <TableHead>Danh mục</TableHead>
+                      <TableHead phai>SL</TableHead>
+                      {!laDonTang && <TableHead phai title="Đơn giá ĐÃ GỒM VAT">Đơn giá<span className="ml-0.5 font-normal text-muted-foreground">(gồm VAT)</span></TableHead>}
+                      {!laDonTang && <TableHead phai title="Giá niêm yết 1 đơn vị, đã gồm VAT">Niêm yết</TableHead>}
+                      {!laDonTang && <TableHead phai title="(giá niêm yết × SL) − thành tiền">Khuyến mãi</TableHead>}
+                      {!laDonTang && <TableHead phai>VAT</TableHead>}
+                      {!laDonTang && <TableHead phai>Thành tiền</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {don.lines.map((l) => (
-                      <TableRow key={l.key} className="hover:bg-muted">
-                        <TableCell className="px-3 py-2.5 text-foreground">
+                      <TableRow key={l.key}>
+                        <TableCell className="text-foreground">
                           <span className="inline-flex items-center gap-2">
                             {l.product_name || '—'}
                             {l.is_gift && (
@@ -82,17 +82,17 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
                             )}
                           </span>
                         </TableCell>
-                        <TableCell className="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-muted-foreground">{l.internal_code || '—'}</TableCell>
-                        <TableCell className="px-3 py-2.5 text-muted-foreground">{[l.category_l1, l.category_l2].filter(Boolean).join(' / ') || '—'}</TableCell>
-                        <TableCell className="px-3 py-2.5 text-right text-foreground">{fmtQty(l.quantity)}</TableCell>
-                        {!laDonTang && <TableCell className="px-3 py-2.5 text-right text-foreground">{fmtVnd(l.unit_price_vat)}</TableCell>}
+                        <TableCell className="whitespace-nowrap font-mono text-xs text-muted-foreground">{l.internal_code || '—'}</TableCell>
+                        <TableCell className="text-muted-foreground">{[l.category_l1, l.category_l2].filter(Boolean).join(' / ') || '—'}</TableCell>
+                        <TableCell phai className="text-foreground">{fmtQty(l.quantity)}</TableCell>
+                        {!laDonTang && <TableCell phai className="text-foreground">{fmtVnd(l.unit_price_vat)}</TableCell>}
                         {!laDonTang && (
-                          <TableCell className="px-3 py-2.5 text-right text-muted-foreground">
+                          <TableCell phai className="text-muted-foreground">
                             {l.gia_niem_yet == null ? <span title="Mã này chưa có trong bảng giá niêm yết">—</span> : fmtVnd(l.gia_niem_yet)}
                           </TableCell>
                         )}
                         {!laDonTang && (
-                          <TableCell className="px-3 py-2.5 text-right">
+                          <TableCell phai>
                             {l.khuyen_mai == null ? (
                               <span className="text-slate-300" title={l.is_gift ? 'Dòng quà — theo dõi ở cột Tặng' : 'Chưa có giá niêm yết cho mã này'}>—</span>
                             ) : l.khuyen_mai > 0 ? (
@@ -105,11 +105,11 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
                           </TableCell>
                         )}
                         {!laDonTang && (
-                          <TableCell className="px-3 py-2.5 text-right text-muted-foreground">
+                          <TableCell phai className="text-muted-foreground">
                             {nhanVat(l.vat_pct, l.vat_loai)}
                           </TableCell>
                         )}
-                        {!laDonTang && <TableCell className="px-3 py-2.5 text-right font-medium text-foreground">{fmtVnd(l.amount_vat)}</TableCell>}
+                        {!laDonTang && <TableCell phai className="font-medium text-foreground">{fmtVnd(l.amount_vat)}</TableCell>}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -118,16 +118,16 @@ export default async function ChiTietDonPage({ params }: { params: Promise<{ cod
                   {!laDonTang && (
                   <TableFooter className="border-t border-border bg-muted">
                     <TableRow>
-                      <TableCell colSpan={8} className="px-3 py-2 text-right text-muted-foreground">Tổng trước VAT</TableCell>
-                      <TableCell className="px-3 py-2 text-right text-foreground">{fmtVnd(don.total_net)}</TableCell>
+                      <TableCell phai colSpan={8} className="text-muted-foreground">Tổng trước VAT</TableCell>
+                      <TableCell phai className="text-foreground">{fmtVnd(don.total_net)}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={8} className="px-3 py-2 text-right text-muted-foreground">Tiền VAT</TableCell>
-                      <TableCell className="px-3 py-2 text-right text-foreground">{fmtVnd(don.total_vat_tien)}</TableCell>
+                      <TableCell phai colSpan={8} className="text-muted-foreground">Tiền VAT</TableCell>
+                      <TableCell phai className="text-foreground">{fmtVnd(don.total_vat_tien)}</TableCell>
                     </TableRow>
                     <TableRow className="border-t border-border">
-                      <TableCell colSpan={8} className="px-3 py-2.5 text-right font-medium text-foreground">Tổng sau VAT</TableCell>
-                      <TableCell className="px-3 py-2.5 text-right text-base font-semibold text-foreground">{fmtVnd(don.total_vat)}</TableCell>
+                      <TableCell phai colSpan={8} className="font-medium text-foreground">Tổng sau VAT</TableCell>
+                      <TableCell phai className="text-base font-semibold text-foreground">{fmtVnd(don.total_vat)}</TableCell>
                     </TableRow>
                   </TableFooter>
                   )}

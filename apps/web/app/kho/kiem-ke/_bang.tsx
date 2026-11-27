@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Combobox } from '@/components/ui/combobox'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 import type { MucDanhMuc } from '@/lib/kho/doc'
@@ -93,10 +94,10 @@ export function BangKiemKe({ kho, dong, danhMuc }: { kho: string; dong: DongKiem
                 {ketQua.map((x) => (
                   <TableRow key={x.internal_code}>
                     <TableCell className="min-w-36 whitespace-normal">
-                      <div className="font-mono text-[13px]">{x.internal_code}</div>
+                      <div className="font-mono">{x.internal_code}</div>
                       <div className="text-muted-foreground">{tenCua(x.internal_code)}</div>
                     </TableCell>
-                    <TableCell className={`text-right font-semibold ${x.chenh > 0 ? 'text-(--color-text-success)' : x.chenh < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    <TableCell phai className={`font-semibold ${x.chenh > 0 ? 'text-(--color-text-success)' : x.chenh < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {x.chenh === 0 ? 'Khớp' : (x.chenh > 0 ? '+' : '') + so(x.chenh)}
                     </TableCell>
                     <TableCell phai>{so(x.ton_truoc)}</TableCell>
@@ -138,21 +139,20 @@ export function BangKiemKe({ kho, dong, danhMuc }: { kho: string; dong: DongKiem
                 <TableHead phai scope="col">Tồn sổ</TableHead><TableHead phai scope="col">SL đếm</TableHead><TableHead phai scope="col">Chênh (dự kiến)</TableHead></TableRow>
             </TableHeader>
             <TableBody>
-              {!hien.length && <TableRow><TableCell colSpan={6} className="px-3 py-10 text-center text-muted-foreground">Không có mã nào khớp.</TableCell></TableRow>}
               {hien.map((d) => {
                 const v = dem[d.ma] ?? ''
                 const n = v.trim() === '' ? null : Number(v.replace(',', '.'))
                 const chenh = n !== null && Number.isFinite(n) ? n - (d.ton ?? 0) : null
                 return (
                   <TableRow key={d.ma} chon={v !== ''}>
-                    <TableCell className="font-mono text-[13px]">{d.ma}</TableCell>
+                    <TableCell className="font-mono">{d.ma}</TableCell>
                     <TableCell className="whitespace-normal">{d.ten ?? ''}</TableCell>
                     <TableCell className="text-muted-foreground">{d.don_vi ?? ''}</TableCell>
-                    <TableCell className={`text-right ${d.ton !== null && d.ton < 0 ? 'text-destructive' : ''}`}>{d.ton === null ? <span className="text-muted-foreground">0 (mới)</span> : so(d.ton)}</TableCell>
+                    <TableCell phai className={`${d.ton !== null && d.ton < 0 ? 'text-destructive' : ''}`}>{d.ton === null ? <span className="text-muted-foreground">0 (mới)</span> : so(d.ton)}</TableCell>
                     <TableCell phai>
                       <Input inputMode="decimal" className="ml-auto w-24 text-right" value={v} onChange={(e) => setDem((x) => ({ ...x, [d.ma]: e.target.value }))} aria-label={`SL đếm ${d.ma}`} />
                     </TableCell>
-                    <TableCell className={`text-right text-xs ${chenh ? (chenh > 0 ? 'text-(--color-text-success)' : 'text-destructive') : 'text-muted-foreground'}`}>
+                    <TableCell phai className={`text-xs ${chenh ? (chenh > 0 ? 'text-(--color-text-success)' : 'text-destructive') : 'text-muted-foreground'}`}>
                       {chenh === null ? '' : chenh === 0 ? 'khớp' : (chenh > 0 ? '+' : '') + so(chenh)}
                     </TableCell>
                   </TableRow>
@@ -161,6 +161,7 @@ export function BangKiemKe({ kho, dong, danhMuc }: { kho: string; dong: DongKiem
             </TableBody>
           </Table>
       </TableWrap>
+      {!hien.length && <EmptyState size="sm" kieu={q.trim() ? 'loc' : 'that'} tieuDe={q.trim() ? 'Không có mã nào khớp' : 'Chưa có mã nào trong sổ'} moTa={q.trim() ? 'Đổi từ khoá lọc, hoặc thêm mã chưa có trong bảng.' : undefined} />}
     </div>
   )
 }

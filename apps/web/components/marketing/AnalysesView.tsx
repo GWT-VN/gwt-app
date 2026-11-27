@@ -1,12 +1,14 @@
 "use client";
 
+import type { TabView } from "@/app/actions";
+import { TAB_VIDEO, TRUONG_VIDEO } from "@/app/wiki/marketing/du-lieu/truong-mkt";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 import { SheetTitle } from "@/components/ui/sheet";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { BangMkt, type CotMkt } from "./BangMkt";
 import Drawer from "./Drawer";
 import { NameButton } from "./ads/shared";
 import { CatBadge, Chips, Field, MetricGrid } from "./DetailBits";
@@ -16,78 +18,66 @@ import { Icon } from "@/lib/marketing/icons";
 import Highlights from "./Highlights";
 import { ts } from "@/lib/marketing/transcript";
 import { hienNgay } from "@/lib/dinh-dang-ngay";
+import type { CotDanhSach } from "@/components/ui/list-view";
 
-const FILTERS = ["all", "A1", "A2", "A3", "A4", "A5"] as const;
+const ten = (r: AnalysisRow) => r.video_title || "(chưa đặt tiêu đề)";
 
-export default function AnalysesView({ rows }: { rows: AnalysisRow[] }) {
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("all");
+export default function AnalysesView({ rows, tabRieng = [], coTab = false, quyenTabChung = false }: {
+  rows: AnalysisRow[];
+  tabRieng?: TabView[];
+  coTab?: boolean;
+  quyenTabChung?: boolean;
+}) {
   const [openId, setOpenId] = useState<number | null>(null);
-
-  const shown = useMemo(
-    () => (filter === "all" ? rows : rows.filter((r) => cat5a(r.content_category) === filter)),
-    [rows, filter],
-  );
   const current = rows.find((r) => r.id === openId) ?? null;
+
+  const cot: CotMkt<AnalysisRow>[] = [
+    { id: "video", ten: "Video", kieu: "sap", khoa: true, toiThieu: 200, rongToiDa: 360, sap: ten, chu: ten,
+      nghia: { tang: "Tên từ A đến Z", giam: "Tên từ Z đến A" },
+      o: (r) => <NameButton onOpen={() => setOpenId(r.id)}>{ten(r)}</NameButton> },
+    { id: "kenh", ten: "Kênh", kieu: "sap", rongToiDa: 200, sap: (r) => r.channel_name, chu: (r) => r.channel_name,
+      nghia: { tang: "Kênh từ A đến Z", giam: "Kênh từ Z đến A" }, o: (r) => r.channel_name || "—" },
+    { id: "nen_tang", ten: "Nền tảng", kieu: "sap", sap: (r) => platformLabel(r.platform),
+      nghia: { tang: "Từ A đến Z", giam: "Từ Z đến A" }, o: (r) => platformLabel(r.platform) },
+    { id: "tuyen", ten: "Tuyến", kieu: "sap", sap: (r) => cat5a(r.content_category),
+      nghia: { tang: "A1 trước", giam: "A5 trước" }, o: (r) => <CatBadge cat={cat5a(r.content_category)} /> },
+    { id: "hook", ten: "Hook", kieu: "thuong", rongToiDa: 220, chu: (r) => r.hook_type, o: (r) => r.hook_type || "—" },
+    { id: "keu_goi", ten: "Kêu gọi", kieu: "thuong", phai: true,
+      o: (r) => (r.extract.ctas.length ? `${r.extract.ctas.length} câu` : "—") },
+    { id: "viral", ten: "Viral", kieu: "thuong",
+      o: (r) => (r.is_viral
+        ? <Badge variant="soft" color="success">Viral</Badge>
+        : <Badge variant="soft" color="secondary">Chưa</Badge>) },
+    { id: "chi_so", ten: "Chỉ số", kieu: "sap", phai: true, sap: (r) => headlineMetric(r.metrics),
+      nghia: { tang: "Nhỏ trước", giam: "Lớn trước" }, o: (r) => fmt(headlineMetric(r.metrics)) },
+  ];
+  const cotDs: CotDanhSach<AnalysisRow>[] = [
+    { id: "video", ten: "Video", rong: "minmax(0,2fr)", dienThoai: "tren", o: ten },
+    { id: "kenh", ten: "Kênh", rong: "minmax(0,1fr)", dienThoai: "duoi", o: (r) => r.channel_name || "—" },
+    { id: "chi_so", ten: "Chỉ số", rong: "minmax(0,1fr)", phai: true, dienThoai: "duoiPhai", o: (r) => fmt(headlineMetric(r.metrics)) },
+  ];
 
   return (
     <>
-      <div className="toolbar">
-        {FILTERS.map((f) => {
-          const n = f === "all" ? rows.length : rows.filter((r) => cat5a(r.content_category) === f).length;
-          return (
-            <Button
-              key={f}
-              size="sm" variant={filter === f ? "default" : "outline"}
-              onClick={() => setFilter(f)}
-              aria-pressed={filter === f}
-            >
-              {f === "all" ? "Tất cả" : f} <span style={{ opacity: 0.65 }}>{n}</span>
-            </Button>
-          );
-        })}
-      </div>
-
-      {shown.length === 0 ? (
-        <EmptyState kieu="loc" tieuDe={<>Không có video nào ở tuyến {filter}.</>} />
-      ) : (
-        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách video đã phân tích">
-          <Table aria-label="Danh sách video đã phân tích" variant="thuong" className="min-w-[640px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Video</TableHead><TableHead>Nền tảng</TableHead><TableHead>Tuyến</TableHead><TableHead>Hook</TableHead><TableHead>Kêu gọi</TableHead><TableHead>Viral</TableHead>
-                <TableHead style={{ textAlign: "right" }}>Chỉ số</TableHead><TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {shown.map((r) => (
-                <TableRow key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
-                  <TableCell className="td-title">
-                    <NameButton onOpen={() => setOpenId(r.id)}>{r.video_title || "(chưa đặt tiêu đề)"}</NameButton>
-                    <small>{r.channel_name || "—"}</small>
-                  </TableCell>
-                  <TableCell><span className="tag">{platformLabel(r.platform)}</span></TableCell>
-                  <TableCell><CatBadge cat={cat5a(r.content_category)} /></TableCell>
-                  <TableCell style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>{r.hook_type || "—"}</TableCell>
-                  <TableCell>
-                    {r.extract.ctas.length ? (
-                      <span className="chip mono" style={{ fontSize: ".68rem" }}>{r.extract.ctas.length} câu</span>
-                    ) : (
-                      <span style={{ color: "var(--ink-3)", fontSize: ".78rem" }}>—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {r.is_viral
-                      ? <span className="pill-viral">● Viral</span>
-                      : <span className="pill-not">Chưa</span>}
-                  </TableCell>
-                  <TableCell className="num-cell" style={{ textAlign: "right" }}>{fmt(headlineMetric(r.metrics))}</TableCell>
-                  <TableCell className="row-arrow">›</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableWrap>
-      )}
+      <BangMkt
+        bang="mkt_video_tab"
+        tieuDe="Video đã phân tích"
+        nhan="video"
+        viDuTen="VD: A2 TikTok viral"
+        rows={rows}
+        khoa={(r) => String(r.id)}
+        cot={cot}
+        cotDs={cotDs}
+        truong={TRUONG_VIDEO}
+        tabCoDinh={TAB_VIDEO}
+        timTrong={(r) => [r.video_title, r.channel_name, r.hook_type].filter(Boolean).join(" ")}
+        onMo={(r) => setOpenId(r.id)}
+        tabRieng={tabRieng}
+        coTab={coTab}
+        quyenTabChung={quyenTabChung}
+        timGoiY="Tiêu đề, kênh, hook…"
+        rongThat={{ tieuDe: "Chưa có video nào được phân tích", moTa: "Video mẫu mổ theo khung 5A/PAAST sẽ hiện ở đây." }}
+      />
 
       <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (

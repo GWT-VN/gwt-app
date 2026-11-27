@@ -79,7 +79,7 @@ export default function AdsResultsView({ weeks }: { weeks: AdsWeek[] }) {
         .cpr-cell { padding: 4px 2px !important }
         .ads-delta { font-weight: 700; font-size: .8rem }
         .ads-delta-good { color: var(--good) }
-        .ads-delta-bad { color: #c0392b }
+        .ads-delta-bad { color: var(--color-text-danger) }
         .ads-row { cursor: pointer }
         .ads-row:hover td { background: var(--surface-2) }
         .ads-sub td:first-child { padding-left: 26px; color: var(--ink-2); font-size: .8rem }
@@ -87,7 +87,6 @@ export default function AdsResultsView({ weeks }: { weeks: AdsWeek[] }) {
         .ads-note { white-space: normal; max-width: 260px }
         .sdt-val { font-weight: 600; color: var(--good) }
         .week-label { font-size: .66rem; white-space: nowrap }
-        table th { font-size: .72rem; white-space: nowrap }
         .ad-name-col { white-space: nowrap }
         .inactive-table { opacity: 0.7 }
         .ads-picker { max-width: 460px; margin-bottom: 14px }

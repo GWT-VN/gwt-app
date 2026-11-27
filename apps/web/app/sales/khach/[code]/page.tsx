@@ -127,19 +127,19 @@ export default async function ChiTietKhachPage({
               <Table variant="thuong">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="px-3 py-2.5 font-medium">Ngày</TableHead>
-                    <TableHead className="px-3 py-2.5 font-medium">Đơn</TableHead>
-                    <TableHead className="px-3 py-2.5 font-medium">Sản phẩm</TableHead>
-                    <TableHead className="px-3 py-2.5 font-medium">Mã nội bộ</TableHead>
-                    <TableHead className="px-3 py-2.5 font-medium">Danh mục</TableHead>
-                    <TableHead className="px-3 py-2.5 text-right font-medium">SL</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Đơn</TableHead>
+                    <TableHead>Sản phẩm</TableHead>
+                    <TableHead>Mã nội bộ</TableHead>
+                    <TableHead>Danh mục</TableHead>
+                    <TableHead phai>SL</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {purchases.map((p) => (
-                    <TableRow key={p.key} className="hover:bg-muted">
-                      <TableCell className="whitespace-nowrap px-3 py-2.5 text-muted-foreground">{fmtDate(p.order_date)}</TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-2.5">
+                    <TableRow key={p.key}>
+                      <TableCell className="whitespace-nowrap text-muted-foreground">{fmtDate(p.order_date)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
                         {p.order_code ? (
                           <Link href={`/sales/don/${encodeURIComponent(p.order_code)}`} className="inline-flex items-center gap-1.5 text-(--color-text-info) hover:underline">
                             <TabBadge tab={p.source_tab} />
@@ -149,15 +149,15 @@ export default async function ChiTietKhachPage({
                           <TabBadge tab={p.source_tab} />
                         )}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-foreground">
+                      <TableCell className="text-foreground">
                         <span className="inline-flex items-center gap-2">
                           {p.product_name || '—'}
                           {p.is_gift && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700">Tặng</span>}
                         </span>
                       </TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-muted-foreground">{p.internal_code || '—'}</TableCell>
-                      <TableCell className="px-3 py-2.5 text-muted-foreground">{[p.category_l1, p.category_l2].filter(Boolean).join(' / ') || '—'}</TableCell>
-                      <TableCell className="px-3 py-2.5 text-right text-foreground">{fmtQty(p.quantity)}</TableCell>
+                      <TableCell className="whitespace-nowrap font-mono text-xs text-muted-foreground">{p.internal_code || '—'}</TableCell>
+                      <TableCell className="text-muted-foreground">{[p.category_l1, p.category_l2].filter(Boolean).join(' / ') || '—'}</TableCell>
+                      <TableCell phai className="text-foreground">{fmtQty(p.quantity)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

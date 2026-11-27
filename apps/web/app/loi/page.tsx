@@ -1,117 +1,85 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
-import { coreForecast, coreCounts, khoaTatCaLoi, listBangView } from '@/app/actions'
-import { OTimKiem } from '@/bang'
-import { ThanhDangLoc } from '@/bang'
-import { PhanTrang } from '@/bang'
-import { LocNgay } from '@/bang'
-import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { coreForecast, coreCounts, khoaTatCaLoi, listTabView } from '@/app/actions'
 import { KhungChon, ThanhDaChon } from '@/bang'
+import { docTatCa } from '@/bang/locTruong'
+import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ExportLoiButton } from '@/components/ExportLoiButton'
 import { BangLoi } from '@/components/BangLoi'
 import { ManV2 } from '@/components/khung/ManV2'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
-import { PageHeader } from '@/components/ui/page-header'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { khoangXuat } from '@/app/may/truong-may'
+import { SAP, TRUONG_LOI } from './truong-loi'
 
-const SAP = 'sắp đến hạn (≤30 ngày)'
-
+// Lịch thay lõi — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md).
 export default async function LoiPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tt?: string; trang?: string; cot?: string; chieu?: string; ngtu?: string; ngden?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }) {
-  const { q = '', tt, trang: trangRaw, cot, chieu, ngtu, ngden } = await searchParams
-  const tinhTrang = tt ?? SAP           // mặc định: danh sách gọi được NGAY
+  const { q = '', tt = '', han, trang: trangRaw, cot, chieu } = await searchParams
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const [{ rows, tong, soTrang, sapXep }, counts, quyen, views] = await Promise.all([
-    coreForecast(tinhTrang, q, { trang, cot, chieu, ngtu, ngden }),
+  const [{ rows, tong, soTrang, sapXep }, counts, quyen, tabRieng] = await Promise.all([
+    coreForecast(tt, q, { trang, cot, chieu, han }),
     coreCounts(),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       viewChung: ['he_thong.view_chung', 'QUANLY'],
       xuat: ['cs.bao_cao.xuat', 'QUANLY'],
     }),
-    listBangView('core'),
+    listTabView('loi_tab'),
   ])
-
-  const tabs = [
-    { key: SAP, label: `Sắp đến hạn (${counts[SAP] ?? 0})` },
-    { key: 'QUÁ HẠN', label: `Quá hạn (${counts['QUÁ HẠN'] ?? 0})` },
-    { key: 'còn hạn', label: `Còn hạn (${counts['còn hạn'] ?? 0})` },
-    { key: 'all', label: 'Tất cả' },
-  ]
+  // Đang xem lõi quá hạn (tab "Quá hạn" hoặc Lọc ▸ Tình trạng là Quá hạn) → nhắc đây là danh sách XÁC MINH.
+  const dkTt = docTatCa({ tt }, TRUONG_LOI)[0]
+  const xemQuaHan = dkTt?.phep === 'la' && dkTt.giaTri.includes('QUÁ HẠN')
 
   return (
     <ManV2>
       <TrangDuLieu>
-        <CauHinhBangDs>
-          <div className="min-w-0 space-y-4">
-            <PageHeader tieuDe="Lịch thay lõi" meta={["Lõi tới hạn thay theo từng máy"]} />
-
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">
+          <KhungChon
+            khoaTrang={rows.map((r) => `${r.serial}-${r.filter_code}`)}
+            tong={tong}
+            bat={quyen.hangLoat}
+            thamSo={{ q, tt, han, cot, chieu }}
+            layTatCaKhoa={khoaTatCaLoi}
+          >
             <Suspense>
-              <OTimKiem placeholder="Gõ serial, tên khách, SĐT, mã lõi…" />
+              <BangLoi
+                rows={rows}
+                tong={tong}
+                trang={trang}
+                soTrang={soTrang}
+                sapXep={sapXep}
+                choChon={quyen.hangLoat}
+                tabRieng={tabRieng}
+                quyenTabChung={quyen.viewChung}
+                demTab={{
+                  'tat-ca': counts['tat-ca'] ?? 0,
+                  sap: counts[SAP] ?? 0,
+                  'qua-han': counts['QUÁ HẠN'] ?? 0,
+                  'con-han': counts['còn hạn'] ?? 0,
+                }}
+                canhBao={
+                  xemQuaHan && (
+                    <Alert color="warning" className="mb-3">
+                      <AlertDescription>
+                        <strong>Đây KHÔNG phải danh sách gọi bán.</strong> Nhật ký thay lõi mới bắt đầu ghi, nên máy cũ nào
+                        chưa từng log đều hiện quá hạn — dù thực tế đã được thay rồi. Hãy dùng làm
+                        <strong> danh sách cần xác minh</strong>: gọi hỏi khách đã thay chưa, rồi bấm “Đã thay” kèm đúng ngày.
+                        Ghi dần thì con số này tự đúng lên.
+                      </AlertDescription>
+                    </Alert>
+                  )
+                }
+                xuatExcel={quyen.xuat && <ExportLoiButton tt={tt} q={q} {...khoangXuat(han)} />}
+                thanhDaChon={<ThanhDaChon nhan="dòng lõi" />}
+              />
             </Suspense>
-
-            <div className="flex gap-2 flex-wrap">
-              {tabs.map((t) => (
-                <Link
-                  key={t.key}
-                  href={`/loi?${new URLSearchParams({ ...(q && { q }), tt: t.key === 'all' ? '' : t.key })}`}
-                  className={`px-3 py-1.5 rounded-lg text-sm border ${
-                    tinhTrang === t.key || (t.key === 'all' && !tt && false)
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card text-muted-foreground'
-                  }`}
-                >
-                  {t.label}
-                </Link>
-              ))}
-            </div>
-
-            {tinhTrang === 'QUÁ HẠN' && (
-              <p className="text-sm bg-(--color-background-warning-surface) text-(--color-text-warning) rounded-lg px-3 py-2">
-                ⚠️ <strong>Đây KHÔNG phải danh sách gọi bán.</strong> Nhật ký thay lõi mới bắt đầu ghi, nên
-                máy cũ nào chưa từng log đều hiện quá hạn — dù thực tế đã được thay rồi. Hãy dùng làm
-                <strong> danh sách cần xác minh</strong>: gọi hỏi khách đã thay chưa, rồi bấm “Đã thay” kèm
-                đúng ngày. Ghi dần thì con số này tự đúng lên.
-              </p>
-            )}
-
-            <ThanhDangLoc
-              dieuKien={q ? [{ nhan: 'Từ khoá', giaTri: q }] : []}
-              hienThi={rows.length}
-              tong={tong}
-              nhan="dòng (máy × lõi)"
-              sapXep={sapXep}
-            />
-
-            {/* Khoá dòng phải là (serial, filter_code): một máy có NHIỀU lõi nên riêng
-                serial KHÔNG định danh được một dòng — trùng khoá là tick một ô sáng
-                nhiều ô. Đúng cặp khoá đang dùng cho React key và cho khoá phụ phân trang. */}
-
-            <KhungChon
-              khoaTrang={rows.map((r) => `${r.serial}-${r.filter_code}`)}
-              tong={tong}
-              bat={quyen.hangLoat}
-              // `tt` phải là tinhTrang ĐÃ GIẢI (mặc định SAP khi URL trống), không phải
-              // `tt` thô — nếu không, "chọn tất cả" sẽ ôm cả tab khác tab đang xem.
-              thamSo={{ q, tt: tinhTrang, cot, chieu, ngtu, ngden }}
-              layTatCaKhoa={khoaTatCaLoi}
-            >
-            <ThanhDaChon nhan="dòng lõi" />
-            <BangLoi rows={rows} choViewChung={quyen.viewChung} views={views} congCu={
-              <>
-                <Suspense><LocNgay nhan="Đến hạn" /></Suspense>
-                {quyen.xuat && <ExportLoiButton tt={tt} q={q} ngtu={ngtu} ngden={ngden} />}
-              </>
-            } />
-            </KhungChon>
-
-            <Suspense>
-              <PhanTrang trang={trang} soTrang={soTrang} />
-            </Suspense>
-          </div>
+          </KhungChon>
         </CauHinhBangDs>
       </TrangDuLieu>
     </ManV2>

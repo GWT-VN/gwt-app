@@ -32,7 +32,7 @@ export default function TrendTable({
 
   const cells = (periods: (PeriodStat | null)[], benchmark: number) =>
     periods.map((p, i) => (
-      <TableCell key={weeks[i].id} className="num-cell cpr-cell">
+      <TableCell key={weeks[i].id} phai>
         <CprPill cpr={costPerResult(p)} benchmark={benchmark} />
       </TableCell>
     ));
@@ -42,35 +42,38 @@ export default function TrendTable({
     if (g.camps.length === 1) {
       const c = g.camps[0];
       return (
-        <TableRow key={c.key} className="ads-row" onClick={() => onOpen(c.key)}>
-          <TableCell className="td-title ad-name-col">
+        <TableRow key={c.key} className="cursor-pointer" onClick={() => onOpen(c.key)}>
+          <TableCell>
             <NameButton onOpen={() => onOpen(c.key)}>{g.name}</NameButton>{" "}
             {badge(c)} <span className="ads-muted">lên {c.startDate}</span>
           </TableCell>
           {cells(c.periods, b)}
-          <TableCell className="num-cell">{sdtTotal(c.periods)}</TableCell>
+          <TableCell phai>{sdtTotal(c.periods)}</TableCell>
         </TableRow>
       );
     }
     return [
-      <TableRow key={g.key} className="ads-row" onClick={() => onOpen(g.key)}>
-        <TableCell className="td-title ad-name-col">
+      <TableRow key={g.key} className="cursor-pointer" onClick={() => onOpen(g.key)}>
+        <TableCell>
           <NameButton onOpen={() => onOpen(g.key)}>{g.name}</NameButton>{" "}
           <span className="ads-muted">{g.camps.length} camp</span>
         </TableCell>
         {cells(g.periods, b)}
-        <TableCell className="num-cell">{sdtTotal(g.periods)}</TableCell>
+        <TableCell phai>{sdtTotal(g.periods)}</TableCell>
       </TableRow>,
       ...g.camps.map((c) => (
-        <TableRow key={c.key} className="ads-row ads-sub" onClick={() => onOpen(c.key)}>
-          <TableCell className="ad-name-col">
-            <NameButton onOpen={() => onOpen(c.key)} ngu={g.name}>
-              <span aria-hidden="true">↳</span> lên {c.startDate}{c.name !== g.name && ` · ${c.name}`}
-            </NameButton>{" "}
+        <TableRow key={c.key} className="cursor-pointer" onClick={() => onOpen(c.key)}>
+          <TableCell>
+            {/* Dòng con thụt vào trong NỘI DUNG ô (không đè đệm ô DS). */}
+            <span className="inline-block ps-4">
+              <NameButton onOpen={() => onOpen(c.key)} ngu={g.name}>
+                <span aria-hidden="true">↳</span> lên {c.startDate}{c.name !== g.name && ` · ${c.name}`}
+              </NameButton>
+            </span>{" "}
             {badge(c)}
           </TableCell>
           {cells(c.periods, b)}
-          <TableCell className="num-cell">{sdtTotal(c.periods)}</TableCell>
+          <TableCell phai>{sdtTotal(c.periods)}</TableCell>
         </TableRow>
       )),
     ];
@@ -82,15 +85,15 @@ export default function TrendTable({
         <div className={`section-head ${muted ? "off" : "active"}`}>
           {title} ({list.length})
         </div>
-        <TableWrap vien role="region" tabIndex={0} aria-label="Xu hướng quảng cáo" className={muted ? "inactive-table" : undefined}>
-          <Table variant="thuong" className="min-w-[640px]" aria-label="Xu hướng quảng cáo">
+        <TableWrap vien role="region" tabIndex={0} aria-label={`Vùng cuộn xu hướng quảng cáo — ${title}`} className={muted ? "inactive-table" : undefined}>
+          <Table aria-label={`Xu hướng quảng cáo — ${title}`}>
             <TableHeader>
               <TableRow>
                 <TableHead>Creative / camp</TableHead>
                 {weeks.map((w) => (
-                  <TableHead key={w.id} className="week-label">{w.label}</TableHead>
+                  <TableHead key={w.id} phai>{w.label}</TableHead>
                 ))}
-                <TableHead>SĐT</TableHead>
+                <TableHead phai>SĐT</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>{list.map(rowsOf)}</TableBody>

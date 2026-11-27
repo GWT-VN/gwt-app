@@ -1,16 +1,15 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
-import { OTimKiem, PhanTrang, LocNgay } from '@/bang'
-import { hoSoNuoc } from '@/app/actions'
-import { coDoNuoc } from '@/lib/nuoc'
-import { ChiSoNuoc } from '@/components/ChiSoNuoc'
-import { vnDate } from '@/components/Badge'
-import { LocTinhNuoc } from '@/components/LocTinhNuoc'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { KhungChon } from '@/bang'
+import { docTatCa } from '@/bang/locTruong'
+import { hoSoNuoc, listTabView } from '@/app/actions'
+import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { BangNuoc } from '@/components/BangNuoc'
 import { ManV2 } from '@/components/khung/ManV2'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
-import { PageHeader } from '@/components/ui/page-header'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { TRUONG_NUOC } from './truong-nuoc'
 
 /**
  * Hồ sơ chất lượng nước — TOÀN BỘ khách (CEO yêu cầu 31/08/2026).
@@ -19,86 +18,43 @@ import { CauHinhBangDs } from '@/components/ui/bang-ds'
  *
  * Dữ liệu đo nước có từ lâu trong `maintenance_visit` nhưng **chưa màn nào đọc ra**, nên
  * ghi xong coi như mất. Trang này là chỗ đọc ra; lịch sử theo TỪNG khách nằm ở hồ sơ khách.
+ * Khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md): Lọc ▸ Tỉnh/TP · Ngày đo.
  */
 export default async function NuocPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tinh?: string; ngtu?: string; ngden?: string; trang?: string }>
+  searchParams: Promise<{ q?: string; tinh?: string; ngay?: string; ngtu?: string; ngden?: string; trang?: string }>
 }) {
-  const { q = '', tinh, ngtu, ngden, trang: trangRaw } = await searchParams
+  const sp = await searchParams
+  const { q = '', tinh, ngay, ngtu, ngden, trang: trangRaw } = sp
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const { rows, tong, soTrang } = await hoSoNuoc(q, { tinh, tu: ngtu, den: ngden, trang })
-
-  const dsTinh = [...new Set(rows.map((r) => r.tinh).filter(Boolean))].sort() as string[]
+  const [{ rows, tong, soTrang }, tabRieng, quyen] = await Promise.all([
+    hoSoNuoc(q, { tinh, ngay, tu: ngtu, den: ngden, trang }),
+    listTabView('nuoc_tab'),
+    hoiQuyen({ viewChung: ['he_thong.view_chung', 'QUANLY'] }),
+  ])
+  // Tỉnh lấy từ CHÍNH dữ liệu đang xem (+ tỉnh đang chọn để chip còn tên) — không liệt kê tỉnh chưa có lượt đo nào.
+  const dangChon = docTatCa(sp, TRUONG_NUOC).find((d) => d.truong === 'tinh')?.giaTri ?? []
+  const dsTinh = [...new Set([...rows.map((r) => r.tinh), ...dangChon].filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b, 'vi'))
 
   return (
     <ManV2>
       <TrangDuLieu>
-        <CauHinhBangDs>
-          <div className="min-w-0 space-y-4">
-            <PageHeader
-              tieuDe="Hồ sơ chất lượng nước"
-              meta={["Mỗi lần kiểm tra một dòng — lọc theo tỉnh, khách, địa chỉ, thời gian"]}
-            />
-
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">
+          <KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{ q, tinh, ngay }}>
             <Suspense>
-              <div className="flex flex-wrap items-end gap-2">
-                <div className="min-w-[260px] flex-1">
-                  <OTimKiem placeholder="Tên khách, địa chỉ hoặc bộ máy…" />
-                </div>
-                <LocNgay nhan="Ngày đo" />
-                <LocTinhNuoc dsTinh={dsTinh} dangChon={tinh ?? ''} />
-              </div>
+              <BangNuoc
+                rows={rows}
+                tong={tong}
+                trang={trang}
+                soTrang={soTrang}
+                dsTinh={dsTinh}
+                tabRieng={tabRieng}
+                quyenTabChung={quyen.viewChung}
+                locTrongTrang={!!(q || tinh)}
+              />
             </Suspense>
-
-            <p className="text-sm text-muted-foreground">
-              {tong.toLocaleString('vi-VN')} lượt đã đo nước
-              {(q || tinh) && (
-                // Nói thẳng giới hạn thay vì để người dùng tự đoán: tên khách/tỉnh nằm ở bảng khác
-                // nên chỉ lọc được TRONG TRANG. Giấu chỗ này là để CS tin nhầm một con số sai.
-                <span className="text-(--color-text-warning)"> · lọc tên/tỉnh chỉ áp dụng trong trang đang xem</span>
-              )}
-            </p>
-
-            <div className="overflow-x-auto rounded-(--radius-xl) border border-border bg-card">
-              <Table>
-                <TableHeader className="bg-muted text-left text-xs text-muted-foreground">
-                  <TableRow>
-                    <TableHead className="px-3 py-2 font-medium">Ngày đo</TableHead>
-                    <TableHead className="px-3 py-2 font-medium">Khách</TableHead>
-                    <TableHead className="px-3 py-2 font-medium">Tỉnh / địa chỉ</TableHead>
-                    <TableHead className="px-3 py-2 font-medium">Bộ máy · lần</TableHead>
-                    <TableHead className="px-3 py-2 font-medium">Chỉ số (trước → sau lọc)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="divide-y divide-border">
-                  {rows.map((r) => (
-                    <TableRow key={r.visit_id} className="align-top">
-                      <TableCell className="whitespace-nowrap px-3 py-2 text-foreground">{r.ngay ? vnDate(r.ngay) : '—'}</TableCell>
-                      <TableCell className="px-3 py-2">
-                        {r.customer_id
-                          ? <Link href={`/khach/${r.customer_id}`} prefetch={false} className="text-(--color-text-info) hover:underline">{r.ten_khach ?? 'khách chưa khớp'}</Link>
-                          : <span className="text-muted-foreground">chưa khớp khách</span>}
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-muted-foreground">
-                        {r.tinh && <div className="text-xs font-medium text-foreground">{r.tinh}</div>}
-                        <div className="line-clamp-2 text-xs text-muted-foreground">{r.dia_chi ?? '—'}</div>
-                      </TableCell>
-                      <TableCell className="px-3 py-2 text-xs text-muted-foreground">
-                        {r.bo_may ?? '—'}{r.lan_thu ? <div className="text-muted-foreground">lần {r.lan_thu}</div> : null}
-                      </TableCell>
-                      <TableCell className="px-3 py-2">{coDoNuoc(r.do_nuoc) ? <ChiSoNuoc d={r.do_nuoc} /> : <span className="text-slate-300">—</span>}</TableCell>
-                    </TableRow>
-                  ))}
-                  {rows.length === 0 && (
-                    <TableRow><TableCell colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">Chưa có lượt nào đo nước khớp bộ lọc.</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            <Suspense><PhanTrang trang={trang} soTrang={soTrang} /></Suspense>
-          </div>
+          </KhungChon>
         </CauHinhBangDs>
       </TrangDuLieu>
     </ManV2>

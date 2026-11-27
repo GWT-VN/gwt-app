@@ -2,6 +2,8 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { ManV2 } from '@/components/khung/ManV2'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -9,54 +11,56 @@ import { docAnToan } from '@/lib/loi/anToan'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { PageHeader } from '@/components/ui/page-header'
 import { danhMucLoi } from '@/app/ticket/loi-actions'
-import { nhomLoiChon } from '@/app/actions'
+import { listTabView, nhomLoiChon } from '@/app/actions'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
-import { OTimKiem, BoLocChon, ThanhDangLoc, boDau } from '@/bang'
+import { KhungChon, boDau } from '@/bang'
+import { apLoc, docTatCa } from '@/bang/locTruong'
 import { DanhMucLoiBang } from '@/components/loi/DanhMucLoiBang'
 import { NhapDanhMuc } from '@/components/loi/NhapDanhMuc'
 import { PhanLoaiLai } from '@/components/loi/PhanLoaiLai'
 import { NutXuatChuyenGia } from '@/components/loi/NutXuatChuyenGia'
+import type { LoiDanhMuc } from '@/lib/loi/kieu'
+import { TRUONG_DANH_MUC_LOI } from './truong-danh-muc-loi'
 
-const TT = [
-  { giaTri: 'cho_duyet', nhan: 'Chờ duyệt' },
-  { giaTri: 'da_duyet', nhan: 'Đã duyệt' },
-  { giaTri: 'ngung', nhan: 'Ngừng dùng' },
-]
+const LAY: Record<string, (d: LoiDanhMuc) => string> = { tt: (d) => d.trang_thai }
 
-export default async function DanhMucLoiPage({ searchParams }: { searchParams: Promise<{ q?: string; tt?: string }> }) {
+// Danh mục lỗi — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). Danh mục tải trọn rồi lọc trong
+// bộ nhớ (vài trăm mã). Công cụ quản trị danh mục (nhập Sheet, xuất cho chuyên gia, chạy thử phân loại) mở khung kết
+// quả ngay tại chỗ nên đứng trên bảng, không vào thanh công cụ.
+export default async function DanhMucLoiPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams
   const q = typeof sp.q === 'string' ? sp.q : ''
-  const tt = typeof sp.tt === 'string' ? sp.tt : ''
-  const [{ data: tatCa, loi: loiDanhMuc }, quyen, { data: nhom, loi: loiNhom }] = await Promise.all([
+  const [{ data: tatCa, loi: loiDanhMuc }, quyen, { data: nhom, loi: loiNhom }, tabRieng] = await Promise.all([
     docAnToan('danhMucLoi', danhMucLoi, []),
-    hoiQuyen({ sua: ['cs.nhom_loi.cau_hinh', 'QUANLY'] }),
+    hoiQuyen({ sua: ['cs.nhom_loi.cau_hinh', 'QUANLY'], viewChung: ['he_thong.view_chung', 'QUANLY'] }),
     docAnToan('nhomLoiChon', nhomLoiChon, []),
+    listTabView('danh_muc_loi_tab'),
   ])
   const choSua = quyen.sua && !loiNhom
-  const taiLai = '/danh-muc-loi?' + new URLSearchParams({ ...(q && { q }), ...(tt && { tt }) })
+  const taiLai = '/danh-muc-loi?' + new URLSearchParams(Object.entries(sp).filter((x): x is [string, string] => !!x[1]))
   const k = boDau(q).toLowerCase()
-  const rows = tatCa.filter((d) => (!tt || d.trang_thai === tt) &&
-    (!k || boDau([d.code, d.ten, ...d.aliases, ...d.ma_may].join(' ')).toLowerCase().includes(k)))
-  const dieuKien = [
-    ...(q ? [{ nhan: 'Từ khoá', giaTri: q }] : []),
-    ...(tt ? [{ nhan: 'Trạng thái', giaTri: TT.find((t) => t.giaTri === tt)?.nhan ?? tt }] : []),
-  ]
+  const rows = apLoc(
+    tatCa.filter((d) => !k || boDau([d.code, d.ten, ...d.aliases, ...d.ma_may].join(' ')).toLowerCase().includes(k)),
+    docTatCa(sp, TRUONG_DANH_MUC_LOI),
+    TRUONG_DANH_MUC_LOI.map((x) => ({ id: x.id, kieu: x.kieu, lay: LAY[x.id] })),
+  )
+  const dem = (tt: string) => tatCa.filter((d) => d.trang_thai === tt).length
+  const nutChinh = <Button asChild variant="outline"><Link href="/bao-cao-loi">Báo cáo lỗi</Link></Button>
+
   return (
     <ManV2>
-      <CauHinhBangDs>
-        <TrangDuLieu className="space-y-4">
-          <PageHeader
-            tieuDe="Danh mục lỗi"
-            meta={loiDanhMuc ? undefined : [`${tatCa.length} mã lỗi`, `${tatCa.filter((d) => d.trang_thai === 'cho_duyet').length} chờ duyệt`]}
-            hanhDong={<Button asChild variant="outline"><Link href="/bao-cao-loi">Báo cáo lỗi</Link></Button>}
-          />
+      <TrangDuLieu>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">
           {loiDanhMuc ? (
-            <EmptyState kieu="loi" capTieuDe={2} tieuDe="Chưa tải được danh mục lỗi"
-              moTa="Tải lại trang sau ít phút. Nếu tình trạng kéo dài, báo quản trị.">
-              <Button asChild size="sm"><a href={taiLai}>Tải lại</a></Button>
-            </EmptyState>
+            <div className="min-w-0 space-y-4">
+              <PageHeader tieuDe="Danh mục lỗi" hanhDong={nutChinh} />
+              <EmptyState kieu="loi" capTieuDe={2} tieuDe="Chưa tải được danh mục lỗi"
+                moTa="Tải lại trang sau ít phút. Nếu tình trạng kéo dài, báo quản trị.">
+                <Button asChild size="sm"><a href={taiLai}>Tải lại</a></Button>
+              </EmptyState>
+            </div>
           ) : (
-            <>
+            <div className="min-w-0 space-y-4">
               {loiNhom && (
                 <Alert color="warning">
                   <AlertDescription>
@@ -66,17 +70,23 @@ export default async function DanhMucLoiPage({ searchParams }: { searchParams: P
                 </Alert>
               )}
               {choSua && <div className="flex flex-wrap items-start gap-2"><NhapDanhMuc /><NutXuatChuyenGia /><PhanLoaiLai /></div>}
-              <div className="flex flex-wrap items-center gap-2">
-                <Suspense><OTimKiem placeholder="Gõ mã, tên lỗi, cách ghi, mã máy…" /></Suspense>
-                <Suspense><BoLocChon param="tt" nhan="Trạng thái" tuyChon={TT} /></Suspense>
-              </div>
-              <ThanhDangLoc dieuKien={dieuKien} hienThi={rows.length} tong={tatCa.length} nhan="mã lỗi" />
-              <DanhMucLoiBang rows={rows} choSua={choSua}
-                nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))} />
-            </>
+              <KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{ q, tt: sp.tt }}>
+                <Suspense>
+                  <DanhMucLoiBang
+                    rows={rows}
+                    choSua={choSua}
+                    nhomTuyChon={nhom.map((n) => ({ gt: n.code, nhan: n.ten, phu: n.code }))}
+                    tabRieng={tabRieng}
+                    quyenTabChung={quyen.viewChung}
+                    demTab={{ 'tat-ca': tatCa.length, cho_duyet: dem('cho_duyet'), da_duyet: dem('da_duyet'), ngung: dem('ngung') }}
+                    nutChinh={nutChinh}
+                  />
+                </Suspense>
+              </KhungChon>
+            </div>
           )}
-        </TrangDuLieu>
-      </CauHinhBangDs>
+        </CauHinhBangDs>
+      </TrangDuLieu>
     </ManV2>
   )
 }

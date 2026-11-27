@@ -1,3 +1,5 @@
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 import { daCauHinhKho, kho } from '@/lib/kho/doc'
@@ -37,8 +39,8 @@ export default async function KhoTheKhoPage({ params, searchParams }: { params: 
             <O cls="whitespace-nowrap">{ngayVN(d.ngay)}</O>
             <O cls={`font-medium ${mauLoai(d.loai)}`}>{d.loai}</O>
             <O>{d.raw_name}</O>
-            <O cls={`text-right font-semibold ${mauLoai(d.loai)}`}>{d.loai === 'Xuất' ? '−' : d.loai === 'Nhập' ? '+' : ''}{sl(d.qty)}</O>
-            <O cls={`text-right font-semibold ${d.so_du < 0 ? 'text-destructive' : ''}`}>{sl(d.so_du)}</O>
+            <O phai cls={`font-semibold ${mauLoai(d.loai)}`}>{d.loai === 'Xuất' ? '−' : d.loai === 'Nhập' ? '+' : ''}{sl(d.qty)}</O>
+            <O phai cls={`font-semibold ${d.so_du < 0 ? 'text-destructive' : ''}`}>{sl(d.so_du)}</O>
             <O cls="max-w-[220px] text-muted-foreground">{d.purpose ?? ''}</O>
             <O cls="max-w-[220px] text-xs text-muted-foreground">{d.note ?? ''}</O>
             <O cls="whitespace-nowrap">{d.keeper ?? ''}</O>
@@ -47,7 +49,7 @@ export default async function KhoTheKhoPage({ params, searchParams }: { params: 
         ))}
       </Bang>
       {rs.ok ? rs.v.length > 0 && <SerialCuaMa ds={rs.v} />
-        : <p className="rounded-lg bg-(--color-background-warning-surface) px-3 py-2 text-xs text-(--color-text-warning-surface)">Chưa đọc được danh sách serial: {rs.loi}</p>}
+        : <Alert color="warning"><AlertDescription>Chưa đọc được danh sách serial: {rs.loi}</AlertDescription></Alert>}
     </KhungKho>
   )
 }
@@ -69,11 +71,11 @@ function SerialCuaMa({ ds }: { ds: Awaited<ReturnType<typeof serialTheoMa>> }) {
         {ds.map((d) => (
           <TableRow key={d.serial}>
             <O cls="whitespace-nowrap">
-              {d.cho_duyet ? <span className="font-mono text-[13px]">{d.serial}</span>
-                : <Link href={`/may/${encodeURIComponent(d.serial)}`} className="font-mono text-[13px] text-(--color-text-info) hover:underline">{d.serial}</Link>}
+              {d.cho_duyet ? <span className="font-mono">{d.serial}</span>
+                : <Link href={`/may/${encodeURIComponent(d.serial)}`} className="font-mono text-(--color-text-info) hover:underline">{d.serial}</Link>}
             </O>
             <O cls="whitespace-nowrap">{d.cho_duyet
-              ? <Link href="/serial?tab=cho" className="rounded-full bg-(--color-background-warning-surface) px-2 py-0.5 text-[11px] font-medium text-(--color-text-warning-surface) ring-1 ring-border">Chờ duyệt</Link>
+              ? <Badge asChild variant="soft" color="warning"><Link href="/serial?tab=cho">Chờ duyệt</Link></Badge>
               : d.trang_thai_nhan}</O>
             <O cls="whitespace-nowrap">{nhanSuKien(d.su_kien_cuoi)}</O>
             <O cls="whitespace-nowrap">{d.luc_cuoi ? ngayVN(d.luc_cuoi) : ''}</O>

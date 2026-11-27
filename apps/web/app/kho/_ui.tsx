@@ -9,39 +9,80 @@ import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import type { ReactNode } from 'react'
 import { linkTinDiscord, nhanTrangThai, tenKho } from '@/lib/kho/nhan'
+import { ChonKho } from './_chon-kho'
 import { TuLamMoi } from './_tu-lam-moi'
 import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 /** Google Sheet theo dõi sổ kho NX (cùng dữ liệu) — đổi Sheet thì sửa ở gwt-discord-bot/admin/kho/nx-chay.mjs (SHEET_NX) VÀ ở đây. */
 export const LINK_SHEET_KHO = 'https://docs.google.com/spreadsheets/d/1etncdbnKDQg2jIsJjc556pvT1HI0HTrKnMbNDeRr4d0'
 
+const nutSheet = <Button asChild variant="outline"><a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Mở Google Sheet ↗</a></Button>
+
+function GhiChuBot() {
+  return (
+    <>
+      Bắp ghi sổ từ tin nhắn Discord kho và cập nhật khoảng mỗi 20 giây. Người có quyền <b>Sửa sổ kho</b> sửa, huỷ dòng, duyệt mã và kiểm kê được
+      ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự
+      cập nhật trong ~20 giây.
+    </>
+  )
+}
+
+/** Khung màn KHÔNG phải danh sách (báo cáo tháng, thẻ kho, kiểm kê): PageHeader + ghi chú + nội dung. */
 export function KhungKho({ tieuDe, moTa, phai, children, kho = 'NX' }: { tieuDe: string; moTa?: ReactNode; phai?: ReactNode; children: ReactNode; kho?: string }) {
   return (
     <ManV2>
       <CauHinhBangDs>
         <TrangDuLieu className="max-w-[1200px] space-y-4">
-          <PageHeader
-            tieuDe={tieuDe}
-            meta={[tenKho(kho), ...(moTa ? [moTa] : [])]}
-            hanhDong={<Button asChild variant="outline"><a href={LINK_SHEET_KHO} target="_blank" rel="noreferrer">Mở Google Sheet ↗</a></Button>}
-          />
+          <PageHeader tieuDe={tieuDe} meta={[tenKho(kho), ...(moTa ? [moTa] : [])]} hanhDong={nutSheet} />
           <div className="flex flex-wrap items-center gap-2">
             <TuLamMoi />
             {phai}
           </div>
-          <Alert color="info">
-            <AlertDescription>
-              Bắp ghi sổ từ tin nhắn Discord kho và cập nhật khoảng mỗi 20 giây. Người có quyền <b>Sửa sổ kho</b> sửa, huỷ dòng, duyệt mã và kiểm kê được
-              ngay trên app (hoặc trên Google Sheet) — mọi thay đổi ghi vào <Link href="/kho/lich-su-sua" className="underline">Lịch sử sửa</Link>, Sheet tự
-              cập nhật trong ~20 giây.
-            </AlertDescription>
-          </Alert>
+          <Alert color="info"><AlertDescription><GhiChuBot /></AlertDescription></Alert>
           {children}
         </TrangDuLieu>
       </CauHinhBangDs>
     </ManV2>
+  )
+}
+
+/** Khung màn DANH SÁCH kho theo khuôn Ticket F (con = `BangDungSan`) — như `app/khach-hang/page.tsx`. */
+export function KhungBangKho({ children }: { children: ReactNode }) {
+  return (
+    <ManV2>
+      <TrangDuLieu>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">{children}</CauHinhBangDs>
+      </TrangDuLieu>
+    </ManV2>
+  )
+}
+
+/** `nutChinh` của bảng kho: tự cập nhật · chọn kho (màn theo kho) · mở Google Sheet. */
+export function NutDauKho({ kho }: { kho?: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <TuLamMoi />
+      {kho && <ChonKho kho={kho} />}
+      {nutSheet}
+    </div>
+  )
+}
+
+/** Ghi chú dưới bảng kho: số liệu của màn tính thế nào + cách Bắp ghi sổ. */
+export function GhiChuKho({ moTa, children }: { moTa?: ReactNode; children?: ReactNode }) {
+  return (
+    <Alert color="info">
+      <AlertDescription>
+        {moTa && <>{moTa}. </>}
+        {children}
+        <GhiChuBot />
+      </AlertDescription>
+    </Alert>
   )
 }
 
@@ -72,7 +113,8 @@ export function Bang({ dau, children, trong, dangLoc, phai = [] }: { dau: ReactN
   )
 }
 
-export const O = ({ children, cls = '' }: { children?: ReactNode; cls?: string }) => <TableCell className={`align-top py-2 ${cls}`}>{children}</TableCell>
+/** Ô bảng kho (báo cáo / thẻ kho): kiểu ô DS, số căn phải bằng `phai` — không đè đệm / cỡ chữ. */
+export const O = ({ children, cls, phai }: { children?: ReactNode; cls?: string; phai?: boolean }) => <TableCell phai={phai} className={cls}>{children}</TableCell>
 
 export function TheSo({ nhan, so, phu, mau = '' }: { nhan: string; so: number | string; phu?: ReactNode; mau?: string }) {
   return (
@@ -87,7 +129,7 @@ export function TheSo({ nhan, so, phu, mau = '' }: { nhan: string; so: number | 
 
 export function LinkMa({ ma, kho = 'NX' }: { ma: string | null; kho?: string }) {
   if (!ma) return <span className="text-muted-foreground">—</span>
-  return <Link href={`/kho/ma/${encodeURIComponent(ma)}${kho !== 'NX' ? `?kho=${kho}` : ''}`} className="font-mono text-[13px] text-(--color-text-info) hover:underline">{ma}</Link>
+  return <Link href={`/kho/ma/${encodeURIComponent(ma)}${kho !== 'NX' ? `?kho=${kho}` : ''}`} className="font-mono text-(--color-text-info) hover:underline">{ma}</Link>
 }
 
 export function LinkTin({ id }: { id: string | null }) {
@@ -99,7 +141,7 @@ export function LinkTin({ id }: { id: string | null }) {
 export function NhanSuaTay({ luc, boi }: { luc: string | null; boi: string | null }) {
   if (!luc) return null
   const ten = (boi ?? '').split('@')[0] || '?'
-  return <div className="mt-0.5 whitespace-nowrap text-[10px] text-muted-foreground" title={`Sửa tay bởi ${boi ?? '?'} lúc ${ngayVN(luc)} — bot không ghi đè dòng này`}>sửa tay · {ten} · {ngayVN(luc)}</div>
+  return <div className="mt-0.5 whitespace-nowrap text-xs text-muted-foreground" title={`Sửa tay bởi ${boi ?? '?'} lúc ${ngayVN(luc)} — bot không ghi đè dòng này`}>sửa tay · {ten} · {ngayVN(luc)}</div>
 }
 
 /** Số đẹp: 1.234; số âm có dấu. */

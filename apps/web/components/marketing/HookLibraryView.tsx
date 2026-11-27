@@ -1,113 +1,69 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
+import type { TabView } from "@/app/actions";
+import { TAB_HOOK, tenLoaiHook, TRUONG_HOOK } from "@/app/wiki/marketing/du-lieu/truong-mkt";
+import { Badge } from "@/components/ui/badge";
+import type { CotDanhSach } from "@/components/ui/list-view";
 import { SheetTitle } from "@/components/ui/sheet";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from "@/components/ui/table";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { BangMkt, type CotMkt } from "./BangMkt";
 import Drawer from "./Drawer";
 import { NameButton } from "./ads/shared";
 import { Chips, Field } from "./DetailBits";
 import type { HookItem } from "@/lib/marketing/supabase-mkt";
 import { Icon } from "@/lib/marketing/icons";
 
-const KIND_LABEL: Record<string, string> = {
-  hook: "Hook",
-  cta: "Kêu gọi (CTA)",
-  question: "Câu hỏi",
-  closing: "Câu kết",
-};
-const kindLabel = (k: string | null) => (k && KIND_LABEL[k]) || k || "khác";
+const kindLabel = tenLoaiHook;
 
-export default function HookLibraryView({ rows }: { rows: HookItem[] }) {
-  const kinds = useMemo(() => {
-    const set = new Set<string>();
-    rows.forEach((r) => r.kind && set.add(r.kind));
-    return ["all", ...Array.from(set)];
-  }, [rows]);
-
-  const [kind, setKind] = useState<string>("all");
-  const [style, setStyle] = useState<string>("all");
+export default function HookLibraryView({ rows, tabRieng = [], coTab = false, quyenTabChung = false }: {
+  rows: HookItem[];
+  tabRieng?: TabView[];
+  coTab?: boolean;
+  quyenTabChung?: boolean;
+}) {
   const [openId, setOpenId] = useState<string | null>(null);
-
-  const byKind = useMemo(() => (kind === "all" ? rows : rows.filter((r) => r.kind === kind)), [rows, kind]);
-  const styles = useMemo(() => {
-    const set = new Set<string>();
-    byKind.forEach((r) => r.hook_style && set.add(r.hook_style));
-    return ["all", ...Array.from(set)];
-  }, [byKind]);
-  const shown = useMemo(
-    () => (style === "all" ? byKind : byKind.filter((r) => r.hook_style === style)),
-    [byKind, style],
-  );
   const current = rows.find((r) => r.id === openId) ?? null;
+
+  const cot: CotMkt<HookItem>[] = [
+    // Câu dài: NameButton tự xuống dòng (a11y 27/11 — không cắt câu mẫu).
+    { id: "cau", ten: "Câu", kieu: "sap", khoa: true, toiThieu: 240, rongToiDa: 440, sap: (r) => r.text,
+      nghia: { tang: "Từ A đến Z", giam: "Từ Z đến A" },
+      o: (r) => <NameButton onOpen={() => setOpenId(r.id)}>{r.text}</NameButton> },
+    { id: "loai", ten: "Loại", kieu: "sap", sap: (r) => kindLabel(r.kind), nghia: { tang: "Từ A đến Z", giam: "Từ Z đến A" },
+      o: (r) => <Badge variant="soft" color="secondary">{kindLabel(r.kind)}</Badge> },
+    { id: "phong_cach", ten: "Phong cách", kieu: "sap", rongToiDa: 200, sap: (r) => r.hook_style, chu: (r) => r.hook_style,
+      nghia: { tang: "Từ A đến Z", giam: "Từ Z đến A" }, o: (r) => r.hook_style || "—" },
+    { id: "nguon", ten: "Nguồn", kieu: "sap", rongToiDa: 200, sap: (r) => r.source_channel, chu: (r) => r.source_channel,
+      nghia: { tang: "Từ A đến Z", giam: "Từ Z đến A" }, o: (r) => r.source_channel || "—" },
+  ];
+  const cotDs: CotDanhSach<HookItem>[] = [
+    { id: "cau", ten: "Câu", rong: "minmax(0,2fr)", dienThoai: "tren", o: (r) => r.text },
+    { id: "loai", ten: "Loại", rong: "minmax(0,1fr)", dienThoai: "duoi", o: (r) => kindLabel(r.kind) },
+    { id: "nguon", ten: "Nguồn", rong: "minmax(0,1fr)", dienThoai: "duoiPhai", o: (r) => r.source_channel || "—" },
+  ];
 
   return (
     <>
-      <div className="toolbar">
-        {kinds.map((k) => {
-          const n = k === "all" ? rows.length : rows.filter((r) => r.kind === k).length;
-          return (
-            <Button
-              key={k}
-              size="sm" variant={kind === k ? "default" : "outline"}
-              onClick={() => { setKind(k); setStyle("all"); }}
-              aria-pressed={kind === k}
-            >
-              {k === "all" ? "Tất cả" : kindLabel(k)} <span style={{ opacity: 0.65 }}>{n}</span>
-            </Button>
-          );
-        })}
-      </div>
-
-      {styles.length > 2 && (
-        <div className="toolbar" style={{ marginTop: 6 }}>
-          {styles.map((s) => (
-            <Button
-              key={s}
-              size="sm" variant={style === s ? "default" : "outline"}
-              onClick={() => setStyle(s)}
-              aria-pressed={style === s}
-            >
-              {s === "all" ? "Mọi phong cách" : s}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {rows.length === 0 ? (
-        <EmptyState tieuDe="Chưa có câu mẫu nào" moTa="Câu hook, kêu gọi, câu hỏi và câu kết chắt từ video mẫu sẽ hiện ở đây." />
-      ) : shown.length === 0 ? (
-        <EmptyState kieu="loc" tieuDe={<>Không có câu nào khớp bộ lọc.</>} />
-      ) : (
-        <TableWrap vien role="region" tabIndex={0} aria-label="Danh sách câu mẫu">
-          <Table aria-label="Danh sách câu mẫu" variant="thuong" className="min-w-[640px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Câu</TableHead>
-                <TableHead>Loại</TableHead>
-                <TableHead>Phong cách</TableHead>
-                <TableHead>Nguồn</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {shown.map((r) => (
-                <TableRow key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
-                  <TableCell className="td-title whitespace-normal align-top" style={{ maxWidth: 440 }}>
-                    <NameButton onOpen={() => setOpenId(r.id)}>{r.text}</NameButton>
-                  </TableCell>
-                  <TableCell><span className="chip">{kindLabel(r.kind)}</span></TableCell>
-                  <TableCell style={{ fontSize: ".76rem", color: "var(--ink-3)" }}>{r.hook_style || "—"}</TableCell>
-                  <TableCell style={{ fontSize: ".78rem", color: "var(--ink-3)" }}>{r.source_channel || "—"}</TableCell>
-                  <TableCell className="row-arrow">›</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableWrap>
-      )}
+      <BangMkt
+        bang="mkt_hook_tab"
+        tieuDe="Câu mẫu"
+        nhan="câu"
+        viDuTen="VD: Câu hỏi mở đầu"
+        rows={rows}
+        khoa={(r) => r.id}
+        cot={cot}
+        cotDs={cotDs}
+        truong={TRUONG_HOOK}
+        tabCoDinh={TAB_HOOK}
+        timTrong={(r) => [r.text, r.hook_style, r.source_channel].filter(Boolean).join(" ")}
+        onMo={(r) => setOpenId(r.id)}
+        tabRieng={tabRieng}
+        coTab={coTab}
+        quyenTabChung={quyenTabChung}
+        timGoiY="Câu, phong cách, nguồn…"
+        rongThat={{ tieuDe: "Chưa có câu mẫu nào", moTa: "Câu hook, kêu gọi, câu hỏi và câu kết chắt từ video mẫu sẽ hiện ở đây." }}
+      />
 
       <Drawer open={Boolean(current)} onClose={() => setOpenId(null)}>
         {current && (

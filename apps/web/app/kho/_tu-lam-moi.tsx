@@ -26,7 +26,7 @@ export function TuLamMoi({ giay = 20 }: { giay?: number }) {
     return () => clearInterval(h)
   }, [router, giay])
   return (
-    <span className="text-[11px] text-slate-400" title={`Trang tự cập nhật mỗi ${giay} giây (tạm dừng khi đang gõ / đang mở hộp sửa)`}>
+    <span className="text-xs text-muted-foreground" title={`Trang tự cập nhật mỗi ${giay} giây (tạm dừng khi đang gõ / đang mở hộp sửa)`}>
       ⟳ tự cập nhật{luc ? ` · ${luc.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : ''}
     </span>
   )

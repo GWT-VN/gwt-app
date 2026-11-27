@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ganKenh, type Kenh } from '@/app/actions'
 import { ChonKenh } from '@/components/ChonKenh'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 /**
  * Sửa kênh NGAY TRÊN DÒNG ở màn soát kênh.
@@ -46,26 +48,24 @@ export function SuaKenhNhanh({
 
   if (mo) {
     return (
-      <div className="min-w-[260px] space-y-1">
+      <div className="flex items-center gap-1.5">
         <ChonKenh kenh={kenh} value={channelId != null ? String(channelId) : ''} onChange={doi} />
-        <button type="button" onClick={() => setMo(false)} disabled={busy}
-          className="text-[11px] text-slate-500 underline">huỷ</button>
-        {msg && <p className="text-[11px] text-red-600">{msg}</p>}
+        <Button type="button" variant="link" size="sm" onClick={() => setMo(false)} disabled={busy}>huỷ</Button>
+        {msg && <span className="text-xs text-(--color-text-danger)">{msg}</span>}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className={kenhHienTai ? 'text-slate-800' : 'text-slate-300'}>{kenhHienTai ?? 'chưa có'}</span>
-      {tuDong && <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-800">máy điền</span>}
-      <button type="button" onClick={() => setMo(true)} className="text-[11px] text-sky-600 underline">đổi</button>
+    <div className="flex items-center gap-1.5">
+      <span className={kenhHienTai ? undefined : 'text-muted-foreground'}>{kenhHienTai ?? 'chưa có'}</span>
+      {tuDong && <Badge variant="soft" color="warning">máy điền</Badge>}
+      <Button type="button" variant="link" size="sm" onClick={() => setMo(true)}>đổi</Button>
       {/* Chỉ nhóm "máy điền" mới cần nút này — nó hạ cờ tự-động chứ không đổi giá trị. */}
       {tuDong && (
-        <button type="button" onClick={dungRoi} disabled={busy}
-          className="text-[11px] text-emerald-700 underline disabled:opacity-50">đúng rồi</button>
+        <Button type="button" variant="link" size="sm" onClick={dungRoi} disabled={busy}>đúng rồi</Button>
       )}
-      {msg && <span className="text-[11px] text-red-600">{msg}</span>}
+      {msg && <span className="text-xs text-(--color-text-danger)">{msg}</span>}
     </div>
   )
 }

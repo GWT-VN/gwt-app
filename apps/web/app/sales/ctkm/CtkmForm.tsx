@@ -419,9 +419,9 @@ export function CtkmForm({
           {sp.length > 0 && (
             <TableWrap>
               <Table variant="thuong">
-                <TableHeader className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  <TableRow><TableHead className="py-1">Sản phẩm</TableHead><TableHead className="py-1 text-right">Niêm yết</TableHead>
-                    {!chiTangQua && <><TableHead className="py-1 text-center">Mức riêng</TableHead><TableHead className="py-1 text-right">Giá sau giảm</TableHead></>}
+                <TableHeader>
+                  <TableRow><TableHead>Sản phẩm</TableHead><TableHead phai>Niêm yết</TableHead>
+                    {!chiTangQua && <><TableHead className="text-center">Mức riêng</TableHead><TableHead phai>Giá sau giảm</TableHead></>}
                     <TableHead /></TableRow>
                 </TableHeader>
                 <TableBody>
@@ -430,20 +430,20 @@ export function CtkmForm({
                     const m = mucApDung(s.muc, mucChung)
                     return (
                       <TableRow key={s.internal_code}>
-                        <TableCell className="py-1.5">
+                        <TableCell>
                           <div className="font-medium text-foreground">{spDs.find((x) => x.ma === s.internal_code)?.ten ?? s.internal_code}</div>
                           <div className="font-mono text-[11px] text-muted-foreground">{s.internal_code}</div>
                         </TableCell>
-                        <TableCell className="py-1.5 text-right tabular-nums text-muted-foreground">{tien(g)}</TableCell>
+                        <TableCell phai className="tabular-nums text-muted-foreground">{tien(g)}</TableCell>
                         {!chiTangQua && <>
-                          <TableCell className="py-1.5 text-center">
+                          <TableCell className="text-center">
                             <Input type="number" className="w-24 text-right"
                               aria-label={`Mức giảm riêng của ${s.internal_code}`} placeholder={String(mucChung ?? '')} value={s.muc ?? ''}
                               onChange={(e) => setSp((ds) => ds.map((x, j) => j === i ? { ...x, muc: e.target.value === '' ? null : Number(e.target.value) } : x))} />
                           </TableCell>
-                          <TableCell className="py-1.5 text-right font-semibold tabular-nums text-(--color-text-info)">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</TableCell>
+                          <TableCell phai className="font-semibold tabular-nums text-(--color-text-info)">{tien(giaSauGiam(kieu, g, m, giamToiDa))}</TableCell>
                         </>}
-                        <TableCell className="py-1.5 text-right">
+                        <TableCell phai>
                           <Button type="button" variant="ghost" size="icon-sm" aria-label={`Bỏ ${s.internal_code}`} onClick={() => setSp((ds) => ds.filter((_, j) => j !== i))}><X aria-hidden="true" /></Button>
                         </TableCell>
                       </TableRow>

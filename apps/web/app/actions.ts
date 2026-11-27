@@ -28,21 +28,26 @@ import { hoatDongCuoi, laMoi, sapTheoHoatDong } from '@/lib/ticketHoatDong'
 import { dongMayTheoTickets } from '@/app/ticket/loi-actions'
 import { locLoiHopLe, viTriDongCoSerial } from '@/lib/loi/dongMay'
 import { chuanMaLoi, MA_LOI } from '@/lib/loi/kiemDauVao'
-import { docTatCa, type DieuKienLoc } from '@/bang/locTruong'
+import { apLoc, docTatCa, type DieuKienLoc } from '@/bang/locTruong'
 import { chon as locChon } from '@/bang/locDb'
 import { TRUONG_KHACH } from '@/app/khach-hang/truong-khach'
+import { dieuKienMay, TRUONG_MAY } from '@/app/may/truong-may'
+import { dieuKienLoi, TRUONG_LOI } from '@/app/loi/truong-loi'
+import { dieuKienBaoTri, TRUONG_BAO_TRI } from '@/app/bao-tri/truong-bao-tri'
 import { dieuKienOrTicket } from '@/app/ticket/_danh-sach/loc-db'
 import { KHOA_COT, locCua } from '@/bang/tabView'
 import { laBangTab, TAB_VIEW, type BangTab } from '@/lib/tab-view'
+import { homNayVN, ngay as locNgay } from '@/bang/locDb'
+import { TRUONG_AUDIT } from '@/app/audit/truong-audit'
 import { kemDongMayAnToan } from '@/lib/loi/anToan'
 import type { MaCanhBao } from '@/lib/loi/canhBao'
 import { ganDongMayChoTicketMoi, chuanBiCacDong, coBangDongMay, giaiSerial } from '@/lib/loi/ganDongMayServer'
 import type { DongMayInput } from '@/lib/loi/kieu'
 import {
   MOI_TRANG, MOI_TRANG_LOI, COT_MAY, COT_TICKET, SAP_TICKET_MAC_DINH, COT_LOI, COT_KHACH, COT_BAO_TRI,
-  TINH_TRANG_BH, TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
+  TOI_DA_CHON, XUAT_KHACH_COT, XUAT_TICKET_COT, SUA_HL_BANG,
   XUAT_MAY_COT, XUAT_BAOTRI_COT, XUAT_LOI_COT, MA_COMBO, docLocNgay, doChacHopLe, NHAN_LOAI_DIA_CHI,
-  type TinhTrangBH, type DongNhapSerial, type DoChacNgayLap,
+  type DongNhapSerial, type DoChacNgayLap,
 } from '@/lib/danhSach'
 
 
@@ -76,7 +81,7 @@ export type Machine = {
 /** Tra máy theo serial / tên khách / SĐT / địa chỉ (không dấu). Rỗng -> máy lắp gần nhất. */
 export async function searchMachines(
   q: string,
-  tuyChon: TuyChonDanhSach & { maSanPham?: string; tinhTrangBH?: string; ngtu?: string; ngden?: string } = {}
+  tuyChon: TuyChonDanhSach & { maSanPham?: string; tinhTrangBH?: string; lap?: string; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<Machine>> {
   await requireStaff()
   await doQuyen('cs.may.xem')
@@ -108,30 +113,10 @@ export async function searchMachines(
     )
   }
 
-  if (tuyChon.maSanPham) truyVan = truyVan.eq('internal_code', tuyChon.maSanPham)
-
-  // 4 nhánh PHẢI khớp Y HỆT WarrantyBadge (components/Badge.tsx) — whitelist qua
-  // TINH_TRANG_BH nên giá trị lạ trên URL bị bỏ qua thay vì lặng lẽ .eq() sai cột.
-  if (tuyChon.tinhTrangBH && TINH_TRANG_BH.includes(tuyChon.tinhTrangBH as TinhTrangBH)) {
-    switch (tuyChon.tinhTrangBH as TinhTrangBH) {
-      case 'chua_kich_hoat':
-        truyVan = truyVan.eq('warranty_activated', false)
-        break
-      case 'con_han_may':
-        truyVan = truyVan
-          .eq('warranty_activated', true).eq('co_chinh_sach_bh', true).eq('con_han_may', true)
-        break
-      case 'het_may_con_loi':
-        truyVan = truyVan
-          .eq('warranty_activated', true).eq('co_chinh_sach_bh', true)
-          .eq('con_han_may', false).eq('con_han_loi', true)
-        break
-      case 'het_ca_hai':
-        truyVan = truyVan
-          .eq('warranty_activated', true).eq('co_chinh_sach_bh', true)
-          .eq('con_han_may', false).eq('con_han_loi', false)
-        break
-    }
+  // Lọc ▸ trường (khuôn Ticket F, app/may/truong-may.ts): Sản phẩm `sp` · Bảo hành `bh` (4 nhánh khớp WarrantyBadge,
+  // whitelist TINH_TRANG_BH) · Ngày lắp `lap`. Giá trị cũ một mã (`sp=GN610`, `bh=chua_kich_hoat`) = phép "là".
+  for (const d of docTatCa({ sp: tuyChon.maSanPham, bh: tuyChon.tinhTrangBH, lap: tuyChon.lap }, TRUONG_MAY)) {
+    for (const g of dieuKienMay(d)) truyVan = truyVan.or(g)
   }
 
   // Lọc theo ngày lắp (install_date) — 2 tham số ngtu/ngden, xem docLocNgay.
@@ -176,6 +161,14 @@ export async function machineModels(): Promise<{ internal_code: string; product_
   return [...theo.entries()]
     .map(([internal_code, product_name]) => ({ internal_code, product_name }))
     .sort((a, b) => (a.product_name ?? a.internal_code).localeCompare(b.product_name ?? b.internal_code, 'vi'))
+}
+
+/** Tổng máy đã lắp (không lọc) — số đếm tab "Tất cả" ở `/`. */
+export async function demMayTatCa(): Promise<number> {
+  await requireStaff()
+  await doQuyen('cs.may.xem')
+  const { count } = await dataClient().from('v_installed_base').select('serial', { count: 'exact', head: true })
+  return count ?? 0
 }
 
 export async function getMachine(serial: string): Promise<Machine | null> {
@@ -1014,7 +1007,7 @@ export type CoreDue = {
 export async function coreForecast(
   tinhTrang: string,
   q: string,
-  tuyChon: TuyChonDanhSach & { tatPhanTrang?: boolean; ngtu?: string; ngden?: string } = {}
+  tuyChon: TuyChonDanhSach & { tatPhanTrang?: boolean; han?: string; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<CoreDue>> {
   await requireStaff()
   await doQuyen('cs.may.thay_loi')
@@ -1027,7 +1020,10 @@ export async function coreForecast(
 
   let truyVan = dataClient().from('v_core_forecast').select('*', { count: 'exact' })
 
-  if (tinhTrang) truyVan = truyVan.eq('tinh_trang', tinhTrang)
+  // Lọc ▸ trường (app/loi/truong-loi.ts): Tình trạng `tt` (một giá trị cũ = phép "là") · Đến hạn `han`.
+  for (const d of docTatCa({ tt: tinhTrang, han: tuyChon.han }, TRUONG_LOI)) {
+    for (const g of dieuKienLoi(d)) truyVan = truyVan.or(g)
+  }
   const term = q.trim()
   if (term) {
     // v_core_forecast KHÔNG có ten_kd/dia_chi_kd (Task 1 chỉ thêm cho v_installed_base
@@ -1070,12 +1066,13 @@ export async function coreCounts() {
   await requireStaff()
   await doQuyen('cs.may.thay_loi')
   const db = dataClient()
-  const keys = ['QUÁ HẠN', 'sắp đến hạn (≤30 ngày)', 'còn hạn']
+  // 'tat-ca' = không lọc (số đếm tab "Tất cả" ở /loi).
+  const keys = ['QUÁ HẠN', 'sắp đến hạn (≤30 ngày)', 'còn hạn', 'tat-ca']
   const out: Record<string, number> = {}
   await Promise.all(
     keys.map(async (k) => {
-      const { count } = await db
-        .from('v_core_forecast').select('*', { count: 'exact', head: true }).eq('tinh_trang', k)
+      const q = db.from('v_core_forecast').select('*', { count: 'exact', head: true })
+      const { count } = await (k === 'tat-ca' ? q : q.eq('tinh_trang', k))
       out[k] = count ?? 0
     })
   )
@@ -1108,7 +1105,7 @@ const COT_DO_NUOC =
 export async function maintenanceDue(
   tinhTrang: string,
   q: string,
-  tuyChon: TuyChonDanhSach & { ngtu?: string; ngden?: string } = {}
+  tuyChon: TuyChonDanhSach & { han?: string; ngtu?: string; ngden?: string } = {}
 ): Promise<KetQuaTrang<MaintenanceDue>> {
   await requireStaff()
   await doQuyen('cs.bao_tri.xem')
@@ -1120,7 +1117,10 @@ export async function maintenanceDue(
   const tu = (trang - 1) * moi
   let query = dataClient().from('v_maintenance_due').select('*', { count: 'exact' })
 
-  if (tinhTrang) query = query.eq('tinh_trang', tinhTrang)
+  // Lọc ▸ trường (app/bao-tri/truong-bao-tri.ts): Tình trạng `tt` (một giá trị cũ = phép "là") · Đến hạn `han`.
+  for (const d of docTatCa({ tt: tinhTrang, han: tuyChon.han }, TRUONG_BAO_TRI)) {
+    for (const g of dieuKienBaoTri(d)) query = query.or(g)
+  }
   const kw = antoanChoOr(chuanHoaTuKhoa(q))
   if (kw) {
     // Trước migration 07 trang này so NGUYÊN VĂN: gõ "nguyen" ra ĐÚNG 0 dòng dù có
@@ -1183,12 +1183,13 @@ export async function maintenanceCounts() {
   await requireStaff()
   await doQuyen('cs.bao_tri.xem')
   const db = dataClient()
-  const keys = ['QUÁ HẠN', 'sắp đến hạn (≤30 ngày)', 'còn hạn']
+  // 'đã xong' + 'tat-ca' (không lọc) = số đếm tab ở /bao-tri; Tổng quan chỉ đọc 3 khoá đầu.
+  const keys = ['QUÁ HẠN', 'sắp đến hạn (≤30 ngày)', 'còn hạn', 'đã xong', 'tat-ca']
   const out: Record<string, number> = {}
   await Promise.all(
     keys.map(async (k) => {
-      const { count } = await db
-        .from('v_maintenance_due').select('*', { count: 'exact', head: true }).eq('tinh_trang', k)
+      const q = db.from('v_maintenance_due').select('*', { count: 'exact', head: true })
+      const { count } = await (k === 'tat-ca' ? q : q.eq('tinh_trang', k))
       out[k] = count ?? 0
     })
   )
@@ -2873,7 +2874,10 @@ async function truyVanSerial(q: string, limit: number, tu = 0, tt?: string) {
         `ma_quoc_te.ilike.%${safe}%,ten_noi_bo.ilike.%${safe}%`
     )
   }
-  if (tt && tt.trim()) query = query.eq('trang_thai', tt.trim())
+  // `tt` theo ngữ pháp Lọc ▸ trường (bang/locTruong): `tt=ton_kho` cũ vẫn = "là", thêm nhiều giá trị / không là / trống.
+  for (const d of docTatCa({ tt: tt?.trim() }, [{ id: 'tt', kieu: 'chon' }])) {
+    for (const g of locChon('trang_thai', d)) query = query.or(g)
+  }
   const { data, error, count } = await query.order('serial').range(tu, tu + limit - 1)
   if (error) throw new Error(error.message)
   return { rows: (data ?? []) as SerialRow[], tong: count ?? 0 }
@@ -5187,8 +5191,7 @@ export async function timGop(q: string): Promise<KetQuaTimGop> {
 export async function khoaTatCaMay(t: ThamSoLoc): Promise<string[]> {
   return gomKhoa(
     (trang, moiTrang) => searchMachines(t.q ?? '', {
-      trang, moiTrang, cot: t.cot, chieu: t.chieu, maSanPham: t.sp, tinhTrangBH: t.bh,
-      ngtu: t.ngtu, ngden: t.ngden,
+      trang, moiTrang, cot: t.cot, chieu: t.chieu, maSanPham: t.sp, tinhTrangBH: t.bh, lap: t.lap,
     }),
     (r) => r.serial,
     TOI_DA_CHON
@@ -5217,7 +5220,7 @@ export async function khoaTatCaTicket(t: ThamSoLoc): Promise<string[]> {
 
 export async function khoaTatCaLoi(t: ThamSoLoc): Promise<string[]> {
   return gomKhoa(
-    (trang, moiTrang) => coreForecast(t.tt ?? '', t.q ?? '', { trang, moiTrang, cot: t.cot, chieu: t.chieu, ngtu: t.ngtu, ngden: t.ngden }),
+    (trang, moiTrang) => coreForecast(t.tt ?? '', t.q ?? '', { trang, moiTrang, cot: t.cot, chieu: t.chieu, han: t.han }),
     // Khoá ghép: một máy có nhiều lõi nên riêng serial không định danh được 1 dòng.
     (r) => `${r.serial}-${r.filter_code}`,
     TOI_DA_CHON
@@ -5234,7 +5237,7 @@ export async function khoaTatCaKhach(t: ThamSoLoc): Promise<string[]> {
 
 export async function khoaTatCaBaoTri(t: ThamSoLoc): Promise<string[]> {
   return gomKhoa(
-    (trang, moiTrang) => maintenanceDue(t.tt ?? '', t.q ?? '', { trang, moiTrang, cot: t.cot, chieu: t.chieu, ngtu: t.ngtu, ngden: t.ngden }),
+    (trang, moiTrang) => maintenanceDue(t.tt ?? '', t.q ?? '', { trang, moiTrang, cot: t.cot, chieu: t.chieu, han: t.han }),
     (r) => r.visit_id,
     TOI_DA_CHON
   )
@@ -5290,16 +5293,43 @@ export type AuditRow = {
   ket_qua: string
 }
 
-/** Vết thao tác nhạy cảm gần nhất (CHỈ ADMIN xem). */
-export async function auditLog(limit = 100, hanhDong?: string): Promise<AuditRow[]> {
+const AUDIT_MOI_TRANG = 50
+
+/**
+ * Vết thao tác nhạy cảm (CHỈ ADMIN xem) — trang /audit theo khuôn Ticket F: tìm (người / hành động / đối tượng) + Lọc ▸
+ * trường (`app/audit/truong-audit`) lọc ở DB, mới nhất trước, phân trang 50.
+ */
+export async function listNhatKyThaoTac(
+  q = '',
+  opts: { trang?: number; loc?: Record<string, string | undefined> } = {},
+): Promise<{ rows: AuditRow[]; tong: number; soTrang: number }> {
   await requireStaff()
   if (!(await coQuyen('he_thong.nhat_ky', 'ADMIN'))) throw new Error(KHONG_DU_QUYEN)
-  let q = dataClient()
-    .from('audit_log').select('id, luc, actor, hanh_dong, doi_tuong, chi_tiet, ket_qua')
-  if (hanhDong) q = q.eq('hanh_dong', hanhDong)
-  const { data, error } = await q.order('id', { ascending: false }).limit(limit)
+  const trang = Math.max(1, opts.trang ?? 1)
+  let tv = dataClient()
+    .from('audit_log').select('id, luc, actor, hanh_dong, doi_tuong, chi_tiet, ket_qua', { count: 'exact' })
+  const kw = antoanChoOr(q.trim())
+  if (kw) tv = tv.or(['actor', 'hanh_dong', 'doi_tuong'].map((c) => `${c}.ilike.%${kw}%`).join(','))
+  for (const d of docTatCa(opts.loc ?? {}, TRUONG_AUDIT)) {
+    const t = TRUONG_AUDIT.find((x) => x.id === d.truong)!
+    for (const nhom of t.kieu === 'ngay' ? locNgay(t.cot, d, homNayVN()) : locChon(t.cot, d)) tv = tv.or(nhom)
+  }
+  const { data, error, count } = await tv
+    .order('id', { ascending: false })
+    .range((trang - 1) * AUDIT_MOI_TRANG, trang * AUDIT_MOI_TRANG - 1)
   if (error) throw new Error(error.message)
-  return (data ?? []) as AuditRow[]
+  const tong = count ?? 0
+  return { rows: (data ?? []) as AuditRow[], tong, soTrang: Math.max(1, Math.ceil(tong / AUDIT_MOI_TRANG)) }
+}
+
+/** Số đếm hàng tab /audit (count head): tất cả · lỗi. */
+export async function demNhatKyThaoTac(): Promise<{ tatCa: number; loi: number }> {
+  await requireStaff()
+  if (!(await coQuyen('he_thong.nhat_ky', 'ADMIN'))) throw new Error(KHONG_DU_QUYEN)
+  const dem = () => dataClient().from('audit_log').select('id', { count: 'exact', head: true })
+  const [a, b] = await Promise.all([dem(), dem().eq('ket_qua', 'loi')])
+  if (a.error || b.error) throw new Error((a.error ?? b.error)!.message)
+  return { tatCa: a.count ?? 0, loi: b.count ?? 0 }
 }
 
 // ── Nối máy đã lắp với ĐƠN CỦA ĐẠI LÝ (CEO dump 22/08/2026) ────────────────
@@ -5504,7 +5534,13 @@ export type DongNuoc = {
  */
 export async function hoSoNuoc(
   q = '',
-  tuyChon: { tinh?: string; tu?: string; den?: string; trang?: number; moiTrang?: number } = {}
+  tuyChon: {
+    /** Lọc ▸ trường (app/nuoc/truong-nuoc.ts): `tinh` chọn, `ngay` ngày đo — ngữ pháp bang/locTruong. */
+    tinh?: string; ngay?: string
+    /** `ngtu`/`ngden` của link cũ (LocNgay). */
+    tu?: string; den?: string
+    trang?: number; moiTrang?: number
+  } = {}
 ): Promise<KetQuaTrang<DongNuoc>> {
   await requireStaff()
   await doQuyen('cs.bao_tri.xem')
@@ -5522,6 +5558,9 @@ export async function hoSoNuoc(
   const { tu, den } = { tu: tuyChon.tu, den: tuyChon.den }
   if (tu)  truyVan = truyVan.gte('completed_at', tu)
   if (den) truyVan = truyVan.lte('completed_at', den)
+  for (const d of docTatCa({ ngay: tuyChon.ngay }, [{ id: 'ngay', kieu: 'ngay' }])) {
+    for (const g of locNgay('completed_at', d, homNayVN())) truyVan = truyVan.or(g)
+  }
 
   const { data, error, count } = await truyVan
     .order('completed_at', { ascending: false, nullsFirst: false })
@@ -5574,7 +5613,8 @@ export async function hoSoNuoc(
     const c = (x: string | null) => boDau(x ?? '').includes(boDau(kw))
     rows = rows.filter((r) => c(r.ten_khach) || c(r.dia_chi) || c(r.bo_may))
   }
-  if (tuyChon.tinh) rows = rows.filter((r) => (r.tinh ?? '') === tuyChon.tinh)
+  // `tinh=Hà Nội` cũ vẫn = "là"; thêm nhiều tỉnh / không là / trống (Lọc ▸ Tỉnh/TP).
+  rows = apLoc(rows, docTatCa({ tinh: tuyChon.tinh }, [{ id: 'tinh', kieu: 'chon' }]), [{ id: 'tinh', kieu: 'chon', lay: (r) => r.tinh }])
 
   const tong = count ?? 0
   return { rows, tong, trang, soTrang: Math.max(1, Math.ceil(tong / moi)), sapXep: { cot: 'ngay', tang: false, macDinh: true } }

@@ -1,11 +1,22 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { thGhim } from '@/components/ui/table-styles'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { ChipLoc, NutLoc, useMoLoc, type TruongLoc } from '@/components/ui/bo-loc-truong'
+import { DataViewToolbar } from '@/components/ui/data-view-toolbar'
+import { EmptyState } from '@/components/ui/empty-state'
+import { useHangTab } from '@/components/HangTab'
+import { hrefBoLoc, KhungChon, OTimKiem, ThanhDangLoc } from '@/bang'
+import { docTatCa, ghiDieuKien, nhanChip, type DieuKienLoc } from '@/bang/locTruong'
+import type { TabView } from '@/app/actions'
+import { TAB_NV, TRANG_THAI_NV, TRUONG_NV } from '@/app/nhan-vien/truong-nhan-vien'
+import { cn } from '@/lib/utils'
 
-import { useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition, type ReactNode } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   capMatKhauMoi, demThamChieuNhanSu, doiTenNhanVien, guiLaiMatKhau, suaNhanVien, xoaNhanSu,
 } from '@/lib/nen-tang/nhan-su'
@@ -52,12 +63,65 @@ for (const v of VAI_TRO) {
   else NHOM.push({ boPhan: bp, vaiTro: [v] })
 }
 
-/** Cột Tên + Trạng thái dính bên trái khi kéo ngang — luôn biết đang tick cho ai. */
-const GHIM = 'sticky left-0 z-20 bg-inherit border-r'
+/** Lọc ▸ trường: giá trị chọn của Trạng thái / Vai trò. */
+const TRUONG_LOC: TruongLoc[] = TRUONG_NV.map((x) => ({
+  ...x,
+  tuyChon: x.id === 'tt' ? TRANG_THAI_NV : VAI_TRO.map((v) => ({ giaTri: v, nhan: NHAN_VAI_TRO[v] })),
+}))
 
+/**
+ * Nhân viên — đầu + tab + Lọc theo khuôn Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md); THÂN là MA TRẬN
+ * người × vai trò (tick là lưu) nên giữ bảng nhóm cột theo bộ phận, không cột co dãn / ẩn / đổi chỗ như bảng danh sách.
+ * Lọc chạy ở server (app/nhan-vien/page.tsx), ở đây chỉ dựng nút Lọc + chip. Cột Người dính trái khi kéo ngang.
+ */
 export function BangNhanVien({
-  ds, toiId, choXoa = false, choMatKhau = false,
-}: { ds: DongNhanVien[]; toiId: string; choXoa?: boolean; choMatKhau?: boolean }) {
+  ds, toiId, choXoa = false, choMatKhau = false, tong, tabRieng = [], quyenTabChung = false, demTab, nutChinh, ghiChu,
+}: {
+  ds: DongNhanVien[]; toiId: string; choXoa?: boolean; choMatKhau?: boolean
+  tong: number; tabRieng?: TabView[]; quyenTabChung?: boolean; demTab?: Record<string, number>
+  nutChinh?: ReactNode; ghiChu?: ReactNode
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const params = useSearchParams()
+  const q = params.get('q')
+  const dk = docTatCa(params, TRUONG_LOC)
+  const { nut: refNutLoc, chip: refChipLoc } = useMoLoc()
+  const tenGt = (t: TruongLoc) => (g: string) => t.tuyChon?.find((x) => x.giaTri === g)?.nhan ?? g
+  const hangTab = useHangTab({
+    bang: 'nhan_vien_tab',
+    coDinh: TAB_NV,
+    tabRieng,
+    demTab,
+    quyenTabChung,
+    nhan: 'nhân viên',
+    khu: 'Hệ thống',
+    viDuTen: 'VD: Kho + Kế toán',
+    dieuKien: [
+      ...(q ? [{ nhan: 'Tìm', giaTri: q }] : []),
+      ...dk.map((d) => {
+        const t = TRUONG_LOC.find((x) => x.id === d.truong)!
+        const n = nhanChip(d, t.ten, tenGt(t))
+        return { nhan: n.truoc.replace(/:$/, ''), giaTri: n.giaTri }
+      }),
+    ],
+  })
+  function datLoc(id: string, d: DieuKienLoc | null) {
+    const tiep = new URLSearchParams(params.toString())
+    const gt = ghiDieuKien(d, TRUONG_LOC.find((x) => x.id === id)!.kieu)
+    if (gt == null) tiep.delete(id)
+    else tiep.set(id, gt)
+    const s = tiep.toString()
+    router.push(s ? `${pathname}?${s}` : pathname, { scroll: false })
+  }
+  const dieuKien = [
+    ...(q ? [{ nhan: 'Tìm', giaTri: q, href: hrefBoLoc(pathname, params, 'q') }] : []),
+    ...dk.map((d) => {
+      const t = TRUONG_LOC.find((x) => x.id === d.truong)!
+      return { nhan: t.ten, giaTri: '', chip: <ChipLoc ref={refChipLoc(d.truong)} truong={t} dieuKien={d} onDoi={datLoc} /> }
+    }),
+  ]
+
   // KHÔNG khoá ô lúc lưu — dù chỉ khoá một dòng. Người dùng bấm 3-4 vai trò liên
   // tiếp cho cùng một người là chuyện thường; khoá là nuốt mất cú bấm thứ 2 trở đi
   // (đúng triệu chứng "tick loạn xạ"). Thay bằng: hiện ngay + gửi lưu ngay.
@@ -111,37 +175,42 @@ export function BangNhanVien({
   }
 
   return (
-    <div className="space-y-2">
+    <KhungChon khoaTrang={[]} tong={tong} bat={false} thamSo={{}}>
+      {/* Đầu + thanh lọc + bảng là MỘT khối (Ticket F: bảng sát thanh công cụ). */}
+      <div className="border-none border-current">
+      <DataViewToolbar
+        tieuDe="Nhân viên"
+        dem={{ thay: ds.length, tong }}
+        timKiem={<OTimKiem placeholder="Tên, email…" aria-label="Tìm nhân viên" />}
+        nutChinh={nutChinh}
+        tabs={hangTab.tabs}
+        dangXem="bang"
+        loc={<NutLoc ref={refNutLoc} truong={TRUONG_LOC} dieuKien={dk} onDoi={datLoc} />}
+      />
+      <ThanhDangLoc dieuKien={dieuKien} hienThi={ds.length} tong={tong} nhan="nhân viên" anSoDong
+        hrefXoaLoc={hrefBoLoc(pathname, params, 'q', ...TRUONG_NV.map((x) => x.id))} />
       {mkVuaCap && <MatKhauVuaCap email={mkVuaCap.email} matKhau={mkVuaCap.matKhau} />}
 
-      <TableWrap vien tabIndex={0} aria-label="Nhân viên theo bộ phận">
+      <TableWrap tabIndex={0} role="region" aria-label="Vùng cuộn bảng nhân viên">
         <Table variant="thuong" aria-label="Nhân viên theo bộ phận">
-          <TableHeader className="text-muted-foreground">
-            <TableRow className="bg-muted">
-              <TableHead className={`${GHIM} bg-muted text-left px-3 py-2 font-medium border-b`}>Người</TableHead>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col" className={cn(thGhim, 'z-2')}>Người</TableHead>
               {NHOM.map((n) => (
-                <TableHead
-                  key={n.boPhan}
-                  colSpan={n.vaiTro.length}
-                  className="px-2 py-1.5 text-xs font-medium border-b border-l text-center whitespace-nowrap"
-                >
+                <TableHead key={n.boPhan} scope="colgroup" colSpan={n.vaiTro.length} className="text-center">
                   {NHAN_BO_PHAN[n.boPhan]}
                 </TableHead>
               ))}
-              <TableHead className="px-3 py-2 font-medium border-b border-l text-left">Trạng thái</TableHead>
+              <TableHead scope="col">Trạng thái</TableHead>
             </TableRow>
-            <TableRow className="bg-muted/70">
-              <TableHead className={`${GHIM} bg-muted/70 border-b`} />
+            <TableRow>
+              <TableHead className={cn(thGhim, 'z-2')} />
               {VAI_TRO.map((v) => (
-                <TableHead
-                  key={v}
-                  title={NHAN_VAI_TRO[v]}
-                  className="px-2 py-1.5 text-[11px] font-normal text-muted-foreground border-b border-l text-center whitespace-nowrap"
-                >
+                <TableHead key={v} scope="col" title={NHAN_VAI_TRO[v]} className="text-center font-normal">
                   {TEN_COT[v]}
                 </TableHead>
               ))}
-              <TableHead className="border-b border-l" />
+              <TableHead />
             </TableRow>
           </TableHeader>
 
@@ -149,13 +218,9 @@ export function BangNhanVien({
             {ds.map((nv) => {
               const vaiTro = vaiTroCua(nv)
               const dangChay = dangLuu[nv.id] ?? false
-              const nen = nv.hoat_dong ? 'bg-card' : 'bg-muted/70'
               return (
-                <TableRow
-                  key={nv.id}
-                  className={`${nen} ${nv.hoat_dong ? '' : 'text-muted-foreground'} ${dangChay ? 'opacity-70' : ''}`}
-                >
-                  <TableCell className={`${GHIM} ${nen} px-3 py-2 border-b align-top`}>
+                <TableRow key={nv.id} className={cn(!nv.hoat_dong && 'text-muted-foreground', dangChay && 'opacity-70')}>
+                  <TableCell ghim className="h-auto py-2 align-top">
                     <Input
                       aria-label={`Tên nhân viên ${nv.email ?? nv.ten}`}
                       defaultValue={nv.ten}
@@ -166,20 +231,20 @@ export function BangNhanVien({
                       }}
                       className="w-44"
                     />
-                    <div className="text-[11px] font-mono text-muted-foreground mt-0.5 truncate max-w-44">
+                    <div className="mt-0.5 max-w-44 truncate font-mono text-xs text-muted-foreground">
                       {nv.email ?? <span className="text-(--color-text-warning)">chưa có email</span>}
                       {nv.id === toiId && <span className="ml-1 text-muted-foreground">← bạn</span>}
                     </div>
                     {vaiTro.length === 0 && (
-                      <div className="text-[11px] text-(--color-text-warning)">chưa gán vai trò</div>
+                      <div className="text-xs text-(--color-text-warning)">chưa gán vai trò</div>
                     )}
                     {loi[nv.id] && (
-                      <div className="text-[11px] text-(--color-text-danger) mt-0.5 max-w-44">{loi[nv.id]}</div>
+                      <div className="mt-0.5 max-w-44 whitespace-normal text-xs text-(--color-text-danger)">{loi[nv.id]}</div>
                     )}
                   </TableCell>
 
                   {VAI_TRO.map((v) => (
-                    <TableCell key={v} className="px-2 py-2 border-b border-l text-center">
+                    <TableCell key={v} className="text-center">
                       <Checkbox
                         aria-label={`${nv.email ?? nv.ten} — ${NHAN_VAI_TRO[v]}`}
                         checked={vaiTro.includes(v)}
@@ -188,7 +253,7 @@ export function BangNhanVien({
                     </TableCell>
                   ))}
 
-                  <TableCell className="px-3 py-2 border-b border-l whitespace-nowrap space-y-1">
+                  <TableCell className="h-auto space-y-1 py-2">
                     <Button
                       type="button" variant={nv.hoat_dong ? 'outline' : 'secondary'} size="sm"
                       disabled={dangChay}
@@ -239,7 +304,7 @@ export function BangNhanVien({
                     {choXoa && nv.id !== toiId && (
                       <div>
                         {hoiXoa[nv.id] ? (
-                          <span className="text-[11px] text-(--color-text-danger)">
+                          <span className="text-xs text-(--color-text-danger)">
                             Xoá hẳn?{' '}
                             <Button
                               type="button" variant="destructive" size="xs" disabled={dangChay}
@@ -290,7 +355,7 @@ export function BangNhanVien({
                     )}
 
                     {xong[nv.id] && (
-                      <div className="text-[11px] text-(--color-text-success)">{xong[nv.id]}</div>
+                      <div className="text-xs text-(--color-text-success)">{xong[nv.id]}</div>
                     )}
                   </TableCell>
                 </TableRow>
@@ -299,12 +364,19 @@ export function BangNhanVien({
           </TableBody>
         </Table>
       </TableWrap>
+      </div>
+      {!ds.length && (
+        <EmptyState size="sm" kieu={dieuKien.length ? 'loc' : 'that'}
+          tieuDe={dieuKien.length ? 'Không có nhân viên nào khớp' : 'Chưa có nhân viên'}
+          moTa={dieuKien.length ? 'Thử đổi từ khoá hoặc bỏ bớt bộ lọc.' : undefined} />
+      )}
+      {ghiChu}
 
       <p className="text-xs text-muted-foreground">
         Kéo ngang để thấy hết bộ phận — cột người luôn dính bên trái. Di chuột vào tên cột để xem
         tên vai trò đầy đủ. Trong cùng một bộ phận, ô bạn <b>vừa bấm</b> là ô thắng: đang Trưởng CSKH
         mà bấm NV CSKH thì thành nhân viên. Khoá một người là họ mất đường vào ngay lần tải trang kế
-        tiếp, kể cả email <code className="mx-1 text-[11px]">@gwt.vn</code>. Sửa tên xong bấm ra ngoài ô là lưu.
+        tiếp, kể cả email <code className="mx-1 text-xs">@gwt.vn</code>. Sửa tên xong bấm ra ngoài ô là lưu.
       </p>
 
       {choXoa && (
@@ -315,6 +387,6 @@ export function BangNhanVien({
           đăng nhập của email đó.
         </p>
       )}
-    </div>
+    </KhungChon>
   )
 }

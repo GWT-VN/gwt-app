@@ -86,7 +86,7 @@ export default async function NhomLoiDetail({
                 <BangTrangThai trangThai="rongThat" tieuDe="Nhóm này chưa có ticket nào." />
               ) : (
                 <TableWrap vien className="min-w-0">
-                  <Table aria-label="Ticket trong nhóm" variant="thuong" className="min-w-[680px]">
+                  <Table aria-label="Ticket trong nhóm" variant="thuong">
                     <TableHeader>
                       <TableRow>
                         <TableHead scope="col">Ticket</TableHead>
@@ -101,7 +101,7 @@ export default async function NhomLoiDetail({
                       {tickets.map((t) => (
                         <TableRow key={t.ticket_code} className="align-top">
                           <TableCell className="whitespace-nowrap">
-                            <Link href={`/ticket/${t.ticket_code}`} prefetch={false} className="font-mono text-xs text-foreground underline">
+                            <Link href={`/ticket/${t.ticket_code}`} prefetch={false} className="tabular-nums font-medium hover:underline">
                               {t.ticket_code}
                             </Link>
                             <div className="mt-1"><NguonBadge nguon={t.nguon} /></div>
@@ -114,7 +114,7 @@ export default async function NhomLoiDetail({
                                 <Link href={`/may/${encodeURIComponent(t.serial)}`} prefetch={false} className="text-foreground underline">
                                   {t.product_name ?? t.internal_code}
                                 </Link>
-                                <div className="font-mono text-[10px] text-muted-foreground">{t.serial}</div>
+                                <div className="tabular-nums text-xs text-muted-foreground">{t.serial}</div>
                               </>
                             ) : (
                               <span className="text-(--color-text-warning) text-xs">chưa gắn máy</span>
@@ -124,11 +124,11 @@ export default async function NhomLoiDetail({
                             {t.customer_id ? (
                               <Link href={`/khach/${t.customer_id}`} prefetch={false} className="text-foreground underline">{t.customer_name}</Link>
                             ) : <span className="text-muted-foreground">—</span>}
-                            <div className="font-mono text-xs text-muted-foreground">{t.primary_phone ?? ''}</div>
+                            <div className="tabular-nums text-xs text-muted-foreground">{t.primary_phone ?? ''}</div>
                           </TableCell>
                           <TableCell className="max-w-md whitespace-normal break-words">
                             {t.description ?? <span className="text-muted-foreground italic">không ghi mô tả</span>}
-                            <div className="text-[10px] text-muted-foreground mt-0.5">loại Odoo: {t.ticket_type ?? '—'}</div>
+                            <div className="mt-0.5 text-xs text-muted-foreground">loại Odoo: {t.ticket_type ?? '—'}</div>
                           </TableCell>
                         </TableRow>
                       ))}

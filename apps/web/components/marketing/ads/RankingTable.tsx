@@ -24,19 +24,19 @@ export default function RankingTable({
         xem từng kỳ.
       </p>
       <TableWrap vien role="region" tabIndex={0} aria-label="Bảng xếp hạng quảng cáo">
-        <Table variant="thuong" className="min-w-[640px]" aria-label="Bảng xếp hạng quảng cáo">
+        <Table aria-label="Bảng xếp hạng quảng cáo">
           <TableHeader>
             <TableRow>
-              <TableHead>#</TableHead>
+              <TableHead phai>#</TableHead>
               <TableHead>Camp</TableHead>
-              <TableHead>Cost/result</TableHead>
-              <TableHead>So chuẩn</TableHead>
-              <TableHead>Kỳ trước</TableHead>
-              <TableHead>Result/ngày</TableHead>
-              <TableHead>New mess</TableHead>
-              <TableHead>SĐT</TableHead>
-              <TableHead>Cost/SĐT</TableHead>
-              <TableHead>Khách mua</TableHead>
+              <TableHead phai>Cost/result</TableHead>
+              <TableHead phai>So chuẩn</TableHead>
+              <TableHead phai>Kỳ trước</TableHead>
+              <TableHead phai>Result/ngày</TableHead>
+              <TableHead phai>New mess</TableHead>
+              <TableHead phai>SĐT</TableHead>
+              <TableHead phai>Cost/SĐT</TableHead>
+              <TableHead phai>Khách mua</TableHead>
               <TableHead>Đề xuất</TableHead>
             </TableRow>
           </TableHeader>
@@ -45,18 +45,18 @@ export default function RankingTable({
               const diff = v.ratio! - 1;
               const perSdt = costPerSdt(v.latest);
               return (
-                <TableRow key={camp.key} className="ads-row" onClick={() => onOpen(camp.key)}>
-                  <TableCell className="num-cell">{i + 1}</TableCell>
-                  <TableCell className="td-title ad-name-col">
+                <TableRow key={camp.key} className="cursor-pointer" onClick={() => onOpen(camp.key)}>
+                  <TableCell phai>{i + 1}</TableCell>
+                  <TableCell>
                     <NameButton onOpen={() => onOpen(camp.key)}>{campLabel(camp)}</NameButton>
                     {v.flags.length > 0 && <small className="ads-flag">{v.flags.join(" · ")}</small>}
                   </TableCell>
-                  <TableCell className="num-cell"><CprPill cpr={v.cpr!} benchmark={v.benchmark} /></TableCell>
-                  <TableCell className={`num-cell ${diff <= 0 ? "ads-delta-good" : "ads-delta-bad"}`}>
+                  <TableCell phai><CprPill cpr={v.cpr!} benchmark={v.benchmark} /></TableCell>
+                  <TableCell phai className={diff <= 0 ? "ads-delta-good" : "ads-delta-bad"}>
                     {diff <= 0 ? "−" : "+"}
                     {pct(Math.abs(diff))}
                   </TableCell>
-                  <TableCell className="num-cell">
+                  <TableCell phai>
                     {v.prevCpr != null ? (
                       <>
                         {money(v.prevCpr)}
@@ -66,8 +66,8 @@ export default function RankingTable({
                       <span className="ads-muted">mới</span>
                     )}
                   </TableCell>
-                  <TableCell className="num-cell">{dec1(v.latest!.results / v.days!)}</TableCell>
-                  <TableCell className="num-cell">
+                  <TableCell phai>{dec1(v.latest!.results / v.days!)}</TableCell>
+                  <TableCell phai>
                     {v.latest!.newMessages ? (
                       <>
                         {v.latest!.newMessages}
@@ -77,9 +77,9 @@ export default function RankingTable({
                       <span className="ads-muted">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="num-cell">{v.latest!.sdt ?? <span className="ads-muted">—</span>}</TableCell>
-                  <TableCell className="num-cell">{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</TableCell>
-                  <TableCell className="num-cell">
+                  <TableCell phai>{v.latest!.sdt ?? <span className="ads-muted">—</span>}</TableCell>
+                  <TableCell phai>{perSdt != null ? money(perSdt) : <span className="ads-muted">—</span>}</TableCell>
+                  <TableCell phai>
                     {v.latest!.orders ? (
                       <>
                         <span className="sdt-val">{v.latest!.orders}</span>

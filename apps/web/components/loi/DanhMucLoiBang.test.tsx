@@ -1,10 +1,24 @@
+import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import type { LoiDanhMuc } from '@/lib/loi/kieu'
+import { KhungChon } from '@/bang'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
+// `q` trên URL = đang lọc → trạng thái rỗng là "không khớp" (khuôn Ticket F).
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => '/danh-muc-loi',
+  useSearchParams: () => new URLSearchParams('q=zz'),
+}))
 vi.mock('@/app/ticket/loi-actions', () => ({ luuLoi: vi.fn(), datTrangThaiLoi: vi.fn() }))
+vi.mock('@/app/actions', () => ({ luuTabView: vi.fn(), capNhatTabView: vi.fn(), doiTenTabView: vi.fn(), xoaTabView: vi.fn() }))
 import { DanhMucLoiBang } from './DanhMucLoiBang'
+
+const ve = (ui: ReactNode) =>
+  renderToStaticMarkup(<CauHinhBangDs><KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{}}>{ui}</KhungChon></CauHinhBangDs>)
+/** Chỉ phần bảng — hàng tab (Tất cả · Chờ duyệt · Đã duyệt · Ngừng dùng) có cùng chữ với nút thao tác. */
+const bang = (h: string) => h.slice(h.indexOf('<table'), h.indexOf('</table>'))
 
 const mk = (p: Partial<LoiDanhMuc>): LoiDanhMuc => ({
   code: 'X1', nhom: null, ten: 'Lỗi X', aliases: [], ma_may: [], dau_hieu: null, huong_xu_ly: null, nguon: null,
@@ -17,7 +31,7 @@ const rows = [
 
 describe('DanhMucLoiBang', () => {
   it('hiện danh sách, cách ghi rút gọn, phương án cắt 80 ký tự', () => {
-    const h = renderToStaticMarkup(<DanhMucLoiBang rows={rows} choSua={false} />)
+    const h = ve(<DanhMucLoiBang rows={rows} choSua={false} />)
     expect(h).toContain('data-slot="table"')
     expect(h).toContain('Rò nước')
     expect(h).toContain('a, b, c +1')
@@ -25,17 +39,17 @@ describe('DanhMucLoiBang', () => {
     expect(h).toContain('Đã duyệt')
   })
   it('không có quyền thì ẩn Sửa/Duyệt/Ngừng dùng', () => {
-    const h = renderToStaticMarkup(<DanhMucLoiBang rows={rows} choSua={false} />)
+    const h = bang(ve(<DanhMucLoiBang rows={rows} choSua={false} />))
     expect(h).not.toMatch(/>Sửa<|>Duyệt<|>Ngừng dùng</)
   })
   it('có quyền thì hiện nút, nhưng dòng CHUA_PHAN_LOAI chỉ đọc', () => {
-    const h = renderToStaticMarkup(<DanhMucLoiBang rows={rows} choSua />)
+    const h = bang(ve(<DanhMucLoiBang rows={rows} choSua />))
     expect(h.match(/>Sửa</g)).toHaveLength(1)
     expect(h).toContain('(hệ thống)')
     expect(h.match(/>Ngừng dùng</g)).toHaveLength(1)
     expect(h.match(/>Duyệt</g)).toBeNull() // A1 đã duyệt; CHUA_PHAN_LOAI không sửa được
   })
   it('danh sách rỗng báo không khớp', () => {
-    expect(renderToStaticMarkup(<DanhMucLoiBang rows={[]} choSua={false} />)).toContain('Không có mã lỗi nào khớp')
+    expect(ve(<DanhMucLoiBang rows={[]} choSua={false} />)).toContain('Không có mã lỗi nào khớp')
   })
 })

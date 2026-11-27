@@ -1,19 +1,21 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { issueReport, ticketsChuaPhanNhom, goiYGomNhom } from '@/app/actions'
+import { issueReport, ticketsChuaPhanNhom, goiYGomNhom, listTabView } from '@/app/actions'
 import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
-import { MucDoBadge, BaoHangBadge } from '@/components/NhomLoiBadge'
-import { OTimKiem, ThanhDangLoc } from '@/bang'
+import { KhungChon } from '@/bang'
+import { BangNhomLoi } from '@/components/BangNhomLoi'
 import { ManV2 } from '@/components/khung/ManV2'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
-import { PageHeader } from '@/components/ui/page-header'
-import { BangTrangThai, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
 
+// Danh sách nhóm lỗi — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). Cảnh báo an toàn đứng trên
+// bảng (phải đập vào mắt); ghi chú cách gom + gợi ý gom nhóm + ticket chưa vào nhóm nằm dưới bảng.
 export default async function NhomLoiPage({
   searchParams,
 }: {
@@ -22,11 +24,12 @@ export default async function NhomLoiPage({
   const { bh, q = '', nguong } = await searchParams
   const baoHangOnly = bh === '1'
   const nguongGom = Math.min(5, Math.max(2, Number(nguong) || 3))
-  const [rows, chuaPhanNhom, goiY, quyen] = await Promise.all([
+  const [rows, chuaPhanNhom, goiY, quyen, tabRieng] = await Promise.all([
     issueReport(baoHangOnly, q),
     ticketsChuaPhanNhom(q),
     goiYGomNhom(nguongGom),
-    hoiQuyen({ cauHinh: ['cs.nhom_loi.cau_hinh', 'QUANLY'] }),
+    hoiQuyen({ cauHinh: ['cs.nhom_loi.cau_hinh', 'QUANLY'], viewChung: ['he_thong.view_chung', 'QUANLY'] }),
+    listTabView('nhom_loi_tab'),
   ])
 
   const anToan = rows.filter((r) => r.muc_do === 'an_toan')
@@ -34,32 +37,9 @@ export default async function NhomLoiPage({
 
   return (
     <ManV2>
-      <CauHinhBangDs>
-        <TrangDuLieu className="space-y-4">
-          <PageHeader
-            tieuDe="Nhóm lỗi"
-            hanhDong={quyen.cauHinh && (
-              <Button asChild><Link href="/nhom-loi/moi">Tạo nhóm lỗi</Link></Button>
-            )}
-          />
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <nav aria-label="Lọc nhóm báo hãng" className="flex flex-wrap gap-2">
-              <Button asChild size="sm" variant={baoHangOnly ? 'outline' : 'default'}>
-                <Link href={`/nhom-loi?${new URLSearchParams({ ...(q && { q }), ...(nguong && { nguong }) })}`}
-                  aria-current={!baoHangOnly ? 'true' : undefined}>Tất cả nhóm</Link>
-              </Button>
-              <Button asChild size="sm" variant={baoHangOnly ? 'default' : 'outline'}>
-                <Link href={`/nhom-loi?${new URLSearchParams({ ...(q && { q }), ...(nguong && { nguong }), bh: '1' })}`}
-                  aria-current={baoHangOnly ? 'true' : undefined}>Chỉ nhóm báo hãng</Link>
-              </Button>
-            </nav>
-            <div className="w-full min-w-0 sm:w-72">
-              <Suspense>
-                <OTimKiem placeholder="Gõ tên nhóm, mô tả lỗi, mã ticket…" aria-label="Tìm nhóm lỗi" />
-              </Suspense>
-            </div>
-          </div>
-
+      <TrangDuLieu>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">
+          <div className="min-w-0 space-y-4">
           {anToan.length > 0 && (
             <Alert color="danger">
               <AlertTitle>Có {anToan.reduce((s, r) => s + r.so_ticket, 0)} ticket thuộc nhóm rủi ro an toàn</AlertTitle>
@@ -70,6 +50,17 @@ export default async function NhomLoiPage({
             </Alert>
           )}
 
+          <KhungChon khoaTrang={[]} tong={0} bat={false} thamSo={{ q, bh }}>
+            <Suspense>
+              <BangNhomLoi
+                rows={rows}
+                tabRieng={tabRieng}
+                quyenTabChung={quyen.viewChung}
+                nutChinh={quyen.cauHinh && <Button asChild><Link href="/nhom-loi/moi">Tạo nhóm lỗi</Link></Button>}
+              />
+            </Suspense>
+          </KhungChon>
+
           <Alert>
             <AlertDescription>
               Nhóm được gom <strong>tự động từ nội dung mô tả lỗi</strong>, không theo &ldquo;loại ticket&rdquo; của Odoo —
@@ -77,60 +68,6 @@ export default async function NhomLoiPage({
               Một ticket có thể thuộc nhiều nhóm. Bấm vào nhóm để soi từng ticket.
             </AlertDescription>
           </Alert>
-
-          <ThanhDangLoc
-            dieuKien={q ? [{ nhan: 'Từ khoá', giaTri: q }] : []}
-            hienThi={rows.length}
-            tong={rows.length}
-            nhan="nhóm lỗi"
-          />
-
-          {rows.length === 0 ? (
-            <BangTrangThai trangThai={q || baoHangOnly ? 'rongLoc' : 'rongThat'} tieuDe="Không có nhóm lỗi" />
-          ) : (
-            <TableWrap vien className="min-w-0">
-              <Table aria-label="Danh sách nhóm lỗi" className="min-w-[760px]">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead scope="col">Nhóm lỗi</TableHead>
-                    <TableHead scope="col">Mức</TableHead>
-                    <TableHead scope="col" phai>Ticket</TableHead>
-                    <TableHead scope="col" phai>Đang mở</TableHead>
-                    <TableHead scope="col" phai>90 ngày</TableHead>
-                    <TableHead scope="col" phai>Khách</TableHead>
-                    <TableHead scope="col" phai>Máy</TableHead>
-                    <TableHead scope="col">Model dính</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((r) => (
-                    <TableRow key={r.code} className={r.muc_do === 'an_toan' ? '[&>td]:bg-(--color-background-danger-surface)' : undefined}>
-                      <TableCell>
-                        <Link href={`/nhom-loi/${r.code}`} prefetch={false} className="text-foreground underline font-medium">
-                          {r.ten}
-                        </Link>
-                        {r.bao_hang && <span className="ml-2 inline-block"><BaoHangBadge /></span>}
-                        {r.mo_ta && <div className="text-xs text-muted-foreground mt-1 max-w-xl whitespace-normal">{r.mo_ta}</div>}
-                      </TableCell>
-                      <TableCell><MucDoBadge muc_do={r.muc_do} /></TableCell>
-                      <TableCell phai>{r.so_ticket}</TableCell>
-                      <TableCell phai>
-                        {r.dang_mo > 0
-                          ? <span className="text-(--color-text-warning) font-medium">{r.dang_mo}</span>
-                          : <span className="text-muted-foreground">0</span>}
-                      </TableCell>
-                      <TableCell phai>{r.trong_90_ngay}</TableCell>
-                      <TableCell phai>{r.so_khach}</TableCell>
-                      <TableCell phai>{r.so_may}</TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
-                        {r.cac_model ?? <span className="text-muted-foreground">chưa gắn máy</span>}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableWrap>
-          )}
 
           <Card className="space-y-3">
             <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -198,20 +135,16 @@ export default async function NhomLoiPage({
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
                 {chuaPhanNhom.map((t) => (
-                  <Link
-                    key={t.ticket_code}
-                    href={`/ticket/${t.ticket_code}`}
-                    className="px-2 py-1 rounded border text-xs font-mono text-foreground hover:bg-muted"
-                    title={t.ly_do}
-                  >
-                    {t.ticket_code}
-                  </Link>
+                  <Badge key={t.ticket_code} asChild variant="outline" className="tabular-nums">
+                    <Link href={`/ticket/${t.ticket_code}`} title={t.ly_do}>{t.ticket_code}</Link>
+                  </Badge>
                 ))}
               </div>
             </Card>
           )}
-        </TrangDuLieu>
-      </CauHinhBangDs>
+          </div>
+        </CauHinhBangDs>
+      </TrangDuLieu>
     </ManV2>
   )
 }

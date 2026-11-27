@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
+import { thGhim } from '@/components/ui/table-styles'
+import { cn } from '@/lib/utils'
 import type { KyThuat, LichKyThuatRow } from '@/app/actions'
 
 const THU = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
@@ -28,50 +31,48 @@ export function BangDieuPhoiKT({ kts, rows, days }: { kts: KyThuat[]; rows: Lich
 
   const o = (ktId: string, ngay: string) => oMap.get(`${ktId}|${ngay}`) ?? []
 
+  // Lưới người × ngày (không phải danh sách bản ghi) → không khuôn F; chỉ đồng bộ kiểu ô Table DS
+  // (docs/rework/2026-11-27-khuon-f-huong-dan-agent.md mục 5).
   return (
-    <div role="region" aria-label="Bảng điều phối kỹ thuật" tabIndex={0} className="overflow-x-auto rounded-xl border border-border bg-card focus-visible:outline-ring">
-      <table className="w-full border-collapse text-xs">
-        <thead>
-          <tr className="bg-muted">
-            <th className="sticky left-0 bg-muted z-10 text-left font-medium text-muted-foreground px-3 py-2 border-b border-r min-w-32">Kỹ thuật</th>
-            {days.map((d, i) => {
-              const cn = i === 6
-              return (
-                <th key={d} className={`px-2 py-2 border-b text-center font-medium min-w-28 ${cn ? 'text-(--color-text-danger)' : 'text-muted-foreground'}`}>
-                  {THU[i]}<div className="text-[10px] font-normal text-muted-foreground">{d.slice(8)}/{d.slice(5, 7)}</div>
-                </th>
-              )
-            })}
-          </tr>
-        </thead>
-        <tbody>
+    <TableWrap vien tabIndex={0} role="region" aria-label="Bảng điều phối kỹ thuật">
+      <Table aria-label="Điều phối kỹ thuật theo tuần">
+        <TableHeader>
+          <TableRow>
+            <TableHead className={cn(thGhim, 'z-3')}>Kỹ thuật</TableHead>
+            {days.map((d, i) => (
+              <TableHead key={d} className={i === 6 ? 'text-(--color-text-danger)' : undefined}>
+                {THU[i]} <span className="text-muted-foreground">{d.slice(8)}/{d.slice(5, 7)}</span>
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {hang.map((h) => (
-            <tr key={h.id} className="align-top">
-              <td className="sticky left-0 bg-card z-10 px-3 py-2 border-b border-r font-medium text-foreground">{h.ten}</td>
-              {days.map((d) => {
-                const list = o(h.id, d)
-                return (
-                  <td key={d} className="px-1.5 py-1.5 border-b border-l align-top">
-                    <div className="space-y-1">
-                      {list.map((r) => (
-                        <Link key={r.id} href={`/ky-thuat/lich?view=list&tu=${d}&den=${d}`}
-                          className={`block rounded border px-1.5 py-1 ${MAU_TT[r.trang_thai] ?? ''}`}>
-                          <span className="font-medium">{r.ten_khach ?? 'khách'}</span>
-                          {r.viec.length > 0 && <span className="text-[10px] text-muted-foreground"> · {r.viec.length} việc</span>}
-                          {r.tinh && <div className="text-[10px] text-muted-foreground truncate">{r.tinh}</div>}
-                        </Link>
-                      ))}
-                    </div>
-                  </td>
-                )
-              })}
-            </tr>
+            <TableRow key={h.id}>
+              <TableCell ghim className="align-top font-medium">{h.ten}</TableCell>
+              {days.map((d) => (
+                <TableCell key={d} className="align-top">
+                  <div className="flex flex-col gap-1 py-1">
+                    {o(h.id, d).map((r) => (
+                      <Link key={r.id} href={`/ky-thuat/lich?view=list&tu=${d}&den=${d}`}
+                        className={cn('block rounded-sm border px-1.5 py-1 text-xs', MAU_TT[r.trang_thai])}>
+                        <span className="font-medium">{r.ten_khach ?? 'khách'}</span>
+                        {r.viec.length > 0 && <span className="text-muted-foreground"> · {r.viec.length} việc</span>}
+                        {r.tinh && <span className="block truncate text-muted-foreground">{r.tinh}</span>}
+                      </Link>
+                    ))}
+                  </div>
+                </TableCell>
+              ))}
+            </TableRow>
           ))}
           {hang.length === 0 && (
-            <tr><td colSpan={days.length + 1} className="px-3 py-6 text-center text-muted-foreground">Chưa có kỹ thuật nào hoạt động.</td></tr>
+            <TableRow>
+              <TableCell colSpan={days.length + 1} className="text-center text-muted-foreground">Chưa có kỹ thuật nào hoạt động.</TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </TableWrap>
   )
 }

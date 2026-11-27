@@ -2,10 +2,13 @@
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Combobox } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -30,6 +33,7 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
   prefill?: { khachId: string; ctx: BoiCanhKhach; ngay?: string; viec?: ViecInput[] }
 }) {
   const router = useRouter()
+  const ktHoatDong = dsKt.filter((k) => k.hoat_dong)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
@@ -207,19 +211,34 @@ export function KyThuatBang({ dsKt, prefill, suaDs = false }: {
       {/* Danh sách thợ: chỉ xem. Sửa ở trang Danh sách người. */}
       <Card className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="font-medium text-foreground">Kỹ thuật ({dsKt.filter((k) => k.hoat_dong).length})</h2>
+          <h2 className="font-medium text-foreground">Kỹ thuật ({ktHoatDong.length})</h2>
           {suaDs && <Link href="/danh-sach-nguoi?tab=kt" className="text-(--color-text-info) underline underline-offset-2">Sửa danh sách →</Link>}
         </div>
-        <ul className="divide-y border rounded-lg">
-          {dsKt.filter((k) => k.hoat_dong).map((k) => (
-            <li key={k.id} className="px-3 py-2 text-sm">
-              <span className="text-foreground">{k.ten}</span>
-              {k.la_ctv && <span className="text-[11px] text-violet-600 ml-1">CTV</span>}
-              {k.sdt && <span className="text-xs text-muted-foreground font-mono ml-1">· {k.sdt}</span>}
-            </li>
-          ))}
-          {dsKt.length === 0 && <li className="px-3 py-4 text-sm text-muted-foreground">Chưa có kỹ thuật.</li>}
-        </ul>
+        {/* Danh sách chỉ xem vài người, nằm trong trang form gán chuyến → bảng DS thường, không khuôn F (không lọc/tab). */}
+        {ktHoatDong.length === 0 ? (
+          <EmptyState size="sm" tieuDe="Chưa có kỹ thuật" moTa="Thêm thợ ở trang Danh sách người." />
+        ) : (
+          <TableWrap vien tabIndex={0} role="region" aria-label="Vùng cuộn danh sách kỹ thuật">
+            <Table aria-label="Kỹ thuật">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kỹ thuật</TableHead>
+                  <TableHead>Loại</TableHead>
+                  <TableHead>SĐT</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {ktHoatDong.map((k) => (
+                  <TableRow key={k.id}>
+                    <TableCell className="font-medium">{k.ten}</TableCell>
+                    <TableCell>{k.la_ctv ? <Badge variant="soft" color="discovery">CTV</Badge> : 'Nhân viên'}</TableCell>
+                    <TableCell className="tabular-nums">{k.sdt ?? '—'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableWrap>
+        )}
       </Card>
     </div>
   )

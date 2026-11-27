@@ -8,6 +8,9 @@ import { requireNhanSu } from '@/lib/nen-tang/phien'
 import { coQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ghiAudit } from '@/lib/nen-tang/nhat-ky'
 import type { KieuGiam, NhomTru } from '../_ctkm'
+import { boDau, chuanHoaTuKhoa } from '@/bang'
+import { homNayVN } from '@/bang/locDb'
+import { apLoc, type DieuKienLoc, type TruongDuLieu } from '@/bang/locTruong'
 
 const KHONG_DU_QUYEN = 'Bạn không có quyền làm việc này.'
 
@@ -43,65 +46,31 @@ export type CtkmRow = {
   kenh_nhan: string[]
 }
 
-/** Bộ lọc danh sách khuyến mãi — tên tham số theo `docs/CHUAN-FILTER.md`. */
-export type LocCtkm = {
-  ngtu?: string
-  ngden?: string
-  /** Mã sản phẩm. Chương trình áp MỌI sản phẩm cũng khớp, vì nó bao gồm mã này. */
-  sp?: string
-  /** channel_id của dim_channel. */
-  kenh?: string
-  trang_thai?: string
-}
+/** Có hiệu lực ít nhất một ngày trong [tu, den] (đầu mút có thể bỏ trống)? den_ngay null = vô thời hạn. */
+const giaoNhau = (r: { tu_ngay: string; den_ngay: string | null }, tu?: string, den?: string) =>
+  (!den || r.tu_ngay <= den) && (!tu || !r.den_ngay || r.den_ngay >= tu)
 
 /**
- * Danh sách chương trình.
+ * Danh sách chương trình — tìm (tên/mã) + Lọc ▸ trường (`truong-sales.ts` TRUONG_CTKM), lọc trong bộ nhớ (vài chục dòng).
  *
  * Lọc NGÀY theo phép GIAO NHAU hai khoảng, không phải "nằm gọn trong": chương trình
  * chạy vắt qua mốc lọc vẫn phải hiện, vì trong khoảng đó nó CÓ hiệu lực thật.
+ * Lọc SẢN PHẨM: chương trình KHÔNG khai sản phẩm nào = áp cho MỌI sản phẩm -> "là X" vẫn khớp, "không là X" thì không,
+ * "trống" = các chương trình áp mọi sản phẩm.
  */
-export async function danhSachCtkm(loc: LocCtkm = {}): Promise<CtkmRow[]> {
+export async function danhSachCtkm(q = '', dk: DieuKienLoc[] = []): Promise<CtkmRow[]> {
   await chanXem()
   const db = dataClient()
 
-  let q = db.from('sales_ctkm').select('*').order('tu_ngay', { ascending: false })
-  // Giao nhau: bắt đầu trước khi khoảng lọc kết thúc, và kết thúc sau khi khoảng lọc bắt đầu.
-  if (loc.ngden) q = q.lte('tu_ngay', loc.ngden)
-  if (loc.ngtu) q = q.or(`den_ngay.is.null,den_ngay.gte.${loc.ngtu}`)
-  if (loc.trang_thai) q = q.eq('trang_thai', loc.trang_thai)
-
-  if (loc.kenh) {
-    const { data: k } = await db.from('sales_ctkm_kenh').select('ctkm_id').eq('channel_id', Number(loc.kenh))
-    const ids = [...new Set(((k ?? []) as Array<{ ctkm_id: string }>).map((r) => r.ctkm_id))]
-    q = q.in('id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
-  }
-
-  const { data, error } = await q
+  const { data, error } = await db.from('sales_ctkm').select('*').order('tu_ngay', { ascending: false })
   if (error) throw new Error(error.message)
-  let ds = (data ?? []) as Array<Record<string, unknown>>
+  const ds = (data ?? []) as Array<Record<string, unknown>>
   if (!ds.length) return []
-
-  if (loc.sp) {
-    // Chương trình KHÔNG khai sản phẩm nào = áp cho MỌI sản phẩm -> vẫn khớp.
-    // Lọc kiểu `.in()` thuần sẽ loại mất nhóm đó, nên phải xử ở đây.
-    const { data: rows } = await db
-      .from('sales_ctkm_sp')
-      .select('ctkm_id, internal_code')
-      .in('ctkm_id', ds.map((r) => r.id as string))
-    const coKhai = new Set(((rows ?? []) as Array<{ ctkm_id: string }>).map((r) => r.ctkm_id))
-    const khopMa = new Set(
-      ((rows ?? []) as Array<{ ctkm_id: string; internal_code: string }>)
-        .filter((r) => r.internal_code === loc.sp)
-        .map((r) => r.ctkm_id)
-    )
-    ds = ds.filter((r) => !coKhai.has(r.id as string) || khopMa.has(r.id as string))
-    if (!ds.length) return []
-  }
 
   const ids = ds.map((r) => r.id as string)
   const [kenh, sp, qua, dim] = await Promise.all([
     db.from('sales_ctkm_kenh').select('ctkm_id, channel_id').in('ctkm_id', ids),
-    db.from('sales_ctkm_sp').select('ctkm_id').in('ctkm_id', ids),
+    db.from('sales_ctkm_sp').select('ctkm_id, internal_code').in('ctkm_id', ids),
     db.from('sales_ctkm_qua').select('ctkm_id').in('ctkm_id', ids),
     db.from('dim_channel').select('id, channel_l1, channel_l2'),
   ])
@@ -111,12 +80,11 @@ export async function danhSachCtkm(loc: LocCtkm = {}): Promise<CtkmRow[]> {
     const l2 = String(d.channel_l2 ?? '').trim()
     tenKenh.set(d.id as number, l2 ? `${l1} · ${l2}` : l1)
   }
-  const dem = (rows: Array<Record<string, unknown>> | null, id: string) =>
-    (rows ?? []).filter((r) => r.ctkm_id === id).length
+  const cua = (rows: unknown, id: string) => ((rows ?? []) as Array<Record<string, unknown>>).filter((r) => r.ctkm_id === id)
 
-  return ds.map((r) => {
+  const rows = ds.map((r) => {
     const id = r.id as string
-    const cuaCT = ((kenh.data ?? []) as Array<Record<string, unknown>>).filter((k) => k.ctkm_id === id)
+    const cuaCT = cua(kenh.data, id)
     return {
       id,
       ma: (r.ma as string) ?? null,
@@ -129,11 +97,34 @@ export async function danhSachCtkm(loc: LocCtkm = {}): Promise<CtkmRow[]> {
       nhom_khach: r.nhom_khach as string,
       trang_thai: r.trang_thai as string,
       so_kenh: cuaCT.length,
-      so_sp: dem(sp.data as Array<Record<string, unknown>>, id),
-      so_qua: dem(qua.data as Array<Record<string, unknown>>, id),
+      so_sp: cua(sp.data, id).length,
+      so_qua: cua(qua.data, id).length,
       kenh_nhan: cuaCT.map((k) => tenKenh.get(k.channel_id as number) ?? `#${k.channel_id}`),
+      kenh_id: cuaCT.map((k) => String(k.channel_id)),
+      sp_ma: cua(sp.data, id).map((x) => x.internal_code as string),
     }
   })
+
+  const tuKhoa = chuanHoaTuKhoa(q).split(' ').filter(Boolean)
+  const dSp = dk.find((d) => d.truong === 'sp')
+  const dNgay = dk.find((d) => d.truong === 'ngay')
+  const truong: TruongDuLieu<(typeof rows)[number]>[] = [
+    { id: 'tt', kieu: 'chon', lay: (r) => r.trang_thai },
+    { id: 'kenh', kieu: 'chon', lay: (r) => r.kenh_id },
+    { id: 'sp', kieu: 'chon', lay: (r) => (r.sp_ma.length ? r.sp_ma : (dSp?.giaTri ?? [])) },
+  ]
+  const [a, b] = dNgay?.giaTri ?? []
+  const homNay = homNayVN()
+  return apLoc(rows, dk, truong)
+    .filter((r) => tuKhoa.every((t) => boDau(`${r.ten} ${r.ma ?? ''}`).includes(t)))
+    .filter((r) => {
+      if (!dNgay) return true
+      if (dNgay.phep === 'hom-nay') return giaoNhau(r, homNay, homNay)
+      if (dNgay.phep === 'khoang') return giaoNhau(r, a, b)
+      if (dNgay.phep === 'truoc') return r.tu_ngay < a
+      if (dNgay.phep === 'sau') return giaoNhau(r, a)
+      return false // "trống": chương trình luôn có ngày bắt đầu.
+    })
 }
 
 /** Bộ cờ quyền cho giao diện — trang gọi một lần, truyền xuống để ẩn/hiện nút. */

@@ -39,19 +39,19 @@ export default async function KhoBaoCaoPage({ searchParams }: { searchParams: Pr
             <O><LinkMa ma={d.internal_code} kho={k} /></O>
             <O>{d.ten ?? ''}</O>
             <O cls="text-muted-foreground">{d.don_vi ?? ''}</O>
-            <O cls="text-right">{sl(d.dau_ky)}</O>
-            <O cls="text-right text-(--color-text-success)">{d.nhap ? sl(d.nhap) : ''}</O>
-            <O cls="text-right text-destructive">{d.xuat ? sl(d.xuat) : ''}</O>
-            <O cls="text-right text-(--color-text-info)">{d.dieu_chinh ? sl(d.dieu_chinh) : ''}</O>
-            <O cls={`text-right font-semibold ${d.cuoi_ky < 0 ? 'text-destructive' : ''}`}>{sl(d.cuoi_ky)}</O>
+            <O phai>{sl(d.dau_ky)}</O>
+            <O phai cls="text-(--color-text-success)">{d.nhap ? sl(d.nhap) : ''}</O>
+            <O phai cls="text-destructive">{d.xuat ? sl(d.xuat) : ''}</O>
+            <O phai cls="text-(--color-text-info)">{d.dieu_chinh ? sl(d.dieu_chinh) : ''}</O>
+            <O phai cls={`font-semibold ${d.cuoi_ky < 0 ? 'text-destructive' : ''}`}>{sl(d.cuoi_ky)}</O>
           </TableRow>
         ))}
         {ds.length > 0 && (
           <TableRow className="bg-muted font-semibold">
             <O>Tổng</O><O /><O />
-            <O cls="text-right">{sl(tong((d) => d.dau_ky))}</O><O cls="text-right">{sl(tong((d) => d.nhap))}</O>
-            <O cls="text-right">{sl(tong((d) => d.xuat))}</O><O cls="text-right">{sl(tong((d) => d.dieu_chinh))}</O>
-            <O cls="text-right">{sl(tong((d) => d.cuoi_ky))}</O>
+            <O phai>{sl(tong((d) => d.dau_ky))}</O><O phai>{sl(tong((d) => d.nhap))}</O>
+            <O phai>{sl(tong((d) => d.xuat))}</O><O phai>{sl(tong((d) => d.dieu_chinh))}</O>
+            <O phai>{sl(tong((d) => d.cuoi_ky))}</O>
           </TableRow>
         )}
       </Bang>

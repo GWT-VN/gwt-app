@@ -16,7 +16,7 @@ vi.mock('@/app/ticket/loi-actions', () => ({
 vi.mock('@/lib/nen-tang/kiem-quyen', () => ({
   hoiQuyen: async () => ({ sua: true }),
 }))
-vi.mock('@/app/actions', () => ({ nhomLoiChon: async () => [] }))
+vi.mock('@/app/actions', () => ({ nhomLoiChon: async () => [], listTabView: async () => [] }))
 
 afterEach(() => vi.restoreAllMocks())
 

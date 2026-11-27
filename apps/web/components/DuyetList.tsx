@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableWrap } from '@/components/ui/table'
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -37,7 +39,10 @@ function tomTat(y: YeuCauThayDoi): string {
     .map(([k, v]) => `${NHAN_COT[k] ?? k}: ${v ?? '—'}`).join(' · ')
 }
 
-/** Hàng chờ duyệt yêu cầu SỬA/XOÁ (admin). Duyệt -> áp thật; Từ chối -> bỏ. */
+/**
+ * Hàng chờ duyệt yêu cầu SỬA/XOÁ (admin). Duyệt -> áp thật; Từ chối -> bỏ. Một khối trong trang /duyet (cùng khách chờ
+ * duyệt + yêu cầu xuất) nên chỉ theo kiểu ô Table DS, không thanh công cụ riêng (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md).
+ */
 export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
   const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
@@ -86,7 +91,7 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
     router.refresh()
   }
 
-  if (!items.length) return <p className="text-sm text-muted-foreground">Không có yêu cầu sửa/xoá nào chờ duyệt.</p>
+  if (!items.length) return <EmptyState size="sm" capTieuDe={2} tieuDe="Không có yêu cầu sửa/xoá nào chờ duyệt." />
   return (
     <div className="space-y-2">
       {err && <Alert color="danger"><AlertDescription>{err}</AlertDescription></Alert>}
@@ -110,36 +115,54 @@ export function DuyetList({ items }: { items: YeuCauThayDoi[] }) {
           )}
         </div>
       )}
-      <ul className="divide-y border rounded-lg">
-        {items.map((y) => (
-          <li key={y.id} className="px-3 py-2.5 flex items-start justify-between gap-3">
-            <Checkbox checked={chonHopLe.has(y.id)} onCheckedChange={() => doiChon(y.id)}
-              aria-label={`Chọn yêu cầu ${NHAN_BANG[y.doi_tuong] ?? y.doi_tuong} của ${y.nguoi_gui ?? 'người gửi không rõ'}`} className="mt-1" />
-            <div className="min-w-0 text-sm flex-1">
-              <div className="text-foreground">
-                <Badge variant="soft" className="mr-1.5" color={y.loai === 'xoa' || y.loai === 'gop' ? 'danger' : y.loai === 'doi_serial' ? 'warning' : 'info'}>
-                  {NHAN_LOAI[y.loai] ?? y.loai}
-                </Badge>
-                {NHAN_BANG[y.doi_tuong] ?? y.doi_tuong}
-              </div>
-              <div className="text-muted-foreground mt-0.5 break-words">{tomTat(y)}</div>
-              {/* Với gop, ly_do đã hiện làm dòng tóm tắt chính ở trên — không lặp lại nhỏ xám bên dưới. */}
-              {y.ly_do && y.loai !== 'gop' && <div className="text-xs text-muted-foreground mt-0.5">{y.ly_do}</div>}
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                {y.nguoi_gui ?? '—'} · {hienNgay(y.created_at, 'gio')}
-              </div>
-            </div>
-            <div className="flex gap-2 flex-none">
-              <Button size="sm" onClick={() => lam(y.id, true)} disabled={busy !== null}>
-                {busy === y.id ? '…' : 'Duyệt'}
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => lam(y.id, false)} disabled={busy !== null}>
-                Từ chối
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <TableWrap vien tabIndex={0} role="region" aria-label="Vùng cuộn yêu cầu sửa/xoá">
+        <Table variant="thuong" aria-label="Yêu cầu sửa/xoá chờ duyệt">
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col"><span className="sr-only">Chọn</span></TableHead>
+              <TableHead scope="col">Loại</TableHead>
+              <TableHead scope="col">Đối tượng</TableHead>
+              <TableHead scope="col">Nội dung</TableHead>
+              <TableHead scope="col">Người gửi</TableHead>
+              <TableHead scope="col">Lúc</TableHead>
+              <TableHead scope="col"><span className="sr-only">Thao tác</span></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((y) => (
+              <TableRow key={y.id} chon={chonHopLe.has(y.id)}>
+                <TableCell>
+                  <Checkbox checked={chonHopLe.has(y.id)} onCheckedChange={() => doiChon(y.id)}
+                    aria-label={`Chọn yêu cầu ${NHAN_BANG[y.doi_tuong] ?? y.doi_tuong} của ${y.nguoi_gui ?? 'người gửi không rõ'}`} />
+                </TableCell>
+                <TableCell>
+                  <Badge variant="soft" color={y.loai === 'xoa' || y.loai === 'gop' ? 'danger' : y.loai === 'doi_serial' ? 'warning' : 'info'}>
+                    {NHAN_LOAI[y.loai] ?? y.loai}
+                  </Badge>
+                </TableCell>
+                <TableCell>{NHAN_BANG[y.doi_tuong] ?? y.doi_tuong}</TableCell>
+                <TableCell className="h-auto min-w-64 whitespace-normal py-2">
+                  <div className="break-words">{tomTat(y)}</div>
+                  {/* Với gop, ly_do đã hiện làm dòng tóm tắt chính ở trên — không lặp lại nhỏ xám bên dưới. */}
+                  {y.ly_do && y.loai !== 'gop' && <div className="text-xs text-muted-foreground">{y.ly_do}</div>}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{y.nguoi_gui ?? '—'}</TableCell>
+                <TableCell className="text-muted-foreground">{hienNgay(y.created_at, 'gio')}</TableCell>
+                <TableCell>
+                  <div className="flex justify-end gap-2">
+                    <Button size="sm" onClick={() => lam(y.id, true)} disabled={busy !== null}>
+                      {busy === y.id ? '…' : 'Duyệt'}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => lam(y.id, false)} disabled={busy !== null}>
+                      Từ chối
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableWrap>
       <ConfirmDialog
         open={xacNhan}
         onOpenChange={setXacNhan}

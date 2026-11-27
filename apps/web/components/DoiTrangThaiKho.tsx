@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { datTrangThaiSerial, type TrangThai } from '@/app/actions'
 import { MAU_TRANG_THAI } from '@/lib/danhSach'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 
 /**
  * Badge trạng thái + đổi nhanh NGAY trong list kho serial (đỡ phải mở từng máy).
@@ -41,7 +44,7 @@ export function DoiTrangThaiKho({
     return (
       <div className="flex items-center gap-2">
         {badge}
-        <Link href={`/may/${encodeURIComponent(serial)}`} prefetch={false} className="text-[11px] text-slate-400 underline">ở khách</Link>
+        <Link href={`/may/${encodeURIComponent(serial)}`} prefetch={false} className="text-xs text-muted-foreground underline">ở khách</Link>
       </div>
     )
   }
@@ -59,24 +62,21 @@ export function DoiTrangThaiKho({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-center gap-1.5">
         {badge}
-        <select value={den} onChange={(e) => setDen(e.target.value)} disabled={busy}
-          className="rounded border px-1.5 py-1 text-xs bg-white text-slate-700 max-w-[9rem]">
-          <option value="">đổi…</option>
-          {datTayList.map((t) => <option key={t.code} value={t.code}>{t.nhan}</option>)}
-        </select>
+        <NativeSelect size="sm" aria-label={`Đổi trạng thái ${serial}`} value={den} onChange={(e) => setDen(e.target.value)} disabled={busy}>
+          <NativeSelectOption value="">đổi…</NativeSelectOption>
+          {datTayList.map((t) => <NativeSelectOption key={t.code} value={t.code}>{t.nhan}</NativeSelectOption>)}
+        </NativeSelect>
         {den && (
           <>
-            <input type="date" value={ngay} onChange={(e) => setNgay(e.target.value)} title="Ngày (bỏ trống = hôm nay)"
-              className="rounded border px-1.5 py-1 text-xs text-slate-900" />
-            <input value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="mô tả hiện trạng (bắt buộc)"
-              className="rounded border px-2 py-1 text-xs text-slate-900 min-w-48" />
-            <button disabled={busy || !ghiChu.trim()} onClick={dat} className="rounded bg-slate-900 text-white px-2 py-1 text-xs disabled:opacity-50">Đặt</button>
+            <Input type="date" aria-label="Ngày (bỏ trống = hôm nay)" title="Ngày (bỏ trống = hôm nay)" value={ngay} onChange={(e) => setNgay(e.target.value)} />
+            <Input aria-label="Mô tả hiện trạng" value={ghiChu} onChange={(e) => setGhiChu(e.target.value)} placeholder="mô tả hiện trạng (bắt buộc)" />
+            <Button size="sm" disabled={busy || !ghiChu.trim()} onClick={dat}>Đặt</Button>
           </>
         )}
       </div>
-      {err && <span className="text-[11px] text-red-600">{err}</span>}
+      {err && <span className="text-xs text-(--color-text-danger)">{err}</span>}
     </div>
   )
 }

@@ -137,24 +137,24 @@ export function BangChinhSach({
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <TableWrap tabIndex={0} aria-label="Bảng chính sách giá">
           <Table variant="thuong" aria-label="Chính sách giá theo sản phẩm và cấp đại lý">
-            <TableHeader className="bg-muted text-[10px] uppercase tracking-wide text-muted-foreground">
+            <TableHeader>
               <TableRow>
                 {coQuyenSoan && (
-                  <TableHead rowSpan={2} className="border-b border-border px-3 py-2 align-bottom">
+                  <TableHead rowSpan={2} className="border-b border-border align-bottom">
                     <Checkbox checked={tickHet}
                       aria-label={tickHet ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
                       onCheckedChange={() => setTick(tickHet ? new Set() : new Set(ds.map((d) => d.ma)))} />
                   </TableHead>
                 )}
-                <TableHead rowSpan={2} className="border-b border-border px-3 py-2 align-bottom font-bold">Sản phẩm</TableHead>
-                <TableHead rowSpan={2} className="border-b border-border px-3 py-2 text-right align-bottom font-bold">Niêm yết</TableHead>
+                <TableHead rowSpan={2} className="border-b border-border align-bottom font-bold">Sản phẩm</TableHead>
+                <TableHead phai rowSpan={2} className="border-b border-border align-bottom font-bold">Niêm yết</TableHead>
                 {BAC.map((b) => (
-                  <TableHead key={b.ma} colSpan={2} className="border-b border-l border-border px-3 py-2 text-center font-bold">{b.nhan}</TableHead>
+                  <TableHead key={b.ma} colSpan={2} className="border-b border-l border-border text-center font-bold">{b.nhan}</TableHead>
                 ))}
               </TableRow>
               <TableRow>
                 {BAC.map((b) => (
-                  <TableHead key={b.ma} className="border-b border-l border-border px-2 py-1.5 text-center font-medium" colSpan={2}>
+                  <TableHead key={b.ma} className="border-b border-l border-border text-center" colSpan={2}>
                     <span className="mr-6">% giảm</span><span>Giá bán</span>
                   </TableHead>
                 ))}
@@ -164,19 +164,19 @@ export function BangChinhSach({
               {ds.map((d) => (
                 <TableRow key={d.ma} className={tick.has(d.ma) ? 'bg-(--color-background-info-surface)' : 'hover:bg-muted'}>
                   {coQuyenSoan && (
-                    <TableCell className="px-3 py-2">
+                    <TableCell>
                       <Checkbox aria-label={`Chọn ${d.ten}`} checked={tick.has(d.ma)} onCheckedChange={() => doiTick(d.ma)} />
                     </TableCell>
                   )}
-                  <TableCell className="px-3 py-2">
+                  <TableCell>
                     <div className="font-medium text-foreground">{d.ten}</div>
                     <div className="font-mono text-[11px] text-muted-foreground">{d.ma}</div>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-3 py-2 text-right font-semibold tabular-nums text-foreground">
+                  <TableCell phai className="whitespace-nowrap font-semibold tabular-nums text-foreground">
                     {vnd.format(d.niem_yet)} ₫
                   </TableCell>
                   {BAC.map((b) => (
-                    <TableCell key={b.ma} className="border-l border-border px-2 py-2" colSpan={2}>
+                    <TableCell key={b.ma} className="border-l border-border" colSpan={2}>
                       <div className="flex items-center justify-center gap-1.5">
                         <Input
                           type="number" className={inpO + ' w-[86px]'} disabled={!coQuyenSoan || dangChay}
@@ -219,37 +219,37 @@ export function BangChinhSach({
         {xemLichSu && (
           <div className="overflow-x-auto border-t border-border">
             <Table variant="thuong">
-              <TableHeader className="border-b border-border bg-muted text-[10px] uppercase tracking-wide text-muted-foreground">
+              <TableHeader>
                 <TableRow>
-                  <TableHead className="px-3 py-2 font-medium">Sản phẩm</TableHead>
-                  <TableHead className="px-3 py-2 font-medium">Bậc</TableHead>
-                  <TableHead className="px-3 py-2 text-right font-medium">% giảm</TableHead>
-                  <TableHead className="px-3 py-2 text-right font-medium">Giá bán</TableHead>
-                  <TableHead className="px-3 py-2 font-medium">Áp từ</TableHead>
-                  <TableHead className="px-3 py-2 font-medium">Đến</TableHead>
-                  <TableHead className="px-3 py-2 font-medium">Ai đặt</TableHead>
+                  <TableHead>Sản phẩm</TableHead>
+                  <TableHead>Bậc</TableHead>
+                  <TableHead phai>% giảm</TableHead>
+                  <TableHead phai>Giá bán</TableHead>
+                  <TableHead>Áp từ</TableHead>
+                  <TableHead>Đến</TableHead>
+                  <TableHead>Ai đặt</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {lichSu.length === 0 ? (
-                  <TableRow><TableCell colSpan={7} className="px-3 py-8 text-center text-muted-foreground">Chưa có thay đổi nào được ghi lại.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Chưa có thay đổi nào được ghi lại.</TableCell></TableRow>
                 ) : lichSu.map((h, i) => {
                   const cu = h.trang_thai === 'thay_the'
                   return (
                     <TableRow key={i} className={cu ? 'text-muted-foreground' : 'hover:bg-muted'}>
-                      <TableCell className="px-3 py-2">
+                      <TableCell>
                         <div className={cu ? '' : 'text-foreground'}>{h.ten}</div>
                         <div className="font-mono text-[11px] text-muted-foreground">{h.ma}</div>
                       </TableCell>
-                      <TableCell className="px-3 py-2">{BAC.find((b) => b.ma === h.bac)?.nhan ?? h.bac}</TableCell>
-                      <TableCell className="px-3 py-2 text-right tabular-nums">{h.giam_pct == null ? '—' : `${h.giam_pct}%`}</TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-2 text-right tabular-nums">{h.gia_ban == null ? '—' : `${vnd.format(h.gia_ban)} ₫`}</TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">{h.hieu_luc_tu}</TableCell>
-                      <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums">
+                      <TableCell>{BAC.find((b) => b.ma === h.bac)?.nhan ?? h.bac}</TableCell>
+                      <TableCell phai className="tabular-nums">{h.giam_pct == null ? '—' : `${h.giam_pct}%`}</TableCell>
+                      <TableCell phai className="whitespace-nowrap tabular-nums">{h.gia_ban == null ? '—' : `${vnd.format(h.gia_ban)} ₫`}</TableCell>
+                      <TableCell className="whitespace-nowrap tabular-nums">{h.hieu_luc_tu}</TableCell>
+                      <TableCell className="whitespace-nowrap tabular-nums">
                         {cu ? h.hieu_luc_den
                             : <Badge variant="soft" color="success">đang áp</Badge>}
                       </TableCell>
-                      <TableCell className="px-3 py-2 text-xs">{h.boi ?? '—'}</TableCell>
+                      <TableCell className="text-xs">{h.boi ?? '—'}</TableCell>
                     </TableRow>
                   )
                 })}

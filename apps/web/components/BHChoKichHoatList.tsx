@@ -1,15 +1,17 @@
 'use client'
 
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
-
-import { Button } from '@/components/ui/button'
-
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { kichHoatNhanh, type BHChoKichHoat } from '@/app/actions'
+import { kichHoatNhanh, type BHChoKichHoat, type TabView } from '@/app/actions'
+import type { MayChoSerial } from '@/app/may/chua-serial-actions'
+import { TAB_BH } from '@/app/bh-cho-kich-hoat/truong-bh'
+import { BangDanhSachF, type CotF } from '@/components/BangDanhSachF'
 import { SerialPicker } from '@/components/SerialPicker'
-import { vnDate } from '@/components/Badge'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { hienNgay } from '@/lib/dinh-dang-ngay'
 
 const HOM_NAY = () => new Date().toISOString().slice(0, 10)
 
@@ -18,8 +20,97 @@ function khoa(r: BHChoKichHoat) {
   return `${r.nguon}|${r.serial ?? ''}|${r.ma_don ?? ''}|${r.ma_noi_bo ?? ''}|${r.customer_id ?? ''}`
 }
 
+type ODong = {
+  serial: Record<string, string>
+  datSerial: (k: string, v: string) => void
+  busy: string | null
+  chay: (r: BHChoKichHoat) => void
+}
+
+function cotCho(x: ODong): CotF<BHChoKichHoat>[] {
+  return [
+    {
+      id: 'khach', ten: 'Khách', kieu: 'thuong', khoa: true, toiThieu: 140, rongToiDa: 260, title: (r) => r.ten_khach,
+      o: (r) => r.customer_id ? (
+        <Link href={`/khach/${r.customer_id}`} prefetch={false} className="font-medium hover:underline">{r.ten_khach ?? '—'}</Link>
+      ) : (
+        <span className="inline-flex items-center gap-1.5">
+          {r.ten_khach ?? '—'}
+          <Badge variant="soft" color="warning">chưa có hồ sơ CSKH</Badge>
+        </span>
+      ),
+    },
+    { id: 'sdt', ten: 'SĐT', kieu: 'thuong', o: (r) => <span className="tabular-nums">{r.sdt_khach ?? '—'}</span> },
+    {
+      id: 'may', ten: 'Máy', kieu: 'thuong', rongToiDa: 260, title: (r) => r.ten_noi_bo,
+      o: (r) => (
+        <span className="inline-flex items-center gap-1.5">
+          {r.ten_noi_bo ?? '—'}
+          {!r.serial && (r.so_luong ?? 1) > 1 && <Badge variant="soft" color="warning">còn {r.so_luong} máy</Badge>}
+        </span>
+      ),
+    },
+    { id: 'ma_noi_bo', ten: 'Mã máy', kieu: 'thuong', o: (r) => <span className="tabular-nums">{r.ma_noi_bo ?? '—'}</span> },
+    { id: 'ma_don', ten: 'Đơn', kieu: 'thuong', o: (r) => (r.serial ? '—' : r.ma_don ?? '—') },
+    // Dòng đã lắp: ngày lắp; dòng đơn bán: ngày đặt hàng (mốc BH khi kích hoạt).
+    {
+      id: 'ngay', ten: 'Ngày lắp / đặt', kieu: 'thuong', ngay: true,
+      o: (r, kieu) => <span className="tabular-nums text-muted-foreground">{hienNgay(r.serial ? r.ngay_lap : r.ngay_dat_hang, kieu)}</span>,
+    },
+    {
+      id: 'serial', ten: 'Serial', kieu: 'thuong', batBuoc: true, rong: 240,
+      o: (r) => {
+        const k = khoa(r)
+        return r.serial ? (
+          <span className="tabular-nums">{r.serial}</span>
+        ) : (
+          <SerialPicker value={x.serial[k] ?? ''} onChange={(v) => x.datSerial(k, v)} placeholder="Gõ serial máy…" />
+        )
+      },
+    },
+    {
+      id: 'kich_hoat', ten: 'Kích hoạt', kieu: 'thuong', batBuoc: true,
+      o: (r) => {
+        const k = khoa(r)
+        const sn = r.serial ?? x.serial[k] ?? ''
+        return r.customer_id ? (
+          <Button size="sm" onClick={() => x.chay(r)} loading={x.busy === k} disabled={!sn.trim()}>
+            {x.busy === k ? 'Đang kích hoạt…' : 'Kích hoạt BH'}
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant="outline"><Link href="/dang-ky-bh">Chọn khách…</Link></Button>
+        )
+      },
+    },
+  ]
+}
+
+const COT_SERIAL: CotF<MayChoSerial>[] = [
+  {
+    id: 'serial', ten: 'Mã tạm', kieu: 'thuong', khoa: true,
+    o: (m) => <Link href={`/may/${encodeURIComponent(m.serial)}`} prefetch={false} className="font-medium tabular-nums hover:underline">{m.serial}</Link>,
+  },
+  { id: 'internal_code', ten: 'Máy', kieu: 'thuong', o: (m) => <span className="tabular-nums">{m.internal_code ?? '—'}</span> },
+  { id: 'parent_serial', ten: 'Thuộc bộ', kieu: 'thuong', o: (m) => <span className="tabular-nums">{m.parent_serial ?? '—'}</span> },
+  {
+    id: 'khach', ten: 'Khách', kieu: 'thuong', rongToiDa: 260, title: (m) => m.ten_khach,
+    o: (m) => (m.customer_id ? <Link href={`/khach/${m.customer_id}`} prefetch={false} className="hover:underline">{m.ten_khach ?? 'Khách'}</Link> : '—'),
+  },
+  {
+    id: 'install_date', ten: 'Ngày lắp', kieu: 'thuong', ngay: true,
+    o: (m, kieu) => <span className="tabular-nums text-muted-foreground">{hienNgay(m.install_date, kieu)}</span>,
+  },
+]
+
+type ChungBH = { tabRieng: TabView[]; quyenTabChung: boolean; demTab: Record<string, number> }
+const tabBH = (c: ChungBH) => ({
+  bang: 'bh_cho_tab' as const, coDinh: TAB_BH, rieng: c.tabRieng, quyenChung: c.quyenTabChung, dem: c.demTab,
+  khu: 'CSKH', viDuTen: 'VD: Đơn bán Hà Nội',
+})
+const TIM = { placeholder: 'Tên/SĐT khách, serial, mã máy, mã đơn…', nhan: 'Tìm bảo hành chờ kích hoạt' }
+
 /**
- * Hàng chờ kích hoạt bảo hành.
+ * Hàng chờ kích hoạt bảo hành — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md).
  *
  * Hai kiểu dòng:
  *  · đã lắp  -> đủ serial + khách, bấm một nút là xong.
@@ -27,14 +118,15 @@ function khoa(r: BHChoKichHoat) {
  *
  * Dòng nào chưa nối được sang khách CSKH thì không kích hoạt tại chỗ được
  * (thiếu customer_id) — đẩy sang /dang-ky-bh để chọn/tạo khách.
+ * Bảng có ô sửa tại dòng (ô serial, nút) nên không đổi sang ListView trên điện thoại — bảng cuộn ngang.
  */
-export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
+export function BHChoKichHoatList({ items, gioiHan, ...chung }: ChungBH & { items: BHChoKichHoat[]; gioiHan: number }) {
   const [serial, setSerial] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState<string | null>(null)
   const [loi, setLoi] = useState<Record<string, string>>({})
   const router = useRouter()
 
-  async function chay(r: BHChoKichHoat) {
+  const chay = useCallback(async (r: BHChoKichHoat) => {
     const k = khoa(r)
     const sn = (r.serial ?? serial[k] ?? '').trim()
     if (!sn || !r.customer_id) return
@@ -49,103 +141,57 @@ export function BHChoKichHoatList({ items }: { items: BHChoKichHoat[] }) {
     setBusy(null)
     if (!kq.ok) setLoi((c) => ({ ...c, [k]: kq.error }))
     else router.refresh()   // kích hoạt xong -> view bỏ dòng này ra
-  }
+  }, [serial, router])
 
-  if (items.length === 0) {
-    return (
-      <div className="bg-card rounded-(--radius-xl) border px-4 py-10 text-center text-muted-foreground">
-        Không còn máy nào chờ kích hoạt bảo hành.
-      </div>
-    )
-  }
+  const cot = useMemo(
+    () => cotCho({ serial, datSerial: (k, v) => setSerial((c) => ({ ...c, [k]: v })), busy, chay }),
+    [serial, busy, chay],
+  )
 
   return (
-    <div className="bg-card rounded-(--radius-xl) border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-left px-4 py-3 font-medium">Khách</TableHead>
-            <TableHead className="text-left px-4 py-3 font-medium">Máy</TableHead>
-            <TableHead className="text-left px-4 py-3 font-medium">Đơn / ngày lắp</TableHead>
-            <TableHead className="text-left px-4 py-3 font-medium">Serial</TableHead>
-            <TableHead className="text-left px-4 py-3 font-medium w-px whitespace-nowrap">Kích hoạt</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((r) => {
-            const k = khoa(r)
-            const daCoSerial = Boolean(r.serial)
-            const sn = r.serial ?? serial[k] ?? ''
-            const chayDuoc = Boolean(r.customer_id) && sn.trim().length > 0
-            return (
-              <TableRow key={k} className="hover:bg-muted align-top">
-                <TableCell className="px-4 py-2.5 text-foreground">
-                  {r.customer_id ? (
-                    <Link href={`/khach/${r.customer_id}`} className="hover:underline">
-                      {r.ten_khach ?? '—'}
-                    </Link>
-                  ) : (
-                    <span>{r.ten_khach ?? '—'}</span>
-                  )}
-                  {r.sdt_khach && <div className="tabular-nums text-[10px] text-muted-foreground">{r.sdt_khach}</div>}
-                  {!r.customer_id && (
-                    <div className="text-[10px] text-(--color-text-warning)">chưa có hồ sơ khách CSKH</div>
-                  )}
-                </TableCell>
-                <TableCell className="px-4 py-2.5 text-foreground">
-                  {r.ten_noi_bo ?? '—'}
-                  {!daCoSerial && (r.so_luong ?? 1) > 1 && (
-                    <span className="ml-1.5 rounded bg-(--color-background-warning-surface) text-(--color-text-warning) px-1.5 py-0.5 text-[10px] font-medium">
-                      còn {r.so_luong} máy
-                    </span>
-                  )}
-                  <div className="tabular-nums text-[10px] text-muted-foreground">{r.ma_noi_bo ?? '—'}</div>
-                </TableCell>
-                <TableCell className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
-                  {daCoSerial ? (
-                    <>lắp {vnDate(r.ngay_lap)}</>
-                  ) : (
-                    <>
-                      {r.ma_don ?? '—'}
-                      <div className="text-[10px] text-muted-foreground">{vnDate(r.ngay_dat_hang)}</div>
-                    </>
-                  )}
-                </TableCell>
-                <TableCell className="px-4 py-2.5">
-                  {daCoSerial ? (
-                    <span className="tabular-nums text-xs text-foreground">{r.serial}</span>
-                  ) : (
-                    <div className="flex min-w-56">
-                      <SerialPicker
-                        value={serial[k] ?? ''}
-                        onChange={(v) => setSerial((c) => ({ ...c, [k]: v }))}
-                        placeholder="Gõ serial máy…"
-                      />
-                    </div>
-                  )}
-                  {loi[k] && <p className="text-xs text-(--color-text-danger) mt-1">{loi[k]}</p>}
-                </TableCell>
-                <TableCell className="px-4 py-2.5 whitespace-nowrap">
-                  {r.customer_id ? (
-                    <Button
-                      size="sm"
-                      onClick={() => chay(r)}
-                      loading={busy === k}
-                      disabled={!chayDuoc}>
-                      {busy === k ? 'Đang kích hoạt…' : 'Kích hoạt BH'}
-                    </Button>
-                  ) : (
-                    <Link href="/dang-ky-bh"
-                      className="rounded-lg border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted">
-                      Chọn khách…
-                    </Link>
-                  )}
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <BangDanhSachF
+      tieuDe="Chờ kích hoạt BH"
+      nhan="dòng"
+      timKiem={TIM}
+      rows={items}
+      khoa={khoa}
+      moTa={(r) => `máy ${r.ten_noi_bo ?? r.ma_noi_bo ?? ''} của ${r.ten_khach ?? 'khách'}`}
+      cot={cot}
+      tong={items.length}
+      tab={tabBH(chung)}
+      ghiChuLoc={items.length >= gioiHan ? `Giới hạn ${gioiHan} dòng — gõ cụ thể hơn` : undefined}
+      rong={{ tieuDe: 'Không còn máy nào chờ kích hoạt bảo hành', moTa: 'Kích hoạt xong dòng tự biến mất khỏi bảng.' }}
+      sauDong={(r, soCot) => loi[khoa(r)] ? (
+        <TableRow><TableCell colSpan={soCot} className="text-(--color-text-danger)">{loi[khoa(r)]}</TableCell></TableRow>
+      ) : null}
+    />
+  )
+}
+
+/** Tab "Đã kích hoạt — chờ bổ sung serial": máy kích hoạt BH bằng mã tạm (TAM…), mở máy để bổ sung serial thật. */
+export function BangBHChoSerial({ items, ...chung }: ChungBH & { items: MayChoSerial[] }) {
+  return (
+    <BangDanhSachF
+      tieuDe="Chờ kích hoạt BH"
+      nhan="máy"
+      timKiem={TIM}
+      rows={items}
+      khoa={(m) => m.serial}
+      moTa={(m) => `máy ${m.serial}`}
+      cot={COT_SERIAL}
+      cotDs={[
+        {
+          id: 'ten', ten: 'Mã tạm', rong: 'minmax(0,1fr)', dienThoai: 'tren',
+          o: (m) => <Link href={`/may/${encodeURIComponent(m.serial)}`} prefetch={false} className="min-w-0 truncate font-medium tabular-nums hover:underline">{m.serial}</Link>,
+        },
+        { id: 'khach', ten: 'Khách', rong: 'minmax(0,1.4fr)', dienThoai: 'duoi', o: (m) => m.ten_khach ?? '—' },
+        { id: 'ngay', ten: 'Ngày lắp', rong: 'minmax(0,1fr)', dienThoai: 'duoiPhai', o: (m) => hienNgay(m.install_date) },
+      ]}
+      hrefDong={(m) => `/may/${encodeURIComponent(m.serial)}`}
+      tong={items.length}
+      tab={tabBH(chung)}
+      ghiChuLoc={items.length ? 'Mở máy, bấm "Bổ sung serial".' : undefined}
+      rong={{ tieuDe: 'Không có máy nào chờ bổ sung serial' }}
+    />
   )
 }

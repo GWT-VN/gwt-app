@@ -56,11 +56,11 @@ export function LichBaoTriThang({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, -1)}`} aria-label="Tháng trước">←</Link></Button>
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?view=lich&thang=${thangKe(thang, -1)}`} aria-label="Tháng trước">←</Link></Button>
           <h2 className="min-w-24 text-center text-sm font-medium text-foreground">{tenThang(thang)}</h2>
-          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?tt=lich&thang=${thangKe(thang, 1)}`} aria-label="Tháng sau">→</Link></Button>
+          <Button asChild variant="outline" size="icon-sm"><Link href={`/bao-tri?view=lich&thang=${thangKe(thang, 1)}`} aria-label="Tháng sau">→</Link></Button>
           <Link
-            href={`/bao-tri?tt=lich&thang=${thangHienTai()}`}
+            href={`/bao-tri?view=lich&thang=${thangHienTai()}`}
             className="rounded-lg border border-border bg-card px-2.5 py-1 text-sm hover:bg-muted"
           >
             Tháng này
@@ -83,7 +83,7 @@ export function LichBaoTriThang({
             return (
               <Link
                 key={i}
-                href={`/bao-tri?tt=lich&thang=${thang}&ngay=${nd}`}
+                href={`/bao-tri?view=lich&thang=${thang}&ngay=${nd}`}
                 scroll={false}
                 aria-current={dangChon ? 'date' : undefined}
                 aria-label={`Ngày ${d}, ${luot.length} lượt bảo trì`}

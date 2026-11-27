@@ -1,12 +1,15 @@
 'use client'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useState, useTransition } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { DotsThree } from '@phosphor-icons/react/ssr'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { thongBao } from '@/components/ui/sonner'
 import { banHanh, ketThucSom, nhanBan, xoaNhap } from './actions'
 
 /** Tháng kế tiếp so với hôm nay, dạng YYYY-MM. Tính theo giờ máy, không dùng UTC. */
@@ -16,6 +19,10 @@ function thangSau(): string {
   return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`
 }
 
+/**
+ * Thao tác một chương trình — menu "…" ở ô cuối dòng bảng (khuôn Ticket F). Cùng các việc như thanh nút cũ dưới thẻ:
+ * Sửa/Xem chi tiết · Nhân bản sang tháng sau · Ban hành (người duyệt) · Kết thúc sớm (người duyệt) · Xoá nháp.
+ */
 export function CtkmActions({
   id,
   ten,
@@ -32,12 +39,14 @@ export function CtkmActions({
   const [loi, setLoi] = useState<string | null>(null)
   const [moXoa, setMoXoa] = useState(false)
 
-  function chay(fn: () => Promise<{ ok: boolean; error?: string }>) {
-    setLoi(null)
+  function chay(fn: () => Promise<{ ok: boolean; error?: string }>, xong: string) {
     batDau(async () => {
       const r = await fn()
-      if (!r.ok) setLoi(r.error ?? 'Không thực hiện được.')
-      else router.refresh()
+      if (!r.ok) thongBao.loi(r.error ?? 'Không thực hiện được.')
+      else {
+        thongBao.xong(xong)
+        router.refresh()
+      }
     })
   }
 
@@ -45,69 +54,67 @@ export function CtkmActions({
     setLoi(null)
     const r = await xoaNhap(id)
     if (!r.ok) {
-      const thongBao = r.error ?? 'Không thực hiện được.'
-      setLoi(thongBao)
-      throw new Error(thongBao)
+      const tb = r.error ?? 'Không thực hiện được.'
+      setLoi(tb)
+      throw new Error(tb)
     }
     router.refresh()
   }
 
+  const nhap = trangThai === 'nhap'
+  if (!quyen.soan && !(quyen.duyet && (nhap || trangThai === 'ban_hanh'))) return null
+
   return (
-    <div className="border-t border-border bg-muted px-4 py-2.5">
-      {loi && !moXoa && <Alert color="danger" className="mb-2"><AlertDescription>{loi}</AlertDescription></Alert>}
-      <div className="flex flex-wrap items-center gap-2">
-        {quyen.soan && (
-          <>
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/sales/ctkm/${id}`}>{trangThai === 'nhap' ? 'Sửa' : 'Xem chi tiết'}</Link>
-            </Button>
-            <Button size="sm" variant="outline" disabled={dangChay}
-              onClick={() => chay(() => nhanBan(id, thangSau()))}
-              title={`Chép "${ten}" thành bản nháp cho tháng sau`}>
-              ⧉ Nhân bản sang tháng sau
-            </Button>
-          </>
-        )}
-
-        <span className="flex-1" />
-
-        {trangThai === 'nhap' && (
-          quyen.duyet ? (
-            <Button size="sm" disabled={dangChay} onClick={() => chay(() => banHanh(id))}>
-              ✓ Ban hành
-            </Button>
-          ) : (
-            <span className="text-xs text-muted-foreground" title="Chỉ người có quyền duyệt mới ban hành được">Chờ duyệt</span>
-          )
-        )}
-
-        {trangThai === 'nhap' && quyen.soan && (
-          <>
-            <Button size="sm" variant="outline" disabled={dangChay} onClick={() => { setLoi(null); setMoXoa(true) }}>
-              Xoá nháp
-            </Button>
-            <ConfirmDialog
-              open={moXoa}
-              onOpenChange={setMoXoa}
-              color="danger"
-              pha
-              tieuDe={`Xoá hẳn bản nháp "${ten}"?`}
-              moTa="Kênh, sản phẩm và quà của chương trình cũng mất theo. Không khôi phục được."
-              nutXacNhan="Xoá nháp"
-              loi={loi}
-              onXacNhan={xoaBanNhap}
-            />
-          </>
-        )}
-
-        {trangThai === 'ban_hanh' && quyen.duyet && (
-          <Button size="sm" variant="outline" disabled={dangChay}
-            onClick={() => chay(() => ketThucSom(id))}
-            title="Dừng từ hôm nay. Không xoá — đơn cũ vẫn tra lại được.">
-            Kết thúc sớm
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm" aria-label={`Thao tác chương trình ${ten}`} disabled={dangChay}>
+            <DotsThree aria-hidden="true" />
           </Button>
-        )}
-      </div>
-    </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {quyen.soan && (
+            <>
+              <DropdownMenuItem asChild>
+                <Link href={`/sales/ctkm/${id}`}>{nhap ? 'Sửa' : 'Xem chi tiết'}</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => chay(() => nhanBan(id, thangSau()), `Đã chép “${ten}” thành bản nháp tháng sau`)}>
+                Nhân bản sang tháng sau
+              </DropdownMenuItem>
+            </>
+          )}
+          {nhap && quyen.duyet && (
+            <DropdownMenuItem onSelect={() => chay(() => banHanh(id), `Đã ban hành “${ten}”`)}>Ban hành</DropdownMenuItem>
+          )}
+          {trangThai === 'ban_hanh' && quyen.duyet && (
+            <DropdownMenuItem
+              title="Dừng từ hôm nay. Không xoá — đơn cũ vẫn tra lại được."
+              onSelect={() => chay(() => ketThucSom(id), `Đã kết thúc “${ten}”`)}
+            >
+              Kết thúc sớm
+            </DropdownMenuItem>
+          )}
+          {nhap && quyen.soan && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={() => { setLoi(null); setMoXoa(true) }}>
+                Xoá nháp
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <ConfirmDialog
+        open={moXoa}
+        onOpenChange={setMoXoa}
+        color="danger"
+        pha
+        tieuDe={`Xoá hẳn bản nháp "${ten}"?`}
+        moTa="Kênh, sản phẩm và quà của chương trình cũng mất theo. Không khôi phục được."
+        nutXacNhan="Xoá nháp"
+        loi={loi}
+        onXacNhan={xoaBanNhap}
+      />
+    </>
   )
 }

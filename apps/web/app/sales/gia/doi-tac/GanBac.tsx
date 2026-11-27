@@ -97,29 +97,29 @@ export function GanBac({
           <Table variant="thuong">
             <TableHeader>
               <TableRow>
-                <TableHead className="px-3 py-2.5 font-medium">Đối tác</TableHead>
-                <TableHead className="px-3 py-2.5 font-medium">Bậc</TableHead>
-                <TableHead className="px-3 py-2.5 font-medium">Hiệu lực từ</TableHead>
-                <TableHead className="px-3 py-2.5 font-medium">Ghi chú</TableHead>
-                {coQuyenSoan && <TableHead className="px-3 py-2.5 text-center font-medium">Gỡ</TableHead>}
+                <TableHead>Đối tác</TableHead>
+                <TableHead>Bậc</TableHead>
+                <TableHead>Hiệu lực từ</TableHead>
+                <TableHead>Ghi chú</TableHead>
+                {coQuyenSoan && <TableHead className="text-center">Gỡ</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {ds.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="px-3 py-10 text-center text-muted-foreground">Chưa gán bậc cho đối tác nào — mọi khách đang là khách lẻ.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Chưa gán bậc cho đối tác nào — mọi khách đang là khách lẻ.</TableCell></TableRow>
               ) : ds.map((d) => (
-                <TableRow key={d.id} className="hover:bg-muted">
-                  <TableCell className="px-3 py-2">
+                <TableRow key={d.id}>
+                  <TableCell>
                     <div className="font-medium text-foreground">{d.ten ?? '(chưa có tên)'}</div>
                     <div className="font-mono text-[11px] text-muted-foreground">{d.customer_code}</div>
                   </TableCell>
-                  <TableCell className="px-3 py-2">
+                  <TableCell>
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">{NHAN_BAC[d.bac]}</span>
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{d.hieu_luc_tu}</TableCell>
-                  <TableCell className="px-3 py-2 text-muted-foreground">{d.ghi_chu ?? '—'}</TableCell>
+                  <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">{d.hieu_luc_tu}</TableCell>
+                  <TableCell className="text-muted-foreground">{d.ghi_chu ?? '—'}</TableCell>
                   {coQuyenSoan && (
-                    <TableCell className="px-3 py-2 text-center">
+                    <TableCell className="text-center">
                       <Button size="sm" variant="outline"
                         disabled={dangChay}
                         title="Gỡ bậc — khách quay về khách lẻ. Lịch sử vẫn giữ ở mục dưới."
@@ -146,28 +146,28 @@ export function GanBac({
             <Table variant="thuong">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="px-3 py-2.5 font-medium">Đối tác</TableHead>
-                  <TableHead className="px-3 py-2.5 font-medium">Từng là bậc</TableHead>
-                  <TableHead className="px-3 py-2.5 font-medium">Từ ngày</TableHead>
-                  <TableHead className="px-3 py-2.5 font-medium">Đến ngày</TableHead>
-                  <TableHead className="px-3 py-2.5 font-medium">Ghi chú</TableHead>
+                  <TableHead>Đối tác</TableHead>
+                  <TableHead>Từng là bậc</TableHead>
+                  <TableHead>Từ ngày</TableHead>
+                  <TableHead>Đến ngày</TableHead>
+                  <TableHead>Ghi chú</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {lichSu.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} className="px-3 py-8 text-center text-muted-foreground">Chưa có bậc nào bị gỡ hay đổi.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Chưa có bậc nào bị gỡ hay đổi.</TableCell></TableRow>
                 ) : lichSu.map((h, i) => (
-                  <TableRow key={i} className="hover:bg-muted">
-                    <TableCell className="px-3 py-2">
+                  <TableRow key={i}>
+                    <TableCell>
                       <div className="text-foreground">{h.ten ?? '(chưa có tên)'}</div>
                       <div className="font-mono text-[11px] text-muted-foreground">{h.customer_code}</div>
                     </TableCell>
-                    <TableCell className="px-3 py-2">
+                    <TableCell>
                       <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">{NHAN_BAC[h.bac]}</span>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{h.hieu_luc_tu}</TableCell>
-                    <TableCell className="whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground">{h.hieu_luc_den}</TableCell>
-                    <TableCell className="px-3 py-2 text-muted-foreground">{h.ghi_chu ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">{h.hieu_luc_tu}</TableCell>
+                    <TableCell className="whitespace-nowrap tabular-nums text-muted-foreground">{h.hieu_luc_den}</TableCell>
+                    <TableCell className="text-muted-foreground">{h.ghi_chu ?? '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

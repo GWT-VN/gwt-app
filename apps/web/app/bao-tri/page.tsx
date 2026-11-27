@@ -1,43 +1,44 @@
-import { cn } from '@/lib/utils'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CauHinhBangDs } from '@/components/ui/bang-ds'
-import { buttonVariants } from '@/components/ui/button-variants'
-import { ManV2 } from '@/components/khung/ManV2'
-import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
-import { PageHeader } from '@/components/ui/page-header'
-import Link from 'next/link'
 import { Suspense } from 'react'
-import { OTimKiem } from '@/bang'
-import { maintenanceDue, maintenanceCounts, khoaTatCaBaoTri, listBangView, baoTriTheoThang } from '@/app/actions'
-import { PhanTrang } from '@/bang'
-import { ChipSapXep } from '@/bang'
-import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
+import { redirect } from 'next/navigation'
+import { maintenanceDue, maintenanceCounts, khoaTatCaBaoTri, listTabView, baoTriTheoThang } from '@/app/actions'
 import { KhungChon, ThanhDaChon } from '@/bang'
-import { LocNgay } from '@/bang'
+import { hoiQuyen } from '@/lib/nen-tang/kiem-quyen'
 import { ExportBaoTriButton } from '@/components/ExportBaoTriButton'
 import { BangBaoTri } from '@/components/BangBaoTri'
 import { LichBaoTriThang } from '@/components/LichBaoTriThang'
+import { ManV2 } from '@/components/khung/ManV2'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CauHinhBangDs } from '@/components/ui/bang-ds'
+import { O_TIM_PILL } from '@/components/ui/bang-styles'
+import { TrangDuLieu } from '@/components/ui/data-view-toolbar'
+import { CHON_BANG_GHIM } from '@/components/ui/table-styles'
+import { khoangXuat } from '@/app/may/truong-may'
+import { SAP, VIEW_LICH } from './truong-bao-tri'
 
-const SAP = 'sắp đến hạn (≤30 ngày)'
-
+// Lịch bảo trì — khuôn bảng Ticket F (docs/rework/2026-11-27-dong-bo-bang-khuon-f.md). Tab "Lịch tháng" (`?view=lich`)
+// vẽ lịch tháng thay bảng.
 export default async function BaoTriPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tt?: string; cot?: string; chieu?: string; trang?: string; ngtu?: string; ngden?: string; thang?: string; ngay?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }) {
-  const { q = '', tt, cot, chieu, trang: trangRaw, ngtu, ngden, thang: thangRaw, ngay } = await searchParams
+  const { q = '', tt = '', han, cot, chieu, trang: trangRaw, view, thang: thangRaw, ngay } = await searchParams
+  // Link cũ `?tt=lich` (trước khuôn F, lịch là một giá trị của `tt`) → tab Lịch tháng.
+  if (tt === VIEW_LICH) {
+    const p = new URLSearchParams({ view: VIEW_LICH, ...(thangRaw && { thang: thangRaw }), ...(ngay && { ngay }) })
+    redirect(`/bao-tri?${p}`)
+  }
   // Chặn giá trị rác trong đường dẫn trước khi đem đi so với due_date.
   const ngayOk = /^\d{4}-\d{2}-\d{2}$/.test(ngay ?? '') ? ngay : undefined
   const trang = Math.max(1, Number(trangRaw) || 1)
-  const laLich = tt === 'lich'
+  const laLich = view === VIEW_LICH
   const thang = /^\d{4}-\d{2}$/.test(thangRaw ?? '') ? thangRaw! : new Date().toISOString().slice(0, 7)
-  const tinhTrang = tt ?? SAP           // mặc định: việc cần làm gần nhất
-  const [{ rows, tong, soTrang, sapXep }, counts, views, quyen, lichRows] = await Promise.all([
+  const [{ rows, tong, soTrang, sapXep }, counts, tabRieng, quyen, lichRows] = await Promise.all([
     laLich
       ? Promise.resolve({ rows: [], tong: 0, trang: 1, soTrang: 1, sapXep: { cot: 'due_date', tang: true, macDinh: true } } as Awaited<ReturnType<typeof maintenanceDue>>)
-      : maintenanceDue(tinhTrang, q, { trang, cot, chieu, ngtu, ngden }),
+      : maintenanceDue(tt, q, { trang, cot, chieu, han }),
     maintenanceCounts(),
-    laLich ? Promise.resolve([]) : listBangView('maintenance'),
+    listTabView('bao_tri_tab'),
     hoiQuyen({
       hangLoat: ['cs.hang_loat.cap_nhat', 'QUANLY'],
       viewChung: ['he_thong.view_chung', 'QUANLY'],
@@ -46,91 +47,50 @@ export default async function BaoTriPage({
     laLich ? baoTriTheoThang(thang) : Promise.resolve([]),
   ])
 
-  const tabs = [
-    { key: SAP, label: `Sắp đến hạn (${counts[SAP] ?? 0})` },
-    { key: 'QUÁ HẠN', label: `Quá hạn (${counts['QUÁ HẠN'] ?? 0})` },
-    { key: 'còn hạn', label: `Còn hạn (${counts['còn hạn'] ?? 0})` },
-    { key: 'đã xong', label: 'Đã xong' },
-    { key: 'all', label: 'Tất cả' },
-    { key: 'lich', label: 'Lịch tháng' },
-  ]
-
   return (
     <ManV2>
-      <CauHinhBangDs>
-        <TrangDuLieu className="max-w-7xl space-y-4">
-          <PageHeader
-            tieuDe="Lịch bảo trì"
-            meta={["Gói bảo trì theo hợp đồng", "bấm “Đã bảo trì” sau mỗi chuyến"]}
-          />
-
-          <Suspense>
-            <OTimKiem placeholder="Gõ tên khách, SĐT, bộ máy, công trình…" />
-          </Suspense>
-
-          <div className="flex gap-2 flex-wrap">
-            {tabs.map((t) => {
-              const active = t.key === 'all' ? tinhTrang === '' : tinhTrang === t.key
-              return (
-                <Link
-                  key={t.key}
-                  // Giữ cột/chiều đang sắp khi đổi tab — đổi tab là đổi BỘ LỌC, không
-                  // phải lý do để vứt thứ tự người dùng vừa chọn (TieuDeCotSapXep cũng
-                  // giữ ngược lại như vậy).
-                  href={`/bao-tri?${new URLSearchParams({
-                    ...(q && { q }),
-                    tt: t.key === 'all' ? '' : t.key,
-                    ...(cot && { cot }),
-                    ...(chieu && { chieu }),
-                  })}`}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(buttonVariants({ variant: active ? "secondary" : "outline", size: "sm" }))}
-                >
-                  {t.label}
-                </Link>
-              )
-            })}
-          </div>
-
-          {laLich ? (
-            <LichBaoTriThang thang={thang} rows={lichRows} ngay={ngayOk} />
-          ) : (
-            <>
-              <Alert color="info"><AlertDescription>
-                Gói bảo trì POE theo hợp đồng. Bấm <strong>“Đã bảo trì”</strong> sau mỗi lần đi để đúng tiến độ
-                — số lần còn lại tự trừ. Dòng “chưa khớp khách” là lịch từ Asana chưa gắn được vào hồ sơ khách.
-              </AlertDescription></Alert>
-
-              <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
-                <span>{rows.length < tong ? `Hiện ${rows.length} trên ${tong} lượt` : `${tong} lượt`}</span>
-                <Suspense>
-                  <ChipSapXep cot={sapXep.cot} tang={sapXep.tang} macDinh={sapXep.macDinh} />
-                </Suspense>
-              </div>
-
-              <KhungChon
-                khoaTrang={rows.map((r) => r.visit_id)}
+      <TrangDuLieu>
+        <CauHinhBangDs giaoDien={{ ...O_TIM_PILL, ...CHON_BANG_GHIM }} thanhHangLoat="surface">
+          <KhungChon
+            khoaTrang={rows.map((r) => r.visit_id)}
+            tong={tong}
+            bat={!laLich && quyen.hangLoat}
+            thamSo={{ q, tt, han, cot, chieu }}
+            layTatCaKhoa={khoaTatCaBaoTri}
+          >
+            <Suspense>
+              <BangBaoTri
+                rows={rows}
                 tong={tong}
-                bat={quyen.hangLoat}
-                thamSo={{ q, tt: tinhTrang, cot, chieu, ngtu, ngden }}
-                layTatCaKhoa={khoaTatCaBaoTri}
-              >
-              <ThanhDaChon nhan="lượt bảo trì" />
-              <BangBaoTri rows={rows} choViewChung={quyen.viewChung} views={views} congCu={
-                <>
-                  <Suspense><LocNgay nhan="Đến hạn" /></Suspense>
-                  {quyen.xuat && <ExportBaoTriButton tt={tt} q={q} ngtu={ngtu} ngden={ngden} />}
-                </>
-              } />
-              </KhungChon>
-
-              <Suspense>
-                <PhanTrang trang={trang} soTrang={soTrang} />
-              </Suspense>
-            </>
-          )}
-        </TrangDuLieu>
-      </CauHinhBangDs>
+                trang={trang}
+                soTrang={soTrang}
+                sapXep={sapXep}
+                choChon={!laLich && quyen.hangLoat}
+                tabRieng={tabRieng}
+                quyenTabChung={quyen.viewChung}
+                demTab={{
+                  'tat-ca': counts['tat-ca'] ?? 0,
+                  sap: counts[SAP] ?? 0,
+                  'qua-han': counts['QUÁ HẠN'] ?? 0,
+                  'con-han': counts['còn hạn'] ?? 0,
+                  xong: counts['đã xong'] ?? 0,
+                }}
+                lich={laLich ? <LichBaoTriThang thang={thang} rows={lichRows} ngay={ngayOk} /> : undefined}
+                canhBao={
+                  <Alert color="info" className="mb-3">
+                    <AlertDescription>
+                      Gói bảo trì POE theo hợp đồng. Bấm <strong>“Đã bảo trì”</strong> sau mỗi lần đi để đúng tiến độ — số lần còn
+                      lại tự trừ. Dòng “chưa khớp khách” là lịch từ Asana chưa gắn được vào hồ sơ khách.
+                    </AlertDescription>
+                  </Alert>
+                }
+                xuatExcel={quyen.xuat && <ExportBaoTriButton tt={tt} q={q} {...khoangXuat(han)} />}
+                thanhDaChon={<ThanhDaChon nhan="lượt bảo trì" />}
+              />
+            </Suspense>
+          </KhungChon>
+        </CauHinhBangDs>
+      </TrangDuLieu>
     </ManV2>
   )
 }

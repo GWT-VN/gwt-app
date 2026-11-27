@@ -1,7 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { boDau, chuanHoaTuKhoa, dieuKienTungTu } from '@/bang'
+import { boDau, chuanHoaTuKhoa, dieuKienTungTu, sapXepHopLe, type SapXep } from '@/bang'
+import { chon, ds, homNayVN, sauMotNgay } from '@/bang/locDb'
+import type { DieuKienLoc } from '@/bang/locTruong'
+import { catTrang, MOI_TRANG, soSanh } from './_trang'
 import { traKhachTheoSdt } from '@/lib/tra-khach'
 import type { KetQuaTraKhach } from '@/lib/tra-khach-chung'
 import type { Kenh } from '@/app/actions'
@@ -93,26 +96,40 @@ async function donTang(s: string): Promise<DonRow[]> {
   })
 }
 
-/**
- * Bộ lọc danh sách đơn. Tên tham số theo `docs/CHUAN-FILTER.md` — `ngtu`/`ngden` là
- * tên chuẩn TOÀN APP cho lọc ngày, đừng đặt tên khác.
- */
-export type LocDon = {
-  ngtu?: string
-  ngden?: string
-  tt?: string
-  tp?: string
-  /** Kênh cấp 1 (`sales_order_lines.channel`). */
-  kenh?: string
-  /** Kênh cấp 2 / chi tiết kênh (`sales_order_lines.channel_detail`). */
-  kenh2?: string
-  sp?: string
+const UUID_RONG = '00000000-0000-0000-0000-000000000000'
+
+/** Điều kiện ngày (bang/locTruong) → cận [tu, truoc) theo ngày thuần 'YYYY-MM-DD' — cột date hay text đều so đúng. */
+function canNgay(d: DieuKienLoc | undefined): { tu?: string; truoc?: string; trong?: boolean } | null {
+  if (!d) return null
+  const [a, b] = d.giaTri
+  const h = homNayVN()
+  if (d.phep === 'hom-nay') return { tu: h, truoc: sauMotNgay(h) }
+  if (d.phep === 'khoang') return { tu: a, truoc: sauMotNgay(b) }
+  if (d.phep === 'truoc') return { truoc: a }
+  if (d.phep === 'sau') return { tu: a }
+  if (d.phep === 'trong') return { trong: true }
+  return null
+}
+const trongNgay = (n: ReturnType<typeof canNgay>, v: string | null) =>
+  !n || (n.trong ? !v : !!v && (!n.tu || v >= n.tu) && (!n.truoc || v < n.truoc))
+
+const SAP_DON: Record<string, (r: DonRow) => string | number | null> = {
+  ngay: (r) => r.order_date, ma: (r) => r.order_code, khach: (r) => r.customer_name, tong: (r) => r.total_vat,
 }
 
-/** Danh sách đơn: gộp mirror (sales_order_lines) + đơn app (sales_orders) + đơn tặng, lọc theo tab. */
-export async function danhSachDon(q = '', tab = '', loc: LocDon = {}): Promise<DonRow[]> {
+/**
+ * Danh sách đơn: gộp mirror (sales_order_lines) + đơn app (sales_orders) + đơn tặng, lọc theo `nhom` (nguồn đơn) và các
+ * điều kiện Lọc ▸ trường (`truong-sales.ts` TRUONG_DON), sắp + phân trang trong bộ nhớ (ba nguồn gộp lại mới có danh sách).
+ */
+export async function danhSachDon(
+  q = '',
+  tab = '',
+  dk: DieuKienLoc[] = [],
+  { trang = 1, cot, chieu }: { trang?: number; cot?: string; chieu?: string } = {},
+): Promise<{ rows: DonRow[]; tong: number; soTrang: number; sapXep: SapXep }> {
   await chanSales()
   const db = dataClient()
+  const theo = (id: string) => dk.find((d) => d.truong === id)
   // Từ khoá đã BỎ DẤU + cắt thành từ, để lọc trong bộ nhớ (đơn app, đơn tặng) khớp
   // đúng như lọc dưới DB. Trước đây chỗ này `.toLowerCase().includes()` trên chữ CÓ DẤU
   // nên gõ không dấu ra rỗng — cùng một ô tìm mà hai nửa kết quả theo hai luật khác nhau.
@@ -124,9 +141,10 @@ export async function danhSachDon(q = '', tab = '', loc: LocDon = {}): Promise<D
   }
   const onlyTang = tab === 'DON_TANG'
   const map = new Map<string, DonRow>()
+  const ngay = canNgay(theo('ngay'))
   // Đơn TẶNG không có tình trạng / thanh toán / kênh / sản phẩm-lọc-được. Bật một trong
   // các lọc đó mà vẫn trả đơn tặng thì kết quả lẫn lộn -> loại hẳn nhóm đó ra.
-  const locNghiepVu = !!(loc.tt || loc.tp || loc.kenh || loc.kenh2 || loc.sp)
+  const locNghiepVu = dk.some((d) => d.truong !== 'ngay')
 
   if (!onlyTang) {
     let mq = db
@@ -137,18 +155,17 @@ export async function danhSachDon(q = '', tab = '', loc: LocDon = {}): Promise<D
     if (tab) mq = mq.eq('source_tab', tab)
     // `customer_name_kd` / `product_name_kd` là cột SINH đã bỏ dấu (migration
     // 20260824200000). Mã đơn thì khớp chuỗi con vì người ta hay gõ mấy ký tự đuôi.
-    for (const dk of dieuKienTungTu(q, [], ['order_code', 'customer_name_kd', 'product_name_kd'])) {
-      mq = mq.or(dk)
+    for (const g of dieuKienTungTu(q, [], ['order_code', 'customer_name_kd', 'product_name_kd'])) mq = mq.or(g)
+    if (ngay?.trong) mq = mq.is('order_date', null)
+    if (ngay?.tu) mq = mq.gte('order_date', ngay.tu)
+    if (ngay?.truoc) mq = mq.lt('order_date', ngay.truoc)
+    // kenh = `channel` (cấp 1), kenh2 = `channel_detail` (cấp 2). internal_code nằm ở DÒNG, không ở đơn -> lọc sản phẩm
+    // trả về đơn CÓ CHỨA sản phẩm đó, và line_count/total_vat khi ấy chỉ tính các dòng khớp. Giao diện phải nói rõ chuyện này.
+    const COT_DONG = { tt: 'fulfillment_status', tp: 'payment_status', kenh: 'channel', kenh2: 'channel_detail', sp: 'internal_code' }
+    for (const [id, c] of Object.entries(COT_DONG)) {
+      const d = theo(id)
+      if (d) for (const g of chon(c, d)) mq = mq.or(g)
     }
-    if (loc.ngtu) mq = mq.gte('order_date', loc.ngtu)
-    if (loc.ngden) mq = mq.lte('order_date', loc.ngden)
-    if (loc.tt) mq = mq.eq('fulfillment_status', loc.tt)
-    if (loc.tp) mq = mq.eq('payment_status', loc.tp)
-    if (loc.kenh) mq = mq.eq('channel', loc.kenh)
-    if (loc.kenh2) mq = mq.eq('channel_detail', loc.kenh2)
-    // internal_code nằm ở DÒNG, không ở đơn -> lọc sản phẩm trả về đơn CÓ CHỨA sản phẩm đó,
-    // và line_count/total_vat khi ấy chỉ tính các dòng khớp. Giao diện phải nói rõ chuyện này.
-    if (loc.sp) mq = mq.eq('internal_code', loc.sp)
     const { data: lines, error } = await mq
     if (error) throw error
     for (const r of (lines ?? []) as Array<Record<string, unknown>>) {
@@ -180,27 +197,38 @@ export async function danhSachDon(q = '', tab = '', loc: LocDon = {}): Promise<D
       .order('order_date', { ascending: false, nullsFirst: false })
       .limit(2000)
     if (tab) aq = aq.eq('source_tab', tab)
-    if (loc.ngtu) aq = aq.gte('order_date', loc.ngtu)
-    if (loc.ngden) aq = aq.lte('order_date', loc.ngden)
-    if (loc.tt) aq = aq.eq('status', loc.tt)
-    if (loc.tp) aq = aq.eq('payment_status', loc.tp)
-    if (loc.kenh) {
+    if (ngay?.trong) aq = aq.is('order_date', null)
+    if (ngay?.tu) aq = aq.gte('order_date', ngay.tu)
+    if (ngay?.truoc) aq = aq.lt('order_date', ngay.truoc)
+    for (const [id, c] of [['tt', 'status'], ['tp', 'payment_status']] as const) {
+      const d = theo(id)
+      if (d) for (const g of chon(c, d)) aq = aq.or(g)
+    }
+    const dKenh = theo('kenh')
+    if (dKenh?.phep === 'trong') aq = aq.is('channel_id', null)
+    else if (dKenh?.phep === 'co') aq = aq.not('channel_id', 'is', null)
+    else if (dKenh) {
       // Đơn mirror lưu TÊN kênh (`channel` text); đơn app lưu `channel_id` (số) -> phải
       // quy tên sang id, không so thẳng được. Không có id nào khớp thì không có đơn app nào
       // thuộc kênh đó: dùng -1 để truy vấn trả rỗng, thay vì bỏ qua bộ lọc.
-      const { data: dc } = await db.from('dim_channel').select('id').eq('channel_l1', loc.kenh)
+      const { data: dc } = await db.from('dim_channel').select('id').in('channel_l1', dKenh.giaTri)
       const ids = ((dc ?? []) as Array<{ id: number }>).map((r) => r.id)
-      aq = aq.in('channel_id', ids.length ? ids : [-1])
+      if (dKenh.phep === 'la') aq = aq.in('channel_id', ids.length ? ids : [-1])
+      else if (ids.length) aq = aq.or(`channel_id.is.null,channel_id.not.in.(${ids.join(',')})`)
     }
+    // Đơn app chỉ có channel_id (kênh cấp 1), không lưu kênh cấp 2 -> "là"/"có giá trị" cấp 2 thì
+    // không đơn app nào khớp. Trả rỗng thay vì lờ bộ lọc đi.
+    const dKenh2 = theo('kenh2')
+    if (dKenh2?.phep === 'la' || dKenh2?.phep === 'co') aq = aq.in('order_id', [UUID_RONG])
     // Lọc theo sản phẩm: đơn app giữ sản phẩm ở `sales_order_items`, không có cột nào trên
     // header để lọc -> lấy trước danh sách order_id có mã đó.
-    // Đơn app chỉ có channel_id (kênh cấp 1), không lưu kênh cấp 2 -> lọc cấp 2 thì
-    // không đơn app nào khớp. Trả rỗng thay vì lờ bộ lọc đi.
-    if (loc.kenh2) aq = aq.in('order_id', ['00000000-0000-0000-0000-000000000000'])
-    if (loc.sp) {
-      const { data: it } = await db.from('sales_order_items').select('order_id').eq('internal_code', loc.sp)
+    const dSp = theo('sp')
+    if (dSp?.phep === 'trong') aq = aq.in('order_id', [UUID_RONG])
+    else if (dSp && dSp.phep !== 'co') {
+      const { data: it } = await db.from('sales_order_items').select('order_id').in('internal_code', dSp.giaTri)
       const ids = [...new Set(((it ?? []) as Array<{ order_id: string }>).map((r) => r.order_id))]
-      aq = aq.in('order_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000'])
+      if (dSp.phep === 'la') aq = aq.in('order_id', ids.length ? ids : [UUID_RONG])
+      else if (ids.length) aq = aq.not('order_id', 'in', `(${ids.join(',')})`)
     }
     const { data: apps } = await aq
     for (const o of (apps ?? []) as Array<Record<string, unknown>>) {
@@ -225,16 +253,12 @@ export async function danhSachDon(q = '', tab = '', loc: LocDon = {}): Promise<D
   }
 
   if ((!tab || onlyTang) && !locNghiepVu) {
-    for (const g of await donTang(q)) {
-      if (loc.ngtu && (g.order_date ?? '') < loc.ngtu) continue
-      if (loc.ngden && (g.order_date ?? '') > loc.ngden) continue
-      map.set(g.order_code, g)
-    }
+    for (const g of await donTang(q)) if (trongNgay(ngay, g.order_date)) map.set(g.order_code, g)
   }
 
-  return [...map.values()]
-    .sort((a, b) => (b.order_date ?? '').localeCompare(a.order_date ?? ''))
-    .slice(0, 300)
+  const sapXep = sapXepHopLe(cot, chieu, Object.keys(SAP_DON), { cot: 'ngay', tang: false })
+  const ds = [...map.values()].sort(soSanh(SAP_DON[sapXep.cot], sapXep.tang))
+  return { ...catTrang(ds, trang), sapXep }
 }
 
 /**
@@ -351,18 +375,32 @@ export async function kenhTheoKhach(): Promise<Map<string, string[]>> {
   return ra
 }
 
-export type LocKhach = { tinh?: string; kenh?: string }
+const SAP_KHACH: Record<string, string> = {
+  ma: 'customer_code', ten: 'name', phone: 'phone_chuan', tinh: 'province', don: 'total_orders', mua: 'last_order_date',
+}
 
-export async function danhSachKhach(q = '', loc: LocKhach = {}): Promise<KhachRow[]> {
+/**
+ * Danh sách khách Sales (khuôn F): tìm + Lọc ▸ trường (`TRUONG_KHACH_SALES`) + cờ `trungSdt` (tab "Trùng SĐT"), sắp và phân
+ * trang ở DB (50/trang, đếm chính xác).
+ */
+export async function danhSachKhach(
+  q = '',
+  dk: DieuKienLoc[] = [],
+  { trang = 1, cot, chieu, trungSdt = false }: { trang?: number; cot?: string; chieu?: string; trungSdt?: boolean } = {},
+): Promise<{ rows: KhachRow[]; tong: number; soTrang: number; sapXep: SapXep }> {
   await chanSales()
   const db = dataClient()
+  const sapXep = sapXepHopLe(cot, chieu, Object.keys(SAP_KHACH), { cot: 'mua', tang: false })
+  const rong = { rows: [], tong: 0, soTrang: 1, sapXep }
+  const t = Math.max(1, trang)
   let query = db
     .from('customers')
     // Dùng `province` (KHÔNG `province_moi`): quy ước chung chốt 21/08 là `province` giữ
     // tỉnh hiện hành, và `province_moi` sắp bỏ. Xem SYSTEM.md §8.
-    .select('customer_code, name, phone, phone_chuan, province, total_orders, last_order_date')
-    .order('last_order_date', { ascending: false, nullsFirst: false })
-    .limit(200)
+    .select('customer_code, name, phone, phone_chuan, province, total_orders, last_order_date', { count: 'exact' })
+    .order(SAP_KHACH[sapXep.cot], { ascending: sapXep.tang, nullsFirst: false })
+    .order('customer_code')
+    .range((t - 1) * MOI_TRANG, t * MOI_TRANG - 1)
   // Gõ KHÔNG DẤU phải ra — CEO báo 24/08. Bản cũ lọc `name.ilike.%…%` trên cột CÓ DẤU,
   // nên `phuong` không bao giờ khớp `Phượng`. Nay lọc trên `ten_kd`/`dia_chi_kd` (cột sinh
   // đã bỏ dấu sẵn) và cắt câu thành TỪNG TỪ — xem `dieuKienTungTu()`.
@@ -371,17 +409,43 @@ export async function danhSachKhach(q = '', loc: LocKhach = {}): Promise<KhachRo
   // "phuong" — đo trên prod: thêm địa chỉ vào thì gõ `phuong` ra **317/398 khách**,
   // bỏ ra còn **31**. Cùng bẫy mà khu CSKH đã trả giá và cũng đã loại địa chỉ khỏi ô
   // tìm khách của họ. Trang này vốn đã có bộ lọc Tỉnh riêng nên không mất gì.
-  for (const dk of dieuKienTungTu(q, ['ten_kd'], ['phone', 'phone_chuan', 'customer_code', 'ma_kh'])) {
-    query = query.or(dk)
+  for (const g of dieuKienTungTu(q, ['ten_kd'], ['phone', 'phone_chuan', 'customer_code', 'ma_kh'])) query = query.or(g)
+
+  const dTinh = dk.find((d) => d.truong === 'tinh')
+  if (dTinh) {
+    let d = dTinh
+    if (d.phep === 'la' || d.phep === 'khong-la') {
+      // Một tỉnh có nhiều cách viết trong DB -> khớp MỌI biến thể, không chỉ tên đã gom.
+      const tho = await tinhThoCuaKhach(db)
+      const bienThe = [...new Set(d.giaTri.flatMap((g) => cacBienThe(g, tho)))]
+      if (!bienThe.length && d.phep === 'la') return rong
+      d = { ...d, giaTri: bienThe }
+    }
+    if (d.giaTri.length || d.phep === 'trong' || d.phep === 'co') for (const g of chon('province', d)) query = query.or(g)
   }
-  if (loc.tinh) {
-    // Một tỉnh có nhiều cách viết trong DB -> khớp MỌI biến thể, không chỉ tên đã gom.
-    const bienThe = cacBienThe(loc.tinh, await tinhThoCuaKhach(db))
-    query = query.in('province', bienThe.length ? bienThe : ['\u0000'])
+
+  // Kênh của khách SUY TỪ ĐƠN (kenhTheoKhach) → quy về tập mã khách rồi lọc ở DB.
+  const dKenh = dk.find((d) => d.truong === 'kenh')
+  if (dKenh) {
+    const map = await kenhTheoKhach()
+    const coKenh = [...map.entries()]
+      .filter(([, ks]) => (dKenh.phep === 'la' || dKenh.phep === 'khong-la' ? ks.some((k) => dKenh.giaTri.includes(k)) : true))
+      .map(([ma]) => ma)
+    const vao = dKenh.phep === 'la' || dKenh.phep === 'co'
+    if (vao && !coKenh.length) return rong
+    if (vao) query = query.in('customer_code', coKenh)
+    else if (coKenh.length) query = query.or(`customer_code.not.in.${ds(coKenh)}`)
   }
-  const { data, error } = await query
+
+  if (trungSdt) {
+    const ma = (await khachTrungSdt()).flatMap((x) => x.ma)
+    if (!ma.length) return rong
+    query = query.in('customer_code', ma)
+  }
+
+  const { data, error, count } = await query
   if (error) throw error
-  let rows = ((data ?? []) as Array<Record<string, unknown>>).map((c) => ({
+  const rows = ((data ?? []) as Array<Record<string, unknown>>).map((c) => ({
     customer_code: c.customer_code as string,
     name: (c.name as string) ?? null,
     phone: (c.phone_chuan as string) || (c.phone as string) || null,
@@ -389,11 +453,15 @@ export async function danhSachKhach(q = '', loc: LocKhach = {}): Promise<KhachRo
     total_orders: (c.total_orders as number) ?? null,
     last_order_date: (c.last_order_date as string) ?? null,
   }))
-  if (loc.kenh) {
-    const map = await kenhTheoKhach()
-    rows = rows.filter((r) => (map.get(r.customer_code) ?? []).includes(loc.kenh as string))
-  }
-  return rows
+  const tong = count ?? rows.length
+  return { rows, tong, soTrang: Math.max(1, Math.ceil(tong / MOI_TRANG)), sapXep }
+}
+
+/** Tổng số khách Sales (số của tab "Tất cả"). */
+export async function demKhachSales(): Promise<number> {
+  await chanSales()
+  const { count } = await dataClient().from('customers').select('customer_code', { count: 'exact', head: true })
+  return count ?? 0
 }
 
 // ---------- Chi tiết đơn ----------
