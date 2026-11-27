@@ -99,7 +99,9 @@ test('tải xong → đầu thẻ là mã, tiêu đề LỚN trên hàng tab (h�
   expect(tieuDe.textContent).toContain('Việc demo')
   // Tiêu đề đứng TRƯỚC hàng tab.
   expect(tieuDe.compareDocumentPosition(screen.getByRole('tablist')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-  expect(screen.getByRole('button', { name: 'Sửa tiêu đề' })).toBeTruthy()
+  // Tiêu đề kiểu Notion: chữ chính là ô sửa (không nút bút). Gõ + Enter → lưu.
+  expect(screen.queryByRole('button', { name: 'Sửa tiêu đề' })).toBeNull()
+  expect(screen.getByRole('textbox', { name: 'Tiêu đề việc' })).toBeTruthy()
   await userEvent.click(screen.getByRole('button', { name: 'Đánh dấu xong' }))
   await waitFor(() => expect(p.onDoi).toHaveBeenCalledOnce())
   expect(actions.doiTrangThai).toHaveBeenCalledWith(7, 'done')
@@ -110,6 +112,21 @@ test('tải xong → đầu thẻ là mã, tiêu đề LỚN trên hàng tab (h�
   expect(p.onMoViec).toHaveBeenCalledWith(8)
 })
 
+test('tiêu đề kiểu Notion: gõ thẳng vào chữ, Enter lưu; Esc trả lại chữ cũ', async () => {
+  chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
+  ve()
+  await daTai()
+  const o = screen.getByRole('textbox', { name: 'Tiêu đề việc' }) as HTMLTextAreaElement
+  expect(o.value).toBe('Việc demo')
+  await userEvent.clear(o)
+  await userEvent.type(o, 'Bỏ đi{Escape}')
+  expect(o.value).toBe('Việc demo')
+  expect(actions.suaViec).not.toHaveBeenCalled()
+  await userEvent.clear(o)
+  await userEvent.type(o, 'Việc mới đổi{Enter}')
+  await waitFor(() => expect(actions.suaViec).toHaveBeenCalledWith(7, { title: 'Việc mới đổi' }))
+})
+
 test('tab: đủ 4 tab, chuyển tab đổi nội dung; Hoạt động tô tên nhắc, Liên kết có gắn khách', async () => {
   chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
   ve()
@@ -118,26 +135,30 @@ test('tab: đủ 4 tab, chuyển tab đổi nội dung; Hoạt động tô tên 
   await moTab('Hoạt động')
   expect(screen.getByRole('tab', { name: 'Hoạt động' }).getAttribute('aria-selected')).toBe('true')
   expect(screen.getByText('@Demo Hai').tagName).toBe('STRONG')
-  expect(screen.queryByText('Trạng thái', { selector: 'dt' })).toBeNull()
+  // Thuộc tính chính nằm TRÊN hàng tab (học Notion, CEO 27/11) → vẫn hiện khi đổi tab.
+  expect(screen.getByText('Trạng thái', { selector: 'dt' })).toBeTruthy()
   await moTab('Liên kết')
   expect(screen.getByRole('button', { name: 'Gắn khách' })).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Thêm việc phải xong trước' })).toBeTruthy()
 })
 
-test('nhóm Tổng quan thu/mở được: thu "Việc" → ẩn dòng, mở lại → hiện', async () => {
+test('thuộc tính nằm giữa tiêu đề và hàng tab; nhóm Tổng quan thu/mở được: thu "Hệ thống" → ẩn dòng, mở lại → hiện', async () => {
   chiTiet.mockResolvedValue({ ok: true, duLieu: ct() })
   ve()
   await daTai()
-  const nut = screen.getByRole('button', { name: 'Việc' })
+  const thuocTinh = the().querySelector('[data-slot="xem-nhanh-thuoc-tinh"]')!
+  expect(within(thuocTinh as HTMLElement).getByText('Trạng thái', { selector: 'dt' })).toBeTruthy()
+  expect(thuocTinh.compareDocumentPosition(screen.getByRole('tablist')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  const nut = screen.getByRole('button', { name: 'Hệ thống' })
   expect(nut.getAttribute('aria-expanded')).toBe('true')
-  expect(screen.getByText('Trạng thái', { selector: 'dt' })).toBeTruthy()
-  await userEvent.click(nut)
-  expect(nut.getAttribute('aria-expanded')).toBe('false')
-  expect(screen.queryByText('Trạng thái', { selector: 'dt' })).toBeNull()
-  // Nhóm khác không bị ảnh hưởng (type="multiple").
   expect(screen.getByText('Người tạo', { selector: 'dt' })).toBeTruthy()
   await userEvent.click(nut)
-  expect(screen.getByText('Trạng thái', { selector: 'dt' })).toBeTruthy()
+  expect(nut.getAttribute('aria-expanded')).toBe('false')
+  expect(screen.queryByText('Người tạo', { selector: 'dt' })).toBeNull()
+  // Nhóm khác không bị ảnh hưởng (type="multiple").
+  expect(screen.getByRole('button', { name: 'Mô tả' }).getAttribute('aria-expanded')).toBe('true')
+  await userEvent.click(nut)
+  expect(screen.getByText('Người tạo', { selector: 'dt' })).toBeTruthy()
 })
 
 test('còn việc chặn chưa xong → cảnh báo ở Tổng quan + không đánh dấu xong được', async () => {
@@ -151,7 +172,7 @@ test('chỉ xem → không có nút sửa tiêu đề / thêm người; trườn
   chiTiet.mockResolvedValue({ ok: true, duLieu: ct(false) })
   ve()
   await daTai()
-  expect(screen.queryByRole('button', { name: 'Sửa tiêu đề' })).toBeNull()
+  expect(screen.queryByRole('textbox', { name: 'Tiêu đề việc' })).toBeNull()
   expect(screen.queryByRole('button', { name: /Thêm người/ })).toBeNull()
   expect(screen.getByText(/Chỉ xem/)).toBeTruthy()
   for (const nhan of ['Hạn', 'Làm cùng', 'Theo dõi']) {

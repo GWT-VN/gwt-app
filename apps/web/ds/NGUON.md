@@ -196,7 +196,11 @@ FilterBar/BulkActionBar theo khuôn này, README Table ("ô chọn trong bảng"
 sau, tooltip kèm phím, icon xám `muted` rê mới đậm) rồi mã; `the.tieuDe` = tiêu đề lớn 20/26 600 dưới đầu thẻ, TRÊN hàng tab;
 hàng tab đệm 12 (đệm tab toả ra ngoài → icon tab đầu thẳng mép 24); chân thẻ đệm 16, nút cỡ 32, bỏ ⋮ (mở trang lên ⤢, "Sao
 chép mã" thừa). Ô Hạn bảng (`OSuaHan`) = DateTimePicker gọn (có ô giờ, `gioMacDinh`). Tiêu đề cột: sắp MẶC ĐỊNH không hiện
-mũi tên. Khi đẩy lên artifact: README + preview XemNhanh (đầu thẻ mới, khe tiêu đề), InlineEdit (ô hạn có giờ).
+mũi tên. Tiếp 27/11 (CEO "chuyển tab xuống dưới, ở trên là thông tin các cột" · "tiêu đề… subtle như Notion"): `the.thuocTinh`
+= thuộc tính chính (≈ cột bảng) dưới tiêu đề, TRÊN hàng tab; tiêu đề + thuộc tính + tab + nội dung cuộn CHUNG một vùng, hàng
+tab dính đỉnh; tiêu đề Việc sửa thẳng trên chữ (`Textarea variant="tran"` — mới trong DS: không viền/nền/đệm, tự cao, tắt
+chính tả), bỏ nút bút. Khi đẩy lên artifact: README + preview XemNhanh (đầu thẻ mới, khe tiêu đề, khe thuộc tính), InlineEdit
+(ô hạn có giờ), Textarea (biến thể trần).
 
 **Luật — Ô tìm trong menu/pop (`CommandInput`, CEO 26/11 phê 2 lần, "lỗi rất nhiều, ghi thành rule"):** ô tìm trong
 menu, dropdown, pop lọc, "Tìm cột"… luôn TỰ FOCUS khi mở, nên MỌI chỉ báo focus của nó hiện thường trực và trông như lỗi.

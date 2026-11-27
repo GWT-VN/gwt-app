@@ -74,13 +74,10 @@ function Truong({ icon, nhan, children }: { icon: ReactNode; nhan: string; child
   )
 }
 
-function TongQuan({ t, nhanVien, luu, lanViec }: { t: DongF; nhanVien: NhanVien; luu: Luu; lanViec: number }) {
+/** Thuộc tính chính của ticket — dưới tiêu đề, TRÊN hàng tab (học Notion, CEO 27/11): Trạng thái · Phụ trách · Loại · Kỹ thuật. */
+function ThuocTinh({ t, nhanVien, luu }: { t: DongF; nhanVien: NhanVien; luu: Luu }) {
   const ic = (I: typeof User) => <I aria-hidden="true" />
   return (
-    <Accordion type="multiple" defaultValue={['ticket', 'may', 'khach', 'viec', 'he-thong']}>
-      <AccordionItem value="ticket">
-        <AccordionTrigger>Ticket</AccordionTrigger>
-        <AccordionContent>
           <PropertyList>
             <Truong icon={ic(CircleHalf)} nhan="Trạng thái">
               {/* Lưu DB thật (updateTicket) — lạc quan + Hoàn tác của InlineEdit; không quyền sửa → chỉ đọc. */}
@@ -114,8 +111,13 @@ function TongQuan({ t, nhanVien, luu, lanViec }: { t: DongF; nhanVien: NhanVien;
               {t.ky_thuat_ten}
             </Truong>
           </PropertyList>
-        </AccordionContent>
-      </AccordionItem>
+  )
+}
+
+function TongQuan({ t, lanViec }: { t: DongF; lanViec: number }) {
+  const ic = (I: typeof User) => <I aria-hidden="true" />
+  return (
+    <Accordion type="multiple" defaultValue={['may', 'khach', 'viec', 'he-thong']}>
       <AccordionItem value="may">
         <AccordionTrigger>Máy</AccordionTrigger>
         <AccordionContent>
@@ -385,6 +387,7 @@ export function theXemNhanhF({
     phu: tenKhach(t),
     // Tên khách làm tiêu đề lớn trên hàng tab (CEO 27/11, học Notion); đầu thẻ chỉ còn mã.
     tieuDe: tenKhach(t),
+    thuocTinh: <ThuocTinh key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} />,
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabXem),
@@ -393,7 +396,7 @@ export function theXemNhanhF({
           gt: 'tong',
           nhan: 'Tổng quan',
           icon: <House aria-hidden="true" />,
-          noiDung: <TongQuan key={t.ticket_code} t={t} nhanVien={nhanVien} luu={luu} lanViec={lanViec} />,
+          noiDung: <TongQuan key={t.ticket_code} t={t} lanViec={lanViec} />,
         },
         // Ticket thật: đọc DB (the-tab.tsx); ticket Demo (bộ nhớ): khối Demo bên dưới.
         { gt: 'lan', nhan: 'Lần lỗi', icon: <Wrench aria-hidden="true" />, noiDung: demo ? <LanLoi key={t.ticket_code} t={t} /> : <LanLoiThat key={t.ticket_code} t={t} /> },

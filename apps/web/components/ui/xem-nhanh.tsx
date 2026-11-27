@@ -8,15 +8,19 @@ import { Button } from './button'
 import {
   xnChan,
   xnCuon,
+  xnCuonCa,
   xnDau,
   xnHangTab,
+  xnHangTabDinh,
   xnKhung,
   xnMa,
   xnNoiDungNhuong,
   xnNoiDungNhuongCoDinh,
+  xnNoiDungTab,
   xnTabs,
   xnThan,
   xnThe,
+  xnThuocTinh,
   xnTheCoDinh,
   xnTieuDe,
 } from './data-view-styles'
@@ -84,6 +88,11 @@ export function XemNhanh({
     chan?: ReactNode
     /** Tiêu đề lớn dưới đầu thẻ, trên hàng tab (thường là tên bản ghi, có thể là ô sửa). Có `tieuDe` → đầu thẻ chỉ còn mã. */
     tieuDe?: ReactNode
+    /**
+     * Thuộc tính chính (thường = các cột của bảng) dưới tiêu đề, TRÊN hàng tab — cùng tiêu đề + tab cuộn chung một vùng,
+     * hàng tab dính khi cuộn qua (học Notion, CEO 27/11). Cần `tab`.
+     */
+    thuocTinh?: ReactNode
     /** Đường dẫn trang chi tiết đầy đủ → nút ⤢ "Mở toàn trang" ở đầu thẻ. Không có = màn chưa có trang riêng. */
     moTrang?: string
   } | null
@@ -190,12 +199,42 @@ export function XemNhanh({
               </>
             )}
           </div>
-          {the.tieuDe && (
+          {the.tieuDe && !(the.tab && the.thuocTinh) && (
             <div data-slot="xem-nhanh-tieu-de" className={xnTieuDe}>
               {the.tieuDe}
             </div>
           )}
-          {the.tab ? (
+          {the.tab && the.thuocTinh ? (
+            <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
+              <div className={xnCuonCa}>
+                {the.tieuDe && (
+                  <div data-slot="xem-nhanh-tieu-de" className={xnTieuDe}>
+                    {the.tieuDe}
+                  </div>
+                )}
+                <div data-slot="xem-nhanh-thuoc-tinh" className={xnThuocTinh}>
+                  {the.thuocTinh}
+                </div>
+                <div className={cn(xnHangTab, xnHangTabDinh)}>
+                  <TabsList variant="line" thuGon aria-label={`Thông tin ${the.ma}`}>
+                    {the.tab.ds.map((x) => (
+                      <TabsTrigger key={x.gt} value={x.gt}>
+                        {x.icon}
+                        {x.nhan}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                <div className={xnNoiDungTab}>
+                  {the.tab.ds.map((x) => (
+                    <TabsContent key={x.gt} value={x.gt}>
+                      {x.noiDung}
+                    </TabsContent>
+                  ))}
+                </div>
+              </div>
+            </Tabs>
+          ) : the.tab ? (
             <Tabs value={the.tab.value} onValueChange={the.tab.onDoi} className={xnTabs}>
               <div className={xnHangTab}>
                 <TabsList variant="line" thuGon aria-label={`Thông tin ${the.ma}`}>

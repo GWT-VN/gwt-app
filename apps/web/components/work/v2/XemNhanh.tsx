@@ -9,7 +9,7 @@
  * Nghiệp vụ giữ y bản trước (quyền `co_the_sua`, việc con, chặn/đang chặn, @nhắc tên, nhật ký). Mọi action trả `KQ`.
  */
 import { xemPhu } from '@/components/ui/detail-styles'
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
 import Link from 'next/link'
 import {
   AddressBook,
@@ -26,7 +26,6 @@ import {
   House,
   LinkSimple,
   ListChecks,
-  PencilSimple,
   Plus,
   Prohibit,
   Receipt,
@@ -126,8 +125,6 @@ const VAI_PHU = [
 const roi = (s: string) => s === 'done' || s === 'cancelled'
 
 const PHU = xemPhu
-/** Chữ tiêu đề trong ô giá trị: 14/20 medium, xuống dòng đủ. */
-const TEN = 'min-w-0 font-medium [overflow-wrap:anywhere] border-none border-current'
 /** Hàng chip trong ô PropertyList (liên kết): xuống dòng khi hẹp. */
 const HANG = 'flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-none border-current'
 const CUM = 'inline-flex min-w-0 items-center gap-0.5 border-none border-current'
@@ -278,7 +275,8 @@ export function useTheViec({
     ma: t.ref,
     phu: t.title,
     // Tiêu đề lớn trên hàng tab (CEO 27/11, học Notion) — thay dòng "Tiêu đề" trong Tổng quan.
-    tieuDe: <TieuDe lon value={t.title} sua={c.sua} onLuu={(title) => c.chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />,
+    tieuDe: <TieuDe value={t.title} sua={c.sua} onLuu={(title) => c.chay(suaViec(t.id, { title }), 'sửa tiêu đề')} />,
+    thuocTinh: <ThuocTinh key={t.id} c={c} />,
     tab: {
       value: tab,
       onDoi: (v) => onTab(v as TabViec),
@@ -309,8 +307,11 @@ function DangTai() {
   )
 }
 
-/** Tổng quan: cảnh báo đang bị chặn · nhóm Việc · Mô tả · Hệ thống (gập/mở). */
-function TongQuan({ c }: { c: Ctx }) {
+/**
+ * Thuộc tính của việc (≈ các cột bảng) — dưới tiêu đề, TRÊN hàng tab (học Notion, CEO 27/11): cảnh báo đang bị chặn ·
+ * Trạng thái · Ưu tiên · Hạn · người theo vai · Team · Việc cha. Luôn hiện, không gập.
+ */
+function ThuocTinh({ c }: { c: Ctx }) {
   const { ct, nenTang, sua, chay, luu, sau, onMoViec } = c
   const t = ct.task
   const ic = (I: typeof User) => <I aria-hidden="true" />
@@ -343,10 +344,6 @@ function TongQuan({ c }: { c: Ctx }) {
           <AlertDescription>{chanMo.map((b) => b.title).join(' · ')} — chưa đánh dấu xong được việc này.</AlertDescription>
         </Alert>
       )}
-      <Accordion type="multiple" defaultValue={['viec', 'mo-ta', 'he-thong']}>
-        <AccordionItem value="viec">
-          <AccordionTrigger>Việc</AccordionTrigger>
-          <AccordionContent>
             <PropertyList>
               <Truong icon={ic(CircleHalf)} nhan="Trạng thái">
                 <OSuaTrangThai ma={t.ref} value={{ tt: t.status }} muc={TT} onLuu={(g) => luu(doiTrangThai(t.id, g.tt))} />
@@ -450,8 +447,18 @@ function TongQuan({ c }: { c: Ctx }) {
                 </Truong>
               )}
             </PropertyList>
-          </AccordionContent>
-        </AccordionItem>
+    </div>
+  )
+}
+
+/** Tab Tổng quan: Mô tả · Hệ thống (gập/mở). Thuộc tính chính nằm trên hàng tab (`ThuocTinh`). */
+function TongQuan({ c }: { c: Ctx }) {
+  const { ct, sua, chay } = c
+  const t = ct.task
+  const ic = (I: typeof User) => <I aria-hidden="true" />
+  return (
+    <div className="border-none border-current">
+      <Accordion type="multiple" defaultValue={['mo-ta', 'he-thong']}>
         <AccordionItem value="mo-ta">
           <AccordionTrigger>Mô tả</AccordionTrigger>
           <AccordionContent>
@@ -853,74 +860,48 @@ function DongViec({ v, onMo, children }: { v: ViecNho; onMo: () => void; childre
 }
 
 /**
- * Giá trị dòng "Tiêu đề": xuống dòng đủ (không cắt — đầu thẻ chỉ hiện một dòng) + nút bút → ô nhập DS. Enter / rời ô
- * lưu, Esc huỷ, focus về nút bút.
- * Không dùng OSuaChu: ô đó cắt một dòng ≤ 280px (ô bảng), tiêu đề thẻ phải hiện trọn — xem đề xuất DS.
+ * Tiêu đề lớn của thẻ, sửa tại chỗ kiểu Notion (CEO 27/11 "làm subtle như Notion"): KHÔNG nút bút, chữ chính là ô sửa
+ * (`Textarea variant="tran"` — không viền/nền, xuống dòng đủ). Bấm vào chữ là gõ; Enter / rời ô lưu (rỗng hay không đổi
+ * thì thôi), Esc trả lại chữ cũ. Không quyền sửa → chữ thường.
  */
-function TieuDe({ value, sua, onLuu, lon }: { value: string; sua: boolean; onLuu: (v: string) => Promise<boolean>; lon?: boolean }) {
-  // `lon`: tiêu đề lớn của thẻ (cỡ chữ do khung `xnTieuDe` quyết) — không ép 500 / đệm dòng thuộc tính.
-  const chu = lon ? 'min-w-0 [overflow-wrap:anywhere] border-none border-current' : TEN
-  const [nhap, setNhap] = useState<string | null>(null)
-  const dang = useRef(false)
-  const traFocus = useRef(false)
-  const nut = useRef<HTMLButtonElement>(null)
-  useLayoutEffect(() => {
-    if (nhap === null && traFocus.current) {
-      traFocus.current = false
-      nut.current?.focus()
-    }
-  }, [nhap])
-  if (!sua) return <span className={cn(chu, !lon && 'py-1.5')}>{value}</span>
-  // Gọi một lần mỗi lượt sửa (Enter rồi ô bị gỡ có thể bắn thêm blur).
-  const ket = (luuLai: boolean, focusVe: boolean) => {
-    if (!dang.current || nhap === null) return
-    dang.current = false
-    traFocus.current = focusVe
-    const v = nhap.trim()
-    setNhap(null)
-    if (luuLai && v && v !== value) void onLuu(v)
+function TieuDe({ value, sua, onLuu }: { value: string; sua: boolean; onLuu: (v: string) => Promise<boolean> }) {
+  const [chu, setChu] = useState(value)
+  const [goc, setGoc] = useState(value)
+  // Bản ghi khác / tải lại → nạp lại chữ (không đè lúc đang gõ dở vì value chỉ đổi sau khi lưu).
+  if (value !== goc) {
+    setGoc(value)
+    setChu(value)
   }
-  if (nhap !== null)
-    return (
-      <Input
-        autoFocus
-        aria-label="Tiêu đề việc"
-        className={lon ? 'text-[20px] font-semibold' : undefined}
-        value={nhap}
-        onChange={(e) => setNhap(e.target.value)}
-        onBlur={() => ket(true, false)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            if (e.nativeEvent.isComposing || e.keyCode === 229) return
-            e.preventDefault()
-            ket(true, true)
-          } else if (e.key === 'Escape') {
-            e.preventDefault()
-            ket(false, true)
-          }
-        }}
-      />
-    )
+  if (!sua) return <span className="[overflow-wrap:anywhere]">{value}</span>
+  const luu = () => {
+    const v = chu.trim()
+    if (!v) return setChu(value)
+    if (v !== value) void onLuu(v)
+  }
   return (
-    <div className="flex w-full min-w-0 items-start gap-1 border-none border-current">
-      {/* Dòng đầu thẳng tâm nhãn (dòng 32): chữ đệm 6 trên/dưới (6 + 20/2 = 16), nút bút 28 lùi 2 (2 + 28/2 = 16). */}
-      <span className={cn(chu, 'flex-1', !lon && 'py-1.5')}>{value}</span>
-      <TooltipNhanh content={<span aria-hidden="true">Sửa tiêu đề</span>}>
-        <Button
-          ref={nut}
-          variant="ghost"
-          size="icon-sm"
-          className={lon ? undefined : 'mt-0.5'}
-          aria-label="Sửa tiêu đề"
-          onClick={() => {
-            dang.current = true
-            setNhap(value)
-          }}
-        >
-          <PencilSimple aria-hidden="true" />
-        </Button>
-      </TooltipNhanh>
-    </div>
+    <Textarea
+      variant="tran"
+      rows={1}
+      aria-label="Tiêu đề việc"
+      placeholder="Không tiêu đề"
+      // Gạch đỏ chính tả của trình duyệt dưới tiếng Việt làm rối tiêu đề — tắt.
+      spellCheck={false}
+      value={chu}
+      onChange={(e) => setChu(e.target.value.replace(/\n/g, ' '))}
+      onBlur={luu}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          if (e.nativeEvent.isComposing || e.keyCode === 229) return
+          e.preventDefault()
+          e.currentTarget.blur()
+        } else if (e.key === 'Escape') {
+          e.preventDefault()
+          // Esc của ô chữ: trả lại, rời ô — không để XemNhanh đóng thẻ (ô gõ đã nằm trong BO_QUA).
+          setChu(value)
+          requestAnimationFrame(() => (e.target as HTMLTextAreaElement).blur())
+        }
+      }}
+    />
   )
 }
 

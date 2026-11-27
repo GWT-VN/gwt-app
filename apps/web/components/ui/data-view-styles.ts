@@ -169,6 +169,17 @@ export const xnTabs = cn(kv, 'flex min-h-0 flex-1 flex-col')
 export const xnTieuDe = cn(kv, 'shrink-0 px-6 pt-4 pb-2 text-[20px] leading-[26px] font-semibold text-foreground [overflow-wrap:anywhere]')
 // Đệm 12 hai bên: đệm 12 của tab `line` TOẢ RA NGOÀI → icon/chữ tab đầu thẳng mép nội dung 24 (đo 27/11: trước ở 36).
 export const xnHangTab = cn(kv, 'shrink-0 px-3 pt-1 pb-0.5 [border-bottom:1px_solid_var(--alpha-05)]')
+/**
+ * Bố cục có `the.thuocTinh` (học Notion — CEO 27/11 "chuyển tab xuống dưới, ở trên là thông tin các cột"): MỘT vùng cuộn
+ * chứa tiêu đề → thuộc tính → hàng tab (dính đỉnh vùng cuộn khi cuộn qua) → nội dung tab. Ẩn thanh cuộn.
+ */
+export const xnCuonCa = cn(kv, 'min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]')
+/** Khối thuộc tính dưới tiêu đề: đệm 0 24, dưới 12. */
+export const xnThuocTinh = cn(kv, 'px-6 pb-3')
+/** Hàng tab dính trong vùng cuộn chung: nền thẻ che nội dung cuộn dưới nó. */
+export const xnHangTabDinh = 'sticky top-0 z-2 bg-background'
+/** Nội dung tab trong vùng cuộn chung: đệm 8 24 24 (như `xnCuon`, không tự cuộn). */
+export const xnNoiDungTab = cn(kv, 'px-6 pt-2 pb-6')
 /** Vùng cuộn dưới hàng tab: đệm 8 24 24 (+ đệm trên 12 của TabsContent = 20 như `xnThan`), ẩn thanh cuộn. */
 export const xnCuon = cn(kv, 'min-h-0 flex-1 overflow-y-auto px-6 pt-2 pb-6 [scrollbar-width:none]')
 /**
