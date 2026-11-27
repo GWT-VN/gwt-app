@@ -646,7 +646,8 @@ export function TicketF({
   const tongRong = RONG_O_CHON + c.tongRong + RONG_THEM_COT
   const [khungRef, rongKhung] = useRongKhung()
   const bang = (
-    <TableWrap>
+    // `?bang=luoi`: bản thử bảng có viền cột, bo 24 (CEO 27/11) — mặc định giữ bảng dạng dòng.
+    <TableWrap luoi={sp.get('bang') === 'luoi'}>
       <KeoCot cot={c.hien} doiCho={c.doiCho}>
         <Table ref={refBang} layout="fixed" style={{ minWidth: tongRong }}>
           {/* Cột cuối (dưới ô "+") ăn phần dư của khung. */}

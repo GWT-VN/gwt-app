@@ -43,6 +43,18 @@ export const tableWrapVien = cn(
   'md:has-[>table>thead>tr>th:first-child>input[type=checkbox]]:w-full',
 )
 
+/**
+ * Bảng LƯỚI (CEO 27/11 "làm thêm một version ở dạng table… thêm border cho trái phải và các cột. Bo góc 24px"): khung viền
+ * như `vien` nhưng bo 24 + vạch dọc giữa các cột; nhãn/đệm/chip giữ nguyên khuôn F. Bỏ kẻ trên hàng tiêu đề và kẻ dưới
+ * dòng cuối (khung đã có viền). Thử trên /ticket?bang=luoi — chờ CEO chốt.
+ */
+export const tableWrapLuoi = cn(
+  tableWrapVien,
+  'rounded-(--radius-4xl)',
+  '[&_th:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]! [&_td:not(:last-child)]:[border-right:1px_solid_var(--alpha-08)]!',
+  '[&_th]:[border-top-style:none]! [&_tbody>tr:last-child>td]:[border-bottom-style:none]!',
+)
+
 /** `.b-bang`: 100%, viền tách 0, chữ 14 (line-height kế thừa 20 của DsRoot). */
 export const table = cn(kv, 'w-full caption-bottom border-separate border-spacing-0 text-[14px]')
 /** `.b-bang-c`. */

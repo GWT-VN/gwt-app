@@ -43,10 +43,15 @@ export function useOKeo(cot?: string): { 'data-keo'?: ''; 'data-tren'?: BenTha }
 /** Đang nằm trong `TableWrap` → `Table` không bọc container riêng. */
 const TrongKhung = createContext(false)
 
-export function TableWrap({ vien, className, ...props }: ComponentProps<'div'> & { vien?: boolean }) {
+export function TableWrap({ vien, luoi, className, ...props }: ComponentProps<'div'> & { vien?: boolean; luoi?: boolean }) {
   return (
     <TrongKhung.Provider value>
-      <div data-slot="table-wrap" className={cn(s.tableWrap, vien && s.tableWrapVien, className)} {...props} />
+      <div
+        data-slot="table-wrap"
+        data-luoi={luoi ? '' : undefined}
+        className={cn(s.tableWrap, vien && s.tableWrapVien, luoi && s.tableWrapLuoi, className)}
+        {...props}
+      />
     </TrongKhung.Provider>
   )
 }
